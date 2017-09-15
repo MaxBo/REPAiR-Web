@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+      <div class="row">
+        <div class="col-md-6">
+        <h2> Text </h2>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </div>
+        {% if graph %}
+        <div class="graph col-md-6">
+        <h2> Plotly Diagram </h2>
+        {{ graph|safe }}
+        </div>
+        {% endif %}
+      </div>
+      <div class="row">
+        <h2> Map with Sankey </h2>
+        <div id="map" class="col-md-8"></div>
+      </div>
+      {% load require %}
+      {% require_module 'app' %}
+    </body>
+</html>
+{% endblock %}

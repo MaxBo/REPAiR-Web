@@ -1,0 +1,20 @@
+-e .
+
+django
+django-require
+djangorestframework
+numpy
+matplotlib
+plotly
+
+django-debug-toolbar
+
+django-dynamic-fixture
+fake-factory
+
+mock
+pytest
+pytest-cov
+pytest-django
+pytest-splinter
+pytest-xdist
