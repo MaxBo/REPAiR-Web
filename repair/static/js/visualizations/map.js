@@ -5,6 +5,12 @@ define([
 ], function(d3, spatialsankey)
 {
   var Map = function(options){
+    
+    this.nodes = options.nodes;
+    this.links = options.links;
+    this.handler = options.nodeHandler;
+    var _this = this;
+    
     // Set leaflet map
     var map = new L.map(options.divid, {
               center: new L.LatLng(50,15),
@@ -25,12 +31,9 @@ define([
         linklayer = svg.append("g"),
         nodelayer = svg.append("g");
     
-    var n = options.nodes;
-    var l = options.links;
-    
     // Load data asynchronosuly
-    d3.json(n, function(nodes) {
-      d3.csv(l, function(links) {
+    d3.json(_this.nodes, function(nodes) {
+      d3.csv(_this.links, function(links) {
       
         // Setup spatialsankey object
         var sankey = d3.spatialsankey()
@@ -42,6 +45,9 @@ define([
           var nodelinks = sankey.links().filter(function(link){
             return link.source == d.id;
           });
+          
+          console.log(_this);
+          _this.handler.changeActive(d.id);
     
           // Add data to link layer
           var beziers = linklayer.selectAll("path").data(nodelinks);

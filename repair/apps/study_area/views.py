@@ -18,7 +18,7 @@ class Testgraph1(TemplateView):
                          mode="lines",  name='1st Trace')
 
         data=Data([trace1])
-        layout=Layout(title="some diagram", xaxis={'title':'x1'}, yaxis={'title':'x2'})
+        layout=Layout(title="Plotly graph", xaxis={'title':'x1'}, yaxis={'title':'x2'}, height=350)
         figure=Figure(data=data,layout=layout)
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 
@@ -29,9 +29,11 @@ class Testgraph2(TemplateView):
     def get_context_data(self, **kwargs):
         x = np.random.randn(2000)
         y = np.random.randn(2000)
-        div = plot([Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
-                    Scatter(x=x, y=y, mode='markers', marker=Marker(color='white', size=3, opacity=0.3))],
-                   show_link=False, output_type='div') 
+        layout=Layout(title="Plotly Histogram", height=350)
+        figure=Figure(data=[Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
+                       Scatter(x=x, y=y, mode='markers', marker=Marker(color='white', size=3, opacity=0.3))],
+                      layout=layout)
+        div = plot(figure, show_link=False, output_type='div') 
         return div
     
 
