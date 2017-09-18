@@ -1,3 +1,7 @@
 *.pyc
 *.egg-info
 
+*.wpr
+*.wpu
+
+db.sqlite3
