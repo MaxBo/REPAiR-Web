@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 from plotly.offline import plot
 from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
+from django.utils.translation import ugettext as _
+
 import numpy as np
 
 class Testgraph1(TemplateView):
@@ -18,24 +20,24 @@ class Testgraph1(TemplateView):
                          mode="lines",  name='1st Trace')
 
         data=Data([trace1])
-        layout=Layout(title="Plotly graph", xaxis={'title':'x1'}, yaxis={'title':'x2'}, height=350)
+        layout=Layout(title=_("Plotly graph"), xaxis={'title':'x1'}, yaxis={'title':'x2'}, height=350)
         figure=Figure(data=data,layout=layout)
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 
         return div
 
 class Testgraph2(TemplateView):
-    
+
     def get_context_data(self, **kwargs):
         x = np.random.randn(2000)
         y = np.random.randn(2000)
-        layout=Layout(title="Plotly Histogram", height=350)
+        layout=Layout(title=_("Plotly Histogram"), height=350)
         figure=Figure(data=[Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
                        Scatter(x=x, y=y, mode='markers', marker=Marker(color='white', size=3, opacity=0.3))],
                       layout=layout)
-        div = plot(figure, show_link=False, output_type='div') 
+        div = plot(figure, show_link=False, output_type='div')
         return div
-    
+
 
 def index(request):
     template = loader.get_template('study_area/index.html')
@@ -43,4 +45,4 @@ def index(request):
     context['graph1'] = Testgraph1().get_context_data()
     context['graph2'] = Testgraph2().get_context_data()
     html = template.render(context, request)
-    return HttpResponse(html)    
+    return HttpResponse(html)
