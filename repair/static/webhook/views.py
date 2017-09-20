@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerE
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import force_bytes
 
-git_dir = r'F:\Projekte SH\REPAiR-Web'
+git_dir = r'/home/stefaan/repairdata/Dev/repairweb'
 
 @csrf_exempt
 def hello(request):
