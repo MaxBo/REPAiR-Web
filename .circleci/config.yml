@@ -22,6 +22,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            python -c "import sys; print('\n'.join(sys.path))"
             sudo pip install -r requirements-dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
@@ -29,7 +30,7 @@ jobs:
             - "venv"
       - run:
           command: |
-            source activate venv
+            . venv/bin/activate
             python manage.py test
       - store_artifacts:
           path: test-reports/
