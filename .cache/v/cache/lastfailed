@@ -1,0 +1,4 @@
+{
+  "repair/tests/test_project.py": true,
+  "repair/tests/test_project.py::test_dummy": true
+}
