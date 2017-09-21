@@ -1,11 +1,9 @@
-import hmac
-#import git
-from hashlib import sha1
-
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.encoding import force_bytes
+
+#import git
+import requests
+from ipaddress import ip_address, ip_network
 
 git_dir = r'/home/stefaan/repairdata/Dev/repairweb'
 # for testing only:
