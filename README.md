@@ -1,3 +1,3 @@
 # REPAiR-Web
-[![Build Status](http://circleci-badges-max.herokuapp.com/img/Stefaanhess/REPAiR-Web?token=)](https://circleci.com/gh/Stefaanhess/REPAiR-Web)
+[![CircleCI](https://circleci.com/gh/Stefaanhess/REPAiR-Web/tree/master.svg?style=svg)](https://circleci.com/gh/Stefaanhess/REPAiR-Web/tree/master)
 frontend and backend for GDSE-REPAiR workshops
