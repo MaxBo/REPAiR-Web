@@ -35,8 +35,8 @@ def index(request):
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^$', index, name='index'),
-    url(r'^study-area/', include('repair.static.webhook.urls')),
+    url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^payload/', include('repair.apps.study_area.urls')),
+    url(r'^payload/', include('repair.static.webhook.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
