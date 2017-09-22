@@ -7,7 +7,7 @@ from ipaddress import ip_address, ip_network
 
 git_dir = r'/home/stefaan/repairdata/Dev/repairweb'
 # for testing only:
-file = r'F:\Projekte SH\REPAiR-Web-forked/webhook_test.txt'
+file = r'/home/stefaan/repairdata/Dev/repairweb/webhook_test.txt'
 
 @csrf_exempt
 def payload(request):

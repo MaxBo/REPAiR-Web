@@ -18,4 +18,3 @@ pytest-cov
 pytest-django
 pytest-splinter
 pytest-xdist
-codecov
