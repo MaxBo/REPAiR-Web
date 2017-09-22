@@ -20,9 +20,9 @@ jobs:
           command: |
             sudo pip install -r requirements-dev.txt
       - run:
+          name: run py.test
           command: |
-            pip list
-            python manage.py test
+            py.test
       - store_artifacts:
           path: test-reports/
           destination: tr1
