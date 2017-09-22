@@ -22,7 +22,7 @@ jobs:
       - run:
           name: run py.test
           command: |
-            manage.py test
+            python manage.py test
       - store_artifacts:
           path: test-reports/
           destination: tr1
