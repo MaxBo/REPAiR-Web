@@ -62,7 +62,7 @@ SECRET_KEY = '$f#=dn^_6xu1e7py@$(8_8yu2(%*a&b@6uxr*_zyi3c*%5@u1^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['c821a34c.ngrok.io', 'geodesignhub.h2020repair.bk.tudelft.nl', "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ['78b9abba.ngrok.io', 'geodesignhub.h2020repair.bk.tudelft.nl', "localhost", "127.0.0.1"]
 
 # Application definition
 
