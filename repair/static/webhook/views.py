@@ -24,7 +24,7 @@ def payload(request):
         return HttpResponseForbidden('Permission denied.')
     # Process the GitHub events
     event = request.META.get('HTTP_X_GITHUB_EVENT', 'ping')
-
+    print(event)
     if event == 'ping':
         return HttpResponse('pong')
     elif event == 'push':
