@@ -5,7 +5,7 @@ import git
 import requests
 from ipaddress import ip_address, ip_network
 
-git_dir = r'/home/stefaan/repairdata/Dev/repairweb'
+git_dir = r'F:\Projekte SH\REPAiR-Web'
 # for testing only:
 file = r'F:\Projekte SH\REPAiR-Web-forked/webhook_test.txt'
 
