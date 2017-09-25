@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 
-#import git
+import git
 import requests
 from ipaddress import ip_address, ip_network
 
@@ -29,11 +29,11 @@ def payload(request):
         return HttpResponse('pong')
     elif event == 'push':
         # ToDo: Max needs to install gitpython
-        #g = git.cmd.Git(git_dir)
-        #g.pull()
-        f = open(file, 'w')
-        f.write('got payload')
-        f.close()
+        g = git.cmd.Git(git_dir)
+        g.pull()
+        #f = open(file, 'w')
+        #f.write('got payload')
+        #f.close()
         return HttpResponse('success')
 
     # In case we receive an event that's neither a ping or push
