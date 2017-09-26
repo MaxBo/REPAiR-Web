@@ -31,4 +31,5 @@ jobs:
       - run:
           name: codecov
           command: |
+            coverage run manage.py test
             codecov
