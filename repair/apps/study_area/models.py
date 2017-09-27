@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Nodes(models.Model):
-    node_id = models.IntegerField(primary_key=True)
+    #node_id = models.IntegerField(primary_key=True)
     location = models.CharField(max_length=255)
     x_coord = models.FloatField()
     y_coord = models.FloatField()

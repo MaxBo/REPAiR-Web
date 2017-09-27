@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-18 15:56+0200\n"
+"POT-Creation-Date: 2017-09-27 17:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\apps\study_area\views.py:23
+#: .\repair\apps\study_area\views.py:27
 msgid "Plotly graph"
 msgstr ""
 
-#: .\apps\study_area\views.py:34
+#: .\repair\apps\study_area\views.py:38
 msgid "Plotly Histogram"
 msgstr ""
 
-#: .\templates\study_area\index.html:7
+#: .\repair\templates\study_area\index.html:7
 msgid "Text"
 msgstr ""
 
-#: .\templates\study_area\index.html:8
+#: .\repair\templates\study_area\index.html:8
 msgid ""
 "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy "
 "eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam "
@@ -42,10 +42,10 @@ msgid ""
 "clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
 msgstr ""
 
-#: .\templates\study_area\index.html:22
+#: .\repair\templates\study_area\index.html:22
 msgid "Map with Sankey"
 msgstr ""
 
-#: .\templates\study_area\index.html:24
+#: .\repair\templates\study_area\index.html:24
 msgid "Interaction Test"
 msgstr ""

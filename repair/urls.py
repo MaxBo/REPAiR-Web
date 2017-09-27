@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
+from repair.apps.study_area.views import LinksViewSet, NodesViewSet
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
@@ -24,6 +25,9 @@ from django.conf.urls.static import static
 router = routers.DefaultRouter()
 router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
+router.register(r'links', LinksViewSet)
+router.register(r'nodes', NodesViewSet)
+
 
 def index(request):
     template = loader.get_template('index.html')
