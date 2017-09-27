@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 
+import os
 import git
 import requests
 from ipaddress import ip_address, ip_network
@@ -48,4 +49,4 @@ def compile_translations():
                           "repair.settings")
 
     from django.core.management import execute_from_command_line
-    execute_from_command_line(['compilemessages'])
+    execute_from_command_line(['', 'compilemessages'])
