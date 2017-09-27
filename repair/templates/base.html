@@ -14,20 +14,37 @@
 
 <body>
   <div id="wrapper" class="active">
-      
+
     <div id="sidebar-wrapper">
       {% block sidebar %}
       <ul id="sidebar_menu" class="sidebar-nav">
-           <li class="sidebar-brand"><a id="menu-toggle" href="#" onclick="toggleActive('wrapper')">RePAir<span id="main_icon" class="glyphicon glyphicon-list"></span></a></li>
+           <li class="sidebar-brand"><a id="menu-toggle" href="#" onclick="toggleActive('wrapper')">REPAiR<span id="main_icon" class="glyphicon glyphicon-list"></span></a></li>
       </ul>
-        <ul class="sidebar-nav" id="sidebar">
-          <li><a href="/">Home<span class="sub_icon glyphicon glyphicon-home"></span></a></li>
-          <li><a href="/study-area">Study Area<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
-          <li><a href="/">Something else<span class="sub_icon glyphicon glyphicon-leaf"></span></a></li>
-        </ul>
+      <ul class="sidebar-nav" id="sidebar">
+        <li><a href="/">Home<span class="sub_icon glyphicon glyphicon-home"></span></a></li>
+        <li><a href="/study-area">Study Area<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
+        <li><a href="/">Something else<span class="sub_icon glyphicon glyphicon-leaf"></span></a></li>
+
+
+        {% load i18n %}
+
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ redirect_to }}" />
+            <select name="language">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang in LANGUAGES %}
+                    <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                        {{ lang.1 }} ({{ lang.0 }})
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Go" />
+        </form>
+      </ul>
       {% endblock %}
     </div>
-        
     <!-- Page content -->
     <div id="page-content-wrapper">
       <!-- Keep all page content within the page-content inset div! -->
@@ -40,7 +57,7 @@
         </div>
       </div>
     </div>
-    
+
   </div>
 
 </body>
