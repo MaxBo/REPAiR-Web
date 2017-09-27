@@ -90,8 +90,8 @@ Javascript Modularisation
 Continuous Development / Testing
 ================================
 
--   **Workflow:**
-
+Workflow
+--------
 >   **Don’t push directly into the master branch!**
 
 1.  Checkout to new branch.
@@ -120,8 +120,8 @@ Continuous Development / Testing
 
 Have a look at Workflow.pdf for further information.
 
--   Automatic server updates via Webhook
-
+Automatic server updates via Webhook
+------------------------------------
     -   We use a Github-webhook to keep our website up-to-date. That means:
         Changes (push and pull requests) to the master-branch trigger a
         webhook-event, that is sent from github to
@@ -129,8 +129,8 @@ Have a look at Workflow.pdf for further information.
         calls a function that automatically pulls the current master branch, so
         that our website is always up-to-date with the remote master branch.
 
--   Continuous Integration with CircleCi
-
+Continuous Integration with CircleCi
+------------------------------------
     -   We use Continuous Integration to test the code before it is merged to
         our master branch. This helps to detect errors before our website is
         updated with new code. Every time someone pushes new commits to any
@@ -146,8 +146,8 @@ Have a look at Workflow.pdf for further information.
         can merge the new code from your branch to the master branch. For more
         information look at the Workflow section.
 
--   Testing
-
+Testing
+-------
     -   Django tests are directly written into the apps directory. For example:
         The tests for the study_area section are written into
         *../repair/apps/study_area/tests.py*.
@@ -170,11 +170,11 @@ Have a look at Workflow.pdf for further information.
 
     -   and type “*manage.py test”*
 
-1.  Internationalization
-
-    1.  Label Strings:
-
--   **When you edit any code: Please label all strings that need to be
+Internationalization
+====================
+**1.  Label Strings**
+---------------------
+    **When you edit any code: Please label all strings that need to be
     translated later on!**
 
 -   In html-files:
@@ -189,8 +189,8 @@ Have a look at Workflow.pdf for further information.
 
     -   Label: *\_("MyString")*
 
-    1.  Create .po file:
-
+**2.  Create .po file**
+-----------------------
 -   All labelled strings are detected automatically and collected in a .po-file.
     This file is used for translations.
 
@@ -199,8 +199,8 @@ Have a look at Workflow.pdf for further information.
 -   Type "*django-admin.py makemessages -l de*" (This creates the .po-file for
     german language)
 
-    1.  Translate .po-file (example):
-
+**3.  Translate .po-file (example)**
+------------------------------------
 -   Before:
 
 >   *\#: templates/base.html:5*
