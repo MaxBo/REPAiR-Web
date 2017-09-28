@@ -5,6 +5,10 @@ from plotly.offline import plot
 from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
 from django.utils.translation import ugettext as _
+from rest_framework import viewsets
+from repair.apps.study_area.serializers import LinksSerializer, NodesSerializer
+from repair.apps.study_area.models import Links, Nodes
+
 
 import numpy as np
 
@@ -37,6 +41,20 @@ class Testgraph2(TemplateView):
                       layout=layout)
         div = plot(figure, show_link=False, output_type='div')
         return div
+
+class LinksViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Links.objects.all()
+    serializer_class = LinksSerializer
+
+class NodesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Nodes.objects.all()
+    serializer_class = NodesSerializer
 
 
 def index(request):
