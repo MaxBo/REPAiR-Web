@@ -85,8 +85,8 @@ website is then accessible in browser via *localhost:\<port-number\>*
 
 ## 4. Continuous Development / Testing
 
-Workflow
---------
+### Workflow
+
 >   **Don’t push directly into the master branch!**
 
 1.  Checkout to new branch.
@@ -115,8 +115,8 @@ Workflow
 
 Have a look at Workflow.pdf for further information.
 
-Automatic server updates via Webhook
-------------------------------------
+### Automatic server updates via Webhook
+
     -   We use a Github-webhook to keep our website up-to-date. That means:
         Changes (push and pull requests) to the master-branch trigger a
         webhook-event, that is sent from github to
@@ -124,8 +124,8 @@ Automatic server updates via Webhook
         calls a function that automatically pulls the current master branch, so
         that our website is always up-to-date with the remote master branch.
 
-Continuous Integration with CircleCi
-------------------------------------
+### Continuous Integration with CircleCi
+
     -   We use Continuous Integration to test the code before it is merged to
         our master branch. This helps to detect errors before our website is
         updated with new code. Every time someone pushes new commits to any
@@ -141,8 +141,8 @@ Continuous Integration with CircleCi
         can merge the new code from your branch to the master branch. For more
         information look at the Workflow section.
 
-Testing
--------
+### Testing
+
     -   Django tests are directly written into the apps directory. For example:
         The tests for the study_area section are written into
         *../repair/apps/study_area/tests.py*.
@@ -167,8 +167,8 @@ Testing
     
 ## 5. Internationalization
 
-**1.  Label Strings**
----------------------
+### **a.  Label Strings**
+
     **When you edit any code: Please label all strings that need to be
     translated later on!**
 
@@ -184,8 +184,8 @@ Testing
 
     -   Label: *\_("MyString")*
 
-**2.  Create .po file**
------------------------
+### **b.  Create .po file**
+
 -   All labelled strings are detected automatically and collected in a .po-file.
     This file is used for translations.
 
@@ -194,8 +194,8 @@ Testing
 -   Type "*django-admin.py makemessages -l de*" (This creates the .po-file for
     german language)
 
-**3.  Translate .po-file (example)**
-------------------------------------
+### **c.  Translate .po-file (example)**
+
 -   Before:
 
 >   *\#: templates/base.html:5*
