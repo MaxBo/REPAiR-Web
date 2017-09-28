@@ -1,0 +1,3 @@
+/*! Copyright {copyright_holder} {copyright_year} - v{version} ({timestamp})
+ *  {license_url}
+*/
