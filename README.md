@@ -5,8 +5,7 @@
 REPAiR Programmer’s Guide
 =========================
 
-1. Setting Up Django 
---------------------
+## 1. Setting Up Django 
 
 -   Pull project from <https://github.com/MaxBo/REPAiR-Web>
 
@@ -27,8 +26,7 @@ REPAiR Programmer’s Guide
 
 website is then accessible in browser via *localhost:\<port-number\>*
 
-2. Package/Folder Structure
----------------------------
+## 2. Package/Folder Structure
 
 **Packages**
 
@@ -62,8 +60,7 @@ website is then accessible in browser via *localhost:\<port-number\>*
 | /repair/static/img                      | images                                                                                                                                           |
 | /repair/static/js                       | javascript libraries and scripts (see 3.)                                                                                                        |
 
-3. Javascript Modularisation
-----------------------------
+## 3. Javascript Modularisation
 
 -   the modularization is achieved by using django-require (post-processor for
     optimizing with RequireJS)
@@ -88,8 +85,7 @@ website is then accessible in browser via *localhost:\<port-number\>*
     already done) and contains the functionality what to do on certain events in
     the DOM
 
-4. Continuous Development / Testing
-------------------------------------
+## 4. Continuous Development / Testing
 
 -   **Workflow:**
 
@@ -171,8 +167,7 @@ Have a look at Workflow.pdf for further information.
 
     -   and type “*manage.py test”*
 
-5.  Internationalization
-------------------------
+## 5. Internationalization
 
     1.  Label Strings:
 
