@@ -1,11 +1,9 @@
-# REPAiR-Web
 [![CircleCI](https://circleci.com/gh/MaxBo/REPAiR-Web/tree/master.svg?style=shield&circle)](https://circleci.com/gh/MaxBo/REPAiR-Web/tree/master)
 [![codecov](https://codecov.io/gh/MaxBo/REPAiR-Web/branch/master/graph/badge.svg)](https://codecov.io/gh/MaxBo/REPAiR-Web)
 
-REPAiR Programmer’s Guide
+# REPAiR-Web Programmer’s Guide
 
- Setting Up Django 
-===================
+## 1. Setting Up Django 
 
 -   Pull project from <https://github.com/MaxBo/REPAiR-Web>
 
@@ -26,8 +24,7 @@ REPAiR Programmer’s Guide
 
 website is then accessible in browser via *localhost:\<port-number\>*
 
-Package/Folder Structure
-========================
+## 2. Package/Folder Structure
 
 **Packages**
 
@@ -61,8 +58,7 @@ Package/Folder Structure
 | /repair/static/img                      | images                                                                                                                                           |
 | /repair/static/js                       | javascript libraries and scripts (see 3.)                                                                                                        |
 
-Javascript Modularisation
-=========================
+## 3. Javascript Modularisation
 
 -   the modularization is achieved by using django-require (post-processor for
     optimizing with RequireJS)
@@ -87,8 +83,7 @@ Javascript Modularisation
     already done) and contains the functionality what to do on certain events in
     the DOM
 
-Continuous Development / Testing
-================================
+## 4. Continuous Development / Testing
 
 Workflow
 --------
@@ -169,9 +164,9 @@ Testing
     -   cd to your directory
 
     -   and type “*manage.py test”*
+    
+## 5. Internationalization
 
-Internationalization
-====================
 **1.  Label Strings**
 ---------------------
     **When you edit any code: Please label all strings that need to be
