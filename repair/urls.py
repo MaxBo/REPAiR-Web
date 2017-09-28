@@ -35,6 +35,7 @@ def index(request):
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^$', index, name='index'),
+    url(r'^i18n/', include('django.conf.urls.i18n')), 
     url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

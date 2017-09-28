@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 
+import os
 import git
 import requests
 from ipaddress import ip_address, ip_network
@@ -31,6 +32,9 @@ def payload(request):
         # ToDo: Max needs to install gitpython
         g = git.cmd.Git(git_dir)
         g.pull()
+
+        compile_translations()
+
         #f = open(file, 'w')
         #f.write('got payload')
         #f.close()
@@ -38,3 +42,11 @@ def payload(request):
 
     # In case we receive an event that's neither a ping or push
     return HttpResponse(status=204)
+
+def compile_translations():
+    """Compile the translations"""
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE",
+                          "repair.settings")
+
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(['', 'compilemessages'])
