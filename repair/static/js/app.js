@@ -12,4 +12,4 @@ requirejs.config({
     }
 });
 
-requirejs(['app/main']);
+requirejs(['app/study-sankey']);
