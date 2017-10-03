@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+      <div class="row row-padding-top">
+        <div class="col-md-2">
+          <div class="row">
+            {% trans "<b>All indicators</b>" %}
+          </div>
+          <div class="row box">
+            <div class="radio">
+              <label><input type="radio" name="indicator" value="Endpoint" checked>{% trans "By endpoint" %}</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="indicator" value="Midpoint">{% trans "By midpoint" %}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div id="map" class="col-md-16"></div>
+        </div>
+      </div>
+      <div class="row row-padding-top row-padding-bottom">
+        <div class="col-md-2">
+        {% trans "<b>Selected indicator</b>" %}
+        </div>
+        <div class="col-md-6">
+        <div id="flowmap" class="col-md-16"></div>
+        </div>
+      </div>
+      {% load require %}
+      {% require_module 'app' %}
+    </body>
+</html>
+{% endblock %}

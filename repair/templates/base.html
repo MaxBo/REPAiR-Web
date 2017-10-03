@@ -2,9 +2,9 @@
 <html lang="en">
 {% load staticfiles %}
 <head>
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.slim.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/popper.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
@@ -17,15 +17,40 @@
 
     <div id="sidebar-wrapper">
       {% block sidebar %}
-      <ul id="sidebar_menu" class="sidebar-nav">
+      <ul class="sidebar-nav" id="sidebar_menu">
            <li class="sidebar-brand"><a id="menu-toggle" href="#" onclick="toggleActive('wrapper')">REPAiR<span id="main_icon" class="glyphicon glyphicon-list"></span></a></li>
       </ul>
       <ul class="sidebar-nav" id="sidebar">
-        <li><a href="/">Home<span class="sub_icon glyphicon glyphicon-home"></span></a></li>
-        <li><a href="/study-area">Study Area<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
-        <li><a href="/">Something else<span class="sub_icon glyphicon glyphicon-leaf"></span></a></li>
-
-
+        <li><h4>Study Area</h4>
+          <ul class="sidebar-nav collapse" id="sub1">
+            <li><a href="/study-area/">Base data<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
+            <li><a href="/">Stakeholders<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
+          </ul>
+        </li>
+        <li><h4>Status Quo</h4>
+          <ul class="sidebar-nav collapse" id="sub1">
+          <li><a href="/flows/">Flows<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
+          <li><a href="/sq-evaluation/">Evaluation<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
+          </ul>
+        </li>             
+        <li><h4>Changes</h4>
+          <ul class="sidebar-nav collapse" id="sub1">
+          <li><a href="/">Solutions<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          <li><a href="/">Implementations<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          <li><a href="/">Strategies<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          </ul>
+        </li>
+        <li><h4>Impacts</h4>
+          <ul class="sidebar-nav collapse" id="sub1">
+          <li><a href="/">Flows<span class="sub_icon glyphicon glyphicon-tree-deciduous"></span></a></li>
+          <li><a href="/">Evaluation<span class="sub_icon glyphicon glyphicon-tree-deciduous"></span></a></li>
+          </ul>
+        </li>
+        <li><h4>Decisions</h4>
+          <ul class="sidebar-nav collapse" id="sub1">
+          <li><a href="/">Decisions<span class="sub_icon glyphicon glyphicon-transfer"></span></a></li>
+          </ul>
+        </li>
         {% load i18n %}
 
         <form action="{% url 'set_language' %}" method="post">

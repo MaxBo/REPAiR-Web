@@ -1,7 +1,8 @@
 define([
   'd3',
-  'map'
-], function(d3, MapView)
+  'map',
+  'flowmap',
+], function(d3, MapView, FlowMapView)
 {
 
   NodeHandler = function(){
@@ -33,5 +34,11 @@ define([
         nodes: '/static/data/nodes.geojson', 
         links: '/static/data/links.csv',
         nodeHandler: handler
+    });
+
+  var flowmap = new FlowMapView({
+        divid: 'flowmap', 
+        nodes: '/static/data/nodes.geojson', 
+        links: '/static/data/links.csv'
     });
 });

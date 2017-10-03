@@ -4,9 +4,13 @@ body {
   height: 100%;
   margin: 0px;
   font-family: sans-serif;
+  background-color: #c9c9c9;
 }
 #map {
-  height: 500px
+  height: 500px;
+}
+#flowmap {
+  height: 400px;
 }
 path {
   fill: none;
@@ -19,10 +23,16 @@ path:hover {
   stroke-opacity: 0.8;
   stroke: #315B7E;
 }
+.row-padding-top {
+  padding-top: 10px;
+}
+.row-padding-bottom {
+  padding-bottom: 10px;
+}
 .curvesettings {
   position: absolute;
   right: 10px;
-  top:6px;
+  top: 6px;
 }
 .box {
   border: 1px solid #EEE;
@@ -42,4 +52,11 @@ path:hover {
   left: 50px;
 }
 .graph {
+}
+.selectpicker {
+  height: 30px;
+  border: 2px solid #EEE;
+  border-radius: 5px;
+  background-color: #606060;
+  color: #fff;
 }

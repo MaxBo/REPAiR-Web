@@ -45,7 +45,7 @@
   width: 100%;
 }
 
-#sidebar_menu li a, .sidebar-nav li a {
+#sidebar_menu li a {
     color: #999;
     display: block;
     float: left;
@@ -59,23 +59,27 @@
     -o-transition: background .5s;
     -ms-transition: background .5s;
     transition: background .5s;
-    font-size: 1.2em;
-}
-.sidebar_name {
-    padding-top: 25px;
-    color: #fff;
-    opacity: .7;
 }
 
 .sidebar-nav li {
   line-height: 60px;
-  text-indent: 20px;
+  text-indent: 30px;
+  color: #999999;
+}
+
+.sidebar-nav li h4 {
+  line-height: 20px;
+  text-indent: 10px;
+  color: #fff;
 }
 
 .sidebar-nav li a {
   color: #999999;
   display: block;
   text-decoration: none;
+  font-size: 1.2em;
+    border-top: 1px solid #373737;
+    border-bottom: 1px solid #1A1A1A;
 }
 
 .sidebar-nav li a:hover {
@@ -115,7 +119,7 @@
 {
    float:right;
    padding-right: 15px;
-   padding-top:10px;
+   padding-top: 10px;
    font-size: 2em;
 }
 .content-header {
@@ -145,5 +149,4 @@
     left: 250px;
     width: 250px;
     transition: all .4s ease 0s;
-}
 }
