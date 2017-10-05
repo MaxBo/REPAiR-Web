@@ -1,14 +1,9 @@
 define([
-  'd3',
-  'spatialsankey',
   'leaflet'
-], function(d3, spatialsankey)
+], function()
 {
   var Map = function(options){
     
-    this.nodes = options.nodes;
-    this.links = options.links;
-    this.handler = options.nodeHandler;
     var _this = this;
     
     // Set leaflet map

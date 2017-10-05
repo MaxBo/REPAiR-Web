@@ -4,6 +4,7 @@ requirejs.config({
         almond: 'libs/almond',
         map: 'visualizations/map',
         flowmap: 'visualizations/flowmap',
+        mapviewer: 'visualizations/mapviewer',
         d3: 'libs/d3.v3.min',
         leaflet: 'libs/leaflet',
         spatialsankey: 'libs/spatialsankey'

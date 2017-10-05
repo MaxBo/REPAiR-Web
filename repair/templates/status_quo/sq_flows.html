@@ -18,17 +18,13 @@
         <div class="col-md-2">
           {% trans "Material and waste flows <br> by <b>space</b>" %}
         </div>
-        <div class="col-md-6">
-          <div id="map" class="col-md-16"></div>
-        </div>
+        <div id="mapviewer" class="col-md-6"></div>
       </div>
       <div class="row row-padding-top row-padding-bottom">
         <div class="col-md-2">
-        {% trans "Material and waste flows <br> by <b>activity</b>" %}
+          {% trans "Material and waste flows <br> by <b>activity</b>" %}
         </div>
-        <div class="col-md-6">
-        <div id="flowmap" class="col-md-16"></div>
-        </div>
+        <div id="flows" class="col-md-6 box" style='height: 400px'>Diagram with flows</div>
       </div>
       {% load require %}
       {% require_module 'app' %}
