@@ -1,9 +1,10 @@
 define([
   'd3',
-  'map'
-], function(d3, MapView)
+  'map',
+  'flowmap',
+  'mapviewer',
+], function(d3, MapView, FlowMapView, MapViewer)
 {
-
   NodeHandler = function(){
     this.id = 0;
     var callbacks = [];
@@ -27,11 +28,30 @@ define([
   }
   
   handler.add(callbackTest);
-
+  
   var map = new MapView({
-        divid: 'map', 
-        nodes: '/static/data/nodes.geojson', 
-        links: '/static/data/links.csv',
-        nodeHandler: handler
-    });
+    divid: 'map', 
+    nodes: '/static/data/nodes.geojson', 
+    links: '/static/data/links.csv',
+    nodeHandler: handler
+  });
+  
+  var evaluationmap = new MapViewer({
+    divid: 'evaluationmap', 
+    baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+          subdomains: ['','a.','b.','c.','d.'],
+          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+        })},
+    overlayLayers: {}
+  });
+  
+  var bluemarble = L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+    layers: 'nasa:bluemarble'
+  });
+  
+  var mapviewer = new MapViewer({
+    divid: 'mapviewer',
+    baseLayers: {"BlueMarble": bluemarble},
+    overlayLayers: {}
+  });
 });
