@@ -54,6 +54,19 @@ class Solution(models.Model):
     one_unit_equals = models.TextField()
 
 
+class SolutionQuantity(models.Model):
+    solution = models.ForeignKey(Solution)
+    unit = models.ForeignKey(Unit)
+    name = models.TextField()
+
+
+class SolutionRatioOneUnit(models.Model):
+    solution = models.ForeignKey(Solution)
+    name = models.TextField()
+    value = models.FloatField()
+    unit = models.ForeignKey(Unit)
+
+
 class Implementation(models.Model):
     case_study_id = models.ForeignKey(CaseStudy)
     user_id = models.ForeignKey(UserAP34)
@@ -74,7 +87,7 @@ class SolutionInImplementationNotes(models.Model):
 class SolutionInImplementationQuantities(models.Model):
     solution = models.ForeignKey(Solution)
     implementation = models.ForeignKey(Implementation)
-    key = models.TextField()
+    quantity = models.ForeignKey(SolutionQuantity, default=1)
     value = models.FloatField()
 
 
