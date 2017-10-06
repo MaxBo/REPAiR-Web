@@ -7,6 +7,11 @@ body {
   color: #000;
   background-color: #ccc;
 }
+
+#content {
+  padding-top: 95px;
+}
+
 #map {
   height: 500px;
 }

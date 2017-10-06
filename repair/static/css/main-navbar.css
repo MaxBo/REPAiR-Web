@@ -1,0 +1,98 @@
+.navbar {
+    position: fixed;
+    width: 100%;
+    z-index: 2;
+    background-color: #ffffff;
+    border-radius: 0px;
+    border: 0px;
+    border-bottom: 2px solid #e6e6e6;
+}
+
+.navbar-brand { 
+    position: relative; 
+    width: 300px;
+    font-size: 2em;
+    height: 75px;
+    line-height: 45px;
+    padding-left: 0px;
+    z-index: 5;
+    padding-top: 0px;
+    margin-right: 10px;
+}
+
+.navbar-brand >img { 
+    /*width: 230px;*/
+}
+
+#language-select{
+    float: right;
+}
+
+.navbar > .container {
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.navbar-main > li{ 
+    z-index: 10;
+    background-size:cover;
+    padding-left: 40px;
+}
+
+.navbar-main > li > a { 
+    color: #ffffff !IMPORTANT;
+    font-size: 1.5em;
+    text-align: center;
+    height: 75px;
+    line-height: 45px;
+}
+
+.navbar-main > li:last-child { padding-left: 22px; }
+
+.navbar .navbar-collapse { 
+    position: relative; 
+    width: 100%;
+}
+
+.navbar .nav-collapse { position: absolute; z-index: 1; top: 0; left: 0; right: 0; bottom: 0; margin: 0; padding-right: 120px; padding-left: 80px; width: 100%; }
+.navbar.navbar-default .nav-collapse { background-color: #f8f8f8; }
+.navbar .nav-collapse .navbar-form { border-width: 0; box-shadow: none; }
+.nav-collapse>li { float: right; }
+
+.btn.btn-circle { border-radius: 50px; }
+.btn.btn-outline { background-color: transparent; }
+
+#study-area-link{
+    padding-left: 10px;
+    border-radius: 10px 0px 0px 10px;
+    background-image: url("../img/mm-button-1.png");
+}
+
+#status-quo-link{
+    background-image: url("../img/mm-button-2.png");
+}
+
+#changes-link{
+    background-image: url("../img/mm-button-3.png");
+}
+
+#impacts-link{
+    background-image: url("../img/mm-button-4.png");
+}
+
+#decisions-link{
+    background-image: url("../img/mm-button-5.png");
+    padding-right: 20px;
+    padding-left: 40px;
+    border-radius: 0px 10px 10px 0px;
+}
+
+@media screen and (max-width: 767px) {
+    .navbar .navbar-collapse .navbar-main > li:last-child { padding-left: 15px; padding-right: 15px; } 
+    
+    .navbar .nav-collapse { margin: 7.5px auto; padding: 0; }
+    .navbar .nav-collapse .navbar-form { margin: 0; }
+    .nav-collapse>li { float: none; }
+}
