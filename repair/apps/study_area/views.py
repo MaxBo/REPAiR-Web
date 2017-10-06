@@ -64,3 +64,9 @@ def index(request):
     context['graph2'] = Testgraph2().get_context_data()
     html = template.render(context, request)
     return HttpResponse(html)
+
+def stakeholders(request):
+    template = loader.get_template('study_area/stakeholders.html')
+    context = {}
+    html = template.render(context, request)
+    return HttpResponse(html)

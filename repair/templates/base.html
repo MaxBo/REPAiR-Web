@@ -11,18 +11,40 @@
 
 <body>
   <div id="wrapper" class="active">
-
     <div id="sidebar-wrapper">
       {% block sidebar %}
-      <ul id="sidebar_menu" class="sidebar-nav">
-           <li class="sidebar-brand"><a id="menu-toggle" href="#" onclick="toggleActive('wrapper')">REPAiR<span id="main_icon" class="glyphicon glyphicon-list"></span></a></li>
-      </ul>
+      <a class="sidebar_menu" id="menu-toggle" onclick="toggleActive('wrapper')">REPAiR<span id="main_icon" class="glyphicon glyphicon-list"></span></a>
       <ul class="sidebar-nav" id="sidebar">
-        <li><a href="/">Home<span class="sub_icon glyphicon glyphicon-home"></span></a></li>
-        <li><a href="/study-area">Study Area<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
-        <li><a href="/">Something else<span class="sub_icon glyphicon glyphicon-leaf"></span></a></li>
-
-
+        <li><b>Study Area</b>
+          <ul class="sidebar-nav">
+            <li><a href="/study-area/">Base data<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
+            <li><a href="/stakeholders/">Stakeholders<span class="sub_icon glyphicon glyphicon-globe"></span></a></li>
+          </ul>
+        </li>
+        <li><b>Status Quo</b>
+          <ul class="sidebar-nav">
+          <li><a href="/sq-flows/">Flows<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
+          <li><a href="/sq-evaluation/">Evaluation<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
+          </ul>
+        </li>             
+        <li><b>Changes</b>
+          <ul class="sidebar-nav">
+          <li><a href="/">Solutions<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          <li><a href="/">Implementations<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          <li><a href="/">Strategies<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>
+          </ul>
+        </li>
+        <li><b>Impacts</b>
+          <ul class="sidebar-nav">
+          <li><a href="/">Flows<span class="sub_icon glyphicon glyphicon-tree-deciduous"></span></a></li>
+          <li><a href="/">Evaluation<span class="sub_icon glyphicon glyphicon-tree-deciduous"></span></a></li>
+          </ul>
+        </li>
+        <li><b>Decisions</b>
+          <ul class="sidebar-nav">
+          <li><a href="/">Decisions<span class="sub_icon glyphicon glyphicon-transfer"></span></a></li>
+          </ul>
+        </li>
         {% load i18n %}
 
         <form action="{% url 'set_language' %}" method="post">
@@ -46,16 +68,17 @@
     <div id="page-content-wrapper">
       <!-- Keep all page content within the page-content inset div! -->
       <div class="page-content inset">
+        <div class="row headerpanel">
+            Page name
+        </div>
         <div class="row">
-            <div id="content" class="col-md-12">
+          <div id="content" class="col-md-12">
                 {% block content %}{% endblock %}
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
-
 </body>
 </html>
