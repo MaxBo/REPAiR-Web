@@ -15,10 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 
 DEBUG = False
 
-DB_NAME = os.environ['DB_NAME']
-DB_USER = os.environ['DB_USER']
-DB_PASS = os.environ['DB_PASS']
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
@@ -78,8 +74,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'django.contrib.gis',
     'rest_framework',
     'repair.apps.study_area',
+    'repair.apps.changes',
     'require'
 ]
 
@@ -131,14 +129,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
     },
-    'pg_develop': {
-        'ENGINE': 'from django.db.backends.postgresql_psycopg2',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': 'h2020repair.bk.tudelft.nl',
-        'PORT': '5432',
-    },
+
 }
 
 
@@ -202,3 +193,4 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+

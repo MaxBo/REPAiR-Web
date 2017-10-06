@@ -6,6 +6,7 @@ djangorestframework
 numpy
 matplotlib
 plotly
+psycopg2
 
 django-debug-toolbar
 

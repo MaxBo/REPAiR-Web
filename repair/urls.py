@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
 from repair.apps.study_area.views import LinksViewSet, NodesViewSet
+from repair.apps.changes.views import CaseStudyViewSet
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
@@ -27,6 +28,7 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'links', LinksViewSet)
 router.register(r'nodes', NodesViewSet)
+router.register(r'casestudy', CaseStudyViewSet)
 
 
 def index(request):
@@ -39,7 +41,7 @@ def index(request):
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^$', index, name='index'),
-    url(r'^i18n/', include('django.conf.urls.i18n')), 
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^stakeholders/', include('repair.apps.stakeholders.urls')),
     url(r'^sq-flows/', include('repair.apps.sq_flows.urls')),
