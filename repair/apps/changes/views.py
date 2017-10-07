@@ -21,32 +21,35 @@ from repair.apps.changes.models import (CaseStudy,
 from repair.apps.changes.serializers import (CaseStudySerializer,
                                              StakeholderCategorySerializer,
                                              StakeholderSerializer,
+                                             SolutionSerializer,
+                                             SolutionCategorySerializer,
                                              )
 
 
 
 class CaseStudyViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
 
 class StakeholderCategoryViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
     queryset = StakeholderCategory.objects.all()
     serializer_class = StakeholderCategorySerializer
 
 
 class StakeholderViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
     queryset = Stakeholder.objects.all()
     serializer_class = StakeholderSerializer
+
+
+class SolutionCategoryViewSet(viewsets.ModelViewSet):
+    queryset = SolutionCategory.objects.all()
+    serializer_class = SolutionCategorySerializer
+
+
+class SolutionViewSet(viewsets.ModelViewSet):
+    queryset = Solution.objects.all()
+    serializer_class = SolutionSerializer
 
 
 def index(request):

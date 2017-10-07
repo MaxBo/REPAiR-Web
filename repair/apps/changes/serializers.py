@@ -22,8 +22,21 @@ class StakeholderSerializer(serializers.ModelSerializer):
 
 
 class StakeholderCategorySerializer(serializers.ModelSerializer):
-    stakeholders = StakeholderSerializer(many=True, read_only=True)
 
     class Meta:
         model = StakeholderCategory
-        fields = ('id', 'name', 'stakeholders')
+        fields = ('id', 'name')
+
+
+class SolutionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Solution
+        fields = ('id', 'name', 'user', 'description')
+
+
+class SolutionCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SolutionCategory
+        fields = ('id', 'name')

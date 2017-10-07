@@ -17,10 +17,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
 from repair.apps.study_area.views import LinksViewSet, NodesViewSet
-from repair.apps.changes.views import (CaseStudyViewSet,
-                                       StakeholderCategoryViewSet,
-                                       StakeholderViewSet,
-                                       )
+
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
@@ -31,9 +28,6 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'links', LinksViewSet)
 router.register(r'nodes', NodesViewSet)
-router.register(r'casestudy', CaseStudyViewSet)
-router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
-router.register(r'stakeholders', StakeholderViewSet)
 
 
 def index(request):
