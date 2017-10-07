@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Stakeholder  {{stakeholder.id}}: {{stakeholder}} ({{stakeholder.stakeholder_category}} in {{stakeholder.stakeholder_category.case_study}}).</p>
+
+        {% if solutions %}
+            <p>{{stakeholder}} coordinates the following strategies:</p>
+            <ul>
+            {% for strategy in strategies %}
+                <p>Stategy {{strategy.id}}: {{strategy}}.</p>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No stategies coordinated by {{stakeholder}}.</p>
+        {% endif %}
+
+        {% if implementations %}
+            <p>{{stakeholder}} coordinates the following implementations:</p>
+            <ul>
+            {% for implementation in implementations %}
+                <li><a href="/changes/implementations/{{ implementation.id }}">{{ implementation }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No implementations coordinated by {{stakeholder}}.</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

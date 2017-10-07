@@ -12,7 +12,8 @@ from repair.apps.changes.models import (CaseStudy,
                                         StakeholderCategory,
                                         Stakeholder,
                                         SolutionCategory,
-                                        Solution)
+                                        Solution,
+                                        Implementation)
 
 from repair.apps.changes.serializers import (CaseStudySerializer,
                                              StakeholderCategorySerializer,
@@ -52,24 +53,41 @@ def index(request):
 
 def casestudy(request, casestudy_id):
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
-    stakeholder_categories = StakeholderCategory.objects.filter(case_study_id=casestudy_id)
+    stakeholder_categories = casestudy.stakeholdercategory_set.all()
 
-    context = {'casestudy': casestudy,
-               'stakeholder_categories': stakeholder_categories,
+    context = {'stakeholder_categories': stakeholder_categories,
                }
     return render(request, 'changes/stakeholder_categories.html', context)
 
-def stakeholder_categories(request, casestudy_id, stakeholder_category_id):
-    casestudy = CaseStudy.objects.get(pk=casestudy_id)
-    stakeholder_category = StakeholderCategory.objects.get(pk=stakeholder_category_id)
-    stakeholders = Stakeholder.objects.filter(
-        stakeholder_category_id=stakeholder_category_id)
-    context = {'casestudy': casestudy,
-               'stakeholder_category': stakeholder_category,
+def stakeholder_categories(request, stakeholder_category_id):
+    stakeholder_category = StakeholderCategory.objects.get(
+        pk=stakeholder_category_id)
+    stakeholders = stakeholder_category.stakeholder_set.all()
+    context = {'stakeholder_category': stakeholder_category,
                'stakeholders': stakeholders,
                }
     return render(request, 'changes/stakeholders.html', context)
 
 def stakeholders(request, stakeholder_id):
-    stakeholder = Stakeholder.get(pk=stakeholder_id)
-    return HttpResponse('Stakeholder {.id}: {.name}'.format(stakeholder))
+    stakeholder = Stakeholder.objects.get(pk=stakeholder_id)
+    strategies = stakeholder.strategy_set.all()
+    implementations = stakeholder.implementation_set.all()
+    context = {'stakeholder': stakeholder,
+               'strategies': strategies,
+               'implementations':implementations,
+               }
+    return render(request, 'changes/stakeholder.html', context)
+
+def implementations(request, implementation_id):
+    implementation = Implementation.objects.get(pk=implementation_id)
+    solutions = implementation.solutions.all()
+    context = {'implementation': implementation,
+               'solutions': solutions,
+               }
+    return render(request, 'changes/implementation.html', context)
+
+def solutions(request, solution_id):
+    solution = Solution.objects.get(pk=solution_id)
+    context = {'solution': solution,
+               }
+    return render(request, 'changes/solution.html', context)

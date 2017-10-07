@@ -5,11 +5,11 @@
         <div class="col-md-6">
       </div>
       <div class="row">
-        <p>{% trans "Case Study" %} {{casestudy.id}}: {{casestudy.name}}.</p>
+        <p>{% trans "Case Study" %} {{stakeholder_categories.case_study}}.</p>
         {% if stakeholder_categories %}
             <ul>
             {% for sh_cat in stakeholder_categories %}
-                <li><a href="/changes/{{ casestudy.id }}/stakeholdercategories/{{ sh_cat.id }}">{{ sh_cat.name }}</a></li>
+                <li><a href="/changes/stakeholdercategories/{{ sh_cat.id }}">{{ sh_cat }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
