@@ -6,6 +6,20 @@
       </div>
       <div class="row">
         <p>Solution  {{solution.id}}: {{solution}} ({{solution.solution_category}}).</p>
+        <p>Created by User <li><a href="/changes/users12/{{ solution.user_ap12.id }}">{{ solution.user_ap12 }}</a></li>.</p>
+        <p>Description: {{solution.description}}.</p>
+        <p>One unit equals: {{solution.one_unit_equals}} Unit {{solution.one_unit_equals.unit}}.</p>
+
+        {% if solution.implementation_set %}
+            <p>Solution is part of the following implementations:</p>
+            <ul>
+            {% for implementation in solution.implementation_set.all %}
+                <p><li><a href="/changes/implementations/{{ implementation.id }}">{{ implementation }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+
       </div>
     </body>
 </html>

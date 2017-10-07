@@ -5,18 +5,30 @@
         <div class="col-md-6">
       </div>
       <div class="row">
-        <p>Implementation {{implementation.id}}: {{implementation}} (by {{implementation.coordinating_stakeholder}}).</p>
+        <p>Implementation {{implementation.id}}: {{implementation}} (coordinated by {{implementation.coordinating_stakeholder}}).</p>
+        <p>Createy by <li><a href="/changes/users34/{{implementation.user.id}}">{{implementation.user}}</a></li> .</p>
 
         {% if solutions %}
             <p>{{implementation}} consists of the following solutions:</p>
             <ul>
             {% for solution in solutions %}
-                <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
+                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ solution.id }}">{{ solution }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
             <p>No solutions in {{implementation}}.</p>
         {% endif %}
+
+        {% if implementation.strategy_set %}
+            <p>Implementation is part of the following strategies:</p>
+            <ul>
+            {% for strategy in implementation.strategy_set.all %}
+                <p><li><a href="/changes/strategies/{{ strategy.id }}">{{ strategy }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+
 
       </div>
     </body>

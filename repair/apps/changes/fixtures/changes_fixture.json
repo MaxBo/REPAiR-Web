@@ -372,7 +372,8 @@
   "pk": 1,
   "fields": {
     "solution": 3,
-    "implementation": 1
+    "implementation": 1,
+    "participants": []
   }
 },
 {
@@ -380,7 +381,8 @@
   "pk": 2,
   "fields": {
     "solution": 5,
-    "implementation": 1
+    "implementation": 1,
+    "participants": []
   }
 },
 {
@@ -388,7 +390,8 @@
   "pk": 3,
   "fields": {
     "solution": 6,
-    "implementation": 1
+    "implementation": 1,
+    "participants": []
   }
 },
 {
@@ -396,7 +399,8 @@
   "pk": 4,
   "fields": {
     "solution": 4,
-    "implementation": 2
+    "implementation": 2,
+    "participants": []
   }
 },
 {

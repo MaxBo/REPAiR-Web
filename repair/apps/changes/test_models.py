@@ -27,7 +27,6 @@ class ModelTest(TestCase):
                      Implementation,
                      Solution,
                      SolutionCategory,
-                     SolutionQuantity,
                      SolutionRatioOneUnit,
                      Stakeholder,
                      StakeholderCategory,
@@ -65,11 +64,13 @@ class ModelTest(TestCase):
         target = 'Note for Sol1 in Impl2:\nAn important Note'
         self.assertEqual(str(model), target)
 
+        unit = Unit(name='tons')
+        quantity = SolutionQuantity(name='bins', unit=unit)
+        self.assertEqual(str(unit), 'bins [tons]')
 
-        quantity = SolutionQuantity(name='bins')
         model = SolutionInImplementationQuantity(
             sii=solution_in_impl,
             quantity=quantity,
             value=42,
         )
-        self.assertEqual(str(model), 'Sol1 in Impl2 has 42 bins')
+        self.assertEqual(str(model), 'Sol1 in Impl2 has 42 bins [tons]')

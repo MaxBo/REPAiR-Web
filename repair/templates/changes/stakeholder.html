@@ -7,15 +7,15 @@
       <div class="row">
         <p>Stakeholder  {{stakeholder.id}}: {{stakeholder}} ({{stakeholder.stakeholder_category}} in {{stakeholder.stakeholder_category.case_study}}).</p>
 
-        {% if solutions %}
+        {% if strategies %}
             <p>{{stakeholder}} coordinates the following strategies:</p>
             <ul>
             {% for strategy in strategies %}
-                <p>Stategy {{strategy.id}}: {{strategy}}.</p>
+                <li><a href="/changes/strategies/{{ strategy.id }}">{{ strategy }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>No stategies coordinated by {{stakeholder}}.</p>
+            <p>No strategies coordinated by {{stakeholder}}.</p>
         {% endif %}
 
         {% if implementations %}

@@ -13,7 +13,10 @@ from repair.apps.changes.models import (CaseStudy,
                                         Stakeholder,
                                         SolutionCategory,
                                         Solution,
-                                        Implementation)
+                                        Implementation,
+                                        SolutionInImplementation,
+                                        Strategy,
+                                        )
 
 from repair.apps.changes.serializers import (CaseStudySerializer,
                                              StakeholderCategorySerializer,
@@ -54,10 +57,18 @@ def index(request):
 def casestudy(request, casestudy_id):
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
     stakeholder_categories = casestudy.stakeholdercategory_set.all()
+    users12 = casestudy.userap12_set.all()
+    users34 = casestudy.userap34_set.all()
+    solutions = casestudy.solution_set.all()
 
-    context = {'stakeholder_categories': stakeholder_categories,
+    context = {
+        'casestudy': casestudy,
+        'stakeholder_categories': stakeholder_categories,
+        'users12': users12,
+        'users34': users34,
+        'solutions': solutions,
                }
-    return render(request, 'changes/stakeholder_categories.html', context)
+    return render(request, 'changes/casestudy.html', context)
 
 def stakeholder_categories(request, stakeholder_category_id):
     stakeholder_category = StakeholderCategory.objects.get(
@@ -88,6 +99,45 @@ def implementations(request, implementation_id):
 
 def solutions(request, solution_id):
     solution = Solution.objects.get(pk=solution_id)
+    implementations = solution.implementation_set.all()
+    print(implementations)
     context = {'solution': solution,
                }
     return render(request, 'changes/solution.html', context)
+
+def solution_in_implematation(request, implementation_id, solution_id):
+    sii = SolutionInImplementation.objects.get(
+        implementation=implementation_id,
+        solution=solution_id)
+    geometries = sii.solutioninimplementationgeometry_set.all()
+    quantities = sii.solutioninimplementationquantity_set.all()
+
+    context = {'sii': sii,
+               'geometries': geometries,
+               'quantities': quantities,
+               }
+    return render(request, 'changes/solution_in_implementation.html', context)
+
+def strategies(request, strategy_id):
+    strategy = Strategy.objects.get(pk=strategy_id)
+    implementations = strategy.implementations.all()
+    context = {'strategy': strategy,
+               'implementations': implementations,
+               }
+    return render(request, 'changes/strategy.html', context)
+
+def user12(request, user_id):
+    user = UserAP12.objects.get(pk=user_id)
+    solutions = user.solution_set.all()
+    context = {'user': user,
+               'solutions': solutions,
+               }
+    return render(request, 'changes/user.html', context)
+
+def user34(request, user_id):
+    user = UserAP34.objects.get(pk=user_id)
+    implementations = user.implementation_set.all()
+    context = {'user': user,
+               'implementations': implementations,
+               }
+    return render(request, 'changes/user.html', context)

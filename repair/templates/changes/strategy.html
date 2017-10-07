@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Strategy  {{strategy.id}}: {{strategy}}, coordinated by {{strategy.coordinator}}.</p>
+
+
+        {% if implementations %}
+            <p>{{strategy}} consists of the following implementations:</p>
+            <ul>
+            {% for implementation in implementations %}
+                <li><a href="/changes/implementations/{{implementation.id}}">{{ implementation }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No implementations in {{strategy}}.</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

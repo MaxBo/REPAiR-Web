@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>{% trans "Case Study" %} {{casestudy}}</p>
+        <p>{% trans "Users Applicaton Point 1-2" %}.</p>
+        <ul>
+        {% for user in users12 %}
+            <li><a href="/changes/users12/{{ user.id }}">{{ user }}</a></li>
+        {% endfor %}
+        </ul>
+
+        <p>{% trans "Users Applicaton Point 3-4" %}.</p>
+        <ul>
+        {% for user in users34 %}
+            <li><a href="/changes/users34/{{ user.id }}">{{ user }}</a></li>
+        {% endfor %}
+        </ul>
+
+        <p>{% trans "Solutions" %}.</p>
+        <ul>
+        {% for solution in solutions %}
+            <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
+        {% endfor %}
+        </ul>
+
+        <p>{% trans "Stakeholder Categories" %}.</p>
+        {% if stakeholder_categories %}
+            <ul>
+            {% for sh_cat in stakeholder_categories %}
+                <li><a href="/changes/stakeholdercategories/{{ sh_cat.id }}">{{ sh_cat }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No stakeholder categories are available." %}</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

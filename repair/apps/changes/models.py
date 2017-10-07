@@ -71,6 +71,10 @@ class SolutionQuantity(GDSEModel):
     unit = models.ForeignKey(Unit)
     name = models.TextField()
 
+    def __str__(self):
+        text = '{n} [{u}]'
+        return text.format(n=self.name, u=self.unit,)
+
 
 class SolutionRatioOneUnit(GDSEModel):
     solution = models.ForeignKey(Solution)
@@ -91,6 +95,7 @@ class Implementation(GDSEModel):
 class SolutionInImplementation(GDSEModel):
     solution = models.ForeignKey(Solution)
     implementation = models.ForeignKey(Implementation)
+    participants = models.ManyToManyField(Stakeholder)
 
     def __str__(self):
         text = '{s} in {i}'
