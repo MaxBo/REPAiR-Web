@@ -3,32 +3,42 @@ from django.db import models
 
 # Create your models here.
 
-class CaseStudy(models.Model):
+
+class GDSEModel(models.Model):
+    """Base class for the GDSE Models"""
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+class CaseStudy(GDSEModel):
     name = models.TextField()
 
 
-class UserAP12(models.Model):
+class UserAP12(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
 
 
-class UserAP34(models.Model):
+class UserAP34(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
 
 
-class Unit(models.Model):
+class Unit(GDSEModel):
     name = models.TextField()
 
 
-class StakeholderCategory(models.Model):
+class StakeholderCategory(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
     class Meta:
         unique_together = ("case_study", "name")
 
 
-class Stakeholder(models.Model):
+class Stakeholder(GDSEModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory)
     name = models.TextField()
 
@@ -39,78 +49,86 @@ class Stakeholder(models.Model):
             #raise ValidationError({'name':['Name must be unique per CaseStudy',]})
 
 
-class SolutionCategory(models.Model):
+class SolutionCategory(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_ap12_id = models.ForeignKey(UserAP12)
+    user_ap12 = models.ForeignKey(UserAP12)
     name = models.TextField()
     class Meta:
-        unique_together = ("case_study", "user_ap12_id", 'name')
+        unique_together = ("case_study", "user_ap12", 'name')
 
 
-class Solution(models.Model):
+class Solution(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_ap12_id = models.ForeignKey(UserAP12)
-    solution_category_id = models.ForeignKey(SolutionCategory)
+    user_ap12 = models.ForeignKey(UserAP12)
+    solution_category = models.ForeignKey(SolutionCategory)
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
 
 
-class SolutionQuantity(models.Model):
+class SolutionQuantity(GDSEModel):
     solution = models.ForeignKey(Solution)
     unit = models.ForeignKey(Unit)
     name = models.TextField()
 
 
-class SolutionRatioOneUnit(models.Model):
+class SolutionRatioOneUnit(GDSEModel):
     solution = models.ForeignKey(Solution)
     name = models.TextField()
     value = models.FloatField()
     unit = models.ForeignKey(Unit)
 
 
-class Implementation(models.Model):
+class Implementation(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_id = models.ForeignKey(UserAP34)
+    user = models.ForeignKey(UserAP34)
     name = models.TextField()
-    coordinating_stakeholder_id = models.ForeignKey(Stakeholder)
+    coordinating_stakeholder = models.ForeignKey(Stakeholder)
     solutions = models.ManyToManyField(Solution)
 
 
-class SolutionInImplementationNotes(models.Model):
+class SolutionInImplementationNote(GDSEModel):
     solution = models.ForeignKey(Solution)
     implementation = models.ForeignKey(Implementation)
     note = models.TextField()
 
+    def __str__(self):
+        text = 'Note for {s} in {i}:\n{n}'
+        return text.format(s=self.solution, i=self.implementation, n=self.note)
 
-class SolutionInImplementationQuantities(models.Model):
+
+class SolutionInImplementationQuantity(GDSEModel):
     solution = models.ForeignKey(Solution)
     implementation = models.ForeignKey(Implementation)
     quantity = models.ForeignKey(SolutionQuantity, default=1)
     value = models.FloatField()
 
+    def __str__(self):
+        text = '{s} in {i} has {v} {q}'
+        return text.format(s=self.solution, i=self.implementation,
+                           v=self.value, q=self.quantity)
 
-class SolutionInImplementationGeometry(models.Model):
+
+class SolutionInImplementationGeometry(GDSEModel):
     solution = models.ForeignKey(Solution)
     implementation = models.ForeignKey(Implementation)
-    name = models.TextField()
-    geom = models.TextField()
+    name = models.TextField(blank=True)
+    geom = models.TextField(blank=True)
     #geom = models.GeometryField(verbose_name='geom')
 
-
-class SolutionInImplementation(models.Model):
-    solution = models.ForeignKey(Solution)
-    implementation = models.ForeignKey(Implementation)
-    notes = models.ManyToManyField(SolutionInImplementationNotes)
-    geometries = models.ManyToManyField(SolutionInImplementationGeometry)
-    quantities = models.ManyToManyField(SolutionInImplementationQuantities)
+    def __str__(self):
+        text = 'location {n} for {s} in {i} at {g}'
+        return text.format(s=self.solution, i=self.implementation,
+                           n=self.name, g=self.geom)
 
 
-class Strategy(models.Model):
+class Strategy(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_id = models.ForeignKey(UserAP34)
+    user = models.ForeignKey(UserAP34)
     name = models.TextField()
-    class Meta:
-        unique_together = ("case_study", "user_id", 'name')
+    coordinator = models.ForeignKey(Stakeholder, default=1)
     implementations = models.ManyToManyField(Implementation)
+
+    class Meta:
+        unique_together = ("case_study", "user", 'name')
 

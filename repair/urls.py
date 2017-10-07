@@ -17,7 +17,10 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
 from repair.apps.study_area.views import LinksViewSet, NodesViewSet
-from repair.apps.changes.views import CaseStudyViewSet
+from repair.apps.changes.views import (CaseStudyViewSet,
+                                       StakeholderCategoryViewSet,
+                                       StakeholderViewSet,
+                                       )
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
@@ -29,6 +32,8 @@ router.register(r'groups', login_views.GroupViewSet)
 router.register(r'links', LinksViewSet)
 router.register(r'nodes', NodesViewSet)
 router.register(r'casestudy', CaseStudyViewSet)
+router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
+router.register(r'stakeholders', StakeholderViewSet)
 
 
 def index(request):
@@ -44,8 +49,9 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^stakeholders/', include('repair.apps.stakeholders.urls')),
-    url(r'^sq-flows/', include('repair.apps.sq_flows.urls')),
-    url(r'^sq-evaluation/', include('repair.apps.sq_evaluation.urls')),
+    url(r'^changes/', include('repair.apps.changes.urls')),
+    #url(r'^sq-flows/', include('repair.apps.sq_flows.urls')),
+    #url(r'^sq-evaluation/', include('repair.apps.sq_evaluation.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/payload', include('repair.static.webhook.urls')),

@@ -1,0 +1,123 @@
+[
+{
+  "model": "changes.casestudy",
+  "pk": 1,
+  "fields": {
+    "name": "Napoli"
+  }
+},
+{
+  "model": "changes.casestudy",
+  "pk": 2,
+  "fields": {
+    "name": "Hamburg"
+  }
+},
+{
+  "model": "changes.casestudy",
+  "pk": 3,
+  "fields": {
+    "name": "Amsterdam"
+  }
+},
+{
+  "model": "changes.casestudy",
+  "pk": 4,
+  "fields": {
+    "name": "Ghent"
+  }
+},
+{
+  "model": "changes.casestudy",
+  "pk": 5,
+  "fields": {
+    "name": "Lodz"
+  }
+},
+{
+  "model": "changes.casestudy",
+  "pk": 6,
+  "fields": {
+    "name": "Pecs"
+  }
+},
+{
+  "model": "changes.userap12",
+  "pk": 1,
+  "fields": {
+    "case_study": 2,
+    "name": "Max"
+  }
+},
+{
+  "model": "changes.userap12",
+  "pk": 2,
+  "fields": {
+    "case_study": 2,
+    "name": "JM"
+  }
+},
+{
+  "model": "changes.userap34",
+  "pk": 1,
+  "fields": {
+    "case_study": 2,
+    "name": "Max"
+  }
+},
+{
+  "model": "changes.userap34",
+  "pk": 2,
+  "fields": {
+    "case_study": 2,
+    "name": "JM"
+  }
+},
+{
+  "model": "changes.userap34",
+  "pk": 3,
+  "fields": {
+    "case_study": 2,
+    "name": "Andreas"
+  }
+},
+{
+  "model": "changes.stakeholdercategory",
+  "pk": 1,
+  "fields": {
+    "case_study": 2,
+    "name": "Company"
+  }
+},
+{
+  "model": "changes.stakeholdercategory",
+  "pk": 2,
+  "fields": {
+    "case_study": 2,
+    "name": "Public Agency"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 1,
+  "fields": {
+    "stakeholder_category": 1,
+    "name": "Stadtreinigung Hamburg"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 2,
+  "fields": {
+    "stakeholder_category": 2,
+    "name": "Pinneberg"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 3,
+  "fields": {
+    "stakeholder_category": 2,
+    "name": "Altona"
+  }
+}

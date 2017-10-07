@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>{% trans "Case Study" %} {{casestudy.id}}: {{casestudy.name}}.</p>
+        {% if stakeholder_categories %}
+            <ul>
+            {% for sh_cat in stakeholder_categories %}
+                <li><a href="/changes/{{ casestudy.id }}/stakeholdercategories/{{ sh_cat.id }}">{{ sh_cat.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No stakeholder categories are available." %}</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}
