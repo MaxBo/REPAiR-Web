@@ -29,6 +29,19 @@
             <p>No implementations coordinated by {{stakeholder}}.</p>
         {% endif %}
 
+        {% if participants %}
+            <p>Included Stakeholders: </p>
+            <ul>
+            {% for participant in participants %}
+                <li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No stakeholders assigned yet.</p>
+        {% endif %}
+
+
+
       </div>
     </body>
 </html>

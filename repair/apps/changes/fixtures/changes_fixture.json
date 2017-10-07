@@ -42,42 +42,26 @@
   }
 },
 {
-  "model": "changes.userap12",
+  "model": "changes.user",
   "pk": 1,
   "fields": {
-    "case_study": 2,
+    "case_study": 5,
     "name": "Max"
   }
 },
 {
-  "model": "changes.userap12",
+  "model": "changes.user",
   "pk": 2,
   "fields": {
-    "case_study": 2,
+    "case_study": 5,
     "name": "JM"
   }
 },
 {
-  "model": "changes.userap34",
-  "pk": 1,
-  "fields": {
-    "case_study": 2,
-    "name": "Max"
-  }
-},
-{
-  "model": "changes.userap34",
-  "pk": 2,
-  "fields": {
-    "case_study": 2,
-    "name": "JM"
-  }
-},
-{
-  "model": "changes.userap34",
+  "model": "changes.user",
   "pk": 3,
   "fields": {
-    "case_study": 2,
+    "case_study": 5,
     "name": "Andreas"
   }
 },
@@ -186,7 +170,7 @@
   "pk": 1,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "name": "Collection containers"
   }
 },
@@ -195,7 +179,7 @@
   "pk": 2,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "name": "Regulation"
   }
 },
@@ -204,7 +188,7 @@
   "pk": 3,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "name": "Tour planning"
   }
 },
@@ -213,7 +197,7 @@
   "pk": 4,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "name": "Public awareness"
   }
 },
@@ -222,7 +206,7 @@
   "pk": 1,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "solution_category": 1,
     "name": "Multiple boxes",
     "description": "aaa",
@@ -234,7 +218,7 @@
   "pk": 2,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 1,
     "solution_category": 1,
     "name": "Flexible bins",
     "description": "bbb",
@@ -246,7 +230,7 @@
   "pk": 3,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "solution_category": 1,
     "name": "Underfloor collectors",
     "description": "ccc",
@@ -258,7 +242,7 @@
   "pk": 4,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "solution_category": 2,
     "name": "Stricter recycling law",
     "description": "ddd",
@@ -270,7 +254,7 @@
   "pk": 5,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 1,
     "solution_category": 3,
     "name": "Tour optimisation",
     "description": "eee",
@@ -282,7 +266,7 @@
   "pk": 6,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 1,
     "solution_category": 4,
     "name": "Public ads",
     "description": "fff",
@@ -294,7 +278,7 @@
   "pk": 7,
   "fields": {
     "case_study": 5,
-    "user_ap12": 2,
+    "user": 2,
     "solution_category": 4,
     "name": "Recycling training",
     "description": "ggg",
@@ -316,7 +300,7 @@
   "fields": {
     "solution": 4,
     "unit": 3,
-    "name": "onother amount"
+    "name": "laws"
   }
 },
 {
@@ -325,7 +309,7 @@
   "fields": {
     "solution": 5,
     "unit": 2,
-    "name": "ABC"
+    "name": "campaigns"
   }
 },
 {
@@ -334,7 +318,7 @@
   "fields": {
     "solution": 6,
     "unit": 1,
-    "name": "DEF"
+    "name": "another amount"
   }
 },
 {
@@ -352,7 +336,7 @@
   "pk": 1,
   "fields": {
     "case_study": 5,
-    "user": 1,
+    "user": 2,
     "name": "Organic waste initiative Hamburg-Altona",
     "coordinating_stakeholder": 4
   }
@@ -362,7 +346,7 @@
   "pk": 2,
   "fields": {
     "case_study": 5,
-    "user": 1,
+    "user": 3,
     "name": "Regulative reform bundle 2025",
     "coordinating_stakeholder": 1
   }
@@ -373,7 +357,10 @@
   "fields": {
     "solution": 3,
     "implementation": 1,
-    "participants": []
+    "participants": [
+      2,
+      4
+    ]
   }
 },
 {
@@ -382,7 +369,9 @@
   "fields": {
     "solution": 5,
     "implementation": 1,
-    "participants": []
+    "participants": [
+      4
+    ]
   }
 },
 {
@@ -391,7 +380,10 @@
   "fields": {
     "solution": 6,
     "implementation": 1,
-    "participants": []
+    "participants": [
+      2,
+      6
+    ]
   }
 },
 {
@@ -400,7 +392,10 @@
   "fields": {
     "solution": 4,
     "implementation": 2,
-    "participants": []
+    "participants": [
+      1,
+      2
+    ]
   }
 },
 {
@@ -457,7 +452,7 @@
   "pk": 6,
   "fields": {
     "sii": 2,
-    "quantity": 1,
+    "quantity": 6,
     "value": 1.0
   }
 },
@@ -466,7 +461,7 @@
   "pk": 7,
   "fields": {
     "sii": 3,
-    "quantity": 1,
+    "quantity": 5,
     "value": 3.0
   }
 },
@@ -475,7 +470,7 @@
   "pk": 8,
   "fields": {
     "sii": 4,
-    "quantity": 1,
+    "quantity": 3,
     "value": 1.0
   }
 },

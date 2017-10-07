@@ -37,17 +37,12 @@ class Stakeholder(GDSEModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory)
     name = models.TextField()
 
-    #def validate_unique(self, *args, **kwargs):
-        #super().validate_unique(*args, **kwargs)
-        #qs = type(self).objects.filter(name=self.name)
-        #if qs.filter(stakeholder_category__case_study=self.stakeholder_category__case_study).exists():
-            #raise ValidationError({'name':['Name must be unique per CaseStudy',]})
-
 
 class SolutionCategory(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
     user = models.ForeignKey(User)
     name = models.TextField()
+
     class Meta:
         unique_together = ("case_study", "user", 'name')
 
@@ -59,6 +54,9 @@ class Solution(GDSEModel):
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
+
+    class Meta:
+        unique_together = ("case_study", "user", 'name')
 
 
 class SolutionQuantity(GDSEModel):
@@ -85,6 +83,18 @@ class Implementation(GDSEModel):
     coordinating_stakeholder = models.ForeignKey(Stakeholder)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
+
+    @property
+    def participants(self):
+        """
+        look for all stakeholders that participate in any of the solutions
+        """
+        # start with the coordinator
+        participants = {self.coordinating_stakeholder}
+        for solution in self.solutioninimplementation_set.all():
+            for participant in solution.participants.all():
+                participants.add(participant)
+        return participants
 
 
 class SolutionInImplementation(GDSEModel):
@@ -139,3 +149,14 @@ class Strategy(GDSEModel):
     class Meta:
         unique_together = ("case_study", "user", 'name')
 
+    @property
+    def participants(self):
+        """
+        look for all stakeholders that participate in any of the implementations
+        """
+        # start with the coordinator
+        participants = {self.coordinator}
+        for implementation in self.implementations.all():
+            for participant in implementation.participants:
+                participants.add(participant)
+        return participants

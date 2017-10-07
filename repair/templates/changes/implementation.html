@@ -28,7 +28,14 @@
             </ul>
         {% endif %}
 
-
+        {% if implementation.participants %}
+            <p>Implementation needs the following stakeholders:</p>
+            <ul>
+            {% for participant in implementation.participants %}
+                <p><li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
 
       </div>
     </body>

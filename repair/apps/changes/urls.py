@@ -26,6 +26,11 @@ urlpatterns = [
         name='implementations'),
 
     # ex: /solutions/3
+    url(r'^solutioncategories/(?P<solutioncategory_id>[0-9]+)/$',
+        views.solutioncategories,
+        name='solutioncategories'),
+
+    # ex: /solutions/3
     url(r'^solutions/(?P<solution_id>[0-9]+)/$',
         views.solutions,
         name='solutions'),

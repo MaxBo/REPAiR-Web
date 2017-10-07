@@ -21,6 +21,8 @@ from .models import (CaseStudy,
 
 class ModelTest(TestCase):
 
+    fixtures = ['changes_fixture.json',]
+
     def test_string_representation(self):
         for Model in (CaseStudy,
                      Implementation,
@@ -64,7 +66,7 @@ class ModelTest(TestCase):
 
         unit = Unit(name='tons')
         quantity = SolutionQuantity(name='bins', unit=unit)
-        self.assertEqual(str(unit), 'bins [tons]')
+        self.assertEqual(str(quantity), 'bins [tons]')
 
         model = SolutionInImplementationQuantity(
             sii=solution_in_impl,

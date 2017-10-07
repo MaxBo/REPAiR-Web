@@ -14,10 +14,15 @@
         {% endfor %}
         </ul>
 
-        <p>{% trans "Solutions" %}.</p>
+        <p>{% trans "Catalogue of Solutions" %}.</p>
         <ul>
-        {% for solution in solutions %}
-            <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
+        {% for solution_category in solution_categories %}
+            <li><a href="/changes/solutioncategories/{{ solution_category.id }}">{{ solution_category }}</a></li>
+           <ul>
+            {% for solution in solution_category.solution_set.all %}
+                <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
+            {% endfor %}
+            </ul>
         {% endfor %}
         </ul>
 
