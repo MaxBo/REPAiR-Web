@@ -10,28 +10,28 @@
   "model": "changes.casestudy",
   "pk": 2,
   "fields": {
-    "name": "Hamburg"
+    "name": "Amsterdam"
   }
 },
 {
   "model": "changes.casestudy",
   "pk": 3,
   "fields": {
-    "name": "Amsterdam"
+    "name": "Ghent"
   }
 },
 {
   "model": "changes.casestudy",
   "pk": 4,
   "fields": {
-    "name": "Ghent"
+    "name": "Lodsz"
   }
 },
 {
   "model": "changes.casestudy",
   "pk": 5,
   "fields": {
-    "name": "Lodz"
+    "name": "Hamburg"
   }
 },
 {
@@ -82,19 +82,55 @@
   }
 },
 {
+  "model": "changes.unit",
+  "pk": 1,
+  "fields": {
+    "name": "cbm"
+  }
+},
+{
+  "model": "changes.unit",
+  "pk": 2,
+  "fields": {
+    "name": "tons"
+  }
+},
+{
+  "model": "changes.unit",
+  "pk": 3,
+  "fields": {
+    "name": "meters"
+  }
+},
+{
+  "model": "changes.unit",
+  "pk": 4,
+  "fields": {
+    "name": "number"
+  }
+},
+{
   "model": "changes.stakeholdercategory",
   "pk": 1,
   "fields": {
-    "case_study": 2,
-    "name": "Company"
+    "case_study": 5,
+    "name": "Government"
   }
 },
 {
   "model": "changes.stakeholdercategory",
   "pk": 2,
   "fields": {
-    "case_study": 2,
-    "name": "Public Agency"
+    "case_study": 5,
+    "name": "Waste companies"
+  }
+},
+{
+  "model": "changes.stakeholdercategory",
+  "pk": 3,
+  "fields": {
+    "case_study": 5,
+    "name": "NGOs"
   }
 },
 {
@@ -102,22 +138,409 @@
   "pk": 1,
   "fields": {
     "stakeholder_category": 1,
-    "name": "Stadtreinigung Hamburg"
+    "name": "Stadt Hamburg"
   }
 },
 {
   "model": "changes.stakeholder",
   "pk": 2,
   "fields": {
-    "stakeholder_category": 2,
-    "name": "Pinneberg"
+    "stakeholder_category": 1,
+    "name": "Bezirk Altona"
   }
 },
 {
   "model": "changes.stakeholder",
   "pk": 3,
   "fields": {
+    "stakeholder_category": 1,
+    "name": "Kreis Pinneberg"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 4,
+  "fields": {
     "stakeholder_category": 2,
-    "name": "Altona"
+    "name": "Stadtreinigung Hamburg"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 5,
+  "fields": {
+    "stakeholder_category": 2,
+    "name": "GAP"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 6,
+  "fields": {
+    "stakeholder_category": 3,
+    "name": "NABU"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 1,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "name": "Collection containers"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 2,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "name": "Regulation"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 3,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "name": "Tour planning"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 4,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "name": "Public awareness"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 1,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 1,
+    "name": "Multiple boxes",
+    "description": "aaa",
+    "one_unit_equals": "One box"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 2,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 1,
+    "name": "Flexible bins",
+    "description": "bbb",
+    "one_unit_equals": "One bin"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 3,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 1,
+    "name": "Underfloor collectors",
+    "description": "ccc",
+    "one_unit_equals": "One collector"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 4,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 2,
+    "name": "Stricter recycling law",
+    "description": "ddd",
+    "one_unit_equals": "One law"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 5,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 3,
+    "name": "Tour optimisation",
+    "description": "eee",
+    "one_unit_equals": "One optimisation"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 6,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 4,
+    "name": "Public ads",
+    "description": "fff",
+    "one_unit_equals": "One campaign"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 7,
+  "fields": {
+    "case_study": 5,
+    "user_ap12": 2,
+    "solution_category": 4,
+    "name": "Recycling training",
+    "description": "ggg",
+    "one_unit_equals": "One training program"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 1,
+  "fields": {
+    "solution": 3,
+    "unit": 4,
+    "name": "number of collectors"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 3,
+  "fields": {
+    "solution": 4,
+    "unit": 3,
+    "name": "onother amount"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 5,
+  "fields": {
+    "solution": 5,
+    "unit": 2,
+    "name": "ABC"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 6,
+  "fields": {
+    "solution": 6,
+    "unit": 1,
+    "name": "DEF"
+  }
+},
+{
+  "model": "changes.solutionratiooneunit",
+  "pk": 1,
+  "fields": {
+    "solution": 1,
+    "name": "Collection volume",
+    "value": 50.0,
+    "unit": 1
+  }
+},
+{
+  "model": "changes.implementation",
+  "pk": 1,
+  "fields": {
+    "case_study": 5,
+    "user": 1,
+    "name": "Organic waste initiative Hamburg-Altona",
+    "coordinating_stakeholder": 4
+  }
+},
+{
+  "model": "changes.implementation",
+  "pk": 2,
+  "fields": {
+    "case_study": 5,
+    "user": 1,
+    "name": "Regulative reform bundle 2025",
+    "coordinating_stakeholder": 1
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 1,
+  "fields": {
+    "solution": 3,
+    "implementation": 1
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 2,
+  "fields": {
+    "solution": 5,
+    "implementation": 1
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 3,
+  "fields": {
+    "solution": 6,
+    "implementation": 1
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 4,
+  "fields": {
+    "solution": 4,
+    "implementation": 2
+  }
+},
+{
+  "model": "changes.solutioninimplementationnote",
+  "pk": 1,
+  "fields": {
+    "sii": 1,
+    "note": "Bezirk Altona pays 30%"
+  }
+},
+{
+  "model": "changes.solutioninimplementationnote",
+  "pk": 2,
+  "fields": {
+    "sii": 2,
+    "note": "As already done in Amsterdam"
+  }
+},
+{
+  "model": "changes.solutioninimplementationnote",
+  "pk": 3,
+  "fields": {
+    "sii": 3,
+    "note": "Every other month"
+  }
+},
+{
+  "model": "changes.solutioninimplementationnote",
+  "pk": 4,
+  "fields": {
+    "sii": 4,
+    "note": "As discussed in workshop #2"
+  }
+},
+{
+  "model": "changes.solutioninimplementationnote",
+  "pk": 5,
+  "fields": {
+    "sii": 2,
+    "note": "Another Note"
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 5,
+  "fields": {
+    "sii": 1,
+    "quantity": 1,
+    "value": 35.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 6,
+  "fields": {
+    "sii": 2,
+    "quantity": 1,
+    "value": 1.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 7,
+  "fields": {
+    "sii": 3,
+    "quantity": 1,
+    "value": 3.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 8,
+  "fields": {
+    "sii": 4,
+    "quantity": 1,
+    "value": 1.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 1,
+  "fields": {
+    "sii": 1,
+    "name": "Phoenixhof",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 2,
+  "fields": {
+    "sii": 1,
+    "name": "Elbe",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 3,
+  "fields": {
+    "sii": 1,
+    "name": "",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 4,
+  "fields": {
+    "sii": 2,
+    "name": "Hier",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 5,
+  "fields": {
+    "sii": 3,
+    "name": "",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.solutioninimplementationgeometry",
+  "pk": 6,
+  "fields": {
+    "sii": 4,
+    "name": "Dort",
+    "geom": "TheGeometry"
+  }
+},
+{
+  "model": "changes.strategy",
+  "pk": 1,
+  "fields": {
+    "case_study": 5,
+    "user": 1,
+    "name": "Vision Waste 2035",
+    "coordinator": 1,
+    "implementations": [
+      1,
+      2
+    ]
   }
 }
+]

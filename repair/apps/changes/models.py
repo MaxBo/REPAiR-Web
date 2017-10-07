@@ -84,41 +84,48 @@ class Implementation(GDSEModel):
     user = models.ForeignKey(UserAP34)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder)
-    solutions = models.ManyToManyField(Solution)
+    solutions = models.ManyToManyField(Solution,
+                                       through='SolutionInImplementation')
+
+
+class SolutionInImplementation(GDSEModel):
+    solution = models.ForeignKey(Solution)
+    implementation = models.ForeignKey(Implementation)
+
+    def __str__(self):
+        text = '{s} in {i}'
+        return text.format(s=self.solution, i=self.implementation,)
 
 
 class SolutionInImplementationNote(GDSEModel):
-    solution = models.ForeignKey(Solution)
-    implementation = models.ForeignKey(Implementation)
+    sii = models.ForeignKey(SolutionInImplementation, default=1)
     note = models.TextField()
 
     def __str__(self):
-        text = 'Note for {s} in {i}:\n{n}'
-        return text.format(s=self.solution, i=self.implementation, n=self.note)
+        text = 'Note for {s}:\n{n}'
+        return text.format(s=self.sii, n=self.note)
 
 
 class SolutionInImplementationQuantity(GDSEModel):
-    solution = models.ForeignKey(Solution)
-    implementation = models.ForeignKey(Implementation)
+    sii = models.ForeignKey(SolutionInImplementation, default=1)
     quantity = models.ForeignKey(SolutionQuantity, default=1)
     value = models.FloatField()
 
     def __str__(self):
-        text = '{s} in {i} has {v} {q}'
-        return text.format(s=self.solution, i=self.implementation,
+        text = '{s} has {v} {q}'
+        return text.format(s=self.sii,
                            v=self.value, q=self.quantity)
 
 
 class SolutionInImplementationGeometry(GDSEModel):
-    solution = models.ForeignKey(Solution)
-    implementation = models.ForeignKey(Implementation)
+    sii = models.ForeignKey(SolutionInImplementation, default=1)
     name = models.TextField(blank=True)
     geom = models.TextField(blank=True)
     #geom = models.GeometryField(verbose_name='geom')
 
     def __str__(self):
-        text = 'location {n} for {s} in {i} at {g}'
-        return text.format(s=self.solution, i=self.implementation,
+        text = 'location {n} for {s} at {g}'
+        return text.format(s=self.sii,
                            n=self.name, g=self.geom)
 
 
