@@ -7,8 +7,7 @@ from django.utils.translation import ugettext as _
 from rest_framework import viewsets
 from repair.apps.changes.models import (CaseStudy,
                                         Unit,
-                                        UserAP12,
-                                        UserAP34,
+                                        User,
                                         StakeholderCategory,
                                         Stakeholder,
                                         SolutionCategory,
@@ -57,15 +56,13 @@ def index(request):
 def casestudy(request, casestudy_id):
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
     stakeholder_categories = casestudy.stakeholdercategory_set.all()
-    users12 = casestudy.userap12_set.all()
-    users34 = casestudy.userap34_set.all()
+    users = casestudy.user_set.all()
     solutions = casestudy.solution_set.all()
 
     context = {
         'casestudy': casestudy,
         'stakeholder_categories': stakeholder_categories,
-        'users12': users12,
-        'users34': users34,
+        'users': users,
         'solutions': solutions,
                }
     return render(request, 'changes/casestudy.html', context)
@@ -126,18 +123,12 @@ def strategies(request, strategy_id):
                }
     return render(request, 'changes/strategy.html', context)
 
-def user12(request, user_id):
-    user = UserAP12.objects.get(pk=user_id)
+def user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    implementations = user.implementation_set.all()
     solutions = user.solution_set.all()
     context = {'user': user,
-               'solutions': solutions,
-               }
-    return render(request, 'changes/user.html', context)
-
-def user34(request, user_id):
-    user = UserAP34.objects.get(pk=user_id)
-    implementations = user.implementation_set.all()
-    context = {'user': user,
                'implementations': implementations,
+               'solutions': solutions,
                }
     return render(request, 'changes/user.html', context)

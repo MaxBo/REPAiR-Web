@@ -40,14 +40,9 @@ urlpatterns = [
         views.strategies,
         name='strategies'),
 
-    # ex: /users12/3/
-    url(r'^users12/(?P<user_id>[0-9]+)/$',
-        views.user12,
-        name='user12'),
-
-    # ex: /users34/3/
-    url(r'^users34/(?P<user_id>[0-9]+)/$',
-        views.user34,
-        name='user34'),
+    # ex: /users/3/
+    url(r'^users/(?P<user_id>[0-9]+)/$',
+        views.user,
+        name='user'),
 
 ]

@@ -17,12 +17,7 @@ class CaseStudy(GDSEModel):
     name = models.TextField()
 
 
-class UserAP12(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
-    name = models.TextField()
-
-
-class UserAP34(GDSEModel):
+class User(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
 
@@ -51,15 +46,15 @@ class Stakeholder(GDSEModel):
 
 class SolutionCategory(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_ap12 = models.ForeignKey(UserAP12)
+    user = models.ForeignKey(User)
     name = models.TextField()
     class Meta:
-        unique_together = ("case_study", "user_ap12", 'name')
+        unique_together = ("case_study", "user", 'name')
 
 
 class Solution(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user_ap12 = models.ForeignKey(UserAP12)
+    user = models.ForeignKey(User)
     solution_category = models.ForeignKey(SolutionCategory)
     name = models.TextField()
     description = models.TextField()
@@ -85,7 +80,7 @@ class SolutionRatioOneUnit(GDSEModel):
 
 class Implementation(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(UserAP34)
+    user = models.ForeignKey(User)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder)
     solutions = models.ManyToManyField(Solution,
@@ -136,7 +131,7 @@ class SolutionInImplementationGeometry(GDSEModel):
 
 class Strategy(GDSEModel):
     case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(UserAP34)
+    user = models.ForeignKey(User)
     name = models.TextField()
     coordinator = models.ForeignKey(Stakeholder, default=1)
     implementations = models.ManyToManyField(Implementation)

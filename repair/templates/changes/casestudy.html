@@ -6,17 +6,11 @@
       </div>
       <div class="row">
         <p>{% trans "Case Study" %} {{casestudy}}</p>
-        <p>{% trans "Users Applicaton Point 1-2" %}.</p>
-        <ul>
-        {% for user in users12 %}
-            <li><a href="/changes/users12/{{ user.id }}">{{ user }}</a></li>
-        {% endfor %}
-        </ul>
 
-        <p>{% trans "Users Applicaton Point 3-4" %}.</p>
+        <p>{% trans "Users" %}.</p>
         <ul>
-        {% for user in users34 %}
-            <li><a href="/changes/users34/{{ user.id }}">{{ user }}</a></li>
+        {% for user in users %}
+            <li><a href="/changes/users/{{ user.id }}">{{ user }}</a></li>
         {% endfor %}
         </ul>
 

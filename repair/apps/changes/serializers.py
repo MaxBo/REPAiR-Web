@@ -1,7 +1,6 @@
 from repair.apps.changes.models import (CaseStudy,
                                         Unit,
-                                        UserAP12,
-                                        UserAP34,
+                                        User,
                                         StakeholderCategory,
                                         Stakeholder,
                                         SolutionCategory,

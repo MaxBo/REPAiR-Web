@@ -14,9 +14,8 @@ from .models import (CaseStudy,
                      Stakeholder,
                      StakeholderCategory,
                      Strategy,
-                     UserAP12,
                      Unit,
-                     UserAP34,
+                     User,
                      )
 
 
@@ -32,8 +31,7 @@ class ModelTest(TestCase):
                      StakeholderCategory,
                      Strategy,
                      Unit,
-                     UserAP12,
-                     UserAP34,
+                     User,
                      ):
 
             model = Model(name="MyName")
