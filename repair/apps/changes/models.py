@@ -1,5 +1,6 @@
 from django.db import models
-from django.core.validators import ValidationError
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.db.models import signals
 #from django.contrib.gis.db import models
 
 
@@ -11,6 +12,27 @@ class GDSEModel(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GDSEUniqueNameModel(GDSEModel):
+    """Base class for the GDSE Models"""
+
+    class Meta:
+        abstract = True
+
+    def validate_unique(self, *args, **kwargs):
+        super().validate_unique(*args, **kwargs)
+
+        qs = self.__class__._default_manager.filter(
+            user__casestudy=self.user.casestudy,
+            name=self.name
+        )
+
+        if qs.exists():
+            raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
+                    cl=self.__class__.__name__, n=self.name, c=self.user.casestudy,))
+
+
 
 class CaseStudy(GDSEModel):
     name = models.TextField()
@@ -45,24 +67,22 @@ class Unit(GDSEModel):
     name = models.TextField()
 
 
-class StakeholderCategory(GDSEModel):
+class StakeholderCategory(GDSEUniqueNameModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
-    class Meta:
-        unique_together = ("case_study", "name")
 
 
-class Stakeholder(GDSEModel):
+class Stakeholder(GDSEUniqueNameModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory)
     name = models.TextField()
 
 
-class SolutionCategory(GDSEModel):
+class SolutionCategory(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
 
 
-class Solution(GDSEModel):
+class Solution(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy)
     solution_category = models.ForeignKey(SolutionCategory)
     name = models.TextField()
@@ -90,7 +110,7 @@ class SolutionRatioOneUnit(GDSEModel):
 class Implementation(GDSEModel):
     user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
-    coordinating_stakeholder = models.ForeignKey(Stakeholder)
+    coordinating_stakeholder = models.ForeignKey(Stakeholder, default=1)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
 
@@ -117,6 +137,63 @@ class SolutionInImplementation(GDSEModel):
         return text.format(s=self.solution, i=self.implementation,)
 
 
+def trigger_solutioninimplementationquantity_sii(sender, instance,
+                                                 created, **kwargs):
+    """
+    Create SolutionInImplementationQuantity
+    for each SolutionQuantity
+    each time a SolutionInImplementation is created.
+    """
+    if created:
+        sii = instance
+        solution = Solution.objects.get(pk=sii.solution.id)        for solution_quantity in solution.solutionquantity_set.all():
+            new, is_created = SolutionInImplementationQuantity.objects.\
+                get_or_create(sii=sii, quantity=solution_quantity)
+            if is_created:
+                new.save()
+
+def trigger_solutioninimplementationquantity_quantity(sender, instance,
+                                                      created, **kwargs):
+    """
+    Create SolutionInImplementationQuantity
+    for each SolutionQuantity
+    each time a SolutionInImplementation is created.
+    """
+    if created:
+        quantity = instance
+        solution = quantity.solution
+        sii_set = SolutionInImplementation.objects.filter(solution_id=solution.id)
+        for sii in sii_set.all():
+            new, is_created = SolutionInImplementationQuantity.objects.\
+                get_or_create(sii=sii, quantity=quantity)
+            if is_created:
+                new.save()
+
+def add_solutionquantity(solution, sii):
+    """
+    add solutionquanty for quantities of solution
+    to solutioninimplementationquantity of sii
+    """
+    for solution_quantity in solution.solutionquantity_set.all():
+        new, is_created = SolutionInImplementationQuantity.objects.\
+            get_or_create(sii=sii, quantity=solution_quantity)
+        if is_created:
+            new.save()
+
+
+signals.post_save.connect(
+    trigger_solutioninimplementationquantity_sii,
+    sender=SolutionInImplementation,
+    weak=False,
+    dispatch_uid='models.trigger_solutioninimplementationquantity_sii')
+
+signals.post_save.connect(
+    trigger_solutioninimplementationquantity_quantity,
+    sender=SolutionQuantity,
+    weak=False,
+    dispatch_uid='models.trigger_solutioninimplementationquantity_quantity')
+
+
 class SolutionInImplementationNote(GDSEModel):
     sii = models.ForeignKey(SolutionInImplementation, default=1)
     note = models.TextField()
@@ -129,7 +206,7 @@ class SolutionInImplementationNote(GDSEModel):
 class SolutionInImplementationQuantity(GDSEModel):
     sii = models.ForeignKey(SolutionInImplementation, default=1)
     quantity = models.ForeignKey(SolutionQuantity, default=1)
-    value = models.FloatField()
+    value = models.FloatField(default=0)
 
     def __str__(self):
         text = '{v} {q}'
@@ -147,23 +224,11 @@ class SolutionInImplementationGeometry(GDSEModel):
         return text.format(n=self.name, g=self.geom)
 
 
-class Strategy(GDSEModel):
+class Strategy(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
     coordinator = models.ForeignKey(Stakeholder, default=1)
     implementations = models.ManyToManyField(Implementation)
-
-    def validate_unique(self, *args, **kwargs):
-        super().validate_unique(*args, **kwargs)
-
-        qs = self.__class__._default_manager.filter(
-            user__casestudy=self.user.casestudy,
-            name=self.name
-        )
-
-        if qs.exists():
-            raise ValidationError('{n} exists in casestudy {c}'.format(
-                    n=self.name, c=self.user.casestudy,))
 
     @property
     def participants(self):
