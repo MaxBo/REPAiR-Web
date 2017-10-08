@@ -1,7 +1,6 @@
 from django.db import models
+from django.core.validators import ValidationError
 #from django.contrib.gis.db import models
-
-# Create your models here.
 
 
 class GDSEModel(models.Model):
@@ -16,10 +15,30 @@ class GDSEModel(models.Model):
 class CaseStudy(GDSEModel):
     name = models.TextField()
 
+    @property
+    def solution_categories(self):
+        """
+        look for all solution categories created by the users of the casestudy
+        """
+        solution_categories = set()
+        for uic in self.userincasestudy_set.all():
+            for solution_category in uic.solutioncategory_set.all():
+                solution_categories.add(solution_category)
+        return solution_categories
+
 
 class User(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
+    casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
+
+
+class UserInCasestudy(GDSEModel):
+    user = models.ForeignKey(User)
+    casestudy = models.ForeignKey(CaseStudy)
+
+    def __str__(self):
+        text = '{u} ({c})'
+        return text.format(u=self.user, c=self.casestudy,)
 
 
 class Unit(GDSEModel):
@@ -39,24 +58,16 @@ class Stakeholder(GDSEModel):
 
 
 class SolutionCategory(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
-
-    class Meta:
-        unique_together = ("case_study", "user", 'name')
 
 
 class Solution(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(UserInCasestudy)
     solution_category = models.ForeignKey(SolutionCategory)
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
-
-    class Meta:
-        unique_together = ("case_study", "user", 'name')
 
 
 class SolutionQuantity(GDSEModel):
@@ -77,8 +88,7 @@ class SolutionRatioOneUnit(GDSEModel):
 
 
 class Implementation(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder)
     solutions = models.ManyToManyField(Solution,
@@ -140,14 +150,22 @@ class SolutionInImplementationGeometry(GDSEModel):
 
 
 class Strategy(GDSEModel):
-    case_study = models.ForeignKey(CaseStudy)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
     coordinator = models.ForeignKey(Stakeholder, default=1)
     implementations = models.ManyToManyField(Implementation)
 
-    class Meta:
-        unique_together = ("case_study", "user", 'name')
+    def validate_unique(self, *args, **kwargs):
+        super().validate_unique(*args, **kwargs)
+
+        qs = self.__class__._default_manager.filter(
+            user__casestudy=self.user.casestudy,
+            name=self.name
+        )
+
+        if qs.exists():
+            raise ValidationError('{n} exists in casestudy {c}'.format(
+                    n=self.name, c=self.user.casestudy,))
 
     @property
     def participants(self):

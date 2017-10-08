@@ -5,7 +5,7 @@
         <div class="col-md-6">
       </div>
       <div class="row">
-        <p>Case Study {{solution_category.case_study}}.</p>
+        <p>Case Study {{solution_category.casestudy}}.</p>
         <p>Solution Category {{solution_category.id}}: {{solution_category}}.</p>
         {% if solution_category.solution_set %}
             <ul>
@@ -14,7 +14,7 @@
             {% endfor %}
             </ul>
         {% else %}
-            <p>No {{solution_category}} solutions are available in {{solution_category.case_study}}.</p>
+            <p>No {{solution_category}} solutions are available in {{solution_category.casestudy}}.</p>
         {% endif %}
 
       </div>

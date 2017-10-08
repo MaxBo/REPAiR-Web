@@ -45,7 +45,6 @@
   "model": "changes.user",
   "pk": 1,
   "fields": {
-    "case_study": 5,
     "name": "Max"
   }
 },
@@ -53,7 +52,6 @@
   "model": "changes.user",
   "pk": 2,
   "fields": {
-    "case_study": 5,
     "name": "JM"
   }
 },
@@ -61,8 +59,55 @@
   "model": "changes.user",
   "pk": 3,
   "fields": {
-    "case_study": 5,
     "name": "Andreas"
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "casestudy": 5
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "casestudy": 5
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 3,
+  "fields": {
+    "user": 3,
+    "casestudy": 5
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 5,
+  "fields": {
+    "user": 2,
+    "casestudy": 2
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 6,
+  "fields": {
+    "user": 1,
+    "casestudy": 2
+  }
+},
+{
+  "model": "changes.userincasestudy",
+  "pk": 7,
+  "fields": {
+    "user": 2,
+    "casestudy": 3
   }
 },
 {
@@ -122,7 +167,7 @@
   "pk": 1,
   "fields": {
     "stakeholder_category": 1,
-    "name": "Stadt Hamburg"
+    "name": "Freie und Hansestadt Hamburg"
   }
 },
 {
@@ -169,7 +214,6 @@
   "model": "changes.solutioncategory",
   "pk": 1,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "name": "Collection containers"
   }
@@ -178,7 +222,6 @@
   "model": "changes.solutioncategory",
   "pk": 2,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "name": "Regulation"
   }
@@ -187,7 +230,6 @@
   "model": "changes.solutioncategory",
   "pk": 3,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "name": "Tour planning"
   }
@@ -196,16 +238,30 @@
   "model": "changes.solutioncategory",
   "pk": 4,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "name": "Public awareness"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 7,
+  "fields": {
+    "user": 3,
+    "name": "Financial"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 8,
+  "fields": {
+    "user": 5,
+    "name": "Police"
   }
 },
 {
   "model": "changes.solution",
   "pk": 1,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "solution_category": 1,
     "name": "Multiple boxes",
@@ -217,7 +273,6 @@
   "model": "changes.solution",
   "pk": 2,
   "fields": {
-    "case_study": 5,
     "user": 1,
     "solution_category": 1,
     "name": "Flexible bins",
@@ -229,7 +284,6 @@
   "model": "changes.solution",
   "pk": 3,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "solution_category": 1,
     "name": "Underfloor collectors",
@@ -241,7 +295,6 @@
   "model": "changes.solution",
   "pk": 4,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "solution_category": 2,
     "name": "Stricter recycling law",
@@ -253,7 +306,6 @@
   "model": "changes.solution",
   "pk": 5,
   "fields": {
-    "case_study": 5,
     "user": 1,
     "solution_category": 3,
     "name": "Tour optimisation",
@@ -265,7 +317,6 @@
   "model": "changes.solution",
   "pk": 6,
   "fields": {
-    "case_study": 5,
     "user": 1,
     "solution_category": 4,
     "name": "Public ads",
@@ -277,12 +328,22 @@
   "model": "changes.solution",
   "pk": 7,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "solution_category": 4,
     "name": "Recycling training",
     "description": "ggg",
     "one_unit_equals": "One training program"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 17,
+  "fields": {
+    "user": 5,
+    "solution_category": 8,
+    "name": "Razzia",
+    "description": "Bum",
+    "one_unit_equals": "One Police(wo)man"
   }
 },
 {
@@ -335,7 +396,6 @@
   "model": "changes.implementation",
   "pk": 1,
   "fields": {
-    "case_study": 5,
     "user": 2,
     "name": "Organic waste initiative Hamburg-Altona",
     "coordinating_stakeholder": 4
@@ -345,7 +405,6 @@
   "model": "changes.implementation",
   "pk": 2,
   "fields": {
-    "case_study": 5,
     "user": 3,
     "name": "Regulative reform bundle 2025",
     "coordinating_stakeholder": 1
@@ -358,8 +417,8 @@
     "solution": 3,
     "implementation": 1,
     "participants": [
-      2,
-      4
+      4,
+      2
     ]
   }
 },
@@ -381,8 +440,8 @@
     "solution": 6,
     "implementation": 1,
     "participants": [
-      2,
-      6
+      6,
+      2
     ]
   }
 },
@@ -393,8 +452,19 @@
     "solution": 4,
     "implementation": 2,
     "participants": [
-      1,
-      2
+      2,
+      1
+    ]
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 5,
+  "fields": {
+    "solution": 3,
+    "implementation": 2,
+    "participants": [
+      1
     ]
   }
 },
@@ -475,6 +545,15 @@
   }
 },
 {
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 13,
+  "fields": {
+    "sii": 5,
+    "quantity": 3,
+    "value": 2.0
+  }
+},
+{
   "model": "changes.solutioninimplementationgeometry",
   "pk": 1,
   "fields": {
@@ -532,7 +611,6 @@
   "model": "changes.strategy",
   "pk": 1,
   "fields": {
-    "case_study": 5,
     "user": 1,
     "name": "Vision Waste 2035",
     "coordinator": 1,

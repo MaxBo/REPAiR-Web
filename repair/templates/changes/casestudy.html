@@ -4,13 +4,14 @@
       <div class="row">
         <div class="col-md-6">
       </div>
+
       <div class="row">
         <p>{% trans "Case Study" %} {{casestudy}}</p>
 
-        <p>{% trans "Users" %}.</p>
+        <p>{% trans "Users in Casestudy:" %}.</p>
         <ul>
         {% for user in users %}
-            <li><a href="/changes/users/{{ user.id }}">{{ user }}</a></li>
+            <li><a href="/changes/{{casestudy.id}}/users/{{ user.id }}">{{ user }}</a></li>
         {% endfor %}
         </ul>
       </div>

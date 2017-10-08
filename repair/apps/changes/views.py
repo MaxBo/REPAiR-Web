@@ -9,6 +9,7 @@ from rest_framework import viewsets
 from repair.apps.changes.models import (CaseStudy,
                                         Unit,
                                         User,
+                                        UserInCasestudy,
                                         StakeholderCategory,
                                         Stakeholder,
                                         SolutionCategory,
@@ -56,15 +57,17 @@ class SolutionViewSet(viewsets.ModelViewSet):
 
 
 def index(request):
-    casestudy_list = CaseStudy.objects.order_by('id')[:10]
-    context = {'casestudy_list': casestudy_list}
+    casestudy_list = CaseStudy.objects.order_by('id')[:20]
+    users = User.objects.order_by('id')[:20]
+    context = {'casestudy_list': casestudy_list,
+               'users': users,}
     return render(request, 'changes/index.html', context)
 
 def casestudy(request, casestudy_id):
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
     stakeholder_categories = casestudy.stakeholdercategory_set.all()
     users = casestudy.user_set.all()
-    solution_categories = casestudy.solutioncategory_set.all()
+    solution_categories = casestudy.solution_categories
 
     context = {
         'casestudy': casestudy,
@@ -144,10 +147,16 @@ def strategies(request, strategy_id):
 
 def user(request, user_id):
     user = User.objects.get(pk=user_id)
+    context = {'user': user,
+               }
+    return render(request, 'changes/user.html', context)
+
+def userincasestudy(request, user_id, casestudy_id):
+    user = UserInCasestudy.objects.get(pk=user_id)
     implementations = user.implementation_set.all()
     solutions = user.solution_set.all()
     context = {'user': user,
                'implementations': implementations,
                'solutions': solutions,
                }
-    return render(request, 'changes/user.html', context)
+    return render(request, 'changes/user_in_casestudy.html', context)

@@ -12,10 +12,16 @@ from repair.urls import router
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
-    # ex: /casestudy/5/
+    # ex: /5/
     url(r'^(?P<casestudy_id>[0-9]+)/$',
         views.casestudy,
         name='casestudy'),
+
+    # ex: /5/users/3/
+    url(r'^(?P<casestudy_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
+        views.userincasestudy,
+        name='userincasestudy'),
+
 
     # ex: /stakeholdercategories/3
     url(r'^stakeholdercategories/(?P<stakeholder_category_id>[0-9]+)/$',
