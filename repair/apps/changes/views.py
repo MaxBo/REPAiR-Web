@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
@@ -24,6 +24,9 @@ from repair.apps.changes.serializers import (CaseStudySerializer,
                                              SolutionSerializer,
                                              SolutionCategorySerializer,
                                              )
+
+
+from repair.apps.changes.forms import NameForm
 
 
 
@@ -90,11 +93,13 @@ def solutioncategories(request, solutioncategory_id):
 
 def stakeholders(request, stakeholder_id):
     stakeholder = Stakeholder.objects.get(pk=stakeholder_id)
-    strategies = stakeholder.strategy_set.all()
-    implementations = stakeholder.implementation_set.all()
+    if request.method == 'POST':
+        form = NameForm(request.POST)
+        if form.is_valid():
+            stakeholder.name = form.cleaned_data['name']
+            stakeholder.save()
+            return HttpResponseRedirect('/changes/stakeholdercategories/{}'.format(stakeholder.stakeholder_category.id))
     context = {'stakeholder': stakeholder,
-               'strategies': strategies,
-               'implementations':implementations,
                }
     return render(request, 'changes/stakeholder.html', context)
 

@@ -11,11 +11,12 @@
             <ul>
             {% for sh in stakeholders %}
                 <li><a href="/changes/stakeholders/{{ sh.id }}">{{ sh }}</a></li>
-            {% endfor %}
+        {% endfor %}
             </ul>
         {% else %}
             <p>No {{stakeholder_category}} stakeholders are available in {{stakeholder_category.case_study}}.</p>
         {% endif %}
+
 
       </div>
     </body>

@@ -7,10 +7,18 @@
       <div class="row">
         <p>Stakeholder  {{stakeholder.id}}: {{stakeholder}} ({{stakeholder.stakeholder_category}} in {{stakeholder.stakeholder_category.case_study}}).</p>
 
-        {% if strategies %}
+        <form action="/changes/stakeholders/{{ stakeholder.id }}/" method="post">
+            <label for="name">Name: </label>
+            <input id="name" type="text" name="name" maxlength="100" required />
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit" />
+        </form>
+
+        {% if stakeholder.strategy_set %}
             <p>{{stakeholder}} coordinates the following strategies:</p>
             <ul>
-            {% for strategy in strategies %}
+            {% for strategy in stakeholder.strategy_set.all %}
                 <li><a href="/changes/strategies/{{ strategy.id }}">{{ strategy }}</a></li>
             {% endfor %}
             </ul>
@@ -18,10 +26,10 @@
             <p>No strategies coordinated by {{stakeholder}}.</p>
         {% endif %}
 
-        {% if implementations %}
+        {% if stakeholder.implementation_set %}
             <p>{{stakeholder}} coordinates the following implementations:</p>
             <ul>
-            {% for implementation in implementations %}
+            {% for implementation in stakeholder.implementation_set.all %}
                 <li><a href="/changes/implementations/{{ implementation.id }}">{{ implementation }}</a></li>
             {% endfor %}
             </ul>
@@ -29,18 +37,16 @@
             <p>No implementations coordinated by {{stakeholder}}.</p>
         {% endif %}
 
-        {% if participants %}
-            <p>Included Stakeholders: </p>
+        {% if stakeholder.solutioninimplementation_set %}
+            <p>Participates in Solutions: </p>
             <ul>
-            {% for participant in participants %}
-                <li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li>
+            {% for sii in stakeholder.solutioninimplementation_set.all %}
+                <li><a href="/changes/solutions/{{ sii.solution.id }}">{{ sii.solution }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>No stakeholders assigned yet.</p>
+            <p>No solutions assigned yet.</p>
         {% endif %}
-
-
 
       </div>
     </body>

@@ -11,7 +11,7 @@
             <p>Notes:</p>
             <ul>
             {% for note in sii.solutioninimplementationnote_set.all %}
-                <p>{{note}}</p>
+                <p>{{note.note}}</p>
             {% endfor %}
             </ul>
         {% endif %}
