@@ -163,6 +163,14 @@
   }
 },
 {
+  "model": "changes.stakeholdercategory",
+  "pk": 4,
+  "fields": {
+    "case_study": 2,
+    "name": "Private"
+  }
+},
+{
   "model": "changes.stakeholder",
   "pk": 1,
   "fields": {
@@ -208,6 +216,14 @@
   "fields": {
     "stakeholder_category": 3,
     "name": "NABU"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 16,
+  "fields": {
+    "stakeholder_category": 4,
+    "name": "Amsterdam Waste Initiative"
   }
 },
 {
