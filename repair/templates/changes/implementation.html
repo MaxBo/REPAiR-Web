@@ -11,8 +11,8 @@
         {% if solutions %}
             <p>{{implementation}} consists of the following solutions:</p>
             <ul>
-            {% for solution in solutions %}
-                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ solution.id }}">{{ solution }}</a></li>
+            {% for sii in solutions %}
+                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ sii.solution_id }}">{{ sii }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
