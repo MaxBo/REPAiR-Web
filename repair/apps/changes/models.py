@@ -132,9 +132,8 @@ class SolutionInImplementationQuantity(GDSEModel):
     value = models.FloatField()
 
     def __str__(self):
-        text = '{s} has {v} {q}'
-        return text.format(s=self.sii,
-                           v=self.value, q=self.quantity)
+        text = '{v} {q}'
+        return text.format(v=self.value, q=self.quantity)
 
 
 class SolutionInImplementationGeometry(GDSEModel):
@@ -144,9 +143,8 @@ class SolutionInImplementationGeometry(GDSEModel):
     #geom = models.GeometryField(verbose_name='geom')
 
     def __str__(self):
-        text = 'location {n} for {s} at {g}'
-        return text.format(s=self.sii,
-                           n=self.name, g=self.geom)
+        text = 'location {n} at {g}'
+        return text.format(n=self.name, g=self.geom)
 
 
 class Strategy(GDSEModel):

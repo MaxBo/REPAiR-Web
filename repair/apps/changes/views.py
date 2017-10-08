@@ -152,11 +152,10 @@ def user(request, user_id):
     return render(request, 'changes/user.html', context)
 
 def userincasestudy(request, user_id, casestudy_id):
-    user = UserInCasestudy.objects.get(pk=user_id)
-    implementations = user.implementation_set.all()
-    solutions = user.solution_set.all()
+    user = UserInCasestudy.objects.get(user_id=user_id,
+                                       casestudy_id=casestudy_id)
+    other_casestudies = user.user.casestudies.exclude(pk=casestudy_id).all
     context = {'user': user,
-               'implementations': implementations,
-               'solutions': solutions,
+               'other_casestudies': other_casestudies,
                }
     return render(request, 'changes/user_in_casestudy.html', context)

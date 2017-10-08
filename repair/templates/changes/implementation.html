@@ -5,14 +5,14 @@
         <div class="col-md-6">
       </div>
       <div class="row">
-        <p>Implementation {{implementation.id}}: {{implementation}} (coordinated by {{implementation.coordinating_stakeholder}}).</p>
-        <p>Createy by <li><a href="/changes/users/{{implementation.user.id}}">{{implementation.user}}</a></li> .</p>
+        <p>Implementation {{implementation.id}}: {{implementation}} (coordinated by <a href="/changes/stakeholders/{{implementation.coordinating_stakeholder.id}}">{{implementation.coordinating_stakeholder}}</a>).</p>
+        <p>Created by <a href="/changes/{{implementation.user.casestudy.id}}/users/{{implementation.user.id}}">{{implementation.user}}</a> .</p>
 
         {% if solutions %}
             <p>{{implementation}} consists of the following solutions:</p>
             <ul>
             {% for sii in solutions %}
-                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ sii.solution_id }}">{{ sii }}</a></li>
+                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ sii.solution_id }}">{{ sii.solution }}</a></li>
             {% endfor %}
             </ul>
         {% else %}

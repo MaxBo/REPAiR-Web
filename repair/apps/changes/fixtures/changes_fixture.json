@@ -139,6 +139,13 @@
   }
 },
 {
+  "model": "changes.unit",
+  "pk": 5,
+  "fields": {
+    "name": "\u20ac"
+  }
+},
+{
   "model": "changes.stakeholdercategory",
   "pk": 1,
   "fields": {
@@ -175,7 +182,7 @@
   "pk": 1,
   "fields": {
     "stakeholder_category": 1,
-    "name": "Freie und Hansestadt Hamburg"
+    "name": "Stadt Hamburg"
   }
 },
 {
@@ -399,13 +406,32 @@
   }
 },
 {
+  "model": "changes.solutionquantity",
+  "pk": 7,
+  "fields": {
+    "solution": 3,
+    "unit": 3,
+    "name": "depth of containers"
+  }
+},
+{
   "model": "changes.solutionratiooneunit",
   "pk": 1,
   "fields": {
-    "solution": 1,
+    "solution": 3,
     "name": "Collection volume",
     "value": 50.0,
     "unit": 1
+  }
+},
+{
+  "model": "changes.solutionratiooneunit",
+  "pk": 2,
+  "fields": {
+    "solution": 3,
+    "name": "Collection Costs",
+    "value": 350.0,
+    "unit": 5
   }
 },
 {
@@ -567,6 +593,15 @@
     "sii": 5,
     "quantity": 3,
     "value": 2.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 14,
+  "fields": {
+    "sii": 1,
+    "quantity": 7,
+    "value": 2.5
   }
 },
 {

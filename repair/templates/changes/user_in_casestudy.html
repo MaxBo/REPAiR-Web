@@ -5,11 +5,11 @@
         <div class="col-md-6">
       </div>
       <div class="row">
-        <p>User {{user.id}}: {{user}} ({{user.casestudy}}).</p>
-        {% if solutions %}
+        <p>User {{user.id}}: {{user}}.</p>
+        {% if user.solution_set %}
             <p>{% trans "Solutions created:" %}</p>
             <ul>
-            {% for solution in solutions %}
+            {% for solution in user.solution_set.all %}
                 <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
             {% endfor %}
             </ul>
@@ -17,15 +17,26 @@
             <p>{% trans "No solutions defined by." %} {{user}}</p>
         {% endif %}
 
-        {% if implementations %}
+        {% if user.implementation_set %}
             <p>{% trans "Implementations created:" %}</p>
             <ul>
-            {% for implementation in implementations %}
+            {% for implementation in user.implementation_set.all %}
                 <li><a href="/changes/implementations/{{ implementation.id }}">{{ implementation }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
             <p>{% trans "No implementations defined by." %} {{user}}</p>
+        {% endif %}
+
+        {% if other_casestudies %}
+            <p>{% trans "In other CaseStudies:" %}</p>
+            <ul>
+            {% for casestudy in other_casestudies %}
+                <li><a href="/changes/{{ casestudy.id }}">{{ casestudy }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No other Casestudy assigned to" %} {{user}}</p>
         {% endif %}
 
 

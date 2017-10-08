@@ -7,6 +7,9 @@
       <div class="row">
         <p>Solution  {{sii.id}}: {{sii}}.</p>
 
+        <p><a href="/changes/solutions/{{ sii.solution_id }}">Solution Description</a></p>
+        <p><a href="/changes/implementations/{{ sii.implementation_id }}">Implementation Description</a></p>
+
         {% if sii.solutioninimplementationnote_set %}
             <p>Notes:</p>
             <ul>
@@ -26,14 +29,14 @@
         <p>Geometries: </p>
         <ul>
         {% for geom in geometries%}
-            <p>{{geom}}</p>
+            <p><li>{{geom}}</li></p>
         {% endfor %}
         </ul>
 
         <p>Quantities: </p>
         <ul>
         {% for quant in quantities%}
-            <p>{{quant}} {{qant.quantities.unit}}</p>
+            <p><li>{{quant}} {{qant.quantities.unit}}</li></p>
         {% endfor %}
         </ul>
       </div>

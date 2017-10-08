@@ -55,7 +55,7 @@ class ModelTest(TestCase):
             name='Altona',
             geom='LatLon',
         )
-        target = 'location Altona for Sol1 in Impl2 at LatLon'
+        target = 'location Altona at LatLon'
         self.assertEqual(str(model), target)
 
         model = SolutionInImplementationNote(
@@ -74,23 +74,7 @@ class ModelTest(TestCase):
             quantity=quantity,
             value=42,
         )
-        self.assertEqual(str(model), 'Sol1 in Impl2 has 42 bins [tons]')
+        self.assertEqual(str(model), '42 bins [tons]')
 
-    def test_unique_names(self):
-        """test unique names"""
-        city1 = CaseStudy(name='City1')
-        city2 = CaseStudy(name='City2')
-        user1 = User(name='User1')
-        user2 = User(name='User2')
-        #user1.casestudies.add(city1)
-        #user1.casestudies.add(city2)
-        #user2.casestudies.add(city2)
 
-        user1city1 = UserInCasestudy(user=user1, casestudy=city1)
-        user1city2 = UserInCasestudy(user=user1, casestudy=city2)
-        user2city2 = UserInCasestudy(user=user2, casestudy=city2)
-
-        Strategy11 = Strategy(name='Strategy', user=user1city1)
-        Strategy12 = Strategy(name='Strategy', user=user1city2)
-        Strategy22 = Strategy(name='Strategy', user=user2city2)
 

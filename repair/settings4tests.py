@@ -20,3 +20,15 @@ DATABASES = {
     },
 
 }
+
+MIGRATION_MODULES = {
+    'auth': None,
+    'contenttypes': None,
+    'default': None,
+    'sessions': None,
+
+    'changes': None,
+    'profiles': None,
+    'snippets': None,
+    'scaffold_templates': None,
+}
