@@ -74,8 +74,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'django.contrib.gis',
     'rest_framework',
     'repair.apps.study_area',
+    'repair.apps.changes',
     'require'
 ]
 
@@ -126,7 +128,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
-    }
+    },
+
 }
 
 
@@ -190,3 +193,4 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+

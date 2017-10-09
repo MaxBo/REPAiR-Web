@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Case Study {{stakeholder_category.casestudy}}.</p>
+        <p>Stakeholder Category {{stakeholder_category.id}}: {{stakeholder_category}}.</p>
+        {% if stakeholders %}
+            <ul>
+            {% for sh in stakeholders %}
+                <li><a href="/changes/stakeholders/{{ sh.id }}">{{ sh }}</a></li>
+        {% endfor %}
+            </ul>
+        {% else %}
+            <p>No {{stakeholder_category}} stakeholders are available in {{stakeholder_category.casestudy}}.</p>
+        {% endif %}
+
+
+      </div>
+    </body>
+</html>
+{% endblock %}

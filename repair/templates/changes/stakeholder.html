@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Stakeholder  {{stakeholder.id}}: {{stakeholder}} ({{stakeholder.stakeholder_category}}).</p>
+
+        <form action="/changes/stakeholders/{{ stakeholder.id }}/" method="post">
+            <label for="name">Name: </label>
+            <input id="name" type="text" name="name" maxlength="100" required />
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit" />
+        </form>
+
+        {% if stakeholder.strategy_set %}
+            <p>{{stakeholder}} coordinates the following strategies:</p>
+            <ul>
+            {% for strategy in stakeholder.strategy_set.all %}
+                <li><a href="/changes/strategies/{{ strategy.id }}">{{ strategy }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No strategies coordinated by {{stakeholder}}.</p>
+        {% endif %}
+
+        {% if stakeholder.implementation_set %}
+            <p>{{stakeholder}} coordinates the following implementations:</p>
+            <ul>
+            {% for implementation in stakeholder.implementation_set.all %}
+                <li><a href="/changes/implementations/{{ implementation.id }}">{{ implementation }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No implementations coordinated by {{stakeholder}}.</p>
+        {% endif %}
+
+        {% if stakeholder.solutioninimplementation_set %}
+            <p>Participates in Solutions: </p>
+            <ul>
+            {% for sii in stakeholder.solutioninimplementation_set.all %}
+                <li><a href="/changes/solutions/{{ sii.solution.id }}">{{ sii.solution }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No solutions assigned yet.</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

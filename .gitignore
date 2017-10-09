@@ -5,3 +5,4 @@
 *.wpu
 
 db.sqlite3
+migrations/

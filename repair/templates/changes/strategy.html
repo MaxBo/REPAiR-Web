@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Strategy  {{strategy.id}}: {{strategy}}, coordinated by <a href="/changes/stakeholders/{{strategy.coordinator.id}}">{{strategy.coordinator}}</a></p>
+
+
+        {% if implementations %}
+            <p>{{strategy}} consists of the following implementations:</p>
+            <ul>
+            {% for implementation in implementations %}
+                <li><a href="/changes/implementations/{{implementation.id}}">{{ implementation }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No implementations in {{strategy}}.</p>
+        {% endif %}
+
+        {% if strategy.participants %}
+            <p>Strategy needs the following stakeholders:</p>
+            <ul>
+            {% for participant in strategy.participants %}
+                <p><li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+
+      </div>
+    </body>
+</html>
+{% endblock %}

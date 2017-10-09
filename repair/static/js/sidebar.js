@@ -4,8 +4,14 @@ function toggleActive(id) {
     console.log(div)
     
     if (className == 'active'){
-         div.className = '';
-     } else {
-         div.className = 'active';
-     }
+        div.className = '';
+    } else {
+        div.className = 'active';
+    }
+     
+    $('#sidebar > .sidebar-nav > li').hover(function () {
+        $(this).find('.sidebar-nav').show(500);
+    }, function () {
+        $(this).find('.sidebar-nav').hide(500);
+    });
 }

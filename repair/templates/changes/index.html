@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+
+      <div class="row">
+        <p>{% trans "Users" %}.</p>
+        <ul>
+        {% for user in users %}
+            <li><a href="/changes/users/{{ user.id }}">{{ user }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+
+
+      <div class="row">
+        {% if casestudy_list %}
+        <p>{% trans "Casestudies" %}.</p>
+            <ul>
+            {% for casestudy in casestudy_list %}
+                <li><a href="/changes/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No casestudies are available." %}</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

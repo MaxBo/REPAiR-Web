@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Case Study {{solution_category.casestudy}}.</p>
+        <p>Solution Category {{solution_category.id}}: {{solution_category}}.</p>
+        {% if solution_category.solution_set %}
+            <ul>
+            {% for solution in solution_category.solution_set.all %}
+                <li><a href="/changes/solutions/{{ solution.id }}">{{ solution }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No {{solution_category}} solutions are available in {{solution_category.casestudy}}.</p>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

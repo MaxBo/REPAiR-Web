@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Solution  {{sii.id}}: {{sii}}.</p>
+
+        <p><a href="/changes/solutions/{{ sii.solution_id }}">Solution Description</a></p>
+        <p><a href="/changes/implementations/{{ sii.implementation_id }}">Implementation Description</a></p>
+
+        {% if sii.solutioninimplementationnote_set %}
+            <p>Notes:</p>
+            <ul>
+            {% for note in sii.solutioninimplementationnote_set.all %}
+                <p>{{note.note}}</p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <p>Participating Stakeholders: </p>
+        <ul>
+        {% for participant in sii.participants.all %}
+            <li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li>
+        {% endfor %}
+        </ul>
+
+        <p>Geometries: </p>
+        <ul>
+        {% for geom in geometries%}
+            <p><li>{{geom}}</li></p>
+        {% endfor %}
+        </ul>
+
+        <p>Quantities: </p>
+        <ul>
+        {% for quant in quantities%}
+            <p><li>{{quant}} {{qant.quantities.unit}}</li></p>
+        {% endfor %}
+        </ul>
+      </div>
+    </body>
+</html>
+{% endblock %}

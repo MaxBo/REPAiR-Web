@@ -1,31 +1,53 @@
 body {
   position: absolute;
-  width:100%;
+  width: 100%;
   height: 100%;
   margin: 0px;
   font-family: sans-serif;
+  color: #000;
+  background-color: #ccc;
 }
+
+#content {
+  padding-top: 95px;
+}
+
 #map {
-  height: 500px
+  height: 500px;
 }
-path {
-  fill: none;
-  stroke: #4682B4;
-  stroke-opacity: 0.6;
-  stroke-linecap: round;
-  cursor: pointer;
+#evaluationmap {
+  height: 400px;
 }
-path:hover {
-  stroke-opacity: 0.8;
-  stroke: #315B7E;
+#mapviewer {
+  height: 400px;
 }
 .curvesettings {
   position: absolute;
   right: 10px;
-  top:6px;
+  top: 6px;
+}
+.headerpanel {
+  border: 2px solid #EEE;
+  border-radius: 10px;
+  padding-left: 10px;
+  color: #fff;
+  background-color: #333;
+  font-family: sans-serif;
+  font-size: 26px;
 }
 .box {
-  border: 1px solid #EEE;
+  border: 2px solid #EEE;
+  margin: 3px;
+  padding: 5px;
+  background-color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+.panel {
+  position: relative;
+  min-height: 700px;
+  border: 2px solid #EEE;
+  border-radius: 10px;
   margin: 3px;
   padding: 5px;
   background-color: white;
@@ -42,4 +64,33 @@ path:hover {
   left: 50px;
 }
 .graph {
+}
+.selectpicker {
+  height: 30px;
+  border: 2px solid #EEE;
+  border-radius: 5px;
+  color: #fff;
+  background-color: #333;
+}
+.btn {
+  color: #fff;
+  height: 60px;
+  font-size: 1.6em;
+  width: 100%;
+  white-space: normal;
+  -webkit-appearance: none;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+.btn-panel {
+  background-color: #5688d8;
+  line-height: 50px;
+}
+.btn-add {
+  position: absolute;
+  bottom: 0px;
+  background-color: #555;
+  line-height: 30px;
+  height: 40px;
+  width: 96%;
 }

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Solution  {{solution.id}}: {{solution}} ({{solution.solution_category}}).</p>
+        <p>Created by User <a href="/changes/{{solution.user.casestudy.id}}/users/{{ solution.user.id }}">{{ solution.user }}</a></p>
+        <p>Description: {{solution.description}}.</p>
+        <p>One unit equals: {{solution.one_unit_equals}}</p>
+
+        {% if solution.solutionratiooneunit_set %}
+            <p>The solution has the following ratios per unit defined:</p>
+            <ul>
+            {% for ratio in solution.solutionratiooneunit_set.all %}
+                <p><li>{{ ratio }}: {{ ratio.value }} {{ ratio.unit }} / {{solution.one_unit_equals}}</li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+
+        {% if solution.solutionquantity_set %}
+            <p>An Implementations has to define the following quantities for this solution:</p>
+            <ul>
+            {% for quantity in solution.solutionquantity_set.all %}
+                <p><li>{{ quantity }}</li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if solution.implementation_set %}
+            <p>Solution is part of the following implementations:</p>
+            <ul>
+            {% for implementation in solution.implementation_set.all %}
+                <p><li><a href="/changes/implementations/{{ implementation.id }}/solutions/{{solution.id}}">{{ implementation }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+
+      </div>
+    </body>
+</html>
+{% endblock %}

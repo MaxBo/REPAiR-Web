@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+
+      <div class="row">
+        <p>{% trans "Case Study" %} {{casestudy}}</p>
+
+        <p>{% trans "Users in Casestudy:" %}.</p>
+        <ul>
+        {% for user in users %}
+            <li><a href="/changes/{{casestudy.id}}/users/{{ user.id }}">{{ user }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+
+      <div class="row">
+
+        <p>{% trans "Catalogue of Solutions" %}.</p>
+        {% for solution_category in solution_categories %}
+            <div class="col-md-2 panel">
+              <div class="buttons" id="{{ solution_category }}">
+                <input type="button" class="btn btn-info" value="{{ solution_category }}" onclick="location.href = '/changes/solutioncategories/{{ solution_category.id }}';"><br><br>
+                {% for solution in solution_category.solution_set.all %}
+                    <input type="button" class="btn btn-success" value="{{ solution }}" onclick="location.href = '/changes/solutions/{{ solution.id }}';"><br><br>
+                {% endfor %}
+                <br><br>
+                <input type="submit" class="btn btn-add" value="add solution"/>
+              </div>
+            </div>
+        {% endfor %}
+        <div class="col-md-2">
+          <input type="submit" class="btn-warning" value="add solution category"/>
+        </div>
+      </div>
+
+      <div class="row">
+        {% if stakeholder_categories %}
+            {% for sh_cat in stakeholder_categories %}
+
+              <div class="col-md-2 panel">
+                <div class="buttons" id="{{ sh_cat }}">
+                  <input type="button" class="btn btn-warning" value="{{ sh_cat }}" onclick="location.href = '/changes/stakeholdercategories/{{ sh_cat.id }}';"><br><br>
+                  {% for stakeholder in sh_cat.stakeholder_set.all %}
+                     <input type="button" class="btn btn-panel" value="{{ stakeholder }}" onclick="location.href = '/changes/stakeholders/{{ stakeholder.id }}';"><br><br>
+                  {% endfor %}
+                  <br><br>
+                  <input type="submit" class="btn btn-add" value="add stakeholder"/>
+                </div>
+              </div>
+          {% endfor %}
+        {% endif %}
+        <div class="col-md-2">
+          <input type="submit" class="btn-warning" value="add stakeholder category"/>
+        </div>
+
+
+      </div>
+    </body>
+</html>
+{% endblock %}
