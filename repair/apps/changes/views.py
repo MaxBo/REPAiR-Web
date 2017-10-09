@@ -100,6 +100,7 @@ def stakeholders(request, stakeholder_id):
         form = NameForm(request.POST)
         if form.is_valid():
             stakeholder.name = form.cleaned_data['name']
+            stakeholder.full_clean()
             stakeholder.save()
             return HttpResponseRedirect('/changes/stakeholdercategories/{}'.format(stakeholder.stakeholder_category.id))
     context = {'stakeholder': stakeholder,

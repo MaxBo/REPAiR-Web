@@ -24,13 +24,14 @@ class GDSEUniqueNameModel(GDSEModel):
         super().validate_unique(*args, **kwargs)
 
         qs = self.__class__._default_manager.filter(
-            user__casestudy=self.user.casestudy,
             name=self.name
         )
 
         if qs.exists():
-            raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
-                    cl=self.__class__.__name__, n=self.name, c=self.user.casestudy,))
+            for row in qs:
+                if row.casestudy == self.casestudy:                    
+                    raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
+                            cl=self.__class__.__name__, n=self.name, c=self.casestudy,))
 
 
 
@@ -72,14 +73,27 @@ class StakeholderCategory(GDSEUniqueNameModel):
     name = models.TextField()
 
 
+    @property
+    def casestudy(self):
+        return self.case_study
+
+
 class Stakeholder(GDSEUniqueNameModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory)
     name = models.TextField()
+
+    @property
+    def casestudy(self):
+        return self.stakeholder_category.casestudy
 
 
 class SolutionCategory(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
+    
+    @property
+    def casestudy(self):
+        return self.user.casestudy
 
 
 class Solution(GDSEUniqueNameModel):
@@ -88,6 +102,10 @@ class Solution(GDSEUniqueNameModel):
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
+
+    @property
+    def casestudy(self):
+        return self.user.casestudy
 
 
 class SolutionQuantity(GDSEModel):
@@ -169,17 +187,6 @@ def trigger_solutioninimplementationquantity_quantity(sender, instance,
             if is_created:
                 new.save()
 
-def add_solutionquantity(solution, sii):
-    """
-    add solutionquanty for quantities of solution
-    to solutioninimplementationquantity of sii
-    """
-    for solution_quantity in solution.solutionquantity_set.all():
-        new, is_created = SolutionInImplementationQuantity.objects.\
-            get_or_create(sii=sii, quantity=solution_quantity)
-        if is_created:
-            new.save()
-
 
 signals.post_save.connect(
     trigger_solutioninimplementationquantity_sii,
@@ -241,3 +248,7 @@ class Strategy(GDSEUniqueNameModel):
             for participant in implementation.participants:
                 participants.add(participant)
         return participants
+
+    @property
+    def casestudy(self):
+        return self.user.casestudy
