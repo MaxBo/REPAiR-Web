@@ -1,41 +1,38 @@
-{% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-      <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-      <div class="row row-padding-top">
-        <div class="col-md-2 panel">
-          <div class="buttons" id="government">
-            <h4>{% trans "Government" %}</h4>
-            <input type="submit" class="btn btn-panel" value="Stadt Hamburg"/><br>
-            <input type="submit" class="btn btn-panel" value="Bezirk Altona"/><br>
-            <input type="submit" class="btn btn-panel" value="Kreis Pinneberg"/><br>
-            
-            <input type="submit" class="btn btn-add" value="add stakeholder"/>
-          </div>
-        </div>
-        <div class="col-md-2 panel">
-          <div class="buttons" id="wastecompanies">
-            <h4>{% trans "Waste Companies" %}</h4>
-            <input type="submit" class="btn btn-panel" value="Stadtreinigung Hamburg"/><br>
-            <input type="submit" class="btn btn-panel" value="GAP"/><br>
-            
-            <input type="submit" class="btn btn-add" value="add stakeholder"/>
-          </div>
-        </div>
-        <div class="col-md-2 panel">
-          <div class="buttons" id="ngos">
-            <h4>{% trans "NGOs" %}</h4>
-            <input type="submit" class="btn btn-panel" value="NABU"/><br>
-            
-            <input type="submit" class="btn btn-add" value="add stakeholder"/>
-          </div>
-        </div>
-        <div class="col-md-2">
-          <input type="submit" class="btn" value="add stakeholder category"/>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <div class="row row-padding-top">
+      <div class="col-md-2 panel">
+        <div class="buttons" id="government">
+          <h4>{% trans "Government" %}</h4>
+          <input type="submit" class="btn btn-panel" value="Stadt Hamburg"/><br>
+          <input type="submit" class="btn btn-panel" value="Bezirk Altona"/><br>
+          <input type="submit" class="btn btn-panel" value="Kreis Pinneberg"/><br>
+          
+          <input type="submit" class="btn btn-add" value="add stakeholder"/>
         </div>
       </div>
-    {% load require %}
-    {% require_module 'app' %}
+      <div class="col-md-2 panel">
+        <div class="buttons" id="wastecompanies">
+          <h4>{% trans "Waste Companies" %}</h4>
+          <input type="submit" class="btn btn-panel" value="Stadtreinigung Hamburg"/><br>
+          <input type="submit" class="btn btn-panel" value="GAP"/><br>
+          
+          <input type="submit" class="btn btn-add" value="add stakeholder"/>
+        </div>
+      </div>
+      <div class="col-md-2 panel">
+        <div class="buttons" id="ngos">
+          <h4>{% trans "NGOs" %}</h4>
+          <input type="submit" class="btn btn-panel" value="NABU"/><br>
+          
+          <input type="submit" class="btn btn-add" value="add stakeholder"/>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <input type="submit" class="btn" value="add stakeholder category"/>
+      </div>
+    </div>
   </body>
 </html>
 {% endblock %}

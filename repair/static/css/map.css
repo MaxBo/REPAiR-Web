@@ -1,0 +1,36 @@
+#map * path {
+  fill: none;
+  stroke: #4682B4;
+  stroke-opacity: 0.6;
+  stroke-linecap: round;
+  cursor: pointer;
+}
+#map * path:hover {
+  stroke-opacity: 0.8;
+  stroke: #315B7E;
+}
+#map * .curvesettings {
+  position: absolute;
+  right: 10px;
+  top:6px;
+}
+#map * .box {
+  border: 1px solid #EEE;
+  margin: 3px;
+  padding: 5px;
+  background-color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+#map * .title {
+  font-weight: 600;
+}
+#map * .source {
+  position: absolute;
+  width: 50%;
+  top: 6px;
+  left: 50px;
+}
+#map * .leaflet-top, #map * .leaflet-bottom {
+  z-index: 5 !IMPORTANT;
+}

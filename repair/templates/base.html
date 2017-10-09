@@ -2,12 +2,13 @@
 <html lang="en">
 {% load staticfiles %}
 <head>
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.slim.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
+    <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
@@ -56,7 +57,7 @@
   </nav>
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
-      <a class="sidebar_menu" id="menu-toggle" onclick="toggleActive('wrapper')"><span id="main_icon" class="glyphicon glyphicon-list"></span></a>
+      <a class="sidebar_menu" id="menu-toggle" onclick="toggleActive('wrapper')"><span id="main_icon" class="glyphicon glyphicon-chevron-left"></span></a>
       {% block sidebar %}
       {% endblock %}
       <!--

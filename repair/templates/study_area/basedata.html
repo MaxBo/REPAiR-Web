@@ -1,5 +1,7 @@
 
+{% load i18n %}
 <link rel="stylesheet" href="{{STATIC_URL}}css/leaflet.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/map.css" />
 <div class="row">
   <div class="col-md-6">
   <h2> {% trans "Text" %} </h2>
@@ -23,5 +25,3 @@
   <div id="nodeinfo" class="col-md-6">
   </div>
 </div>
-{% load require %}
-{% require_module 'app' %}

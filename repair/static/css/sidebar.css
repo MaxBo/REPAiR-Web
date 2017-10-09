@@ -7,20 +7,13 @@
 #wrapper {
     padding-left: 60px;
     transition: all .4s ease 0s;
-    height: 100%
+    height: 100%;
 }
 
-#wrapper.active {
-    padding-left: 250px;
-}
-
-#wrapper.active #sidebar-wrapper {
-    left: 250px;
-}
 
 #sidebar-wrapper {
     color: #fff;
-    margin-left: -250px;
+    left: -190px;
     top: 0px;
     padding-top: 95px;
     width: 250px;
@@ -29,6 +22,12 @@
     position: fixed;
     height: 100%;
     transition: all .4s ease 0s;
+    z-index: 10;
+}
+
+#sidebar-wrapper:hover {
+    background #999;
+    left: 0px;
 }
 
 #page-content-wrapper {
@@ -38,91 +37,62 @@
     height: auto;
 }
 
-.sidebar_menu {
-    color: #999;
-    line-height: 60px;
-    text-indent: 30px;
-    font-size: 2em;
+#sidebar {
     display: block;
     float: left;
     width: 100%;
-    -webkit-transition: background .5s;
-    -moz-transition: background .5s;
-    -o-transition: background .5s;
-    -ms-transition: background .5s;
-    transition: background .5s;
+    text-decoration: none;
+    font-size: 1.2em;
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    line-height: 60px;
+    text-indent: 30px;
 }
 
-.sidebar_menu:hover{
-  color: #999;
-  text-decoration: none;
+#sidebar li a {
+    color: #999;
+    display: block;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    margin-top: 20px;
 }
 
-.sidebar-nav {
-  display: block;
-  float: left;
-  width: 100%;
-  text-decoration: none;
-  font-size: 1.2em;
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
-  line-height: 60px;
-  text-indent: 30px;
+#sidebar li.active a {
+    color: #fff;
+    background: #aad400;
+    text-decoration: none;
 }
 
-.sidebar-nav li a {
-  color: #999;
-  display: block;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  margin:4px
+#sidebar li a:hover {
+    border-style: solid;
+    border-color: #aad400;
 }
 
-.sidebar-nav li a:hover {
-  color: #fff;
-  background: #aad400;
-  text-decoration: none;
-}
 #main_icon
 {
-   float: right;
-   padding-top: 10px;
-   padding-right: 10px;
-   font-size: 1.2em;
+    float: right;
+    padding-top: 10px;
+    padding-right: 10px;
+    font-size: 1.2em;
 }
 .sub_icon
 {
-   float: right;
-   padding-right: 15px;
-   padding-top: 10px;
-   font-size: 2em;
+    float: right;
+    padding-right: 0px;
+    padding-top: 10px;
+    font-size: 2em;
 }
 .content-header {
-  height: 65px;
-  line-height: 65px;
+    height: 65px;
+    line-height: 65px;
 }
 
 .content-header h1 {
-  margin: 0;
-  margin-left: 20px;
-  line-height: 65px;
-  display: inline-block;
+    margin: 0;
+    margin-left: 20px;
+    line-height: 65px;
+    display: inline-block;
 }
 
-@media (max-width:767px) {
-    #wrapper {
-    padding-left: 60px;
-    transition: all .4s ease 0s;
-}
-#sidebar-wrapper {
-    left: 60px;
-}
-#wrapper.active {
-    padding-left: 250px;
-}
-#wrapper.active #sidebar-wrapper {
-    left: 250px;
-    width: 250px;
-    transition: all .4s ease 0s;
 }
