@@ -59,9 +59,11 @@ class NodesViewSet(viewsets.ModelViewSet):
 
 def index(request):
     template = loader.get_template('study_area/index.html')
+    
     context = {}
     context['graph1'] = Testgraph1().get_context_data()
     context['graph2'] = Testgraph2().get_context_data()
+    
     html = template.render(context, request)
     return HttpResponse(html)
 

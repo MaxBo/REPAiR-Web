@@ -1,0 +1,27 @@
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/leaflet.css" />
+<div class="row">
+  <div class="col-md-6">
+  <h2> {% trans "Text" %} </h2>
+  {% trans "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet." %}
+  </div>
+  {% if graph1 %}
+  <div class="graph col-md-3">
+  {{ graph1|safe }}
+  </div>
+  {% endif %}
+  {% if graph2 %}
+  <div class="graph col-md-3">
+  {{ graph2|safe }}
+  </div>
+  {% endif %}
+</div>
+<div class="row">
+  <h2> {% trans "Map with Sankey" %} </h2>
+  <div id="map" class="col-md-6"></div>
+  <h2> {% trans "Interaction Test" %}</h2>
+  <div id="nodeinfo" class="col-md-6">
+  </div>
+</div>
+{% load require %}
+{% require_module 'app' %}
