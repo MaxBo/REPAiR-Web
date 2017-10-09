@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>Implementation {{implementation.id}}: {{implementation}} (coordinated by <a href="/changes/stakeholders/{{implementation.coordinating_stakeholder.id}}">{{implementation.coordinating_stakeholder}}</a>).</p>
+        <p>Created by <a href="/changes/{{implementation.user.casestudy.id}}/users/{{implementation.user.id}}">{{implementation.user}}</a> .</p>
+
+        {% if solutions %}
+            <p>{{implementation}} consists of the following solutions:</p>
+            <ul>
+            {% for sii in solutions %}
+                <li><a href="/changes/implementations/{{implementation.id}}/solutions/{{ sii.solution_id }}">{{ sii.solution }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No solutions in {{implementation}}.</p>
+        {% endif %}
+
+        {% if implementation.strategy_set %}
+            <p>Implementation is part of the following strategies:</p>
+            <ul>
+            {% for strategy in implementation.strategy_set.all %}
+                <p><li><a href="/changes/strategies/{{ strategy.id }}">{{ strategy }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if implementation.participants %}
+            <p>Implementation needs the following stakeholders:</p>
+            <ul>
+            {% for participant in implementation.participants %}
+                <p><li><a href="/changes/stakeholders/{{ participant.id }}">{{ participant }}</a></li></p>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+      </div>
+    </body>
+</html>
+{% endblock %}

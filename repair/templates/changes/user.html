@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+      <div class="row">
+        <div class="col-md-6">
+      </div>
+      <div class="row">
+        <p>User {{user.id}}: {{user}}.</p>
+        {% if user.casestudies %}
+            <p>{% trans "In CaseStudies:" %}</p>
+            <ul>
+            {% for casestudy in user.casestudies.all %}
+                <li><a href="/changes/{{ casestudy.id }}">{{ casestudy }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No Casestudy assigned to." %} {{user}}</p>
+        {% endif %}
+      </div>
+    </body>
+</html>
+{% endblock %}

@@ -22,7 +22,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
-        </button>          
+        </button>
         <a class="navbar-brand" href="/">
           <img src="{{STATIC_URL}}img/repair-logo.png">
         </a>
@@ -31,12 +31,12 @@
         <ul class="nav navbar-nav navbar-main">
           <li id="study-area-link"><a href="/study-area/">Study Area</a></li>
           <li id="status-quo-link"><a href="#">Status Quo</a></li>
-          <li id="changes-link"><a href="#">Changes</a></li>
+          <li id="changes-link"><a href="/changes/">Changes</a></li>
           <li id="impacts-link"><a href="#">Impacts</a></li>
           <li id="decisions-link"><a href="#">Decisions</a></li>
         </ul>
           {% load i18n %}
-  
+
           <form id="language-select" action="{% url 'set_language' %}" method="post">
               {% csrf_token %}
               <input name="next" type="hidden" value="{{ redirect_to }}" />
@@ -54,7 +54,7 @@
       </div>
     </div>
   </nav>
-  <div id="wrapper" class="active"> 
+  <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
       <a class="sidebar_menu" id="menu-toggle" onclick="toggleActive('wrapper')"><span id="main_icon" class="glyphicon glyphicon-list"></span></a>
       {% block sidebar %}
@@ -71,7 +71,7 @@
           <li><a href="/sq-flows/">Flows<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
           <li><a href="/sq-evaluation/">Evaluation<span class="sub_icon glyphicon glyphicon-blackboard"></span></a></li>
           </ul>
-        </li>             
+        </li>
         <li><b>Changes</b>
           <ul class="sidebar-nav">
           <li><a href="/">Solutions<span class="sub_icon glyphicon glyphicon-repeat"></span></a></li>

@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
 from repair.apps.study_area.views import LinksViewSet, NodesViewSet
+
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
@@ -41,7 +42,8 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')), 
     url(r'^study-area/', include('repair.apps.study_area.urls')),
-    #url(r'^stakeholders/', include('repair.apps.stakeholders.urls')),
+    url(r'^stakeholders/', include('repair.apps.stakeholders.urls')),
+    url(r'^changes/', include('repair.apps.changes.urls')),
     #url(r'^sq-flows/', include('repair.apps.sq_flows.urls')),
     #url(r'^sq-evaluation/', include('repair.apps.sq_evaluation.urls')),
     url(r'^api/', include(router.urls)),
