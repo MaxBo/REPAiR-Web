@@ -38,7 +38,7 @@ urlpatterns = [
         views.implementations,
         name='implementations'),
 
-    # ex: /solutions/3
+    # ex: /solutioncategories/3
     url(r'^solutioncategories/(?P<solutioncategory_id>[0-9]+)/$',
         views.solutioncategories,
         name='solutioncategories'),

@@ -182,7 +182,7 @@
   "pk": 1,
   "fields": {
     "stakeholder_category": 1,
-    "name": "Stadt Hamburg"
+    "name": "Altona"
   }
 },
 {
@@ -190,7 +190,7 @@
   "pk": 2,
   "fields": {
     "stakeholder_category": 1,
-    "name": "Bezirk Altona"
+    "name": "Stadt Hamburg"
   }
 },
 {
@@ -231,6 +231,14 @@
   "fields": {
     "stakeholder_category": 4,
     "name": "Amsterdam Waste Initiative"
+  }
+},
+{
+  "model": "changes.stakeholder",
+  "pk": 17,
+  "fields": {
+    "stakeholder_category": 4,
+    "name": "Altona"
   }
 },
 {
