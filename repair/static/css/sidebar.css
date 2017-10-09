@@ -69,14 +69,15 @@
     border-color: #aad400;
 }
 
-#main_icon
+#slide-icon
 {
+    color: #999;
     float: right;
-    padding-top: 10px;
-    padding-right: 10px;
-    font-size: 1.2em;
+    padding: 50px 5px 30px 0px;
+    font-size: 1.5em;
 }
-.sub_icon
+
+.sub-icon
 {
     float: right;
     padding-right: 0px;

@@ -57,7 +57,12 @@
   </nav>
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
-      <a class="sidebar_menu" id="menu-toggle" onclick="toggleActive('wrapper')"><span id="main_icon" class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="sidebar-toggle">
+        <span id="slide-icon" >
+          <span class="glyphicon glyphicon-chevron-left"></span>
+          <span class="glyphicon glyphicon-chevron-right"></span>
+        </span>
+      </a>
       {% block sidebar %}
       {% endblock %}
       <!--
