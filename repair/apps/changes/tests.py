@@ -20,6 +20,8 @@ from .models import (CaseStudy,
                      UserInCasestudy,
                      )
 
+from .factories import *
+
 
 class ModelTest(TestCase):
 
@@ -82,40 +84,19 @@ class ModelSolutionInImplementation(TestCase):
 
     def test01_new_solutionininplementation(self):
         """Test the new solution implementation"""
-        user = User(name='user')
-        user.save()
-        casestudy = CaseStudy(name='city')
-        casestudy.save()
-        uic = UserInCasestudy(user=user, casestudy=casestudy)
-        uic.save()
 
-        solutioncategory = SolutionCategory(name='SolCat1', user=uic)
-        solutioncategory.save()
-
-        unit = Unit(name='yards')
-        unit.save()
-
-
-        implementation = Implementation(name='Impl2', user=uic)
-        implementation.save()
-
-        # create a solution that requires 2 quantities
-
-        solution = Solution(name='Sol1', solution_category=solutioncategory,
-                            user=uic)
-        solution.save()
-
-        solution_quantity1 = SolutionQuantity(solution=solution, name='q1', unit=unit)
-        solution_quantity2 = SolutionQuantity(solution=solution, name='q2', unit=unit)
-        solution_quantity1.save()
-        solution_quantity2.save()
+        # Create a solution with two quantities
+        solution = SolutionFactory()
+        solution_quantity1 = SolutionQuantityFactory(
+            solution=solution, name='q1')
+        solution_quantity2 = SolutionQuantityFactory(
+            solution=solution, name='q2')
 
         # add solution to an implementation
-
-        solution_in_impl = SolutionInImplementation(
+        implementation = ImplementationFactory()
+        solution_in_impl = SolutionInImplementationFactory(
             solution=solution,
             implementation=implementation)
-        solution_in_impl.save()
 
         # check, if the SolutionInImplementationQuantity contains
         # now the 2 quantities
@@ -125,14 +106,13 @@ class ModelSolutionInImplementation(TestCase):
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
         assert len(solution_names) == 2
-        assert set(solution_names) == set(('q1', 'q2'))
+        assert set(solution_names) == {'q1', 'q2'}
 
         # create a solution that requires 3 quantities
 
         # add to the solution a third quantity
-        solution_quantity3 = SolutionQuantity(solution=solution,
-                                              name='q3', unit=unit)
-        solution_quantity3.save()
+        solution_quantity3 = SolutionQuantityFactory(solution=solution,
+                                                     name='q3')
 
         # check if the new quantity has been added to the related table
         solution_in_impl_quantities = SolutionInImplementationQuantity.\
@@ -140,7 +120,7 @@ class ModelSolutionInImplementation(TestCase):
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
         assert len(solution_names) == 3
-        assert set(solution_names) == set(('q1', 'q2', 'q3'))
+        assert set(solution_names) == {'q1', 'q2', 'q3'}
 
         # remove a solution quantity
         to_delete = SolutionQuantity.objects.filter(solution=solution,
@@ -156,7 +136,7 @@ class ModelSolutionInImplementation(TestCase):
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
         assert len(solution_names) == 2
-        assert set(solution_names) == set(('q1', 'q3'))
+        assert set(solution_names) == {'q1', 'q3'}
 
         # remove the solution_in_implementation
         sii_id, deleted = solution_in_impl.delete()
@@ -167,46 +147,43 @@ class ModelSolutionInImplementation(TestCase):
             objects.filter(sii=sii_id)
         assert not solution_in_impl_quantities
 
+
 class UniqueNames(TestCase):
 
-    def test01_unique_strategyname(self):
+    def test02_unique_strategy(self):
         """Test the unique strategy name"""
-        user = User(name='user')
-        user.save()
-        casestudy1 = CaseStudy(name='city1')
-        casestudy2 = CaseStudy(name='city2')
-        casestudy1.save()
-        casestudy2.save()
-        uic1 = UserInCasestudy(user=user, casestudy=casestudy1)
-        uic2 = UserInCasestudy(user=user, casestudy=casestudy2)
-        uic1.save()
-        uic2.save()
-
-        sh_cat1 = StakeholderCategory(name='sc1', case_study=casestudy1)
-        sh_cat2 = StakeholderCategory(name='sc1', case_study=casestudy2)
-        sh_cat1.save()
-        sh_cat2.save()
-        sh1 = Stakeholder(name='sc1', stakeholder_category=sh_cat1)
-        sh2 = Stakeholder(name='sc1', stakeholder_category=sh_cat2)
-        sh1.save()
-        sh2.save()
+        user_city1 = UserInCasestudyFactory(casestudy__name='City1')
+        user_city2 = UserInCasestudyFactory(casestudy__name='City2')
 
         # validate_unique is normally called when a form is validated
-        strategy1_city1 = Strategy(user=uic1, coordinator=sh1, name='Stategy1')
-        strategy1_city1.validate_unique()
-        strategy1_city1.save()
-        strategy1_city2 = Strategy(user=uic2, coordinator=sh2, name='Stategy1')
-        strategy1_city2.validate_unique()
-        strategy1_city2.save()
-        strategy2_city1 = Strategy(user=uic1, coordinator=sh1, name='Stategy2')
-        strategy2_city1.validate_unique()
-        strategy2_city1.save()
+        strategy1_city1 = StrategyFactory(user=user_city1,
+                                          name='FirstStrategy')
+        strategy1_city2 = StrategyFactory(user=user_city2,
+                                          name='FirstStrategy')
+        strategy2_city1 = StrategyFactory(user=user_city1,
+                                          name='SecondStrategy')
         with self.assertRaisesMessage(
             ValidationError,
-            'Strategy Stategy1 already exists in casestudy city1') as err:
-            strategy1b_city1 = Strategy(user=uic1, coordinator=sh1,
-                                        name='Stategy1')
-            strategy1b_city1.validate_unique()
-            strategy1b_city1.save()
-        print(err.exception.message)
+            'Strategy FirstStrategy already exists in casestudy City1') as err:
+            strategy1b_city1 = StrategyFactory(user=user_city1,
+                                               name='FirstStrategy')
+        print(err.exception.messages)
 
+    def test03_unique_stakeholdercategory(self):
+        """Test the unique stakeholder name"""
+        city1 = CaseStudyFactory(name='City1')
+        city2 = CaseStudyFactory(name='City1')
+        stakeholdercat1 = StakeholderCategoryFactory(
+            case_study=city1, name='Cat1')
+        stakeholdercat2 = StakeholderCategoryFactory(
+            case_study=city1, name='Cat2')
+        stakeholdercat3 = StakeholderCategoryFactory(
+            case_study=city2, name='Cat1')
+
+        with self.assertRaisesMessage(
+            ValidationError,
+            'StakeholderCategory Cat1 already exists in casestudy City1',
+            ) as err:
+            stakeholdercat3 = StakeholderCategoryFactory(
+                case_study=city2, name='Cat1')
+        print(err.exception.messages)

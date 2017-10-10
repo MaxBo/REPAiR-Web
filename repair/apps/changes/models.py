@@ -29,10 +29,15 @@ class GDSEUniqueNameModel(GDSEModel):
 
         if qs.exists():
             for row in qs:
-                if row.casestudy == self.casestudy:                    
+                if row.casestudy == self.casestudy:
                     raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
                             cl=self.__class__.__name__, n=self.name, c=self.casestudy,))
 
+    def save(self, *args, **kwargs):
+        """Call :meth:`full_clean` before saving."""
+        if self.pk is None:
+            self.full_clean()
+        super(GDSEUniqueNameModel, self).save(*args, **kwargs)
 
 
 class CaseStudy(GDSEModel):
@@ -90,7 +95,7 @@ class Stakeholder(GDSEUniqueNameModel):
 class SolutionCategory(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy)
     name = models.TextField()
-    
+
     @property
     def casestudy(self):
         return self.user.casestudy
