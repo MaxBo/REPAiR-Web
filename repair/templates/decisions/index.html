@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load require %}
+
+{% block sidebar %}
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="flows">
+      {% include "decisions/decisions.html" %}
+    </div>
+</html>
+{% endblock %}
