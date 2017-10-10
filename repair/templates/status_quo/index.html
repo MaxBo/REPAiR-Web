@@ -3,6 +3,9 @@
 {% load require %}
 
 {% block sidebar %}
+  <script> 
+    document.getElementById("status-quo-link").classList.add('active');
+  </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon glyphicon glyphicon-blackboard"></span></a></li>
     <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-align-right gly-rotate-90"></span></a></li>
