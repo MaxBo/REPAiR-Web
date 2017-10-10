@@ -12,6 +12,7 @@ django-debug-toolbar
 
 django-dynamic-fixture
 fake-factory
+factory_boy
 
 mock
 pytest
