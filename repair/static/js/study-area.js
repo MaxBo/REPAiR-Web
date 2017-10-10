@@ -1,3 +1,3 @@
-require(['./app', './libs/domReady!'], function (app, doc) {
-    requirejs(['app/study-sankey']);
+require(['./libs/domReady!', './app'], function (doc, app) {
+    requirejs(['app/study-sankey-map']);
 });

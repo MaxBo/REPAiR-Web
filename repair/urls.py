@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')), 
     url(r'^study-area/', include('repair.apps.study_area.urls')),
+    url(r'^status-quo/', include('repair.apps.status_quo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

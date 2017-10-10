@@ -1,6 +1,4 @@
-{% extends "base.html" %}
 {% load i18n %}
-{% load  %}
 {% block content %}
       <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
       <div class="row">
@@ -30,8 +28,6 @@
         <div id="evaluationmap" class="col-md-6"></div>
         </div>
       </div>
-      {% load require %}
-      {% require_module 'app' %}
     </body>
 </html>
 {% endblock %}

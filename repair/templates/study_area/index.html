@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load require %}
 
 {% block sidebar %}
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#base-data" data-toggle="pill"> {% trans "Base data" %} <span class="sub-icon glyphicon glyphicon-globe"></span></a></li>
     <li><a href="#stakeholders" data-toggle="pill">{% trans "Stakeholders" %} <span class="sub-icon glyphicon glyphicon-user"></span></a></li>
   </ul>
-  {% endblock %}
-  {% block content %}
+{% endblock %}
+
+{% block content %}
   <div class="tab-content">
     <div class="tab-pane fade in active" id="base-data">
       {% include "study_area/basedata.html" %}
@@ -16,6 +18,5 @@
       {% include "study_area/stakeholders.html" %}
     </div>
   </div>
-  {% load require %}
   {% require_module 'study-area.js' %}
 {% endblock %}
