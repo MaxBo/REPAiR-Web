@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load staticfiles %}
+{% load i18n %}
 <head>
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
@@ -31,11 +32,12 @@
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav navbar-main">
-          <li id="study-area-link"><a href="/study-area/">Study Area</a></li>
-          <li id="status-quo-link"><a href="/status-quo">Status Quo</a></li>
-          <li id="changes-link"><a href="/changes/">Changes</a></li>
-          <li id="impacts-link"><a href="/impacts">Impacts</a></li>
-          <li id="decisions-link"><a href="/decisions">Decisions</a></li>
+          <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
+          <li id="status-quo-link"><a href="/status-quo">{% trans "Status Quo" %}</a></li>
+          <li id="changes-link"><a href="/changes/">{% trans "Changes" %}</a></li>
+          <li id="impacts-link"><a href="/impacts">{% trans "Impacts" %}</a></li>
+          <li id="decisions-link"><a href="/decisions">{% trans "Decisions" %}</a></li>
+          <li id="admin-area-link"><a href="/admin">{% trans "Admin Area" %}</a></li>
         </ul>
           {% load i18n %}
 
