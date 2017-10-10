@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load require %}
 
 {% block sidebar %}
   <script> 
@@ -95,4 +96,5 @@
           </div>
       </div>
     </div>
+  {% require_module 'admin-area.js' %}
 {% endblock %}

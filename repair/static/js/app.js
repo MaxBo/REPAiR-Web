@@ -7,7 +7,9 @@ requirejs.config({
         mapviewer: 'app/visualizations/mapviewer',
         d3: 'libs/d3.v3.min',
         leaflet: 'libs/leaflet',
-        spatialsankey: 'libs/spatialsankey'
+        spatialsankey: 'libs/spatialsankey',
+        jquery: 'libs/jquery-3.2.1.slim.min',
+        treeview: 'libs/bootstrap-treeview.min'
     },
     shim: {
         almond: { exports: 'almond' }

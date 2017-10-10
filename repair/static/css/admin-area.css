@@ -5,3 +5,7 @@
 #view-data-btn {
     width: 100%;
 }
+
+.tab-pane {
+    border: 2px solid #e6e6e6;
+}
