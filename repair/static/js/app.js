@@ -2,16 +2,14 @@ requirejs.config({
     baseUrl: '/static/js',
     paths: {
         almond: 'libs/almond',
-        map: 'visualizations/map',
-        flowmap: 'visualizations/flowmap',
-        mapviewer: 'visualizations/mapviewer',
+        map: 'app/visualizations/map',
+        flowmap: 'app/visualizations/flowmap',
+        mapviewer: 'app/visualizations/mapviewer',
         d3: 'libs/d3.v3.min',
         leaflet: 'libs/leaflet',
         spatialsankey: 'libs/spatialsankey'
     },
     shim: {
-        almond: {exports: 'almond'}
+        almond: { exports: 'almond' }
     }
 });
-
-requirejs(['app/study-sankey']);

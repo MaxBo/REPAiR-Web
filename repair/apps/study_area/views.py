@@ -20,11 +20,13 @@ class Testgraph1(TemplateView):
 
         x = [-2,0,4,6,7]
         y = [q**2-q+3 for q in x]
-        trace1 = Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104, 'size': "10"},
+        trace1 = Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104,
+                                           'size': "10"},
                          mode="lines",  name='1st Trace')
 
         data=Data([trace1])
-        layout=Layout(title=_("Plotly graph"), xaxis={'title':'x1'}, yaxis={'title':'x2'}, height=350)
+        layout=Layout(title=_("Plotly graph"), xaxis={'title':'x1'},
+                      yaxis={'title':'x2'}, height=350)
         figure=Figure(data=data,layout=layout)
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 
@@ -36,9 +38,10 @@ class Testgraph2(TemplateView):
         x = np.random.randn(2000)
         y = np.random.randn(2000)
         layout=Layout(title=_("Plotly Histogram"), height=350)
-        figure=Figure(data=[Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
-                       Scatter(x=x, y=y, mode='markers', marker=Marker(color='white', size=3, opacity=0.3))],
-                      layout=layout)
+        figure=Figure(data=[
+            Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
+            Scatter(x=x, y=y, mode='markers', marker=Marker(
+                color='white', size=3, opacity=0.3))], layout=layout)
         div = plot(figure, show_link=False, output_type='div')
         return div
 
@@ -59,14 +62,10 @@ class NodesViewSet(viewsets.ModelViewSet):
 
 def index(request):
     template = loader.get_template('study_area/index.html')
+    
     context = {}
     context['graph1'] = Testgraph1().get_context_data()
     context['graph2'] = Testgraph2().get_context_data()
-    html = template.render(context, request)
-    return HttpResponse(html)
-
-def stakeholders(request):
-    template = loader.get_template('study_area/stakeholders.html')
-    context = {}
+    
     html = template.render(context, request)
     return HttpResponse(html)

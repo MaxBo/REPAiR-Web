@@ -6,8 +6,9 @@ from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
+import numpy as np
 
-import numpy as np  
+
 class Testgraph1(TemplateView):
     template_name = 'graph.html'
 
@@ -23,7 +24,7 @@ class Testgraph1(TemplateView):
         return div
     
 def index(request):
-    template = loader.get_template('status_quo/sq_evaluation.html')
+    template = loader.get_template('status_quo/index.html')
     context = {}
     context['indicatorgraph'] = Testgraph1().get_context_data()
     html = template.render(context, request)

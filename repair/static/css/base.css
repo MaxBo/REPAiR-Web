@@ -5,7 +5,6 @@ body {
   margin: 0px;
   font-family: sans-serif;
   color: #000;
-  background-color: #ccc;
 }
 
 #content {
@@ -93,4 +92,16 @@ body {
   line-height: 30px;
   height: 40px;
   width: 96%;
+}
+
+/* workaround for visualizations not rendering correctly hidden tabs */
+.tab-pane {
+    display: block !important;
+    position: fixed;
+    right: -9999px;
+    width: 100%;
+}
+.tab-pane.active {
+    position: relative;
+    left: 0;
 }

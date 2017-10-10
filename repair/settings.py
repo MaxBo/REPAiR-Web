@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'repair.apps.study_area',
     'repair.apps.changes',
+    'repair.apps.status_quo',
     'require'
 ]
 

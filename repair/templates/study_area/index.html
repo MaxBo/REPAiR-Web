@@ -1,32 +1,22 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load require %}
+
+{% block sidebar %}
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#base-data" data-toggle="pill"> {% trans "Base data" %} <span class="sub-icon glyphicon glyphicon-globe"></span></a></li>
+    <li><a href="#stakeholders" data-toggle="pill">{% trans "Stakeholders" %} <span class="sub-icon glyphicon glyphicon-user"></span></a></li>
+  </ul>
+{% endblock %}
+
 {% block content %}
-      <link rel="stylesheet" href="{{STATIC_URL}}css/leaflet.css" />
-      <div class="row">
-        <div class="col-md-6">
-        <h2> {% trans "Text" %} </h2>
-        {% trans "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet." %}
-        </div>
-        {% if graph1 %}
-        <div class="graph col-md-3">
-        {{ graph1|safe }}
-        </div>
-        {% endif %}
-        {% if graph2 %}
-        <div class="graph col-md-3">
-        {{ graph2|safe }}
-        </div>
-        {% endif %}
-      </div>
-      <div class="row">
-        <h2> {% trans "Map with Sankey" %} </h2>
-        <div id="map" class="col-md-6"></div>
-        <h2> {% trans "Interaction Test" %}</h2>
-        <div id="nodeinfo" class="col-md-6">
-        </div>
-      </div>
-      {% load require %}
-      {% require_module 'app' %}
-    </body>
-</html>
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="base-data">
+      {% include "study_area/basedata.html" %}
+    </div>
+    <div class="tab-pane fade" id="stakeholders">
+      {% include "study_area/stakeholders.html" %}
+    </div>
+  </div>
+  {% require_module 'study-area.js' %}
 {% endblock %}
