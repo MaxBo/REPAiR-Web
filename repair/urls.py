@@ -44,6 +44,8 @@ urlpatterns = [
     url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^status-quo/', include('repair.apps.status_quo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
+    url(r'^decisions/', include('repair.apps.decisions.urls')),
+    url(r'^impacts/', include('repair.apps.impacts.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/payload', include('repair.static.webhook.urls')),
