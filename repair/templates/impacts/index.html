@@ -3,6 +3,9 @@
 {% load require %}
 
 {% block sidebar %}
+  <script> 
+    document.getElementById("impacts-link").classList.add('active');
+  </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
     <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>

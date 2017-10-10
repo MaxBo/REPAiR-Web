@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load require %}
+
+{% block sidebar %}
+  <script> 
+    document.getElementById("admin-area-link").classList.add('active');
+  </script>
+{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
+    <div class="row">
+      <div class="col-md-9">
+        <div class="col-md-4">
+          {% trans "Case Study" %} 
+          <br>
+          <select name="case-studies">
+            {% for cs in case_studies %}
+                <option value="{{ cs.id }}">{{ cs.name }}</option>
+            {% endfor %}
+          </select> 
+        </div>
+        <div class="col-md-4">
+          {% trans "Flow" %}
+          <br>
+          <select name="flows">
+            {% for f in flows %}
+                <option value="{{ f.id }}">{{ f.name }}</option>
+            {% endfor %}
+          </select> 
+        </div>
+        <div class="col-md-4">
+          {% trans "Data Entered by" %}
+          <br>
+          <input type="text" name="user">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-9">
+        <div class="tab-content">
+          <div class="tab-pane active admin-tab" id="sankey">
+            {% if sankey %}
+              {{ sankey|safe }}
+            {% endif %}
+          </div>
+          <div class="tab-pane admin-tab" id="activity-groups-edit">
+            {% include "admin/activity-groups-edit.html" %}
+          </div>
+          <div class="tab-pane admin-tab" id="activity-edit">
+            {% include "admin/activity-edit.html" %}
+          </div>
+          <div class="tab-pane admin-tab" id="actor-edit">
+            {% include "admin/actor-edit.html" %}
+          </div>
+          <div class="tab-pane admin-tab" id="verification">
+            {% include "admin/verification.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+          <div class="row">
+            <div class="col-md-4">
+              <button type="button" id="enter-data-btn">
+                {% trans "Enter Data" %}
+              </button> 
+            </div>
+            <div class="col-md-4">
+              <button type="button" id="view-data-btn">
+                {% trans "View Data" %}
+              </button> 
+            </div>
+          </div>
+          <div class="row" id="balance-verify-single">
+            <div class="col-md-8">
+              <button type="button" id="balance-verify-data-btn">
+                {% trans "Balance & Verify Data" %}
+              </button> 
+            </div>
+          </div>
+          <div class="row" id="balance-verify-button-group">
+            <div class="col-md-4">
+              <button type="button" id="balance-data-btn">
+                {% trans "Balance Data" %}
+              </button> 
+            </div>
+            <div class="col-md-4">
+              <button type="button" id="verify-data-btn">
+                {% trans "Verify Data" %}
+              </button> 
+            </div>
+          </div>
+          <div class="row" id="data-tree-group">
+            {% trans "Please choose the level for which you wish to enter data" %}
+            <div id="data-tree"></div>
+          </div>
+      </div>
+    </div>
+  {% require_module 'admin-area.js' %}
+{% endblock %}
