@@ -1,0 +1,58 @@
+{% load i18n %}
+
+<div class="col-md-4">
+  <div class="row">
+    <button type="button" id="edit-activity-group-btn">
+      {% trans "Edit Activity Group" %}
+    </button> 
+  </div>
+  <div class="row">
+     <table style="width:100%">
+      <tr>
+        <th></th>
+        <th>Activity Groups</th>
+        <th>Done</th>
+      </tr>
+      <tr>
+        <td>
+          <div class="radio">
+              <label><input type="radio" name="activity-radio"/></label>
+          </div>
+        </td>
+        <td>P1 Production</td>
+        <td>
+          <input type="checkbox" name="activity-done" value="">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="radio">
+              <label><input type="radio" name="activity-radio"/></label>
+          </div>
+        </td>
+        <td>stuff</td>
+        <td>
+          <input type="checkbox" name="activity-done" value="">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="radio">
+              <label><input type="radio" name="activity-radio"/></label>
+          </div>
+        </td>
+        <td>more stuff</td>
+        <td>
+          <input type="checkbox" name="activity-done" value="">
+        </td>
+      </tr>
+    </table> 
+  </div>
+  <div class="row">
+    <button type="button" id="save-activity-group-btn">
+      {% trans "Save & Exit" %}
+    </button> 
+  </div>
+</div>
+<div class="col-md-8">
+</div>
