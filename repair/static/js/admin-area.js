@@ -1,4 +1,4 @@
-require(['./libs/domReady!', './app'], function (doc, app) {
+require(['./libs/domReady!', './config'], function (doc, config) {
     requirejs(['app/admin-data-tree']);
 
     document.getElementById('balance-verify-button-group').style.display = 'none';
