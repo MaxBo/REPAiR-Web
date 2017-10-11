@@ -29,7 +29,7 @@ define([
       ]
     },
     {
-      text: "stuff",
+      text: "P2",
       nodes: [
         {
           text: "a child"
@@ -37,7 +37,7 @@ define([
       ]
     },
     {
-      text: "other stuff"
+      text: "P3"
     }
   ];
   $('#data-tree').treeview({data: testTree});
