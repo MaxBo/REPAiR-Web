@@ -1,7 +1,8 @@
 require(['./libs/domReady!', './config'], function (doc, config) {
-    require(['app/collections/CaseStudies', 'app/models/Stakeholder', 
-            'app/collections/Stakeholders', 'app/visualizations/sankey'], 
-    function (CaseStudies, Stakeholder, Stakeholders, Sankey) {
+    require(['jquery', 'app/collections/CaseStudies', 'app/models/Stakeholder', 
+            'app/collections/Stakeholders', 'app/visualizations/sankey',
+            'app/admin-data-tree'], 
+    function ($, CaseStudies, Stakeholder, Stakeholders, Sankey, DataTree) {
     
         /*
         var stakeholders = new Stakeholders();
@@ -58,18 +59,37 @@ require(['./libs/domReady!', './config'], function (doc, config) {
             sankey.render(randomData);
         };
         
-        requirejs(['app/admin-data-tree']);
-    
+        var deactivateTabs = function(cls){
+            var tabs = document.querySelectorAll(cls);
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+        }
+        
+        var activate = function(tabId){
+            var tab =  document.getElementById(tabId);
+            tab.classList.add('active');
+            //tab.style.display = 'block';
+        }
+        
+        var onClick = function(link){
+            var tag = link.tag;
+            deactivateTabs('.admin-tab');
+            activate('data-entry');
+            if (tag == 'activity') { activate('activity-edit') }
+            else if (tag == 'activity-group') { activate('activity-group-edit') }
+            else if (tag == 'actor') { activate('actor-edit') };
+        }
+        
+        var dataTree = new DataTree({divid: '#data-tree', onClick: onClick})
+            
         document.getElementById('balance-verify-button-group').style.display = 'none';
         document.getElementById('balance-verify-single').style.display = 'none';
+        
+        
+        
         //document.getElementById('data-tree-group').style.display = 'none';
     
-        //var deactivateTabs = function(){
-            //var tabs = document.querySelectorAll('.admin-tab');
-            //tabs.forEach(function(tab) {
-                //tab.classList.remove('active');
-            //});
-        //}
         
         //document.getElementById('enter-data-btn').addEventListener(
             //'click', function(){
