@@ -1,6 +1,6 @@
 require(['./libs/domReady!', './config'], function (doc, config) {
-    require(['./app/collections/CaseStudies', './app/collections/Stakeholders'], 
-    function (CaseStudies, Stakeholders) {
+    require(['./app/collections/CaseStudies', './app/models/Stakeholder', './app/collections/Stakeholders'], 
+    function (CaseStudies, Stakeholder, Stakeholders) {
         var stakeholders = new Stakeholders();
         stakeholders.fetch({success: function(){
             console.log(stakeholders);
@@ -9,6 +9,11 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         caseStudies.fetch({success: function(){
             console.log(caseStudies);
         }});
+        var stakeholder = new Stakeholder({name: 'bla'});
+        console.log(stakeholder);
+        //stakeholder.save()
+        
+        
         requirejs(['app/admin-data-tree']);
     
         document.getElementById('balance-verify-button-group').style.display = 'none';
@@ -17,7 +22,6 @@ require(['./libs/domReady!', './config'], function (doc, config) {
     
         var deactivateTabs = function(){
             var tabs = document.querySelectorAll('.admin-tab');
-            console.log(tabs);
             tabs.forEach(function(tab) {
                 tab.classList.remove('active');
             });

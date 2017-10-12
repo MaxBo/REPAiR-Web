@@ -4,7 +4,7 @@ define(["backbone"],
 
         var Stakeholder = Backbone.Model.extend({
           
-            //urlRoot: '/api/stakeholders/',
+            urlRoot: '/api/stakeholders/',
             idAttribute: "id",
             
             defaults: {
@@ -12,9 +12,6 @@ define(["backbone"],
                 name: ''
             },
 
-            initialize: function() {
-            },
-            
         });
         return Stakeholder;
     }
