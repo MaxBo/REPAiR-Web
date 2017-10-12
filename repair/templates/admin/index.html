@@ -41,59 +41,65 @@
     </div>
     <div class="row">
       <div class="col-md-9">
+        <ul class="nav nav-tabs">
+          <li><a data-toggle="tab" href="#data-entry">{% trans "Data Entry" %}</a></li>
+          <li class="active"><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+          <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+        </ul>
         <div class="tab-content">
-          <div class="tab-pane active admin-tab" id="sankey">
+          <div class="tab-pane" id="data-entry">
+            <div class="tab-content">
+              <div class="tab-pane active admin-tab" id="admin-info-tab">
+                {% trans "Please select a level to enter data" %}
+              </div>
+              <div class="tab-pane admin-tab" id="activity-groups-edit">
+                {% include "admin/activity-groups-edit.html" %}
+              </div>
+              <div class="tab-pane admin-tab" id="activity-edit">
+                {% include "admin/activity-edit.html" %}
+              </div>
+              <div class="tab-pane admin-tab" id="actor-edit">
+                {% include "admin/actor-edit.html" %}
+              </div>
+            </div>
           </div>
-          <div class="tab-pane admin-tab" id="activity-groups-edit">
-            {% include "admin/activity-groups-edit.html" %}
+          <div class="tab-pane active" id="sankey-tab">
+            <div class="row">
+              <button type="button" id="refresh-view-btn">
+                {% trans "Refresh" %}
+              </button> 
+            </div>
+            <div class="row"><div id="sankey"></div></div>
           </div>
-          <div class="tab-pane admin-tab" id="activity-edit">
-            {% include "admin/activity-edit.html" %}
-          </div>
-          <div class="tab-pane admin-tab" id="actor-edit">
-            {% include "admin/actor-edit.html" %}
-          </div>
-          <div class="tab-pane admin-tab" id="verification">
+          <div class="tab-pane" id="verification">
             {% include "admin/verification.html" %}
           </div>
         </div>
       </div>
       <div class="col-md-3">
-          <div class="row">
-            <div class="col-md-4">
-              <button type="button" id="enter-data-btn">
-                {% trans "Enter Data" %}
-              </button> 
-            </div>
-            <div class="col-md-4">
-              <button type="button" id="view-data-btn">
-                {% trans "View Data" %}
-              </button> 
-            </div>
+        <div class="row" id="balance-verify-single">
+          <div class="col-md-8">
+            <button type="button" id="balance-verify-data-btn">
+              {% trans "Balance & Verify Data" %}
+            </button> 
           </div>
-          <div class="row" id="balance-verify-single">
-            <div class="col-md-8">
-              <button type="button" id="balance-verify-data-btn">
-                {% trans "Balance & Verify Data" %}
-              </button> 
-            </div>
+        </div>
+        <div class="row" id="balance-verify-button-group">
+          <div class="col-md-4">
+            <button type="button" id="balance-data-btn">
+              {% trans "Balance Data" %}
+            </button> 
           </div>
-          <div class="row" id="balance-verify-button-group">
-            <div class="col-md-4">
-              <button type="button" id="balance-data-btn">
-                {% trans "Balance Data" %}
-              </button> 
-            </div>
-            <div class="col-md-4">
-              <button type="button" id="verify-data-btn">
-                {% trans "Verify Data" %}
-              </button> 
-            </div>
+          <div class="col-md-4">
+            <button type="button" id="verify-data-btn">
+              {% trans "Verify Data" %}
+            </button> 
           </div>
-          <div class="row" id="data-tree-group">
-            {% trans "Please choose the level for which you wish to enter data" %}
-            <div id="data-tree"></div>
-          </div>
+        </div>
+        <div class="row" id="data-tree-group">
+          {% trans "Please choose the level for which you wish to enter data" %}
+          <div id="data-tree"></div>
+        </div>
       </div>
     </div>
   {% require_module 'admin-area.js' %}
