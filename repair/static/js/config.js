@@ -8,6 +8,7 @@ requirejs.config({
         'd3': 'libs/d3.v3.min',
         'leaflet': 'libs/leaflet',
         'spatialsankey': 'libs/spatialsankey',
+        'cyclesankey': 'libs/cycle-sankey',
         'jquery': 'libs/jquery-3.2.1.min',
         'treeview': 'libs/bootstrap-treeview.min',
         'backbone': 'libs/backbone-min',
@@ -18,5 +19,7 @@ requirejs.config({
         'backbone': {
             deps: ['underscore', 'jquery']
         },
+        'spatialsankey': { deps: ['d3'] },
+        'cyclesankey': { deps: ['d3'] },
     }
 });
