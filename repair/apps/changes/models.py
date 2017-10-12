@@ -169,7 +169,8 @@ def trigger_solutioninimplementationquantity_sii(sender, instance,
     """
     if created:
         sii = instance
-        solution = Solution.objects.get(pk=sii.solution.id)        for solution_quantity in solution.solutionquantity_set.all():
+        solution = Solution.objects.get(pk=sii.solution.id)
+        for solution_quantity in solution.solutionquantity_set.all():
             new, is_created = SolutionInImplementationQuantity.objects.\
                 get_or_create(sii=sii, quantity=solution_quantity)
             if is_created:
@@ -257,3 +258,107 @@ class Strategy(GDSEUniqueNameModel):
     @property
     def casestudy(self):
         return self.user.casestudy
+
+
+####################                #########################
+#################### AS-MFA classes #########################
+####################                #########################
+
+class Node(models.Model): #separate model for the AS-MFA?
+
+    source = models.BooleanField()
+    sink = models.BooleanField()
+    
+    in_put = models.ForeignKey('Flow', on_delete=models.CASCADE)
+    out_put = models.ForeignKey('Flow', on_delete=models.CASCADE)
+    stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
+
+class ActvityGroup(Node): 
+
+    activity_group_choices = (("P1", "Production"), #activity groups are predefined and same for all flows and case studies 
+                              ("P2", "Production of packaging"),
+                              ("P3", "Packaging"),
+                              ("D", "Distribution"),
+                              ("S", "Selling"),
+                              ("C", "Consuming"),
+                              ("SC", "Selling and Cosuming"),
+                              ("R", "Return Logistics"),
+                              ("COL", "Collection"),
+                              ("W", "Waste Management"),
+                              ("imp", "Import"), #import and export are "special" types of activity groups/activities/actors
+                              ("exp", "Export"))
+                              
+    name = models.CharField(choices=activity_group_choices, blank = True)
+
+    
+
+class Activity(Node): 
+    
+    name = models.CharField(max_length = 255) #not sure about the max length, leaving 255 for now
+    nace = models.CharField(max_length = 255, unique = True) #NACE code, unique for each activity
+    
+
+    
+class Actor(Node):
+    
+    name = models.CharField(max_length = 255)
+    BvDid = models.CharField(max_length = 255, unique = True) #unique actor identifier in ORBIS database
+    operationalLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE)
+    administrativeLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE)
+    consCode = models.CharField(max_length = 255)
+    year = models.PositiveSmallIntegerField()
+    revenue = models.PositiveIntegerField()
+    employees = models.PositiveSmallIntegerField()
+    BvDii = models.CharField(max_length = 255)
+    website = models.CharField(max_length = 255)
+    
+
+    
+class Flow(models.Model):
+    
+    material_choices = (("PET", "PET plastic"),
+                        ("Org", "Organic"),
+                        ("PVC", "PVC plastic")) #again, there will be limited material choices, we should determine them later
+    quality_choices = (("1", "High"),
+                       ("2", "Medium"),
+                       ("3", "Low"),
+                       ("4", "Waste"))
+    
+    material = models.CharField(choices=material_choices, blank = True)
+    amount = models.PositiveIntegerField(blank = True)
+    quality = models.CharField(choices=quality_choices, blank = True)
+    
+    
+    destination = models.ForeignKey('Node', on_delete=models.CASCADE)
+    origin = models.ForeignKey('Node', on_delete=models.CASCADE)
+    
+    dataentry = models.ForeignKey('DataEntry', on_delete=models.CASCADE)
+    
+class Stock(models.Model):
+    
+    material = material = models.CharField(choices=Flow.material_choices, blank = True)
+    amount = models.PositiveIntegerField(blank = True)
+    quality = models.CharField(choices=Flow.quality_choices, blank = True)
+    
+    location = models.ForeignKey('Geolocation', on_delete=models.CASCADE)
+    
+    origin = models.ForeignKey('Node', on_delete=models.CASCADE)
+    
+    dataentry = models.ForeignKey('DataEntry', on_delete=models.CASCADE)
+    
+class DataEntry(models.Model):
+    
+    #user = 
+    #source = 
+    #date = 
+    pass
+    
+class Geolocation(models.Model):
+
+    #street = 
+    #building = 
+    #postcode = 
+    #country = 
+    #city = 
+    #geom =     
+    pass
