@@ -5,10 +5,10 @@ define([
 {
   var Sankey = function(options){
     
-    var margin = {top: 1, right: 1, bottom: 6, left: 1};
-    var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
     var divid = options.divid;
+    var margin = {top: 1, right: 10, bottom: 6, left: 10};
+    this.width = options.width;
+    var height = options.height - margin.top - margin.bottom;
     var title = options.title;
 
     var formatNumber = d3.format(",.0f"),
@@ -16,6 +16,11 @@ define([
         color = d3.scale.category20();
     
     this.render = function ( data ) {
+      div = d3.select(divid);
+      var bbox = div.node().getBoundingClientRect();
+      var width = this.width || bbox.width;
+      console.log(width)
+      width = width - margin.left - margin.right;
     
       var sankey = d3.sankey()
           .nodeWidth(15)
@@ -24,9 +29,9 @@ define([
         
       var path = sankey.link();
     
-      d3.select(divid).select("svg").remove();
+      div.select("svg").remove();
       
-      var svg = d3.select(divid).append("svg")
+      var svg = div.append("svg")
         .attr( "preserveAspectRatio", "xMinYMid meet" )
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
@@ -105,7 +110,7 @@ define([
       
       svg.append("text")
         .attr("x", (width / 2))             
-        .attr("y", 0 + (cycleTopMarginSize + margin.top / 2))
+        .attr("y", 0 + (cycleTopMarginSize - margin.top))
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
         .style("text-decoration", "underline")  
@@ -115,8 +120,8 @@ define([
         .attr( "viewBox",
               "" + (0 - horizontalMarginSize ) + " "         // left
               + cycleTopMarginSize + " "                     // top
-              + (960 + horizontalMarginSize * 2 ) + " "     // width
-              + (500 + (-1 * cycleTopMarginSize)) + " " );  // height
+              + (width + horizontalMarginSize * 2 ) + " "     // width
+              + (height + (-1 * cycleTopMarginSize)) + " " );  // height
         
     };
   };

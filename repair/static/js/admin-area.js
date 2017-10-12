@@ -50,7 +50,6 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         // ToDo: make a view out of this?
         function renderSankey(){
             var sankey = new Sankey({
-                width: 960,
                 height: 600,
                 divid: '#sankey',
                 title: 'D3 Sankey with cycle-support (random data, refreshed on click on "View Data"-button)'
