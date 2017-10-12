@@ -110,7 +110,7 @@ define([
       
       svg.append("text")
         .attr("x", (width / 2))             
-        .attr("y", 0 + (cycleTopMarginSize - margin.top))
+        .attr("y", cycleTopMarginSize / 2 + margin.top)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
         .style("text-decoration", "underline")  
