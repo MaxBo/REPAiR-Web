@@ -6,7 +6,7 @@ import django.db.models
 
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
-from repair.apps.changes.models import (CaseStudy,
+from repair.apps.study_area.models import (CaseStudy,
                                         Unit,
                                         User,
                                         UserInCasestudy,
@@ -19,17 +19,12 @@ from repair.apps.changes.models import (CaseStudy,
                                         Strategy,
                                         )
 
-from repair.apps.changes.serializers import (CaseStudySerializer,
+from repair.apps.study_area.serializers import (CaseStudySerializer,
                                              StakeholderCategorySerializer,
                                              StakeholderSerializer,
                                              SolutionSerializer,
                                              SolutionCategorySerializer,
                                              )
-
-
-from repair.apps.changes.forms import NameForm
-
-
 
 class CaseStudyViewSet(viewsets.ModelViewSet):
     queryset = CaseStudy.objects.all()

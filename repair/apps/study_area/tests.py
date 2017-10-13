@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
 
-
 from .models import (CaseStudy,
                      Implementation,
                      Solution,
@@ -25,11 +24,11 @@ from .factories import *
 
 class ModelTest(TestCase):
 
-    fixtures = ['changes_fixture.json',]
+    fixtures = ['study_area_fixture.json',]
 
     def test_string_representation(self):
         for Model in (CaseStudy,
-                      Implementation,
+                     Implementation,
                      Solution,
                      SolutionCategory,
                      SolutionRatioOneUnit,
@@ -126,9 +125,9 @@ class ModelSolutionInImplementation(TestCase):
         to_delete = SolutionQuantity.objects.filter(solution=solution,
                                                     name='q2')
         solution_id, deleted = to_delete.delete()
-        # assert that 1 row in changes.SolutionInImplementationQuantity
+        # assert that 1 row in study_area.SolutionInImplementationQuantity
         # are deleted
-        assert deleted.get('changes.SolutionInImplementationQuantity') == 1
+        assert deleted.get('study_area.SolutionInImplementationQuantity') == 1
 
         # check the related SolutionInImplementationQuantity
         solution_in_impl_quantities = SolutionInImplementationQuantity.\
@@ -140,9 +139,9 @@ class ModelSolutionInImplementation(TestCase):
 
         # remove the solution_in_implementation
         sii_id, deleted = solution_in_impl.delete()
-        # assert that 2 rows in changes.SolutionInImplementationQuantity
+        # assert that 2 rows in study_area.SolutionInImplementationQuantity
         # are deleted
-        assert deleted.get('changes.SolutionInImplementationQuantity') == 2
+        assert deleted.get('study_area.SolutionInImplementationQuantity') == 2
         solution_in_impl_quantities = SolutionInImplementationQuantity.\
             objects.filter(sii=sii_id)
         assert not solution_in_impl_quantities
