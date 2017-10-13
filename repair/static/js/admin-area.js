@@ -75,7 +75,8 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         var onClick = function(link){
             var tag = link.tag;
             deactivateTabs('.admin-tab');
-            activate('data-entry');
+            // ToDo: emit click
+            //activate('data-entry');
             if (tag == 'activity') { activate('activity-edit') }
             else if (tag == 'activity-group') { activate('activity-group-edit') }
             else if (tag == 'actor') { activate('actor-edit') };
