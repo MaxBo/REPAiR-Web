@@ -69,13 +69,14 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         var activate = function(tabId){
             var tab =  document.getElementById(tabId);
             tab.classList.add('active');
-            //tab.style.display = 'block';
+            document.getElementById('data-link').click();
         }
         
         var onClick = function(link){
             var tag = link.tag;
             deactivateTabs('.admin-tab');
-            activate('data-entry');
+            // ToDo: emit click
+            //activate('data-entry');
             if (tag == 'activity') { activate('activity-edit') }
             else if (tag == 'activity-group') { activate('activity-group-edit') }
             else if (tag == 'actor') { activate('actor-edit') };

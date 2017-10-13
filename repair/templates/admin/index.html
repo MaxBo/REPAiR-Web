@@ -47,8 +47,8 @@
       <div class="row">
         <div class="col-md-9">
           <ul class="nav nav-tabs">
-            <li><a data-toggle="tab" href="#data-entry">{% trans "Data Entry" %}</a></li>
-            <li class="active admin-tab"><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+            <li><a data-toggle="tab" href="#data-entry" id='data-link'>{% trans "Data Entry" %}</a></li>
+            <li class="active"><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
             <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
           </ul>
           <div class="tab-content">
@@ -68,7 +68,7 @@
                 </div>
               </div>
             </div>
-            <div class="tab-pane active admin-tab" id="sankey-tab">
+            <div class="tab-pane active" id="sankey-tab">
               <div class="row">
                 <button type="button" id="refresh-view-btn">
                   {% trans "Refresh" %}
@@ -76,7 +76,7 @@
               </div>
               <div class="row"><div id="sankey"></div></div>
             </div>
-            <div class="tab-pane admin-tab" id="verification">
+            <div class="tab-pane" id="verification">
               {% include "admin/verification.html" %}
             </div>
           </div>
