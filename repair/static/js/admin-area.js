@@ -69,7 +69,7 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         var activate = function(tabId){
             var tab =  document.getElementById(tabId);
             tab.classList.add('active');
-            //tab.style.display = 'block';
+            document.getElementById('data-link').click();
         }
         
         var onClick = function(link){

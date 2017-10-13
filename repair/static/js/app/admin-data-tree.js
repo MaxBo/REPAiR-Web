@@ -31,8 +31,8 @@ define([
             tag: "activity",
             nodes: [
               {
-                text: "something",
-                tag: "activity"
+                text: "Juice factory",
+                tag: "actor"
               }
             ]
           }
