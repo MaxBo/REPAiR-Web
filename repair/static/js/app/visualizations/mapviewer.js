@@ -17,9 +17,6 @@ define([
     $.each(options.baseLayers, function(name, layer) {
       layer.addTo(map);
     });
-    //$.each(options.overlayLayers, function(name, layer) {
-      //layer.addTo(map);
-    //});
     
     L.control.layers(options.baseLayers, options.overlayLayers).addTo(map);
   };

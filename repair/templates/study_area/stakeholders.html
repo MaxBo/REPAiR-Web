@@ -1,7 +1,20 @@
 {% load i18n %}
 {% block content %}
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-    <div class="row row-padding-top">
+
+      <div class="row">
+        {% if casestudy_list %}
+        <p>{% trans "Casestudies" %}.</p>
+            <ul>
+            {% for casestudy in casestudy_list %}
+                <li><a href="/changes/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No casestudies are available." %}</p>
+        {% endif %}
+     </div>
+     <div class="row">   
       <div class="col-md-2 panel">
         <div class="buttons" id="government">
           <h4>{% trans "Government" %}</h4>
