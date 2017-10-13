@@ -14,10 +14,9 @@ class Testgraph1(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Testgraph1, self).get_context_data(**kwargs)
-
-        animals = Bar(x=['Index A', 'Index B', 'Index C', 'Index D', 'Index E', 'Index F'], y=[1000, 1400, 2300, 1800, 1300, 2000])
-        data=Data([animals])
-        layout=Layout(title=_("Plotly graph"), xaxis={'title':'x1'}, yaxis={'title':'x2'}, height=350)
+        values = Bar(x=['Malodorous air', 'Time-use waste sorting', 'GHG gases', 'Human toxicity', 'Air pollution', 'Ecotoxicity', 'Water use', 'Land use', 'Social costs'], y=[3.2, 8.8, 5.4, 6.9, 1.9, 9.7])
+        data=Data([values])
+        layout=Layout(title=_("Status Quo Sustainability AMA Focus Region"), xaxis={'title':'Indicators of sustainability'}, yaxis={'title':'sustainability value'}, height=350)
         figure=Figure(data=data,layout=layout)
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 

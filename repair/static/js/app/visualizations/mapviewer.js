@@ -5,8 +5,6 @@ define([
 ], function()
 {
   var Map = function(options){
-    var _this = this;
-
     var map = L.map(options.divid, {
         crs: L.CRS.EPSG4326,
         center: new L.LatLng(50,15),
