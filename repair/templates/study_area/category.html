@@ -1,0 +1,22 @@
+{% load i18n %}
+{% block content %}
+    <div class="row">
+      {% if stakeholder_categories %}
+      {% for sh_cat in stakeholder_categories %}
+      <div class="col-md-2 panel">
+        <div class="buttons" id="{{sh_cat}}" onclick="location.href = '/study-area/stakeholdercategories/{{ sh_cat.id }}';">
+          <h4>{{sh_cat}}</h4>
+          {% for stakeholder in sh_cat.stakeholder_set.all %}
+          <input type="submit" class="btn btn-panel" value="{{stakeholder}}"/><br>
+          {% endfor %}
+          <input type="submit" class="btn btn-add" value="add stakeholder"/>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p>{% trans "No casestudies available." %}</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
+{% endblock %}
