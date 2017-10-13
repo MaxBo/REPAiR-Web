@@ -6,73 +6,82 @@
   <script> 
     document.getElementById("admin-area-link").classList.add('active');
   </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon glyphicon glyphicon-pencil"></span></a></li>
+  </ul>
 {% endblock %}
 
 {% block content %}
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
-    <div class="row">
-      <div class="col-md-9">
-        <div class="col-md-4">
-          {% trans "Case Study" %} 
-          <br>
-          <select name="case-studies">
-            {% for cs in case_studies %}
-                <option value="{{ cs.id }}">{{ cs.name }}</option>
-            {% endfor %}
-          </select> 
-        </div>
-        <div class="col-md-4">
-          {% trans "Flow" %}
-          <br>
-          <select name="flows">
-            {% for f in flows %}
-                <option value="{{ f.id }}">{{ f.name }}</option>
-            {% endfor %}
-          </select> 
-        </div>
-        <div class="col-md-4">
-          {% trans "Data Entered by" %}
-          <br>
-          <input type="text" name="user">
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-9">
-        <div class="tab-content">
-          <div class="tab-pane active admin-tab" id="sankey">
-            {% if sankey %}
-              {{ sankey|safe }}
-            {% endif %}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="base-data">
+      <div class="row">
+        <div class="col-md-9">
+          <div class="col-md-4">
+            {% trans "Case Study" %} 
+            <br>
+            <select name="case-studies">
+              {% for cs in case_studies %}
+                  <option value="{{ cs.id }}">{{ cs.name }}</option>
+              {% endfor %}
+            </select> 
           </div>
-          <div class="tab-pane admin-tab" id="activity-groups-edit">
-            {% include "admin/activity-groups-edit.html" %}
+          <div class="col-md-4">
+            {% trans "Flow" %}
+            <br>
+            <select name="flows">
+              {% for f in flows %}
+                  <option value="{{ f.id }}">{{ f.name }}</option>
+              {% endfor %}
+            </select> 
           </div>
-          <div class="tab-pane admin-tab" id="activity-edit">
-            {% include "admin/activity-edit.html" %}
-          </div>
-          <div class="tab-pane admin-tab" id="actor-edit">
-            {% include "admin/actor-edit.html" %}
-          </div>
-          <div class="tab-pane admin-tab" id="verification">
-            {% include "admin/verification.html" %}
+          <div class="col-md-4">
+            {% trans "Data Entered by" %}
+            <br>
+            <input type="text" name="user">
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-          <div class="row">
-            <div class="col-md-4">
-              <button type="button" id="enter-data-btn">
-                {% trans "Enter Data" %}
-              </button> 
+      <div class="row">
+        <div class="col-md-9">
+          <ul class="nav nav-tabs">
+            <li><a data-toggle="tab" href="#data-entry">{% trans "Data Entry" %}</a></li>
+            <li class="active admin-tab"><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+            <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane" id="data-entry">
+              <div class="tab-content">
+                <div class="tab-pane active admin-tab" id="admin-info-tab">
+                  {% trans "Please select a level to enter data" %}
+                </div>
+                <div class="tab-pane admin-tab" id="activity-group-edit">
+                  {% include "admin/activity-groups-edit.html" %}
+                </div>
+                <div class="tab-pane admin-tab" id="activity-edit">
+                  {% include "admin/activity-edit.html" %}
+                </div>
+                <div class="tab-pane admin-tab" id="actor-edit">
+                  {% include "admin/actor-edit.html" %}
+                </div>
+              </div>
             </div>
-            <div class="col-md-4">
-              <button type="button" id="view-data-btn">
-                {% trans "View Data" %}
-              </button> 
+            <div class="tab-pane active admin-tab" id="sankey-tab">
+              <div class="row">
+                <button type="button" id="refresh-view-btn">
+                  {% trans "Refresh" %}
+                </button> 
+              </div>
+              <div class="row"><div id="sankey"></div></div>
+            </div>
+            <div class="tab-pane admin-tab" id="verification">
+              {% include "admin/verification.html" %}
             </div>
           </div>
+        </div>
+        <div class="col-md-3">
           <div class="row" id="balance-verify-single">
             <div class="col-md-8">
               <button type="button" id="balance-verify-data-btn">
@@ -96,7 +105,9 @@
             {% trans "Please choose the level for which you wish to enter data" %}
             <div id="data-tree"></div>
           </div>
+        </div>
       </div>
     </div>
+  </div>
   {% require_module 'admin-area.js' %}
 {% endblock %}
