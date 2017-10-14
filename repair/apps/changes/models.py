@@ -284,11 +284,12 @@ class Geolocation(models.Model):
     #geom =
     pass
 
+
 class Node(models.Model):  # should there be a separate model for the AS-MFA?
 
     # all the data for the Node class tables will be known in advance, the users will not have to fill that in
-    source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
-    sink = models.BooleanField(default=False)  # if true - there is no output, same
+    #source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
+    #sink = models.BooleanField(default=False)  # if true - there is no output, same
 
     class Meta:
         abstract = True
@@ -318,8 +319,10 @@ class Activity(Node):
     nace = models.CharField(max_length=255, primary_key=True)  # NACE code, unique for each activity
     name = models.CharField(max_length=255)  # not sure about the max length, leaving everywhere 255 for now
 
-    own_activitygroup = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                          related_name='Activities')
+    own_activitygroup = models.ForeignKey(ActivityGroup,
+                                          on_delete=models.CASCADE,
+                                          related_name='Activities',
+                                          default=1)
 
 
 class Actor(Node):
@@ -338,7 +341,8 @@ class Actor(Node):
     website = models.CharField(max_length=255)
 
     own_activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                     related_name='Actors')
+                                     related_name='Actors',
+                                     default=1)
 
 
 class Flow(models.Model):
