@@ -1,0 +1,198 @@
+{% load i18n %}
+
+<div class="col-md-4">
+  <div class="row">
+    <button type="button" id="edit-activity-btn">
+      {% trans "Edit Activity" %}
+    </button> 
+  </div>
+  <div class="row">
+     <table>
+        <tr>
+          <th></th>
+          <th>Activities</th>
+          <th>Done</th>
+        </tr>
+        <tr>
+          <td>
+            <div class="radio">
+                <label><input type="radio" name="activity-radio"/></label>
+            </div>
+          </td>
+          <td>Manufacture of soft drinks</td>
+          <td>
+            <input type="checkbox" name="activity-done" value="">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="radio">
+                <label><input type="radio" name="activity-radio"/></label>
+            </div>
+          </td>
+          <td>Manufacture of juice</td>
+          <td>
+            <input type="checkbox" name="activity-done" value="">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="radio">
+                <label><input type="radio" name="activity-radio"/></label>
+            </div>
+          </td>
+          <td>something</td>
+          <td>
+            <input type="checkbox" name="activity-done" value="">
+          </td>
+        </tr>
+    </table> 
+  </div>
+  <div class="row">
+    <button type="button" id="save-activity-group-btn">
+      {% trans "Save & Exit" %}
+    </button> 
+  </div>
+</div>
+<div class="col-md-8" style="border: 2px solid #e6e6e6;">
+  <div class="row">
+     <table>
+        <tr>
+          <td>Name</td>
+          <td>Manufacture of Softdrinks</td>
+        </tr>
+        <tr>
+          <td>Material</td>
+          <td>PET</td>
+        </tr>
+        <tr>
+          <td>Activity Group</td>
+          <td>P1. Production</td>
+        </tr>
+        <tr>
+          <td>NACE Code</td>
+          <td>11.07</td>
+        </tr>
+    </table> 
+  </div>
+  <div class="row">
+     <table>
+        <h3>Input</h3>
+        <tr>
+          <th></th>
+          <th>Amount</th>
+          <th>Origin</th>
+          <th>Quality</th>
+          <th>Data Source</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input id="amount" name="amount" value="">
+          </td>
+          <td>
+            <select name="origin">
+            </select>
+          </td>
+          <td>
+            <select id="quality" name="quality">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </td>
+          <td>
+            <input id="data-source" name="data-source" value="">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <button><span class="glyphicon glyphicon-plus"></span></button>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+    </table> 
+  </div>
+  <div class="row">
+     <table>
+        <h3>Stock</h3>
+        <tr>
+          <th></th>
+          <th>Amount</th>
+          <th>Quality</th>
+          <th>Data Source</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input id="amount" name="amount" value="">
+          </td>
+          <td>
+            <select id="quality" name="quality">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </td>
+          <td>
+            <input id="data-source" name="data-source" value="">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <button><span class="glyphicon glyphicon-plus"></span></button>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+    </table> 
+  </div>
+  <div class="row">
+     <table>
+        <h3>Output</h3>
+        <tr>
+          <th></th>
+          <th>Amount</th>
+          <th>Destination</th>
+          <th>Quality</th>
+          <th>Data Source</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input id="amount" name="amount" value="">
+          </td>
+          <td>
+            <select name="destination">
+            </select>
+          </td>
+          <td>
+            <select id="quality" name="quality">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </td>
+          <td>
+            <input id="data-source" name="data-source" value="">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <button><span class="glyphicon glyphicon-plus"></span></button>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+    </table> 
+  </div>
+</div>
