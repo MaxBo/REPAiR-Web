@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db.models import signals
-#from django.contrib.gis.db import models
+# from django.contrib.gis.db import models
 
 
 class GDSEModel(models.Model):
@@ -76,7 +76,6 @@ class Unit(GDSEModel):
 class StakeholderCategory(GDSEUniqueNameModel):
     case_study = models.ForeignKey(CaseStudy)
     name = models.TextField()
-
 
     @property
     def casestudy(self):
@@ -176,6 +175,7 @@ def trigger_solutioninimplementationquantity_sii(sender, instance,
             if is_created:
                 new.save()
 
+
 def trigger_solutioninimplementationquantity_quantity(sender, instance,
                                                       created, **kwargs):
     """
@@ -264,20 +264,40 @@ class Strategy(GDSEUniqueNameModel):
 #################### AS-MFA classes #########################
 ####################                #########################
 
-class Node(models.Model): #separate model for the AS-MFA?
+class DataEntry(models.Model):
 
-    source = models.BooleanField()
-    sink = models.BooleanField()
+    # this I am leaving empty for now - we have to agree at the consortium how we define users and data sources
+    #user =
+    #source =
+    #date =
+    pass
 
-    in_put = models.ForeignKey('Flow', on_delete=models.CASCADE,
-                               related_name='in_put')
-    out_put = models.ForeignKey('Flow', on_delete=models.CASCADE,
-                                related_name='out_put')
-    stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
 
-class ActvityGroup(Node):
+class Geolocation(models.Model):
 
-    activity_group_choices = (("P1", "Production"), #activity groups are predefined and same for all flows and case studies
+    # same as for DataEntry, also geometry will have to be included later
+    #street =
+    #building =
+    #postcode =
+    #country =
+    #city =
+    #geom =
+    pass
+
+class Node(models.Model):  # should there be a separate model for the AS-MFA?
+
+    # all the data for the Node class tables will be known in advance, the users will not have to fill that in
+    source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
+    sink = models.BooleanField(default=False)  # if true - there is no output, same
+
+    class Meta:
+        abstract = True
+
+
+class ActivityGroup(Node):
+
+    # activity groups are predefined and same for all flows and case studies
+    activity_group_choices = (("P1", "Production"),
                               ("P2", "Production of packaging"),
                               ("P3", "Packaging"),
                               ("D", "Distribution"),
@@ -287,87 +307,108 @@ class ActvityGroup(Node):
                               ("R", "Return Logistics"),
                               ("COL", "Collection"),
                               ("W", "Waste Management"),
-                              ("imp", "Import"), #import and export are "special" types of activity groups/activities/actors
+                              ("imp", "Import"),  # 'import' and 'export' are "special" types of activity groups/activities/actors
                               ("exp", "Export"))
-
-    name = models.TextField(choices=activity_group_choices, blank = True)
-
+    code = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255, choices=activity_group_choices)
 
 
 class Activity(Node):
 
-    name = models.TextField() #not sure about the max length, leaving 255 for now
-    nace = models.TextField(unique = True) #NACE code, unique for each activity
+    nace = models.CharField(max_length=255, primary_key=True)  # NACE code, unique for each activity
+    name = models.CharField(max_length=255)  # not sure about the max length, leaving everywhere 255 for now
 
+    own_activitygroup = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                                          related_name='Activities')
 
 
 class Actor(Node):
 
-    name = models.TextField()
-    BvDid = models.TextField(unique = True) #unique actor identifier in ORBIS database
-    operationalLocation = models.ForeignKey(
-        'Geolocation', on_delete=models.CASCADE,
-        related_name='operationalLocation')
-    administrativeLocation = models.ForeignKey(
-        'Geolocation', on_delete=models.CASCADE,
-        related_name='administrativeLocation')
-    consCode = models.TextField()
+    BvDid = models.CharField(max_length=255, primary_key=True) #unique actor identifier in ORBIS database
+    name = models.CharField(max_length=255)
+
+    # locations also let's leave out for now, we can add them later
+    #operationalLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE, related_name='operationalLocation')
+    #administrativeLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE, related_name='administrativeLocation')
+    consCode = models.CharField(max_length=255)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
     employees = models.PositiveSmallIntegerField()
-    BvDii = models.TextField()
-    website = models.TextField()
+    BvDii = models.CharField(max_length=255)
+    website = models.CharField(max_length=255)
 
+    own_activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                                     related_name='Actors')
 
 
 class Flow(models.Model):
 
+    # users will have to add data about flows, that will relate two of the nodes
+    # again, there will be limited material and quality choices, we should determine the exact ones later
     material_choices = (("PET", "PET plastic"),
                         ("Org", "Organic"),
-                        ("PVC", "PVC plastic")) #again, there will be limited material choices, we should determine them later
+                        ("PVC", "PVC plastic"))
     quality_choices = (("1", "High"),
                        ("2", "Medium"),
                        ("3", "Low"),
                        ("4", "Waste"))
 
-    material = models.TextField(choices=material_choices, blank = True)
-    amount = models.PositiveIntegerField(blank = True)
-    quality = models.TextField(choices=quality_choices, blank = True)
+    material = models.CharField(max_length=255, choices=material_choices, blank=True)
+    amount = models.PositiveIntegerField(blank=True)
+    quality = models.CharField(max_length=255, choices=quality_choices, blank=True)
+
+    class Meta:
+        abstract = True
 
 
-    destination = models.ForeignKey('Node', on_delete=models.CASCADE,
-                                    related_name='destination')
-    origin = models.ForeignKey('Node', on_delete=models.CASCADE,
-                               related_name='origin')
+class Group2Group(Flow):
 
-    dataentry = models.ForeignKey('DataEntry', on_delete=models.CASCADE)
+    destination = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                                    related_name='Inputs')
+    origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                               related_name='Outputs')
+
+
+class Activity2Activity(Flow):
+
+    destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                                    related_name='Inputs')
+    origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                               related_name='Outputs')
+
+
+class Actor2Actor(Flow):
+
+    destination = models.ForeignKey(Actor, on_delete=models.CASCADE,
+                                    related_name='Inputs')
+    origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
+                               related_name='Outputs')
+
 
 class Stock(models.Model):
 
-    material = material = models.TextField(choices=Flow.material_choices, blank = True)
-    amount = models.PositiveIntegerField(blank = True)
-    quality = models.TextField(choices=Flow.quality_choices, blank = True)
+    # stocks relate to only one node, also data will be entered by the users
+    material = models.CharField(max_length=255, choices=Flow.material_choices, blank=True)
+    amount = models.PositiveIntegerField(blank=True)
+    quality = models.CharField(max_length=255, choices=Flow.quality_choices, blank=True)
 
-    location = models.ForeignKey('Geolocation', on_delete=models.CASCADE)
+    class Meta:
+        abstract = True
 
-    origin = models.ForeignKey('Node', on_delete=models.CASCADE,
-                               related_name='stock_origin')
 
-    dataentry = models.ForeignKey('DataEntry', on_delete=models.CASCADE)
+class GroupStock(Stock):
 
-class DataEntry(models.Model):
+        origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                                   related_name='Stocks')
 
-    #user =
-    #source =
-    #date =
-    pass
 
-class Geolocation(models.Model):
+class ActivityStock(Stock):
 
-    #street =
-    #building =
-    #postcode =
-    #country =
-    #city =
-    #geom =
-    pass
+        origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                                   related_name='Stocks')
+
+
+class ActorStock(Stock):
+
+        origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
+                                   related_name='Stocks')
