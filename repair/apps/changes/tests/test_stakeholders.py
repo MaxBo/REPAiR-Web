@@ -2,25 +2,26 @@ from django.test import TestCase
 from django.core.validators import ValidationError
 
 
-from .models import (CaseStudy,
-                     Implementation,
-                     Solution,
-                     SolutionCategory,
-                     SolutionInImplementation,
-                     SolutionInImplementationGeometry,
-                     SolutionInImplementationNote,
-                     SolutionInImplementationQuantity,
-                     SolutionQuantity,
-                     SolutionRatioOneUnit,
-                     Stakeholder,
-                     StakeholderCategory,
-                     Strategy,
-                     Unit,
-                     User,
-                     UserInCasestudy,
-                     )
+from repair.apps.changes.models import (
+    CaseStudy,
+    Implementation,
+    Solution,
+    SolutionCategory,
+    SolutionInImplementation,
+    SolutionInImplementationGeometry,
+    SolutionInImplementationNote,
+    SolutionInImplementationQuantity,
+    SolutionQuantity,
+    SolutionRatioOneUnit,
+    Stakeholder,
+    StakeholderCategory,
+    Strategy,
+    Unit,
+    User,
+    UserInCasestudy,
+    )
 
-from .factories import *
+from repair.apps.changes.factories import *
 
 
 class ModelTest(TestCase):
