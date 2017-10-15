@@ -7,6 +7,8 @@ requirejs.config({
         'mapviewer': 'app/visualizations/mapviewer',
         'd3': 'libs/d3.v3.min',
         'leaflet': 'libs/leaflet',
+        'esri-leaflet': 'libs/esri-leaflet',
+        'leaflet-fullscreen': 'libs/leaflet.fullscreen.min',
         'spatialsankey': 'libs/spatialsankey',
         'cyclesankey': 'libs/cycle-sankey',
         'jquery': 'libs/jquery-3.2.1.min',
