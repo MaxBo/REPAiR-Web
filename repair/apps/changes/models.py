@@ -267,8 +267,8 @@ class Strategy(GDSEUniqueNameModel):
 class DataEntry(models.Model):
 
     # this I am leaving empty for now - we have to agree at the consortium how we define users and data sources
-    #user =
-    #source =
+    user = models.CharField(max_length=255, primary_key=True)
+    source = models.CharField(max_length=255)
     #date =
     pass
 

@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include('repair.apps.admin.urls')),
+    url(r'^asmfa/', include('repair.apps.asmfa.urls')),
     url(r'^study-area/', include('repair.apps.study_area.urls')),
     url(r'^status-quo/', include('repair.apps.status_quo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
@@ -49,5 +50,5 @@ urlpatterns = [
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    #url(r'^api/payload', include('repair.static.webhook.urls')),
+    url(r'^api/payload', include('repair.static.webhook.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

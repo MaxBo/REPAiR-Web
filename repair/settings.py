@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'django.contrib.gis',
     'rest_framework',
+    'repair.apps.asmfa',
     'repair.apps.study_area',
     'repair.apps.changes',
     'repair.apps.status_quo',
@@ -197,4 +198,3 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-
