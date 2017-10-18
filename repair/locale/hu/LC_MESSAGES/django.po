@@ -1,26 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <hessmann@ggr-planung.de>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 14:24+0200\n"
-"PO-Revision-Date: 2017-10-15 14:28+0200\n"
-"Last-Translator: FULL NAME <hessmann@ggr-planung.de>\n"
-"Language: de\n"
+"POT-Creation-Date: 2017-10-15 14:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language-Team: \n"
-"X-Generator: Poedit 1.8.11\n"
 
 #: .\repair\apps\status_quo\views.py:20 .\repair\apps\study_area\views.py:28
 msgid "Plotly graph"
-msgstr "Plotly Graph"
+msgstr ""
 
 #: .\repair\apps\study_area\views.py:40
 msgid "Plotly Histogram"
@@ -122,7 +122,7 @@ msgstr ""
 #: .\repair\templates\changes\implementation.html:9
 #: .\repair\templates\changes\solution.html:9
 msgid "Created by"
-msgstr "Erzeugt durch"
+msgstr ""
 
 #: .\repair\templates\changes\implementation.html:12
 msgid "consists of the following solutions"
@@ -134,11 +134,11 @@ msgstr ""
 
 #: .\repair\templates\changes\implementation.html:23
 msgid "Implementation is part of the following strategies:"
-msgstr "Umsetzung ist Teil der Strategie"
+msgstr ""
 
 #: .\repair\templates\changes\implementation.html:32
 msgid "Implementation needs the following stakeholders"
-msgstr "Umsetzung benötigt die folgenden Akteure"
+msgstr ""
 
 #: .\repair\templates\changes\index.html:10
 msgid "Solutions"
@@ -146,19 +146,19 @@ msgstr ""
 
 #: .\repair\templates\changes\index.html:11
 msgid "Implementations"
-msgstr "Umsetzungen"
+msgstr ""
 
 #: .\repair\templates\changes\index.html:12
 msgid "Strategies"
-msgstr "Strategien"
+msgstr ""
 
 #: .\repair\templates\changes\index.html:24
 msgid "Users"
-msgstr "Nutzer"
+msgstr ""
 
 #: .\repair\templates\changes\index.html:35
 msgid "Casestudies"
-msgstr "Fallstudien"
+msgstr ""
 
 #: .\repair\templates\changes\index.html:42
 msgid "No casestudies are available."
@@ -174,7 +174,7 @@ msgstr ""
 
 #: .\repair\templates\changes\solution.html:10
 msgid "Description"
-msgstr "Beschreibung"
+msgstr ""
 
 #: .\repair\templates\changes\solution.html:11
 msgid "One unit equals"
@@ -283,21 +283,14 @@ msgid ""
 "diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
 "clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
 msgstr ""
-"Hier könnte eine deutsche Ubersetzung von Lorem Ipsum stehenHier könnte eine "
-"deutsche Ubersetzung von Lorem Ipsum stehenHier könnte eine deutsche "
-"Ubersetzung von Lorem Ipsum stehenHier könnte eine deutsche Ubersetzung von "
-"Lorem Ipsum stehenHier könnte eine deutsche Ubersetzung von Lorem Ipsum "
-"stehenHier könnte eine deutsche Ubersetzung von Lorem Ipsum stehenHier "
-"könnte eine deutsche Ubersetzung von Lorem Ipsum stehenHier könnte eine "
-"deutsche Ubersetzung von Lorem Ipsum stehen"
 
 #: .\repair\templates\study_area\basedata.html:22
 msgid "Map with Sankey"
-msgstr "Karte mit Sankey"
+msgstr ""
 
 #: .\repair\templates\study_area\basedata.html:24
 msgid "Interaction Test"
-msgstr "Interaktion Test"
+msgstr ""
 
 #: .\repair\templates\study_area\index.html:10
 msgid "Base data"
