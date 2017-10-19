@@ -25,6 +25,8 @@ from django.conf.urls.static import static
 from repair.apps.changes.views import (
                                        SolutionCategoriesListApiView,
                                        SolutionCategoryApiView,
+                                       SolutionsListApiView,
+                                       SolutionApiView,
                                        )
 
 router = routers.DefaultRouter()
@@ -60,5 +62,11 @@ urlpatterns = [
         name='apisolutioncategories'),
     url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/$',
         SolutionCategoryApiView.as_view(),
+        name='apisolutioncategory'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/$',
+        SolutionsListApiView.as_view(),
         name='apisolutions'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/(?P<solution_id>[0-9]+)/$',
+        SolutionApiView.as_view(),
+        name='apisolution'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
