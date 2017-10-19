@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.validators import ValidationError
 
 
-from repair.apps.changes.models import (
+from repair.apps.asmfa.models import (
     Activity,
     Activity2Activity,
     ActivityGroup,
