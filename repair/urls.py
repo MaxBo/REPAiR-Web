@@ -22,6 +22,10 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
+from repair.apps.changes.views import (
+                                       SolutionCategoriesListApiView,
+                                       SolutionCategoryApiView,
+                                       )
 
 router = routers.DefaultRouter()
 router.register(r'users', login_views.UserViewSet)
@@ -50,4 +54,11 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     #url(r'^api/payload', include('repair.static.webhook.urls')),
+    # API urls
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/$',
+        SolutionCategoriesListApiView.as_view(),
+        name='apisolutioncategories'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/$',
+        SolutionCategoryApiView.as_view(),
+        name='apisolutions'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

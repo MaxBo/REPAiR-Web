@@ -40,3 +40,10 @@ class SolutionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SolutionCategory
         fields = ('id', 'name')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'name')
