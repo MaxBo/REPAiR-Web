@@ -1,18 +1,18 @@
-define(["backbone"],
+define(["backbone", "app-config"],
 
-    function(Backbone) {
+  function(Backbone, config) {
 
-        var Stakeholder = Backbone.Model.extend({
-          
-            urlRoot: '/api/stakeholders/',
-            idAttribute: "id",
-            
-            defaults: {
-                id: '',
-                name: ''
-            },
+    var Stakeholder = Backbone.Model.extend({
 
-        });
-        return Stakeholder;
-    }
+      urlRoot: config.api.stakeholders,
+      idAttribute: "id",
+
+      defaults: {
+        id: '',
+        name: ''
+      },
+
+    });
+    return Stakeholder;
+  }
 );

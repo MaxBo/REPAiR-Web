@@ -1,10 +1,11 @@
-require(['./libs/domReady!', './config'], function (doc, config) {
+require(['./libs/domReady!', './require-config'], function (doc, config) {
     require(['jquery', 'app/collections/CaseStudies', 'app/models/Stakeholder', 
             'app/collections/Stakeholders', 'app/visualizations/sankey',
             'app/admin-data-tree'], 
     function ($, CaseStudies, Stakeholder, Stakeholders, Sankey, DataTree) {
     
-        /*
+        
+    
         var stakeholders = new Stakeholders();
         stakeholders.fetch({success: function(){
             console.log(stakeholders);
@@ -15,8 +16,8 @@ require(['./libs/domReady!', './config'], function (doc, config) {
         }});
         var stakeholder = new Stakeholder({name: 'bla'});
         console.log(stakeholder);
-        //stakeholder.save()*/
-        
+        //stakeholder.save()
+        /*
         // ToDo: fetch real data when models are implemented
         function generateRandomData() {
           var dataObject = new Object();
@@ -114,6 +115,6 @@ require(['./libs/domReady!', './config'], function (doc, config) {
             'click', function(){
                 renderSankey();
         });
-        
+        */
      });
 });

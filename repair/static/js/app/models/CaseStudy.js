@@ -1,18 +1,18 @@
-define(["backbone"],
+define(["backbone", "app-config"],
 
-    function(Backbone) {
+  function(Backbone, config) {
 
-        var CaseStudy = Backbone.Model.extend({
-          
-            urlRoot: '/api/casestudy/',
-            idAttribute: "id",
-            
-            defaults: {
-                id: '',
-                name: ''
-            },
+    var CaseStudy = Backbone.Model.extend({
 
-        });
-        return CaseStudy;
-    }
+      urlRoot: config.api.caseStudy,
+      idAttribute: "id",
+
+      defaults: {
+        id: '',
+        name: ''
+      },
+
+    });
+    return CaseStudy;
+  }
 );

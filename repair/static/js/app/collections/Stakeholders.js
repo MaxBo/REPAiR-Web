@@ -1,12 +1,12 @@
-define(["backbone","app/models/Stakeholder"],
+define(["backbone","app/models/Stakeholder", "app-config"],
 
-    function(Backbone, Stakeholder) {
+  function(Backbone, Stakeholder, config) {
 
-        var Stakeholders = Backbone.Collection.extend({
-            url: '/api/stakeholders/',
-            model: Stakeholder
-        });
-        
-        return Stakeholders;
-    }
+    var Stakeholders = Backbone.Collection.extend({
+      url: config.api.stakeholders,
+      model: Stakeholder
+    });
+
+    return Stakeholders;
+  }
 );
