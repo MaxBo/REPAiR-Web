@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from repair.apps.changes.models import CaseStudy
+
 
 class DataEntry(models.Model):
 
@@ -52,6 +54,10 @@ class ActivityGroup(Node):
                               ("exp", "Export"))
     code = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255, choices=activity_group_choices)
+
+    case_study = models.ForeignKey(CaseStudy,
+                                   on_delete=models.CASCADE,
+                                   default=1)
 
 
 class Activity(Node):
