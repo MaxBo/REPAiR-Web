@@ -1,5 +1,5 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
-  require(['jquery', 'app/models/casestudy-', 'app/views/admin-edit-flows-view'], 
+  require(['jquery', 'app/models/casestudy', 'app/views/admin-edit-flows-view'], 
   function ($, CaseStudy, EditFlowsView) {
     
     var showSelectedCaseStudy = function(){
