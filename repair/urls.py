@@ -17,6 +17,12 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from repair.apps.login import views as login_views
 from repair.apps.study_area.views import LinksViewSet, NodesViewSet
+from repair.apps.changes.views import (
+    SolutionCategoriesListApiView,
+    SolutionCategoryApiView,
+    SolutionsListApiView,
+    SolutionApiView,
+    )
 
 from django.http import HttpResponse
 from django.template import loader
@@ -48,7 +54,20 @@ urlpatterns = [
     url(r'^changes/', include('repair.apps.changes.urls')),
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
+    # API urls
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/payload', include('repair.static.webhook.urls')),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/$',
+        SolutionCategoriesListApiView.as_view(),
+        name='apisolutioncategories'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/$',
+        SolutionCategoryApiView.as_view(),
+        name='apisolutioncategory'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/$',
+        SolutionsListApiView.as_view(),
+        name='apisolutions'),
+    url(r'^api/casestudy/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/(?P<solution_id>[0-9]+)/$',
+        SolutionApiView.as_view(),
+        name='apisolution'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
