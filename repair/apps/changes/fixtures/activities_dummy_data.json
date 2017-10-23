@@ -1,0 +1,3424 @@
+[
+{
+  "model": "changes.activitygroup",
+  "pk": "C",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Consuming"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "COL",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Collection"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "D",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Distribution"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "P1",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Production"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "P2",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Production of packaging"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "P3",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Packaging"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "R",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Return Logistics"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "S",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Selling"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "SC",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Selling and Cosuming"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "W",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Waste Management"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "exp",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Export"
+  }
+},
+{
+  "model": "changes.activitygroup",
+  "pk": "imp",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Import"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "00.inci",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Incineration",
+    "own_activitygroup": "W"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "00.land",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Landfill",
+    "own_activitygroup": "W"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "11.juice",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of juice",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "11.milk",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of milk",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "11.soft",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of soft drinks",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "11.water",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of mineral water",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "22.bottles",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of bottles",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "22.boxes",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of boxes",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "33.drinks",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Packaging of drinks",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "33.milk",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Packaging of milk",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "33.water",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Packaging of water",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "44.drinks",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Distribution of drinks",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "44.milk",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Distribution of milk",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "44.water",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Distribution of water",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "55.market",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Selling in market",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "55.sm",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Selling in supermarket",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "55.whole",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Wholesale",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "66.farm",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "66.home",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Home Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "77.bar",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Bar Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "77.cafe",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Cafe Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "77.rest",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "88.depo",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Deposit",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "88.waste",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Sorted waste",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "99.MSW",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "99.cat",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Catering waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "99.farm",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "ee.xx",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Export",
+    "own_activitygroup": "exp"
+  }
+},
+{
+  "model": "changes.activity",
+  "pk": "ii.xx",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Import",
+    "own_activitygroup": "imp"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000001",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Incinerator",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.inci"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000002",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Landfilling bv",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.land"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000110",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Happy Farm",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.milk"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000111",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Cocacola",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000112",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Pepsi",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000113",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Sprite",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000114",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Apple Juice",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000115",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Orange Juice",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000116",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Fresh Juice",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000117",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Frozen Juice",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000118",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Mountain Water",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.water"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000119",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Vytautas Water",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.water"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000221",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Pretty Bottle",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.bottles"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000222",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Bottles Inc.",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.bottles"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000223",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Boxes Inc.",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000224",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Pack-a-Box.",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000225",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "3D-Box.",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000331",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Cola&Sprite",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.drinks"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000332",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Appelsientje",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.drinks"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000333",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "PETPETPET",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.water"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000334",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "WaterPack",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.water"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000335",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "TetraPak",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.milk"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000441",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Drink Distributor",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.drinks"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000442",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Water Distributor",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.water"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000443",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Milk Distributor",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.milk"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000550",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Wholeseller",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.whole"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000551",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Jumbo",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000552",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Albert Heijn",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000553",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Lidl",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000554",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Deen",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000555",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Spar",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000556",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Market 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000557",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Market 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000558",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Market 3",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000559",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Market 4",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000660",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm Type 4",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000661",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000662",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000663",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 3",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000664",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 4",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000665",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 5",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000666",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Household Type 6",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000667",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm Type 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000668",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm Type 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000669",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Tourism",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000771",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000772",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000773",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant 3",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000774",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant 4",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000775",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Bar 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.bar"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000776",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Bar 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000777",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Cafe 1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000778",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Cafe 2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000779",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Cafe 3",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000881",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Plastic Sorting bv",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.waste"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000882",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Bottle Sorting bv",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.waste"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000883",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Bottle Deposit bv",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.depo"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000991",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "MSW collector",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.MSW"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000992",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Food&Plastic waste collector",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.cat"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000993",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Restaurant waste collector",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.cat"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "NL00000994",
+  "fields": {
+    "source": false,
+    "sink": false,
+    "name": "Farm waste collector",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "ee00000000",
+  "fields": {
+    "source": false,
+    "sink": true,
+    "name": "Export",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ee.xx"
+  }
+},
+{
+  "model": "changes.actor",
+  "pk": "ii00000000",
+  "fields": {
+    "source": true,
+    "sink": false,
+    "name": "Import",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ii.xx"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 24,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "4",
+    "destination": "W",
+    "origin": "SC"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 25,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "P3",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 26,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "SC",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 27,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "exp",
+    "origin": "D"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 28,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "S",
+    "origin": "imp"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 29,
+  "fields": {
+    "material": "PET",
+    "amount": 30,
+    "quality": "3",
+    "destination": "COL",
+    "origin": "C"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 30,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "P3",
+    "origin": "P2"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 31,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "C",
+    "origin": "S"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 32,
+  "fields": {
+    "material": "PET",
+    "amount": 30,
+    "quality": "1",
+    "destination": "P2",
+    "origin": "R"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 33,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "SC",
+    "origin": "D"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 34,
+  "fields": {
+    "material": "PET",
+    "amount": 30,
+    "quality": "3",
+    "destination": "COL",
+    "origin": "SC"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 35,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "W",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 36,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "exp",
+    "origin": "C"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 37,
+  "fields": {
+    "material": "PET",
+    "amount": 100,
+    "quality": "1",
+    "destination": "D",
+    "origin": "P3"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 38,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "2",
+    "destination": "R",
+    "origin": "SC"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 39,
+  "fields": {
+    "material": "PET",
+    "amount": 30,
+    "quality": "1",
+    "destination": "S",
+    "origin": "D"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 40,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "2",
+    "destination": "R",
+    "origin": "C"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 41,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "exp",
+    "origin": "S"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 42,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "W",
+    "origin": "P2"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 43,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "4",
+    "destination": "W",
+    "origin": "S"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 44,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "4",
+    "destination": "W",
+    "origin": "COL"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 45,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "exp",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.group2group",
+  "pk": 46,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "C",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 55,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "99.farm",
+    "origin": "66.farm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 56,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "77.bar",
+    "origin": "44.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 57,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "ee.xx",
+    "origin": "66.farm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 58,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "2",
+    "destination": "88.waste",
+    "origin": "66.home"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 59,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "44.milk",
+    "origin": "33.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 60,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "ee.xx",
+    "origin": "44.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 61,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.inci",
+    "origin": "55.whole"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 62,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "66.farm",
+    "origin": "55.market"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 63,
+  "fields": {
+    "material": "PET",
+    "amount": 40,
+    "quality": "1",
+    "destination": "44.water",
+    "origin": "33.drinks"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 64,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "ee.xx",
+    "origin": "11.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 65,
+  "fields": {
+    "material": "PET",
+    "amount": 35,
+    "quality": "4",
+    "destination": "00.inci",
+    "origin": "99.MSW"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 66,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "99.cat",
+    "origin": "66.farm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 67,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "55.market",
+    "origin": "44.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 68,
+  "fields": {
+    "material": "PET",
+    "amount": 25,
+    "quality": "1",
+    "destination": "33.water",
+    "origin": "22.boxes"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 69,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "3",
+    "destination": "99.MSW",
+    "origin": "77.cafe"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 70,
+  "fields": {
+    "material": "PET",
+    "amount": 40,
+    "quality": "1",
+    "destination": "44.milk",
+    "origin": "33.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 71,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "99.MSW",
+    "origin": "66.farm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 72,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "22.bottles",
+    "origin": "88.depo"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 73,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "33.drinks",
+    "origin": "22.bottles"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 74,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "33.water",
+    "origin": "11.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 75,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "33.water",
+    "origin": "11.juice"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 76,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "3",
+    "destination": "99.MSW",
+    "origin": "77.rest"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 77,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "33.drinks",
+    "origin": "11.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 78,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "4",
+    "destination": "00.inci",
+    "origin": "99.cat"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 79,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "33.milk",
+    "origin": "22.boxes"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 80,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "33.drinks",
+    "origin": "11.juice"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 81,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "77.rest",
+    "origin": "44.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 82,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.land",
+    "origin": "22.boxes"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 83,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.inci",
+    "origin": "55.sm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 84,
+  "fields": {
+    "material": "PET",
+    "amount": 30,
+    "quality": "1",
+    "destination": "66.home",
+    "origin": "55.sm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 85,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "3",
+    "destination": "99.cat",
+    "origin": "66.home"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 86,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "66.farm",
+    "origin": "55.sm"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 87,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "ee.xx",
+    "origin": "55.market"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 88,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "55.whole",
+    "origin": "44.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 89,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.land",
+    "origin": "77.rest"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 90,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "22.bottles",
+    "origin": "88.waste"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 91,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "77.rest",
+    "origin": "11.soft"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 92,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "55.sm",
+    "origin": "44.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 93,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.inci",
+    "origin": "11.soft"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 94,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "88.waste",
+    "origin": "77.rest"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 95,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "22.boxes",
+    "origin": "88.waste"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 96,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "44.drinks",
+    "origin": "33.drinks"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 97,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "55.market",
+    "origin": "44.drinks"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 98,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "1",
+    "destination": "33.drinks",
+    "origin": "11.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 99,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "77.rest",
+    "origin": "44.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 100,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "88.depo",
+    "origin": "66.home"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 101,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "33.milk",
+    "origin": "11.water"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 102,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "99.MSW",
+    "origin": "66.home"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 103,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "00.land",
+    "origin": "77.bar"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 104,
+  "fields": {
+    "material": "PET",
+    "amount": 50,
+    "quality": "1",
+    "destination": "55.sm",
+    "origin": "ii.xx"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 105,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "77.cafe",
+    "origin": "44.milk"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 106,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "66.home",
+    "origin": "11.soft"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 107,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "99.cat",
+    "origin": "77.rest"
+  }
+},
+{
+  "model": "changes.activity2activity",
+  "pk": 108,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "88.waste",
+    "origin": "77.cafe"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 1,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000001",
+    "origin": "NL00000111"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 2,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000771",
+    "origin": "NL00000112"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 3,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000661",
+    "origin": "NL00000113"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 4,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000331",
+    "origin": "NL00000114"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 5,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000332",
+    "origin": "NL00000115"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 6,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000333",
+    "origin": "NL00000116"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 7,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000334",
+    "origin": "NL00000117"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 8,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000335",
+    "origin": "NL00000118"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 9,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000331",
+    "origin": "NL00000119"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 10,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000332",
+    "origin": "NL00000110"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 11,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000333",
+    "origin": "NL00000110"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 12,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000331",
+    "origin": "NL00000110"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 13,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "ee00000000",
+    "origin": "NL00000110"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 14,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000331",
+    "origin": "NL00000221"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 15,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000331",
+    "origin": "NL00000222"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 16,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000332",
+    "origin": "NL00000222"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 17,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000333",
+    "origin": "NL00000223"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 18,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000334",
+    "origin": "NL00000224"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 19,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000334",
+    "origin": "NL00000225"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 20,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000335",
+    "origin": "NL00000225"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 21,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000002",
+    "origin": "NL00000225"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 22,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000441",
+    "origin": "NL00000331"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 23,
+  "fields": {
+    "material": "PET",
+    "amount": 25,
+    "quality": "1",
+    "destination": "NL00000442",
+    "origin": "NL00000331"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 24,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000441",
+    "origin": "NL00000332"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 25,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "1",
+    "destination": "NL00000442",
+    "origin": "NL00000332"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 26,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "NL00000443",
+    "origin": "NL00000333"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 27,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "NL00000443",
+    "origin": "NL00000334"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 28,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000443",
+    "origin": "NL00000335"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 29,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000551",
+    "origin": "ii00000000"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 30,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000552",
+    "origin": "ii00000000"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 31,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000553",
+    "origin": "ii00000000"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 32,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000554",
+    "origin": "ii00000000"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 33,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000555",
+    "origin": "ii00000000"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 34,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000556",
+    "origin": "NL00000441"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 35,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000557",
+    "origin": "NL00000441"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 36,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000558",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 37,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000559",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 38,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000550",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 39,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000771",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 40,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000772",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 41,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000773",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 42,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000774",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 43,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000775",
+    "origin": "NL00000442"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 44,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000776",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 45,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000777",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 46,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000778",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 47,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "NL00000779",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 48,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "destination": "ee00000000",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 49,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000554",
+    "origin": "NL00000443"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 50,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000001",
+    "origin": "NL00000550"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 51,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000001",
+    "origin": "NL00000551"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 52,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000661",
+    "origin": "NL00000553"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 53,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000662",
+    "origin": "NL00000553"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 54,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000663",
+    "origin": "NL00000552"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 55,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000664",
+    "origin": "NL00000554"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 56,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000665",
+    "origin": "NL00000554"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 57,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000666",
+    "origin": "NL00000554"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 58,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000667",
+    "origin": "NL00000555"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 59,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000668",
+    "origin": "NL00000555"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 60,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000669",
+    "origin": "NL00000556"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 61,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000660",
+    "origin": "NL00000557"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 62,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "ee00000000",
+    "origin": "NL00000558"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 63,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "ee00000000",
+    "origin": "NL00000559"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 75,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000660"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 76,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000661"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 77,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000881",
+    "origin": "NL00000661"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 78,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000881",
+    "origin": "NL00000662"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 79,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000882",
+    "origin": "NL00000663"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 80,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000883",
+    "origin": "NL00000664"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 81,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000992",
+    "origin": "NL00000665"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 82,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000992",
+    "origin": "NL00000666"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 83,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000994",
+    "origin": "NL00000667"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 84,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000993",
+    "origin": "NL00000668"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 85,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "ee00000000",
+    "origin": "NL00000669"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 86,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000002",
+    "origin": "NL00000771"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 87,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000771"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 88,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000772"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 89,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000992",
+    "origin": "NL00000773"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 90,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000774"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 91,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "4",
+    "destination": "NL00000002",
+    "origin": "NL00000775"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 92,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000881",
+    "origin": "NL00000776"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 93,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "2",
+    "destination": "NL00000881",
+    "origin": "NL00000777"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 94,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000778"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 95,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "3",
+    "destination": "NL00000991",
+    "origin": "NL00000779"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 96,
+  "fields": {
+    "material": "PET",
+    "amount": 20,
+    "quality": "1",
+    "destination": "NL00000225",
+    "origin": "NL00000881"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 97,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000221",
+    "origin": "NL00000882"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 98,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "destination": "NL00000222",
+    "origin": "NL00000883"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 99,
+  "fields": {
+    "material": "PET",
+    "amount": 35,
+    "quality": "4",
+    "destination": "NL00000001",
+    "origin": "NL00000991"
+  }
+},
+{
+  "model": "changes.actor2actor",
+  "pk": 100,
+  "fields": {
+    "material": "PET",
+    "amount": 15,
+    "quality": "4",
+    "destination": "NL00000001",
+    "origin": "NL00000992"
+  }
+},
+{
+  "model": "changes.groupstock",
+  "pk": 5,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "SC"
+  }
+},
+{
+  "model": "changes.groupstock",
+  "pk": 6,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "S"
+  }
+},
+{
+  "model": "changes.groupstock",
+  "pk": 7,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "COL"
+  }
+},
+{
+  "model": "changes.groupstock",
+  "pk": 8,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "P1"
+  }
+},
+{
+  "model": "changes.groupstock",
+  "pk": 9,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "D"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 5,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "55.sm"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 6,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "99.farm"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 7,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "99.cat"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 8,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "11.soft"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 9,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "77.rest"
+  }
+},
+{
+  "model": "changes.activitystock",
+  "pk": 10,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "44.drinks"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 1,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000111"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 2,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000112"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 3,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000552"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 4,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000551"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 5,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000993"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 6,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000994"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 7,
+  "fields": {
+    "material": "PET",
+    "amount": 10,
+    "quality": "1",
+    "origin": "NL00000441"
+  }
+},
+{
+  "model": "changes.actorstock",
+  "pk": 8,
+  "fields": {
+    "material": "PET",
+    "amount": 5,
+    "quality": "1",
+    "origin": "NL00000771"
+  }
+}
+]

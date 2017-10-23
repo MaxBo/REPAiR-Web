@@ -164,6 +164,10 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en-us', _('English')),
     ('de', _('German')),
+    ('nl', _('Dutch')),
+    ('pl', _('Polish')),
+    ('hu', _('Hungarian')),
+    ('it', _('Italian')),
 )
 
 LOCALE_PATHS = (
