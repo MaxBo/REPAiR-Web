@@ -19,7 +19,6 @@ define([
       div = d3.select(divid);
       var bbox = div.node().getBoundingClientRect();
       var width = this.width || bbox.width;
-      console.log(width)
       width = width - margin.left - margin.right;
     
       var sankey = d3.sankey()

@@ -4,7 +4,7 @@ define(["backbone", "app-config"],
 
     var CaseStudy = Backbone.Model.extend({
 
-      urlRoot: config.api.caseStudy,
+      urlRoot: config.api.casestudies,
       idAttribute: "id",
 
       defaults: {

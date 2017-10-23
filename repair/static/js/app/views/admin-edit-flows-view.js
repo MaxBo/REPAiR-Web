@@ -14,6 +14,7 @@ function(Backbone, Sankey, DataTree, EditNodeView){
     },
 
     render: function(){
+      console.log(this.model);
       var _this = this;
       var html = document.getElementById(this.template).innerHTML;
       var template = _.template(html);
