@@ -24,20 +24,20 @@ from repair.apps.asmfa.models import (
 
 class ModelTest(TestCase):
 
-    fixtures = ['activities_dummy_data.json',]
+    fixtures = ['activities_dummy_data.json']
 
     def test_string_representation(self):
         for Model in (
             Activity,
-            Activity2Activity,
+            #Activity2Activity,
             ActivityGroup,
             ActivityStock,
             Actor,
-            Actor2Actor,
+            #Actor2Actor,
             ActorStock,
             DataEntry,
             Geolocation,
-            Group2Group,
+            #Group2Group,
             GroupStock,
             ):
 

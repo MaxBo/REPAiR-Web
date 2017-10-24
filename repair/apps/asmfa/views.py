@@ -108,9 +108,11 @@ class FlowViewSet(ViewSet):
 
 class Group2GroupViewSet(FlowViewSet):
     model = Group2Group
-    
+
+
 class Activity2ActivityViewSet(FlowViewSet):
     model = Actor2Actor
-    
+
+
 class Actor2ActorViewSet(FlowViewSet):
     model = Activity2Activity
