@@ -32,11 +32,33 @@ class SolutionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Solution
-        fields = ('id', 'name', 'user', 'description')
+        fields = ('id', 'name', 'user', 'description', 'one_unit_equals')
+
+
+class SolutionPostSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Solution
+        fields = ('id', 'name', 'user', 'description', 'one_unit_equals',
+                  'solution_category')
 
 
 class SolutionCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SolutionCategory
+        fields = ('id', 'name')
+
+
+class SolutionCategoryPostSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SolutionCategory
+        fields = ('id', 'name', 'user')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
         fields = ('id', 'name')
