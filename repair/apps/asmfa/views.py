@@ -8,7 +8,7 @@ from repair.apps.asmfa.models import ActivityGroup
 from repair.apps.asmfa.serializers import ActivityGroupSerializer
 
 
-class ActivityGroupsListApiView(ViewSet):
+class ActivityGroupViewSet(ViewSet):
 
     def list(self, request, casestudy_pk=None):
         queryset = ActivityGroup.objects.filter(case_study=casestudy_pk)

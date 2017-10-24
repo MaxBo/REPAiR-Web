@@ -3,9 +3,15 @@ from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
 import django.db.models
+from django.shortcuts import get_object_or_404, get_list_or_404
 
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
+from django.http import Http404, JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, generics
+
 from repair.apps.changes.models import (CaseStudy,
                                         Unit,
                                         User,
@@ -31,33 +37,6 @@ from repair.apps.changes.serializers import (CaseStudySerializer,
 
 
 from repair.apps.changes.forms import NameForm
-
-
-
-class CaseStudyViewSet(viewsets.ModelViewSet):
-    queryset = CaseStudy.objects.all()
-    serializer_class = CaseStudySerializer
-
-
-class StakeholderCategoryViewSet(viewsets.ModelViewSet):
-    queryset = StakeholderCategory.objects.all()
-    serializer_class = StakeholderCategorySerializer
-
-
-class StakeholderViewSet(viewsets.ModelViewSet):
-    queryset = Stakeholder.objects.all()
-    serializer_class = StakeholderSerializer
-
-
-class SolutionCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SolutionCategory.objects.all()
-    serializer_class = SolutionCategorySerializer
-
-
-class SolutionViewSet(viewsets.ModelViewSet):
-    queryset = Solution.objects.all()
-    serializer_class = SolutionSerializer
-
 
 def index(request):
     casestudy_list = CaseStudy.objects.order_by('id')[:20]
@@ -165,31 +144,40 @@ def userincasestudy(request, user_id, casestudy_id):
     return render(request, 'changes/user_in_casestudy.html', context)
 
 
-# API View
-from django.http import Http404, JsonResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, generics
+# API Views
 
-class SolutionCategoriesListApiView(generics.ListCreateAPIView):
+class CaseStudyViewSet(viewsets.ModelViewSet):
+    queryset = CaseStudy.objects.all()
+    serializer_class = CaseStudySerializer
+
+
+class StakeholderCategoryViewSet(viewsets.ModelViewSet):
+    queryset = StakeholderCategory.objects.all()
+    serializer_class = StakeholderCategorySerializer
+
+
+class StakeholderViewSet(viewsets.ModelViewSet):
+    queryset = Stakeholder.objects.all()
+    serializer_class = StakeholderSerializer
+
+
+class SolutionCategoryViewSet(viewsets.ViewSet):
     serializer_class = SolutionCategorySerializer
 
-    def get_queryset(self):
-        casestudy_id = self.kwargs['casestudy_id']
-        casestudy = CaseStudy.objects.get(id=casestudy_id)
-        return casestudy.solution_categories
-
-    def list(self, request, casestudy_id):
-        queryset = self.get_queryset()
-        #queryset = queryset.filter(id=1)
+    def list(self, request, casestudy_pk=None):
+        if casestudy_pk is not None:
+            casestudy = CaseStudy.objects.get(id=casestudy_pk)
+            queryset = casestudy.solution_categories
+        else:
+            queryset = SolutionCategory.objects.all()
         serializer = SolutionCategorySerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def post(self, request, casestudy_id, format=None):
+    def post(self, request, casestudy_pk=None):
         serializer = SolutionCategoryPostSerializer(data=request.data)
         try:
             UserInCasestudy.objects.get(user_id=request.data['user'],
-                                        casestudy_id=casestudy_id)
+                                        casestudy_id=casestudy_pk)
         except(UserInCasestudy.DoesNotExist):
             return Response({'detail': 'User does not exist in Casestudy!'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -198,48 +186,27 @@ class SolutionCategoriesListApiView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class SolutionCategoryApiView(APIView):
-    def get_object(self, casestudy_id, solution_category_id):
-        try:
-            casestudy = CaseStudy.objects.get(id=casestudy_id)
-            solution_categories = casestudy.solution_categories
-            for solution_category in solution_categories:
-                if solution_category.id == int(solution_category_id):
-                    return solution_category
-        except Solution.DoesNotExist:
-            raise Http404
-
-    def get(self, request, casestudy_id, solution_category, format=None):
-        solution_category = self.get_object(casestudy_id, solution_category)
-        if solution_category:
-            serializer = SolutionCategorySerializer(solution_category)
-            return Response(serializer.data)
-        else:
-            return Response(None)
+    def retrieve(self, request, pk=None, casestudy_pk=None):
+        queryset = SolutionCategory.objects.filter()
+        solution_category = get_object_or_404(queryset, pk=pk)
+        serializer = SolutionCategorySerializer(solution_category)
+        return Response(serializer.data)
 
 
-class SolutionsListApiView(generics.ListCreateAPIView):
+class SolutionViewSet(viewsets.ViewSet):
     serializer_class = SolutionSerializer
 
-    def get_queryset(self):
-        casestudy_id = self.kwargs['casestudy_id']
-        solution_category_id = self.kwargs['solution_category']
-        solutions = Solution.objects.filter(
-            solution_category_id=solution_category_id)
-        return solutions
-
-    def list(self, request, casestudy_id, solution_category):
-        queryset = self.get_queryset()
+    def list(self, request, casestudy_pk=None, solutioncategory_pk=None):
+        queryset = Solution.objects.filter(solution_category_id=solutioncategory_pk)
         serializer = SolutionSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def post(self, request, casestudy_id, solution_category, format=None):
+    def post(self, request, casestudy_pk=None, solutioncategory_pk=None):
         data=request.data
-        data['solution_category'] = solution_category  #SolutionCategory.objects.get(id=int(solution_category))
+        data['solution_category'] = solutioncategory_pk  #SolutionCategory.objects.get(id=int(solution_category))
         serializer = SolutionPostSerializer(data=data)
         try:
-            UserInCasestudy.objects.get(user_id=data['user'], casestudy_id=casestudy_id)
+            UserInCasestudy.objects.get(user_id=data['user'], casestudy_id=casestudy_pk)
         except(UserInCasestudy.DoesNotExist):
             return Response({'detail': 'User does not exist in Casestudy!'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -247,23 +214,9 @@ class SolutionsListApiView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SolutionApiView(APIView):
-    def get_object(self, casestudy_id, solution_category_id, solution_id):
-        try:
-            solution = Solution.objects.get(
-                solution_category_id=solution_category_id,
-                id=solution_id)
-            if solution.casestudy.id == int(casestudy_id):
-                    return solution
-        except Solution.DoesNotExist:
-            raise Http404
-
-    def get(self, request, casestudy_id, solution_category, solution_id, format=None):
-        got_object = self.get_object(casestudy_id, solution_category, solution_id)
-        if got_object:
-            serializer = SolutionSerializer(got_object)
-            return Response(serializer.data)
-        else:
-            return Response(None)
+    
+    def retrieve(self, request, pk=None, casestudy_pk=None, solutioncategory_pk=None):
+        queryset = Solution.objects.filter(pk=pk, solution_category_id=solutioncategory_pk)
+        solution = get_object_or_404(queryset, pk=pk)
+        serializer = SolutionSerializer(solution)
+        return Response(serializer.data)

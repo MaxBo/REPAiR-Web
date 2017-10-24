@@ -40,21 +40,5 @@ urlpatterns = [
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api/payload', include('repair.static.webhook.urls')),
-    #url(r'^api/casestudies/(?P<casestudy_id>[0-9]+)/solutioncategories/$',
-        #SolutionCategoriesListApiView.as_view(),
-        #name='apisolutioncategories'),
-    #url(r'^api/casestudies/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/$',
-        #SolutionCategoryApiView.as_view(),
-        #name='apisolutioncategory'),
-    #url(r'^api/casestudies/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/$',
-        #SolutionsListApiView.as_view(),
-        #name='apisolutions'),
-    #url(r'^api/casestudies/(?P<casestudy_id>[0-9]+)/solutioncategories/(?P<solution_category>[0-9]+)/solutions/(?P<solution_id>[0-9]+)/$',
-        #SolutionApiView.as_view(),
-        #name='apisolution'),
-    #url(r'^api/casestudies/(?P<casestudy_id>[0-9]+)/activitygroups/(?P<activitygroup_id>[0-9]+)/$',
-        #ActivityGroupsListApiView.as_view(),
-        #name='activitygroups'),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
