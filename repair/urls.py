@@ -14,27 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-from rest_framework import routers
-from repair.apps.login import views as login_views
-from repair.apps.study_area.views import LinksViewSet, NodesViewSet
 
 from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
 
-router = routers.DefaultRouter()
-router.register(r'users', login_views.UserViewSet)
-router.register(r'groups', login_views.GroupViewSet)
-router.register(r'links', LinksViewSet)
-router.register(r'nodes', NodesViewSet)
-
-
 def index(request):
     template = loader.get_template('index.html')
     context = {}
     html = template.render(context, request)
     return HttpResponse(html)
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -47,7 +38,7 @@ urlpatterns = [
     url(r'^changes/', include('repair.apps.changes.urls')),
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
-    url(r'^api/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    #url(r'^api/payload', include('repair.static.webhook.urls')),
+    # API urls
+    url(r'^api/', include('repair.rest_urls')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
