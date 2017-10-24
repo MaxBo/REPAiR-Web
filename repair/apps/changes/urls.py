@@ -1,13 +1,6 @@
 from django.conf.urls import url
 
 from repair.apps.changes import views
-from repair.apps.changes.views import (CaseStudyViewSet,
-                                       StakeholderCategoryViewSet,
-                                       StakeholderViewSet,
-                                       SolutionCategoryViewSet,
-                                       SolutionViewSet,
-                                       )
-from repair.urls import router
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -64,10 +57,3 @@ urlpatterns = [
         name='user'),
 
 ]
-
-
-router.register(r'casestudy', CaseStudyViewSet)
-router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
-router.register(r'stakeholders', StakeholderViewSet)
-router.register(r'solution_categories', SolutionCategoryViewSet)
-router.register(r'solutions', SolutionViewSet)
