@@ -107,6 +107,9 @@ class Flow(models.Model):
     material = models.CharField(max_length=255, choices=material_choices, blank=True)
     amount = models.PositiveIntegerField(blank=True)
     quality = models.CharField(max_length=255, choices=quality_choices, blank=True)
+    case_study = models.ForeignKey(CaseStudy,
+                                   on_delete=models.CASCADE,
+                                   default=1)
 
     class Meta:
         abstract = True
