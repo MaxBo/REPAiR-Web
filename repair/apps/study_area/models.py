@@ -19,7 +19,7 @@ class GDSEUniqueNameModel(GDSEModel):
         abstract = True
 
     def validate_unique(self, *args, **kwargs):
-        super().validate_unique(*args, **kwargs)
+        super(GDSEUniqueNameModel, self).validate_unique(*args, **kwargs)
 
         qs = self.__class__._default_manager.filter(
             name=self.name
@@ -276,5 +276,3 @@ class Links(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length = 255)
     last_name = models.CharField(max_length = 255)
-    
-    

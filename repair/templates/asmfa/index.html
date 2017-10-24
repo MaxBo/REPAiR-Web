@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load require %}
+
+{% block sidebar %}
+  <script>
+    document.getElementById("changes-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
+    <li><a href="#implementations" data-toggle="pill">{% trans "Implementations" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
+    <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="solutions">
+      <div class="row">
+        <div class="col-md-6"> </div>
+      </div>
+
+      <div class="row">
+        <p>{% trans "Activities" %}.</p>
+        <ul>
+        {% for activity in activities %}
+            <li><a href="/asmfa/activities/{{ activity.nace }}">{{ activity.name }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+
+
+      <div class="row">
+        <p>{% trans "Flows" %}.</p>
+        <ul>
+        {% for flow in flows %}
+            <li><a href="/asmfa/flows/{{ flow.id }}">{{ flow.id }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+
+      </div>
+    </div>
+    <div class="tab-pane fade" id="implementations">
+      <h2>
+        <span class="glyphicon glyphicon-sunglasses"></span>
+        Nothing to see here...
+      </h2>
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2>
+        <span class="glyphicon glyphicon-sunglasses"></span>
+        Nothing to see here neither...
+      </h2>
+    </div>
+  </div>
+</html>
+{% endblock %}
