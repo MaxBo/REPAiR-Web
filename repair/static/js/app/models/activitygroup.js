@@ -3,18 +3,13 @@ define(["backbone"],
   function(Backbone) {
 
     var ActivityGroup = Backbone.Model.extend({
-      idAttribute: "id",
+      idAttribute: "code",
       urlRoot: function(){
-        return config.api.activitygroups.format(this.caseStudyID);
+        return config.api.activitygroups.format(this.caseStudyId);
       },
 
       initialize: function (options) {
-        this.caseStudyID = options.caseStudyID;
-      },
-
-      defaults: {
-        id: '',
-        name: ''
+        this.caseStudyId = options.caseStudyId;
       },
 
     });

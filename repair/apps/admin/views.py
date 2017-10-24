@@ -7,13 +7,14 @@ import json
 from plotly import offline
 from plotly.graph_objs import Figure, Data, Layout
 from repair.apps.changes.models import CaseStudy
+from repair.apps.asmfa.models import Flow
 
 def index(request):
     template = loader.get_template('admin/index.html')
 
     context = {}
     context['case_studies'] = CaseStudy.objects.order_by('id')
-    context['flows'] = []
+    context['flows'] = Flow.material_choices
 
     html = template.render(context, request)
     return HttpResponse(html)
