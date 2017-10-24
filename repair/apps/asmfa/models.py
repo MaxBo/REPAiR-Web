@@ -62,7 +62,7 @@ class ActivityGroup(Node):
 
 class Activity(Node):
 
-    nace = models.CharField(max_length=255, primary_key=True)  # NACE code, unique for each activity
+    nace = models.CharField(max_length=255, unique=True)  # NACE code, unique for each activity
     name = models.CharField(max_length=255)  # not sure about the max length, leaving everywhere 255 for now
 
     own_activitygroup = models.ForeignKey(ActivityGroup,
@@ -88,6 +88,7 @@ class Actor(Node):
 
     own_activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                      related_name='Actors',
+                                     to_field='nace', 
                                      default=1)
 
 
@@ -122,9 +123,9 @@ class Group2Group(Flow):
 class Activity2Activity(Flow):
 
     destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                    related_name='Inputs')
+                                    related_name='Inputs', to_field='nace')
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                               related_name='Outputs')
+                               related_name='Outputs', to_field='nace')
 
 
 class Actor2Actor(Flow):
@@ -155,7 +156,7 @@ class GroupStock(Stock):
 class ActivityStock(Stock):
 
         origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='Stocks', to_field='nace')
 
 
 class ActorStock(Stock):
