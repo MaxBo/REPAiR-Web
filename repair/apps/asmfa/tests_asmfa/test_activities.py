@@ -1,45 +1,45 @@
-from django.test import TestCase
-from django.core.validators import ValidationError
+#from django.test import TestCase
+#from django.core.validators import ValidationError
 
 
-from repair.apps.asmfa.models import (
-    Activity,
-    Activity2Activity,
-    ActivityGroup,
-    ActivityStock,
-    Actor,
-    Actor2Actor,
-    ActorStock,
-    DataEntry,
-    Flow,
-    Geolocation,
-    Group2Group,
-    GroupStock,
-    Node,
-    Stock,
-    )
+#from repair.apps.asmfa.models import (
+    #Activity,
+    #Activity2Activity,
+    #ActivityGroup,
+    #ActivityStock,
+    #Actor,
+    #Actor2Actor,
+    #ActorStock,
+    #DataEntry,
+    #Flow,
+    #Geolocation,
+    #Group2Group,
+    #GroupStock,
+    #Node,
+    #Stock,
+    #)
 
-#from repair.apps.changes.factories import *
+##from repair.apps.changes.factories import *
 
 
-class ModelTest(TestCase):
+#class ModelTest(TestCase):
 
-    fixtures = ['activities_dummy_data.json']
+    #fixtures = ['activities_dummy_data.json']
 
-    def test_string_representation(self):
-        for Model in (
-            Activity,
+    #def test_string_representation(self):
+        #for Model in (
+            #Activity,
             #Activity2Activity,
-            ActivityGroup,
-            ActivityStock,
-            Actor,
+            #ActivityGroup,
+            #ActivityStock,
+            #Actor,
             #Actor2Actor,
-            ActorStock,
-            DataEntry,
-            Geolocation,
+            #ActorStock,
+            #DataEntry,
+            #Geolocation,
             #Group2Group,
-            GroupStock,
-            ):
+            #GroupStock,
+            #):
 
-            print('{} has {} test data entries'.format(
-                Model, Model.objects.count()))
+            #print('{} has {} test data entries'.format(
+                #Model, Model.objects.count()))
