@@ -40,17 +40,3 @@ class SolutionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SolutionCategory
         fields = ('id', 'name')
-
-
-
-from repair.apps.study_area.models import Links, Nodes
-
-class LinksSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Links
-        fields = ('id_from', 'id_to', 'weight')
-
-class NodesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Nodes
-        fields = ('location', 'x_coord', 'y_coord')
