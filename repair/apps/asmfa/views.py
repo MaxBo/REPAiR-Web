@@ -11,7 +11,8 @@ from repair.apps.asmfa.models import (
     Activity2Activity, Actor2Actor, Group2Group)
 from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer, ActivitySerializer,
-    ActorSerializer, FlowSerializer)
+    ActorSerializer, FlowSerializer, Actor2ActorSerializer,
+    Activity2ActivitySerializer, Group2GroupSerializer)
 from django.shortcuts import get_object_or_404
 
 
@@ -22,7 +23,7 @@ class ActivityGroupViewSet(ViewSet):
         queryset = ActivityGroup.objects.filter(case_study=casestudy_pk)
         serializer = ActivityGroupSerializer(queryset, many=True)
         return Response(serializer.data)
-    
+
     def retrieve(self, request, pk=None, casestudy_pk=None):
         queryset = ActivityGroup.objects.filter(pk=pk, case_study=casestudy_pk)
         activitygroup = get_object_or_404(queryset, pk=pk)
@@ -38,7 +39,7 @@ class ActivityViewSet(ViewSet):
             own_activitygroup=activitygroup_pk)
         serializer = ActivitySerializer(queryset, many=True)
         return Response(serializer.data)
-    
+
     def retrieve(self, request, pk=None, casestudy_pk=None,
                  activitygroup_pk=None):
         queryset = Activity.objects.filter(
@@ -50,7 +51,7 @@ class ActivityViewSet(ViewSet):
 
 class ActorViewSet(ViewSet):
     serializer_class = ActorSerializer
-    
+
     def get_nace(self, activity_pk, activitygroup_pk):
         queryset = Activity.objects.filter(
             pk=activity_pk, own_activitygroup=activitygroup_pk)
@@ -63,7 +64,7 @@ class ActorViewSet(ViewSet):
         queryset = Actor.objects.filter(own_activity=nace)
         serializer = ActorSerializer(queryset, many=True)
         return Response(serializer.data)
-    
+
     def retrieve(self, request, pk=None, casestudy_pk=None,
                  activitygroup_pk=None, activity_pk=None):
         nace = self.get_nace(activity_pk, activitygroup_pk)
@@ -78,7 +79,7 @@ class MaterialViewSet(ViewSet):
         materials = Flow.material_choices
         data = [OrderedDict([('id', m[0]), ('name', m[1])]) for m in materials]
         return Response(data)
-    
+
     def retrieve(self, request, pk=None, casestudy_pk=None):
         materials = Flow.material_choices
         for m in materials:
@@ -89,30 +90,44 @@ class MaterialViewSet(ViewSet):
 
 
 class FlowViewSet(ViewSet):
-    serializer_class = FlowSerializer
+    serializer_class = None
     model = None
-    
+
     def list(self, request, casestudy_pk=None, material_pk=None):
         queryset = self.model.objects.filter(
             case_study=casestudy_pk, material=material_pk)
-        serializer = FlowSerializer(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-    
+
+    def post(self, request, pk=None, casestudy_pk=None, material_pk=None):
+        data = request.data
+        # use the pks from the url
+        if casestudy_pk:
+            data['case_study'] = casestudy_pk
+        if material_pk:
+            data['material'] = material_pk
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def retrieve(self, request, pk=None, casestudy_pk=None, material_pk=None):
         queryset = self.model.objects.filter(
             pk=pk, case_study=casestudy_pk, material=material_pk)
         flow = get_object_or_404(queryset, pk=pk)
-        serializer = FlowSerializer(flow)
+        serializer = self.serializer_class(flow)
         return Response(serializer.data)
 
 
 class Group2GroupViewSet(FlowViewSet):
     model = Group2Group
-
+    serializer_class = Group2GroupSerializer
 
 class Activity2ActivityViewSet(FlowViewSet):
-    model = Actor2Actor
-
+    model = Activity2Activity
+    serializer_class = Activity2ActivitySerializer
 
 class Actor2ActorViewSet(FlowViewSet):
-    model = Activity2Activity
+    model = Actor2Actor
+    serializer_class = Actor2ActorSerializer

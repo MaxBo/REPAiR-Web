@@ -1,4 +1,7 @@
-from repair.apps.asmfa.models import ActivityGroup, Activity, Actor, Flow
+from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor, Flow,
+                                      Actor2Actor, Activity2Activity,
+                                      Group2Group)
+
 
 from rest_framework import serializers
 
@@ -24,5 +27,21 @@ class ActorSerializer(serializers.ModelSerializer):
 
 class FlowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Flow
-        fields = ('material', 'amount', 'quality', 'origin', 'destination')
+        model = None
+        fields = ('material', 'amount', 'quality', 'origin', 'destination',
+                  'case_study')
+
+
+class Actor2ActorSerializer(FlowSerializer):
+    class Meta(FlowSerializer.Meta):
+        model = Actor2Actor
+
+
+class Activity2ActivitySerializer(FlowSerializer):
+    class Meta(FlowSerializer.Meta):
+        model = Activity2Activity
+
+
+class Group2GroupSerializer(FlowSerializer):
+    class Meta(FlowSerializer.Meta):
+        model = Group2Group
