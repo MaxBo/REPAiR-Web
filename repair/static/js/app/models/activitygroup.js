@@ -1,6 +1,6 @@
-define(["backbone"],
+define(["backbone", "app-config"],
 
-  function(Backbone) {
+  function(Backbone, config) {
 
     var ActivityGroup = Backbone.Model.extend({
       idAttribute: "code",
