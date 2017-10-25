@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from collections import OrderedDict
 from django.http import Http404
+from itertools import chain
 
 from repair.apps.asmfa.models import (
     ActivityGroup, Activity, Actor, Flow,
@@ -12,7 +13,8 @@ from repair.apps.asmfa.models import (
 from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer, ActivitySerializer,
     ActorSerializer, FlowSerializer, Actor2ActorSerializer,
-    Activity2ActivitySerializer, Group2GroupSerializer)
+    Activity2ActivitySerializer, Group2GroupSerializer,
+    ActorListSerializer)
 from django.shortcuts import get_object_or_404
 
 
@@ -35,15 +37,22 @@ class ActivityViewSet(ViewSet):
     serializer_class = ActivitySerializer
 
     def list(self, request, casestudy_pk=None, activitygroup_pk=None):
-        queryset = Activity.objects.filter(
-            own_activitygroup=activitygroup_pk)
+        if activitygroup_pk is not None:
+            queryset = Activity.objects.filter(
+                own_activitygroup=activitygroup_pk)
+        else:
+            activitygroups = ActivityGroup.objects.filter(case_study=casestudy_pk)
+            queryset = list(chain(*[a.Activities.all() for a in activitygroups]))
         serializer = ActivitySerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, casestudy_pk=None,
                  activitygroup_pk=None):
-        queryset = Activity.objects.filter(
-            pk=pk, own_activitygroup=activitygroup_pk)
+        if activitygroup_pk is not None:
+            queryset = Activity.objects.filter(
+                pk=pk, own_activitygroup=activitygroup_pk)
+        else:
+            queryset = Activity.objects.filter(pk=pk)
         activity = get_object_or_404(queryset, pk=pk)
         serializer = ActivitySerializer(activity)
         return Response(serializer.data)
@@ -60,15 +69,23 @@ class ActorViewSet(ViewSet):
 
     def list(self, request, casestudy_pk=None, activitygroup_pk=None,
              activity_pk=None):
-        nace = self.get_nace(activity_pk, activitygroup_pk)
-        queryset = Actor.objects.filter(own_activity=nace)
-        serializer = ActorSerializer(queryset, many=True)
+        if activity_pk is not None:
+            nace = self.get_nace(activity_pk, activitygroup_pk)
+            queryset = Actor.objects.filter(own_activity=nace)
+        else:
+            activitygroups = ActivityGroup.objects.filter(case_study=casestudy_pk)
+            activities = list(chain(*[ag.Activities.all() for ag in activitygroups]))
+            queryset = list(chain(*[a.Actors.all() for a in activities]))
+        serializer = ActorListSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, casestudy_pk=None,
                  activitygroup_pk=None, activity_pk=None):
-        nace = self.get_nace(activity_pk, activitygroup_pk)
-        queryset = Actor.objects.filter(pk=pk, own_activity=nace)
+        if activity_pk is not None:
+            nace = self.get_nace(activity_pk, activitygroup_pk)
+            queryset = Actor.objects.filter(pk=pk, own_activity=nace)
+        else:
+            queryset = Actor.objects.filter(pk=pk)
         actor = get_object_or_404(queryset, pk=pk)
         serializer = ActorSerializer(actor)
         return Response(serializer.data)

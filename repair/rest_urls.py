@@ -26,6 +26,8 @@ router.register(r'solutions', SolutionViewSet, base_name='solutions')
 # /casestudies/...
 cs_router = NestedSimpleRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'activitygroups', ActivityGroupViewSet, base_name='activitygroups')
+cs_router.register(r'activities', ActivityViewSet, base_name='activities')
+cs_router.register(r'actors', ActorViewSet, base_name='actors')
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet, base_name='solutioncategories')
 cs_router.register(r'materials', MaterialViewSet, base_name='materials')
 
@@ -35,11 +37,11 @@ scat_router.register(r'solutions', SolutionViewSet, base_name='solutions')
 
 # /casestudies/*/activitygroups/...
 ag_router = NestedSimpleRouter(cs_router, r'activitygroups', lookup='activitygroup')
-ag_router.register(r'activities', ActivityViewSet, base_name='solutions')
+ag_router.register(r'activities', ActivityViewSet, base_name='activities')
 
 # /casestudies/*/activitygroups/*/activities/...
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
-ac_router.register(r'actors', ActorViewSet, base_name='solutions')
+ac_router.register(r'actors', ActorViewSet, base_name='actors')
 
 # /casestudies/*/materials/...
 mat_router = NestedSimpleRouter(cs_router, r'materials', lookup='material')
