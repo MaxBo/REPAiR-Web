@@ -3,12 +3,12 @@ from django.conf.urls import url, include
 
 from repair.apps.login import views as login_views
 from repair.apps.changes.views import (
-    CaseStudyViewSet, StakeholderCategoryViewSet, StakeholderViewSet, 
+    CaseStudyViewSet, StakeholderCategoryViewSet, StakeholderViewSet,
     SolutionCategoryViewSet, SolutionViewSet)
 from repair.apps.asmfa.views import (
     ActivityGroupViewSet, ActivityViewSet, ActorViewSet,
     Activity2ActivityViewSet, MaterialViewSet, Group2GroupViewSet,
-    Actor2ActorViewSet)
+    Actor2ActorViewSet, QualityViewSet)
 
 ## base routes ##
 
@@ -30,6 +30,7 @@ cs_router.register(r'activities', ActivityViewSet, base_name='activities')
 cs_router.register(r'actors', ActorViewSet, base_name='actors')
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet, base_name='solutioncategories')
 cs_router.register(r'materials', MaterialViewSet, base_name='materials')
+cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 
 # /casestudies/*/solutioncategories/...
 scat_router = NestedSimpleRouter(cs_router, r'solutioncategories', lookup='solutioncategory')
@@ -61,7 +62,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(ag_router.urls)),
-    url(r'^', include(scat_router.urls)), 
-    url(r'^', include(ac_router.urls)), 
+    url(r'^', include(scat_router.urls)),
+    url(r'^', include(ac_router.urls)),
     url(r'^', include(mat_router.urls))
 ]
