@@ -34,8 +34,8 @@ class ActorListSerializer(serializers.ModelSerializer):
 class FlowSerializer(serializers.ModelSerializer):
     class Meta:
         model = None
-        fields = ('material', 'amount', 'quality', 'origin', 'destination',
-                  'case_study')
+        fields = ('id', 'material', 'amount', 'quality', 'origin',
+                  'destination', 'case_study')
 
 
 class Actor2ActorSerializer(FlowSerializer):
