@@ -12,14 +12,20 @@ class ActivityGroupSerializer(serializers.ModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ('id', 'nace', 'name')
+        fields = ('id', 'nace', 'name', 'own_activitygroup')
 
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
         fields = ('BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website')
+                  'employees', 'BvDii', 'website', 'own_activity')
+
+
+class ActorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actor
+        fields = ('BvDid', 'name', 'own_activity')
 
 
 class FlowSerializer(serializers.ModelSerializer):

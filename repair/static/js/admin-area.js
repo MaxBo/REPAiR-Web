@@ -7,12 +7,10 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       if (this.view != null)
         this.view.close();
       var caseStudy = new CaseStudy({id: id});
-      caseStudy.fetch({success: function(){
-        this.view = new EditFlowsView({
+      this.view = new EditFlowsView({
         el: document.getElementById('edit-flows'),
         model: caseStudy
-        });
-      }});
+      });
     };
   
     var caseStudySelect = document.getElementById('case-studies-select');    

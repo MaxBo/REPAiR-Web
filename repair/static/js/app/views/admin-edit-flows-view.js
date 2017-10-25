@@ -1,6 +1,6 @@
 define(['backbone', 'app/visualizations/sankey', 'app/admin-data-tree', 
-  'app/views/admin-edit-node-view'],
-function(Backbone, Sankey, DataTree, EditNodeView){
+  'app/views/admin-edit-node-view', 'app/collections/activitygroups'],
+function(Backbone, Sankey, DataTree, EditNodeView, ActivityGroups){
   var EditFlowsView = Backbone.View.extend({
     template:'edit-flows-template',
 
@@ -10,20 +10,30 @@ function(Backbone, Sankey, DataTree, EditNodeView){
 
     initialize: function(){
       _.bindAll(this, 'render');
-      this.render();
+      this.model.fetch({success: this.render});
     },
 
     render: function(){
-      console.log(this.model);
       var _this = this;
       var html = document.getElementById(this.template).innerHTML;
       var template = _.template(html);
       this.el.innerHTML = template();
       this.renderSankey();
-
+      
+      var caseStudyId = this.model.id;
+      var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+      activityGroups.fetch({success: function(){
+        _this.renderDataTree(activityGroups)
+      }});
+      
+    },
+    
+    renderDataTree: function(activityGroups){
       var onClick = function(link){
         _this.renderDataEntry(link.tag);
       };
+      
+      console.log(activityGroups)
       this.dataTree = new DataTree({divid: '#data-tree', onClick: onClick})
     },
 
