@@ -106,6 +106,21 @@ class MaterialViewSet(ViewSet):
         raise Http404('No matches for the given query.')
 
 
+class QualityViewSet(ViewSet):
+    def list(self, request, casestudy_pk=None):
+        materials = Flow.quality_choices
+        data = [OrderedDict([('id', m[0]), ('name', m[1])]) for m in materials]
+        return Response(data)
+
+    def retrieve(self, request, pk=None, casestudy_pk=None):
+        materials = Flow.quality_choices
+        for m in materials:
+            if m[0] == pk:
+                data = OrderedDict([('id', m[0]), ('name', m[1])])
+                return Response(data)
+        raise Http404('No matches for the given query.')
+
+
 class FlowViewSet(ViewSet):
     serializer_class = None
     model = None
