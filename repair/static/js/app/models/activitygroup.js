@@ -4,6 +4,7 @@ define(["backbone", "app-config"],
 
     var ActivityGroup = Backbone.Model.extend({
       idAttribute: "code",
+      tag: "activitygroup",
       urlRoot: function(){
         return config.api.activitygroups.format(this.caseStudyId);
       },

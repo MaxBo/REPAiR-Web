@@ -4,6 +4,7 @@ define(["backbone", "app-config"],
 
     var Actor = Backbone.Model.extend({
       idAttribute: "BvDid",
+      tag: 'actor',
       urlRoot: function(){
         // if an activity is given, take the route that retrieves all actors 
         // of the activity

@@ -1,10 +1,9 @@
 define(['jquery', 'backbone', 'app/visualizations/sankey',
   'app/views/admin-edit-node-view', 'app/collections/activitygroups', 
   'app/collections/activities', 'app/collections/actors', 
-  'app/models/activitygroup', 'app/models/activity', 'app/models/actor',
   'treeview'],
 function($, Backbone, Sankey, EditNodeView, ActivityGroups,
-         Activities, Actors, ActivityGroup, Activity, Actor, treeview){
+         Activities, Actors, treeview){
   var EditFlowsView = Backbone.View.extend({
     template:'edit-flows-template',
 
@@ -33,7 +32,6 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
       
       this.activityGroups.fetch().then(function(){
         _this.activities.fetch().then(function(){
-          console.log('actor fetch');
           _this.actors.fetch().then(_this.renderDataTree);
         });
       });
@@ -42,11 +40,8 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
     
     renderDataTree: function(){
       var _this = this;
-      //console.log(this.activityGroups);
       var dataDict = {};
       var activityDict = {};
-      
-      console.log(this.actors);
       
       this.actors.each(function(actor){
         var node = {
@@ -98,22 +93,16 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
     },
 
     renderDataEntry: function(model){
-      var template = '';
-      if (model.constructor === Activity) 
-        template = 'edit-activities-template';
-      else if (model.constructor === ActivityGroup) 
-        template = 'edit-groups-template';
-      else if (model.constructor === Actor) 
-        template = 'edit-actors-template';
-      document.getElementById('data-link').click();
-      
       if (this.editNodeView != null){
         this.editNodeView.close();
-      }
-      this.editNodeView = new EditNodeView(
-        {el: document.getElementById('data-entry'),
-         template: template}
-      );
+      };
+      flowSelect = document.getElementById('flows-select');
+      this.editNodeView = new EditNodeView({
+        el: document.getElementById('data-entry'),
+        template: 'edit-node-template',
+        model: model,
+        material: flowSelect.value
+      });
     },
 
     close: function(){

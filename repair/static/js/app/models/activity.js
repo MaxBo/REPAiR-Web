@@ -4,6 +4,7 @@ define(["backbone", "app-config"],
 
     var Activity = Backbone.Model.extend({
       idAttribute: "id",
+      tag: "activity",
       urlRoot: function(){
         // if a group is given, take the route that retrieves all activities 
         // of the group
