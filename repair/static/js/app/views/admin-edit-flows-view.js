@@ -1,7 +1,7 @@
 define(['jquery', 'backbone', 'app/visualizations/sankey',
   'app/views/admin-edit-node-view', 'app/collections/activitygroups', 
   'app/collections/activities', 'app/collections/actors', 
-  'treeview'],
+  'treeview', 'app/loader'],
 function($, Backbone, Sankey, EditNodeView, ActivityGroups,
          Activities, Actors, treeview){
   var EditFlowsView = Backbone.View.extend({
@@ -30,9 +30,13 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
       this.el.innerHTML = template();
       this.renderSankey();
       
+      var loader = Loader(_this.el.querySelector('#data-entry-tab'));
       this.activityGroups.fetch().then(function(){
         _this.activities.fetch().then(function(){
-          _this.actors.fetch().then(_this.renderDataTree);
+          _this.actors.fetch().then(function(){
+            _this.renderDataTree();
+            loader.remove();
+          });
         });
       });
       
@@ -47,7 +51,8 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
         var node = {
           text: actor.get('name'),
           icon: 'glyphicon glyphicon-user',
-          model: actor
+          model: actor,
+          state: {checked: false}
         };
         var activity_nace = actor.get('own_activity');
         if (!(activity_nace in activityDict))
