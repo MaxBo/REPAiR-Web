@@ -33,12 +33,12 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include('repair.apps.admin.urls')),
-    url(r'^study-area/', include('repair.apps.study_area.urls')),
-    url(r'^status-quo/', include('repair.apps.status_quo.urls')),
+    url(r'^study-area/', include('repair.apps.studyarea.urls')),
+    url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^login/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

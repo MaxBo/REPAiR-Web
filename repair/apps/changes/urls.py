@@ -5,27 +5,6 @@ from repair.apps.changes import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
 
-    # ex: /5/
-    url(r'^(?P<casestudy_id>[0-9]+)/$',
-        views.casestudy,
-        name='casestudy'),
-
-    # ex: /5/users/3/
-    url(r'^(?P<casestudy_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
-        views.userincasestudy,
-        name='userincasestudy'),
-
-
-    # ex: /stakeholdercategories/3
-    url(r'^stakeholdercategories/(?P<stakeholder_category_id>[0-9]+)/$',
-        views.stakeholder_categories,
-        name='stakeholder_categories'),
-
-    # ex: /stakeholders/3
-    url(r'^stakeholders/(?P<stakeholder_id>[0-9]+)/$',
-        views.stakeholders,
-        name='stakeholders'),
-
     # ex: /implementations/3
     url(r'^implementations/(?P<implementation_id>[0-9]+)/$',
         views.implementations,
@@ -50,10 +29,5 @@ urlpatterns = [
     url(r'^strategies/(?P<strategy_id>[0-9]+)/$',
         views.strategies,
         name='strategies'),
-
-    # ex: /users/3/
-    url(r'^users/(?P<user_id>[0-9]+)/$',
-        views.user,
-        name='user'),
 
 ]
