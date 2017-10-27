@@ -1,20 +1,25 @@
 {% load i18n %}
 
-<!-- Backbone template for rendering a dynamic view on admin area-->
+<!-- Backbone templates for rendering dynamic views in admin area-->
+
+<!-- template for view on tabs of edit-flows in admin-area (change on case-study) -->
 <script type="text/template" id="edit-flows-template">
   <div class="col-md-9">
     <ul class="nav nav-tabs">
-      <li><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
-      <li class="active"><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+      <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
+      <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
       <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
     </ul>
     <div class="tab-content">
-      <div class="tab-pane" id="data-entry-tab">
-        <div id="data-entry">
-          {% trans "Please choose the level for which you wish to enter data" %}
+      <div class="tab-pane active" id="data-entry-tab">
+        <div class="col-md-4" id="data-tree-group">
+          {% trans "Please choose a node to enter data for" %}
+          <div id="data-tree"></div>
+        </div>
+        <div class="col-md-8" id="data-entry">
         </div>
       </div>
-      <div class="tab-pane active" id="sankey-tab">
+      <div class="tab-pane" id="sankey-tab">
         <div class="row">
           <button type="button" id="refresh-view-btn">
             {% trans "Refresh" %}
@@ -27,632 +32,132 @@
       </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="row" id="balance-verify-single">
-      <div class="col-md-8">
-        <button type="button" id="balance-verify-data-btn">
-          {% trans "Balance & Verify Data" %}
-        </button> 
-      </div>
+</script>
+
+<!-- template for view on edit a node -->
+<script type="text/template" id="edit-node-template">
+  <div class="col-md-12" style="border: 2px solid #e6e6e6;">
+    <button id='upload-flows-button' class="btn btn-primary">
+      <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+    </button>
+    <div class="row" id='attributes'>
     </div>
-    <div class="row" id="balance-verify-button-group">
-      <div class="col-md-4">
-        <button type="button" id="balance-data-btn">
-          {% trans "Balance Data" %}
-        </button> 
-      </div>
-      <div class="col-md-4">
-        <button type="button" id="verify-data-btn">
-          {% trans "Verify Data" %}
-        </button> 
-      </div>
+    <div class="row">
+      <table id='input-table' class='table'>
+        <h3>{% trans "Input" %}</h3>
+        <tr>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Origin" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+      </table> 
+      <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
-    <div class="row" id="data-tree-group">
-      {% trans "Please choose the level for which you wish to enter data" %}
-      <div id="data-tree"></div>
+    <div class="row">
+      <table id='stock-table' class='table'>
+        <h3>{% trans "Stock" %}</h3>
+        <tr>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+      </table> 
+      <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+    <div class="row">
+      <table id='output-table' class='table'>
+        <h3>{% trans "Output" %}</h3>
+        <tr>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Destination" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+        <tr>
+      </table> 
+      <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
 </script>
 
-<script type="text/template" id="edit-groups-template">
-  <div class="col-md-4">
-    <div class="row">
-      <button type="button" id="edit-activity-group-btn">
-        {% trans "Edit Activity Group" %}
-      </button> 
-    </div>
-    <div class="row">
-      <table>
-        <tr>
-          <th></th>
-          <th>Activity Groups</th>
-          <th>Done</th>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>P1 Production</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>P2</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>P3</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <button type="button" id="save-activity-group-btn">
-        {% trans "Save & Exit" %}
-      </button> 
-    </div>
-  </div>
-  <div class="col-md-8" style="border: 2px solid #e6e6e6;">
-    <div class="row">
-      <table>
-        <tr>
-          <td>Name</td>
-          <td>Production</td>
-        </tr>
-        <tr>
-          <td>Material</td>
-          <td>PET</td>
-        </tr>
-        <tr>
-          <td>Code</td>
-          <td>P1</td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Input</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Origin</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select name="origin">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Stock</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Output</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Destination</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select name="destination">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-  </div>
+<!-- template for view on attributes of an activitygroup-node -->
+<script type="text/template" id="group-attributes-template">
+  <h3>{% trans "Activitygroup" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Code" %}</td>
+      <td><%= code %></td>
+    </tr>
+  </table> 
 </script>
 
-<script type="text/template" id="edit-actors-template">
-
-  <div class="col-md-4">
-    <div class="row">
-      <button type="button" id="edit-actor-btn">
-        {% trans "Edit Actor" %}
-      </button> 
-    </div>
-    <div class="row">
-      <table>
-        <tr>
-          <th></th>
-          <th>Actors</th>
-          <th>Done</th>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>Coca Cola</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>Pepsi</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>Juice factory</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <button type="button" id="save-activity-group-btn">
-        {% trans "Save & Exit" %}
-      </button> 
-    </div>
-  </div>
-  <div class="col-md-8" style="border: 2px solid #e6e6e6;">
-    <div class="row">
-      <table>
-        <tr>
-          <td>Name</td>
-          <td>Juice factory</td>
-        </tr>
-        <tr>
-          <td>Material</td>
-          <td>PET</td>
-        </tr>
-        <tr>
-          <td>Activity</td>
-          <td>Manufacture of juice</td>
-        </tr>
-        <tr>
-          <td>NACE Code</td>
-          <td>11.07</td>
-        </tr>
-        <tr>
-          <td>Operational loc</td>
-          <td>straat 1</td>
-        </tr>
-        <tr>
-          <td>Administrative loc</td>
-          <td><input id="admin-loc" name="admin-loc" value=""/></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Input</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Origin</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value=""/>
-          </td>
-          <td>
-            <select name="origin">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value=""/>
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Stock</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value=""/>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value=""&>
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Output</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Destination</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value=""/>
-          </td>
-          <td>
-            <select name="destination">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value=""/>
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-  </div>
+<!-- template for view on attributes of an activity-node -->
+<script type="text/template" id="activity-attributes-template">
+  <h3>{% trans "Activity" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity Group" %}</td>
+      <td><%= group %></td>
+    </tr>
+    <tr>
+      <td>{% trans "NACE Code" %}</td>
+      <td><%= nace %></td>
+    </tr>
+  </table>
 </script>
 
-<script type="text/template" id="edit-activities-template">
-
-  <div class="col-md-4">
-    <div class="row">
-      <button type="button" id="edit-activity-btn">
-        {% trans "Edit Activity" %}
-      </button> 
-    </div>
-    <div class="row">
-      <table>
-        <tr>
-          <th></th>
-          <th>Activities</th>
-          <th>Done</th>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>Manufacture of soft drinks</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>Manufacture of juice</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="radio">
-              <label><input type="radio" name="activity-radio"/></label>
-            </div>
-          </td>
-          <td>something</td>
-          <td>
-            <input type="checkbox" name="activity-done" value="">
-          </td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <button type="button" id="save-activity-group-btn">
-        {% trans "Save & Exit" %}
-      </button> 
-    </div>
-  </div>
-  <div class="col-md-8" style="border: 2px solid #e6e6e6;">
-    <div class="row">
-      <table>
-        <tr>
-          <td>Name</td>
-          <td>Manufacture of Softdrinks</td>
-        </tr>
-        <tr>
-          <td>Material</td>
-          <td>PET</td>
-        </tr>
-        <tr>
-          <td>Activity Group</td>
-          <td>P1. Production</td>
-        </tr>
-        <tr>
-          <td>NACE Code</td>
-          <td>11.07</td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Input</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Origin</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select name="origin">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Stock</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-    <div class="row">
-      <table>
-        <h3>Output</h3>
-        <tr>
-          <th></th>
-          <th>Amount</th>
-          <th>Destination</th>
-          <th>Quality</th>
-          <th>Data Source</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input id="amount" name="amount" value="">
-          </td>
-          <td>
-            <select name="destination">
-            </select>
-          </td>
-          <td>
-            <select id="quality" name="quality">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </td>
-          <td>
-            <input id="data-source" name="data-source" value="">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>
-            <button><span class="glyphicon glyphicon-plus"></span></button>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-    </table> 
-    </div>
-  </div>
+<!-- template for view on attributes of an actor-node -->
+<script type="text/template" id="actor-attributes-template">
+  <h3>{% trans "Actor" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity" %}</td>
+      <td><%= activity %></td>
+    </tr>
+    <tr>
+      <td>{% trans "BvDid" %}</td>
+      <td><%= bvdid %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Year" %}</td>
+      <td><%= year %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Employees" %}</td>
+      <td><%= employees %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Revenue" %}</td>
+      <td><%= revenue %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Website" %}</td>
+      <td><%= url %></td>
+    </tr>
+  </table>
 </script>

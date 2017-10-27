@@ -33,7 +33,7 @@
           <div class="col-md-4">
             {% trans "Flow" %}
             <br>
-            <select name="flows">
+            <select name="flows" id="flows-select">
               {% for f in flows %}
                   <option value="{{ f.0 }}">{{ f.1 }}</option>
               {% endfor %}
