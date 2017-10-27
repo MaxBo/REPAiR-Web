@@ -22,12 +22,12 @@ class ActivityGroupViewSet(ViewSet):
     serializer_class = ActivityGroupSerializer
 
     def list(self, request, casestudy_pk=None):
-        queryset = ActivityGroup.objects.filter(case_study=casestudy_pk)
+        queryset = ActivityGroup.objects.filter(casestudy=casestudy_pk)
         serializer = ActivityGroupSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, casestudy_pk=None):
-        queryset = ActivityGroup.objects.filter(pk=pk, case_study=casestudy_pk)
+        queryset = ActivityGroup.objects.filter(pk=pk, casestudy=casestudy_pk)
         activitygroup = get_object_or_404(queryset, pk=pk)
         serializer = ActivityGroupSerializer(activitygroup)
         return Response(serializer.data)
@@ -41,7 +41,7 @@ class ActivityViewSet(ViewSet):
             queryset = Activity.objects.filter(
                 own_activitygroup=activitygroup_pk)
         else:
-            activitygroups = ActivityGroup.objects.filter(case_study=casestudy_pk)
+            activitygroups = ActivityGroup.objects.filter(casestudy=casestudy_pk)
             queryset = list(chain(*[a.Activities.all() for a in activitygroups]))
         serializer = ActivitySerializer(queryset, many=True)
         return Response(serializer.data)
@@ -73,7 +73,7 @@ class ActorViewSet(ViewSet):
             nace = self.get_nace(activity_pk, activitygroup_pk)
             queryset = Actor.objects.filter(own_activity=nace)
         else:
-            activitygroups = ActivityGroup.objects.filter(case_study=casestudy_pk)
+            activitygroups = ActivityGroup.objects.filter(casestudy=casestudy_pk)
             activities = list(chain(*[ag.Activities.all() for ag in activitygroups]))
             queryset = list(chain(*[a.Actors.all() for a in activities]))
         serializer = ActorListSerializer(queryset, many=True)
@@ -127,7 +127,7 @@ class FlowViewSet(ViewSet):
 
     def list(self, request, casestudy_pk=None, material_pk=None):
         queryset = self.model.objects.filter(
-            case_study=casestudy_pk, material=material_pk)
+            casestudy=casestudy_pk, material=material_pk)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -135,7 +135,7 @@ class FlowViewSet(ViewSet):
         data = request.data
         # use the pks from the url
         if casestudy_pk:
-            data['case_study'] = casestudy_pk
+            data['casestudy'] = casestudy_pk
         if material_pk:
             data['material'] = material_pk
         serializer = self.serializer_class(data=request.data)
@@ -146,7 +146,7 @@ class FlowViewSet(ViewSet):
 
     def retrieve(self, request, pk=None, casestudy_pk=None, material_pk=None):
         queryset = self.model.objects.filter(
-            pk=pk, case_study=casestudy_pk, material=material_pk)
+            pk=pk, casestudy=casestudy_pk, material=material_pk)
         flow = get_object_or_404(queryset, pk=pk)
         serializer = self.serializer_class(flow)
         return Response(serializer.data)

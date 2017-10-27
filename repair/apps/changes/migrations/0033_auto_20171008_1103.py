@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='implementation',
-            name='case_study',
+            name='casestudy',
         ),
         migrations.RemoveField(
             model_name='user',
@@ -55,14 +55,14 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='solution',
-            name='case_study',
+            name='casestudy',
         ),
         migrations.RemoveField(
             model_name='solutioncategory',
-            name='case_study',
+            name='casestudy',
         ),
         migrations.RemoveField(
             model_name='strategy',
-            name='case_study',
+            name='casestudy',
         ),
     ]

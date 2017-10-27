@@ -14,18 +14,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RenameField(
             model_name='implementation',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='solution',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='solutioncategory',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='stakeholder',
@@ -34,23 +34,23 @@ class Migration(migrations.Migration):
         ),
         migrations.RenameField(
             model_name='stakeholdercategory',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='strategy',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='userap12',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.RenameField(
             model_name='userap34',
-            old_name='case_study_id',
-            new_name='case_study',
+            old_name='casestudy_id',
+            new_name='casestudy',
         ),
         migrations.AlterUniqueTogether(
             name='implementation',
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='solutioncategory',
-            unique_together=set([('case_study', 'user_ap12_id', 'name')]),
+            unique_together=set([('casestudy', 'user_ap12_id', 'name')]),
         ),
         migrations.AlterUniqueTogether(
             name='stakeholder',
@@ -66,14 +66,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='stakeholdercategory',
-            unique_together=set([('case_study', 'name')]),
+            unique_together=set([('casestudy', 'name')]),
         ),
         migrations.AlterUniqueTogether(
             name='strategy',
-            unique_together=set([('case_study', 'user_id', 'name')]),
+            unique_together=set([('casestudy', 'user_id', 'name')]),
         ),
         migrations.RemoveField(
             model_name='stakeholder',
-            name='case_study_id',
+            name='casestudy_id',
         ),
     ]

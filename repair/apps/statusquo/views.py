@@ -21,9 +21,9 @@ class Testgraph1(TemplateView):
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 
         return div
-    
+
 def index(request):
-    template = loader.get_template('status_quo/index.html')
+    template = loader.get_template('statusquo/index.html')
     context = {}
     context['indicatorgraph'] = Testgraph1().get_context_data()
     html = template.render(context, request)

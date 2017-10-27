@@ -1,5 +1,5 @@
 from django.test import TestCase
-from repair.apps.study_area.models import Nodes, Links
+from repair.apps.studyarea.models import Nodes, Links
 
 class TestTestCase(TestCase):
 

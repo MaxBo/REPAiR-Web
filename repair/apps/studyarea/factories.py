@@ -45,7 +45,7 @@ class StakeholderCategoryFactory(DjangoModelFactory):
     class Meta:
         model = models.StakeholderCategory
     name = 'Goverment'
-    case_study = factory.SubFactory(CaseStudyFactory)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class StakeholderFactory(DjangoModelFactory):

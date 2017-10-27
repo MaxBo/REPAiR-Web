@@ -175,16 +175,16 @@ class UniqueNames(TestCase):
         city1 = CaseStudyFactory(name='City1')
         city2 = CaseStudyFactory(name='City1')
         stakeholdercat1 = StakeholderCategoryFactory(
-            case_study=city1, name='Cat1')
+            casestudy=city1, name='Cat1')
         stakeholdercat2 = StakeholderCategoryFactory(
-            case_study=city1, name='Cat2')
+            casestudy=city1, name='Cat2')
         stakeholdercat3 = StakeholderCategoryFactory(
-            case_study=city2, name='Cat1')
+            casestudy=city2, name='Cat1')
 
         with self.assertRaisesMessage(
             ValidationError,
             'StakeholderCategory Cat1 already exists in casestudy City1',
             ) as err:
             stakeholdercat3 = StakeholderCategoryFactory(
-                case_study=city2, name='Cat1')
+                casestudy=city2, name='Cat1')
         print(err.exception.messages)

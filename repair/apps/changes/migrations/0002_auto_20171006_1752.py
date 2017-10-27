@@ -14,18 +14,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='solution',
-            unique_together=set([('case_study_id', 'user_ap12_id', 'id')]),
+            unique_together=set([('casestudy_id', 'user_ap12_id', 'id')]),
         ),
         migrations.AlterUniqueTogether(
             name='solutioncategory',
-            unique_together=set([('case_study_id', 'user_ap12_id', 'id')]),
+            unique_together=set([('casestudy_id', 'user_ap12_id', 'id')]),
         ),
         migrations.AlterUniqueTogether(
             name='stakeholder',
-            unique_together=set([('case_study_id', 'stakeholder_category_id', 'id')]),
+            unique_together=set([('casestudy_id', 'stakeholder_category_id', 'id')]),
         ),
         migrations.AlterUniqueTogether(
             name='stakeholdercategory',
-            unique_together=set([('case_study_id', 'id')]),
+            unique_together=set([('casestudy_id', 'id')]),
         ),
     ]
