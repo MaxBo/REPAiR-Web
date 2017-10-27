@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
-from repair.apps.login.models import Profile, CaseStudy
+from repair.apps.login.models import Profile, CaseStudy, User
 from rest_framework import viewsets
 from repair.apps.login.serializers import (UserSerializer,
+                                           ProfileSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer)
 
@@ -10,8 +11,16 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = Profile.objects.all().order_by('-date_joined')
+    queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = Profile.objects.all()  #.order_by('-user__date_joined')
+    serializer_class = ProfileSerializer
 
 
 class GroupViewSet(viewsets.ModelViewSet):

@@ -8,8 +8,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('url', 'username', 'email', 'groups')
 
-class GDSEUserSerializer(serializers.HyperlinkedModelSerializer):
-    user = UserSerializer
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Profile
         fields = ('id', 'user', 'casestudies')
