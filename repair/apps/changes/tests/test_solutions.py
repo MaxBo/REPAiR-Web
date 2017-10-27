@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
 
-
+from repair.apps.login.models import (CaseStudy, User, UserInCasestudy)
+from repair.apps.studyarea.models import (Stakeholder, StakeholderCategory)
 from repair.apps.changes.models import (
-    CaseStudy,
     Implementation,
     Solution,
     SolutionCategory,
@@ -13,12 +13,8 @@ from repair.apps.changes.models import (
     SolutionInImplementationQuantity,
     SolutionQuantity,
     SolutionRatioOneUnit,
-    Stakeholder,
-    StakeholderCategory,
     Strategy,
     Unit,
-    User,
-    UserInCasestudy,
     )
 
 from repair.apps.changes.factories import *
@@ -26,7 +22,7 @@ from repair.apps.changes.factories import *
 
 class ModelTest(TestCase):
 
-    fixtures = ['changes_fixture.json',]
+    fixtures = ['changes_fixture.json', 'stakeholder_fixture.json']
 
     def test_string_representation(self):
         for Model in (CaseStudy,
@@ -34,8 +30,6 @@ class ModelTest(TestCase):
                      Solution,
                      SolutionCategory,
                      SolutionRatioOneUnit,
-                     Stakeholder,
-                     StakeholderCategory,
                      Strategy,
                      Unit,
                      User,
@@ -168,23 +162,4 @@ class UniqueNames(TestCase):
             'Strategy FirstStrategy already exists in casestudy City1') as err:
             strategy1b_city1 = StrategyFactory(user=user_city1,
                                                name='FirstStrategy')
-        print(err.exception.messages)
-
-    def test03_unique_stakeholdercategory(self):
-        """Test the unique stakeholder name"""
-        city1 = CaseStudyFactory(name='City1')
-        city2 = CaseStudyFactory(name='City1')
-        stakeholdercat1 = StakeholderCategoryFactory(
-            casestudy=city1, name='Cat1')
-        stakeholdercat2 = StakeholderCategoryFactory(
-            casestudy=city1, name='Cat2')
-        stakeholdercat3 = StakeholderCategoryFactory(
-            casestudy=city2, name='Cat1')
-
-        with self.assertRaisesMessage(
-            ValidationError,
-            'StakeholderCategory Cat1 already exists in casestudy City1',
-            ) as err:
-            stakeholdercat3 = StakeholderCategoryFactory(
-                casestudy=city2, name='Cat1')
         print(err.exception.messages)

@@ -1,0 +1,6 @@
+[
+{"fields": {"location": "DE", "x_coord": 9.643591593000082, "y_coord": 51.017693429000047}, "model": "studyarea.nodes", "pk": 1},
+{"fields": {"location": "FR", "x_coord": 1.71856675, "y_coord": 46.773640850000049}, "model": "studyarea.nodes", "pk": 2},
+{"fields": {"location": "ES", "x_coord": -2.98829575, "y_coord": 40.068952213000046}, "model": "studyarea.nodes", "pk": 3},
+{"fields": {"location": "AU", "x_coord": 133.39326477100002, "y_coord": -21.96908717}, "model": "studyarea.nodes", "pk": 4}
+]
