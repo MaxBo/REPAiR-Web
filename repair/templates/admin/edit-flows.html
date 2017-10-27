@@ -43,7 +43,6 @@
       <table id='input-table' class='table'>
         <h3>{% trans "Input" %}</h3>
         <tr>
-          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Quality" %}</th>
@@ -56,7 +55,6 @@
       <table id='stock-table' class='table'>
         <h3>{% trans "Stock" %}</h3>
         <tr>
-          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
@@ -68,9 +66,8 @@
       <table id='output-table' class='table'>
         <h3>{% trans "Output" %}</h3>
         <tr>
-          <th></th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Origin" %}</th>
+          <th>{% trans "Destination" %}</th>
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
@@ -79,53 +76,6 @@
       <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
-</script>
-
-<!-- template for view on row in table for input and output of a node -->
-<script type="text/template" id="input-output-row">
-  <tr>
-    <td></td>
-    <td>
-      <input type="number" id="amount" name="amount" value="<%= amount %>"/>
-    </td>
-    <td>
-      <select id='origin' name="origin">
-        <% nodes.each(function(node) { %>
-            <option value="<%= node.id %>"><%= node.get('name') %></option>
-        <% }); %>
-      </select>
-    </td>
-    <td>
-      <select id="quality" name="quality">
-        <% for (q in qualities){ %>
-            <option value="<%= q %>"><%= q %></option>
-        <% }; %>
-      </select>
-    </td>
-    <td>
-      <input id="data-source" name="data-source" value="<%= datasource %>"/>
-    </td>
-  </tr>
-</script>
-
-<!-- template for view on row in table for the stock of a node -->
-<script type="text/template" id="stock-row">
-  <tr>
-    <td></td>
-    <td>
-      <input type="number" id="amount" name="amount" value="<%= amount %>"/>
-    </td>
-    <td>
-      <select id="quality" name="quality">
-        <% for (q in qualities){ %>
-            <option value="<%= q %>"><%= q %></option>
-        <% }; %>
-      </select>
-    </td>
-    <td>
-      <input id="data-source" name="data-source" value="<%= datasource %>"/>
-    </td>
-  </tr>
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->

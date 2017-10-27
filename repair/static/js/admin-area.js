@@ -16,7 +16,9 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       });
     };
   
-    var caseStudySelect = document.getElementById('case-studies-select');    
+    var caseStudySelect = document.getElementById('case-studies-select');
+    
+    // selection of casestudy changed -> render new view
     caseStudySelect.addEventListener('change', showSelectedCaseStudy);
     
     // initially show first case study (selected index 0)

@@ -56,38 +56,71 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
       addRowEvent: function(event){
         var buttonId = event.currentTarget.id;
         var rowTemplateId;
+        var columns = [];
         var tableId = (buttonId == 'add-input-button') ? 'input-table': 
                       (buttonId == 'add-output-button') ? 'output-table':
                       'stock-table'
-        // common to all tables
-        var templateOptions = {
-            amount: 0,
-            qualities: [1, 2, 3, 4],
-            datasource: ''
-        };
-        // stock has no origin or destination
-        if (buttonId == 'add-input-button' || buttonId == 'add-output-button'){
-          templateOptions.nodes = this.model.collection;
-          rowTemplateId = 'input-output-row';
-        }
-        else
-          rowTemplateId = 'stock-row';
         
-        this.addTableRow(tableId, rowTemplateId, templateOptions)
+        var amount = {type: 'number', value: 0, min: 0};
+        columns.push(amount);
+        
+        // stock has no origin/destination
+        if (buttonId == 'add-input-button' || buttonId == 'add-output-button'){
+          var names = [];
+          this.model.collection.each(function(m){names.push(m.get('name'))})
+          var node = {type: 'select', value: names};
+          columns.push(node);
+        }
+        
+        var qualities = {type: 'select', value: [1, 2, 3, 4]};
+        columns.push(qualities);
+        var description = {type: 'text', value: ''};
+        columns.push(description);
+        
+        this.addTableRow(tableId, columns)
       },
     
       /**
       * add a row to the given table
       *
-      * @param tableId        id of the table to add a row to
-      * @param rowTemplateId  template for the row to add
-      * @param options        variables and their values to inject into the template
+      * @param tableId  id of the table to add a row to
+      * @param columns  array of objects to put in each column
+      *                 attributes of object: type (optional)  - 'select'/'number'/'text'
+      *                                       value (required) - single value or array (select only)
+      *                                       min (optional) - min. value (number only)
+      *                                       max (optional) - max. value (number only
+      *                 (same order in array as in table required)
       */
-      addTableRow: function(tableId, rowTemplateId, options){
-          var el = this.el.querySelector('#' + tableId);
-          var rowHTML = document.getElementById(rowTemplateId).innerHTML;
-          var rowTemplate = _.template(rowHTML);
-          el.innerHTML += rowTemplate(options);
+      addTableRow: function(tableId, columns){
+          var table = this.el.querySelector('#' + tableId);
+          var row = table.insertRow(-1);
+          for (i = 0; i < columns.length; i++){
+            var column = columns[i];
+            var cell = row.insertCell(i);
+            if (column.type != null){
+              var child;
+              if (column.type == 'select'){
+                child = document.createElement("select");
+                for (j = 0; j < column.value.length; j++){
+                  var option = document.createElement("option");
+                  option.text = column.value[j];
+                  child.add(option);
+                }
+              }
+              else{
+                var child = document.createElement("input");
+                if (column.type == 'number'){
+                  child.type = "number";
+                  if (column.min != null) child.min = column.min;
+                  if (column.max != null) child.max = column.max;
+                } 
+                child.value = column.value;
+              }
+              cell.appendChild(child);
+            }
+            else
+              cell.innerHTML = column.value;
+          }
       },
       
       getGroupAttrTable: function(){
