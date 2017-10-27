@@ -26,8 +26,8 @@ from repair.apps.changes.models import CaseStudy
 
 class ModelTest(TestCase):
 
-    fixtures = ['repair/apps/changes/fixtures/changes_fixture.json',
-                'activities_dummy_data.json',]
+    #fixtures = ['user_fixture.json',
+                #'activities_dummy_data.json',]
 
     def test_string_representation(self):
         for Model in (

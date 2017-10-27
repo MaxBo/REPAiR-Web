@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
 
-from repair.apps.login.models import (CaseStudy, User, UserInCasestudy)
+from repair.apps.login.models import (CaseStudy, UserInCasestudy)
 from repair.apps.studyarea.models import (Stakeholder, StakeholderCategory)
 from repair.apps.changes.models import (
     Implementation,
@@ -22,7 +22,7 @@ from repair.apps.changes.factories import *
 
 class ModelTest(TestCase):
 
-    fixtures = ['changes_fixture.json', 'stakeholder_fixture.json']
+    #fixtures = ['changes_fixture.json', 'stakeholder_fixture.json']
 
     def test_string_representation(self):
         for Model in (CaseStudy,
@@ -32,7 +32,6 @@ class ModelTest(TestCase):
                      SolutionRatioOneUnit,
                      Strategy,
                      Unit,
-                     User,
                      ):
 
             model = Model(name="MyName")

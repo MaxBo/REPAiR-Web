@@ -42,24 +42,27 @@
   }
 },
 {
-  "model": "login.user",
+  "model": "auth.user",
   "pk": 1,
   "fields": {
-    "name": "Max"
+    "username": "Max",
+    "email": "bohnet@ggr-planung.de"
   }
 },
 {
-  "model": "login.user",
+  "model": "auth.user",
   "pk": 2,
   "fields": {
-    "name": "JM"
+    "username": "JM",
+    "email": "gutsche@ggr-planung.de"
   }
 },
 {
-  "model": "login.user",
+  "model": "auth.user",
   "pk": 3,
   "fields": {
-    "name": "Andreas"
+    "username": "Andreas",
+    "email": "andreas.obersteeg@hcu-hamburg.de"
   }
 },
 {
@@ -109,5 +112,5 @@
     "user": 2,
     "casestudy": 3
   }
-},
+}
 ]

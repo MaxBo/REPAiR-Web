@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db.models import signals
-from django.contrib.auth.models import User as AuthUser
+from django.contrib.auth.models import User
 
 
 class GDSEModel(models.Model):
@@ -55,14 +55,17 @@ class CaseStudy(GDSEModel):
         return solution_categories
 
 
-class User(GDSEModel):
-    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)
+class GDSEUser(GDSEModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
 
+    @property
+    def name(self):
+        return self.user.username
 
 
 class UserInCasestudy(GDSEModel):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(GDSEUser)
     casestudy = models.ForeignKey(CaseStudy)
 
     def __str__(self):

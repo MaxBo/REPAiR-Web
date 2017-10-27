@@ -4,7 +4,6 @@ from django.db.models import signals
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       CaseStudy,
-                                      User,
                                       UserInCasestudy)
 
 from repair.apps.studyarea.models import Stakeholder

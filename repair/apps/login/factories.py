@@ -11,10 +11,18 @@ class CaseStudyFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n: "CaseStudy #%s" % n)
 
 
-class UserFactory(DjangoModelFactory):
+
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.User
-    name = 'Uschi'
+    username = 'Uschi'
+    email = 'uschi@google.com'
+
+
+class GDSEUserFactory(DjangoModelFactory):
+    class Meta:
+        model = models.GDSEUser
+    user = factory.SubFactory(UserFactory)
 
     @factory.post_generation
     def casestudies(self, create, extracted, **kwargs):
@@ -26,6 +34,7 @@ class UserFactory(DjangoModelFactory):
             # A list of casestudies were passed in, use them
             for casestudy in extracted:
                 self.casestudies.add(casestudy)
+
 
 
 class UserInCasestudyFactory(DjangoModelFactory):

@@ -1,6 +1,6 @@
 import factory
 from factory.django import DjangoModelFactory
-from repair.apps.login.factories import UserInCasestudyFactory
+from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
 from repair.apps.studyarea.factories import StakeholderFactory
 
 from . import models
