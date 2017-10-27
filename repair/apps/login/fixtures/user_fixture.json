@@ -66,6 +66,27 @@
   }
 },
 {
+  "model": "login.profile",
+  "pk": 1,
+  "fields": {
+    "user": 1
+  }
+},
+{
+  "model": "login.profile",
+  "pk": 2,
+  "fields": {
+    "user": 2
+  }
+},
+{
+  "model": "login.profile",
+  "pk": 3,
+  "fields": {
+    "user": 3
+  }
+},
+{
   "model": "login.userincasestudy",
   "pk": 1,
   "fields": {

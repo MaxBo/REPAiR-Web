@@ -12,16 +12,19 @@ class CaseStudyFactory(DjangoModelFactory):
 
 
 
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.User
-    username = 'Uschi'
+class UserFactory(DjangoModelFactory):
+    username = factory.Sequence(lambda n: 'User {0}'.format(n))
     email = 'uschi@google.com'
 
-
-class GDSEUserFactory(DjangoModelFactory):
     class Meta:
-        model = models.GDSEUser
+        model = models.User
+        django_get_or_create = ('username', )
+
+
+class ProfileFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Profile
+        django_get_or_create = ('user', )
     user = factory.SubFactory(UserFactory)
 
     @factory.post_generation
@@ -36,9 +39,8 @@ class GDSEUserFactory(DjangoModelFactory):
                 self.casestudies.add(casestudy)
 
 
-
 class UserInCasestudyFactory(DjangoModelFactory):
     class Meta:
         model = models.UserInCasestudy
-    user = factory.SubFactory(UserFactory)
+    user = factory.SubFactory(ProfileFactory)
     casestudy = factory.SubFactory(CaseStudyFactory)

@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 
 
-from repair.apps.login.models import (CaseStudy, GDSEUser, UserInCasestudy)
+from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (Unit,
                                         SolutionCategory,
                                         Solution,
@@ -33,7 +33,7 @@ from repair.apps.changes.forms import NameForm
 
 def index(request):
     casestudy_list = CaseStudy.objects.order_by('id')[:20]
-    users = GDSEUser.objects.order_by('id')[:20]
+    users = Profile.objects.order_by('id')[:20]
     context = {'casestudy_list': casestudy_list,
                'users': users,}
     return render(request, 'changes/index.html', context)

@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
-from repair.apps.login.models import (CaseStudy, GDSEUser, UserInCasestudy)
+from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           )
@@ -28,7 +28,7 @@ class StakeholderViewSet(viewsets.ModelViewSet):
 
 def index(request):
     casestudy_list = CaseStudy.objects.order_by('id')[:20]
-    users = GDSEUser.objects.order_by('id')[:20]
+    users = Profile.objects.order_by('id')[:20]
     context = {'casestudy_list': casestudy_list,
                'users': users,}
 

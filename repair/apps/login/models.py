@@ -1,7 +1,9 @@
+import repair.settings
 from django.db import models
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
-from django.db.models import signals
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 
 class GDSEModel(models.Model):
@@ -55,7 +57,7 @@ class CaseStudy(GDSEModel):
         return solution_categories
 
 
-class GDSEUser(GDSEModel):
+class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
 
@@ -64,8 +66,21 @@ class GDSEUser(GDSEModel):
         return self.user.username
 
 
+@receiver(post_save, sender=User)
+def create_profile_for_new_user(sender, created, instance, **kwargs):
+    if created:
+        try:
+            instance.profile
+        except Profile.DoesNotExist:
+            profile = Profile(user=instance)
+            profile.save()
+        else:
+            print(instance.profile)
+
+
+
 class UserInCasestudy(GDSEModel):
-    user = models.ForeignKey(GDSEUser)
+    user = models.ForeignKey(Profile)
     casestudy = models.ForeignKey(CaseStudy)
 
     def __str__(self):

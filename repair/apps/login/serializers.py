@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from repair.apps.login.models import CaseStudy, GDSEUser
+from repair.apps.login.models import CaseStudy, Profile
 from rest_framework import serializers
 
 
@@ -11,7 +11,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class GDSEUserSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer
     class Meta:
-        model = GDSEUser
+        model = Profile
         fields = ('id', 'user', 'casestudies')
 
 
