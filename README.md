@@ -58,6 +58,39 @@ website is then accessible in browser via *localhost:\<port-number\>*
 | /repair/static/img                      | images                                                                                                                                           |
 | /repair/static/js                       | javascript libraries and scripts (see 3.)                                                                                                        |
 
+## 3. Rest-API
+
+
+-   see <https://en.wikipedia.org/wiki/Representational_state_transfer>
+
+-   defined in django with the django-rest-framework (see
+    <http://www.django-rest-framework.org/>)
+
+-   provides serialized JSON-representations of resources (or html-views if
+    accessing via browser)
+
+-   API to be accessed by the javascripts on client-side (if you want to fill
+    the django-templates directly you may ignore it and use the django-models
+    instead)
+
+-   url-entry-point is *\<website-adress\>*/api
+
+-   the url represents resources inside the database (see next table)
+
+-   List-routes of resources always interchange with a detailed Instance-route
+    when progressing deeper (e.g. */api/casestudies/* shows you all casestudies
+    and their attributes incl. the id, */api/casestudies/1* shows you the
+    details of the casestudy with id 1)
+
+-   deeper routes always have a relation to it’s predecessing subroutes (e.g.
+    */api/casestudies/1/activities* show all activities of casestudy with id 1)
+
+-   same resource-types may have different routes depending the relations they
+    want to show with it’s route (e.g. */api/casestudies/\<id\>/activities* and
+    */api/casestudies/\<id\>/activities*
+
+-   the routes are defined in */repair/rest_urls.py*
+
 ## 3. Javascript Modularisation
 
 -   the modularization is achieved by using django-require (post-processor for
@@ -68,22 +101,78 @@ website is then accessible in browser via *localhost:\<port-number\>*
 
 -   organized as apps (analog to django-apps)
 
--   currently one app for organizing javascript-code called app.js
+-   entry points for the apps are located in */repair/static/js/*
 
--   app.js is loaded in template via *{% require_module 'app' %}*
+-   *\<app-name\>*.js is loaded in django-template via *{% require_module
+    ‘\<app-name\>’ %}*
 
--   app.js defines all required javascript-modules and maps them to custom
-    names; will load them on demand
+-   require-config.js defines all required javascript-modules and maps them to
+    custom names; will load them on demand; all entry points have to require
+    this file in order to be able to use the defined modules which are defined
+    there
 
--   app.js currently inits the main app for the study_area
-    (/repair/static/js/app/main.js); this may change in the future as we need
-    more specific apps for the different subsites/tasks
+-   Backbone.js is used to organize data retrieved from the Rest-API and
+    dynamically making views on the data and to interact with them (btw.
+    Backbone takes heavy use of jQuery … meh :( )
 
--   main.js defines which modules it needs (will then be loaded directly, if not
-    already done) and contains the functionality what to do on certain events in
-    the DOM
+**Paths and files**
 
-## 4. Continuous Development / Testing
+| path                                 | description                                                                                                                                      |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| /repair/static/js/                   | base path for all javascripts                                                                                                                    |
+| /repair/static/js/require-config.js  | definition of basic modules and aliases                                                                                                          |
+| /repair/static/js/app-config.js      | constants shared across all apps (e.g. the urls of the rest-api), has to be required by specific app-modules in order to access the config there |
+| /repair/static/js/libs               | 3rd party javascript libraries                                                                                                                   |
+| /repair/static/js/app                | app-related scripts                                                                                                                              |
+| /repair/static/js/app/models         | Backbone-models, each representing a resource of the rest-api                                                                                    |
+| /repair/static/js/app/collections    | Backbone-collections of models (see /repair/static/js/models)                                                                                    |
+| /repair/static/js/app/views          | Backbone-views for creating and swapping views on models/collections                                                                             |
+| /repair/static/js/app/visualizations | visualizations created with javascript-libraries (e.g. Sankey-diagrams, maps)                                                                    |
+
+### **a.  Backbone-Models/Collections**
+
+-   a model that represents a single resource (a.k.a instance) in the Rest-API
+
+-   collections hold an amount of models of the same type, represent lists of
+    resources in the Rest-API
+
+-   models and collections have to contain the API-url they are retrieved from /
+    send to (stored in one place in the app-config for a better overview)
+
+-   models/collections can be allocated via the new-Operator and then be fetched
+    / deleted / posted from / to the Rest-API (see
+    <http://backbonejs.org/#Model> respectively
+    <http://backbonejs.org/#Collection> )
+
+### **a.  Backbone-Views**
+
+-   used client-side for dynamically creating and removing views on data
+
+-   they always require the html-element to render them in and should receive a
+    model/collection whose data they shall render and modify on demand (that’s
+    the whole point of using them: click some data to view and change it)
+
+-   they use the Underscore-template-engine, which is working similar to the
+    django-template-engine but with slightly different syntax (see
+    <http://underscorejs.org/#template> )
+
+-   for localization/overview purposes you should put the templates directly
+    into the django-template of the according app:
+
+>   \<script type="text/template" id="..."\>
+
+>   …
+
+>   \</script\>
+
+-   access the template via it’s id and get the inner html in order to pass it
+    to the Underscore-template-engine
+
+-   views should always be closed before replacing them, otherwise you get
+    ‘ghost-views’ (define it yourself inside the view, see
+    */repair/static/js/app/views/admin-edit-flows-view.js* for an example)
+
+## 5. Continuous Development / Testing
 
 ### Workflow
 
@@ -165,7 +254,7 @@ Have a look at Workflow.pdf for further information.
 
     -   and type “*manage.py test”*
     
-## 5. Internationalization
+## 6. Internationalization
 
 ### **a.  Label Strings**
 
