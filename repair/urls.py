@@ -19,6 +19,8 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+
 
 def index(request):
     template = loader.get_template('index.html')
@@ -39,6 +41,7 @@ urlpatterns = [
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
+    #url('^login/', include('django.contrib.auth.urls')),
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^login/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^login/', include('rest_framework.urls', namespace='rest_framework')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
