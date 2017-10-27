@@ -1,8 +1,23 @@
 define(['backbone', 'app/models/activitygroup', 'app/models/activity', 
         'app/models/actor'],
+  /** 
+   * 
+   * @desc    view on edit a specific node
+   * 
+   * @param   options.el        html-element the view will be rendered in
+   * @param   options.model     backbone-model of the node
+   * @param   options.template  the id of the script containing the template for this view
+   * @param   options.material  the material of the flows
+   * 
+   * @return  the EditNodeView class (for chaining)
+   * @see     table for attributes and flows in and out of this node
+   */
   function(Backbone, Sankey, DataTree, ActivityGroup, Activity, Actor){
     var EditNodeView = Backbone.View.extend({
 
+      /*
+       * view-constructor
+       */
       initialize: function(options){
         _.bindAll(this, 'render');
         this.template = options.template;
@@ -10,17 +25,22 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         this.render();
       },
       
+      /*
+       * dom events (managed by jquery)
+       */
       events: {
         'click #add-input-button, #add-stock-button, #add-output-button': 'addRowEvent'
       },
 
+      /*
+       * render the view
+       */ 
       render: function(){
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        if (document.getElementById('input-table') != null)
-          console.log(document.getElementById('input-table').innerHTML)
         this.el.innerHTML = template();
         
+        // render a view on the attributes depending on type of node
         var attrDiv = this.el.querySelector('#attributes');
         var inner = '';
         if (this.model.tag == 'activity') 
@@ -32,6 +52,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         attrDiv.innerHTML = inner;
       },
       
+      // on click add row button
       addRowEvent: function(event){
         var buttonId = event.currentTarget.id;
         var rowTemplateId;
@@ -54,7 +75,14 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         
         this.addTableRow(tableId, rowTemplateId, templateOptions)
       },
-      
+    
+      /**
+      * add a row to the given table
+      *
+      * @param tableId        id of the table to add a row to
+      * @param rowTemplateId  template for the row to add
+      * @param options        variables and their values to inject into the template
+      */
       addTableRow: function(tableId, rowTemplateId, options){
           var el = this.el.querySelector('#' + tableId);
           var rowHTML = document.getElementById(rowTemplateId).innerHTML;
@@ -98,10 +126,12 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         });
       },
 
+      /*
+       * remove this view from the DOM
+       */
       close: function(){
-        this.undelegateEvents();
+        this.undelegateEvents(); // remove click events
         this.unbind(); // Unbind all local event bindings
-        //this.remove(); // Remove view from DOM
         this.el.innerHTML = ''; //empty the DOM element
       },
 

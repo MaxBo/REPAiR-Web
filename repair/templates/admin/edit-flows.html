@@ -1,6 +1,8 @@
 {% load i18n %}
 
-<!-- Backbone template for rendering a dynamic view on admin area-->
+<!-- Backbone templates for rendering dynamic views in admin area-->
+
+<!-- template for view on tabs of edit-flows in admin-area (change on case-study) -->
 <script type="text/template" id="edit-flows-template">
   <div class="col-md-9">
     <ul class="nav nav-tabs">
@@ -32,6 +34,7 @@
   </div>
 </script>
 
+<!-- template for view on edit a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12" style="border: 2px solid #e6e6e6;">
     <div class="row" id='attributes'>
@@ -78,11 +81,12 @@
   </div>
 </script>
 
+<!-- template for view on row in table for input and output of a node -->
 <script type="text/template" id="input-output-row">
   <tr>
     <td></td>
     <td>
-      <input id="amount" name="amount" value="<%= amount %>"/>
+      <input type="number" id="amount" name="amount" value="<%= amount %>"/>
     </td>
     <td>
       <select id='origin' name="origin">
@@ -104,11 +108,12 @@
   </tr>
 </script>
 
+<!-- template for view on row in table for the stock of a node -->
 <script type="text/template" id="stock-row">
   <tr>
     <td></td>
     <td>
-      <input id="amount" name="amount" value="<%= amount %>"/>
+      <input type="number" id="amount" name="amount" value="<%= amount %>"/>
     </td>
     <td>
       <select id="quality" name="quality">
@@ -123,6 +128,7 @@
   </tr>
 </script>
 
+<!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
   <table>
     <tr>
@@ -140,6 +146,7 @@
   </table> 
 </script>
 
+<!-- template for view on attributes of an activity-node -->
 <script type="text/template" id="activity-attributes-template">
   <table>
     <tr>
@@ -161,6 +168,7 @@
   </table>
 </script>
 
+<!-- template for view on attributes of an actor-node -->
 <script type="text/template" id="actor-attributes-template">
   <table>
     <tr>

@@ -10,7 +10,7 @@ define(["backbone", "app-config"],
         // of the group
         if (this.activityGroupCode != null)
           return config.api.activitiesInGroup.format(this.caseStudyId, 
-                                              this.activityGroupCode);
+                                                     this.activityGroupCode);
         // if no group is given, get all activities in the casestudy
         else
           return config.api.activities.format(this.caseStudyId);
