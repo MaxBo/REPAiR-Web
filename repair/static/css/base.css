@@ -101,31 +101,58 @@ body {
 
 /* workaround for visualizations not rendering correctly hidden tabs */
 .tab-pane {
-    display: block !important;
-    position: fixed;
-    right: -9999px;
-    width: 100%;
+  display: block !important;
+  position: fixed;
+  right: -9999px;
+  width: 100%;
 }
 .tab-pane.active {
-    position: relative;
-    left: 0;
+  position: relative;
+  left: 0;
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 20px;
-    margin-bottom: 20px;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 th, td {
-    text-align: left;
-    padding: 8px;
+  text-align: left;
+  padding: 8px;
 }
 
 tr:nth-child(even){background-color: #f2f2f2}
 
 th {
-    background-color:  #aad400;
-    color: white;
+  background-color:  #aad400;
+  color: white;
+}
+
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #aad400;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
