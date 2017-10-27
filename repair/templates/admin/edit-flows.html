@@ -37,6 +37,9 @@
 <!-- template for view on edit a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12" style="border: 2px solid #e6e6e6;">
+    <button id='upload-flows-button' class="btn btn-primary">
+      <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+    </button>
     <div class="row" id='attributes'>
     </div>
     <div class="row">
@@ -80,6 +83,7 @@
 
 <!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
+  <h3>{% trans "Activitygroup" %}</h3>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
@@ -98,6 +102,7 @@
 
 <!-- template for view on attributes of an activity-node -->
 <script type="text/template" id="activity-attributes-template">
+  <h3>{% trans "Activity" %}</h3>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
@@ -120,6 +125,7 @@
 
 <!-- template for view on attributes of an actor-node -->
 <script type="text/template" id="actor-attributes-template">
+  <h3>{% trans "Actor" %}</h3>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
