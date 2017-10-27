@@ -29,8 +29,10 @@ class StakeholderViewSet(viewsets.ModelViewSet):
 def index(request):
     casestudy_list = CaseStudy.objects.order_by('id')[:20]
     users = Profile.objects.order_by('id')[:20]
+    stakeholder_category_list = StakeholderCategory.objects.order_by('id')[:20]
     context = {'casestudy_list': casestudy_list,
-               'users': users,}
+               'users': users,
+               'stakeholder_category_list': stakeholder_category_list,}
 
     context['graph1'] = Testgraph1().get_context_data()
     context['graph2'] = Testgraph2().get_context_data()
