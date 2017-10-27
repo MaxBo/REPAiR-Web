@@ -1,5 +1,5 @@
-from django.contrib.auth.models import Group
-from repair.apps.login.models import Profile, CaseStudy, User
+from django.contrib.auth.models import Group, User
+from repair.apps.login.models import Profile, CaseStudy
 from rest_framework import viewsets
 from repair.apps.login.serializers import (UserSerializer,
                                            ProfileSerializer,
