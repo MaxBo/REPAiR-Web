@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+    ('studyarea', '0002_links_nodes_person'),
     ]
 
     operations = [
@@ -28,7 +29,7 @@ class Migration(migrations.Migration):
                 ('name', models.TextField()),
                 ('description', models.TextField()),
                 ('one_unit_equals', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.CreateModel(
@@ -36,7 +37,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.CreateModel(
@@ -44,7 +45,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.CreateModel(
@@ -52,7 +53,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.CreateModel(
@@ -67,7 +68,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.CreateModel(
@@ -75,7 +76,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
             ],
         ),
         migrations.AddField(
@@ -100,14 +101,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='stakeholder',
-            unique_together=set([('case_study_id', 'stakeholder_category_id')]),
+            unique_together=set([('casestudy_id', 'stakeholder_category_id')]),
         ),
         migrations.AlterUniqueTogether(
             name='solutioncategory',
-            unique_together=set([('case_study_id', 'user_ap12_id')]),
+            unique_together=set([('casestudy_id', 'user_ap12_id')]),
         ),
         migrations.AlterUniqueTogether(
             name='solution',
-            unique_together=set([('case_study_id', 'user_ap12_id', 'solution_category_id')]),
+            unique_together=set([('casestudy_id', 'user_ap12_id', 'solution_category_id')]),
         ),
     ]

@@ -6,7 +6,7 @@
     "source": false,
     "sink": false,
     "name": "Consuming",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -16,7 +16,7 @@
     "source": false,
     "sink": false,
     "name": "Collection",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -26,7 +26,7 @@
     "source": false,
     "sink": false,
     "name": "Distribution",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -36,7 +36,7 @@
     "source": true,
     "sink": false,
     "name": "Production",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -46,7 +46,7 @@
     "source": true,
     "sink": false,
     "name": "Production of packaging",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -56,7 +56,7 @@
     "source": false,
     "sink": false,
     "name": "Packaging",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -66,7 +66,7 @@
     "source": false,
     "sink": false,
     "name": "Return Logistics",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -76,7 +76,7 @@
     "source": false,
     "sink": false,
     "name": "Selling",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -86,7 +86,7 @@
     "source": false,
     "sink": false,
     "name": "Selling and Cosuming",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -96,7 +96,7 @@
     "source": false,
     "sink": true,
     "name": "Waste Management",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -106,7 +106,7 @@
     "source": false,
     "sink": true,
     "name": "Export",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {
@@ -116,7 +116,7 @@
     "source": true,
     "sink": false,
     "name": "Import",
-    "case_study": 1
+    "casestudy": 1
   }
 },
 {

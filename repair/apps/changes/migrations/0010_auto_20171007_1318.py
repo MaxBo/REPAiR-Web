@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='strategy',
-            unique_together=set([('case_study', 'user', 'name')]),
+            unique_together=set([('casestudy', 'user', 'name')]),
         ),
     ]

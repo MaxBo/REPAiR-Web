@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='implementation',
-            unique_together=set([('case_study_id', 'user_id', 'name')]),
+            unique_together=set([('casestudy_id', 'user_id', 'name')]),
         ),
         migrations.AlterUniqueTogether(
             name='solution',
@@ -52,15 +52,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='solutioncategory',
-            unique_together=set([('case_study_id', 'user_ap12_id', 'name')]),
+            unique_together=set([('casestudy_id', 'user_ap12_id', 'name')]),
         ),
         migrations.AlterUniqueTogether(
             name='stakeholder',
-            unique_together=set([('case_study_id', 'name')]),
+            unique_together=set([('casestudy_id', 'name')]),
         ),
         migrations.AlterUniqueTogether(
             name='stakeholdercategory',
-            unique_together=set([('case_study_id', 'name')]),
+            unique_together=set([('casestudy_id', 'name')]),
         ),
         migrations.AddField(
             model_name='solutioninimplementationquantities',

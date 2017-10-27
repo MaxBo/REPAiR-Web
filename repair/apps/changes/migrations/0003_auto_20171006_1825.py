@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('case_study_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
+                ('casestudy_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.CaseStudy')),
                 ('coordinating_stakeholder_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.Stakeholder')),
                 ('solutions', models.ManyToManyField(to='changes.Solution')),
             ],
@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='implementation',
-            unique_together=set([('case_study_id', 'user_id', 'id')]),
+            unique_together=set([('casestudy_id', 'user_id', 'id')]),
         ),
     ]

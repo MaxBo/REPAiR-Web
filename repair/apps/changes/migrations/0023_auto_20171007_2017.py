@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='userap12',
-            name='case_study',
+            name='casestudy',
         ),
         migrations.AlterField(
             model_name='solution',

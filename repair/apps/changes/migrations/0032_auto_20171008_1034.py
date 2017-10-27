@@ -24,7 +24,7 @@ def make_many_users(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('changes', '0031_add_user_case_study'),
+        ('changes', '0031_add_user_casestudy'),
     ]
 
     operations = [
