@@ -65,14 +65,13 @@ class Profile(GDSEModel):
     def name(self):
         return self.user.username
 
-
 @receiver(post_save, sender=User)
 def create_profile_for_new_user(sender, created, instance, **kwargs):
     if created:
         try:
             instance.profile
         except Profile.DoesNotExist:
-            profile = Profile(user=instance)
+            profile = Profile(id=instance.id, user=instance)
             profile.save()
         else:
             print(instance.profile)
