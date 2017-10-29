@@ -1,10 +1,12 @@
+from django.shortcuts import render
 from django.contrib.auth.models import Group, User
-from repair.apps.login.models import Profile, CaseStudy
 from rest_framework import viewsets
+from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            ProfileSerializer,
                                            GroupSerializer,
-                                           CaseStudySerializer)
+                                           CaseStudySerializer,
+                                           UserInCasestudySerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,6 +34,9 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class CaseStudyViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows casestudy to be viewed or edited.
+    """
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
@@ -41,7 +46,16 @@ class CaseStudyViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
+class UserInCasestudyViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows userincasestudy to be viewed or edited.
+    """
+    queryset = UserInCasestudy.objects.all()
+    serializer_class = UserInCasestudySerializer
+
+
 def casestudy(request, casestudy_id):
+    """casestudy view"""
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
     stakeholder_categories = casestudy.stakeholdercategory_set.all()
     users = casestudy.user_set.all()
@@ -52,23 +66,23 @@ def casestudy(request, casestudy_id):
         'stakeholder_categories': stakeholder_categories,
         'users': users,
         'solution_categories': solution_categories,
-               }
+    }
     return render(request, 'changes/casestudy.html', context)
 
 
 def user(request, user_id):
+    """user view"""
     user = User.objects.get(pk=user_id)
-    context = {'user': user,
-               }
+    context = {'user': user,}
     return render(request, 'changes/user.html', context)
 
 
 def userincasestudy(request, user_id, casestudy_id):
+    """userincasestudy view"""
     user = UserInCasestudy.objects.get(user_id=user_id,
                                        casestudy_id=casestudy_id)
     other_casestudies = user.user.casestudies.exclude(pk=casestudy_id).all
     context = {'user': user,
                'other_casestudies': other_casestudies,
-               }
+              }
     return render(request, 'changes/user_in_casestudy.html', context)
-
