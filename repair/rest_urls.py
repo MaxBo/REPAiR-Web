@@ -21,12 +21,9 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'profiles', login_views.ProfileViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
-router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
+router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 router.register(r'stakeholders', StakeholderViewSet)
-#router.register(r'solutioncategories', SolutionCategoryViewSet,
-                #base_name='solutioncategory')
 router.register(r'solutions', SolutionViewSet)
-router.register(r'users', login_views.UserInCasestudyViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 

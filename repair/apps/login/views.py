@@ -57,13 +57,13 @@ class UserInCasestudyViewSet(viewsets.ModelViewSet):
 def casestudy(request, casestudy_id):
     """casestudy view"""
     casestudy = CaseStudy.objects.get(pk=casestudy_id)
-    stakeholder_categories = casestudy.stakeholdercategory_set.all()
+    stakeholdercategories = casestudy.stakeholdercategory_set.all()
     users = casestudy.user_set.all()
     solution_categories = casestudy.solution_categories
 
     context = {
         'casestudy': casestudy,
-        'stakeholder_categories': stakeholder_categories,
+        'stakeholdercategories': stakeholdercategories,
         'users': users,
         'solution_categories': solution_categories,
     }

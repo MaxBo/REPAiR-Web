@@ -68,7 +68,7 @@ def index(request):
     return render(request, 'studyarea/index.html', context)
 
 
-def stakeholder_categories(request, stakeholder_category_id):
+def stakeholdercategories(request, stakeholdercategory_id):
     stakeholder_category = StakeholderCategory.objects.get(
         pk=stakeholder_category_id)
     stakeholders = stakeholder_category.stakeholder_set.all()

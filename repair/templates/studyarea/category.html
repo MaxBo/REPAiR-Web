@@ -3,7 +3,7 @@
 {% load require %}
 
 {% block sidebar %}
-  <script> 
+  <script>
     document.getElementById("study-area-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
@@ -14,8 +14,8 @@
 
 {% block content %}
     <div class="row">
-      {% if stakeholder_categories %}
-      {% for sh_cat in stakeholder_categories %}
+      {% if stakeholdercategories %}
+      {% for sh_cat in stakeholdercategories %}
       <div class="col-md-2 panel">
         <div class="buttons" id="{{sh_cat}}" onclick="location.href = '/study-area/stakeholdercategories/{{ sh_cat.id }}';">
           <h4>{{sh_cat}}</h4>

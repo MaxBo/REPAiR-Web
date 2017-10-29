@@ -21,14 +21,14 @@
           {% if stakeholder_category_list %}
           <ul>
           {% for sc in stakeholder_category_list %}
-            <li><a href="/api/stakeholder_categories/{{ sc.id }}/" class="btn btn-panel">{{ sc.name }}</a></li>
+            <li><a href="/api/stakeholdercategories/{{ sc.id }}/" class="btn btn-panel">{{ sc.name }}</a></li>
           {% endfor %}
           </ul>
           {% else %}
           <p>{% trans "No stakeholder categories are available." %}</p>
           {% endif %}
 
-          <li><a href="/api/stakeholder_categories/#post-object-form" class="btn btn-danger">{% trans "New" %} {% trans "Stakeholder Category"%}</a></li>
+          <li><a href="/api/stakeholdercategories/#post-object-form" class="btn btn-danger">{% trans "New" %} {% trans "Stakeholder Category"%}</a></li>
 
         </div>
       </div>
