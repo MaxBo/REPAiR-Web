@@ -90,8 +90,21 @@ def strategies(request, strategy_id):
 # API Views
 
 
-class SolutionCategoryViewSet(viewsets.ViewSet):
+class SolutionCategoryViewSet(viewsets.ModelViewSet):
+    queryset = SolutionCategory.objects.all()
     serializer_class = SolutionCategorySerializer
+    '''custom get_queryset'''
+
+    #def list(self, request, casestudy_pk=None):
+        #queryset = SolutionCategory.objects.filter(user__casestudy=casestudy_pk)
+        #serializer = SolutionCategorySerializer(queryset, many=True, context={'request': request,})
+        #return Response(serializer.data)
+
+    #def retrieve(self, request, pk=None, casestudy_pk=None):
+        #queryset = SolutionCategory.objects.filter(pk=pk, user__casestudy=casestudy_pk)
+        #soultion_category = get_object_or_404(queryset, pk=pk)
+        #serializer = SolutionCategorySerializer(soultion_category, context={'request': request,})
+        #return Response(serializer.data)
 
     def list(self, request, casestudy_pk=None):
         if casestudy_pk is not None:
@@ -99,41 +112,60 @@ class SolutionCategoryViewSet(viewsets.ViewSet):
             queryset = casestudy.solution_categories
         else:
             queryset = SolutionCategory.objects.all()
-        serializer = SolutionCategorySerializer(queryset, many=True)
+        serializer = SolutionCategorySerializer(
+            queryset,
+            many=True,
+            context={'request': request,})
         return Response(serializer.data)
 
-    def post(self, request, casestudy_pk=None):
-        serializer = SolutionCategoryPostSerializer(data=request.data)
+    def create(self, request, casestudy_pk=None, **kwargs):
+        #request.data['casestudy'] = casestudy_pk
+        # get the user from the request or from the session
+        # if both is None, use -1 for the Anonymus User
+        user_id = request.data.get('user', request.session.user.id) or -1
         try:
             UserInCasestudy.objects.get(user_id=request.data['user'],
                                         casestudy_id=casestudy_pk)
         except(UserInCasestudy.DoesNotExist):
             return Response({'detail': 'User does not exist in Casestudy!'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request.data['user'] = user_id
+        return super().create(request **kwargs)
+        #serializer = SolutionCategoryPostSerializer(
+            #data=request.data,
+            #context={'request': request,})
+        #try:
+            #UserInCasestudy.objects.get(user_id=request.data['user'],
+                                        #casestudy_id=casestudy_pk)
+        #except(UserInCasestudy.DoesNotExist):
+            #return Response({'detail': 'User does not exist in Casestudy!'},
+                            #status=status.HTTP_406_NOT_ACCEPTABLE)
+        #if serializer.is_valid():
+            #serializer.save()
+            #return Response(serializer.data, status=status.HTTP_201_CREATED)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk=None, casestudy_pk=None):
-        queryset = SolutionCategory.objects.filter()
-        solution_category = get_object_or_404(queryset, pk=pk)
-        serializer = SolutionCategorySerializer(solution_category)
-        return Response(serializer.data)
+    #def retrieve(self, request, pk=None, casestudy_pk=None):
+        #queryset = SolutionCategory.objects.filter()
+        #solution_category = get_object_or_404(queryset, pk=pk)
+        #serializer = SolutionCategorySerializer(solution_category,
+                                                #context={'request': request,})
+        #return Response(serializer.data)
 
 
-class SolutionViewSet(viewsets.ViewSet):
+class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
+    queryset = Solution.objects.all()
 
     def list(self, request, casestudy_pk=None, solutioncategory_pk=None):
         queryset = Solution.objects.filter(solution_category_id=solutioncategory_pk)
-        serializer = SolutionSerializer(queryset, many=True)
+        serializer = SolutionSerializer(queryset, many=True, context={'request': request,})
         return Response(serializer.data)
 
     def post(self, request, casestudy_pk=None, solutioncategory_pk=None):
         data=request.data
         data['solution_category'] = solutioncategory_pk  #SolutionCategory.objects.get(id=int(solution_category))
-        serializer = SolutionPostSerializer(data=data)
+        serializer = SolutionPostSerializer(data=data, context={'request': request,})
         try:
             UserInCasestudy.objects.get(user_id=data['user'], casestudy_id=casestudy_pk)
         except(UserInCasestudy.DoesNotExist):
@@ -147,5 +179,5 @@ class SolutionViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None, casestudy_pk=None, solutioncategory_pk=None):
         queryset = Solution.objects.filter(pk=pk, solution_category_id=solutioncategory_pk)
         solution = get_object_or_404(queryset, pk=pk)
-        serializer = SolutionSerializer(solution)
+        serializer = SolutionSerializer(solution, context={'request': request,})
         return Response(serializer.data)
