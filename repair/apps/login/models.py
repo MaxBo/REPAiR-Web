@@ -56,6 +56,17 @@ class CaseStudy(GDSEModel):
                 solution_categories.add(solution_category)
         return solution_categories
 
+    @property
+    def stakeholder_categories(self):
+        """
+        look for all stakeholder categories created by the users of the casestudy
+        """
+        stakeholder_categories = set()
+        for uic in self.userincasestudy_set.all():
+            for stakeholder_category in uic.stakeholdercategory_set.all():
+                stakeholder_categories.add(stakeholder_category)
+        return stakeholder_categories
+
 
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -64,6 +75,7 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
+
 
 @receiver(post_save, sender=User)
 def create_profile_for_new_user(sender, created, instance, **kwargs):
@@ -81,6 +93,10 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
 class UserInCasestudy(GDSEModel):
     user = models.ForeignKey(Profile)
     casestudy = models.ForeignKey(CaseStudy)
+
+    @property
+    def name(self):
+        return self.user.name
 
     def __str__(self):
         text = '{u} ({c})'

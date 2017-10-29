@@ -1,12 +1,44 @@
+from abc import ABC
 from django.shortcuts import render
 from django.contrib.auth.models import Group, User
 from rest_framework import viewsets
+from rest_framework.response import Response
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            ProfileSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer,
                                            UserInCasestudySerializer)
+
+
+class OnlyCasestudyMixin(ABC):
+
+
+    def list(self, request, **kwargs):
+        self.set_casestudy(kwargs, request)
+        lookup_args = {v:kwargs[k] for k, v
+                       in self.serializer_class.parent_lookup_kwargs.items()}
+        queryset = self.queryset.model.objects.filter(**lookup_args)
+        serializer = self.serializer_class(queryset, many=True,
+                                           context={'request': request, })
+        return Response(serializer.data)
+
+    def set_casestudy(self, kwargs, request):
+        casestudy_pk = kwargs.get('casestudy_pk')
+        if casestudy_pk is not None:
+            request.session['casestudy'] = casestudy_pk
+
+    def create(self, request, casestudy_pk=None, **kwargs):
+        request.session['casestudy'] = casestudy_pk
+        user_id = request.data.get('user', request.session.user.id) or -1
+        try:
+            UserInCasestudy.objects.get(user_id=request.data['user'],
+                                        casestudy_id=casestudy_pk)
+        except(UserInCasestudy.DoesNotExist):
+            return Response({'detail': 'User does not exist in Casestudy!'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        request.data['user'] = user_id
+        return super().create(request **kwargs)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -40,13 +72,13 @@ class CaseStudyViewSet(viewsets.ModelViewSet):
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        """store the selected casestudy_id in the session as 'casestudy' """
-        request.session['casestudy'] = kwargs['pk']
-        return super().retrieve(request, *args, **kwargs)
+    #def retrieve(self, request, *args, **kwargs):
+        #"""store the selected casestudy_id in the session as 'casestudy' """
+        #request.session['casestudy'] = kwargs['pk']
+        #return super().retrieve(request, *args, **kwargs)
 
 
-class UserInCasestudyViewSet(viewsets.ModelViewSet):
+class UserInCasestudyViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """

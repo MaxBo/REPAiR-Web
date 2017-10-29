@@ -1,3 +1,7 @@
+from rest_framework import serializers
+from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+
 from repair.apps.changes.models import (Unit,
                                         SolutionCategory,
                                         Solution,
@@ -5,16 +9,47 @@ from repair.apps.changes.models import (Unit,
                                         SolutionInImplementation,
                                         )
 
+from repair.apps.login.serializers import (UserInCasestudySerializer,
+                                           InCasestudyField,
+                                           InCaseStudyIdentityField)
 
-from rest_framework import serializers
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 
-class NHRF(NestedHyperlinkedRelatedField):
-    """This is fixed in rest_framework_nested, but not yet available on pypi"""
-    def use_pk_only_optimization(self):
-        return False
+class SolutionCategoryField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy'}
+    child_lookup_kwargs = {'casestudy_pk': 'user__casestudy'}
+
+
+class SolutionSetField(InCaseStudyIdentityField):
+    lookup_url_kwarg = 'solutioncategory_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
+                            'solutioncategory_pk': 'id', }
+
+
+class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'solutioncategory_pk': 'solution_category__id',
+                            'casestudy_pk': 'solution_category__user__casestudy__id',}
+    class Meta:
+        model = Solution
+        fields = ('url', 'id', 'name')
+
+
+class SolutionCategorySerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    solution_set = SolutionSetField(
+        view_name='solution-list')
+    #solution_set = SolutionSetSerializer(many=True, read_only=True)
+    user = UserInCasestudySerializer()
+    class Meta:
+        model = SolutionCategory
+        fields = ('url', 'id', 'name', 'user', 'solution_set')
+
+
+class SolutionCategoryPostSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = SolutionCategory
+        fields = ('url', 'id', 'name', 'user')
 
 
 class SolutionInImplementationField(serializers.HyperlinkedRelatedField):
@@ -33,14 +68,18 @@ class SolutionSerializer(NestedHyperlinkedModelSerializer):
         #many=True,
         #view_name='implementation_set_detail')
     parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__casestudy__id',
+        'casestudy_pk': 'solution_category__user__casestudy__id',
         'solutioncategory_pk': 'solution_category__id',
     }
+    user = UserInCasestudySerializer()
+    solution_category = SolutionCategoryField(
+        view_name='solutioncategory-detail',
+    )
 
     class Meta:
         model = Solution
         fields = ('url', 'id', 'name', 'user', 'description',
-                  'one_unit_equals',
+                  'one_unit_equals', 'solution_category',
                   #'implementation_set',
                   )
 
@@ -53,32 +92,4 @@ class SolutionPostSerializer(serializers.HyperlinkedModelSerializer):
                   'solution_category')
 
 
-class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'solutioncategory_pk': 'solution_category__id',
-                            'casestudy_pk': 'solution_category__casestudy__id',}
-    class Meta:
-        model = Solution
-        fields = ('url', 'id', 'name')
-
-
-class SolutionCategorySerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    solution_set = SolutionSetSerializer(many=True, read_only=True)
-    class Meta:
-        model = SolutionCategory
-        fields = ('url', 'id', 'name', 'user', 'solution_set')
-
-    #def __init__(self, *args, **kwargs):
-        #super().__init__(*args, **kwargs)
-        ## get the request from parent serializer's context
-        #request_obj = self.context.get('request')
-        ## assign request object to nested serializer context
-        #self.fields['solution_set'].context['request'] = request_obj
-
-
-class SolutionCategoryPostSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = SolutionCategory
-        fields = ('url', 'id', 'name', 'user')
 

@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 
 
+from repair.apps.login.views import OnlyCasestudyMixin
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (Unit,
                                         SolutionCategory,
@@ -94,7 +95,7 @@ def strategies(request, strategy_id):
 # API Views
 
 
-class SolutionCategoryViewSet(viewsets.ModelViewSet):
+class SolutionCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     queryset = SolutionCategory.objects.all()
     serializer_class = SolutionCategorySerializer
     '''custom get_queryset'''
@@ -110,17 +111,17 @@ class SolutionCategoryViewSet(viewsets.ModelViewSet):
         #serializer = SolutionCategorySerializer(soultion_category, context={'request': request,})
         #return Response(serializer.data)
 
-    def list(self, request, casestudy_pk=None):
-        if casestudy_pk is not None:
-            casestudy = CaseStudy.objects.get(id=casestudy_pk)
-            queryset = casestudy.solution_categories
-        else:
-            queryset = SolutionCategory.objects.all()
-        serializer = SolutionCategorySerializer(
-            queryset,
-            many=True,
-            context={'request': request, })
-        return Response(serializer.data)
+    #def list(self, request, casestudy_pk=None):
+        #if casestudy_pk is not None:
+            #casestudy = CaseStudy.objects.get(id=casestudy_pk)
+            #queryset = casestudy.solution_categories
+        #else:
+            #queryset = SolutionCategory.objects.all()
+        #serializer = SolutionCategorySerializer(
+            #queryset,
+            #many=True,
+            #context={'request': request, })
+        #return Response(serializer.data)
 
     def create(self, request, casestudy_pk=None, **kwargs):
         #request.data['casestudy'] = casestudy_pk
@@ -157,16 +158,16 @@ class SolutionCategoryViewSet(viewsets.ModelViewSet):
         #return Response(serializer.data)
 
 
-class SolutionViewSet(viewsets.ModelViewSet):
+class SolutionViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
 
-    def list(self, request, casestudy_pk=None, solutioncategory_pk=None):
-        queryset = Solution.objects.filter(
-            solution_category_id=solutioncategory_pk)
-        serializer = SolutionSerializer(queryset, many=True,
-                                        context={'request': request, })
-        return Response(serializer.data)
+    #def list(self, request, casestudy_pk=None, solutioncategory_pk=None):
+        #queryset = Solution.objects.filter(
+            #solution_category_id=solutioncategory_pk)
+        #serializer = SolutionSerializer(queryset, many=True,
+                                        #context={'request': request, })
+        #return Response(serializer.data)
 
     def post(self, request, casestudy_pk=None, solutioncategory_pk=None):
         data=request.data

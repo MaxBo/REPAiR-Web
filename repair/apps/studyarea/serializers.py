@@ -1,45 +1,59 @@
+from rest_framework import serializers
+from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           )
 from repair.apps.login.models import CaseStudy
-from repair.apps.login.serializers import CaseStudySerializer
-from rest_framework import serializers
+from repair.apps.login.serializers import (CaseStudySerializer,
+                                           InCasestudyField,
+                                           InCaseStudyIdentityField)
 
 
-class StakeholderSerializer(serializers.HyperlinkedModelSerializer):
+
+class StakeholderCategoryField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    child_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+class StakeholderSetField(InCaseStudyIdentityField):
+    lookup_url_kwarg = 'stakeholdercategory_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
+                            'stakeholdercategory_pk': 'id', }
+
+    child_lookup_kwargs = {
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id',
+    }
+
+class StakeholderSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id',
+    }
+    stakeholder_category = StakeholderCategoryField(
+        view_name='stakeholdercategory-detail',)
+
     class Meta:
         model = Stakeholder
         fields = ('url', 'id', 'name', 'stakeholder_category')
 
 
-class StakeholderOfCasestudyField(serializers.HyperlinkedRelatedField):
-    def get_queryset(self):
-        obj = self.root.instance
-        #request = self.context.get('request')
-        #casestudy = request.session.get('casestudy')
-        if obj:
-            queryset = Stakeholder.objects.filter(
-                stakeholder_category__casestudy=obj.casestudy.id)
-        else:
-            queryset = Stakeholder.objects.all()
-        return queryset
+class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id',
+    }
+    class Meta:
+        model = Stakeholder
+        fields = ('url', 'id', 'name')
 
 
-class StakeholderCategorySerializer(serializers.HyperlinkedModelSerializer):
-    #def __init__(self, *args, **kwargs):
-        #request = kwargs.get('context', {}).get('request')
-        #casestudy = request.session.get('casestudy')
-        #if casestudy:
-            #self.fields['casestudy'].queryset = \
-                #CaseStudy.objects.filter(id=casestudy)
-        #super().__init__(*args, **kwargs)
-    stakeholder_set = StakeholderOfCasestudyField(
-        many=True,
-        #queryset=Stakeholder.objects.filter(stakeholder_category__casestudy=5),
-        view_name='stakeholder-detail')
+class StakeholderCategorySerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    stakeholder_set = StakeholderSetField(view_name='stakeholder-list')
+    #stakeholder_set = StakeholderSetSerializer(many=True, read_only=True)
 
     class Meta:
         model = StakeholderCategory
-        fields = ('url', 'id', 'casestudy', 'name',
-                  'stakeholder_set',
+        fields = ('url', 'id', 'name', 'stakeholder_set',
                   )
