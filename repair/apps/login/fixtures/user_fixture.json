@@ -43,6 +43,14 @@
 },
 {
   "model": "auth.user",
+  "pk": -1,
+  "fields": {
+    "username": "AnonymusUser",
+    "email": "my.name@is.rabbit"
+  }
+},
+{
+  "model": "auth.user",
   "pk": 1,
   "fields": {
     "username": "Max",
@@ -67,24 +75,19 @@
 },
 {
   "model": "login.profile",
-  "pk": 1,
-  "fields": {
-    "user": 1
-  }
+  "pk": -1,"fields": {"user":-1}
 },
 {
   "model": "login.profile",
-  "pk": 2,
-  "fields": {
-    "user": 2
-  }
+  "pk": 1,"fields": {"user":1}
 },
 {
   "model": "login.profile",
-  "pk": 3,
-  "fields": {
-    "user": 3
-  }
+  "pk": 2,"fields": {"user":2}
+},
+{
+  "model": "login.profile",
+  "pk": 3,"fields": {"user":3}
 },
 {
   "model": "login.userincasestudy",
@@ -132,6 +135,48 @@
   "fields": {
     "user": 2,
     "casestudy": 3
-  }
-}
+  }  },
+{
+  "model": "login.userincasestudy",
+  "pk": 8,
+  "fields": {
+    "user": -1,
+    "casestudy": 1
+ } },
+{
+  "model": "login.userincasestudy",
+  "pk": 9,
+  "fields": {
+    "user": -1,
+    "casestudy": 2
+ } },
+  {
+  "model": "login.userincasestudy",
+  "pk": 10,
+  "fields": {
+    "user": -1,
+    "casestudy": 3
+ } },
+  {
+  "model": "login.userincasestudy",
+  "pk": 11,
+  "fields": {
+    "user": -1,
+    "casestudy": 4
+ }},
+  {
+  "model": "login.userincasestudy",
+  "pk": 12,
+  "fields": {
+    "user": -1,
+    "casestudy": 5
+  }},
+  {
+  "model": "login.userincasestudy",
+  "pk": 13,
+  "fields": {
+    "user": -1,
+    "casestudy": 6
+ } }
+
 ]
