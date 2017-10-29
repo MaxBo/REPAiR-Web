@@ -19,7 +19,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = Profile.objects.all()  #.order_by('-user__date_joined')
+    queryset = Profile.objects.all().order_by('-user__date_joined')
     serializer_class = ProfileSerializer
 
 
@@ -34,6 +34,11 @@ class GroupViewSet(viewsets.ModelViewSet):
 class CaseStudyViewSet(viewsets.ModelViewSet):
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        """store the selected casestudy_id in the session as 'casestudy' """
+        request.session['casestudy'] = kwargs['pk']
+        return super().retrieve(request, *args, **kwargs)
 
 
 def casestudy(request, casestudy_id):

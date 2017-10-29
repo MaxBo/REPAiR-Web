@@ -2,9 +2,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
+from rest_framework.filters import BaseFilterBackend
+
 
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
+from rest_framework.response import Response
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
@@ -14,10 +17,25 @@ from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
                                                )
 
+class IsCasestudyFilterBackend(BaseFilterBackend):
+    """
+    Filter that shows only objects related to to the casestudy
+    """
+    def filter_queryset(self, request, queryset, view):
+        casestudy = request.session.get('casestudy')
+        if casestudy:
+            queryset = queryset.filter(casestudy=casestudy)
+        else:
+            queryset = queryset.all()
+        return queryset.filter(casestudy=casestudy)
+
 
 class StakeholderCategoryViewSet(viewsets.ModelViewSet):
     queryset = StakeholderCategory.objects.all()
     serializer_class = StakeholderCategorySerializer
+
+    filter_backends = (IsCasestudyFilterBackend, )
+
 
 
 class StakeholderViewSet(viewsets.ModelViewSet):
@@ -29,7 +47,15 @@ class StakeholderViewSet(viewsets.ModelViewSet):
 def index(request):
     casestudy_list = CaseStudy.objects.order_by('id')[:20]
     users = Profile.objects.order_by('id')[:20]
-    stakeholder_category_list = StakeholderCategory.objects.order_by('id')[:20]
+
+    # get the current casestudy
+    casestudy = request.session.get('casestudy')
+    if casestudy:
+        stakeholder_category_list = \
+            StakeholderCategory.objects.filter(casestudy=casestudy)
+    else:
+        stakeholder_category_list = StakeholderCategory.objects.all()
+
     context = {'casestudy_list': casestudy_list,
                'users': users,
                'stakeholder_category_list': stakeholder_category_list,}

@@ -40,7 +40,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'name')
 
 
-class CaseStudySerializer(serializers.ModelSerializer):
+class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CaseStudy
         fields = ('id', 'name')
