@@ -19,9 +19,7 @@ from repair.apps.asmfa.models import (
     Stock,
     )
 
-from repair.apps.changes.models import CaseStudy
-
-#from repair.apps.changes.factories import *
+from repair.apps.login.models import CaseStudy
 
 
 class ModelTest(TestCase):
