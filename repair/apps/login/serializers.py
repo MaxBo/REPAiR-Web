@@ -47,13 +47,13 @@ class InCasestudyField(NestedHyperlinkedRelatedField):
         return RelatedModel
 
     def get_casestudyid_from_obj(self, obj):
-        casestudy_pk = self.parent_lookup_kwargs['casestudy_pk'].split('__')
+        casestudy_pk = self.child_lookup_kwargs['casestudy_pk'].split('__')
         for attr in casestudy_pk:
             obj = getattr(obj, attr)
         return obj
 
     def get_casestudy_pk(self, casestudy_id):
-        casestudy_pk = self.child_lookup_kwargs.get('casestudy_pk')
+        casestudy_pk = self.parent_lookup_kwargs.get('casestudy_pk')
         return casestudy_pk
 
 
@@ -130,10 +130,12 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
     userincasestudy_set = UserSetField(view_name='userincasestudy-list')
     stakeholder_categories = UserSetField(view_name='stakeholdercategory-list')
     solution_categories = UserSetField(view_name='solutioncategory-list')
+    implementations = UserSetField(view_name='implementation-list')
     class Meta:
         model = CaseStudy
         fields = ('url', 'id', 'name', 'userincasestudy_set',
-                  'solution_categories', 'stakeholder_categories')
+                  'solution_categories', 'stakeholder_categories',
+                  'implementations')
 
 
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):

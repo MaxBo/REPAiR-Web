@@ -8,7 +8,12 @@ from repair.apps.login import views as login_views
 from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet, StakeholderViewSet)
 from repair.apps.changes.views import (
-    SolutionCategoryViewSet, SolutionViewSet)
+    SolutionCategoryViewSet,
+    SolutionViewSet,
+    ImplementationViewSet,
+    SolutionInImplementationViewSet,
+)
+
 from repair.apps.asmfa.views import (
     ActivityGroupViewSet, ActivityViewSet, ActorViewSet,
     Activity2ActivityViewSet, MaterialViewSet, Group2GroupViewSet,
@@ -33,6 +38,7 @@ cs_router.register(r'activities', ActivityViewSet, base_name='activities')
 cs_router.register(r'actors', ActorViewSet, base_name='actors')
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
+cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'materials', MaterialViewSet, base_name='materials')
 cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 
@@ -45,6 +51,11 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 scat_router = NestedSimpleRouter(cs_router, r'solutioncategories',
                                  lookup='solutioncategory')
 scat_router.register(r'solutions', SolutionViewSet)
+
+# /casestudies/*/implementations/...
+imp_router = NestedSimpleRouter(cs_router, r'implementations',
+                                 lookup='implementation')
+imp_router.register(r'solutions', SolutionInImplementationViewSet)
 
 # /casestudies/*/activitygroups/...
 ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
@@ -76,6 +87,7 @@ urlpatterns = [
     url(r'^', include(ag_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
+    url(r'^', include(imp_router.urls)),
     url(r'^', include(ac_router.urls)),
     url(r'^', include(mat_router.urls))
 ]

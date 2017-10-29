@@ -15,12 +15,13 @@ class OnlyCasestudyMixin(ABC):
 
 
     def list(self, request, **kwargs):
+        SerializerClass = self.get_serializer_class()
         self.set_casestudy(kwargs, request)
         lookup_args = {v:kwargs[k] for k, v
-                       in self.serializer_class.parent_lookup_kwargs.items()}
+                       in SerializerClass.parent_lookup_kwargs.items()}
         queryset = self.queryset.model.objects.filter(**lookup_args)
-        serializer = self.serializer_class(queryset, many=True,
-                                           context={'request': request, })
+        serializer = SerializerClass(queryset, many=True,
+                                     context={'request': request, })
         return Response(serializer.data)
 
     def set_casestudy(self, kwargs, request):
@@ -29,16 +30,14 @@ class OnlyCasestudyMixin(ABC):
             request.session['casestudy'] = casestudy_pk
 
     def create(self, request, casestudy_pk=None, **kwargs):
-        request.session['casestudy'] = casestudy_pk
-        user_id = request.data.get('user', request.session.user.id) or -1
+        user_id = request.data.get('user', request.user.id) or -1
         try:
-            UserInCasestudy.objects.get(user_id=request.data['user'],
+            UserInCasestudy.objects.get(user_id=user_id,
                                         casestudy_id=casestudy_pk)
         except(UserInCasestudy.DoesNotExist):
             return Response({'detail': 'User does not exist in Casestudy!'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        request.data['user'] = user_id
-        return super().create(request **kwargs)
+        return super().create(request, **kwargs)
 
 
 class UserViewSet(viewsets.ModelViewSet):

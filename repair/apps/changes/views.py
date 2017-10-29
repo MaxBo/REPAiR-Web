@@ -1,4 +1,7 @@
+from abc import ABC
+
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, JsonResponse
 from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
@@ -6,8 +9,8 @@ import django.db.models
 from django.shortcuts import get_object_or_404, get_list_or_404
 
 from django.utils.translation import ugettext as _
+
 from rest_framework import viewsets
-from django.http import Http404, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -15,19 +18,24 @@ from rest_framework import status, generics
 
 from repair.apps.login.views import OnlyCasestudyMixin
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
-from repair.apps.changes.models import (Unit,
-                                        SolutionCategory,
-                                        Solution,
-                                        Implementation,
-                                        SolutionInImplementation,
-                                        Strategy,
-                                        )
+from repair.apps.changes.models import (
+    Unit,
+    SolutionCategory,
+    Solution,
+    Implementation,
+    SolutionInImplementation,
+    Strategy,
+    )
 
-from repair.apps.changes.serializers import (SolutionSerializer,
-                                             SolutionCategorySerializer,
-                                             SolutionPostSerializer,
-                                             SolutionCategoryPostSerializer,
-                                             )
+from repair.apps.changes.serializers import (
+    SolutionSerializer,
+    SolutionCategorySerializer,
+    SolutionPostSerializer,
+    SolutionCategoryPostSerializer,
+    ImplementationSerializer,
+    ImplementationPostSerializer,
+    SolutionInImplementationSerializer,
+    )
 
 
 from repair.apps.changes.forms import NameForm
@@ -93,6 +101,14 @@ def strategies(request, strategy_id):
 
 
 # API Views
+
+class MultiSerializerViewSetMixin(ABC):
+
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
 
 
 class SolutionCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
@@ -162,12 +178,6 @@ class SolutionViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
 
-    #def list(self, request, casestudy_pk=None, solutioncategory_pk=None):
-        #queryset = Solution.objects.filter(
-            #solution_category_id=solutioncategory_pk)
-        #serializer = SolutionSerializer(queryset, many=True,
-                                        #context={'request': request, })
-        #return Response(serializer.data)
 
     def post(self, request, casestudy_pk=None, solutioncategory_pk=None):
         data=request.data
@@ -194,3 +204,23 @@ class SolutionViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
         serializer = SolutionSerializer(solution,
                                         context={'request': request, })
         return Response(serializer.data)
+
+
+class ImplementationViewSet(MultiSerializerViewSetMixin,
+                            OnlyCasestudyMixin,
+                            viewsets.ModelViewSet):
+    serializer_class = ImplementationSerializer
+    serializer_action_classes = {'list': ImplementationSerializer,
+                                 'retrieve': ImplementationSerializer,
+                                 'create': ImplementationPostSerializer,
+                                 'update': ImplementationPostSerializer,
+                                 'delete': ImplementationPostSerializer,
+                                 }
+    queryset = Implementation.objects.all()
+
+
+class SolutionInImplementationViewSet(OnlyCasestudyMixin,
+                                      viewsets.ModelViewSet):
+    serializer_class = SolutionInImplementationSerializer
+    queryset = SolutionInImplementation.objects.all()
+

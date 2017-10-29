@@ -67,6 +67,17 @@ class CaseStudy(GDSEModel):
                 stakeholder_categories.add(stakeholder_category)
         return stakeholder_categories
 
+    @property
+    def implementations(self):
+        """
+        look for all stakeholder categories created by the users of the casestudy
+        """
+        implementations = set()
+        for uic in self.userincasestudy_set.all():
+            for implementation in uic.implementation_set.all():
+                implementations.add(implementation)
+        return implementations
+
 
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

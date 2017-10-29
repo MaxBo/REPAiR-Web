@@ -20,6 +20,7 @@ class SolutionCategoryField(InCasestudyField):
     child_lookup_kwargs = {'casestudy_pk': 'user__casestudy'}
 
 
+
 class SolutionSetField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'solutioncategory_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
@@ -88,8 +89,55 @@ class SolutionPostSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Solution
-        fields = ('url', 'id', 'name', 'user', 'description', 'one_unit_equals',
-                  'solution_category')
+        fields = ('url', 'id', 'name', 'user', 'description',
+                  'one_unit_equals', 'solution_category')
 
 
+class SolutionInImplementationSetField(InCaseStudyIdentityField):
+    lookup_url_kwarg = 'implementation_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
+                            'implementation_pk': 'id', }
+
+
+class ImplementationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    user = UserInCasestudySerializer()
+    solutions = SolutionInImplementationSetField(
+        view_name='solutioninimplementation-list', read_only=True)
+    class Meta:
+        model = Implementation
+        fields = ('url', 'id', 'name', 'user', 'solutions')
+
+
+class ImplementationPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Implementation
+        fields = ('id', 'name', 'user')
+
+
+class ImplementationField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    child_lookup_kwargs = {'casestudy_pk': 'implementation__user__casestudy__id'}
+
+
+class SolutionField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'solution_category__user__casestudy__id',
+                            'solutioncategory_pk': 'solution_category__id',}
+    child_lookup_kwargs = {'casestudy_pk': 'implementation__user__casestudy__id',
+                           'implementation_pk': 'implementation__id',}
+
+
+
+class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'implementation__user__casestudy__id',
+                            'implementation_pk': 'implementation__id',
+                            }
+    implementation = ImplementationField(view_name='implementation-detail')
+    solution = SolutionField(view_name='solution-detail')
+    class Meta:
+        model = SolutionInImplementation
+        fields = ('url', 'id',
+                  'implementation',
+                  'solution')
 
