@@ -17,24 +17,24 @@ from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
                                                )
 
-class IsCasestudyFilterBackend(BaseFilterBackend):
-    """
-    Filter that shows only objects related to to the casestudy
-    """
-    def filter_queryset(self, request, queryset, view):
-        casestudy = request.session.get('casestudy')
-        if casestudy:
-            queryset = queryset.filter(casestudy=casestudy)
-        else:
-            queryset = queryset.all()
-        return queryset.filter(casestudy=casestudy)
+#class IsCasestudyFilterBackend(BaseFilterBackend):
+    #"""
+    #Filter that shows only objects related to to the casestudy
+    #"""
+    #def filter_queryset(self, request, queryset, view):
+        #casestudy = request.session.get('casestudy')
+        #if casestudy:
+            #queryset = queryset.filter(casestudy=casestudy)
+        #else:
+            #queryset = queryset.all()
+        #return queryset.filter(casestudy=casestudy)
 
 
 class StakeholderCategoryViewSet(viewsets.ModelViewSet):
     queryset = StakeholderCategory.objects.all()
     serializer_class = StakeholderCategorySerializer
 
-    filter_backends = (IsCasestudyFilterBackend, )
+    #filter_backends = (IsCasestudyFilterBackend, )
 
 
 
