@@ -5,7 +5,6 @@ from repair.apps.changes.models import (Unit,
                                         SolutionInImplementation,
                                         )
 
-from repair.apps.login.serializers import UserInCasestudySerializer
 
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer

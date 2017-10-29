@@ -1,4 +1,5 @@
-from rest_framework_nested.routers import NestedSimpleRouter, DefaultRouter, NestedDefaultRouter
+from rest_framework_nested.routers import (NestedSimpleRouter, DefaultRouter,
+                                           NestedDefaultRouter)
 from rest_framework.documentation import include_docs_urls
 
 from django.conf.urls import url, include
@@ -22,7 +23,8 @@ router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
 router.register(r'stakeholders', StakeholderViewSet)
-#router.register(r'solutioncategories', SolutionCategoryViewSet, base_name='solutioncategory')
+#router.register(r'solutioncategories', SolutionCategoryViewSet,
+                #base_name='solutioncategory')
 router.register(r'solutions', SolutionViewSet)
 router.register(r'users', login_views.UserInCasestudyViewSet)
 
@@ -31,7 +33,8 @@ router.register(r'users', login_views.UserInCasestudyViewSet)
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
-cs_router.register(r'activitygroups', ActivityGroupViewSet, base_name='activitygroups')
+cs_router.register(r'activitygroups', ActivityGroupViewSet,
+                   base_name='activitygroups')
 cs_router.register(r'activities', ActivityViewSet, base_name='activities')
 cs_router.register(r'actors', ActorViewSet, base_name='actors')
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
@@ -39,11 +42,13 @@ cs_router.register(r'materials', MaterialViewSet, base_name='materials')
 cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 
 # /casestudies/*/solutioncategories/...
-scat_router = NestedSimpleRouter(cs_router, r'solutioncategories', lookup='solutioncategory')
+scat_router = NestedSimpleRouter(cs_router, r'solutioncategories',
+                                 lookup='solutioncategory')
 scat_router.register(r'solutions', SolutionViewSet)
 
 # /casestudies/*/activitygroups/...
-ag_router = NestedSimpleRouter(cs_router, r'activitygroups', lookup='activitygroup')
+ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
+                               lookup='activitygroup')
 ag_router.register(r'activities', ActivityViewSet, base_name='activities')
 
 # /casestudies/*/activitygroups/*/activities/...

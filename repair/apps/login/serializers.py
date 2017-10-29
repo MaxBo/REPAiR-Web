@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User, Group
-from django.forms.models import model_to_dict
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 from rest_framework import serializers
 
@@ -12,6 +11,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     groups = GroupSerializer(many=True)
+
     class Meta:
         model = User
         fields = ('url', 'id', 'username', 'email', 'groups', 'password')

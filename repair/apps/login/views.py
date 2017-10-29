@@ -73,7 +73,7 @@ def casestudy(request, casestudy_id):
 def user(request, user_id):
     """user view"""
     user = User.objects.get(pk=user_id)
-    context = {'user': user,}
+    context = {'user': user, }
     return render(request, 'changes/user.html', context)
 
 
@@ -84,5 +84,5 @@ def userincasestudy(request, user_id, casestudy_id):
     other_casestudies = user.user.casestudies.exclude(pk=casestudy_id).all
     context = {'user': user,
                'other_casestudies': other_casestudies,
-              }
+               }
     return render(request, 'changes/user_in_casestudy.html', context)

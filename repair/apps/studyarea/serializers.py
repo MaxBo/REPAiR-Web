@@ -30,15 +30,16 @@ class StakeholderCategorySerializer(serializers.HyperlinkedModelSerializer):
         #request = kwargs.get('context', {}).get('request')
         #casestudy = request.session.get('casestudy')
         #if casestudy:
-            #self.fields['casestudy'].queryset = CaseStudy.objects.filter(id=casestudy)
+            #self.fields['casestudy'].queryset = \
+                #CaseStudy.objects.filter(id=casestudy)
         #super().__init__(*args, **kwargs)
     stakeholder_set = StakeholderOfCasestudyField(
         many=True,
         #queryset=Stakeholder.objects.filter(stakeholder_category__casestudy=5),
         view_name='stakeholder-detail')
+
     class Meta:
         model = StakeholderCategory
         fields = ('url', 'id', 'casestudy', 'name',
                   'stakeholder_set',
                   )
-

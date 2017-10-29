@@ -3,11 +3,15 @@ from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
 from rest_framework.filters import BaseFilterBackend
-
-
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
 from rest_framework.response import Response
+
+from plotly.offline import plot
+from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
+                               Layout, Figure, Data)
+import numpy as np
+
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
@@ -37,11 +41,9 @@ class StakeholderCategoryViewSet(viewsets.ModelViewSet):
     #filter_backends = (IsCasestudyFilterBackend, )
 
 
-
 class StakeholderViewSet(viewsets.ModelViewSet):
     queryset = Stakeholder.objects.all()
     serializer_class = StakeholderSerializer
-
 
 
 def index(request):
@@ -58,7 +60,8 @@ def index(request):
 
     context = {'casestudy_list': casestudy_list,
                'users': users,
-               'stakeholder_category_list': stakeholder_category_list,}
+               'stakeholder_category_list': stakeholder_category_list,
+               }
 
     context['graph1'] = Testgraph1().get_context_data()
     context['graph2'] = Testgraph2().get_context_data()
@@ -83,16 +86,13 @@ def stakeholders(request, stakeholder_id):
             stakeholder.name = form.cleaned_data['name']
             stakeholder.full_clean()
             stakeholder.save()
-            return HttpResponseRedirect('/changes/stakeholdercategories/{}'.format(stakeholder.stakeholder_category.id))
+            return HttpResponseRedirect(
+                '/changes/stakeholdercategories/{}'.
+                format(stakeholder.stakeholder_category.id))
     context = {'stakeholder': stakeholder,
                }
     return render(request, 'changes/stakeholder.html', context)
 
-
-from plotly.offline import plot
-from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
-                               Layout, Figure, Data)
-import numpy as np
 
 class Testgraph1(TemplateView):
     template_name = 'graph.html'
@@ -100,30 +100,33 @@ class Testgraph1(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Testgraph1, self).get_context_data(**kwargs)
 
-        x = [-2,0,4,6,7]
-        y = [q**2-q+3 for q in x]
-        trace1 = Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104,
-                                           'size': "10"},
+        x = [-2, 0, 4, 6, 7]
+        y = [q**2 - q+3 for q in x]
+        trace1 = Scatter(x=x, y=y,
+                         marker={'color': 'red', 'symbol': 104, 'size': "10"},
                          mode="lines",  name='1st Trace')
 
-        data=Data([trace1])
-        layout=Layout(title=_("Plotly graph"), xaxis={'title':'x1'},
-                      yaxis={'title':'x2'}, height=350)
-        figure=Figure(data=data,layout=layout)
+        data = Data([trace1])
+        layout = Layout(title=_("Plotly graph"), xaxis={'title': 'x1'},
+                        yaxis={'title': 'x2'}, height=350)
+        figure = Figure(data=data, layout=layout)
         div = plot(figure, auto_open=False, output_type='div', show_link=False)
 
         return div
+
 
 class Testgraph2(TemplateView):
 
     def get_context_data(self, **kwargs):
         x = np.random.randn(2000)
         y = np.random.randn(2000)
-        layout=Layout(title=_("Plotly Histogram"), height=350)
-        figure=Figure(data=[
-            Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
-            Scatter(x=x, y=y, mode='markers', marker=Marker(
-                color='white', size=3, opacity=0.3))], layout=layout)
+        layout = Layout(title=_("Plotly Histogram"), height=350)
+        figure = Figure(data=[
+            Histogram2dContour(x=x, y=y,
+                               contours=Contours(coloring='heatmap')),
+            Scatter(x=x, y=y,
+                    mode='markers', marker=Marker(
+                        color='white', size=3, opacity=0.3))],
+                    layout=layout)
         div = plot(figure, show_link=False, output_type='div')
         return div
-

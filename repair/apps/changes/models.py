@@ -3,10 +3,10 @@ from django.db.models import signals
 # from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
-                                      CaseStudy,
                                       UserInCasestudy)
 
 from repair.apps.studyarea.models import Stakeholder
+
 
 class Unit(GDSEModel):
     name = models.TextField()
@@ -107,7 +107,8 @@ def trigger_solutioninimplementationquantity_quantity(sender, instance,
     if created:
         quantity = instance
         solution = quantity.solution
-        sii_set = SolutionInImplementation.objects.filter(solution_id=solution.id)
+        sii_set = SolutionInImplementation.objects.filter(
+            solution_id=solution.id)
         for sii in sii_set.all():
             new, is_created = SolutionInImplementationQuantity.objects.\
                 get_or_create(sii=sii, quantity=quantity)
@@ -167,7 +168,8 @@ class Strategy(GDSEUniqueNameModel):
     @property
     def participants(self):
         """
-        look for all stakeholders that participate in any of the implementations
+        look for all stakeholders that participate
+        in any of the implementations
         """
         # start with the coordinator
         participants = {self.coordinator}
