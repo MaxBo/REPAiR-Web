@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 
 
-from repair.apps.login.views import OnlyCasestudyMixin
+from repair.apps.login.views import OnlyCasestudyMixin, MultiSerializerViewSetMixin
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (
     Unit,
@@ -101,14 +101,6 @@ def strategies(request, strategy_id):
 
 
 # API Views
-
-class MultiSerializerViewSetMixin(ABC):
-
-    def get_serializer_class(self):
-        try:
-            return self.serializer_action_classes[self.action]
-        except (KeyError, AttributeError):
-            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
 
 
 class SolutionCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):

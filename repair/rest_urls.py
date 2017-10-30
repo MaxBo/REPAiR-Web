@@ -23,7 +23,6 @@ from repair.apps.asmfa.views import (
 
 router = DefaultRouter()
 router.register(r'users', login_views.UserViewSet)
-router.register(r'profiles', login_views.ProfileViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 

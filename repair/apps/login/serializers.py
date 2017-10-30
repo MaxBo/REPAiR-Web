@@ -1,10 +1,33 @@
 from django.contrib.auth.models import User, Group
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 
+
+###############################################################################
+#### Base Classes                                                          ####
+###############################################################################
+
+class IDRelatedField(serializers.PrimaryKeyRelatedField):
+    """
+    look for the related model of a related field
+    and return all data from this model as a queryset
+    """
+    def get_queryset(self):
+        view = self.root.context.get('view')
+        Model = view.queryset.model
+        # look up self.parent in the values of the dictionary self.root.fields
+        # and return the key as the field_name
+        field_name = {v: k for k, v in self.root.fields.items()}[self.parent]
+        # look recursively for related model
+        for model_name in self.source_attrs[:-1]:
+            Model = Model.profile.related.related_model
+        RelatedModel = getattr(Model, field_name).field.related_model
+        qs = RelatedModel.objects.all()
+        return qs
 
 
 class InCasestudyField(NestedHyperlinkedRelatedField):
@@ -72,15 +95,14 @@ class InCaseStudyIdentityField(InCasestudyField):
         return Model
 
 
-class UserSetField(InCaseStudyIdentityField):
+class InCasestudySetField(InCaseStudyIdentityField):
+    """Field that returns a list of all items in the casestudy"""
     lookup_url_kwarg = 'casestudy_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'id'}
 
-
-class SolutionCategorySetField(InCaseStudyIdentityField):
-    lookup_url_kwarg = 'casestudy_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'id'}
-
+###############################################################################
+#### Serializers for the Whole Project                                     ####
+###############################################################################
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -89,48 +111,82 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    groups = GroupSerializer(many=True)
+    """Serializer for put and post requests"""
+    casestudies = serializers.HyperlinkedRelatedField(
+        queryset = CaseStudy.objects.all(),
+        source='profile.casestudies',
+        many=True,
+        view_name='casestudy-detail',
+        help_text=_('Select the Casestudies the user works on')
+    )
 
     class Meta:
         model = User
-        fields = ('url', 'id', 'username', 'email', 'groups', 'password')
+        fields = ('url', 'id', 'username', 'email', 'groups', 'password',
+                  'casestudies')
         write_only_fields = ['password']
         read_only_fields = ['id', 'url']
 
+    def update(self, obj, validated_data):
+        """update the user-attributes, including profile information"""
+        user = obj
+        user_id = user.id
+
+        # handle groups
+        new_groups = validated_data.pop('groups', None)
+        if new_groups is not None:
+            UserInGroups = User.groups.through
+            group_qs = UserInGroups.objects.filter(user=user)
+            # delete existing groups
+            group_qs.exclude(group_id__in=(gr.id for gr in new_groups)).delete()
+            # add or update new groups
+            for gr in new_groups:
+                UserInGroups.objects.update_or_create(user=user,
+                                                      group=gr)
+
+        # handle profile
+        profile_data = validated_data.pop('profile', None)
+        if profile_data is not None:
+            profile = Profile.objects.get(id=user_id)
+            new_casestudies = profile_data.pop('casestudies', None)
+            if new_casestudies is not None:
+                casestudy_qs = UserInCasestudy.objects.filter(user=user_id)
+                # delete existing
+                casestudy_qs.exclude(id__in=(cs.id for cs in new_casestudies))\
+                    .delete()
+                # add or update new casestudies
+                for cs in new_casestudies:
+                    UserInCasestudy.objects.update_or_create(user=profile,
+                                                             casestudy=cs)
+
+            # update other profile attributes
+            profile.__dict__.update(**profile_data)
+            profile.save()
+
+        # update other attributes
+        obj.__dict__.update(**validated_data)
+        obj.save()
+        return obj
+
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        groups = validated_data.pop('groups', None)
-        instance = User(**validated_data)
-        instance.save()
-        instance.groups = groups
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+        """Create a new user and its profile"""
+        username = validated_data.pop('username')
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
 
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            if attr == 'password':
-                instance.set_password(value)
-            else:
-                setattr(instance, attr, value)
-        instance.save()
-        return instance
-
-
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ('url', 'id', 'user', 'casestudies')
+        user = User.objects.create_user(username, email, password)
+        self.update(obj=user, validated_data=validated_data)
+        return user
 
 
 class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
-    userincasestudy_set = UserSetField(view_name='userincasestudy-list')
-    stakeholder_categories = UserSetField(view_name='stakeholdercategory-list')
-    solution_categories = UserSetField(view_name='solutioncategory-list')
-    implementations = UserSetField(view_name='implementation-list')
+    userincasestudy_set = InCasestudySetField(view_name='userincasestudy-list')
+    stakeholder_categories = InCasestudySetField(
+        view_name='stakeholdercategory-list')
+    solution_categories = InCasestudySetField(
+        view_name='solutioncategory-list')
+    implementations = InCasestudySetField(view_name='implementation-list')
+
     class Meta:
         model = CaseStudy
         fields = ('url', 'id', 'name', 'userincasestudy_set',
