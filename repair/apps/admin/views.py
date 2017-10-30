@@ -6,7 +6,7 @@ import urllib
 import json
 from plotly import offline
 from plotly.graph_objs import Figure, Data, Layout
-from repair.apps.changes.models import CaseStudy
+from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import Flow
 
 def index(request):

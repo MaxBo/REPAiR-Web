@@ -1,11 +1,19 @@
-from rest_framework_nested.routers import NestedSimpleRouter, DefaultRouter
+from rest_framework_nested.routers import (NestedSimpleRouter, DefaultRouter,
+                                           NestedDefaultRouter)
+from rest_framework.documentation import include_docs_urls
+
 from django.conf.urls import url, include
 
 from repair.apps.login import views as login_views
 from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet, StakeholderViewSet)
 from repair.apps.changes.views import (
-    SolutionCategoryViewSet, SolutionViewSet)
+    SolutionCategoryViewSet,
+    SolutionViewSet,
+    ImplementationViewSet,
+    SolutionInImplementationViewSet,
+)
+
 from repair.apps.asmfa.views import (
     ActivityGroupViewSet, ActivityViewSet, ActorViewSet,
     Activity2ActivityViewSet, MaterialViewSet, Group2GroupViewSet,
@@ -15,31 +23,42 @@ from repair.apps.asmfa.views import (
 
 router = DefaultRouter()
 router.register(r'users', login_views.UserViewSet)
-router.register(r'profiles', login_views.ProfileViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
-router.register(r'stakeholder_categories', StakeholderCategoryViewSet)
-router.register(r'stakeholders', StakeholderViewSet)
-router.register(r'solution_categories', SolutionCategoryViewSet, base_name='solutioncategories')
-router.register(r'solutions', SolutionViewSet, base_name='solutions')
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
 # /casestudies/...
-cs_router = NestedSimpleRouter(router, r'casestudies', lookup='casestudy')
-cs_router.register(r'activitygroups', ActivityGroupViewSet, base_name='activitygroups')
+cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
+cs_router.register(r'users', login_views.UserInCasestudyViewSet)
+cs_router.register(r'activitygroups', ActivityGroupViewSet,
+                   base_name='activitygroups')
 cs_router.register(r'activities', ActivityViewSet, base_name='activities')
 cs_router.register(r'actors', ActorViewSet, base_name='actors')
-cs_router.register(r'solutioncategories', SolutionCategoryViewSet, base_name='solutioncategories')
+cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
+cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
+cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'materials', MaterialViewSet, base_name='materials')
 cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 
+# /casestudies/*/stakeholdercategories/...
+shcat_router = NestedSimpleRouter(cs_router, r'stakeholdercategories',
+                                  lookup='stakeholdercategory')
+shcat_router.register(r'stakeholders', StakeholderViewSet)
+
 # /casestudies/*/solutioncategories/...
-scat_router = NestedSimpleRouter(cs_router, r'solutioncategories', lookup='solutioncategory')
-scat_router.register(r'solutions', SolutionViewSet, base_name='solutions')
+scat_router = NestedSimpleRouter(cs_router, r'solutioncategories',
+                                 lookup='solutioncategory')
+scat_router.register(r'solutions', SolutionViewSet)
+
+# /casestudies/*/implementations/...
+imp_router = NestedSimpleRouter(cs_router, r'implementations',
+                                 lookup='implementation')
+imp_router.register(r'solutions', SolutionInImplementationViewSet)
 
 # /casestudies/*/activitygroups/...
-ag_router = NestedSimpleRouter(cs_router, r'activitygroups', lookup='activitygroup')
+ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
+                               lookup='activitygroup')
 ag_router.register(r'activities', ActivityViewSet, base_name='activities')
 
 # /casestudies/*/activitygroups/*/activities/...
@@ -61,10 +80,13 @@ mat_router.register(r'actor2actor', Actor2ActorViewSet,
 url(r'^api/payload', include('repair.static.webhook.urls'))
 
 urlpatterns = [
+    url(r'^docs/', include_docs_urls(title='REPAiR API Documentation')),
     url(r'^', include(router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(ag_router.urls)),
+    url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
+    url(r'^', include(imp_router.urls)),
     url(r'^', include(ac_router.urls)),
     url(r'^', include(mat_router.urls))
 ]

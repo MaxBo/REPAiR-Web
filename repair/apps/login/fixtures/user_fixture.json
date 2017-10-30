@@ -43,6 +43,14 @@
 },
 {
   "model": "auth.user",
+  "pk": -1,
+  "fields": {
+    "username": "AnonymusUser",
+    "email": "my.name@is.rabbit"
+  }
+},
+{
+  "model": "auth.user",
   "pk": 1,
   "fields": {
     "username": "Max",
@@ -67,31 +75,31 @@
 },
 {
   "model": "login.profile",
-  "pk": 1,
-  "fields": {
-    "user": 1
-  }
+  "pk": -1,"fields": {"user":-1,
+    "organization": ""}
 },
 {
   "model": "login.profile",
-  "pk": 2,
-  "fields": {
-    "user": 2
-  }
+  "pk": 1,"fields": {"user":1,
+    "organization": ""}
 },
 {
   "model": "login.profile",
-  "pk": 3,
-  "fields": {
-    "user": 3
-  }
+  "pk": 2,"fields": {"user":2,
+    "organization": ""}
+},
+{
+  "model": "login.profile",
+  "pk": 3,"fields": {"user":3,
+    "organization": ""}
 },
 {
   "model": "login.userincasestudy",
   "pk": 1,
   "fields": {
     "user": 1,
-    "casestudy": 5
+    "casestudy": 5,
+    "role": ""
   }
 },
 {
@@ -99,7 +107,8 @@
   "pk": 2,
   "fields": {
     "user": 2,
-    "casestudy": 5
+    "casestudy": 5,
+    "role": ""
   }
 },
 {
@@ -107,7 +116,8 @@
   "pk": 3,
   "fields": {
     "user": 3,
-    "casestudy": 5
+    "casestudy": 5,
+    "role": ""
   }
 },
 {
@@ -115,7 +125,8 @@
   "pk": 5,
   "fields": {
     "user": 2,
-    "casestudy": 2
+    "casestudy": 2,
+    "role": ""
   }
 },
 {
@@ -123,7 +134,8 @@
   "pk": 6,
   "fields": {
     "user": 1,
-    "casestudy": 2
+    "casestudy": 2,
+    "role": ""
   }
 },
 {
@@ -131,7 +143,56 @@
   "pk": 7,
   "fields": {
     "user": 2,
-    "casestudy": 3
-  }
-}
+    "casestudy": 3,
+    "role": ""
+  }  },
+{
+  "model": "login.userincasestudy",
+  "pk": 8,
+  "fields": {
+    "user": -1,
+    "casestudy": 1,
+    "role": ""
+ } },
+{
+  "model": "login.userincasestudy",
+  "pk": 9,
+  "fields": {
+    "user": -1,
+    "casestudy": 2,
+    "role": ""
+ } },
+  {
+  "model": "login.userincasestudy",
+  "pk": 10,
+  "fields": {
+    "user": -1,
+    "casestudy": 3,
+    "role": ""
+ } },
+  {
+  "model": "login.userincasestudy",
+  "pk": 11,
+  "fields": {
+    "user": -1,
+    "casestudy": 4,
+    "role": ""
+ }},
+  {
+  "model": "login.userincasestudy",
+  "pk": 12,
+  "fields": {
+    "user": -1,
+    "casestudy": 5,
+    "role": ""
+  }},
+  {
+  "model": "login.userincasestudy",
+  "pk": 13,
+  "fields": {
+    "user": -1,
+    "casestudy": 6,
+    "role": ""
+ } }
+
 ]

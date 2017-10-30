@@ -1,11 +1,13 @@
 # API View
-from django.http import Http404, JsonResponse
+from collections import OrderedDict
+from itertools import chain
+from abc import ABC
+
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework import status, generics
-from collections import OrderedDict
-from django.http import Http404
-from itertools import chain
+from rest_framework import status
 
 from repair.apps.asmfa.models import (
     ActivityGroup, Activity, Actor, Flow,
@@ -15,7 +17,6 @@ from repair.apps.asmfa.serializers import (
     ActorSerializer, FlowSerializer, Actor2ActorSerializer,
     Activity2ActivitySerializer, Group2GroupSerializer,
     ActorListSerializer)
-from django.shortcuts import get_object_or_404
 
 
 class ActivityGroupViewSet(ViewSet):
@@ -41,8 +42,10 @@ class ActivityViewSet(ViewSet):
             queryset = Activity.objects.filter(
                 own_activitygroup=activitygroup_pk)
         else:
-            activitygroups = ActivityGroup.objects.filter(casestudy=casestudy_pk)
-            queryset = list(chain(*[a.Activities.all() for a in activitygroups]))
+            activitygroups = ActivityGroup.objects.filter(
+                casestudy=casestudy_pk)
+            queryset = list(chain(*[a.Activities.all()
+                                    for a in activitygroups]))
         serializer = ActivitySerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -73,8 +76,10 @@ class ActorViewSet(ViewSet):
             nace = self.get_nace(activity_pk, activitygroup_pk)
             queryset = Actor.objects.filter(own_activity=nace)
         else:
-            activitygroups = ActivityGroup.objects.filter(casestudy=casestudy_pk)
-            activities = list(chain(*[ag.Activities.all() for ag in activitygroups]))
+            activitygroups = ActivityGroup.objects.filter(
+                casestudy=casestudy_pk)
+            activities = list(chain(*[ag.Activities.all()
+                                      for ag in activitygroups]))
             queryset = list(chain(*[a.Actors.all() for a in activities]))
         serializer = ActorListSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -121,9 +126,14 @@ class QualityViewSet(ViewSet):
         raise Http404('No matches for the given query.')
 
 
-class FlowViewSet(ViewSet):
-    serializer_class = None
-    model = None
+class FlowViewSet(ViewSet, ABC):
+    """
+    Abstract BaseClass for a FlowViewSet
+    The Subclass has to provide a model inheriting from Flow
+    and a serializer-class inheriting form and a model
+    """
+    serializer_class = FlowSerializer
+    model = Flow
 
     def list(self, request, casestudy_pk=None, material_pk=None):
         queryset = self.model.objects.filter(
@@ -156,9 +166,11 @@ class Group2GroupViewSet(FlowViewSet):
     model = Group2Group
     serializer_class = Group2GroupSerializer
 
+
 class Activity2ActivityViewSet(FlowViewSet):
     model = Activity2Activity
     serializer_class = Activity2ActivitySerializer
+
 
 class Actor2ActorViewSet(FlowViewSet):
     model = Actor2Actor

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.changes.models import CaseStudy
+from repair.apps.login.models import CaseStudy
 
 
 class DataEntry(models.Model):
@@ -88,7 +88,7 @@ class Actor(Node):
 
     own_activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                      related_name='Actors',
-                                     to_field='nace', 
+                                     to_field='nace',
                                      default=1)
 
 

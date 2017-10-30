@@ -91,7 +91,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_AUTHENTIFICATION_CLASSES': [],
     'PAGE_SIZE': 10,
-    'DEFAULT_PAGINATION_CLASS': None,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
 MIDDLEWARE = [

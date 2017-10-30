@@ -56,10 +56,33 @@ class CaseStudy(GDSEModel):
                 solution_categories.add(solution_category)
         return solution_categories
 
+    @property
+    def stakeholder_categories(self):
+        """
+        look for all stakeholder categories created by the users of the casestudy
+        """
+        stakeholder_categories = set()
+        for uic in self.userincasestudy_set.all():
+            for stakeholder_category in uic.stakeholdercategory_set.all():
+                stakeholder_categories.add(stakeholder_category)
+        return stakeholder_categories
+
+    @property
+    def implementations(self):
+        """
+        look for all stakeholder categories created by the users of the casestudy
+        """
+        implementations = set()
+        for uic in self.userincasestudy_set.all():
+            for implementation in uic.implementation_set.all():
+                implementations.add(implementation)
+        return implementations
+
 
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
+    organization = models.TextField(default='')
 
     @property
     def name(self):
@@ -72,7 +95,7 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
         try:
             instance.profile
         except Profile.DoesNotExist:
-            profile = Profile(user=instance)
+            profile = Profile(id=instance.id, user=instance)
             profile.save()
         else:
             print(instance.profile)
@@ -82,6 +105,11 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
 class UserInCasestudy(GDSEModel):
     user = models.ForeignKey(Profile)
     casestudy = models.ForeignKey(CaseStudy)
+    role = models.TextField(default='')
+
+    @property
+    def name(self):
+        return self.user.name
 
     def __str__(self):
         text = '{u} ({c})'
