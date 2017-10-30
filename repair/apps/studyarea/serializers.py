@@ -7,13 +7,15 @@ from repair.apps.studyarea.models import (StakeholderCategory,
 from repair.apps.login.models import CaseStudy
 from repair.apps.login.serializers import (CaseStudySerializer,
                                            InCasestudyField,
-                                           InCaseStudyIdentityField)
+                                           InCaseStudyIdentityField,
+                                           CreateWithUserInCasestudyMixin)
 
 
 
 class StakeholderCategoryField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     child_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
 
 class StakeholderSetField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'stakeholdercategory_pk'
@@ -48,12 +50,16 @@ class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id', 'name')
 
 
-class StakeholderCategorySerializer(NestedHyperlinkedModelSerializer):
+class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
+                                    NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     stakeholder_set = StakeholderSetField(view_name='stakeholder-list')
-    #stakeholder_set = StakeholderSetSerializer(many=True, read_only=True)
 
     class Meta:
         model = StakeholderCategory
         fields = ('url', 'id', 'name', 'stakeholder_set',
                   )
+
+    def get_required_fields(self, user):
+        required_fields = {'casestudy': user.casestudy,}
+        return required_fields

@@ -40,9 +40,20 @@ class CreateWithUserInCasestudyMixin:
     Abstrace Base Class for Creating an object
     with the UserInCasestudy defined if not given
     """
+    def update(self, obj, validated_data):
+        """
+        update the implementation-attributes,
+        including selected solutions
+        """
+
+        # update other attributes
+        obj.__dict__.update(**validated_data)
+        obj.save()
+        return obj
+
     def create(self, validated_data):
         """Create a new user and its profile"""
-        user = validated_data.pop('user')
+        user = validated_data.pop('user', None)
         if not user:
             request = self.context['request']
             user_id = request.user.id or -1  # for the anonymus user
@@ -51,9 +62,23 @@ class CreateWithUserInCasestudyMixin:
                                                casestudy_id=casestudy_id)
 
         Model = self.get_model()
-        obj = Model.objects.create(user=user)
+        obj = self.create_instance(Model, user, validated_data)
         self.update(obj=obj, validated_data=validated_data)
         return obj
+
+    def create_instance(self, Model, user, validated_data):
+        """Create the Instance"""
+        required_fields = self.get_required_fields(user)
+        for field in Model._meta.fields:
+            if hasattr(field, 'blank') and field.blank == False:
+                if field.name in validated_data:
+                    required_fields[field.name] = validated_data.pop(field.name)
+        obj = Model.objects.create(**required_fields)
+        return obj
+
+    def get_required_fields(self, user):
+        required_fields = {'user': user,}
+        return required_fields
 
     def get_model(self):
         view = self.root.context.get('view')

@@ -19,8 +19,8 @@ from repair.apps.login.serializers import (UserInCasestudySerializer,
 
 
 class SolutionCategoryField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy'}
-    child_lookup_kwargs = {'casestudy_pk': 'user__casestudy'}
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    child_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
 
 
 
@@ -38,11 +38,15 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id', 'name')
 
 
-class SolutionCategorySerializer(NestedHyperlinkedModelSerializer):
+class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
+                                 NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
     solution_set = SolutionSetField(
         view_name='solution-list')
-    user = UserInCasestudyField(view_name='userincasestudy-detail')
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail',
+        child_lookup_kwargs={'casestudy_pk': 'user__casestudy__id',})
+
     class Meta:
         model = SolutionCategory
         fields = ('url', 'id', 'name', 'user', 'solution_set')
@@ -56,16 +60,19 @@ class SolutionCategoryPostSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'user')
 
 
-class SolutionSerializer(NestedHyperlinkedModelSerializer):
+class SolutionSerializer(CreateWithUserInCasestudyMixin,
+                         NestedHyperlinkedModelSerializer):
 
     parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__user__casestudy__id',
+        'casestudy_pk': 'user__casestudy__id',
         'solutioncategory_pk': 'solution_category__id',
     }
-    user = UserInCasestudyField(view_name='userincasestudy-detail')
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail',
+        child_lookup_kwargs={'casestudy_pk': 'user__casestudy__id',})
     solution_category = SolutionCategoryField(
         view_name='solutioncategory-detail',
-    )
+        child_lookup_kwargs={'casestudy_pk': 'user__casestudy__id',})
 
     class Meta:
         model = Solution
@@ -106,7 +113,6 @@ class StakeholderOfImplementaionField(InCaseStudyIdentityField):
         'coordinating_stakeholder__stakeholder_category__id',}
 
 
-_casestudy_lookup = {'casestudy_pk': 'user__casestudy__id',}
 
 class ImplementationSerializer(CreateWithUserInCasestudyMixin,
                                NestedHyperlinkedModelSerializer):
@@ -116,11 +122,12 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
     solutions = SolutionInImplementationSetField(
         view_name='solutioninimplementation-detail',
         many=True,
-        child_lookup_kwargs=_casestudy_lookup)
+        child_lookup_kwargs={'casestudy_pk': 'user__casestudy__id',})
     coordinating_stakeholder = StakeholderOfImplementaionField(
         view_name='stakeholder-detail')
-    user = UserInCasestudyField(view_name='userincasestudy-detail',
-                                child_lookup_kwargs=_casestudy_lookup)
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail',
+        child_lookup_kwargs={'casestudy_pk': 'user__casestudy__id',})
     class Meta:
         model = Implementation
         fields = ('url', 'id', 'name', 'user', 'solutions',
