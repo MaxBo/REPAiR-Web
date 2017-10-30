@@ -7,11 +7,14 @@ from repair.apps.changes.models import (Unit,
                                         Solution,
                                         Implementation,
                                         SolutionInImplementation,
+                                        UserInCasestudy,
                                         )
 
 from repair.apps.login.serializers import (UserInCasestudySerializer,
+                                           UserInCasestudyField,
                                            InCasestudyField,
-                                           InCaseStudyIdentityField)
+                                           InCaseStudyIdentityField,
+                                           CreateWithUserInCasestudyMixin)
 
 
 
@@ -39,11 +42,11 @@ class SolutionCategorySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
     solution_set = SolutionSetField(
         view_name='solution-list')
-    #solution_set = SolutionSetSerializer(many=True, read_only=True)
-    user = UserInCasestudySerializer()
+    user = UserInCasestudyField(view_name='userincasestudy-detail')
     class Meta:
         model = SolutionCategory
         fields = ('url', 'id', 'name', 'user', 'solution_set')
+        read_only_fields = ('url', 'id')
 
 
 class SolutionCategoryPostSerializer(serializers.HyperlinkedModelSerializer):
@@ -53,26 +56,13 @@ class SolutionCategoryPostSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'user')
 
 
-class SolutionInImplementationField(serializers.HyperlinkedRelatedField):
-    def get_queryset(self):
-        obj = self.root.instance
-        if obj:
-            implementations_qs = Implementation.objects.filter(
-                user=obj.user.id)
-        else:
-            implementations_qs = Implementation.objects.all()
-        return implementations_qs
-
-
 class SolutionSerializer(NestedHyperlinkedModelSerializer):
-    #implementation_set = SolutionInImplementationField(
-        #many=True,
-        #view_name='implementation_set_detail')
+
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution_category__user__casestudy__id',
         'solutioncategory_pk': 'solution_category__id',
     }
-    user = UserInCasestudySerializer()
+    user = UserInCasestudyField(view_name='userincasestudy-detail')
     solution_category = SolutionCategoryField(
         view_name='solutioncategory-detail',
     )
@@ -83,6 +73,7 @@ class SolutionSerializer(NestedHyperlinkedModelSerializer):
                   'one_unit_equals', 'solution_category',
                   #'implementation_set',
                   )
+        read_only_fields = ('url', 'id', )
 
 
 class SolutionPostSerializer(serializers.HyperlinkedModelSerializer):
@@ -93,26 +84,78 @@ class SolutionPostSerializer(serializers.HyperlinkedModelSerializer):
                   'one_unit_equals', 'solution_category')
 
 
-class SolutionInImplementationSetField(InCaseStudyIdentityField):
+class SolutionInImplementationsField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'implementation_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
                             'implementation_pk': 'id', }
 
 
-class ImplementationSerializer(NestedHyperlinkedModelSerializer):
+class SolutionInImplementationSetField(InCasestudyField):
+    lookup_url_kwarg = 'implementation_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
+                            'implementation_pk': 'id', }
+    child_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',}
+
+
+class StakeholderOfImplementaionField(InCaseStudyIdentityField):
+    lookup_url_kwarg = 'pk'
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'user__casestudy__id',
+        'pk': 'coordinating_stakeholder__id',
+        'stakeholdercategory_pk':
+        'coordinating_stakeholder__stakeholder_category__id',}
+
+
+_casestudy_lookup = {'casestudy_pk': 'user__casestudy__id',}
+
+class ImplementationSerializer(CreateWithUserInCasestudyMixin,
+                               NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
-    user = UserInCasestudySerializer()
+    solution_list = SolutionInImplementationsField(source='solution',
+        view_name='solutioninimplementation-list')
     solutions = SolutionInImplementationSetField(
-        view_name='solutioninimplementation-list', read_only=True)
+        view_name='solutioninimplementation-detail',
+        many=True,
+        child_lookup_kwargs=_casestudy_lookup)
+    coordinating_stakeholder = StakeholderOfImplementaionField(
+        view_name='stakeholder-detail')
+    user = UserInCasestudyField(view_name='userincasestudy-detail',
+                                child_lookup_kwargs=_casestudy_lookup)
     class Meta:
         model = Implementation
-        fields = ('url', 'id', 'name', 'user', 'solutions')
+        fields = ('url', 'id', 'name', 'user', 'solutions',
+                  'coordinating_stakeholder',
+                  'solution_list',
+                  )
+        read_only_fields = ('url', 'id', 'solutions')
 
+    def update(self, obj, validated_data):
+        """
+        update the implementation-attributes,
+        including selected solutions
+        """
+        implementation = obj
+        implementation_id = implementation.id
 
-class ImplementationPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Implementation
-        fields = ('id', 'name', 'user')
+        # handle solutions
+        new_solutions = validated_data.pop('solutions', None)
+        if new_solutions is not None:
+            SolutionInImplementationModel = Implementation.solutions.through
+            solution_qs = SolutionInImplementationModel.objects.filter(
+                implementation=implementation)
+            # delete existing solutions
+            solution_qs.exclude(solution_id__in=(
+                sol.id for sol in new_solutions)).delete()
+            # add or update new solutions
+            for sol in new_solutions:
+                SolutionInImplementationModel.objects.update_or_create(
+                    implementation=implementation,
+                    solution=sol)
+
+        # update other attributes
+        obj.__dict__.update(**validated_data)
+        obj.save()
+        return obj
 
 
 class ImplementationField(InCasestudyField):

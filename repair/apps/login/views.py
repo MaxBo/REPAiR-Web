@@ -57,20 +57,20 @@ class OnlyCasestudyMixin(ABC):
                                      context={'request': request, })
         return Response(serializer.data)
 
-    def create(self, request, casestudy_pk=None, **kwargs):
-        """
-        get the user from the session (or the request-data)
-        and raise an error, if the user is not
-        permitted in the current casestudy
-        """
-        user_id = request.data.get('user', request.user.id) or -1
-        try:
-            UserInCasestudy.objects.get(user_id=user_id,
-                                        casestudy_id=casestudy_pk)
-        except(UserInCasestudy.DoesNotExist):
-            return Response({'detail': 'User does not exist in Casestudy!'},
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
-        return super().create(request, **kwargs)
+    #def create(self, request, casestudy_pk=None, **kwargs):
+        #"""
+        #get the user from the session (or the request-data)
+        #and raise an error, if the user is not
+        #permitted in the current casestudy
+        #"""
+        #user_id = request.data.get('user', request.user.id) or -1
+        #try:
+            #UserInCasestudy.objects.get(user_id=user_id,
+                                        #casestudy_id=casestudy_pk)
+        #except(UserInCasestudy.DoesNotExist):
+            #return Response({'detail': 'User does not exist in Casestudy!'},
+                            #status=status.HTTP_406_NOT_ACCEPTABLE)
+        #return super().create(request, **kwargs)
 
 
 class UserViewSet(viewsets.ModelViewSet):

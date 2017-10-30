@@ -1,3 +1,4 @@
+from abc import ABC
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -21,7 +22,7 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
         Model = view.queryset.model
         # look up self.parent in the values of the dictionary self.root.fields
         # and return the key as the field_name
-        field_name = {v: k for k, v in self.root.fields.items()}[self.parent]
+        field_name = self.get_field_name()
         # look recursively for related model
         for model_name in self.source_attrs[:-1]:
             Model = Model.profile.related.related_model
@@ -29,10 +30,45 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
         qs = RelatedModel.objects.all()
         return qs
 
+    def get_field_name(self):
+        field_name = {v: k for k, v in self.root.fields.items()}[self.parent]
+        return field_name
+
+
+class CreateWithUserInCasestudyMixin:
+    """
+    Abstrace Base Class for Creating an object
+    with the UserInCasestudy defined if not given
+    """
+    def create(self, validated_data):
+        """Create a new user and its profile"""
+        user = validated_data.pop('user')
+        if not user:
+            request = self.context['request']
+            user_id = request.user.id or -1  # for the anonymus user
+            casestudy_id = request.session.get('casestudy')
+            user = UserInCasestudy.objects.get(user_id=user_id,
+                                               casestudy_id=casestudy_id)
+
+        Model = self.get_model()
+        obj = Model.objects.create(user=user)
+        self.update(obj=obj, validated_data=validated_data)
+        return obj
+
+    def get_model(self):
+        view = self.root.context.get('view')
+        Model = view.queryset.model
+        return Model
+
 
 class InCasestudyField(NestedHyperlinkedRelatedField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     child_lookup_kwargs = {'casestudy_pk': 'id'}
+
+    def __init__(self, *args, **kwargs):
+        self.child_lookup_kwargs = kwargs.pop('child_lookup_kwargs', None) \
+            or self.child_lookup_kwargs
+        super().__init__(*args, **kwargs)
 
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
@@ -66,11 +102,18 @@ class InCasestudyField(NestedHyperlinkedRelatedField):
 
     def get_model(self, view):
         Model = view.queryset.model
-        RelatedModel = getattr(Model, self.field_name).field.related_model
+        RelatedModel = getattr(Model, self.get_field_name()).field.related_model
         return RelatedModel
 
+    def get_field_name(self):
+        fn_dict = {v: k for k, v in self.root.fields.items()}
+        field_name = fn_dict.get(self, fn_dict.get(self.parent))
+        return field_name
+
     def get_casestudyid_from_obj(self, obj):
-        casestudy_pk = self.child_lookup_kwargs['casestudy_pk'].split('__')
+        child_lookup_kwargs = self._kwargs.get('child_lookup_kwargs',
+                                               self.child_lookup_kwargs)
+        casestudy_pk = child_lookup_kwargs['casestudy_pk'].split('__')
         for attr in casestudy_pk:
             obj = getattr(obj, attr)
         return obj
@@ -79,6 +122,25 @@ class InCasestudyField(NestedHyperlinkedRelatedField):
         casestudy_pk = self.parent_lookup_kwargs.get('casestudy_pk')
         return casestudy_pk
 
+    def get_object(self, view_name, view_args, view_kwargs):
+        """
+        Return the object corresponding to a matched URL.
+
+        Takes the matched URL conf arguments, and should return an
+        object instance, or raise an `ObjectDoesNotExist` exception.
+        """
+
+        # default lookup from rest_framework.relations.HyperlinkedRelatedField
+        lookup_value = view_kwargs[self.lookup_url_kwarg]
+        kwargs = {self.lookup_url_kwarg: lookup_value}
+
+        # multi-level lookup
+        for parent_lookup_kwarg, lookup_field in list(
+            self.parent_lookup_kwargs.items()):
+            lookup_value = view_kwargs[parent_lookup_kwarg]
+            kwargs.update({lookup_field: lookup_value})
+
+            return self.get_queryset().get(**kwargs)
 
 class InCaseStudyIdentityField(InCasestudyField):
     """"""
@@ -205,3 +267,7 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
         model = UserInCasestudy
         fields = ('url', 'id', 'user', 'name', 'role')
         read_only_fields = ['name']
+
+
+class UserInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}

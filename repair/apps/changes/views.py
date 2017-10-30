@@ -33,7 +33,6 @@ from repair.apps.changes.serializers import (
     SolutionPostSerializer,
     SolutionCategoryPostSerializer,
     ImplementationSerializer,
-    ImplementationPostSerializer,
     SolutionInImplementationSerializer,
     )
 
@@ -198,16 +197,9 @@ class SolutionViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ImplementationViewSet(MultiSerializerViewSetMixin,
-                            OnlyCasestudyMixin,
+class ImplementationViewSet(OnlyCasestudyMixin,
                             viewsets.ModelViewSet):
     serializer_class = ImplementationSerializer
-    serializer_action_classes = {'list': ImplementationSerializer,
-                                 'retrieve': ImplementationSerializer,
-                                 'create': ImplementationPostSerializer,
-                                 'update': ImplementationPostSerializer,
-                                 'delete': ImplementationPostSerializer,
-                                 }
     queryset = Implementation.objects.all()
 
 
