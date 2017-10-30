@@ -119,11 +119,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the user works on')
     )
+    organization = serializers.CharField(source='profile.organization')
 
     class Meta:
         model = User
         fields = ('url', 'id', 'username', 'email', 'groups', 'password',
-                  'casestudies')
+                  'organization', 'casestudies')
         write_only_fields = ['password']
         read_only_fields = ['id', 'url']
 
@@ -196,7 +197,11 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
 
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    user = serializers.HyperlinkedIdentityField(
+        source='user.user',
+        view_name='user-detail',
+    )
     class Meta:
         model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name')
+        fields = ('url', 'id', 'user', 'name', 'role')
         read_only_fields = ['name']
