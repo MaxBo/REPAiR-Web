@@ -25,13 +25,14 @@ from repair.apps.asmfa.views import (
     ActivityViewSet,
     ActorViewSet,
     Activity2ActivityViewSet,
-    MaterialViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
     QualityViewSet,
-    Material2ViewSet,
-    Quality2ViewSet,
-    MaterialInCasestudyViewSet)
+    MaterialViewSet,
+    MaterialInCasestudyViewSet,
+    GroupStockViewSet,
+    ActivityStockViewSet,
+    ActorStockViewSet)
 
 ## base routes ##
 
@@ -40,24 +41,20 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
-router.register(r'materials', Material2ViewSet)
-router.register(r'qualities', Quality2ViewSet)
+router.register(r'materials', MaterialViewSet)
+router.register(r'qualities', QualityViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
-cs_router.register(r'activitygroups', ActivityGroupViewSet,
-                   base_name='activitygroups')
-cs_router.register(r'activities', ActivityViewSet, base_name='activities')
-cs_router.register(r'actors', ActorViewSet, base_name='actors')
+cs_router.register(r'activitygroups', ActivityGroupViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
-cs_router.register(r'materials', MaterialViewSet, base_name='materials')
-cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
-cs_router.register(r'materials2', MaterialInCasestudyViewSet)
+#cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
+cs_router.register(r'materials', MaterialInCasestudyViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 shcat_router = NestedSimpleRouter(cs_router, r'stakeholdercategories',
@@ -91,20 +88,20 @@ sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
 # /casestudies/*/activitygroups/...
 ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
                                lookup='activitygroup')
-ag_router.register(r'activities', ActivityViewSet, base_name='activities')
+ag_router.register(r'activities', ActivityViewSet)
 
 # /casestudies/*/activitygroups/*/activities/...
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
-ac_router.register(r'actors', ActorViewSet, base_name='actors')
+ac_router.register(r'actors', ActorViewSet)
 
 # /casestudies/*/materials/...
 mat_router = NestedSimpleRouter(cs_router, r'materials', lookup='material')
-mat_router.register(r'group2group', Group2GroupViewSet,
-                    base_name='group2group')
-mat_router.register(r'activity2activity', Activity2ActivityViewSet,
-                    base_name='activity2activity')
-mat_router.register(r'actor2actor', Actor2ActorViewSet,
-                    base_name='actor2actor')
+mat_router.register(r'groupstock', GroupStockViewSet)
+mat_router.register(r'activitystock', ActivityStockViewSet)
+mat_router.register(r'actorstock', ActorStockViewSet)
+mat_router.register(r'group2group', Group2GroupViewSet)
+mat_router.register(r'activity2activity', Activity2ActivityViewSet)
+mat_router.register(r'actor2actor', Actor2ActorViewSet)
 
 
 ## webhook ##
@@ -116,11 +113,11 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(ag_router.urls)),
+    url(r'^', include(ac_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
     url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
-    url(r'^', include(ac_router.urls)),
     url(r'^', include(mat_router.urls))
 ]

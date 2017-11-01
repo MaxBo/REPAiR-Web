@@ -217,6 +217,7 @@ class InCasestudySetField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'casestudy_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'id'}
 
+
 class NestedHyperlinkedModelSerializer2(NestedHyperlinkedModelSerializer):
     """Fix blank problems"""
     def to_internal_value(self, data):
@@ -329,12 +330,20 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
         view_name='solutioncategory-list')
     implementations = InCasestudySetField(view_name='implementation-list')
     materials = InCasestudySetField(view_name='materialincasestudy-list')
+    activitygroups = InCasestudySetField(view_name='activitygroup-list')
+    #activities = InCasestudySetField(view_name='activity-list')
+    #actors = InCasestudySetField(view_name='actor-list')
 
     class Meta:
         model = CaseStudy
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
-                  'implementations', 'materials')
+                  'implementations',
+                  'materials',
+                  'activitygroups',
+                  #'activities',
+                  #'actors',
+                  )
 
 
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):

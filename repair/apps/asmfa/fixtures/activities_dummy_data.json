@@ -25,7 +25,7 @@
 },
 {
   "model": "asmfa.materialincasestudy",
-  "pk": 13,
+  "pk": 1,
   "fields": {
     "material": 1,
     "casestudy": 1,
@@ -1722,11 +1722,10 @@
   "pk": 24,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 9,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 10,
+    "origin": 9
   }
 },
 {
@@ -1734,11 +1733,10 @@
   "pk": 25,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 6,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 6,
+    "origin": 4
   }
 },
 {
@@ -1746,11 +1744,10 @@
   "pk": 26,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 4
   }
 },
 {
@@ -1758,11 +1755,10 @@
   "pk": 27,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 3
   }
 },
 {
@@ -1770,11 +1766,10 @@
   "pk": 28,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 12,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 8,
+    "origin": 12
   }
 },
 {
@@ -1782,11 +1777,10 @@
   "pk": 29,
   "fields": {
     "amount": 30,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 1,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 2,
+    "origin": 1
   }
 },
 {
@@ -1794,11 +1788,10 @@
   "pk": 30,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 6,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 6,
+    "origin": 5
   }
 },
 {
@@ -1806,11 +1799,10 @@
   "pk": 31,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 1,
+    "origin": 8
   }
 },
 {
@@ -1818,11 +1810,10 @@
   "pk": 32,
   "fields": {
     "amount": 30,
-    "casestudy": 1,
-    "destination": 5,
-    "origin": 7,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 5,
+    "origin": 7
   }
 },
 {
@@ -1830,11 +1821,10 @@
   "pk": 33,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 3
   }
 },
 {
@@ -1842,11 +1832,10 @@
   "pk": 34,
   "fields": {
     "amount": 30,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 9,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 2,
+    "origin": 9
   }
 },
 {
@@ -1854,11 +1843,10 @@
   "pk": 35,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 4,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 10,
+    "origin": 4
   }
 },
 {
@@ -1866,11 +1854,10 @@
   "pk": 36,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 1,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 1
   }
 },
 {
@@ -1878,11 +1865,10 @@
   "pk": 37,
   "fields": {
     "amount": 100,
-    "casestudy": 1,
-    "destination": 3,
-    "origin": 6,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 3,
+    "origin": 6
   }
 },
 {
@@ -1890,11 +1876,10 @@
   "pk": 38,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 9,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 7,
+    "origin": 9
   }
 },
 {
@@ -1902,11 +1887,10 @@
   "pk": 39,
   "fields": {
     "amount": 30,
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 8,
+    "origin": 3
   }
 },
 {
@@ -1914,11 +1898,10 @@
   "pk": 40,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 1,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 7,
+    "origin": 1
   }
 },
 {
@@ -1926,11 +1909,10 @@
   "pk": 41,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 8
   }
 },
 {
@@ -1938,11 +1920,10 @@
   "pk": 42,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 5,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 10,
+    "origin": 5
   }
 },
 {
@@ -1950,11 +1931,10 @@
   "pk": 43,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 8,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 10,
+    "origin": 8
   }
 },
 {
@@ -1962,11 +1942,10 @@
   "pk": 44,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 2,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 10,
+    "origin": 2
   }
 },
 {
@@ -1974,11 +1953,10 @@
   "pk": 45,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 4
   }
 },
 {
@@ -1986,11 +1964,10 @@
   "pk": 46,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 1,
+    "origin": 4
   }
 },
 {
@@ -1998,11 +1975,10 @@
   "pk": 55,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 27,
-    "origin": 18,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 27,
+    "origin": 18
   }
 },
 {
@@ -2010,11 +1986,10 @@
   "pk": 56,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 20,
+    "origin": 14
   }
 },
 {
@@ -2022,11 +1997,10 @@
   "pk": 57,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 18,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 28,
+    "origin": 18
   }
 },
 {
@@ -2034,11 +2008,10 @@
   "pk": 58,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 19,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 24,
+    "origin": 19
   }
 },
 {
@@ -2046,11 +2019,10 @@
   "pk": 59,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 10,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 13,
+    "origin": 10
   }
 },
 {
@@ -2058,11 +2030,10 @@
   "pk": 60,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 13,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 28,
+    "origin": 13
   }
 },
 {
@@ -2070,11 +2041,10 @@
   "pk": 61,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 17,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 17
   }
 },
 {
@@ -2082,11 +2052,10 @@
   "pk": 62,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 15,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 15
   }
 },
 {
@@ -2094,11 +2063,10 @@
   "pk": 63,
   "fields": {
     "amount": 40,
-    "casestudy": 1,
-    "destination": 14,
-    "origin": 9,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 14,
+    "origin": 9
   }
 },
 {
@@ -2106,11 +2074,10 @@
   "pk": 64,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 28,
+    "origin": 4
   }
 },
 {
@@ -2118,11 +2085,10 @@
   "pk": 65,
   "fields": {
     "amount": 35,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 25,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 25
   }
 },
 {
@@ -2130,11 +2096,10 @@
   "pk": 66,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 18,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 26,
+    "origin": 18
   }
 },
 {
@@ -2142,11 +2107,10 @@
   "pk": 67,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 15,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 15,
+    "origin": 14
   }
 },
 {
@@ -2154,11 +2118,10 @@
   "pk": 68,
   "fields": {
     "amount": 25,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 8
   }
 },
 {
@@ -2166,11 +2129,10 @@
   "pk": 69,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 21,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 25,
+    "origin": 21
   }
 },
 {
@@ -2178,11 +2140,10 @@
   "pk": 70,
   "fields": {
     "amount": 40,
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 11,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 13,
+    "origin": 11
   }
 },
 {
@@ -2190,11 +2151,10 @@
   "pk": 71,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 18,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 25,
+    "origin": 18
   }
 },
 {
@@ -2202,11 +2162,10 @@
   "pk": 72,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 23,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 7,
+    "origin": 23
   }
 },
 {
@@ -2214,11 +2173,10 @@
   "pk": 73,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 7,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 7
   }
 },
 {
@@ -2226,11 +2184,10 @@
   "pk": 74,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 4
   }
 },
 {
@@ -2238,11 +2195,10 @@
   "pk": 75,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 11,
+    "origin": 3
   }
 },
 {
@@ -2250,11 +2206,10 @@
   "pk": 76,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 22,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 25,
+    "origin": 22
   }
 },
 {
@@ -2262,11 +2217,10 @@
   "pk": 77,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 6,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 6
   }
 },
 {
@@ -2274,11 +2228,10 @@
   "pk": 78,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 26,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 26
   }
 },
 {
@@ -2286,11 +2239,10 @@
   "pk": 79,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 10,
+    "origin": 8
   }
 },
 {
@@ -2298,11 +2250,10 @@
   "pk": 80,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 3
   }
 },
 {
@@ -2310,11 +2261,10 @@
   "pk": 81,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 13,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 22,
+    "origin": 13
   }
 },
 {
@@ -2322,11 +2272,10 @@
   "pk": 82,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 8,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 8
   }
 },
 {
@@ -2334,11 +2283,10 @@
   "pk": 83,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 16,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 16
   }
 },
 {
@@ -2346,11 +2294,10 @@
   "pk": 84,
   "fields": {
     "amount": 30,
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 16,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 19,
+    "origin": 16
   }
 },
 {
@@ -2358,11 +2305,10 @@
   "pk": 85,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 19,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 26,
+    "origin": 19
   }
 },
 {
@@ -2370,11 +2316,10 @@
   "pk": 86,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 16,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 16
   }
 },
 {
@@ -2382,11 +2327,10 @@
   "pk": 87,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 15,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 28,
+    "origin": 15
   }
 },
 {
@@ -2394,11 +2338,10 @@
   "pk": 88,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 17,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 17,
+    "origin": 14
   }
 },
 {
@@ -2406,11 +2349,10 @@
   "pk": 89,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 22,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 22
   }
 },
 {
@@ -2418,11 +2360,10 @@
   "pk": 90,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 7,
+    "origin": 24
   }
 },
 {
@@ -2430,11 +2371,10 @@
   "pk": 91,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 22,
+    "origin": 5
   }
 },
 {
@@ -2442,11 +2382,10 @@
   "pk": 92,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 16,
-    "origin": 13,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 16,
+    "origin": 13
   }
 },
 {
@@ -2454,11 +2393,10 @@
   "pk": 93,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 5,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 5
   }
 },
 {
@@ -2466,11 +2404,10 @@
   "pk": 94,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 22,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 24,
+    "origin": 22
   }
 },
 {
@@ -2478,11 +2415,10 @@
   "pk": 95,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 8,
+    "origin": 24
   }
 },
 {
@@ -2490,11 +2426,10 @@
   "pk": 96,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 12,
-    "origin": 9,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 12,
+    "origin": 9
   }
 },
 {
@@ -2502,11 +2437,10 @@
   "pk": 97,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 15,
-    "origin": 12,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 15,
+    "origin": 12
   }
 },
 {
@@ -2514,11 +2448,10 @@
   "pk": 98,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 9,
+    "origin": 4
   }
 },
 {
@@ -2526,11 +2459,10 @@
   "pk": 99,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 22,
+    "origin": 14
   }
 },
 {
@@ -2538,11 +2470,10 @@
   "pk": 100,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 19,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 23,
+    "origin": 19
   }
 },
 {
@@ -2550,11 +2481,10 @@
   "pk": 101,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 6,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 10,
+    "origin": 6
   }
 },
 {
@@ -2562,11 +2492,10 @@
   "pk": 102,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 19,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 25,
+    "origin": 19
   }
 },
 {
@@ -2574,11 +2503,10 @@
   "pk": 103,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 20,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 20
   }
 },
 {
@@ -2586,11 +2514,10 @@
   "pk": 104,
   "fields": {
     "amount": 50,
-    "casestudy": 1,
-    "destination": 16,
-    "origin": 29,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 16,
+    "origin": 29
   }
 },
 {
@@ -2598,11 +2525,10 @@
   "pk": 105,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 13,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 21,
+    "origin": 13
   }
 },
 {
@@ -2610,11 +2536,10 @@
   "pk": 106,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 19,
+    "origin": 5
   }
 },
 {
@@ -2622,11 +2547,10 @@
   "pk": 107,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 22,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 26,
+    "origin": 22
   }
 },
 {
@@ -2634,11 +2558,10 @@
   "pk": 108,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 21,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 24,
+    "origin": 21
   }
 },
 {
@@ -2646,11 +2569,10 @@
   "pk": 1,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 4,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 4
   }
 },
 {
@@ -2658,11 +2580,10 @@
   "pk": 2,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 46,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 46,
+    "origin": 5
   }
 },
 {
@@ -2670,11 +2591,10 @@
   "pk": 3,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 37,
-    "origin": 6,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 37,
+    "origin": 6
   }
 },
 {
@@ -2682,11 +2602,10 @@
   "pk": 4,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 7,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 7
   }
 },
 {
@@ -2694,11 +2613,10 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 19,
+    "origin": 8
   }
 },
 {
@@ -2706,11 +2624,10 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 9,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 20,
+    "origin": 9
   }
 },
 {
@@ -2718,11 +2635,10 @@
   "pk": 7,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 10,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 21,
+    "origin": 10
   }
 },
 {
@@ -2730,11 +2646,10 @@
   "pk": 8,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 11,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 22,
+    "origin": 11
   }
 },
 {
@@ -2742,11 +2657,10 @@
   "pk": 9,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 12,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 12
   }
 },
 {
@@ -2754,11 +2668,10 @@
   "pk": 10,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 19,
+    "origin": 3
   }
 },
 {
@@ -2766,11 +2679,10 @@
   "pk": 11,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 20,
+    "origin": 3
   }
 },
 {
@@ -2778,11 +2690,10 @@
   "pk": 12,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 3
   }
 },
 {
@@ -2790,11 +2701,10 @@
   "pk": 13,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 62,
+    "origin": 3
   }
 },
 {
@@ -2802,11 +2712,10 @@
   "pk": 14,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 13,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 13
   }
 },
 {
@@ -2814,11 +2723,10 @@
   "pk": 15,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 18,
+    "origin": 14
   }
 },
 {
@@ -2826,11 +2734,10 @@
   "pk": 16,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 14,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 19,
+    "origin": 14
   }
 },
 {
@@ -2838,11 +2745,10 @@
   "pk": 17,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 15,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 20,
+    "origin": 15
   }
 },
 {
@@ -2850,11 +2756,10 @@
   "pk": 18,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 16,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 21,
+    "origin": 16
   }
 },
 {
@@ -2862,11 +2767,10 @@
   "pk": 19,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 17,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 21,
+    "origin": 17
   }
 },
 {
@@ -2874,11 +2778,10 @@
   "pk": 20,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 17,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 22,
+    "origin": 17
   }
 },
 {
@@ -2886,11 +2789,10 @@
   "pk": 21,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 17,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 17
   }
 },
 {
@@ -2898,11 +2800,10 @@
   "pk": 22,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 18,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 23,
+    "origin": 18
   }
 },
 {
@@ -2910,11 +2811,10 @@
   "pk": 23,
   "fields": {
     "amount": 25,
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 18,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 24,
+    "origin": 18
   }
 },
 {
@@ -2922,11 +2822,10 @@
   "pk": 24,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 19,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 23,
+    "origin": 19
   }
 },
 {
@@ -2934,11 +2833,10 @@
   "pk": 25,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 19,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 24,
+    "origin": 19
   }
 },
 {
@@ -2946,11 +2844,10 @@
   "pk": 26,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 20,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 25,
+    "origin": 20
   }
 },
 {
@@ -2958,11 +2855,10 @@
   "pk": 27,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 21,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 25,
+    "origin": 21
   }
 },
 {
@@ -2970,11 +2866,10 @@
   "pk": 28,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 22,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 25,
+    "origin": 22
   }
 },
 {
@@ -2982,11 +2877,10 @@
   "pk": 29,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 27,
-    "origin": 63,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 27,
+    "origin": 63
   }
 },
 {
@@ -2994,11 +2888,10 @@
   "pk": 30,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 63,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 28,
+    "origin": 63
   }
 },
 {
@@ -3006,11 +2899,10 @@
   "pk": 31,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 29,
-    "origin": 63,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 29,
+    "origin": 63
   }
 },
 {
@@ -3018,11 +2910,10 @@
   "pk": 32,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 30,
-    "origin": 63,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 30,
+    "origin": 63
   }
 },
 {
@@ -3030,11 +2921,10 @@
   "pk": 33,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 31,
-    "origin": 63,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 31,
+    "origin": 63
   }
 },
 {
@@ -3042,11 +2932,10 @@
   "pk": 34,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 32,
-    "origin": 23,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 32,
+    "origin": 23
   }
 },
 {
@@ -3054,11 +2943,10 @@
   "pk": 35,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 33,
-    "origin": 23,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 33,
+    "origin": 23
   }
 },
 {
@@ -3066,11 +2954,10 @@
   "pk": 36,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 34,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 34,
+    "origin": 24
   }
 },
 {
@@ -3078,11 +2965,10 @@
   "pk": 37,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 35,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 35,
+    "origin": 24
   }
 },
 {
@@ -3090,11 +2976,10 @@
   "pk": 38,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 26,
+    "origin": 24
   }
 },
 {
@@ -3102,11 +2987,10 @@
   "pk": 39,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 46,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 46,
+    "origin": 24
   }
 },
 {
@@ -3114,11 +2998,10 @@
   "pk": 40,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 47,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 47,
+    "origin": 24
   }
 },
 {
@@ -3126,11 +3009,10 @@
   "pk": 41,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 48,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 48,
+    "origin": 24
   }
 },
 {
@@ -3138,11 +3020,10 @@
   "pk": 42,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 49,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 49,
+    "origin": 24
   }
 },
 {
@@ -3150,11 +3031,10 @@
   "pk": 43,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 50,
-    "origin": 24,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 50,
+    "origin": 24
   }
 },
 {
@@ -3162,11 +3042,10 @@
   "pk": 44,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 51,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 51,
+    "origin": 25
   }
 },
 {
@@ -3174,11 +3053,10 @@
   "pk": 45,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 52,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 52,
+    "origin": 25
   }
 },
 {
@@ -3186,11 +3064,10 @@
   "pk": 46,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 53,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 53,
+    "origin": 25
   }
 },
 {
@@ -3198,11 +3075,10 @@
   "pk": 47,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 54,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 54,
+    "origin": 25
   }
 },
 {
@@ -3210,11 +3086,10 @@
   "pk": 48,
   "fields": {
     "amount": 10,
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 62,
+    "origin": 25
   }
 },
 {
@@ -3222,11 +3097,10 @@
   "pk": 49,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 30,
-    "origin": 25,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 30,
+    "origin": 25
   }
 },
 {
@@ -3234,11 +3108,10 @@
   "pk": 50,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 26,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 26
   }
 },
 {
@@ -3246,11 +3119,10 @@
   "pk": 51,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 27,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 27
   }
 },
 {
@@ -3258,11 +3130,10 @@
   "pk": 52,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 37,
-    "origin": 29,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 37,
+    "origin": 29
   }
 },
 {
@@ -3270,11 +3141,10 @@
   "pk": 53,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 38,
-    "origin": 29,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 38,
+    "origin": 29
   }
 },
 {
@@ -3282,11 +3152,10 @@
   "pk": 54,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 39,
-    "origin": 28,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 39,
+    "origin": 28
   }
 },
 {
@@ -3294,11 +3163,10 @@
   "pk": 55,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 40,
-    "origin": 30,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 40,
+    "origin": 30
   }
 },
 {
@@ -3306,11 +3174,10 @@
   "pk": 56,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 41,
-    "origin": 30,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 41,
+    "origin": 30
   }
 },
 {
@@ -3318,11 +3185,10 @@
   "pk": 57,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 42,
-    "origin": 30,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 42,
+    "origin": 30
   }
 },
 {
@@ -3330,11 +3196,10 @@
   "pk": 58,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 43,
-    "origin": 31,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 43,
+    "origin": 31
   }
 },
 {
@@ -3342,11 +3207,10 @@
   "pk": 59,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 44,
-    "origin": 31,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 44,
+    "origin": 31
   }
 },
 {
@@ -3354,11 +3218,10 @@
   "pk": 60,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 45,
-    "origin": 32,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 45,
+    "origin": 32
   }
 },
 {
@@ -3366,11 +3229,10 @@
   "pk": 61,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 36,
-    "origin": 33,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 36,
+    "origin": 33
   }
 },
 {
@@ -3378,11 +3240,10 @@
   "pk": 62,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 34,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 62,
+    "origin": 34
   }
 },
 {
@@ -3390,11 +3251,10 @@
   "pk": 63,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 35,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 62,
+    "origin": 35
   }
 },
 {
@@ -3402,11 +3262,10 @@
   "pk": 75,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 36,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 36
   }
 },
 {
@@ -3414,11 +3273,10 @@
   "pk": 76,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 37,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 37
   }
 },
 {
@@ -3426,11 +3284,10 @@
   "pk": 77,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 37,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 55,
+    "origin": 37
   }
 },
 {
@@ -3438,11 +3295,10 @@
   "pk": 78,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 38,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 55,
+    "origin": 38
   }
 },
 {
@@ -3450,11 +3306,10 @@
   "pk": 79,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 56,
-    "origin": 39,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 56,
+    "origin": 39
   }
 },
 {
@@ -3462,11 +3317,10 @@
   "pk": 80,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 57,
-    "origin": 40,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 57,
+    "origin": 40
   }
 },
 {
@@ -3474,11 +3328,10 @@
   "pk": 81,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 41,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 59,
+    "origin": 41
   }
 },
 {
@@ -3486,11 +3339,10 @@
   "pk": 82,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 42,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 59,
+    "origin": 42
   }
 },
 {
@@ -3498,11 +3350,10 @@
   "pk": 83,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 61,
-    "origin": 43,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 61,
+    "origin": 43
   }
 },
 {
@@ -3510,11 +3361,10 @@
   "pk": 84,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 60,
-    "origin": 44,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 60,
+    "origin": 44
   }
 },
 {
@@ -3522,11 +3372,10 @@
   "pk": 85,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 45,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 62,
+    "origin": 45
   }
 },
 {
@@ -3534,11 +3383,10 @@
   "pk": 86,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 46,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 46
   }
 },
 {
@@ -3546,11 +3394,10 @@
   "pk": 87,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 46,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 46
   }
 },
 {
@@ -3558,11 +3405,10 @@
   "pk": 88,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 47,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 47
   }
 },
 {
@@ -3570,11 +3416,10 @@
   "pk": 89,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 48,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 59,
+    "origin": 48
   }
 },
 {
@@ -3582,11 +3427,10 @@
   "pk": 90,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 49,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 49
   }
 },
 {
@@ -3594,11 +3438,10 @@
   "pk": 91,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 50,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 2,
+    "origin": 50
   }
 },
 {
@@ -3606,11 +3449,10 @@
   "pk": 92,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 51,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 55,
+    "origin": 51
   }
 },
 {
@@ -3618,11 +3460,10 @@
   "pk": 93,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 52,
     "material": 1,
-    "quality": 2
+    "quality": 2,
+    "destination": 55,
+    "origin": 52
   }
 },
 {
@@ -3630,11 +3471,10 @@
   "pk": 94,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 53,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 53
   }
 },
 {
@@ -3642,11 +3482,10 @@
   "pk": 95,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 54,
     "material": 1,
-    "quality": 3
+    "quality": 3,
+    "destination": 58,
+    "origin": 54
   }
 },
 {
@@ -3654,11 +3493,10 @@
   "pk": 96,
   "fields": {
     "amount": 20,
-    "casestudy": 1,
-    "destination": 17,
-    "origin": 55,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 17,
+    "origin": 55
   }
 },
 {
@@ -3666,11 +3504,10 @@
   "pk": 97,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 56,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 13,
+    "origin": 56
   }
 },
 {
@@ -3678,11 +3515,10 @@
   "pk": 98,
   "fields": {
     "amount": 5,
-    "casestudy": 1,
-    "destination": 14,
-    "origin": 57,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "destination": 14,
+    "origin": 57
   }
 },
 {
@@ -3690,11 +3526,10 @@
   "pk": 99,
   "fields": {
     "amount": 35,
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 58,
     "material": 1,
-    "quality": 4
+    "quality": 4,
+    "destination": 1,
+    "origin": 58
   }
 },
 {
@@ -3702,11 +3537,10 @@
   "pk": 100,
   "fields": {
     "amount": 15,
-    "casestudy": 1,
+    "material": 1,
+    "quality": 4,
     "destination": 1,
-    "origin": 59,
-    "material": 1,
-    "quality": 4
+    "origin": 59
   }
 },
 {
@@ -3714,9 +3548,9 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "origin": 9,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 9
   }
 },
 {
@@ -3724,9 +3558,9 @@
   "pk": 6,
   "fields": {
     "amount": 10,
-    "origin": 8,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 8
   }
 },
 {
@@ -3734,9 +3568,9 @@
   "pk": 7,
   "fields": {
     "amount": 10,
-    "origin": 2,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 2
   }
 },
 {
@@ -3744,9 +3578,9 @@
   "pk": 8,
   "fields": {
     "amount": 10,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 4
   }
 },
 {
@@ -3754,9 +3588,9 @@
   "pk": 9,
   "fields": {
     "amount": 10,
-    "origin": 3,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 3
   }
 },
 {
@@ -3764,9 +3598,9 @@
   "pk": 5,
   "fields": {
     "amount": 10,
-    "origin": 16,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 16
   }
 },
 {
@@ -3774,9 +3608,9 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "origin": 27,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 27
   }
 },
 {
@@ -3784,9 +3618,9 @@
   "pk": 7,
   "fields": {
     "amount": 5,
-    "origin": 26,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 26
   }
 },
 {
@@ -3794,9 +3628,9 @@
   "pk": 8,
   "fields": {
     "amount": 10,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 5
   }
 },
 {
@@ -3804,9 +3638,9 @@
   "pk": 9,
   "fields": {
     "amount": 5,
-    "origin": 22,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 22
   }
 },
 {
@@ -3814,9 +3648,9 @@
   "pk": 10,
   "fields": {
     "amount": 10,
-    "origin": 12,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 12
   }
 },
 {
@@ -3824,9 +3658,9 @@
   "pk": 1,
   "fields": {
     "amount": 5,
-    "origin": 4,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 4
   }
 },
 {
@@ -3834,9 +3668,9 @@
   "pk": 2,
   "fields": {
     "amount": 5,
-    "origin": 5,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 5
   }
 },
 {
@@ -3844,9 +3678,9 @@
   "pk": 3,
   "fields": {
     "amount": 5,
-    "origin": 28,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 28
   }
 },
 {
@@ -3854,9 +3688,9 @@
   "pk": 4,
   "fields": {
     "amount": 5,
-    "origin": 27,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 27
   }
 },
 {
@@ -3864,9 +3698,9 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "origin": 60,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 60
   }
 },
 {
@@ -3874,9 +3708,9 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "origin": 61,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 61
   }
 },
 {
@@ -3884,9 +3718,9 @@
   "pk": 7,
   "fields": {
     "amount": 10,
-    "origin": 23,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 23
   }
 },
 {
@@ -3894,9 +3728,9 @@
   "pk": 8,
   "fields": {
     "amount": 5,
-    "origin": 46,
     "material": 1,
-    "quality": 1
+    "quality": 1,
+    "origin": 46
   }
 }
 ]

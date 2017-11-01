@@ -66,6 +66,7 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
 
 class UnitField(serializers.HyperlinkedRelatedField):
     """A Unit Field"""
+    queryset=Unit.objects.all()
 
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
@@ -103,7 +104,7 @@ class SolutionDetailCreateMixin:
 class SolutionQuantitySerializer(SolutionDetailCreateMixin,
                                  #CreateWithUserInCasestudyMixin,
                                  NestedHyperlinkedModelSerializer):
-    unit = UnitField(queryset=Unit.objects.all(), view_name='unit-detail')
+    unit = UnitField(view_name='unit-detail')
     solution = SolutionField(view_name='solution-detail', read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__user__casestudy__id',
@@ -126,7 +127,7 @@ class SolutionDetailListField(InCaseStudyIdentityField):
 
 class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
                                      NestedHyperlinkedModelSerializer):
-    unit = UnitField(queryset=Unit.objects.all(), view_name='unit-detail')
+    unit = UnitField(view_name='unit-detail')
     solution = SolutionField(view_name='solution-detail', read_only=True)
     value = serializers.DecimalField(max_digits=10, decimal_places=3)
     parent_lookup_kwargs = {
@@ -390,8 +391,6 @@ class InSolutionField(InCasestudyField):
         solution_id = obj.sii.solution.id
         qs = SolutionQuantity.objects.filter(solution__id=solution_id)
         return qs
-
-
 
     def get_value_from_obj(self, obj, pk='casestudy_pk'):
         casestudy_from_object = self.root.parent_lookup_kwargs.get(
