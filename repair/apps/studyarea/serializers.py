@@ -56,11 +56,10 @@ class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
 class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    stakeholder_set = StakeholderListField(
-        view_name='stakeholder-list')
-    stakeholder_list = StakeholderSetField(source='stakeholder_set',
-                                            many=True,
-                                            view_name='stakeholder-detail')
+    stakeholder_list = StakeholderListField(source='stakeholder_set',
+                                            view_name='stakeholder-list')
+    stakeholder_set = StakeholderSetField(many=True,
+                                          view_name='stakeholder-detail')
 
     class Meta:
         model = StakeholderCategory

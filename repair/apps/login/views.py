@@ -59,20 +59,11 @@ class OnlyCasestudyMixin(ABC):
         return Response(serializer.data)
 
 
-class OnlySolutionMixin(OnlyCasestudyMixin):
+class OnlySubsetMixin(OnlyCasestudyMixin):
     """"""
-    _pk_fields = ['casestudy_pk', 'solutioncategory_pk', 'solution_pk']
-    _pk_fields = ['casestudy_pk', 'solutioncategory_pk', 'solution_pk']
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
         request.session['casestudy_pk'] = kwargs
-        #casestudy_pk = request.session.get('casestudy_pk', {})
-        #if not casestudy_pk:
-
-        #for pk_field in kwargs:
-            #pk = kwargs.get(pk_field)
-            #if pk is not None:
-                #casestudy_pk[pk_field] = pk
 
 
 class UserViewSet(viewsets.ModelViewSet):

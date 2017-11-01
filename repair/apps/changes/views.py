@@ -17,7 +17,7 @@ from rest_framework import status, generics
 
 
 from repair.apps.login.views import (OnlyCasestudyMixin,
-                                     OnlySolutionMixin,
+                                     OnlySubsetMixin,
                                      MultiSerializerViewSetMixin)
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (
@@ -157,7 +157,7 @@ class SolutionInImplementationNoteViewSet(OnlyCasestudyMixin,
     queryset = SolutionInImplementationNote.objects.all()
 
 
-class SolutionInImplementationQuantityViewSet(OnlySolutionMixin,
+class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
                                       viewsets.ModelViewSet):
     serializer_class = SolutionInImplementationQuantitySerializer
     queryset = SolutionInImplementationQuantity.objects.all()
