@@ -16,7 +16,9 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 
 
-from repair.apps.login.views import OnlyCasestudyMixin, MultiSerializerViewSetMixin
+from repair.apps.login.views import (OnlyCasestudyMixin,
+                                     OnlySolutionMixin,
+                                     MultiSerializerViewSetMixin)
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (
     Unit,
@@ -25,15 +27,25 @@ from repair.apps.changes.models import (
     Implementation,
     SolutionInImplementation,
     Strategy,
+    SolutionQuantity,
+    SolutionRatioOneUnit,
+    SolutionInImplementationNote,
+    SolutionInImplementationQuantity,
+    SolutionInImplementationGeometry,
+
     )
 
 from repair.apps.changes.serializers import (
+    UnitSerializer,
     SolutionSerializer,
     SolutionCategorySerializer,
-    SolutionPostSerializer,
-    SolutionCategoryPostSerializer,
     ImplementationSerializer,
     SolutionInImplementationSerializer,
+    SolutionQuantitySerializer,
+    SolutionRatioOneUnitSerializer,
+    SolutionInImplementationNoteSerializer,
+    SolutionInImplementationQuantitySerializer,
+    SolutionInImplementationGeometrySerializer,
     )
 
 
@@ -102,6 +114,11 @@ def strategies(request, strategy_id):
 # API Views
 
 
+class UnitViewSet(viewsets.ModelViewSet):
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
+
+
 class SolutionCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     queryset = SolutionCategory.objects.all()
     serializer_class = SolutionCategorySerializer
@@ -110,6 +127,16 @@ class SolutionCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
 class SolutionViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
+
+
+class SolutionQuantityViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+    serializer_class = SolutionQuantitySerializer
+    queryset = SolutionQuantity.objects.all()
+
+
+class SolutionRatioOneUnitViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+    serializer_class = SolutionRatioOneUnitSerializer
+    queryset = SolutionRatioOneUnit.objects.all()
 
 
 class ImplementationViewSet(OnlyCasestudyMixin,
@@ -122,4 +149,22 @@ class SolutionInImplementationViewSet(OnlyCasestudyMixin,
                                       viewsets.ModelViewSet):
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
+
+
+class SolutionInImplementationNoteViewSet(OnlyCasestudyMixin,
+                                      viewsets.ModelViewSet):
+    serializer_class = SolutionInImplementationNoteSerializer
+    queryset = SolutionInImplementationNote.objects.all()
+
+
+class SolutionInImplementationQuantityViewSet(OnlySolutionMixin,
+                                      viewsets.ModelViewSet):
+    serializer_class = SolutionInImplementationQuantitySerializer
+    queryset = SolutionInImplementationQuantity.objects.all()
+
+
+class SolutionInImplementationGeometryViewSet(OnlyCasestudyMixin,
+                                      viewsets.ModelViewSet):
+    serializer_class = SolutionInImplementationGeometrySerializer
+    queryset = SolutionInImplementationGeometry.objects.all()
 

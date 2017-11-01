@@ -8,10 +8,16 @@ from repair.apps.login import views as login_views
 from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet, StakeholderViewSet)
 from repair.apps.changes.views import (
+    UnitViewSet,
     SolutionCategoryViewSet,
     SolutionViewSet,
     ImplementationViewSet,
     SolutionInImplementationViewSet,
+    SolutionQuantityViewSet,
+    SolutionRatioOneUnitViewSet,
+    SolutionInImplementationNoteViewSet,
+    SolutionInImplementationQuantityViewSet,
+    SolutionInImplementationGeometryViewSet,
 )
 
 from repair.apps.asmfa.views import (
@@ -25,6 +31,7 @@ router = DefaultRouter()
 router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
+router.register(r'units', UnitViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -51,10 +58,24 @@ scat_router = NestedSimpleRouter(cs_router, r'solutioncategories',
                                  lookup='solutioncategory')
 scat_router.register(r'solutions', SolutionViewSet)
 
+# /casestudies/*/solutioncategories/*/solutions...
+sol_router = NestedSimpleRouter(scat_router, r'solutions',
+                                 lookup='solution')
+sol_router.register(r'solutionquantities', SolutionQuantityViewSet)
+sol_router.register(r'solutionratiooneunits', SolutionRatioOneUnitViewSet)
+
 # /casestudies/*/implementations/...
 imp_router = NestedSimpleRouter(cs_router, r'implementations',
                                  lookup='implementation')
 imp_router.register(r'solutions', SolutionInImplementationViewSet)
+
+# /casestudies/*/implementations/*/solutions...
+sii_router = NestedSimpleRouter(imp_router, r'solutions',
+                                lookup='solution')
+sii_router.register(r'note', SolutionInImplementationNoteViewSet)
+sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
+sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
+
 
 # /casestudies/*/activitygroups/...
 ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
@@ -86,7 +107,9 @@ urlpatterns = [
     url(r'^', include(ag_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
+    url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
+    url(r'^', include(sii_router.urls)),
     url(r'^', include(ac_router.urls)),
     url(r'^', include(mat_router.urls))
 ]

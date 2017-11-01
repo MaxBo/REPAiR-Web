@@ -52,7 +52,7 @@ def index(request):
     users = Profile.objects.order_by('id')[:20]
 
     # get the current casestudy
-    casestudy = request.session.get('casestudy')
+    casestudy = request.session.get('casestudy_pk', {}).get('casestudy_pk')
     if casestudy:
         stakeholder_category_list = \
             StakeholderCategory.objects.filter(casestudy=casestudy)
