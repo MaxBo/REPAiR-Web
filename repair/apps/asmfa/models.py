@@ -16,6 +16,7 @@ class DataEntry(models.Model):
 
 
 class Material(models.Model):
+    code = models.TextField(unique=True, default='')
     name = models.TextField()
     casestudies = models.ManyToManyField(CaseStudy,
                                          through='MaterialInCasestudy')
@@ -28,8 +29,8 @@ class MaterialInCasestudy(models.Model):
 
 
 class Quality(models.Model):
-    material = models.ForeignKey(Material,
-                                 on_delete=models.CASCADE)
+    #material = models.ForeignKey(Material,
+                                 #on_delete=models.CASCADE)
     name = models.TextField()
 
 
@@ -122,9 +123,7 @@ class Flow(models.Model):
                        ("3", "Low"),
                        ("4", "Waste"))
 
-    material = models.CharField(max_length=255, choices=material_choices, blank=True)
     amount = models.PositiveIntegerField(blank=True)
-    quality = models.CharField(max_length=255, choices=quality_choices, blank=True)
     casestudy = models.ForeignKey(CaseStudy,
                                    on_delete=models.CASCADE,
                                    default=1)
@@ -139,18 +138,24 @@ class Group2Group(Flow):
                                     related_name='Inputs')
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='Outputs')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                 related_name='Group_Material', default=1)
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                related_name='Group_Qualities', default=1)
 
 
 class Activity2Activity(Flow):
 
     destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                     related_name='Inputs',
-                                    #to_field='nace',
                                     )
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                related_name='Outputs',
-                               #to_field='nace',
                                )
+    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                 related_name='Activity_Material', default=1)
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                related_name='Activity_Quality', default=1)
 
 
 class Actor2Actor(Flow):
@@ -159,16 +164,16 @@ class Actor2Actor(Flow):
                                     related_name='Inputs')
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='Outputs')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                 related_name='Actor_Material', default=1)
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                related_name='Actor_Quality', default=1)
 
 
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users
-    material = models.CharField(max_length=255, choices=Flow.material_choices,
-                                blank=True)
     amount = models.PositiveIntegerField(blank=True)
-    quality = models.CharField(max_length=255, choices=Flow.quality_choices,
-                               blank=True)
 
     class Meta:
         abstract = True
@@ -178,15 +183,30 @@ class GroupStock(Stock):
 
         origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                    related_name='Stocks')
+        material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                     related_name='GroupStock_Material',
+                                     default=1)
+        quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                    related_name='GroupStock_Quality', default=1)
 
 
 class ActivityStock(Stock):
 
         origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                    related_name='Stocks')
+        material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                     related_name='ActivityStock_Material',
+                                     default=1)
+        quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                    related_name='ActivityStock_Quality', default=1)
 
 
 class ActorStock(Stock):
 
         origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                    related_name='Stocks')
+        material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                     related_name='ActorStock_Material',
+                                     default=1)
+        quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
+                                    related_name='ActorStock_Quality', default=1)

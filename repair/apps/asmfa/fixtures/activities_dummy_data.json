@@ -1,5 +1,57 @@
 [
 {
+  "model": "asmfa.material",
+  "pk": 1,
+  "fields": {
+    "code": "PET plastic",
+    "name": "PET"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 2,
+  "fields": {
+    "code": "Organic",
+    "name": "Org"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 3,
+  "fields": {
+    "code": "PVC plastic",
+    "name": "PVC"
+  }
+},
+{
+  "model": "asmfa.quality",
+  "pk": 1,
+  "fields": {
+    "name": "High"
+  }
+},
+{
+  "model": "asmfa.quality",
+  "pk": 2,
+  "fields": {
+    "name": "Medium"
+  }
+},
+{
+  "model": "asmfa.quality",
+  "pk": 3,
+  "fields": {
+    "name": "Low"
+  }
+},
+{
+  "model": "asmfa.quality",
+  "pk": 4,
+  "fields": {
+    "name": "Waste"
+  }
+},
+{
   "model": "asmfa.activitygroup",
   "pk": 1,
   "fields": {
@@ -1525,2182 +1577,2182 @@
   "model": "asmfa.group2group",
   "pk": 24,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "4",
     "casestudy": 1,
     "destination": 10,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 25,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 6,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 26,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 27,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 28,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 8,
-    "origin": 12
+    "origin": 12,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 29,
   "fields": {
-    "material": "PET",
     "amount": 30,
-    "quality": "3",
     "casestudy": 1,
     "destination": 2,
-    "origin": 1
+    "origin": 1,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 30,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 6,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 31,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 1,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 32,
   "fields": {
-    "material": "PET",
     "amount": 30,
-    "quality": "1",
     "casestudy": 1,
     "destination": 5,
-    "origin": 7
+    "origin": 7,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 33,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 34,
   "fields": {
-    "material": "PET",
     "amount": 30,
-    "quality": "3",
     "casestudy": 1,
     "destination": 2,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 35,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 10,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 36,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 1
+    "origin": 1,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 37,
   "fields": {
-    "material": "PET",
     "amount": 100,
-    "quality": "1",
     "casestudy": 1,
     "destination": 3,
-    "origin": 6
+    "origin": 6,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 38,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "2",
     "casestudy": 1,
     "destination": 7,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 39,
   "fields": {
-    "material": "PET",
     "amount": 30,
-    "quality": "1",
     "casestudy": 1,
     "destination": 8,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 40,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "2",
     "casestudy": 1,
     "destination": 7,
-    "origin": 1
+    "origin": 1,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 41,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 42,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 10,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 43,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "4",
     "casestudy": 1,
     "destination": 10,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 44,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "4",
     "casestudy": 1,
     "destination": 10,
-    "origin": 2
+    "origin": 2,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 45,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.group2group",
   "pk": 46,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 1,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 55,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 27,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 56,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 20,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 57,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 28,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 58,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "2",
     "casestudy": 1,
     "destination": 24,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 59,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 13,
-    "origin": 10
+    "origin": 10,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 60,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 28,
-    "origin": 13
+    "origin": 13,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 61,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 17
+    "origin": 17,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 62,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 15
+    "origin": 15,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 63,
   "fields": {
-    "material": "PET",
     "amount": 40,
-    "quality": "1",
     "casestudy": 1,
     "destination": 14,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 64,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 28,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 65,
   "fields": {
-    "material": "PET",
     "amount": 35,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 66,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 26,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 67,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 15,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 68,
   "fields": {
-    "material": "PET",
     "amount": 25,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 69,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "3",
     "casestudy": 1,
     "destination": 25,
-    "origin": 21
+    "origin": 21,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 70,
   "fields": {
-    "material": "PET",
     "amount": 40,
-    "quality": "1",
     "casestudy": 1,
     "destination": 13,
-    "origin": 11
+    "origin": 11,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 71,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 25,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 72,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 7,
-    "origin": 23
+    "origin": 23,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 73,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 7
+    "origin": 7,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 74,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 75,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 11,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 76,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "3",
     "casestudy": 1,
     "destination": 25,
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 77,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 6
+    "origin": 6,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 78,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 26
+    "origin": 26,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 79,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 10,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 80,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 81,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 22,
-    "origin": 13
+    "origin": 13,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 82,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 83,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 16
+    "origin": 16,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 84,
   "fields": {
-    "material": "PET",
     "amount": 30,
-    "quality": "1",
     "casestudy": 1,
     "destination": 19,
-    "origin": 16
+    "origin": 16,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 85,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "3",
     "casestudy": 1,
     "destination": 26,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 86,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 16
+    "origin": 16,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 87,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 28,
-    "origin": 15
+    "origin": 15,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 88,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 17,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 89,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 90,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 7,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 91,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 22,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 92,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 16,
-    "origin": 13
+    "origin": 13,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 93,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 94,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 24,
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 95,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 8,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 96,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 12,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 97,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 15,
-    "origin": 12
+    "origin": 12,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 98,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "1",
     "casestudy": 1,
     "destination": 9,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 99,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 22,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 100,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 23,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 101,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 10,
-    "origin": 6
+    "origin": 6,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 102,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 25,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 103,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 20
+    "origin": 20,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 104,
   "fields": {
-    "material": "PET",
     "amount": 50,
-    "quality": "1",
     "casestudy": 1,
     "destination": 16,
-    "origin": 29
+    "origin": 29,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 105,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 21,
-    "origin": 13
+    "origin": 13,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 106,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 19,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 107,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 26,
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.activity2activity",
   "pk": 108,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 24,
-    "origin": 21
+    "origin": 21,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 1,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 2,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 46,
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 3,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 37,
-    "origin": 6
+    "origin": 6,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 4,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 7
+    "origin": 7,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 5,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 19,
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 6,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 20,
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 7,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 21,
-    "origin": 10
+    "origin": 10,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 8,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 22,
-    "origin": 11
+    "origin": 11,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 9,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 12
+    "origin": 12,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 10,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 19,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 11,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 20,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 12,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 13,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 62,
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 14,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 13
+    "origin": 13,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 15,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 18,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 16,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 19,
-    "origin": 14
+    "origin": 14,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 17,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 20,
-    "origin": 15
+    "origin": 15,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 18,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 21,
-    "origin": 16
+    "origin": 16,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 19,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 21,
-    "origin": 17
+    "origin": 17,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 20,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 22,
-    "origin": 17
+    "origin": 17,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 21,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 17
+    "origin": 17,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 22,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 23,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 23,
   "fields": {
-    "material": "PET",
     "amount": 25,
-    "quality": "1",
     "casestudy": 1,
     "destination": 24,
-    "origin": 18
+    "origin": 18,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 24,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 23,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 25,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "1",
     "casestudy": 1,
     "destination": 24,
-    "origin": 19
+    "origin": 19,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 26,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 25,
-    "origin": 20
+    "origin": 20,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 27,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 25,
-    "origin": 21
+    "origin": 21,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 28,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 25,
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 29,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 27,
-    "origin": 63
+    "origin": 63,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 30,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 28,
-    "origin": 63
+    "origin": 63,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 31,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 29,
-    "origin": 63
+    "origin": 63,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 32,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 30,
-    "origin": 63
+    "origin": 63,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 33,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 31,
-    "origin": 63
+    "origin": 63,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 34,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 32,
-    "origin": 23
+    "origin": 23,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 35,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 33,
-    "origin": 23
+    "origin": 23,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 36,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 34,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 37,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 35,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 38,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 26,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 39,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 46,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 40,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 47,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 41,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 48,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 42,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 49,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 43,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 50,
-    "origin": 24
+    "origin": 24,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 44,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 51,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 45,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 52,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 46,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 53,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 47,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 54,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 48,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
     "casestudy": 1,
     "destination": 62,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 49,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 30,
-    "origin": 25
+    "origin": 25,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 50,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 26
+    "origin": 26,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 51,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 27
+    "origin": 27,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 52,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 37,
-    "origin": 29
+    "origin": 29,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 53,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 38,
-    "origin": 29
+    "origin": 29,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 54,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 39,
-    "origin": 28
+    "origin": 28,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 55,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 40,
-    "origin": 30
+    "origin": 30,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 56,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 41,
-    "origin": 30
+    "origin": 30,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 57,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 42,
-    "origin": 30
+    "origin": 30,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 58,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 43,
-    "origin": 31
+    "origin": 31,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 59,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 44,
-    "origin": 31
+    "origin": 31,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 60,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 45,
-    "origin": 32
+    "origin": 32,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 61,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 36,
-    "origin": 33
+    "origin": 33,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 62,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 62,
-    "origin": 34
+    "origin": 34,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 63,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 62,
-    "origin": 35
+    "origin": 35,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 75,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 36
+    "origin": 36,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 76,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 37
+    "origin": 37,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 77,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 55,
-    "origin": 37
+    "origin": 37,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 78,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 55,
-    "origin": 38
+    "origin": 38,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 79,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 56,
-    "origin": 39
+    "origin": 39,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 80,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 57,
-    "origin": 40
+    "origin": 40,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 81,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 59,
-    "origin": 41
+    "origin": 41,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 82,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 59,
-    "origin": 42
+    "origin": 42,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 83,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 61,
-    "origin": 43
+    "origin": 43,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 84,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 60,
-    "origin": 44
+    "origin": 44,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 85,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 62,
-    "origin": 45
+    "origin": 45,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 86,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 46
+    "origin": 46,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 87,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 46
+    "origin": 46,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 88,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 47
+    "origin": 47,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 89,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 59,
-    "origin": 48
+    "origin": 48,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 90,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 49
+    "origin": 49,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 91,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "4",
     "casestudy": 1,
     "destination": 2,
-    "origin": 50
+    "origin": 50,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 92,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 55,
-    "origin": 51
+    "origin": 51,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 93,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "2",
     "casestudy": 1,
     "destination": 55,
-    "origin": 52
+    "origin": 52,
+    "material": 1,
+    "quality": 2
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 94,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 53
+    "origin": 53,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 95,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "3",
     "casestudy": 1,
     "destination": 58,
-    "origin": 54
+    "origin": 54,
+    "material": 1,
+    "quality": 3
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 96,
   "fields": {
-    "material": "PET",
     "amount": 20,
-    "quality": "1",
     "casestudy": 1,
     "destination": 17,
-    "origin": 55
+    "origin": 55,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 97,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 13,
-    "origin": 56
+    "origin": 56,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 98,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
     "casestudy": 1,
     "destination": 14,
-    "origin": 57
+    "origin": 57,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 99,
   "fields": {
-    "material": "PET",
     "amount": 35,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 58
+    "origin": 58,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.actor2actor",
   "pk": 100,
   "fields": {
-    "material": "PET",
     "amount": 15,
-    "quality": "4",
     "casestudy": 1,
     "destination": 1,
-    "origin": 59
+    "origin": 59,
+    "material": 1,
+    "quality": 4
   }
 },
 {
   "model": "asmfa.groupstock",
   "pk": 5,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 9
+    "origin": 9,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.groupstock",
   "pk": 6,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 8
+    "origin": 8,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.groupstock",
   "pk": 7,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 2
+    "origin": 2,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.groupstock",
   "pk": 8,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.groupstock",
   "pk": 9,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 3
+    "origin": 3,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 5,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 16
+    "origin": 16,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 6,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 27
+    "origin": 27,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 7,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 26
+    "origin": 26,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 8,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 9,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 22
+    "origin": 22,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.activitystock",
   "pk": 10,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 12
+    "origin": 12,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 1,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 4
+    "origin": 4,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 2,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 5
+    "origin": 5,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 3,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 28
+    "origin": 28,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 4,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 27
+    "origin": 27,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 5,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 60
+    "origin": 60,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 6,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 61
+    "origin": 61,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 7,
   "fields": {
-    "material": "PET",
     "amount": 10,
-    "quality": "1",
-    "origin": 23
+    "origin": 23,
+    "material": 1,
+    "quality": 1
   }
 },
 {
   "model": "asmfa.actorstock",
   "pk": 8,
   "fields": {
-    "material": "PET",
     "amount": 5,
-    "quality": "1",
-    "origin": 46
+    "origin": 46,
+    "material": 1,
+    "quality": 1
   }
 }
 ]
