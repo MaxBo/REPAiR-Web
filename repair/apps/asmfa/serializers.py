@@ -73,7 +73,7 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer2):
     note = serializers.CharField(required=False, allow_blank=True)
     material = serializers.HyperlinkedIdentityField(
         source='material',
-        view_name='material2-detail',
+        view_name='material-detail',
     )
     class Meta:
         model = MaterialInCasestudy
