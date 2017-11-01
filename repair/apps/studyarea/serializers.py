@@ -8,24 +8,26 @@ from repair.apps.login.models import CaseStudy
 from repair.apps.login.serializers import (CaseStudySerializer,
                                            InCasestudyField,
                                            InCaseStudyIdentityField,
+                                           IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin)
 
 
 
 class StakeholderCategoryField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    child_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
 
-class StakeholderSetField(InCaseStudyIdentityField):
+class StakeholderSetField(InCasestudyField):
     lookup_url_kwarg = 'stakeholdercategory_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'stakeholder_category__casestudy__id',
+                            'stakeholdercategory_pk': 'stakeholder_category__id', }
+
+
+class StakeholderListField(IdentityFieldMixin, StakeholderSetField):
+    """"""
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
                             'stakeholdercategory_pk': 'id', }
 
-    child_lookup_kwargs = {
-        'casestudy_pk': 'stakeholder_category__casestudy__id',
-        'stakeholdercategory_pk': 'stakeholder_category__id',
-    }
 
 class StakeholderSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -33,7 +35,8 @@ class StakeholderSerializer(NestedHyperlinkedModelSerializer):
         'stakeholdercategory_pk': 'stakeholder_category__id',
     }
     stakeholder_category = StakeholderCategoryField(
-        view_name='stakeholdercategory-detail',)
+        view_name='stakeholdercategory-detail'
+    )
 
     class Meta:
         model = Stakeholder
@@ -53,11 +56,15 @@ class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
 class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    stakeholder_set = StakeholderSetField(view_name='stakeholder-list')
+    stakeholder_set = StakeholderListField(
+        view_name='stakeholder-list')
+    stakeholder_list = StakeholderSetField(source='stakeholder_set',
+                                            many=True,
+                                            view_name='stakeholder-detail')
 
     class Meta:
         model = StakeholderCategory
-        fields = ('url', 'id', 'name', 'stakeholder_set',
+        fields = ('url', 'id', 'name', 'stakeholder_set', 'stakeholder_list',
                   )
 
     def get_required_fields(self, user):

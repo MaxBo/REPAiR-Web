@@ -37,9 +37,10 @@ class OnlyCasestudyMixin(ABC):
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
-        casestudy_pk = kwargs.get('casestudy_pk')
-        if casestudy_pk is not None:
-            request.session['casestudy'] = casestudy_pk
+        request.session['casestudy_pk'] = kwargs
+        #casestudy_pk = kwargs.get('casestudy_pk')
+        #if casestudy_pk is not None:
+            #request.session['casestudy_pk'] = {'casestudy_pk': casestudy_pk}
 
     def list(self, request, **kwargs):
         """
@@ -57,20 +58,21 @@ class OnlyCasestudyMixin(ABC):
                                      context={'request': request, })
         return Response(serializer.data)
 
-    #def create(self, request, casestudy_pk=None, **kwargs):
-        #"""
-        #get the user from the session (or the request-data)
-        #and raise an error, if the user is not
-        #permitted in the current casestudy
-        #"""
-        #user_id = request.data.get('user', request.user.id) or -1
-        #try:
-            #UserInCasestudy.objects.get(user_id=user_id,
-                                        #casestudy_id=casestudy_pk)
-        #except(UserInCasestudy.DoesNotExist):
-            #return Response({'detail': 'User does not exist in Casestudy!'},
-                            #status=status.HTTP_406_NOT_ACCEPTABLE)
-        #return super().create(request, **kwargs)
+
+class OnlySolutionMixin(OnlyCasestudyMixin):
+    """"""
+    _pk_fields = ['casestudy_pk', 'solutioncategory_pk', 'solution_pk']
+    _pk_fields = ['casestudy_pk', 'solutioncategory_pk', 'solution_pk']
+    def set_casestudy(self, kwargs, request):
+        """set the casestudy as a session attribute if its in the kwargs"""
+        request.session['casestudy_pk'] = kwargs
+        #casestudy_pk = request.session.get('casestudy_pk', {})
+        #if not casestudy_pk:
+
+        #for pk_field in kwargs:
+            #pk = kwargs.get(pk_field)
+            #if pk is not None:
+                #casestudy_pk[pk_field] = pk
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -82,7 +82,7 @@ class CaseStudy(GDSEModel):
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
-    organization = models.TextField(default='')
+    organization = models.TextField(default='', blank=True)
 
     @property
     def name(self):
@@ -105,7 +105,7 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
 class UserInCasestudy(GDSEModel):
     user = models.ForeignKey(Profile)
     casestudy = models.ForeignKey(CaseStudy)
-    role = models.TextField(default='')
+    role = models.TextField(default='', blank=True)
 
     @property
     def name(self):

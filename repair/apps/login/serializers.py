@@ -57,7 +57,8 @@ class CreateWithUserInCasestudyMixin:
         if not user:
             request = self.context['request']
             user_id = request.user.id or -1  # for the anonymus user
-            casestudy_id = request.session.get('casestudy')
+            casestudy_id = request.session.get('casestudy_pk', {}).\
+                get('casestudy_pk')
             user = UserInCasestudy.objects.get(user_id=user_id,
                                                casestudy_id=casestudy_id)
 
@@ -77,7 +78,9 @@ class CreateWithUserInCasestudyMixin:
         return obj
 
     def get_required_fields(self, user):
-        required_fields = {'user': user,}
+        required_fields = {}
+        if 'user' in self.fields:
+            required_fields['user'] = user
         return required_fields
 
     def get_model(self):
@@ -86,13 +89,56 @@ class CreateWithUserInCasestudyMixin:
         return Model
 
 
-class InCasestudyField(NestedHyperlinkedRelatedField):
+class NestedHyperlinkedRelatedField2(NestedHyperlinkedRelatedField):
+    def get_model(self, view):
+        Model = view.queryset.model
+        field_name = self.get_field_name()
+        related_field = getattr(Model, field_name).field
+        if related_field.model == Model:
+            RelatedModel = related_field.related_model
+        else:
+            RelatedModel = related_field.model
+        return RelatedModel
+
+    def get_field_name(self):
+        """get the field name from the serializer"""
+        # build a dictionary if the fields (of the child_relations for fields
+        # with many=True)
+        if self.source and self.source != '*':
+            return self.source
+        fn_dict = {getattr(v, 'child_relation', v): k
+                   for k, v in self.root.fields.items()}
+        field_name = fn_dict.get(self, fn_dict.get(self))
+        return field_name
+
+    def get_object(self, view_name, view_args, view_kwargs):
+        """
+        Return the object corresponding to a matched URL.
+
+        Takes the matched URL conf arguments, and should return an
+        object instance, or raise an `ObjectDoesNotExist` exception.
+        """
+
+        # default lookup from rest_framework.relations.HyperlinkedRelatedField
+        lookup_value = view_kwargs[self.lookup_url_kwarg]
+        kwargs = {self.lookup_url_kwarg: lookup_value}
+
+        # multi-level lookup
+        for parent_lookup_kwarg, lookup_field in list(
+            self.parent_lookup_kwargs.items()):
+            lookup_value = view_kwargs[parent_lookup_kwarg]
+            kwargs.update({lookup_field: lookup_value})
+
+            return self.get_queryset().get(**kwargs)
+
+
+class InCasestudyField(NestedHyperlinkedRelatedField2):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    child_lookup_kwargs = {'casestudy_pk': 'id'}
 
     def __init__(self, *args, **kwargs):
-        self.child_lookup_kwargs = kwargs.pop('child_lookup_kwargs', None) \
-            or self.child_lookup_kwargs
+        self.casestudy_pk_lookup = {
+            'casestudy_pk': self.parent_lookup_kwargs['casestudy_pk']}
+
         super().__init__(*args, **kwargs)
 
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
@@ -116,59 +162,35 @@ class InCasestudyField(NestedHyperlinkedRelatedField):
         if obj:
             casestudy_id = self.get_casestudyid_from_obj(obj)
         else:
-            casestudy_id = view.request.session.get('casestudy')
+            casestudy_id = view.request.session.get('casestudy_pk', {}).\
+                get('casestudy_pk')
         if casestudy_id:
-            kwargs = {self.get_casestudy_pk(casestudy_id):
-                      casestudy_id}
+            kwargs = {self.get_casestudy_pk(): casestudy_id}
             qs = Model.objects.filter(**kwargs)
         else:
             qs = view.queryset
         return qs
 
-    def get_model(self, view):
-        Model = view.queryset.model
-        RelatedModel = getattr(Model, self.get_field_name()).field.related_model
-        return RelatedModel
-
-    def get_field_name(self):
-        fn_dict = {v: k for k, v in self.root.fields.items()}
-        field_name = fn_dict.get(self, fn_dict.get(self.parent))
-        return field_name
-
     def get_casestudyid_from_obj(self, obj):
-        child_lookup_kwargs = self._kwargs.get('child_lookup_kwargs',
-                                               self.child_lookup_kwargs)
-        casestudy_pk = child_lookup_kwargs['casestudy_pk'].split('__')
+        casestudy_from_object = self.root.parent_lookup_kwargs['casestudy_pk']
+        casestudy_pk = casestudy_from_object.split('__')
         for attr in casestudy_pk:
             obj = getattr(obj, attr)
         return obj
 
-    def get_casestudy_pk(self, casestudy_id):
-        casestudy_pk = self.parent_lookup_kwargs.get('casestudy_pk')
+    def get_casestudy_pk(self):
+        """
+        get the casestudy primary key field from the casestudy_pk_lookup
+        """
+        casestudy_pk = self.casestudy_pk_lookup.get(
+            'casestudy_pk',
+            # or if not specified in the parent_lookup_kwargs
+            self.parent_lookup_kwargs.get('casestudy_pk'))
         return casestudy_pk
 
-    def get_object(self, view_name, view_args, view_kwargs):
-        """
-        Return the object corresponding to a matched URL.
 
-        Takes the matched URL conf arguments, and should return an
-        object instance, or raise an `ObjectDoesNotExist` exception.
-        """
-
-        # default lookup from rest_framework.relations.HyperlinkedRelatedField
-        lookup_value = view_kwargs[self.lookup_url_kwarg]
-        kwargs = {self.lookup_url_kwarg: lookup_value}
-
-        # multi-level lookup
-        for parent_lookup_kwarg, lookup_field in list(
-            self.parent_lookup_kwargs.items()):
-            lookup_value = view_kwargs[parent_lookup_kwarg]
-            kwargs.update({lookup_field: lookup_value})
-
-            return self.get_queryset().get(**kwargs)
-
-class InCaseStudyIdentityField(InCasestudyField):
-    """"""
+class IdentityFieldMixin:
+    """Mixin to make a field that can be used with the ...-list view"""
     def __init__(self, view_name=None, **kwargs):
         assert view_name is not None, 'The `view_name` argument is required.'
         kwargs['read_only'] = True
@@ -182,23 +204,49 @@ class InCaseStudyIdentityField(InCasestudyField):
         return Model
 
 
+
+class InCaseStudyIdentityField(IdentityFieldMixin, InCasestudyField):
+    """
+    A Field that returns only results for the casestudy
+    that can be used with the ...-list view
+    """
+
+
 class InCasestudySetField(InCaseStudyIdentityField):
     """Field that returns a list of all items in the casestudy"""
     lookup_url_kwarg = 'casestudy_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'id'}
 
+class NestedHyperlinkedModelSerializer2(NestedHyperlinkedModelSerializer):
+    """Fix blank problems"""
+    def to_internal_value(self, data):
+        result = super().to_internal_value(data)
+        if result.get('fieldname', None) is None:
+            result['fieldname'] = ""
+        return result
+
+
 ###############################################################################
 #### Serializers for the Whole Project                                     ####
 ###############################################################################
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class GroupSerializer(NestedHyperlinkedModelSerializer2):
+    parent_lookup_kwargs = {}
     class Meta:
         model = Group
         fields = ('url', 'id', 'name')
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+#class UserInCasestudyListField(IdentityFieldMixin,
+                               #NestedHyperlinkedRelatedField2):
+    #"""Returns a Link to the userincasestudy--list view"""
+    #lookup_url_kwarg = 'user_pk'
+    #parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class UserSerializer(NestedHyperlinkedModelSerializer2):
     """Serializer for put and post requests"""
+    parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
         queryset = CaseStudy.objects.all(),
         source='profile.casestudies',
@@ -206,14 +254,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the user works on')
     )
-    organization = serializers.CharField(source='profile.organization')
+    #userincasestudies = UserInCasestudyListField(
+        #view_name='userincasestudy-list', source='profile.userincasestudy_set')
+    organization = serializers.CharField(source='profile.organization',
+                                         allow_blank=True, required=False)
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
+        organization = serializers.CharField(required=False, allow_null=True)
         fields = ('url', 'id', 'username', 'email', 'groups', 'password',
-                  'organization', 'casestudies')
-        write_only_fields = ['password']
-        read_only_fields = ['id', 'url']
+                  'organization', 'casestudies',
+                  #'userincasestudies',
+                  )
 
     def update(self, obj, validated_data):
         """update the user-attributes, including profile information"""
@@ -267,7 +320,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return user
 
 
-class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
+class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
+    parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudySetField(view_name='userincasestudy-list')
     stakeholder_categories = InCasestudySetField(
         view_name='stakeholdercategory-list')
@@ -282,8 +336,9 @@ class CaseStudySerializer(serializers.HyperlinkedModelSerializer):
                   'implementations')
 
 
-class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
+class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    role = serializers.CharField(required=False, allow_blank=True)
     user = serializers.HyperlinkedIdentityField(
         source='user.user',
         view_name='user-detail',
