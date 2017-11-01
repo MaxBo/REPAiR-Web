@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('asmfa', '0001_auto_20171101_1241'),
+        ('asmfa', '0002_auto_20171101_1241'),
     ]
 
     operations = [
