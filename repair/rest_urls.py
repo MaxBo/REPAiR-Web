@@ -21,9 +21,17 @@ from repair.apps.changes.views import (
 )
 
 from repair.apps.asmfa.views import (
-    ActivityGroupViewSet, ActivityViewSet, ActorViewSet,
-    Activity2ActivityViewSet, MaterialViewSet, Group2GroupViewSet,
-    Actor2ActorViewSet, QualityViewSet)
+    ActivityGroupViewSet,
+    ActivityViewSet,
+    ActorViewSet,
+    Activity2ActivityViewSet,
+    MaterialViewSet,
+    Group2GroupViewSet,
+    Actor2ActorViewSet,
+    QualityViewSet,
+    Material2ViewSet,
+    Quality2ViewSet,
+    MaterialInCasestudyViewSet)
 
 ## base routes ##
 
@@ -32,6 +40,8 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
+router.register(r'materials', Material2ViewSet)
+router.register(r'qualities', Quality2ViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -47,6 +57,7 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'materials', MaterialViewSet, base_name='materials')
 cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
+cs_router.register(r'materials2', MaterialInCasestudyViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 shcat_router = NestedSimpleRouter(cs_router, r'stakeholdercategories',

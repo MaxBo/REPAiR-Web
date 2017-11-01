@@ -24,6 +24,150 @@
   }
 },
 {
+  "model": "asmfa.materialincasestudy",
+  "pk": 13,
+  "fields": {
+    "material": 1,
+    "casestudy": 1,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 15,
+  "fields": {
+    "material": 1,
+    "casestudy": 4,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 16,
+  "fields": {
+    "material": 1,
+    "casestudy": 3,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 17,
+  "fields": {
+    "material": 1,
+    "casestudy": 5,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 18,
+  "fields": {
+    "material": 2,
+    "casestudy": 1,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 19,
+  "fields": {
+    "material": 2,
+    "casestudy": 2,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 20,
+  "fields": {
+    "material": 2,
+    "casestudy": 3,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 21,
+  "fields": {
+    "material": 2,
+    "casestudy": 4,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 22,
+  "fields": {
+    "material": 2,
+    "casestudy": 5,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 23,
+  "fields": {
+    "material": 2,
+    "casestudy": 6,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 24,
+  "fields": {
+    "material": 3,
+    "casestudy": 1,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 25,
+  "fields": {
+    "material": 3,
+    "casestudy": 2,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 26,
+  "fields": {
+    "material": 3,
+    "casestudy": 3,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 27,
+  "fields": {
+    "material": 3,
+    "casestudy": 4,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 28,
+  "fields": {
+    "material": 3,
+    "casestudy": 5,
+    "note": ""
+  }
+},
+{
+  "model": "asmfa.materialincasestudy",
+  "pk": 29,
+  "fields": {
+    "material": 3,
+    "casestudy": 6,
+    "note": ""
+  }
+},
+{
   "model": "asmfa.quality",
   "pk": 1,
   "fields": {

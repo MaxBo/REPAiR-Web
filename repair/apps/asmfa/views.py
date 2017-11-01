@@ -5,18 +5,22 @@ from abc import ABC
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 
 from repair.apps.asmfa.models import (
     ActivityGroup, Activity, Actor, Flow,
-    Activity2Activity, Actor2Actor, Group2Group)
+    Activity2Activity, Actor2Actor, Group2Group, Material, Quality,
+    MaterialInCasestudy)
 from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer, ActivitySerializer,
     ActorSerializer, FlowSerializer, Actor2ActorSerializer,
     Activity2ActivitySerializer, Group2GroupSerializer,
-    ActorListSerializer)
+    ActorListSerializer, MaterialSerializer, QualitySerializer,
+    MaterialInCasestudySerializer)
+
+from repair.apps.login.views import OnlyCasestudyMixin
 
 
 class ActivityGroupViewSet(ViewSet):
@@ -94,6 +98,24 @@ class ActorViewSet(ViewSet):
         actor = get_object_or_404(queryset, pk=pk)
         serializer = ActorSerializer(actor)
         return Response(serializer.data)
+
+
+class Material2ViewSet(ModelViewSet):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
+
+
+class Quality2ViewSet(ModelViewSet):
+    queryset = Quality.objects.all()
+    serializer_class = QualitySerializer
+
+
+class MaterialInCasestudyViewSet(OnlyCasestudyMixin, ModelViewSet):
+    """
+    API endpoint that allows materialincasestudy to be viewed or edited.
+    """
+    queryset = MaterialInCasestudy.objects.all()
+    serializer_class = MaterialInCasestudySerializer
 
 
 class MaterialViewSet(ViewSet):

@@ -328,12 +328,13 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
     solution_categories = InCasestudySetField(
         view_name='solutioncategory-list')
     implementations = InCasestudySetField(view_name='implementation-list')
+    materials = InCasestudySetField(view_name='materialincasestudy-list')
 
     class Meta:
         model = CaseStudy
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
-                  'implementations')
+                  'implementations', 'materials')
 
 
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):
