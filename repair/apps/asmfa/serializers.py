@@ -255,11 +255,6 @@ class GroupStockSerializer(StockSerializer):
         model = GroupStock
 
 
-class ActivityGroupField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id',
-                            'activitygroup_pk': 'activitygroup__id',}
-
-
 class ActivityStockSerializer(StockSerializer):
     origin = ActivityField(view_name='activity-detail')
     class Meta(StockSerializer.Meta):
@@ -303,18 +298,17 @@ class Group2GroupSerializer(FlowSerializer):
         model = Group2Group
 
 
-
 class Activity2ActivitySerializer(FlowSerializer):
-    origin = ActivityGroupField(view_name='activity-detail')
-    destination = ActivityGroupField(view_name='activity-detail')
+    origin = ActivityField(view_name='activity-detail')
+    destination = ActivityField(view_name='activity-detail')
 
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
 
 
 class Actor2ActorSerializer(FlowSerializer):
-    origin = ActivityGroupField(view_name='actor-detail')
-    destination = ActivityGroupField(view_name='actor-detail')
+    origin = ActorField(view_name='actor-detail')
+    destination = ActorField(view_name='actor-detail')
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
