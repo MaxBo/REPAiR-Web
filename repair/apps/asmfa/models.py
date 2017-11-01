@@ -15,6 +15,24 @@ class DataEntry(models.Model):
     pass
 
 
+class Material(models.Model):
+    name = models.TextField()
+    casestudies = models.ManyToManyField(CaseStudy,
+                                         through='MaterialInCasestudy')
+
+
+class MaterialInCasestudy(models.Model):
+    material = models.ForeignKey(Material)
+    casestudy = models.ForeignKey(CaseStudy)
+    note = models.TextField(default='', blank=True)
+
+
+class Quality(models.Model):
+    material = models.ForeignKey(Material,
+                                 on_delete=models.CASCADE)
+    name = models.TextField()
+
+
 class Geolocation(models.Model):
 
     # same as for DataEntry, also geometry will have to be included later
@@ -52,12 +70,12 @@ class ActivityGroup(Node):
                               ("W", "Waste Management"),
                               ("imp", "Import"),  # 'import' and 'export' are "special" types of activity groups/activities/actors
                               ("exp", "Export"))
-    code = models.CharField(max_length=255, primary_key=True)
+    code = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, choices=activity_group_choices)
 
     casestudy = models.ForeignKey(CaseStudy,
-                                   on_delete=models.CASCADE,
-                                   default=1)
+                                  on_delete=models.CASCADE,
+                                  default=1)
 
 
 class Activity(Node):
@@ -65,7 +83,7 @@ class Activity(Node):
     nace = models.CharField(max_length=255, unique=True)  # NACE code, unique for each activity
     name = models.CharField(max_length=255)  # not sure about the max length, leaving everywhere 255 for now
 
-    own_activitygroup = models.ForeignKey(ActivityGroup,
+    activitygroup = models.ForeignKey(ActivityGroup,
                                           on_delete=models.CASCADE,
                                           related_name='Activities',
                                           default=1)
@@ -73,7 +91,7 @@ class Activity(Node):
 
 class Actor(Node):
 
-    BvDid = models.CharField(max_length=255, primary_key=True) #unique actor identifier in ORBIS database
+    BvDid = models.CharField(max_length=255, unique=True) #unique actor identifier in ORBIS database
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
@@ -86,9 +104,9 @@ class Actor(Node):
     BvDii = models.CharField(max_length=255)
     website = models.CharField(max_length=255)
 
-    own_activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                      related_name='Actors',
-                                     to_field='nace',
+                                     #to_field='nace',
                                      default=1)
 
 
@@ -126,9 +144,13 @@ class Group2Group(Flow):
 class Activity2Activity(Flow):
 
     destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                    related_name='Inputs', to_field='nace')
+                                    related_name='Inputs',
+                                    #to_field='nace',
+                                    )
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                               related_name='Outputs', to_field='nace')
+                               related_name='Outputs',
+                               #to_field='nace',
+                               )
 
 
 class Actor2Actor(Flow):
@@ -142,9 +164,11 @@ class Actor2Actor(Flow):
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users
-    material = models.CharField(max_length=255, choices=Flow.material_choices, blank=True)
+    material = models.CharField(max_length=255, choices=Flow.material_choices,
+                                blank=True)
     amount = models.PositiveIntegerField(blank=True)
-    quality = models.CharField(max_length=255, choices=Flow.quality_choices, blank=True)
+    quality = models.CharField(max_length=255, choices=Flow.quality_choices,
+                               blank=True)
 
     class Meta:
         abstract = True
@@ -159,7 +183,7 @@ class GroupStock(Stock):
 class ActivityStock(Stock):
 
         origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='Stocks', to_field='nace')
+                                   related_name='Stocks')
 
 
 class ActorStock(Stock):

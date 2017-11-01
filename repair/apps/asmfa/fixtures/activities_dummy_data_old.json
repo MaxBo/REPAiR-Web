@@ -1,462 +1,420 @@
 [
 {
   "model": "asmfa.activitygroup",
-  "pk": 1,
+  "pk": "C",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "C",
     "name": "Consuming",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 2,
+  "pk": "COL",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "COL",
     "name": "Collection",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 3,
+  "pk": "D",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "D",
     "name": "Distribution",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 4,
+  "pk": "P1",
   "fields": {
     "source": true,
     "sink": false,
-    "code": "P1",
     "name": "Production",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 5,
+  "pk": "P2",
   "fields": {
     "source": true,
     "sink": false,
-    "code": "P2",
     "name": "Production of packaging",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 6,
+  "pk": "P3",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "P3",
     "name": "Packaging",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 7,
+  "pk": "R",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "R",
     "name": "Return Logistics",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 8,
+  "pk": "S",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "S",
     "name": "Selling",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 9,
+  "pk": "SC",
   "fields": {
     "source": false,
     "sink": false,
-    "code": "SC",
     "name": "Selling and Cosuming",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 10,
+  "pk": "W",
   "fields": {
     "source": false,
     "sink": true,
-    "code": "W",
     "name": "Waste Management",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 11,
+  "pk": "exp",
   "fields": {
     "source": false,
     "sink": true,
-    "code": "exp",
     "name": "Export",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
-  "pk": 12,
+  "pk": "imp",
   "fields": {
     "source": true,
     "sink": false,
-    "code": "imp",
     "name": "Import",
     "casestudy": 1
   }
 },
 {
   "model": "asmfa.activity",
-  "pk": 1,
   "fields": {
-    "source": false,
-    "sink": true,
     "nace": "00.inci",
+    "source": false,
+    "sink": true,
     "name": "Incineration",
-    "activitygroup": 10
+    "own_activitygroup": "W"
   }
 },
 {
   "model": "asmfa.activity",
-  "pk": 2,
   "fields": {
-    "source": false,
-    "sink": true,
     "nace": "00.land",
-    "name": "Landfill",
-    "activitygroup": 10
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 3,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "11.juice",
-    "name": "Manufacture of juice",
-    "activitygroup": 4
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 4,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "11.milk",
-    "name": "Manufacture of milk",
-    "activitygroup": 4
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 5,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "11.soft",
-    "name": "Manufacture of soft drinks",
-    "activitygroup": 4
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 6,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "11.water",
-    "name": "Manufacture of mineral water",
-    "activitygroup": 4
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 7,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "22.bottles",
-    "name": "Manufacture of bottles",
-    "activitygroup": 5
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 8,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "nace": "22.boxes",
-    "name": "Manufacture of boxes",
-    "activitygroup": 5
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 9,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "33.drinks",
-    "name": "Packaging of drinks",
-    "activitygroup": 6
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 10,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "33.milk",
-    "name": "Packaging of milk",
-    "activitygroup": 6
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 11,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "33.water",
-    "name": "Packaging of water",
-    "activitygroup": 6
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 12,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "44.drinks",
-    "name": "Distribution of drinks",
-    "activitygroup": 3
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 13,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "44.milk",
-    "name": "Distribution of milk",
-    "activitygroup": 3
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 14,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "44.water",
-    "name": "Distribution of water",
-    "activitygroup": 3
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 15,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "55.market",
-    "name": "Selling in market",
-    "activitygroup": 8
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 16,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "55.sm",
-    "name": "Selling in supermarket",
-    "activitygroup": 8
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 17,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "55.whole",
-    "name": "Wholesale",
-    "activitygroup": 8
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 18,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "66.farm",
-    "name": "Farm Consuming",
-    "activitygroup": 1
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 19,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "66.home",
-    "name": "Home Consuming",
-    "activitygroup": 1
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 20,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "77.bar",
-    "name": "Bar Consuming",
-    "activitygroup": 9
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 21,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "77.cafe",
-    "name": "Cafe Consuming",
-    "activitygroup": 9
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 22,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "77.rest",
-    "name": "Restaurant Consuming",
-    "activitygroup": 9
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 23,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "88.depo",
-    "name": "Deposit",
-    "activitygroup": 7
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 24,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "88.waste",
-    "name": "Sorted waste",
-    "activitygroup": 7
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 25,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "99.MSW",
-    "name": "Household waste",
-    "activitygroup": 2
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 26,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "99.cat",
-    "name": "Catering waste",
-    "activitygroup": 2
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 27,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "nace": "99.farm",
-    "name": "Farm waste",
-    "activitygroup": 2
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 28,
-  "fields": {
     "source": false,
     "sink": true,
-    "nace": "ee.xx",
-    "name": "Export",
-    "activitygroup": 11
+    "name": "Landfill",
+    "own_activitygroup": "W"
   }
 },
 {
   "model": "asmfa.activity",
-  "pk": 29,
   "fields": {
+    "nace": "11.juice",
     "source": true,
     "sink": false,
+    "name": "Manufacture of juice",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "11.milk",
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of milk",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "11.soft",
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of soft drinks",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "11.water",
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of mineral water",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "22.bottles",
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of bottles",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "22.boxes",
+    "source": true,
+    "sink": false,
+    "name": "Manufacture of boxes",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "33.drinks",
+    "source": false,
+    "sink": false,
+    "name": "Packaging of drinks",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "33.milk",
+    "source": false,
+    "sink": false,
+    "name": "Packaging of milk",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "33.water",
+    "source": false,
+    "sink": false,
+    "name": "Packaging of water",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "44.drinks",
+    "source": false,
+    "sink": false,
+    "name": "Distribution of drinks",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "44.milk",
+    "source": false,
+    "sink": false,
+    "name": "Distribution of milk",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "44.water",
+    "source": false,
+    "sink": false,
+    "name": "Distribution of water",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "55.market",
+    "source": false,
+    "sink": false,
+    "name": "Selling in market",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "55.sm",
+    "source": false,
+    "sink": false,
+    "name": "Selling in supermarket",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "55.whole",
+    "source": false,
+    "sink": false,
+    "name": "Wholesale",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "66.farm",
+    "source": false,
+    "sink": false,
+    "name": "Farm Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "66.home",
+    "source": false,
+    "sink": false,
+    "name": "Home Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "77.bar",
+    "source": false,
+    "sink": false,
+    "name": "Bar Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "77.cafe",
+    "source": false,
+    "sink": false,
+    "name": "Cafe Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "77.rest",
+    "source": false,
+    "sink": false,
+    "name": "Restaurant Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "88.depo",
+    "source": false,
+    "sink": false,
+    "name": "Deposit",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "88.waste",
+    "source": false,
+    "sink": false,
+    "name": "Sorted waste",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "99.MSW",
+    "source": false,
+    "sink": false,
+    "name": "Household waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "99.cat",
+    "source": false,
+    "sink": false,
+    "name": "Catering waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "99.farm",
+    "source": false,
+    "sink": false,
+    "name": "Farm waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
+    "nace": "ee.xx",
+    "source": false,
+    "sink": true,
+    "name": "Export",
+    "own_activitygroup": "exp"
+  }
+},
+{
+  "model": "asmfa.activity",
+  "fields": {
     "nace": "ii.xx",
+    "source": true,
+    "sink": false,
     "name": "Import",
-    "activitygroup": 12
+    "own_activitygroup": "imp"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 1,
+  "pk": "NL00000001",
   "fields": {
     "source": false,
     "sink": true,
-    "BvDid": "NL00000001",
     "name": "Incinerator",
     "consCode": "111",
     "year": 2017,
@@ -464,16 +422,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 1
+    "own_activity": "00.inci"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 2,
+  "pk": "NL00000002",
   "fields": {
     "source": false,
     "sink": true,
-    "BvDid": "NL00000002",
     "name": "Landfilling bv",
     "consCode": "111",
     "year": 2017,
@@ -481,16 +438,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 2
+    "own_activity": "00.land"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 3,
+  "pk": "NL00000110",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000110",
     "name": "Happy Farm",
     "consCode": "111",
     "year": 2017,
@@ -498,16 +454,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 4
+    "own_activity": "11.milk"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 4,
+  "pk": "NL00000111",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000111",
     "name": "Cocacola",
     "consCode": "111",
     "year": 2017,
@@ -515,16 +470,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "own_activity": "11.soft"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 5,
+  "pk": "NL00000112",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000112",
     "name": "Pepsi",
     "consCode": "111",
     "year": 2017,
@@ -532,16 +486,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "own_activity": "11.soft"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 6,
+  "pk": "NL00000113",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000113",
     "name": "Sprite",
     "consCode": "111",
     "year": 2017,
@@ -549,16 +502,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "own_activity": "11.soft"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 7,
+  "pk": "NL00000114",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000114",
     "name": "Apple Juice",
     "consCode": "111",
     "year": 2017,
@@ -566,16 +518,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "own_activity": "11.juice"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 8,
+  "pk": "NL00000115",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000115",
     "name": "Orange Juice",
     "consCode": "111",
     "year": 2017,
@@ -583,16 +534,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "own_activity": "11.juice"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 9,
+  "pk": "NL00000116",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000116",
     "name": "Fresh Juice",
     "consCode": "111",
     "year": 2017,
@@ -600,16 +550,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "own_activity": "11.juice"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 10,
+  "pk": "NL00000117",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000117",
     "name": "Frozen Juice",
     "consCode": "111",
     "year": 2017,
@@ -617,16 +566,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "own_activity": "11.juice"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 11,
+  "pk": "NL00000118",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000118",
     "name": "Mountain Water",
     "consCode": "111",
     "year": 2017,
@@ -634,16 +582,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6
+    "own_activity": "11.water"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 12,
+  "pk": "NL00000119",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000119",
     "name": "Vytautas Water",
     "consCode": "111",
     "year": 2017,
@@ -651,16 +598,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6
+    "own_activity": "11.water"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 13,
+  "pk": "NL00000221",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000221",
     "name": "Pretty Bottle",
     "consCode": "111",
     "year": 2017,
@@ -668,16 +614,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7
+    "own_activity": "22.bottles"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 14,
+  "pk": "NL00000222",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000222",
     "name": "Bottles Inc.",
     "consCode": "111",
     "year": 2017,
@@ -685,16 +630,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7
+    "own_activity": "22.bottles"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 15,
+  "pk": "NL00000223",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000223",
     "name": "Boxes Inc.",
     "consCode": "111",
     "year": 2017,
@@ -702,16 +646,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "own_activity": "22.boxes"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 16,
+  "pk": "NL00000224",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000224",
     "name": "Pack-a-Box.",
     "consCode": "111",
     "year": 2017,
@@ -719,16 +662,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "own_activity": "22.boxes"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 17,
+  "pk": "NL00000225",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "NL00000225",
     "name": "3D-Box.",
     "consCode": "111",
     "year": 2017,
@@ -736,16 +678,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "own_activity": "22.boxes"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 18,
+  "pk": "NL00000331",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000331",
     "name": "Cola&Sprite",
     "consCode": "111",
     "year": 2017,
@@ -753,16 +694,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9
+    "own_activity": "33.drinks"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 19,
+  "pk": "NL00000332",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000332",
     "name": "Appelsientje",
     "consCode": "111",
     "year": 2017,
@@ -770,16 +710,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9
+    "own_activity": "33.drinks"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 20,
+  "pk": "NL00000333",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000333",
     "name": "PETPETPET",
     "consCode": "111",
     "year": 2017,
@@ -787,16 +726,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11
+    "own_activity": "33.water"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 21,
+  "pk": "NL00000334",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000334",
     "name": "WaterPack",
     "consCode": "111",
     "year": 2017,
@@ -804,16 +742,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11
+    "own_activity": "33.water"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 22,
+  "pk": "NL00000335",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000335",
     "name": "TetraPak",
     "consCode": "111",
     "year": 2017,
@@ -821,16 +758,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 10
+    "own_activity": "33.milk"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 23,
+  "pk": "NL00000441",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000441",
     "name": "Drink Distributor",
     "consCode": "111",
     "year": 2017,
@@ -838,16 +774,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 12
+    "own_activity": "44.drinks"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 24,
+  "pk": "NL00000442",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000442",
     "name": "Water Distributor",
     "consCode": "111",
     "year": 2017,
@@ -855,16 +790,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 14
+    "own_activity": "44.water"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 25,
+  "pk": "NL00000443",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000443",
     "name": "Milk Distributor",
     "consCode": "111",
     "year": 2017,
@@ -872,16 +806,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 13
+    "own_activity": "44.milk"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 26,
+  "pk": "NL00000550",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000550",
     "name": "Wholeseller",
     "consCode": "111",
     "year": 2017,
@@ -889,16 +822,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 17
+    "own_activity": "55.whole"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 27,
+  "pk": "NL00000551",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000551",
     "name": "Jumbo",
     "consCode": "111",
     "year": 2017,
@@ -906,16 +838,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "own_activity": "55.sm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 28,
+  "pk": "NL00000552",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000552",
     "name": "Albert Heijn",
     "consCode": "111",
     "year": 2017,
@@ -923,16 +854,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "own_activity": "55.sm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 29,
+  "pk": "NL00000553",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000553",
     "name": "Lidl",
     "consCode": "111",
     "year": 2017,
@@ -940,16 +870,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "own_activity": "55.sm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 30,
+  "pk": "NL00000554",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000554",
     "name": "Deen",
     "consCode": "111",
     "year": 2017,
@@ -957,16 +886,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "own_activity": "55.sm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 31,
+  "pk": "NL00000555",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000555",
     "name": "Spar",
     "consCode": "111",
     "year": 2017,
@@ -974,16 +902,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "own_activity": "55.sm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 32,
+  "pk": "NL00000556",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000556",
     "name": "Market 1",
     "consCode": "111",
     "year": 2017,
@@ -991,16 +918,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "own_activity": "55.market"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 33,
+  "pk": "NL00000557",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000557",
     "name": "Market 2",
     "consCode": "111",
     "year": 2017,
@@ -1008,16 +934,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "own_activity": "55.market"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 34,
+  "pk": "NL00000558",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000558",
     "name": "Market 3",
     "consCode": "111",
     "year": 2017,
@@ -1025,16 +950,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "own_activity": "55.market"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 35,
+  "pk": "NL00000559",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000559",
     "name": "Market 4",
     "consCode": "111",
     "year": 2017,
@@ -1042,16 +966,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "own_activity": "55.market"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 36,
+  "pk": "NL00000660",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000660",
     "name": "Farm Type 4",
     "consCode": "111",
     "year": 2017,
@@ -1059,16 +982,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "own_activity": "66.farm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 37,
+  "pk": "NL00000661",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000661",
     "name": "Household Type 1",
     "consCode": "111",
     "year": 2017,
@@ -1076,16 +998,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 38,
+  "pk": "NL00000662",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000662",
     "name": "Household Type 2",
     "consCode": "111",
     "year": 2017,
@@ -1093,16 +1014,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 39,
+  "pk": "NL00000663",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000663",
     "name": "Household Type 3",
     "consCode": "111",
     "year": 2017,
@@ -1110,16 +1030,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 40,
+  "pk": "NL00000664",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000664",
     "name": "Household Type 4",
     "consCode": "111",
     "year": 2017,
@@ -1127,16 +1046,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 41,
+  "pk": "NL00000665",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000665",
     "name": "Household Type 5",
     "consCode": "111",
     "year": 2017,
@@ -1144,16 +1062,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 42,
+  "pk": "NL00000666",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000666",
     "name": "Household Type 6",
     "consCode": "111",
     "year": 2017,
@@ -1161,16 +1078,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "own_activity": "66.home"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 43,
+  "pk": "NL00000667",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000667",
     "name": "Farm Type 1",
     "consCode": "111",
     "year": 2017,
@@ -1178,16 +1094,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "own_activity": "66.farm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 44,
+  "pk": "NL00000668",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000668",
     "name": "Farm Type 2",
     "consCode": "111",
     "year": 2017,
@@ -1195,16 +1110,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "own_activity": "66.farm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 45,
+  "pk": "NL00000669",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000669",
     "name": "Tourism",
     "consCode": "111",
     "year": 2017,
@@ -1212,16 +1126,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "own_activity": "66.farm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 46,
+  "pk": "NL00000771",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000771",
     "name": "Restaurant 1",
     "consCode": "111",
     "year": 2017,
@@ -1229,16 +1142,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "own_activity": "77.rest"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 47,
+  "pk": "NL00000772",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000772",
     "name": "Restaurant 2",
     "consCode": "111",
     "year": 2017,
@@ -1246,16 +1158,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "own_activity": "77.rest"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 48,
+  "pk": "NL00000773",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000773",
     "name": "Restaurant 3",
     "consCode": "111",
     "year": 2017,
@@ -1263,16 +1174,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "own_activity": "77.rest"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 49,
+  "pk": "NL00000774",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000774",
     "name": "Restaurant 4",
     "consCode": "111",
     "year": 2017,
@@ -1280,16 +1190,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "own_activity": "77.rest"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 50,
+  "pk": "NL00000775",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000775",
     "name": "Bar 1",
     "consCode": "111",
     "year": 2017,
@@ -1297,16 +1206,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 20
+    "own_activity": "77.bar"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 51,
+  "pk": "NL00000776",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000776",
     "name": "Bar 2",
     "consCode": "111",
     "year": 2017,
@@ -1314,16 +1222,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "own_activity": "77.rest"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 52,
+  "pk": "NL00000777",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000777",
     "name": "Cafe 1",
     "consCode": "111",
     "year": 2017,
@@ -1331,16 +1238,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "own_activity": "77.cafe"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 53,
+  "pk": "NL00000778",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000778",
     "name": "Cafe 2",
     "consCode": "111",
     "year": 2017,
@@ -1348,16 +1254,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "own_activity": "77.cafe"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 54,
+  "pk": "NL00000779",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000779",
     "name": "Cafe 3",
     "consCode": "111",
     "year": 2017,
@@ -1365,16 +1270,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "own_activity": "77.cafe"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 55,
+  "pk": "NL00000881",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000881",
     "name": "Plastic Sorting bv",
     "consCode": "111",
     "year": 2017,
@@ -1382,16 +1286,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24
+    "own_activity": "88.waste"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 56,
+  "pk": "NL00000882",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000882",
     "name": "Bottle Sorting bv",
     "consCode": "111",
     "year": 2017,
@@ -1399,16 +1302,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24
+    "own_activity": "88.waste"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 57,
+  "pk": "NL00000883",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000883",
     "name": "Bottle Deposit bv",
     "consCode": "111",
     "year": 2017,
@@ -1416,16 +1318,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 23
+    "own_activity": "88.depo"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 58,
+  "pk": "NL00000991",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000991",
     "name": "MSW collector",
     "consCode": "111",
     "year": 2017,
@@ -1433,16 +1334,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 25
+    "own_activity": "99.MSW"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 59,
+  "pk": "NL00000992",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000992",
     "name": "Food&Plastic waste collector",
     "consCode": "111",
     "year": 2017,
@@ -1450,16 +1350,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26
+    "own_activity": "99.cat"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 60,
+  "pk": "NL00000993",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000993",
     "name": "Restaurant waste collector",
     "consCode": "111",
     "year": 2017,
@@ -1467,16 +1366,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26
+    "own_activity": "99.cat"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 61,
+  "pk": "NL00000994",
   "fields": {
     "source": false,
     "sink": false,
-    "BvDid": "NL00000994",
     "name": "Farm waste collector",
     "consCode": "111",
     "year": 2017,
@@ -1484,16 +1382,15 @@
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 27
+    "own_activity": "99.farm"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 62,
+  "pk": "ee00000000",
   "fields": {
     "source": false,
     "sink": true,
-    "BvDid": "ee00000000",
     "name": "Export",
     "consCode": "",
     "year": 0,
@@ -1501,16 +1398,15 @@
     "employees": 0,
     "BvDii": "",
     "website": "",
-    "activity": 28
+    "own_activity": "ee.xx"
   }
 },
 {
   "model": "asmfa.actor",
-  "pk": 63,
+  "pk": "ii00000000",
   "fields": {
     "source": true,
     "sink": false,
-    "BvDid": "ii00000000",
     "name": "Import",
     "consCode": "",
     "year": 0,
@@ -1518,7 +1414,7 @@
     "employees": 0,
     "BvDii": "",
     "website": "",
-    "activity": 29
+    "own_activity": "ii.xx"
   }
 },
 {
@@ -1528,9 +1424,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 9
+    "destination": "W",
+    "origin": "SC"
   }
 },
 {
@@ -1540,9 +1435,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 6,
-    "origin": 4
+    "destination": "P3",
+    "origin": "P1"
   }
 },
 {
@@ -1552,9 +1446,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 4
+    "destination": "SC",
+    "origin": "P1"
   }
 },
 {
@@ -1564,9 +1457,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 3
+    "destination": "exp",
+    "origin": "D"
   }
 },
 {
@@ -1576,9 +1468,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 12
+    "destination": "S",
+    "origin": "imp"
   }
 },
 {
@@ -1588,9 +1479,8 @@
     "material": "PET",
     "amount": 30,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 1
+    "destination": "COL",
+    "origin": "C"
   }
 },
 {
@@ -1600,9 +1490,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 6,
-    "origin": 5
+    "destination": "P3",
+    "origin": "P2"
   }
 },
 {
@@ -1612,9 +1501,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 8
+    "destination": "C",
+    "origin": "S"
   }
 },
 {
@@ -1624,9 +1512,8 @@
     "material": "PET",
     "amount": 30,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 5,
-    "origin": 7
+    "destination": "P2",
+    "origin": "R"
   }
 },
 {
@@ -1636,9 +1523,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 3
+    "destination": "SC",
+    "origin": "D"
   }
 },
 {
@@ -1648,9 +1534,8 @@
     "material": "PET",
     "amount": 30,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 9
+    "destination": "COL",
+    "origin": "SC"
   }
 },
 {
@@ -1660,9 +1545,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 4
+    "destination": "W",
+    "origin": "P1"
   }
 },
 {
@@ -1672,9 +1556,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 1
+    "destination": "exp",
+    "origin": "C"
   }
 },
 {
@@ -1684,9 +1567,8 @@
     "material": "PET",
     "amount": 100,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 3,
-    "origin": 6
+    "destination": "D",
+    "origin": "P3"
   }
 },
 {
@@ -1696,9 +1578,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 9
+    "destination": "R",
+    "origin": "SC"
   }
 },
 {
@@ -1708,9 +1589,8 @@
     "material": "PET",
     "amount": 30,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 3
+    "destination": "S",
+    "origin": "D"
   }
 },
 {
@@ -1720,9 +1600,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 1
+    "destination": "R",
+    "origin": "C"
   }
 },
 {
@@ -1732,9 +1611,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 8
+    "destination": "exp",
+    "origin": "S"
   }
 },
 {
@@ -1744,9 +1622,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 5
+    "destination": "W",
+    "origin": "P2"
   }
 },
 {
@@ -1756,9 +1633,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 8
+    "destination": "W",
+    "origin": "S"
   }
 },
 {
@@ -1768,9 +1644,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 2
+    "destination": "W",
+    "origin": "COL"
   }
 },
 {
@@ -1780,9 +1655,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 4
+    "destination": "exp",
+    "origin": "P1"
   }
 },
 {
@@ -1792,9 +1666,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 4
+    "destination": "C",
+    "origin": "P1"
   }
 },
 {
@@ -1804,9 +1677,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 27,
-    "origin": 18
+    "destination": "99.farm",
+    "origin": "66.farm"
   }
 },
 {
@@ -1816,9 +1688,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 14
+    "destination": "77.bar",
+    "origin": "44.water"
   }
 },
 {
@@ -1828,9 +1699,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 18
+    "destination": "ee.xx",
+    "origin": "66.farm"
   }
 },
 {
@@ -1840,9 +1710,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 19
+    "destination": "88.waste",
+    "origin": "66.home"
   }
 },
 {
@@ -1852,9 +1721,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 10
+    "destination": "44.milk",
+    "origin": "33.milk"
   }
 },
 {
@@ -1864,9 +1732,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 13
+    "destination": "ee.xx",
+    "origin": "44.milk"
   }
 },
 {
@@ -1876,9 +1743,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 17
+    "destination": "00.inci",
+    "origin": "55.whole"
   }
 },
 {
@@ -1888,9 +1754,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 15
+    "destination": "66.farm",
+    "origin": "55.market"
   }
 },
 {
@@ -1900,9 +1765,8 @@
     "material": "PET",
     "amount": 40,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 14,
-    "origin": 9
+    "destination": "44.water",
+    "origin": "33.drinks"
   }
 },
 {
@@ -1912,9 +1776,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 4
+    "destination": "ee.xx",
+    "origin": "11.milk"
   }
 },
 {
@@ -1924,9 +1787,8 @@
     "material": "PET",
     "amount": 35,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 25
+    "destination": "00.inci",
+    "origin": "99.MSW"
   }
 },
 {
@@ -1936,9 +1798,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 18
+    "destination": "99.cat",
+    "origin": "66.farm"
   }
 },
 {
@@ -1948,9 +1809,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 15,
-    "origin": 14
+    "destination": "55.market",
+    "origin": "44.water"
   }
 },
 {
@@ -1960,9 +1820,8 @@
     "material": "PET",
     "amount": 25,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 8
+    "destination": "33.water",
+    "origin": "22.boxes"
   }
 },
 {
@@ -1972,9 +1831,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 21
+    "destination": "99.MSW",
+    "origin": "77.cafe"
   }
 },
 {
@@ -1984,9 +1842,8 @@
     "material": "PET",
     "amount": 40,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 11
+    "destination": "44.milk",
+    "origin": "33.water"
   }
 },
 {
@@ -1996,9 +1853,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 18
+    "destination": "99.MSW",
+    "origin": "66.farm"
   }
 },
 {
@@ -2008,9 +1864,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 23
+    "destination": "22.bottles",
+    "origin": "88.depo"
   }
 },
 {
@@ -2020,9 +1875,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 7
+    "destination": "33.drinks",
+    "origin": "22.bottles"
   }
 },
 {
@@ -2032,9 +1886,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 4
+    "destination": "33.water",
+    "origin": "11.milk"
   }
 },
 {
@@ -2044,9 +1897,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 11,
-    "origin": 3
+    "destination": "33.water",
+    "origin": "11.juice"
   }
 },
 {
@@ -2056,9 +1908,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 22
+    "destination": "99.MSW",
+    "origin": "77.rest"
   }
 },
 {
@@ -2068,9 +1919,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 6
+    "destination": "33.drinks",
+    "origin": "11.water"
   }
 },
 {
@@ -2080,9 +1930,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 26
+    "destination": "00.inci",
+    "origin": "99.cat"
   }
 },
 {
@@ -2092,9 +1941,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 8
+    "destination": "33.milk",
+    "origin": "22.boxes"
   }
 },
 {
@@ -2104,9 +1952,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 3
+    "destination": "33.drinks",
+    "origin": "11.juice"
   }
 },
 {
@@ -2116,9 +1963,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 13
+    "destination": "77.rest",
+    "origin": "44.milk"
   }
 },
 {
@@ -2128,9 +1974,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 8
+    "destination": "00.land",
+    "origin": "22.boxes"
   }
 },
 {
@@ -2140,9 +1985,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 16
+    "destination": "00.inci",
+    "origin": "55.sm"
   }
 },
 {
@@ -2152,9 +1996,8 @@
     "material": "PET",
     "amount": 30,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 16
+    "destination": "66.home",
+    "origin": "55.sm"
   }
 },
 {
@@ -2164,9 +2007,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 19
+    "destination": "99.cat",
+    "origin": "66.home"
   }
 },
 {
@@ -2176,9 +2018,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 16
+    "destination": "66.farm",
+    "origin": "55.sm"
   }
 },
 {
@@ -2188,9 +2029,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 15
+    "destination": "ee.xx",
+    "origin": "55.market"
   }
 },
 {
@@ -2200,9 +2040,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 17,
-    "origin": 14
+    "destination": "55.whole",
+    "origin": "44.water"
   }
 },
 {
@@ -2212,9 +2051,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 22
+    "destination": "00.land",
+    "origin": "77.rest"
   }
 },
 {
@@ -2224,9 +2062,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 7,
-    "origin": 24
+    "destination": "22.bottles",
+    "origin": "88.waste"
   }
 },
 {
@@ -2236,9 +2073,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 5
+    "destination": "77.rest",
+    "origin": "11.soft"
   }
 },
 {
@@ -2248,9 +2084,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 16,
-    "origin": 13
+    "destination": "55.sm",
+    "origin": "44.milk"
   }
 },
 {
@@ -2260,9 +2095,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 5
+    "destination": "00.inci",
+    "origin": "11.soft"
   }
 },
 {
@@ -2272,9 +2106,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 22
+    "destination": "88.waste",
+    "origin": "77.rest"
   }
 },
 {
@@ -2284,9 +2117,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 8,
-    "origin": 24
+    "destination": "22.boxes",
+    "origin": "88.waste"
   }
 },
 {
@@ -2296,9 +2128,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 12,
-    "origin": 9
+    "destination": "44.drinks",
+    "origin": "33.drinks"
   }
 },
 {
@@ -2308,9 +2139,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 15,
-    "origin": 12
+    "destination": "55.market",
+    "origin": "44.drinks"
   }
 },
 {
@@ -2320,9 +2150,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 9,
-    "origin": 4
+    "destination": "33.drinks",
+    "origin": "11.milk"
   }
 },
 {
@@ -2332,9 +2161,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 14
+    "destination": "77.rest",
+    "origin": "44.water"
   }
 },
 {
@@ -2344,9 +2172,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 19
+    "destination": "88.depo",
+    "origin": "66.home"
   }
 },
 {
@@ -2356,9 +2183,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 10,
-    "origin": 6
+    "destination": "33.milk",
+    "origin": "11.water"
   }
 },
 {
@@ -2368,9 +2194,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 19
+    "destination": "99.MSW",
+    "origin": "66.home"
   }
 },
 {
@@ -2380,9 +2205,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 20
+    "destination": "00.land",
+    "origin": "77.bar"
   }
 },
 {
@@ -2392,9 +2216,8 @@
     "material": "PET",
     "amount": 50,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 16,
-    "origin": 29
+    "destination": "55.sm",
+    "origin": "ii.xx"
   }
 },
 {
@@ -2404,9 +2227,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 13
+    "destination": "77.cafe",
+    "origin": "44.milk"
   }
 },
 {
@@ -2416,9 +2238,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 5
+    "destination": "66.home",
+    "origin": "11.soft"
   }
 },
 {
@@ -2428,9 +2249,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 22
+    "destination": "99.cat",
+    "origin": "77.rest"
   }
 },
 {
@@ -2440,9 +2260,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 21
+    "destination": "88.waste",
+    "origin": "77.cafe"
   }
 },
 {
@@ -2452,9 +2271,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 4
+    "destination": "NL00000001",
+    "origin": "NL00000111"
   }
 },
 {
@@ -2464,9 +2282,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 46,
-    "origin": 5
+    "destination": "NL00000771",
+    "origin": "NL00000112"
   }
 },
 {
@@ -2476,9 +2293,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 37,
-    "origin": 6
+    "destination": "NL00000661",
+    "origin": "NL00000113"
   }
 },
 {
@@ -2488,9 +2304,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 7
+    "destination": "NL00000331",
+    "origin": "NL00000114"
   }
 },
 {
@@ -2500,9 +2315,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 8
+    "destination": "NL00000332",
+    "origin": "NL00000115"
   }
 },
 {
@@ -2512,9 +2326,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 9
+    "destination": "NL00000333",
+    "origin": "NL00000116"
   }
 },
 {
@@ -2524,9 +2337,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 10
+    "destination": "NL00000334",
+    "origin": "NL00000117"
   }
 },
 {
@@ -2536,9 +2348,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 11
+    "destination": "NL00000335",
+    "origin": "NL00000118"
   }
 },
 {
@@ -2548,9 +2359,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 12
+    "destination": "NL00000331",
+    "origin": "NL00000119"
   }
 },
 {
@@ -2560,9 +2370,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 3
+    "destination": "NL00000332",
+    "origin": "NL00000110"
   }
 },
 {
@@ -2572,9 +2381,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 3
+    "destination": "NL00000333",
+    "origin": "NL00000110"
   }
 },
 {
@@ -2584,9 +2392,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 3
+    "destination": "NL00000331",
+    "origin": "NL00000110"
   }
 },
 {
@@ -2596,9 +2403,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 3
+    "destination": "ee00000000",
+    "origin": "NL00000110"
   }
 },
 {
@@ -2608,9 +2414,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 13
+    "destination": "NL00000331",
+    "origin": "NL00000221"
   }
 },
 {
@@ -2620,9 +2425,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 18,
-    "origin": 14
+    "destination": "NL00000331",
+    "origin": "NL00000222"
   }
 },
 {
@@ -2632,9 +2436,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 19,
-    "origin": 14
+    "destination": "NL00000332",
+    "origin": "NL00000222"
   }
 },
 {
@@ -2644,9 +2447,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 20,
-    "origin": 15
+    "destination": "NL00000333",
+    "origin": "NL00000223"
   }
 },
 {
@@ -2656,9 +2458,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 16
+    "destination": "NL00000334",
+    "origin": "NL00000224"
   }
 },
 {
@@ -2668,9 +2469,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 21,
-    "origin": 17
+    "destination": "NL00000334",
+    "origin": "NL00000225"
   }
 },
 {
@@ -2680,9 +2480,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 22,
-    "origin": 17
+    "destination": "NL00000335",
+    "origin": "NL00000225"
   }
 },
 {
@@ -2692,9 +2491,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 17
+    "destination": "NL00000002",
+    "origin": "NL00000225"
   }
 },
 {
@@ -2704,9 +2502,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 18
+    "destination": "NL00000441",
+    "origin": "NL00000331"
   }
 },
 {
@@ -2716,9 +2513,8 @@
     "material": "PET",
     "amount": 25,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 18
+    "destination": "NL00000442",
+    "origin": "NL00000331"
   }
 },
 {
@@ -2728,9 +2524,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 23,
-    "origin": 19
+    "destination": "NL00000441",
+    "origin": "NL00000332"
   }
 },
 {
@@ -2740,9 +2535,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 24,
-    "origin": 19
+    "destination": "NL00000442",
+    "origin": "NL00000332"
   }
 },
 {
@@ -2752,9 +2546,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 20
+    "destination": "NL00000443",
+    "origin": "NL00000333"
   }
 },
 {
@@ -2764,9 +2557,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 21
+    "destination": "NL00000443",
+    "origin": "NL00000334"
   }
 },
 {
@@ -2776,9 +2568,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 25,
-    "origin": 22
+    "destination": "NL00000443",
+    "origin": "NL00000335"
   }
 },
 {
@@ -2788,9 +2579,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 27,
-    "origin": 63
+    "destination": "NL00000551",
+    "origin": "ii00000000"
   }
 },
 {
@@ -2800,9 +2590,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 28,
-    "origin": 63
+    "destination": "NL00000552",
+    "origin": "ii00000000"
   }
 },
 {
@@ -2812,9 +2601,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 29,
-    "origin": 63
+    "destination": "NL00000553",
+    "origin": "ii00000000"
   }
 },
 {
@@ -2824,9 +2612,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 30,
-    "origin": 63
+    "destination": "NL00000554",
+    "origin": "ii00000000"
   }
 },
 {
@@ -2836,9 +2623,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 31,
-    "origin": 63
+    "destination": "NL00000555",
+    "origin": "ii00000000"
   }
 },
 {
@@ -2848,9 +2634,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 32,
-    "origin": 23
+    "destination": "NL00000556",
+    "origin": "NL00000441"
   }
 },
 {
@@ -2860,9 +2645,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 33,
-    "origin": 23
+    "destination": "NL00000557",
+    "origin": "NL00000441"
   }
 },
 {
@@ -2872,9 +2656,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 34,
-    "origin": 24
+    "destination": "NL00000558",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2884,9 +2667,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 35,
-    "origin": 24
+    "destination": "NL00000559",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2896,9 +2678,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 26,
-    "origin": 24
+    "destination": "NL00000550",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2908,9 +2689,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 46,
-    "origin": 24
+    "destination": "NL00000771",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2920,9 +2700,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 47,
-    "origin": 24
+    "destination": "NL00000772",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2932,9 +2711,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 48,
-    "origin": 24
+    "destination": "NL00000773",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2944,9 +2722,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 49,
-    "origin": 24
+    "destination": "NL00000774",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2956,9 +2733,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 50,
-    "origin": 24
+    "destination": "NL00000775",
+    "origin": "NL00000442"
   }
 },
 {
@@ -2968,9 +2744,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 51,
-    "origin": 25
+    "destination": "NL00000776",
+    "origin": "NL00000443"
   }
 },
 {
@@ -2980,9 +2755,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 52,
-    "origin": 25
+    "destination": "NL00000777",
+    "origin": "NL00000443"
   }
 },
 {
@@ -2992,9 +2766,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 53,
-    "origin": 25
+    "destination": "NL00000778",
+    "origin": "NL00000443"
   }
 },
 {
@@ -3004,9 +2777,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 54,
-    "origin": 25
+    "destination": "NL00000779",
+    "origin": "NL00000443"
   }
 },
 {
@@ -3016,9 +2788,8 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 25
+    "destination": "ee00000000",
+    "origin": "NL00000443"
   }
 },
 {
@@ -3028,9 +2799,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 30,
-    "origin": 25
+    "destination": "NL00000554",
+    "origin": "NL00000443"
   }
 },
 {
@@ -3040,9 +2810,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 26
+    "destination": "NL00000001",
+    "origin": "NL00000550"
   }
 },
 {
@@ -3052,9 +2821,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 27
+    "destination": "NL00000001",
+    "origin": "NL00000551"
   }
 },
 {
@@ -3064,9 +2832,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 37,
-    "origin": 29
+    "destination": "NL00000661",
+    "origin": "NL00000553"
   }
 },
 {
@@ -3076,9 +2843,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 38,
-    "origin": 29
+    "destination": "NL00000662",
+    "origin": "NL00000553"
   }
 },
 {
@@ -3088,9 +2854,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 39,
-    "origin": 28
+    "destination": "NL00000663",
+    "origin": "NL00000552"
   }
 },
 {
@@ -3100,9 +2865,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 40,
-    "origin": 30
+    "destination": "NL00000664",
+    "origin": "NL00000554"
   }
 },
 {
@@ -3112,9 +2876,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 41,
-    "origin": 30
+    "destination": "NL00000665",
+    "origin": "NL00000554"
   }
 },
 {
@@ -3124,9 +2887,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 42,
-    "origin": 30
+    "destination": "NL00000666",
+    "origin": "NL00000554"
   }
 },
 {
@@ -3136,9 +2898,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 43,
-    "origin": 31
+    "destination": "NL00000667",
+    "origin": "NL00000555"
   }
 },
 {
@@ -3148,9 +2909,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 44,
-    "origin": 31
+    "destination": "NL00000668",
+    "origin": "NL00000555"
   }
 },
 {
@@ -3160,9 +2920,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 45,
-    "origin": 32
+    "destination": "NL00000669",
+    "origin": "NL00000556"
   }
 },
 {
@@ -3172,9 +2931,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 36,
-    "origin": 33
+    "destination": "NL00000660",
+    "origin": "NL00000557"
   }
 },
 {
@@ -3184,9 +2942,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 34
+    "destination": "ee00000000",
+    "origin": "NL00000558"
   }
 },
 {
@@ -3196,9 +2953,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 35
+    "destination": "ee00000000",
+    "origin": "NL00000559"
   }
 },
 {
@@ -3208,9 +2964,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 36
+    "destination": "NL00000991",
+    "origin": "NL00000660"
   }
 },
 {
@@ -3220,9 +2975,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 37
+    "destination": "NL00000991",
+    "origin": "NL00000661"
   }
 },
 {
@@ -3232,9 +2986,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 37
+    "destination": "NL00000881",
+    "origin": "NL00000661"
   }
 },
 {
@@ -3244,9 +2997,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 38
+    "destination": "NL00000881",
+    "origin": "NL00000662"
   }
 },
 {
@@ -3256,9 +3008,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 56,
-    "origin": 39
+    "destination": "NL00000882",
+    "origin": "NL00000663"
   }
 },
 {
@@ -3268,9 +3019,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 57,
-    "origin": 40
+    "destination": "NL00000883",
+    "origin": "NL00000664"
   }
 },
 {
@@ -3280,9 +3030,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 41
+    "destination": "NL00000992",
+    "origin": "NL00000665"
   }
 },
 {
@@ -3292,9 +3041,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 42
+    "destination": "NL00000992",
+    "origin": "NL00000666"
   }
 },
 {
@@ -3304,9 +3052,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 61,
-    "origin": 43
+    "destination": "NL00000994",
+    "origin": "NL00000667"
   }
 },
 {
@@ -3316,9 +3063,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 60,
-    "origin": 44
+    "destination": "NL00000993",
+    "origin": "NL00000668"
   }
 },
 {
@@ -3328,9 +3074,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 62,
-    "origin": 45
+    "destination": "ee00000000",
+    "origin": "NL00000669"
   }
 },
 {
@@ -3340,9 +3085,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 46
+    "destination": "NL00000002",
+    "origin": "NL00000771"
   }
 },
 {
@@ -3352,9 +3096,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 46
+    "destination": "NL00000991",
+    "origin": "NL00000771"
   }
 },
 {
@@ -3364,9 +3107,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 47
+    "destination": "NL00000991",
+    "origin": "NL00000772"
   }
 },
 {
@@ -3376,9 +3118,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 59,
-    "origin": 48
+    "destination": "NL00000992",
+    "origin": "NL00000773"
   }
 },
 {
@@ -3388,9 +3129,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 49
+    "destination": "NL00000991",
+    "origin": "NL00000774"
   }
 },
 {
@@ -3400,9 +3140,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 2,
-    "origin": 50
+    "destination": "NL00000002",
+    "origin": "NL00000775"
   }
 },
 {
@@ -3412,9 +3151,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 51
+    "destination": "NL00000881",
+    "origin": "NL00000776"
   }
 },
 {
@@ -3424,9 +3162,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "2",
-    "casestudy": 1,
-    "destination": 55,
-    "origin": 52
+    "destination": "NL00000881",
+    "origin": "NL00000777"
   }
 },
 {
@@ -3436,9 +3173,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 53
+    "destination": "NL00000991",
+    "origin": "NL00000778"
   }
 },
 {
@@ -3448,9 +3184,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "3",
-    "casestudy": 1,
-    "destination": 58,
-    "origin": 54
+    "destination": "NL00000991",
+    "origin": "NL00000779"
   }
 },
 {
@@ -3460,9 +3195,8 @@
     "material": "PET",
     "amount": 20,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 17,
-    "origin": 55
+    "destination": "NL00000225",
+    "origin": "NL00000881"
   }
 },
 {
@@ -3472,9 +3206,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 13,
-    "origin": 56
+    "destination": "NL00000221",
+    "origin": "NL00000882"
   }
 },
 {
@@ -3484,9 +3217,8 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "casestudy": 1,
-    "destination": 14,
-    "origin": 57
+    "destination": "NL00000222",
+    "origin": "NL00000883"
   }
 },
 {
@@ -3496,9 +3228,8 @@
     "material": "PET",
     "amount": 35,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 58
+    "destination": "NL00000001",
+    "origin": "NL00000991"
   }
 },
 {
@@ -3508,9 +3239,8 @@
     "material": "PET",
     "amount": 15,
     "quality": "4",
-    "casestudy": 1,
-    "destination": 1,
-    "origin": 59
+    "destination": "NL00000001",
+    "origin": "NL00000992"
   }
 },
 {
@@ -3520,7 +3250,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 9
+    "origin": "SC"
   }
 },
 {
@@ -3530,7 +3260,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 8
+    "origin": "S"
   }
 },
 {
@@ -3540,7 +3270,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 2
+    "origin": "COL"
   }
 },
 {
@@ -3550,7 +3280,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 4
+    "origin": "P1"
   }
 },
 {
@@ -3560,7 +3290,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 3
+    "origin": "D"
   }
 },
 {
@@ -3570,7 +3300,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 16
+    "origin": "55.sm"
   }
 },
 {
@@ -3580,7 +3310,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 27
+    "origin": "99.farm"
   }
 },
 {
@@ -3590,7 +3320,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 26
+    "origin": "99.cat"
   }
 },
 {
@@ -3600,7 +3330,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 5
+    "origin": "11.soft"
   }
 },
 {
@@ -3610,7 +3340,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 22
+    "origin": "77.rest"
   }
 },
 {
@@ -3620,7 +3350,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 12
+    "origin": "44.drinks"
   }
 },
 {
@@ -3630,7 +3360,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 4
+    "origin": "NL00000111"
   }
 },
 {
@@ -3640,7 +3370,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 5
+    "origin": "NL00000112"
   }
 },
 {
@@ -3650,7 +3380,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 28
+    "origin": "NL00000552"
   }
 },
 {
@@ -3660,7 +3390,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 27
+    "origin": "NL00000551"
   }
 },
 {
@@ -3670,7 +3400,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 60
+    "origin": "NL00000993"
   }
 },
 {
@@ -3680,7 +3410,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 61
+    "origin": "NL00000994"
   }
 },
 {
@@ -3690,7 +3420,7 @@
     "material": "PET",
     "amount": 10,
     "quality": "1",
-    "origin": 23
+    "origin": "NL00000441"
   }
 },
 {
@@ -3700,7 +3430,7 @@
     "material": "PET",
     "amount": 5,
     "quality": "1",
-    "origin": 46
+    "origin": "NL00000771"
   }
 }
 ]
