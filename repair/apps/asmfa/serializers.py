@@ -22,7 +22,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCaseStudyIdentityField,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
-                                           CreateWithUserInCasestudyMixin)
+                                           CreateWithUserInCasestudyMixin,
+                                           NestedHyperlinkedRelatedField)
 
 
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
@@ -101,11 +102,18 @@ class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
         'material_pk': 'id',}
 
 
+class MaterialField(NestedHyperlinkedRelatedField):
+    parent_lookup_kwargs = {'pk': 'id'}
+    queryset = Material.objects.all()
+    """This is fixed in rest_framework_nested, but not yet available on pypi"""
+    def use_pk_only_optimization(self):
+        return False
+
+
 class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = serializers.HyperlinkedIdentityField(
-        source='material',
+    material = MaterialField(
         view_name='material-detail',
     )
     groupstock_set = InMaterialSetField(view_name='groupstock-list')
