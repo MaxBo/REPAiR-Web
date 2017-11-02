@@ -17,8 +17,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       ActivityStock,
                                       ActorStock,
                                       )
-from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer2,
-                                           NestedHyperlinkedModelSerializer,
+from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            InCaseStudyIdentityField,
                                            InCasestudyListField,
@@ -26,7 +25,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer2,
                                            CreateWithUserInCasestudyMixin)
 
 
-class MaterialSerializer(NestedHyperlinkedModelSerializer2):
+class MaterialSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
         queryset = CaseStudy.objects.all(),
@@ -72,7 +71,7 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer2):
         return material
 
 
-class QualitySerializer(NestedHyperlinkedModelSerializer2):
+class QualitySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
 
     class Meta:
@@ -102,7 +101,7 @@ class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
         'material_pk': 'id',}
 
 
-class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer2):
+class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
     material = serializers.HyperlinkedIdentityField(
