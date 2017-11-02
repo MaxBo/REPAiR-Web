@@ -235,7 +235,7 @@ class AllActorSerializer(ActorSerializer):
 class ActorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
-        fields = ('BvDid', 'name', 'own_activity')
+        fields = ('BvDid', 'name', 'activity')
 
 
 class MaterialInCasestudyField(InCasestudyField):
