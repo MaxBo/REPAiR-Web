@@ -47,6 +47,7 @@ from repair.apps.changes.serializers import (
     SolutionInImplementationQuantitySerializer,
     SolutionInImplementationGeometrySerializer,
     ImplementationOfUserSerializer,
+    StrategySerializer,
     )
 
 
@@ -147,6 +148,12 @@ class ImplementationViewSet(OnlyCasestudyMixin,
 
 class ImplementationOfUserViewSet(ImplementationViewSet):
     serializer_class = ImplementationOfUserSerializer
+
+
+class StrategyViewset(OnlyCasestudyMixin,
+                                      viewsets.ModelViewSet):
+    serializer_class = StrategySerializer
+    queryset = Strategy.objects.all()
 
 
 class SolutionInImplementationViewSet(OnlyCasestudyMixin,

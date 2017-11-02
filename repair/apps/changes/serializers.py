@@ -14,6 +14,7 @@ from repair.apps.changes.models import (Unit,
                                         SolutionInImplementationNote,
                                         SolutionInImplementationQuantity,
                                         SolutionInImplementationGeometry,
+                                        Strategy,
                                         )
 
 from repair.apps.login.serializers import (UserInCasestudySerializer,
@@ -179,6 +180,12 @@ class SolutionInImplementationSetField(InCasestudyField):
                             'implementation_pk': 'implementation__id', }
 
 
+class ImplementationInStrategySetField(InCasestudyField):
+    """Returns a list of links to the solutions"""
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+
+
 class SolutionIISetField(InCasestudyField):
     """Returns a list of links to the solutions"""
     lookup_url_kwarg = 'solutioncategory_pk'
@@ -195,13 +202,28 @@ class SolutionInImplementationsListField(IdentityFieldMixin,
                             'implementation_pk': 'id', }
 
 
-class StakeholderOfImplementaionField(InCaseStudyIdentityField):
+class ImplementationInStrategiesListField(IdentityFieldMixin,
+                                         ImplementationInStrategySetField):
+    """Returns a Link to the implementations--list view"""
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+
+
+class StakeholderOfImplementationField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'pk'
     parent_lookup_kwargs = {
         'casestudy_pk': 'user__casestudy__id',
         'pk': 'coordinating_stakeholder__id',
         'stakeholdercategory_pk':
         'coordinating_stakeholder__stakeholder_category__id',}
+
+
+class StakeholderOfStrategyField(InCaseStudyIdentityField):
+    lookup_url_kwarg = 'pk'
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'user__casestudy__id',
+        'pk': 'coordinator__id',
+        'stakeholdercategory_pk':
+        'coordinator__stakeholder_category__id',}
 
 
 class ImplementationSerializer(CreateWithUserInCasestudyMixin,
@@ -219,7 +241,7 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         source='solutions',
         view_name='solution-detail',
         many=True)
-    coordinating_stakeholder = StakeholderOfImplementaionField(
+    coordinating_stakeholder = StakeholderOfImplementationField(
         view_name='stakeholder-detail')
     user = UserInCasestudyField(
         view_name='userincasestudy-detail')
@@ -362,3 +384,55 @@ class SolutionInImplementationGeometrySerializer(SolutionInImplementationNoteSer
     class Meta:
         model = SolutionInImplementationGeometry
         fields = ('url', 'id', 'name', 'geom', 'sii')
+
+
+class StrategySerializer(CreateWithUserInCasestudyMixin,
+                         NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    implementation_list = ImplementationInStrategiesListField(
+        source='implementations',
+        view_name='implementation-list')
+    implementation_set = ImplementationInStrategySetField(
+        source='implementations',
+        view_name='implementation-detail',
+        many=True)
+    coordinator = StakeholderOfStrategyField(
+        view_name='stakeholder-detail')
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail')
+
+    class Meta:
+        model = Strategy
+        fields = ('url', 'id', 'name', 'user',
+                  'coordinator',
+                  'implementation_set',
+                  'implementation_list',
+                  )
+
+    #def update(self, obj, validated_data):
+        #"""
+        #update the implementation-attributes,
+        #including selected solutions
+        #"""
+        #implementation = obj
+        #implementation_id = implementation.id
+
+        ## handle solutions
+        #new_solutions = validated_data.pop('solutions', None)
+        #if new_solutions is not None:
+            #SolutionInImplementationModel = Implementation.solutions.through
+            #solution_qs = SolutionInImplementationModel.objects.filter(
+                #implementation=implementation)
+            ## delete existing solutions
+            #solution_qs.exclude(solution_id__in=(
+                #sol.id for sol in new_solutions)).delete()
+            ## add or update new solutions
+            #for sol in new_solutions:
+                #SolutionInImplementationModel.objects.update_or_create(
+                    #implementation=implementation,
+                    #solution=sol)
+
+        ## update other attributes
+        #obj.__dict__.update(**validated_data)
+        #obj.save()
+        #return obj
