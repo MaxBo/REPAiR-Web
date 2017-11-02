@@ -59,7 +59,8 @@ class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
     stakeholder_list = StakeholderListField(source='stakeholder_set',
                                             view_name='stakeholder-list')
     stakeholder_set = StakeholderSetField(many=True,
-                                          view_name='stakeholder-detail')
+                                          view_name='stakeholder-detail',
+                                          read_only=True)
 
     class Meta:
         model = StakeholderCategory

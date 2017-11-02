@@ -30,15 +30,15 @@ class ModelTest(TestCase):
     def test_string_representation(self):
         for Model in (
             Activity,
-            #Activity2Activity,
+            Activity2Activity,
             ActivityGroup,
             ActivityStock,
             Actor,
-            #Actor2Actor,
+            Actor2Actor,
             ActorStock,
             DataEntry,
             Geolocation,
-            #Group2Group,
+            Group2Group,
             GroupStock,
             ):
 

@@ -18,6 +18,7 @@ from repair.apps.changes.views import (
     SolutionInImplementationNoteViewSet,
     SolutionInImplementationQuantityViewSet,
     SolutionInImplementationGeometryViewSet,
+    ImplementationOfUserViewSet,
 )
 
 from repair.apps.asmfa.views import (
@@ -32,7 +33,10 @@ from repair.apps.asmfa.views import (
     MaterialInCasestudyViewSet,
     GroupStockViewSet,
     ActivityStockViewSet,
-    ActorStockViewSet)
+    ActorStockViewSet,
+    AllActivityViewSet,
+    AllActorViewSet,
+)
 
 ## base routes ##
 
@@ -50,11 +54,19 @@ router.register(r'qualities', QualityViewSet)
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
 cs_router.register(r'activitygroups', ActivityGroupViewSet)
+cs_router.register(r'activities', AllActivityViewSet)
+cs_router.register(r'actors', AllActorViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 cs_router.register(r'materials', MaterialInCasestudyViewSet)
+
+# /casestudies/*/stakeholdercategories/...
+user_router = NestedSimpleRouter(cs_router, r'users',
+                                  lookup='user')
+user_router.register(r'implementations', ImplementationOfUserViewSet)
+
 
 # /casestudies/*/stakeholdercategories/...
 shcat_router = NestedSimpleRouter(cs_router, r'stakeholdercategories',
@@ -83,7 +95,6 @@ sii_router = NestedSimpleRouter(imp_router, r'solutions',
 sii_router.register(r'note', SolutionInImplementationNoteViewSet)
 sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
 sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
-
 
 # /casestudies/*/activitygroups/...
 ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
@@ -119,5 +130,6 @@ urlpatterns = [
     url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
-    url(r'^', include(mat_router.urls))
+    url(r'^', include(mat_router.urls)),
+    url(r'^', include(user_router.urls)),
 ]

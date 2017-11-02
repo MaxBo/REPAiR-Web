@@ -21,7 +21,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer2,
                                            NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            InCaseStudyIdentityField,
-                                           InCasestudySetField,
+                                           InCasestudyListField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin)
 
@@ -30,7 +30,6 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer2):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
         queryset = CaseStudy.objects.all(),
-        #source='casestudies',
         many=True,
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the material is used in')
@@ -163,7 +162,8 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
         source='activity_set',
         view_name='activity-list')
     activity_set = ActivitySetField(many=True,
-                                    view_name='activity-detail')
+                                    view_name='activity-detail',
+                                    read_only=True)
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list')
@@ -197,11 +197,16 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
     actor_list = ActorListField(source='actor_set',
                                    view_name='actor-list')
     actor_set = ActorSetField(many=True,
-                              view_name='actor-detail')
+                              view_name='actor-detail',
+                              read_only=True)
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup', 'actor_set',
                   'actor_list')
+
+
+class AllActivitySerializer(ActivitySerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id'}
 
 
 class ActivityField(InCasestudyField):
@@ -221,6 +226,11 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity')
+
+
+class AllActorSerializer(ActorSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
 
 
 class ActorListSerializer(serializers.ModelSerializer):

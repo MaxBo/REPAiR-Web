@@ -38,7 +38,9 @@ from repair.apps.asmfa.serializers import (
     MaterialInCasestudySerializer,
     GroupStockSerializer,
     ActivityStockSerializer,
-    ActorStockSerializer)
+    ActorStockSerializer,
+    AllActivitySerializer,
+    AllActorSerializer)
 
 from repair.apps.login.views import OnlyCasestudyMixin, OnlySubsetMixin
 
@@ -56,6 +58,14 @@ class ActivityViewSet(OnlyCasestudyMixin, ModelViewSet):
 class ActorViewSet(OnlyCasestudyMixin, ModelViewSet):
     serializer_class = ActorSerializer
     queryset = Actor.objects.all()
+
+
+class AllActivityViewSet(ActivityViewSet):
+    serializer_class = AllActivitySerializer
+
+
+class AllActorViewSet(ActorViewSet):
+    serializer_class = AllActorSerializer
 
 
 class MaterialViewSet(ModelViewSet):

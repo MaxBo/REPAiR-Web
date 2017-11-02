@@ -102,16 +102,16 @@ def trigger_solutioninimplementationquantity_quantity(sender, instance,
     """
     Create SolutionInImplementationQuantity
     for each SolutionQuantity
-    each time a SolutionInImplementation is created.
+    each time a SolutionQuantity is created.
     """
     if created:
-        quantity = instance
-        solution = quantity.solution
+        solution_quantity = instance
+        solution = solution_quantity.solution
         sii_set = SolutionInImplementation.objects.filter(
             solution_id=solution.id)
         for sii in sii_set.all():
             new, is_created = SolutionInImplementationQuantity.objects.\
-                get_or_create(sii=sii, quantity=quantity)
+                get_or_create(sii=sii, quantity=solution_quantity)
             if is_created:
                 new.save()
 
