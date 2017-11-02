@@ -12,7 +12,6 @@ class DataEntry(models.Model):
     user = models.ForeignKey(Profile, default=1)
     source = models.CharField(max_length=255)
     #date =
-    pass
 
 
 class Material(GDSEModel):
