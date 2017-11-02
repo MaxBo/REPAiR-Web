@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     def update_foreign_keys(apps, schema_editor):
-        models = {'Actor': (('own_activity', 'activity'), ),
+        models = {'Actor': (('activity', 'activity'), ),
                   'Activity2Activity': (('origin2', 'origin_id'),
                                         ('destination2', 'destination_id'), ),
                   'ActivityStock': (('origin2', 'origin_id'), )

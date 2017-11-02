@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 row.save(update_fields=['id'])
 
     def update_foreign_keys(apps, schema_editor):
-        models = {'Activity': ('own_activitygroup', ),
+        models = {'Activity': ('activitygroup', ),
                   'Group2Group': ('origin', 'destination'),
                   'Actor2Actor': ('origin', 'destination'),
                   'GroupStock': ('origin', ),

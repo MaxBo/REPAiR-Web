@@ -1,14 +1,14 @@
-define(['backbone', 'app/models/activitygroup', 'app/models/activity', 
+define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         'app/models/actor'],
-  /** 
-   * 
+  /**
+   *
    * @desc    view on edit a specific node
-   * 
+   *
    * @param   options.el        html-element the view will be rendered in
    * @param   options.model     backbone-model of the node
    * @param   options.template  the id of the script containing the template for this view
    * @param   options.material  the material of the flows
-   * 
+   *
    * @return  the EditNodeView class (for chaining)
    * @see     table for attributes and flows in and out of this node
    */
@@ -24,7 +24,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         this.material = options.material;
         this.render();
       },
-      
+
       /*
        * dom events (managed by jquery)
        */
@@ -34,36 +34,36 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
 
       /*
        * render the view
-       */ 
+       */
       render: function(){
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template();
-        
+
         // render a view on the attributes depending on type of node
         var attrDiv = this.el.querySelector('#attributes');
         var inner = '';
-        if (this.model.tag == 'activity') 
+        if (this.model.tag == 'activity')
           inner = this.getActivityAttrTable();
         else if (this.model.tag == 'activitygroup')
           inner = this.getGroupAttrTable();
-        else if (this.model.tag == 'actor') 
+        else if (this.model.tag == 'actor')
           inner = this.getActorAttrTable();
         attrDiv.innerHTML = inner;
       },
-      
+
       // on click add row button
       addRowEvent: function(event){
         var buttonId = event.currentTarget.id;
         var rowTemplateId;
         var columns = [];
-        var tableId = (buttonId == 'add-input-button') ? 'input-table': 
+        var tableId = (buttonId == 'add-input-button') ? 'input-table':
                       (buttonId == 'add-output-button') ? 'output-table':
                       'stock-table'
-        
+
         var amount = {type: 'number', value: 0, min: 0};
         columns.push(amount);
-        
+
         // stock has no origin/destination
         if (buttonId == 'add-input-button' || buttonId == 'add-output-button'){
           var names = [];
@@ -71,15 +71,15 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
           var node = {type: 'select', value: names};
           columns.push(node);
         }
-        
+
         var qualities = {type: 'select', value: [1, 2, 3, 4]};
         columns.push(qualities);
         var description = {type: 'text', value: ''};
         columns.push(description);
-        
+
         this.addTableRow(tableId, columns)
       },
-    
+
       /**
       * add a row to the given table
       *
@@ -113,7 +113,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
                   child.type = "number";
                   if (column.min != null) child.min = column.min;
                   if (column.max != null) child.max = column.max;
-                } 
+                }
                 child.value = column.value;
               }
               cell.appendChild(child);
@@ -122,7 +122,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
               cell.innerHTML = column.value;
           }
       },
-      
+
       getGroupAttrTable: function(){
         var html = document.getElementById('group-attributes-template').innerHTML
         var template = _.template(html);
@@ -132,18 +132,18 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
           code: this.model.get('code')
         });
       },
-      
+
       getActivityAttrTable: function(){
         var html = document.getElementById('activity-attributes-template').innerHTML
         var template = _.template(html);
         return template({
           name: this.model.get('name'),
           material: this.material,
-          group: this.model.get('own_activitygroup'),
+          group: this.model.get('activitygroup'),
           nace: this.model.get('nace')
         });
       },
-      
+
       getActorAttrTable: function(){
         var html = document.getElementById('actor-attributes-template').innerHTML
         var template = _.template(html);
@@ -151,7 +151,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
           name: this.model.get('name'),
           material: this.material,
           bvdid: this.model.get('BvDid'),
-          activity: this.model.get('own_activity'),
+          activity: this.model.get('activity'),
           url: this.model.get('website'),
           year: this.model.get('year'),
           employees: this.model.get('employees'),

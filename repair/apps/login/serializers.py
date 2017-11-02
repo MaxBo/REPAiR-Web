@@ -295,27 +295,18 @@ class InUICSetField(IdentityFieldMixin, InUICField):
     """Field that returns a list of all items of the user in the casestudy"""
 
 
-class NestedHyperlinkedModelSerializer2(NestedHyperlinkedModelSerializer):
-    """Fix blank problems"""
-    def to_internal_value(self, data):
-        result = super().to_internal_value(data)
-        if result.get('fieldname', None) is None:
-            result['fieldname'] = ""
-        return result
-
-
 ###############################################################################
 #### Serializers for the Whole Project                                     ####
 ###############################################################################
 
-class GroupSerializer(NestedHyperlinkedModelSerializer2):
+class GroupSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     class Meta:
         model = Group
         fields = ('url', 'id', 'name')
 
 
-class UserSerializer(NestedHyperlinkedModelSerializer2):
+class UserSerializer(NestedHyperlinkedModelSerializer):
     """Serializer for put and post requests"""
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
@@ -388,7 +379,7 @@ class UserSerializer(NestedHyperlinkedModelSerializer2):
         return user
 
 
-class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
+class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
@@ -414,7 +405,7 @@ class UserInCasestudyField(InCasestudyField):
     extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
 
 
-class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):
+class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     role = serializers.CharField(required=False, allow_blank=True)
     user = serializers.HyperlinkedIdentityField(

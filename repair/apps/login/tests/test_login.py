@@ -3,6 +3,10 @@ from django.core.validators import ValidationError
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
+from django.urls import reverse
+from rest_framework import status
 
 
 class ModelTest(TestCase):
@@ -53,3 +57,45 @@ class ModelTest(TestCase):
         # assert that the user has the correct casestudies assigned
         self.assertEqual([(cs.id, cs.name) for cs in user.casestudies.all()],
                          [(cs.id, cs.name) for cs in casestudies])
+
+
+class ViewTest(APITestCase):
+
+    fixtures = ['user_fixture.json']
+
+
+    def test_get_group(self):
+        url = reverse('group-list')
+        data = {'name': 'MyGroup'}
+        response = self.client.post(url, data, format='json')
+        print(response)
+        response = self.client.get(url)
+        print(response.data)
+
+    def test_get_user(self):
+        lodz = reverse('casestudy-detail', kwargs=dict(pk=3))
+
+        url = reverse('user-list')
+        data = {'username': 'MyUser',
+                'casestudies': [lodz],
+                'password': 'PW',
+                'organization': 'GGR',
+                'groups': [],
+                'email': 'a.b@c.de',}
+        response = self.client.post(url, data, format='json')
+        print(response)
+        response = self.client.get(url)
+        print(response.data)
+        url = reverse('user-detail', kwargs=dict(pk=4))
+        response = self.client.get(url)
+        print(response.data)
+        new_mail = 'new@mail.de'
+        data = {'email': new_mail,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        assert response.data['email'] == new_mail
+
+        user_in_ams = UserInCasestudyFactory()
+
+
+
