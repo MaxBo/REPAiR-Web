@@ -3,7 +3,7 @@
 {% load require %}
 
 {% block sidebar %}
-  <script> 
+  <script>
     document.getElementById("admin-area-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
@@ -15,29 +15,29 @@
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
-  
+
   <div class="tab-content">
     <!-- Flow editor -->
     <div class="tab-pane fade in active" id="flows-edit">
       <div class="row">
         <div class="col-md-9">
           <div class="col-md-4">
-            {% trans "Case Study" %} 
+            {% trans "Case Study" %}
             <br>
             <select name="case-studies" id="case-studies-select">
               {% for cs in case_studies %}
                   <option value="{{ cs.id }}">{{ cs.name }}</option>
               {% endfor %}
-            </select> 
+            </select>
           </div>
           <div class="col-md-4">
             {% trans "Flow" %}
             <br>
             <select name="flows" id="flows-select">
               {% for f in flows %}
-                  <option value="{{ f.0 }}">{{ f.1 }}</option>
+                  <option value="{{ f.name }}">{{ f.code }}</option>
               {% endfor %}
-            </select> 
+            </select>
           </div>
           <div class="col-md-4">
             {% trans "Data Entered by" %}

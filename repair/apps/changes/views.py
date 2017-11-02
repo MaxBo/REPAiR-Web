@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, mixins
 
 
 from repair.apps.login.views import (OnlyCasestudyMixin,
@@ -46,6 +46,7 @@ from repair.apps.changes.serializers import (
     SolutionInImplementationNoteSerializer,
     SolutionInImplementationQuantitySerializer,
     SolutionInImplementationGeometrySerializer,
+    ImplementationOfUserSerializer,
     )
 
 
@@ -144,6 +145,9 @@ class ImplementationViewSet(OnlyCasestudyMixin,
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
 
+class ImplementationOfUserViewSet(ImplementationViewSet):
+    serializer_class = ImplementationOfUserSerializer
+
 
 class SolutionInImplementationViewSet(OnlyCasestudyMixin,
                                       viewsets.ModelViewSet):
@@ -156,9 +160,23 @@ class SolutionInImplementationNoteViewSet(OnlyCasestudyMixin,
     serializer_class = SolutionInImplementationNoteSerializer
     queryset = SolutionInImplementationNote.objects.all()
 
+class ReadUpdateViewSet(mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    """
+    A viewset that provides default `retrieve()`, `update()`,
+    `partial_update()`,  and `list()` actions.
+    No `create()` or `destroy()`
+    """
 
 class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
-                                      viewsets.ModelViewSet):
+                                              ReadUpdateViewSet):
+    """
+    Has to provide exactly one quantity value
+    for each quantity defined for the solution
+    So no PUT or DELETE is allowed
+    """
     serializer_class = SolutionInImplementationQuantitySerializer
     queryset = SolutionInImplementationQuantity.objects.all()
 

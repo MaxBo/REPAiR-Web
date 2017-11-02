@@ -134,12 +134,15 @@ class NestedHyperlinkedRelatedField2(NestedHyperlinkedRelatedField):
 
 class InCasestudyField(NestedHyperlinkedRelatedField2):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    filter_field = 'casestudy_pk'
+    extra_lookup_kwargs = {}
 
     def __init__(self, *args, **kwargs):
         self.casestudy_pk_lookup = {
             'casestudy_pk': self.parent_lookup_kwargs['casestudy_pk']}
 
         super().__init__(*args, **kwargs)
+
 
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
@@ -159,20 +162,49 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
         view = self.root.context.get('view')
         Model = self.get_model(view)
         obj = self.root.instance
+        kwargs = {}
         if obj:
-            casestudy_id = self.get_casestudyid_from_obj(obj)
+            for pk, field_name in self.casestudy_pk_lookup.items():
+                value = self.get_value_from_obj(obj, pk=pk)
+                kwargs[field_name] = value
+            return self.set_custom_queryset(obj, kwargs, Model)
         else:
-            casestudy_id = view.request.session.get('casestudy_pk', {}).\
-                get('casestudy_pk')
-        if casestudy_id:
-            kwargs = {self.get_casestudy_pk(): casestudy_id}
-            qs = Model.objects.filter(**kwargs)
-        else:
-            qs = view.queryset
+            casestudy_pk = view.request.session.get('casestudy_pk', {})
+            value = casestudy_pk.get(self.filter_field)
+            if value:
+                RelatedModel = view.queryset.model
+                kwargs2 = {self.root.parent_lookup_kwargs[self.filter_field]:
+                           value}
+                obj = RelatedModel.objects.filter(**kwargs2).first()
+                return self.set_custom_queryset(obj, kwargs2, Model)
+        qs = view.queryset
         return qs
 
-    def get_casestudyid_from_obj(self, obj):
-        casestudy_from_object = self.root.parent_lookup_kwargs['casestudy_pk']
+    def set_custom_queryset(self, obj, kwargs, Model):
+        """
+        get objects from Model which meet the criteria
+        defined in extra_lookup_kwargs
+        (or if not defined in self.root.parent_lookup_kwargs)
+        here, a value from `obj` is returned
+        the field in Model is defined in self.parent_lookup_kwargs
+        """
+        pk = self.extra_lookup_kwargs.get(
+            self.filter_field,
+            self.root.parent_lookup_kwargs[self.filter_field])
+        pk_attr = pk.split('__')
+        if obj is None:
+            kwargs = {}
+        else:
+            for attr in pk_attr:
+                obj = getattr(obj, attr)
+            kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj,}
+        qs = Model.objects.filter(**kwargs)
+        return qs
+
+    def get_value_from_obj(self, obj, pk='casestudy_pk'):
+        casestudy_from_object = self.root.parent_lookup_kwargs.get(
+            pk,
+            self.extra_lookup_kwargs.get(pk))
         casestudy_pk = casestudy_from_object.split('__')
         for attr in casestudy_pk:
             obj = getattr(obj, attr)
@@ -187,6 +219,47 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
             # or if not specified in the parent_lookup_kwargs
             self.parent_lookup_kwargs.get('casestudy_pk'))
         return casestudy_pk
+
+
+class InSolutionField(InCasestudyField):
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'solution__solution_category__user__casestudy__id',
+        'solutioncategory_pk': 'solution__solution_category__id',
+        'solution_pk': 'solution__id',}
+    extra_lookup_kwargs = {
+        'solutioncategory_pk': 'sii__solution__solution_category__id',
+        'solution_pk': 'sii__solution__id',}
+    filter_field = 'solution_pk'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.casestudy_pk_lookup['solutioncategory_pk'] = \
+            self.parent_lookup_kwargs['solutioncategory_pk']
+        self.casestudy_pk_lookup['solution_pk'] = \
+            self.parent_lookup_kwargs['solution_pk']
+
+    #def set_custom_query_params(self, obj, kwargs, Model):
+        #solution_pk_attr = self.extra_lookup_kwargs[self.filter_field].split('__')
+        #for attr in solution_pk_attr:
+            #obj = getattr(obj, attr)
+        #kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj,}
+        #qs = Model.objects.filter(**kwargs)
+        #return qs
+
+
+class InUICField(InCasestudyField):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'casestudy__id',
+        'user_pk': 'user__id',}
+    extra_lookup_kwargs = {}
+    filter_field = 'user_pk'
+    lookup_url_kwarg = 'user_pk'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.casestudy_pk_lookup['user_pk'] = \
+            self.parent_lookup_kwargs['user_pk']
 
 
 class IdentityFieldMixin:
@@ -212,10 +285,14 @@ class InCaseStudyIdentityField(IdentityFieldMixin, InCasestudyField):
     """
 
 
-class InCasestudySetField(InCaseStudyIdentityField):
+class InCasestudyListField(InCaseStudyIdentityField):
     """Field that returns a list of all items in the casestudy"""
     lookup_url_kwarg = 'casestudy_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'id'}
+
+
+class InUICSetField(IdentityFieldMixin, InUICField):
+    """Field that returns a list of all items of the user in the casestudy"""
 
 
 class NestedHyperlinkedModelSerializer2(NestedHyperlinkedModelSerializer):
@@ -238,13 +315,6 @@ class GroupSerializer(NestedHyperlinkedModelSerializer2):
         fields = ('url', 'id', 'name')
 
 
-#class UserInCasestudyListField(IdentityFieldMixin,
-                               #NestedHyperlinkedRelatedField2):
-    #"""Returns a Link to the userincasestudy--list view"""
-    #lookup_url_kwarg = 'user_pk'
-    #parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-
-
 class UserSerializer(NestedHyperlinkedModelSerializer2):
     """Serializer for put and post requests"""
     parent_lookup_kwargs = {}
@@ -255,8 +325,6 @@ class UserSerializer(NestedHyperlinkedModelSerializer2):
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the user works on')
     )
-    #userincasestudies = UserInCasestudyListField(
-        #view_name='userincasestudy-list', source='profile.userincasestudy_set')
     organization = serializers.CharField(source='profile.organization',
                                          allow_blank=True, required=False)
     password = serializers.CharField(write_only=True)
@@ -266,7 +334,6 @@ class UserSerializer(NestedHyperlinkedModelSerializer2):
         organization = serializers.CharField(required=False, allow_null=True)
         fields = ('url', 'id', 'username', 'email', 'groups', 'password',
                   'organization', 'casestudies',
-                  #'userincasestudies',
                   )
 
     def update(self, obj, validated_data):
@@ -323,16 +390,14 @@ class UserSerializer(NestedHyperlinkedModelSerializer2):
 
 class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
     parent_lookup_kwargs = {}
-    userincasestudy_set = InCasestudySetField(view_name='userincasestudy-list')
-    stakeholder_categories = InCasestudySetField(
+    userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
+    stakeholder_categories = InCasestudyListField(
         view_name='stakeholdercategory-list')
-    solution_categories = InCasestudySetField(
+    solution_categories = InCasestudyListField(
         view_name='solutioncategory-list')
-    implementations = InCasestudySetField(view_name='implementation-list')
-    materials = InCasestudySetField(view_name='materialincasestudy-list')
-    activitygroups = InCasestudySetField(view_name='activitygroup-list')
-    #activities = InCasestudySetField(view_name='activity-list')
-    #actors = InCasestudySetField(view_name='actor-list')
+    implementations = InCasestudyListField(view_name='implementation-list')
+    materials = InCasestudyListField(view_name='materialincasestudy-list')
+    activitygroups = InCasestudyListField(view_name='activitygroup-list')
 
     class Meta:
         model = CaseStudy
@@ -341,9 +406,12 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer2):
                   'implementations',
                   'materials',
                   'activitygroups',
-                  #'activities',
-                  #'actors',
                   )
+
+
+class UserInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
 
 
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):
@@ -353,11 +421,11 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer2):
         source='user.user',
         view_name='user-detail',
     )
+    implementations = InUICSetField(view_name='implementation-list')
+
     class Meta:
         model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name', 'role')
+        fields = ('url', 'id', 'user', 'name', 'role', 'implementations')
         read_only_fields = ['name']
 
 
-class UserInCasestudyField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}

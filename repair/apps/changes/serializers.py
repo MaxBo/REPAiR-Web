@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
@@ -18,6 +19,7 @@ from repair.apps.changes.models import (Unit,
 from repair.apps.login.serializers import (UserInCasestudySerializer,
                                            UserInCasestudyField,
                                            InCasestudyField,
+                                           InSolutionField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin)
@@ -38,6 +40,8 @@ class SolutionField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'solution_category__user__casestudy__id',
                             'solutioncategory_pk': 'solution_category__id',}
+    extra_lookup_kwargs = {'casestudy_pk':
+                           'implementation__user__casestudy__id'}
 
 
 
@@ -77,7 +81,8 @@ class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
     solution_list = SolutionSetField(
         source='solution_set',
         view_name='solution-detail',
-        many=True
+        many=True,
+        read_only=True,
     )
     user = UserInCasestudyField(
         view_name='userincasestudy-detail',
@@ -179,6 +184,8 @@ class SolutionIISetField(InCasestudyField):
     lookup_url_kwarg = 'solutioncategory_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
                             'solutioncategory_pk': 'id', }
+    extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+
 
 
 class SolutionInImplementationsListField(IdentityFieldMixin,
@@ -255,13 +262,22 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         return obj
 
 
+class ImplementationOfUserSerializer(ImplementationSerializer):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
+                            'user_pk': 'user__id',}
+
+
 class ImplementationField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    extra_lookup_kwargs = {'casestudy_pk':
+                           'implementation__user__casestudy__id'}
 
 
 class SolutionInImplementationDetailListField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'solution_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'implementation__user__casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'implementation__user__casestudy__id',
                             'implementation_pk': 'implementation__id',
                             'solution_pk': 'id',
                             }
@@ -326,92 +342,6 @@ class SolutionInImplementationNoteSerializer(SolutionInImplementationDetailCreat
         fields = ('url', 'id', 'note', 'sii')
 
 
-
-class InSolutionField(InCasestudyField):
-    parent_lookup_kwargs = {
-        'casestudy_pk':
-        'solution__solution_category__user__casestudy__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id',}
-    extra_lookup_kwargs = {
-        'solutioncategory_pk': 'sii__solution__solution_category__id',
-        'solution_pk': 'sii__solution__id',}
-    filter_field = 'solution_pk'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.casestudy_pk_lookup['solutioncategory_pk'] = \
-            self.parent_lookup_kwargs['solutioncategory_pk']
-        self.casestudy_pk_lookup['solution_pk'] = \
-            self.parent_lookup_kwargs['solution_pk']
-
-
-    """This is fixed in rest_framework_nested, but not yet available on pypi"""
-    def use_pk_only_optimization(self):
-        return False
-
-    def get_queryset(self):
-        """
-        get the queryset limited to the current casestudy
-
-        the casestudy might be on the objects instance,
-        it might also be found in the session attribute "casestudy"
-
-        Returns:
-        --------
-        queryset
-        """
-        view = self.root.context.get('view')
-        Model = self.get_model(view)
-        obj = self.root.instance
-        kwargs = {}
-        if obj:
-            for pk, field_name in self.casestudy_pk_lookup.items():
-                value = self.get_value_from_obj(obj, pk=pk)
-                kwargs[field_name] = value
-        else:
-            casestudy_pk = view.request.session.get('casestudy_pk', {})
-            value = casestudy_pk.get(self.filter_field)
-            if value:
-                Model = view.queryset.model
-                kwargs2 = {self.root.parent_lookup_kwargs[self.filter_field]:
-                           value}
-                obj = Model.objects.filter(**kwargs2).first()
-
-        if kwargs or kwargs2:
-            return self.set_custom_query_params(obj, kwargs, Model)
-        else:
-            qs = view.queryset
-        return qs
-
-    def set_custom_query_params(self, obj, kwargs, Model):
-        return  Model.objects.filter(**kwargs)
-
-    def set_custom_query_params(self, obj, kwargs, Model):
-        solution_id = obj.sii.solution.id
-        qs = SolutionQuantity.objects.filter(solution__id=solution_id)
-        return qs
-
-    def get_value_from_obj(self, obj, pk='casestudy_pk'):
-        casestudy_from_object = self.root.parent_lookup_kwargs.get(
-            pk,
-            self.extra_lookup_kwargs.get(pk))
-        casestudy_pk = casestudy_from_object.split('__')
-        for attr in casestudy_pk:
-            obj = getattr(obj, attr)
-        return obj
-
-    def get_casestudy_pk(self):
-        """
-        get the casestudy primary key field from the casestudy_pk_lookup
-        """
-        casestudy_pk = self.casestudy_pk_lookup.get(
-            'casestudy_pk',
-            # or if not specified in the parent_lookup_kwargs
-            self.parent_lookup_kwargs.get('casestudy_pk'))
-        return casestudy_pk
-
-
 class SolutionQuantityField(InSolutionField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'solution__solution_category__user__casestudy__id',
@@ -420,7 +350,9 @@ class SolutionQuantityField(InSolutionField):
 
 
 class SolutionInImplementationQuantitySerializer(SolutionInImplementationNoteSerializer):
-    quantity = SolutionQuantityField(view_name='solutionquantity-detail')
+    quantity = SolutionQuantityField(view_name='solutionquantity-detail',
+                                     help_text=_('the quantity to define'),
+                                     label=_('Solution Quantity'))
     class Meta:
         model = SolutionInImplementationQuantity
         fields = ('url', 'id', 'quantity', 'value', 'sii')
