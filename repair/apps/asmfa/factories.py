@@ -11,7 +11,7 @@ class DataEntryFactory(DjangoModelFactory):
     class Meta:
         model = models.DataEntry
     source = 'data'
-    user = factory.SubFactory(UserInCasestudyFactory)
+    user = factory.SubFactory(ProfileFactory)
 
 
 class MaterialFactory(DjangoModelFactory):
@@ -19,7 +19,6 @@ class MaterialFactory(DjangoModelFactory):
         model = models.Material
     name = 'PET Plastic'
     code = 'PET'
-    user = factory.SubFactory(UserInCasestudyFactory)
 
     @factory.post_generation
     def casestudies(self, create, extracted, **kwargs):
@@ -52,6 +51,7 @@ class NodeFactory(DjangoModelFactory):
         model = models.Node
     source = True
     sink = True
+
 
 class ActivityGroupFactory(NodeFactory):
     class Meta:
