@@ -229,10 +229,12 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activity_pk': 'activity__id',
     }
     activity = ActivityField(view_name='activity-detail')
+    activity_id = serializers.PrimaryKeyRelatedField(source='activity',
+                                                     read_only=True)
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website', 'activity')
+                  'employees', 'BvDii', 'website', 'activity', 'activity_id')
 
 
 class AllActorSerializer(ActorSerializer):
