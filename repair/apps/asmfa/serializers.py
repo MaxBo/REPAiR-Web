@@ -171,9 +171,13 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     activity_set = ActivitySetField(many=True,
                                     view_name='activity-detail',
                                     read_only=True)
+    inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     class Meta:
         model = ActivityGroup
-        fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list')
+        fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
+                  'inputs', 'outputs', 'stocks')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -254,7 +258,7 @@ class MaterialInCasestudyField(InCasestudyField):
 
 
 class StockSerializer(MaterialInCasestudyDetailCreateMixin,
-                           NestedHyperlinkedModelSerializer):
+                      NestedHyperlinkedModelSerializer):
     material = MaterialInCasestudyField(view_name='materialincasestudy-detail',
                                         read_only=True)
     parent_lookup_kwargs = {
