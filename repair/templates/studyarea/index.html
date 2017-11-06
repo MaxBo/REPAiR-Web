@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load require %}
+
+{% block sidebar %}
+  <script> 
+    document.getElementById("study-area-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#base-data" data-toggle="pill"> {% trans "Base data" %} <span class="sub-icon glyphicon glyphicon-globe"></span></a></li>
+    <li><a href="#stakeholders" data-toggle="pill">{% trans "Stakeholders" %} <span class="sub-icon glyphicon glyphicon-user"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="base-data">
+      {% include "studyarea/basedata.html" %}
+    </div>
+    <div class="tab-pane fade" id="stakeholders">
+      {% include "studyarea/stakeholders.html" %}
+    </div>
+  </div>
+  {% require_module 'study-area.js' %}
+{% endblock %}

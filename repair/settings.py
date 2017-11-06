@@ -79,10 +79,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'django.contrib.gis',
     'rest_framework',
+    'repair.apps.login',
     'repair.apps.asmfa',
-    'repair.apps.study_area',
+    'repair.apps.studyarea',
     'repair.apps.changes',
-    'repair.apps.status_quo',
+    'repair.apps.statusquo',
     'require'
 ]
 
@@ -90,7 +91,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_AUTHENTIFICATION_CLASSES': [],
     'PAGE_SIZE': 10,
-    'DEFAULT_PAGINATION_CLASS': None,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
 MIDDLEWARE = [
@@ -157,6 +158,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

@@ -6,15 +6,15 @@ import urllib
 import json
 from plotly import offline
 from plotly.graph_objs import Figure, Data, Layout
-from repair.apps.changes.models import CaseStudy
-from repair.apps.asmfa.models import Flow
+from repair.apps.login.models import CaseStudy
+from repair.apps.asmfa.models import Material
 
 def index(request):
     template = loader.get_template('admin/index.html')
 
     context = {}
     context['case_studies'] = CaseStudy.objects.order_by('id')
-    context['flows'] = Flow.material_choices
+    context['flows'] = Material.objects.all()
 
     html = template.render(context, request)
     return HttpResponse(html)

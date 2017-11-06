@@ -19,28 +19,26 @@ from repair.apps.asmfa.models import (
     Stock,
     )
 
-from repair.apps.changes.models import CaseStudy
-
-#from repair.apps.changes.factories import *
+from repair.apps.login.models import CaseStudy
 
 
 class ModelTest(TestCase):
 
-    fixtures = ['repair/apps/changes/fixtures/changes_fixture.json',
-                'activities_dummy_data.json',]
+    #fixtures = ['user_fixture.json',
+                #'activities_dummy_data.json',]
 
     def test_string_representation(self):
         for Model in (
             Activity,
-            #Activity2Activity,
+            Activity2Activity,
             ActivityGroup,
             ActivityStock,
             Actor,
-            #Actor2Actor,
+            Actor2Actor,
             ActorStock,
             DataEntry,
             Geolocation,
-            #Group2Group,
+            Group2Group,
             GroupStock,
             ):
 
