@@ -89,7 +89,6 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
           activityDict[activity_id] = [];
         activityDict[activity_id].push(node);
       });
-      console.log(activityDict)
 
       this.activityGroups.each(function(group){
         var node = {

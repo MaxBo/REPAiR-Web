@@ -46,6 +46,7 @@
       <table id='input-table' class='table'>
         <h3>{% trans "Input" %}</h3>
         <tr>
+          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Quality" %}</th>
@@ -53,22 +54,26 @@
         </tr>
       </table> 
       <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='remove-input-button'><span class="glyphicon glyphicon-minus"></span></button>
     </div>
     <div class="row">
       <table id='stock-table' class='table'>
         <h3>{% trans "Stock" %}</h3>
         <tr>
+          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table> 
       <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='remove-stock-button'><span class="glyphicon glyphicon-minus"></span></button>
     </div>
     <div class="row">
       <table id='output-table' class='table'>
         <h3>{% trans "Output" %}</h3>
         <tr>
+          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
           <th>{% trans "Quality" %}</th>
@@ -77,6 +82,7 @@
         <tr>
       </table> 
       <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='remove-output-button'><span class="glyphicon glyphicon-minus"></span></button>
     </div>
   </div>
 </script>
