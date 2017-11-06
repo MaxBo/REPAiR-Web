@@ -84,11 +84,12 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
           model: actor,
           state: {checked: false}
         };
-        var activity_nace = actor.get('activity');
-        if (!(activity_nace in activityDict))
-          activityDict[activity_nace] = [];
-        activityDict[activity_nace].push(node);
+        var activity_id = actor.get('activity_id');
+        if (!(activity_id in activityDict))
+          activityDict[activity_id] = [];
+        activityDict[activity_id].push(node);
       });
+      console.log(activityDict)
 
       this.activityGroups.each(function(group){
         var node = {
@@ -98,12 +99,12 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
           nodes: [],
           state: {checked: false}
         };
-        dataDict[group.get('code')] = node;
+        dataDict[group.id] = node;
       });
 
       this.activities.each(function(activity){
-        var nace = activity.get('nace');
-        var nodes = (nace in activityDict) ? activityDict[nace]: [];
+        var id = activity.get('id');
+        var nodes = (id in activityDict) ? activityDict[id]: [];
         var node = {
           text: activity.get('name'),
           model: activity,

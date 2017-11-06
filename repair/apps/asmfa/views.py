@@ -47,7 +47,7 @@ from repair.apps.login.views import OnlyCasestudyMixin, OnlySubsetMixin
 
 class ActivityGroupViewSet(OnlyCasestudyMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
-    queryset = ActivityGroup.objects.all()
+    queryset = ActivityGroup.objects
 
 
 class ActivityViewSet(OnlyCasestudyMixin, ModelViewSet):
@@ -57,7 +57,7 @@ class ActivityViewSet(OnlyCasestudyMixin, ModelViewSet):
 
 class ActorViewSet(OnlyCasestudyMixin, ModelViewSet):
     serializer_class = ActorSerializer
-    queryset = Actor.objects.all()
+    queryset = Actor.objects
 
 
 class AllActivityViewSet(ActivityViewSet):

@@ -156,6 +156,9 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     user = UserInCasestudyField(view_name='userincasestudy-detail')
     solution_category = SolutionCategoryField(
         view_name='solutioncategory-detail')
+    #solution_category_id = serializers.PrimaryKeyRelatedField(
+        #source='solution_category',
+        #queryset=SolutionCategory.objects.all())
     solutionquantity_set = SolutionDetailListField(
         view_name='solutionquantity-list')
     solutionratiooneunit_set = SolutionDetailListField(
@@ -167,6 +170,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'one_unit_equals', 'solution_category',
                   'solutionquantity_set',
                   'solutionratiooneunit_set',
+                  #'solution_category_id', 
                   #'implementation_set',
                   )
         read_only_fields = ('url', 'id', )
@@ -184,7 +188,7 @@ class SolutionIISetField(InCasestudyField):
     lookup_url_kwarg = 'solutioncategory_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
                             'solutioncategory_pk': 'id', }
-    extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    #extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
 
 
 
