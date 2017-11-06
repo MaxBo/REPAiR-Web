@@ -409,30 +409,30 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
                   'implementation_list',
                   )
 
-    #def update(self, obj, validated_data):
-        #"""
-        #update the implementation-attributes,
-        #including selected solutions
-        #"""
-        #implementation = obj
-        #implementation_id = implementation.id
+    def update(self, obj, validated_data):
+        """
+        update the stratagy-attributes,
+        including selected solutions
+        """
+        strategy = obj
+        strategy_id = strategy.id
 
-        ## handle solutions
-        #new_solutions = validated_data.pop('solutions', None)
-        #if new_solutions is not None:
-            #SolutionInImplementationModel = Implementation.solutions.through
-            #solution_qs = SolutionInImplementationModel.objects.filter(
-                #implementation=implementation)
-            ## delete existing solutions
-            #solution_qs.exclude(solution_id__in=(
-                #sol.id for sol in new_solutions)).delete()
-            ## add or update new solutions
-            #for sol in new_solutions:
-                #SolutionInImplementationModel.objects.update_or_create(
-                    #implementation=implementation,
-                    #solution=sol)
+        # handle implementations
+        new_implementations = validated_data.pop('implementations', None)
+        if new_implementations is not None:
+            ImplementationInStrategyModel = Strategy.implementations.through
+            implementation_qs = ImplementationInStrategyModel.objects.filter(
+                strategy=strategy)
+            # delete existing solutions
+            implementation_qs.exclude(implementation_id__in=(
+                impl.id for impl in new_implementations)).delete()
+            # add or update new solutions
+            for impl in new_implementations:
+                ImplementationInStrategyModel.objects.update_or_create(
+                    implementation=impl,
+                    strategy=strategy)
 
-        ## update other attributes
-        #obj.__dict__.update(**validated_data)
-        #obj.save()
-        #return obj
+        # update other attributes
+        obj.__dict__.update(**validated_data)
+        obj.save()
+        return obj
