@@ -50,6 +50,8 @@ class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
     # all the data for the Node class tables will be known in advance, the users will not have to fill that in
     source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
     sink = models.BooleanField(default=False)  # if true - there is no output, same
+    
+    done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
     class Meta:
         abstract = True
