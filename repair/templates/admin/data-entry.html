@@ -2,38 +2,6 @@
 
 <!-- Backbone templates for rendering dynamic views in admin area-->
 
-<!-- template for view on tabs of edit-flows in admin-area (change on case-study) -->
-<script type="text/template" id="edit-flows-template">
-  <div class="col-md-9">
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
-      <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
-      <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="data-entry-tab">
-        <div class="col-md-4" id="data-tree-group">
-          {% trans "Please choose a node to enter data for" %}
-          <div id="data-tree"></div>
-        </div>
-        <div class="col-md-8" id="data-entry">
-        </div>
-      </div>
-      <div class="tab-pane" id="sankey-tab">
-        <div class="row">
-          <button type="button" id="refresh-view-btn">
-            {% trans "Refresh" %}
-          </button> 
-        </div>
-        <div class="row"><div id="sankey"></div></div>
-      </div>
-      <div class="tab-pane" id="verification">
-        {% include "admin/verification.html" %}
-      </div>
-    </div>
-  </div>
-</script>
-
 <!-- template for view on edit a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12" style="border: 2px solid #e6e6e6;">
