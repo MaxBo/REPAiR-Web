@@ -95,7 +95,6 @@ define([
         link.attr("d", path);
       }
     
-      // I need to learn javascript
       var numCycles = 0;
       for( var i = 0; i< sankey.links().length; i++ ) {
         if( sankey.links()[i].causesCycle ) {
