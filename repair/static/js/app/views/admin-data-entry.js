@@ -77,7 +77,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
           model: actor,
           state: {checked: false}
         };
-        var activity_id = actor.get('activity_id');
+        var activity_id = actor.get('activity');
         if (!(activity_id in activityDict))
           activityDict[activity_id] = [];
         activityDict[activity_id].push(node);
