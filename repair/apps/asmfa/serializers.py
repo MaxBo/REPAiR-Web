@@ -23,7 +23,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
-                                           NestedHyperlinkedRelatedField)
+                                           NestedHyperlinkedRelatedField,
+                                           IDRelatedField)
 
 
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
@@ -199,20 +200,24 @@ class ActorListField(IdentityFieldMixin, ActorSetField):
 
 
 class ActivitySerializer(CreateWithUserInCasestudyMixin,
-                               NestedHyperlinkedModelSerializer):
+                         NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activitygroup__casestudy__id',
         'activitygroup_pk': 'activitygroup__id',
     }
-    activitygroup = ActivityGroupField(view_name='activitygroup-detail')
+    activitygroup = IDRelatedField()
+    activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
+                                           source='activitygroup',
+                                           read_only=True)
     actor_list = ActorListField(source='actor_set',
-                                   view_name='actor-list')
+                                view_name='actor-list')
     actor_set = ActorSetField(many=True,
                               view_name='actor-detail',
                               read_only=True)
     class Meta:
         model = Activity
-        fields = ('url', 'id', 'nace', 'name', 'activitygroup', 'actor_set',
+        fields = ('url', 'id', 'nace', 'name', 'activitygroup',
+                  'activitygroup_url', 'actor_set',
                   'actor_list')
 
 
@@ -232,13 +237,14 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activitygroup_pk': 'activity__activitygroup__id',
         'activity_pk': 'activity__id',
     }
-    activity = ActivityField(view_name='activity-detail')
-    activity_id = serializers.PrimaryKeyRelatedField(source='activity',
-                                                     read_only=True)
+    activity = IDRelatedField()
+    activity_url = ActivityField(view_name='activity-detail',
+                                 source='activity',
+                                 read_only=True)
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website', 'activity', 'activity_id')
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url')
 
 
 class AllActorSerializer(ActorSerializer):
