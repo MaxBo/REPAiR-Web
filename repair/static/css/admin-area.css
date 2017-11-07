@@ -10,9 +10,9 @@
     border: 2px solid #e6e6e6;
 }
 
-#data-entry-tab{
+.tab-pane{
     padding-top: 20px;
-    min-height: 200px;
+    min-height: 300px;
 }
 
 #upload-flows-button{

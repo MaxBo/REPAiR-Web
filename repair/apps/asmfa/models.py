@@ -127,33 +127,33 @@ class Flow(models.Model):
 class Group2Group(Flow):
 
     destination = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                    related_name='Inputs')
+                                    related_name='inputs')
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                               related_name='Outputs')
+                               related_name='outputs')
 
 
 class Activity2Activity(Flow):
 
     destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                    related_name='Inputs',
+                                    related_name='inputs',
                                     )
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                               related_name='Outputs',
+                               related_name='outputs',
                                )
 
 
 class Actor2Actor(Flow):
 
     destination = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                    related_name='Inputs')
+                                    related_name='inputs')
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                               related_name='Outputs')
+                               related_name='outputs')
 
 
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users
-    amount = models.PositiveIntegerField(blank=True)
+    amount = models.IntegerField(blank=True)
     material = models.ForeignKey(MaterialInCasestudy, on_delete=models.CASCADE,
                                          default=1)
     quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
@@ -166,16 +166,17 @@ class Stock(models.Model):
 class GroupStock(Stock):
 
         origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
 
 
 class ActivityStock(Stock):
 
         origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
 
 
 class ActorStock(Stock):
 
         origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
+
