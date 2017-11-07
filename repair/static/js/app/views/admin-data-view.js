@@ -92,7 +92,7 @@ function($, Backbone, Sankey){
       var sankey = new Sankey({
         height: 600,
         divid: '#' + this.el.id,
-        title: 'D3 Sankey with cycle-support (random data, new data on click on "Refresh"-button)'
+        title: ''
       })
       sankey.render(data);
     },

@@ -12,7 +12,7 @@ define([
     var title = options.title;
 
     var formatNumber = d3.format(",.0f"),
-        format = function(d) { return formatNumber(d) + " tuples"; },
+        format = function(d) { return 'value: ' + formatNumber(d);},
         color = d3.scale.category20();
     
     this.render = function ( data ) {
