@@ -18,7 +18,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       
       var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
       this.dataView = new DataView({
-        el: document.getElementById('sankey-tab'),
+        el: document.getElementById('sankey'),
         collection: groupToGroup,
         activityGroups: activityGroups
       });
