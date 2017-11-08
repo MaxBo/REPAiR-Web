@@ -22,9 +22,10 @@ function($, Backbone, EditNodeView, ActivityGroups,
     /*
      * view-constructor
      */
-    initialize: function(){
+    initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      this.template = options.template;
 
       var caseStudyId = this.model.id;
 
@@ -47,6 +48,8 @@ function($, Backbone, EditNodeView, ActivityGroups,
      */
     render: function(){
       var _this = this;
+      var template = document.getElementById(this.template);
+      this.el.innerHTML = template.innerHTML;
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
@@ -136,7 +139,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
       // currently selected material
       var flowSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
-        el: document.getElementById('data-entry'),
+        el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
         material: flowSelect.value
