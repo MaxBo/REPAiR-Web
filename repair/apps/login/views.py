@@ -1,6 +1,7 @@
 from abc import ABC
 from django.shortcuts import render
 from django.contrib.auth.models import Group, User
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
@@ -51,20 +52,48 @@ class OnlyCasestudyMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         self.set_casestudy(kwargs, request)
+        queryset = self._filter(kwargs, query_params=request.query_params, 
+                                SerializerClass=SerializerClass)
+        if queryset is None:
+            return Response(status=400)
+        serializer = SerializerClass(queryset, many=True,
+                                     context={'request': request, })
+        return Response(serializer.data)
+    
+    def retrieve(self, request, **kwargs):
+        """
+        filter the queryset with the lookup-arguments
+        and then render the filtered queryset with the serializer
+        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
+        Serializer-Class
+        """
+        SerializerClass = self.get_serializer_class()
+        self.set_casestudy(kwargs, request)
+        pk = kwargs.pop('pk')
+        queryset = self._filter(kwargs, SerializerClass=SerializerClass)
+        model = get_object_or_404(queryset, pk=pk)
+        serializer = SerializerClass(model, context={'request': request})
+        return Response(serializer.data)
+    
+    def _filter(self, lookup_args, query_params={}, SerializerClass=None):
+        """
+        return a queryset filtered by lookup arguments and query parameters
+        return None if query parameters are malformed
+        """
+        SerializerClass = SerializerClass or self.get_serializer_class()
         # filter the lookup arguments
-        filter_args = {v: kwargs[k] for k, v
+        filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
         # filter any query parameters matching fields of the model
-        for k, v in self.request.query_params.items():
+        for k, v in query_params.items():
             if hasattr(self.queryset.model, k):
                 filter_args[k] = v
         try:
             queryset = self.queryset.model.objects.filter(**filter_args)
         except:
-            return Response(status=400)
-        serializer = SerializerClass(queryset, many=True,
-                                     context={'request': request, })
-        return Response(serializer.data)
+            queryset = None
+        return queryset
+    
 
 
 class OnlySubsetMixin(OnlyCasestudyMixin):
