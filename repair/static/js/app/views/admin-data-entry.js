@@ -142,7 +142,8 @@ function($, Backbone, EditNodeView, ActivityGroups,
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        material: flowSelect.value
+        materialId: flowSelect.value,
+        caseStudyId: this.model.id
       });
     },
 
