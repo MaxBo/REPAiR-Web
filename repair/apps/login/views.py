@@ -51,9 +51,17 @@ class OnlyCasestudyMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         self.set_casestudy(kwargs, request)
-        lookup_args = {v: kwargs[k] for k, v
+        # filter the lookup arguments
+        filter_args = {v: kwargs[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
-        queryset = self.queryset.model.objects.filter(**lookup_args)
+        # filter any query parameters matching fields of the model
+        for k, v in self.request.query_params.items():
+            if hasattr(self.queryset.model, k):
+                filter_args[k] = v
+        try:
+            queryset = self.queryset.model.objects.filter(**filter_args)
+        except:
+            return Response(status=400)
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         return Response(serializer.data)
