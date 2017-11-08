@@ -33,7 +33,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       // create casestudy-object and render view on it (data will be fetched in view)
       var caseStudy = new CaseStudy({id: caseStudyId});
       this.dataEntry = new DataEntryView({
-        el: document.getElementById('data-entry-tab'),
+        el: document.getElementById('data-entry'),
+        template: 'data-entry-template',
         model: caseStudy
       });
     };
