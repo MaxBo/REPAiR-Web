@@ -67,10 +67,11 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     /*
       * dom events (managed by jquery)
       */
-    //events: {
+    events: {
+      'click #upload-flows-button': 'uploadChanges'
       //'click #add-input-button, #add-stock-button, #add-output-button': 'addRowEvent',
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
-    //},
+    },
 
     /*
       * render the view
@@ -101,47 +102,79 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     
     addFlowRow: function(tableId, flow, identifier){
       var _this = this;
-      var columns = [];
-      var checkbox = {type: 'checkbox', value: false};
-      columns.push(checkbox);
-      var amount = {type: 'number', value: flow.get('amount'), min: 0};
-      columns.push(amount);
+
+      var table = this.el.querySelector('#' + tableId);
+      var row = table.insertRow(-1);
       
-      // select input for target (origin resp. destination)
+      // checkbox for marking deletion
       
-      var names = [];
+      var checkbox = document.createElement("input");
+      checkbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(checkbox);
+      
+      checkbox.addEventListener('change', function() {
+        row.classList.toggle('strikeout');
+      });
+      
+      // amount of flow
+      
+      var amount = document.createElement("input");
+      amount.value = flow.get('amount');
+      amount.type = 'number';
+      amount.min = 0;
+      row.insertCell(-1).appendChild(amount);
+      
+      amount.addEventListener('change', function() {
+        flow.set('amount', amount.value);
+      });
+      
+      // select input for target (origin resp. destination of flow)
+      
+      var nodeSelect = document.createElement("select");
       var ids = [];
       var targetId = flow.get(identifier);
       this.model.collection.each(function(model){
         // no flow to itself allowed
         if (model.id != _this.model.id){
+          var option = document.createElement("option");
+          option.text = model.get('name');
+          option.value = model.id;
+          nodeSelect.add(option);
           ids.push(model.id);
-          names.push(model.get('name'));
         };
       });
       var idx = ids.indexOf(targetId);
-      var node = {type: 'select', text: names, value: ids, selected: idx};
-      columns.push(node);
+      nodeSelect.selectedIndex = idx.toString();
+      row.insertCell(-1).appendChild(nodeSelect);
+      
+      nodeSelect.addEventListener('change', function() {
+        console.log(nodeSelect.value);
+      });
       
       // select input for qualities
       
-      var names = [];
+      var qualitySelect = document.createElement("select");
       var ids = [];
       var q = flow.get('quality');
-      console.log(q)
       this.qualities.each(function(quality){
-        console.log(quality)
+        var option = document.createElement("option");
+        option.text = quality.get('name');
+        option.value = quality.id;
+        qualitySelect.add(option);
         ids.push(quality.id);
-        names.push(quality.get('name'));
       });
       var idx = ids.indexOf(q);
-      var qualities = {type: 'select', text: names, value: ids, selected: idx};
-      columns.push(qualities);
+      qualitySelect.selectedIndex = idx.toString();
+      row.insertCell(-1).appendChild(qualitySelect);
+      
+      qualitySelect.addEventListener('change', function() {
+        console.log(qualitySelect.value);
+      });
       
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
-      var description = {type: 'text', value: ''};
-      columns.push(description);
-      this.addTableRow(tableId, columns);
+      var description = document.createElement("input");
+      row.insertCell(-1).appendChild(description);
+      
     },
 
     // on click add row button
@@ -168,11 +201,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
 
       var qualities = {type: 'select', text: [1, 2, 3, 4]};
       columns.push(qualities);
-      var description = {type: 'text', value: ''};
-      columns.push(description);
-
-      this.addTableRow(tableId, columns)
     },
+
 
     /**
     * add a row to the given table
@@ -180,7 +210,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     * @param tableId  id of the table to add a row to
     * @param columns  array of objects to put in each column
     *                 attributes of object: type (optional)  - 'select'/'number'/'text'
-    *                                       value (required) - single value or array (select only)
+    *                                       value (required) - single value or array (array for select only)
     *                                       min (optional) - min. value (number only)
     *                                       max (optional) - max. value (number only
     *                 (same order in array as in table required)
@@ -222,6 +252,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         else
           cell.innerHTML = column.value;
       }
+      return row;
     },
     
     deleteRowEvent: function(event){
@@ -282,6 +313,13 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         employees: this.model.get('employees'),
         revenue: this.model.get('revenue')
       });
+    },
+    
+    uploadChanges: function(){
+      this.inFlows.each(function(model){
+        model.save();
+      });
+      //this.outFlows.save();
     },
 
     /*
