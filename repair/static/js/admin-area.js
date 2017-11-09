@@ -6,18 +6,20 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
   
     var caseStudySelect = document.getElementById('case-studies-select');
     var materialSelect = document.getElementById('flows-select');
+    
+    var dataView;
+    var dataEntry;
   
     var renderDataView = function(){
       var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
       var materialId = materialSelect.options[materialSelect.selectedIndex].value;
       var groupToGroup = new Flows({caseStudyId: caseStudyId, 
                                     materialId: materialId});
-
-      if (this.dataView != null)
-        this.dataView.close();
+      if (dataView != null)
+        dataView.close();
       
       var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
-      this.dataView = new DataView({
+      dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
         collection: groupToGroup,
@@ -28,12 +30,12 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     // render data entry for currently selected casestudy
     var renderDataEntry = function(){
       var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
-      if (this.dataEntry != null)
-        this.dataEntry.close();
+      if (dataEntry != null)
+        dataEntry.close();
         
       // create casestudy-object and render view on it (data will be fetched in view)
       var caseStudy = new CaseStudy({id: caseStudyId});
-      this.dataEntry = new DataEntryView({
+      dataEntry = new DataEntryView({
         el: document.getElementById('data-entry'),
         template: 'data-entry-template',
         model: caseStudy
