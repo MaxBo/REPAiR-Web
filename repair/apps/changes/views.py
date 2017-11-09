@@ -150,8 +150,7 @@ class ImplementationOfUserViewSet(ImplementationViewSet):
     serializer_class = ImplementationOfUserSerializer
 
 
-class StrategyViewset(OnlyCasestudyMixin,
-                                      viewsets.ModelViewSet):
+class StrategyViewset(ViewSetMixin, viewsets.ModelViewSet):
     serializer_class = StrategySerializer
     queryset = Strategy.objects.all()
 
