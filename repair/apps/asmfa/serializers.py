@@ -80,6 +80,7 @@ class QualitySerializer(NestedHyperlinkedModelSerializer):
         model = Quality
         fields = ('url', 'id', 'name')
 
+
 class InMaterialField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':

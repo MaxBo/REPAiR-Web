@@ -30,11 +30,12 @@ class MultiSerializerViewSetMixin(ABC):
                    get_serializer_class()
 
 
-class OnlyCasestudyMixin(ABC):
+class ViewSetMixin(ABC):
     """
     This Mixin provides a list and a create method to get only
     items of the current casestudy
     """
+    casestudy_only = True
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -51,7 +52,8 @@ class OnlyCasestudyMixin(ABC):
         Serializer-Class
         """
         SerializerClass = self.get_serializer_class()
-        self.set_casestudy(kwargs, request)
+        if self.casestudy_only:
+            self.set_casestudy(kwargs, request)
         queryset = self._filter(kwargs, query_params=request.query_params, 
                                 SerializerClass=SerializerClass)
         if queryset is None:
@@ -68,7 +70,8 @@ class OnlyCasestudyMixin(ABC):
         Serializer-Class
         """
         SerializerClass = self.get_serializer_class()
-        self.set_casestudy(kwargs, request)
+        if self.casestudy_only:
+            self.set_casestudy(kwargs, request)
         pk = kwargs.pop('pk')
         queryset = self._filter(kwargs, SerializerClass=SerializerClass)
         model = get_object_or_404(queryset, pk=pk)
@@ -96,7 +99,7 @@ class OnlyCasestudyMixin(ABC):
     
 
 
-class OnlySubsetMixin(OnlyCasestudyMixin):
+class OnlySubsetMixin(ViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -119,7 +122,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(viewsets.ModelViewSet):
+class CaseStudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
@@ -127,7 +130,7 @@ class CaseStudyViewSet(viewsets.ModelViewSet):
     serializer_class = CaseStudySerializer
 
 
-class UserInCasestudyViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """

@@ -42,20 +42,20 @@ from repair.apps.asmfa.serializers import (
     AllActivitySerializer,
     AllActorSerializer)
 
-from repair.apps.login.views import OnlyCasestudyMixin, OnlySubsetMixin
+from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
 
 
-class ActivityGroupViewSet(OnlyCasestudyMixin, ModelViewSet):
+class ActivityGroupViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
     queryset = ActivityGroup.objects
 
 
-class ActivityViewSet(OnlyCasestudyMixin, ModelViewSet):
+class ActivityViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
 
 
-class ActorViewSet(OnlyCasestudyMixin, ModelViewSet):
+class ActorViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActorSerializer
     queryset = Actor.objects
 
@@ -68,17 +68,18 @@ class AllActorViewSet(ActorViewSet):
     serializer_class = AllActorSerializer
 
 
-class MaterialViewSet(ModelViewSet):
+class MaterialViewSet(ViewSetMixin, ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
 
 
-class QualityViewSet(ModelViewSet):
+class QualityViewSet(ViewSetMixin, ModelViewSet):
     queryset = Quality.objects.all()
     serializer_class = QualitySerializer
+    casestudy_only = False
 
 
-class MaterialInCasestudyViewSet(OnlyCasestudyMixin, ModelViewSet):
+class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows materialincasestudy to be viewed or edited.
     """
