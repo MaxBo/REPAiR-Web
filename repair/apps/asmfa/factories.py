@@ -2,7 +2,7 @@ import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import (UserInCasestudyFactory,
                                          ProfileFactory,
-                                         CasestudyFactory)
+                                         CaseStudyFactory)
 
 from . import models
 
@@ -37,7 +37,7 @@ class MaterialInCasestudyFactory(DjangoModelFactory):
         model = models.MaterialInCasestudy
     note = 'A Material in a Casestudy'
     material = factory.SubFactory(MaterialFactory)
-    casestudy = factory.SubFactory(CasestudyFactory)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class QualityFactory(DjangoModelFactory):
@@ -58,7 +58,7 @@ class ActivityGroupFactory(NodeFactory):
         model = models.ActivityGroup
     name = factory.Sequence(lambda n: "ActivityGroup #%s" % n)
     code = Meta.model.activity_group_choices[0]
-    casestudy = factory.SubFactory(CasestudyFactory)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class ActivityFactory(NodeFactory):
