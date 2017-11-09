@@ -65,6 +65,7 @@ require(['backbone'], function (Backbone) {
   };
 });
 
+// add the csrf-token to all unsafe requests, otherwise django would deny access
 require(['jquery', 'cookies'], function ($, Cookies) {
   var csrftoken = Cookies.get('csrftoken');
   function csrfSafeMethod(method) {

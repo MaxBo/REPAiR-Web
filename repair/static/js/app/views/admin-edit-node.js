@@ -148,7 +148,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       row.insertCell(-1).appendChild(nodeSelect);
       
       nodeSelect.addEventListener('change', function() {
-        console.log(nodeSelect.value);
+        flow.set(identifier, nodeSelect.value);
       });
       
       // select input for qualities
@@ -168,7 +168,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       row.insertCell(-1).appendChild(qualitySelect);
       
       qualitySelect.addEventListener('change', function() {
-        console.log(qualitySelect.value);
+        flow.set('quality', qualitySelect.value);
       });
       
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
@@ -317,9 +317,14 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     
     uploadChanges: function(){
       this.inFlows.each(function(model){
-        model.save();
+        if (model.changedAttributes() != false)
+          model.save();
       });
-      //this.outFlows.save();
+      
+      this.outFlows.each(function(model){
+        if (model.changedAttributes() != false)
+          model.save();
+      });
     },
 
     /*
