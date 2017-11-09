@@ -1,5 +1,5 @@
 define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
-        'app/models/actor', 'app/collections/flows'],
+        'app/models/actor', 'app/collections/flows', 'app/loader'],
 /**
   *
   * @desc    view on edit a specific node
@@ -26,7 +26,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       
       var flowType = '';
       this.attrTableInner = '';
-      
       if (this.model.tag == 'activity'){
         this.attrTableInner = this.getActivityAttrTable();
         flowType = 'activity2activity';
@@ -41,17 +40,24 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       }
       
       this.inFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                materialId: this.materialId});
+                                materialId: this.materialId,
+                                type: flowType});
       this.outFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                 materialId: this.materialId});
+                                 materialId: this.materialId,
+                                 type: flowType});
       var _this = this;
+      
+      var loader = new Loader(this.el);
       // fetch inFlows and outFlows with different query parameters
       this.inFlows.fetch({
         data: 'destination=' + this.model.id,
         success: function(){
           _this.outFlows.fetch({
             data: 'origin=' + _this.model.id,
-            success: _this.render
+            success: function(){
+              loader.remove();
+              _this.render();
+            }
           })
         }
       });
@@ -70,6 +76,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       */
     render: function(){
       var _this = this;
+      console.log(this.model.collection);
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template();
@@ -102,10 +109,14 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       var ids = [];
       var i = idx = 0;
       var targetId = flow.get(identifier);
+      console.log('target: ' + targetId);
       this.model.collection.each(function(model){
         // no flow to itself allowed
+        console.log('model: ' + model.id);
         if (model.id != _this.model.id){
+          // set index of select to target
           if (targetId == model.id){
+            // TODO: Target not found - add 'unknown' to list?
             idx = i;
           };
           ids.push(model.id);
@@ -113,6 +124,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
           i++;
         };
       });
+      console.log('index: ' + idx);
       var node = {type: 'select', text: names, value: ids, selected: idx};
       columns.push(node);
       var qualities = {type: 'select', text: [1, 2, 3, 4]};
