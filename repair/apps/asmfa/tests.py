@@ -67,6 +67,22 @@ class MaterialTest(BasicModelTest, APITestCase):
         self.fact = MaterialFactory()
 
 
+class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
+
+    cs_url = 'http://testserver' + reverse('casestudy-detail',
+                                           kwargs=dict(pk=1))
+    url_key = "material"
+    url_pks = dict(casestudies_pk=1)
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname', casestudies=[cs_url], code='cdo')
+    put_data = dict(name='puttestname', casestudies=[cs_url])
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        csf = CaseStudyFactory()
+        self.fact = MaterialFactory()
+
+
 class QualityTest(BasicModelTest, APITestCase):
 
     url_key = "quality"
