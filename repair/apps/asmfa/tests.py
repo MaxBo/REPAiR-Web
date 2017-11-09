@@ -20,6 +20,7 @@ from django.core.validators import ValidationError
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
+from repair.apps.asmfa.factories import *
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
@@ -49,7 +50,7 @@ class ModelTestOld(TestCase):
             print('{} has {} test data entries'.format(
                 Model, Model.objects.count()))
 
-class CasestudyTest(ModelTest):
+class CasestudyTest(ModelTest, APITestCase):
 
     url_key = "casestudy"
     url_pks = dict()
@@ -57,58 +58,26 @@ class CasestudyTest(ModelTest):
     post_data = dict(name='posttestname')
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
-    factory = CaseStudyFactory
-    #fixtures = ['activities_dummy_data.json']
+
+    def setUp(self):
+        self.fact = CaseStudyFactory()
+
+class MaterialTest(ModelTest, APITestCase):
+
+    cs_url = 'http://testserver' + reverse('casestudy-detail',
+                                           kwargs=dict(pk=1))
+    url_key = "material"
+    url_pks = dict()
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname', casestudies=[cs_url], code='cod')
+    put_data = dict(name='puttestname', casestudies=[cs_url])
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        self.fact = CaseStudyFactory()
+        mf = MaterialFactory()
 
 
-    #def test_get_casestudies_list(self):
-        #url = reverse('casestudy-list')
-        #response = self.client.get(url)
-        #assert response.status_code == 200
-
-    #def test_get_casestudy_detail(self):
-        #cs = CaseStudyFactory()
-        #old_name = cs.name
-        #new_name = "changed name"
-        #data = {'name': new_name,}
-        #url = reverse('casestudy-detail', kwargs=dict(pk=1))
-        ## test get
-        #response = self.client.get(url)
-        #assert response.data['id'] == 1
-        ## check status code for put
-        #response = self.client.put(url, data=data, format='json')
-        #assert response.status_code == 200
-        ## check if name has changed
-        #response = self.client.get(url)
-        #assert response.data['name'] == new_name
-        ## check status code for patch
-        #data = {'name': old_name,}
-        #response = self.client.patch(url, data=data, format='json')
-        #assert response.status_code == 200
-        ## check if name has changed
-        #response = self.client.get(url)
-        #assert response.data['name'] == old_name
-
-    #def test_delete(self):
-        #cs = CaseStudyFactory()
-        #url = reverse('casestudy-detail', kwargs=dict(pk=1))
-        #response = self.client.get(url)
-        #assert response.status_code == 200
-        #response = self.client.delete(url)
-        #response = self.client.get(url)
-        #assert response.status_code == 404
-
-    #def test_post(self):
-        #data = {'name': "test casestudy",}
-        #url = reverse('casestudy-list')
-        ## post
-        #response = self.client.post(url, data)
-        #assert response.data['name'] == data['name']
-        ## get
-        #new_id = response.data['id']
-        #url = reverse('casestudy-detail', kwargs=dict(pk=new_id))
-        #response = self.client.get(url)
-        #assert response.status_code == 200
 
 
 
