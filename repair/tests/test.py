@@ -11,7 +11,7 @@ from rest_framework import status
 import json
 from unittest import skipIf
 
-class ModelTest(object):
+class BasicModelTest(object):
     url_key = ""
     url_pks = dict()
     url_pk = dict()

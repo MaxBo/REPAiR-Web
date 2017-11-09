@@ -25,7 +25,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
-from repair.tests.test import ModelTest
+from repair.tests.test import BasicModelTest
 
 class ModelTestOld(TestCase):
 
@@ -50,32 +50,34 @@ class ModelTestOld(TestCase):
             print('{} has {} test data entries'.format(
                 Model, Model.objects.count()))
 
-class CasestudyTest(ModelTest, APITestCase):
 
-    url_key = "casestudy"
-    url_pks = dict()
-    url_pk = dict(pk=1)
-    post_data = dict(name='posttestname')
-    put_data = {'name': 'puttestname', }
-    patch_data = dict(name='patchtestname')
-
-    def setUp(self):
-        self.fact = CaseStudyFactory()
-
-class MaterialTest(ModelTest, APITestCase):
+class MaterialTest(BasicModelTest, APITestCase):
 
     cs_url = 'http://testserver' + reverse('casestudy-detail',
                                            kwargs=dict(pk=1))
     url_key = "material"
     url_pks = dict()
     url_pk = dict(pk=1)
-    post_data = dict(name='posttestname', casestudies=[cs_url])
+    post_data = dict(name='posttestname', casestudies=[cs_url], code='cdo')
     put_data = dict(name='puttestname', casestudies=[cs_url])
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.fact = CaseStudyFactory()
-        mf = MaterialFactory()
+        csf = CaseStudyFactory()
+        self.fact = MaterialFactory()
+
+
+class QualityTest(BasicModelTest, APITestCase):
+
+    url_key = "quality"
+    url_pks = dict()
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname')
+    put_data = dict(name='puttestname')
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        self.fact = QualityFactory()
 
 
 
