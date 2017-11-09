@@ -50,7 +50,8 @@ function($, Backbone, Sankey){
     },
     
     toggleFullscreen: function(){
-      this.el.classList.toggle('fullscreen');
+      console.log(this.el.classList)
+      this.el.classList.toggle('fullscreen'); 
       if (this.sankeyData != null){
         this.renderSankey(this.sankeyData);
       }

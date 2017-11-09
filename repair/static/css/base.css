@@ -131,6 +131,16 @@ table {
 th, td {
   text-align: left;
   padding: 8px;
+  position: relative;
+}
+
+tr.strikeout td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 2px solid red;
+    width: 100%;
 }
 
 tr:nth-child(even){background-color: #f2f2f2}
