@@ -15,10 +15,21 @@
     min-height: 300px;
 }
 
+#edit-node{
+    min-height: 300px;
+}
+
 #upload-flows-button{
     float: right;
     width: auto;
     margin-top: 10px;
     background-color: #aad400;
     border-width: 0px;
+}
+
+#fullscreen-toggle{
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 2em;
 }

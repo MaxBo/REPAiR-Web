@@ -1,9 +1,9 @@
 define(['jquery', 'backbone',
         'app/views/admin-edit-node', 'app/collections/activitygroups',
         'app/collections/activities', 'app/collections/actors',
-        'treeview', 'app/loader'],
+        'app/collections/qualities', 'treeview', 'app/loader'],
 function($, Backbone, EditNodeView, ActivityGroups,
-         Activities, Actors, treeview){
+         Activities, Actors, Qualities, treeview){
 
   /**
    *
@@ -25,6 +25,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
     initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      var _this = this;
       this.template = options.template;
 
       var caseStudyId = this.model.id;
@@ -33,9 +34,14 @@ function($, Backbone, EditNodeView, ActivityGroups,
       this.activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
       this.activities = new Activities({caseStudyId: caseStudyId});
       this.actors = new Actors({caseStudyId: caseStudyId});
-
+      this.qualities = new Qualities();
+      
       // render the view after successfully retrieving the data of the casestudy
-      this.model.fetch({success: this.render});
+      this.qualities.fetch({success: function(){
+        _this.model.fetch({
+          success: _this.render
+        })
+      }});
     },
 
     /*
@@ -142,7 +148,9 @@ function($, Backbone, EditNodeView, ActivityGroups,
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        material: flowSelect.value
+        materialId: flowSelect.value,
+        caseStudyId: this.model.id,
+        qualities: this.qualities
       });
     },
 

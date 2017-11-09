@@ -62,7 +62,7 @@
                 {% trans "Refresh" %}
               </button> 
             </div>
-            <div class="row"><div id="sankey"></div></div>
+            <div class="row"><div id="data-view"></div></div>
           </div>
           <div class="tab-pane" id="verification">
             {% include "admin/verification.html" %}
@@ -71,6 +71,6 @@
       </div>
     </div>
   </div>
-{% include "admin/data-entry.html" %}
+{% include "admin/backbone-templates.html" %}
 {% require_module 'admin-area.js' %}
 {% endblock %}

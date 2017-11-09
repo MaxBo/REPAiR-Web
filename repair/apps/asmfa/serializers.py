@@ -80,6 +80,7 @@ class QualitySerializer(NestedHyperlinkedModelSerializer):
         model = Quality
         fields = ('url', 'id', 'name')
 
+
 class InMaterialField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
@@ -114,9 +115,7 @@ class MaterialField(NestedHyperlinkedRelatedField):
 class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(
-        view_name='material-detail',
-    )
+    material = MaterialSerializer(read_only=True)
     groupstock_set = InMaterialSetField(view_name='groupstock-list')
     group2group_set = InMaterialSetField(view_name='group2group-list')
     activitystock_set = InMaterialSetField(view_name='activitystock-list')
@@ -329,6 +328,8 @@ class Group2GroupSerializer(FlowSerializer):
     destination_url = ActivityGroupField(view_name='activitygroup-detail',
                                          source='destination',
                                          read_only=True)
+    quality = IDRelatedField()
+    
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
@@ -344,6 +345,7 @@ class Activity2ActivitySerializer(FlowSerializer):
     destination_url = ActivityField(view_name='activity-detail',
                                     source='destination',
                                     read_only=True)
+    quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
@@ -360,6 +362,7 @@ class Actor2ActorSerializer(FlowSerializer):
     destination_url = ActorField(view_name='actor-detail',
                                  source='destination',
                                  read_only=True)
+    quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor

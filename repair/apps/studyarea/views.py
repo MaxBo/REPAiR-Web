@@ -12,7 +12,7 @@ from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
 import numpy as np
 
-from repair.apps.login.views import OnlyCasestudyMixin
+from repair.apps.login.views import ViewSetMixin
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
@@ -35,14 +35,14 @@ from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
         #return queryset.filter(casestudy=casestudy)
 
 
-class StakeholderCategoryViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+class StakeholderCategoryViewSet(ViewSetMixin, viewsets.ModelViewSet):
     queryset = StakeholderCategory.objects.all()
     serializer_class = StakeholderCategorySerializer
 
     #filter_backends = (IsCasestudyFilterBackend, )
 
 
-class StakeholderViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+class StakeholderViewSet(ViewSetMixin, viewsets.ModelViewSet):
     queryset = Stakeholder.objects.all()
     serializer_class = StakeholderSerializer
 

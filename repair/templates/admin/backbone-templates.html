@@ -2,6 +2,20 @@
 
 <!-- Backbone templates for rendering dynamic views in admin area-->
 
+<!-- Data View -->
+
+<script type="text/template" id="data-view-template">
+  <div class="row">
+    <div id="sankey-wrapper">
+      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen"></button>
+      <div id="sankey">
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- Data Entry -->
+
 <script type="text/template" id="data-entry-template">
   <div class="col-md-4">
     {% trans "Please choose a node to enter data for" %}
@@ -11,7 +25,8 @@
     <div class="row"><div id="edit-node"></div></div>
   </div>
 </script>
-  
+
+
 <!-- template for view on edit a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12" style="border: 2px solid #e6e6e6;">
