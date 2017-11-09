@@ -14,7 +14,8 @@ requirejs.config({
     'jquery': 'libs/jquery-3.2.1.min',
     'treeview': 'libs/bootstrap-treeview.min',
     'backbone': 'libs/backbone-min',
-    'underscore': 'libs/underscore-min'
+    'underscore': 'libs/underscore-min',
+    'cookies': 'libs/js.cookie'
   },
   shim: {
     'almond': { exports: 'almond' },
@@ -45,21 +46,36 @@ if (!String.prototype.format) {
 require(['backbone'], function (Backbone) {
   var _sync = Backbone.sync;
   Backbone.sync = function(method, model, options){
-      // Add trailing slash to backbone model views
-      var parts = _.result(model, 'url').split('?'),
-          _url = parts[0],
-          params = parts[1];
-  
-      _url += _url.charAt(_url.length - 1) == '/' ? '' : '/';
-  
-      if (!_.isUndefined(params)) {
-          _url += '?' + params;
-      };
-  
-      options = _.extend(options, {
-          url: _url
-      });
-  
-      return _sync(method, model, options);
+    // Add trailing slash to backbone model views
+    var parts = _.result(model, 'url').split('?'),
+      _url = parts[0],
+      params = parts[1];
+
+    _url += _url.charAt(_url.length - 1) == '/' ? '' : '/';
+
+    if (!_.isUndefined(params)) {
+      _url += '?' + params;
+    };
+
+    options = _.extend(options, {
+      url: _url
+    });
+
+    return _sync(method, model, options);
   };
+});
+
+require(['jquery', 'cookies'], function ($, Cookies) {
+  var csrftoken = Cookies.get('csrftoken');
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
 });
