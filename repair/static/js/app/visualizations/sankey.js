@@ -12,7 +12,7 @@ define([
     var title = options.title;
 
     var formatNumber = d3.format(",.0f"),
-        format = function(d) { return formatNumber(d) + " tuples"; },
+        format = function(d) { return 'value: ' + formatNumber(d);},
         color = d3.scale.category20();
     
     this.render = function ( data ) {
@@ -95,7 +95,6 @@ define([
         link.attr("d", path);
       }
     
-      // I need to learn javascript
       var numCycles = 0;
       for( var i = 0; i< sankey.links().length; i++ ) {
         if( sankey.links()[i].causesCycle ) {

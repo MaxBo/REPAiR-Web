@@ -3,7 +3,7 @@ define(["backbone", "app-config"],
   function(Backbone, config) {
 
     var Activity = Backbone.Model.extend({
-      idAttribute: "url",
+      idAttribute: "id",
       tag: "activity",
       urlRoot: function(){
         // if a group is given, take the route that retrieves all activities 

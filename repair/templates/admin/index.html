@@ -35,7 +35,7 @@
             <br>
             <select name="flows" id="flows-select">
               {% for f in flows %}
-                  <option value="{{ f.code }}">{{ f.name }}</option>
+                  <option value="{{ f.id }}">{{ f.code }}</option>
               {% endfor %}
             </select>
           </div>
@@ -46,11 +46,31 @@
           </div>
         </div>
       </div>
-      <div class="row">
-        <div id="edit-flows"/>
+      <div class="row">  <div class="col-md-9">
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
+          <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+          <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="data-entry-tab">
+            <div class="row"><div id="data-entry"></div></div>
+          </div>
+          <div class="tab-pane" id="sankey-tab">
+            <div class="row">
+              <button type="button" id="refresh-view-btn">
+                {% trans "Refresh" %}
+              </button> 
+            </div>
+            <div class="row"><div id="data-view"></div></div>
+          </div>
+          <div class="tab-pane" id="verification">
+            {% include "admin/verification.html" %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
-{% include "admin/edit-flows.html" %}
+{% include "admin/backbone-templates.html" %}
 {% require_module 'admin-area.js' %}
 {% endblock %}

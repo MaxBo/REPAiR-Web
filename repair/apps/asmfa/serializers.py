@@ -23,7 +23,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
-                                           NestedHyperlinkedRelatedField)
+                                           NestedHyperlinkedRelatedField,
+                                           IDRelatedField)
 
 
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
@@ -79,6 +80,7 @@ class QualitySerializer(NestedHyperlinkedModelSerializer):
         model = Quality
         fields = ('url', 'id', 'name')
 
+
 class InMaterialField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
@@ -113,9 +115,7 @@ class MaterialField(NestedHyperlinkedRelatedField):
 class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(
-        view_name='material-detail',
-    )
+    material = MaterialSerializer(read_only=True)
     groupstock_set = InMaterialSetField(view_name='groupstock-list')
     group2group_set = InMaterialSetField(view_name='group2group-list')
     activitystock_set = InMaterialSetField(view_name='activitystock-list')
@@ -171,9 +171,13 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     activity_set = ActivitySetField(many=True,
                                     view_name='activity-detail',
                                     read_only=True)
+    inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     class Meta:
         model = ActivityGroup
-        fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list')
+        fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
+                  'inputs', 'outputs', 'stocks')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -195,20 +199,24 @@ class ActorListField(IdentityFieldMixin, ActorSetField):
 
 
 class ActivitySerializer(CreateWithUserInCasestudyMixin,
-                               NestedHyperlinkedModelSerializer):
+                         NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activitygroup__casestudy__id',
         'activitygroup_pk': 'activitygroup__id',
     }
-    activitygroup = ActivityGroupField(view_name='activitygroup-detail')
+    activitygroup = IDRelatedField()
+    activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
+                                           source='activitygroup',
+                                           read_only=True)
     actor_list = ActorListField(source='actor_set',
-                                   view_name='actor-list')
+                                view_name='actor-list')
     actor_set = ActorSetField(many=True,
                               view_name='actor-detail',
                               read_only=True)
     class Meta:
         model = Activity
-        fields = ('url', 'id', 'nace', 'name', 'activitygroup', 'actor_set',
+        fields = ('url', 'id', 'nace', 'name', 'activitygroup',
+                  'activitygroup_url', 'actor_set',
                   'actor_list')
 
 
@@ -228,13 +236,14 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activitygroup_pk': 'activity__activitygroup__id',
         'activity_pk': 'activity__id',
     }
-    activity = ActivityField(view_name='activity-detail')
-    activity_id = serializers.PrimaryKeyRelatedField(source='activity',
-                                                     read_only=True)
+    activity = IDRelatedField()
+    activity_url = ActivityField(view_name='activity-detail',
+                                 source='activity',
+                                 read_only=True)
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website', 'activity', 'activity_id')
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url')
 
 
 class AllActorSerializer(ActorSerializer):
@@ -254,7 +263,7 @@ class MaterialInCasestudyField(InCasestudyField):
 
 
 class StockSerializer(MaterialInCasestudyDetailCreateMixin,
-                           NestedHyperlinkedModelSerializer):
+                      NestedHyperlinkedModelSerializer):
     material = MaterialInCasestudyField(view_name='materialincasestudy-detail',
                                         read_only=True)
     parent_lookup_kwargs = {
@@ -311,24 +320,52 @@ class FlowSerializer(MaterialInCasestudyDetailCreateMixin,
 
 
 class Group2GroupSerializer(FlowSerializer):
-    origin = ActivityGroupField(view_name='activitygroup-detail')
-    destination = ActivityGroupField(view_name='activitygroup-detail')
+    origin = IDRelatedField()
+    origin_url = ActivityGroupField(view_name='activitygroup-detail',
+                                    source='origin',
+                                    read_only=True)
+    destination = IDRelatedField()
+    destination_url = ActivityGroupField(view_name='activitygroup-detail',
+                                         source='destination',
+                                         read_only=True)
+    quality = IDRelatedField()
+    
     class Meta(FlowSerializer.Meta):
         model = Group2Group
+        fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
+                  'destination', 'destination_url')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
-    origin = ActivityField(view_name='activity-detail')
-    destination = ActivityField(view_name='activity-detail')
+    origin = IDRelatedField()
+    origin_url = ActivityField(view_name='activity-detail',
+                                source='origin',
+                                read_only=True)
+    destination = IDRelatedField()
+    destination_url = ActivityField(view_name='activity-detail',
+                                    source='destination',
+                                    read_only=True)
+    quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
+        fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
+                  'destination', 'destination_url')
 
 
 class Actor2ActorSerializer(FlowSerializer):
-    origin = ActorField(view_name='actor-detail')
-    destination = ActorField(view_name='actor-detail')
+    origin = IDRelatedField()
+    origin_url = ActorField(view_name='actor-detail',
+                            source='origin',
+                            read_only=True)
+    destination = IDRelatedField()
+    destination_url = ActorField(view_name='actor-detail',
+                                 source='destination',
+                                 read_only=True)
+    quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
+        fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
+                  'destination', 'destination_url')
 
