@@ -26,3 +26,10 @@
     background-color: #aad400;
     border-width: 0px;
 }
+
+#fullscreen-toggle{
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 2em;
+}

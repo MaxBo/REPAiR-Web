@@ -19,30 +19,59 @@ function($, Backbone, Sankey){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
-      var _this = this;
+      this.template = options.template;
       this.activityGroups = options.activityGroups;
+      var _this = this;
       var loader = new Loader(this.el);
-
       this.activityGroups.fetch({success: function(){
         _this.collection.fetch({
           success: function(){
-            if (_this.collection.length > 0)
-              _this.render();
             loader.remove();
+            if (_this.collection.length > 0){
+              _this.render();
+            }
         }});
       }});
+    },
+    
+    events: {
+      'click #fullscreen-toggle': 'toggleFullscreen'
     },
 
     /*
       * render the view
       */
     render: function(){
-      //console.log(this.collection);
-      var transformed = this.transformData(this.activityGroups, this.collection)
+      var template = document.getElementById(this.template);
+      this.el.innerHTML = template.innerHTML;
 
-      //var transformed = this.generateRandomData();
+      this.sankeyData = this.transformData(this.activityGroups, this.collection)
+      this.renderSankey(this.sankeyData);
+    },
+    
+    toggleFullscreen: function(){
+      this.el.classList.toggle('fullscreen');
+      if (this.sankeyData != null){
+        this.renderSankey(this.sankeyData);
+      }
+    },
 
-      this.renderSankey(transformed);
+    /*
+      * render a sankey diagram 
+      */
+    renderSankey: function(data){
+      
+      var width = this.el.clientWidth;
+      var height = this.el.classList.contains('fullscreen') ? 
+                   this.el.clientHeight: width / 2;
+      console.log(width)
+      var sankey = new Sankey({
+        height: height,
+        width: width,
+        divid: '#sankey',
+        title: ''
+      })
+      sankey.render(data);
     },
 
     transformData: function(models, modelLinks){
@@ -80,21 +109,6 @@ function($, Backbone, Sankey){
       this.undelegateEvents(); // remove click events
       this.unbind(); // Unbind all local event bindings
       this.el.innerHTML = ''; // Remove view from DOM
-    },
-
-    /*
-      * render a sankey diagram (currently of random data)
-      *
-      * ToDo: fetch real data when models are implemented
-      *       make a view out of this?
-      */
-    renderSankey: function(data){
-      var sankey = new Sankey({
-        height: 600,
-        divid: '#' + this.el.id,
-        title: ''
-      })
-      sankey.render(data);
     },
 
     generateRandomData: function() {
