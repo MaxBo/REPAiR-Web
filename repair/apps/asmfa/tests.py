@@ -69,7 +69,7 @@ class MaterialTest(ModelTest, APITestCase):
     url_key = "material"
     url_pks = dict()
     url_pk = dict(pk=1)
-    post_data = dict(name='posttestname', casestudies=[cs_url], code='cod')
+    post_data = dict(name='posttestname', casestudies=[cs_url])
     put_data = dict(name='puttestname', casestudies=[cs_url])
     patch_data = dict(name='patchtestname')
 
