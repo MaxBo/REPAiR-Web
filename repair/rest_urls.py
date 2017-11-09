@@ -19,6 +19,7 @@ from repair.apps.changes.views import (
     SolutionInImplementationQuantityViewSet,
     SolutionInImplementationGeometryViewSet,
     ImplementationOfUserViewSet,
+    StrategyViewset,
 )
 
 from repair.apps.asmfa.views import (
@@ -59,6 +60,7 @@ cs_router.register(r'actors', AllActorViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
+cs_router.register(r'strategies', StrategyViewset)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 cs_router.register(r'materials', MaterialInCasestudyViewSet)
 
