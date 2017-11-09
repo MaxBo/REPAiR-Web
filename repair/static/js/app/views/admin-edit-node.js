@@ -23,6 +23,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.template = options.template;
       this.materialId = options.materialId;
       this.caseStudyId = options.caseStudyId;
+      this.qualities = options.qualities;
       
       var flowType = '';
       this.attrTableInner = '';
@@ -105,31 +106,40 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       columns.push(checkbox);
       var amount = {type: 'number', value: flow.get('amount'), min: 0};
       columns.push(amount);
+      
+      // select input for target (origin resp. destination)
+      
       var names = [];
       var ids = [];
-      var i = idx = 0;
       var targetId = flow.get(identifier);
-      console.log('target: ' + targetId);
       this.model.collection.each(function(model){
         // no flow to itself allowed
-        console.log('model: ' + model.id);
         if (model.id != _this.model.id){
-          // set index of select to target
-          if (targetId == model.id){
-            // TODO: Target not found - add 'unknown' to list?
-            idx = i;
-          };
           ids.push(model.id);
           names.push(model.get('name'));
-          i++;
         };
       });
-      console.log('index: ' + idx);
+      var idx = ids.indexOf(targetId);
       var node = {type: 'select', text: names, value: ids, selected: idx};
       columns.push(node);
-      var qualities = {type: 'select', text: [1, 2, 3, 4]};
+      
+      // select input for qualities
+      
+      var names = [];
+      var ids = [];
+      var q = flow.get('quality');
+      console.log(q)
+      this.qualities.each(function(quality){
+        console.log(quality)
+        ids.push(quality.id);
+        names.push(quality.get('name'));
+      });
+      var idx = ids.indexOf(q);
+      var qualities = {type: 'select', text: names, value: ids, selected: idx};
       columns.push(qualities);
-      var description = {type: 'text', text: ''};
+      
+      // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
+      var description = {type: 'text', value: ''};
       columns.push(description);
       this.addTableRow(tableId, columns);
     },

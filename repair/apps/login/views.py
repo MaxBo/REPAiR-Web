@@ -32,8 +32,10 @@ class MultiSerializerViewSetMixin(ABC):
 
 class ViewSetMixin(ABC):
     """
-    This Mixin provides a list and a create method to get only
-    items of the current casestudy
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+    
+    if casestudy_only get only items of the current casestudy
     """
     casestudy_only = True
 
