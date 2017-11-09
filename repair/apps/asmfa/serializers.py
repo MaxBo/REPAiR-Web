@@ -114,9 +114,7 @@ class MaterialField(NestedHyperlinkedRelatedField):
 class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(
-        view_name='material-detail',
-    )
+    material = MaterialSerializer(read_only=True)
     groupstock_set = InMaterialSetField(view_name='groupstock-list')
     group2group_set = InMaterialSetField(view_name='group2group-list')
     activitystock_set = InMaterialSetField(view_name='activitystock-list')
