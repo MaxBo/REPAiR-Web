@@ -140,9 +140,13 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
 class MaterialInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        casestudy_pk = self.context['request'].session['casestudy_pk']
-        material_pk = self.context['request'].session['material_pk']
-        mic = MaterialInCasestudy.objects.get(id=casestudy_pk['solution_pk'])
+        # Note by Christoph: why is the material_pk in session['casestudy_pk'] 
+        # alongside with the key casestudy_pk?
+        # is it supposed to be this way?
+        casestudy_session = self.context['request'].session['casestudy_pk']
+        casestudy_pk = casestudy_session['casestudy_pk']
+        material_pk = casestudy_session['material_pk']
+        mic = MaterialInCasestudy.objects.get(id=material_pk)
 
         obj = self.Meta.model.objects.create(
             material=mic,
