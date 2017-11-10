@@ -24,7 +24,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.template = options.template;
       this.materialId = options.materialId;
       this.caseStudyId = options.caseStudyId;
-      console.log(this.caseStudyId)
       this.qualities = options.qualities;
       
       var flowType = '';
@@ -69,7 +68,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
              this.outFlows.fetch({data: 'origin=' + this.model.id}),
              this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
-          console.log(_this.stocks)
           loader.remove();
           _this.render();
       });
@@ -89,7 +87,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       */
     render: function(){
       var _this = this;
-      console.log(this.model.collection);
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template();
@@ -125,7 +122,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
         flow.markedForDeletion = checkbox.checked;
-        console.log(!flow.markedForDeletion)
       });
       
       // amount of flow

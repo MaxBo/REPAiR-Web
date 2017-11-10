@@ -66,7 +66,6 @@ function($, Backbone, Sankey){
       var width = this.el.clientWidth;
       var height = this.el.classList.contains('fullscreen') ? 
                    this.el.clientHeight: width / 2;
-      console.log(width)
       var sankey = new Sankey({
         height: height,
         width: width,
@@ -109,8 +108,6 @@ function($, Backbone, Sankey){
         });
         i += 1;
       });
-      console.log(nodes);
-      console.log(links);
       var transformed = {nodes: nodes, links: links};
       return transformed;
     },

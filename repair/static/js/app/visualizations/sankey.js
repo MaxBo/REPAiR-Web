@@ -12,7 +12,7 @@ define([
     var title = options.title;
 
     var formatNumber = d3.format(",.0f"),
-        format = function(d) { return 'value: ' + formatNumber(d);},
+        format = function(d) { return formatNumber(d);},
         color = d3.scale.category20();
     
     this.render = function ( data ) {
@@ -76,7 +76,14 @@ define([
           .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
           .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
         .append("title")
-          .text(function(d) { return d.name + "\n" + format(d.value); });
+          .text(function(d) { 
+            var inSum = outSum = 0;
+            for (var i = 0; i < d.targetLinks.length; i++) {
+              inSum += d.targetLinks[i].value; }
+            for (var i = 0; i < d.sourceLinks.length; i++) {
+              outSum += d.sourceLinks[i].value; }
+            return d.name + "\nin: " + inSum + "\nout: " + outSum; 
+          });
     
       node.append("text")
           .attr("x", -6)
