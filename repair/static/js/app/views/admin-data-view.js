@@ -21,17 +21,16 @@ function($, Backbone, Sankey){
       _.bindAll(this, 'render');
       this.template = options.template;
       this.activityGroups = options.activityGroups;
+      this.stocks = options.stocks;
       var _this = this;
       var loader = new Loader(this.el);
-      this.activityGroups.fetch({success: function(){
-        _this.collection.fetch({
-          success: function(){
-            loader.remove();
-            if (_this.collection.length > 0){
-              _this.render();
-            }
-        }});
-      }});
+      
+      $.when(this.activityGroups.fetch(), this.collection.fetch(), 
+             this.stocks.fetch()).then(function() {
+          loader.remove();
+          if (_this.collection.length > 0)
+            _this.render();
+      });
     },
     
     events: {
@@ -45,7 +44,9 @@ function($, Backbone, Sankey){
       var template = document.getElementById(this.template);
       this.el.innerHTML = template.innerHTML;
 
-      this.sankeyData = this.transformData(this.activityGroups, this.collection)
+      this.sankeyData = this.transformData(this.activityGroups, 
+                                           this.collection,
+                                           this.stocks)
       this.renderSankey(this.sankeyData);
     },
     
@@ -65,7 +66,6 @@ function($, Backbone, Sankey){
       var width = this.el.clientWidth;
       var height = this.el.classList.contains('fullscreen') ? 
                    this.el.clientHeight: width / 2;
-      console.log(width)
       var sankey = new Sankey({
         height: height,
         width: width,
@@ -75,7 +75,7 @@ function($, Backbone, Sankey){
       sankey.render(data);
     },
 
-    transformData: function(models, modelLinks){
+    transformData: function(models, modelLinks, stocks){
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -88,7 +88,6 @@ function($, Backbone, Sankey){
       });
       var links = [];
       modelLinks.each(function(modelLink){
-        var id = modelLink.id;
         var value = modelLink.get('amount');
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
@@ -98,6 +97,17 @@ function($, Backbone, Sankey){
           target: target
         });
       })
+      stocks.each(function(stock){
+        var id = 'stock-' + stock.id;
+        nodes.push({id: id, name: 'Stock'});
+        var source = nodeIdxDict[stock.get('origin')];
+        links.push({
+          value: stock.get('amount'), 
+          source: source, 
+          target: i
+        });
+        i += 1;
+      });
       var transformed = {nodes: nodes, links: links};
       return transformed;
     },
