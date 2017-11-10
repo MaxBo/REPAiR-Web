@@ -10,12 +10,11 @@ define(["backbone", "app-config"],
         return url.format(this.caseStudyId, this.materialId);
       },
       
-      initialize: function (options) {
+      initialize: function (models, options) {
         this.caseStudyId = options.caseStudyId;
         this.materialId = options.materialId;
         this.type = options.type;
-      },
-      //model: Activity
+      }
     });
     
     return Activities;

@@ -1,5 +1,6 @@
 define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
-        'app/models/actor', 'app/collections/flows', 'app/loader'],
+        'app/models/actor', 'app/collections/flows', 
+        'app/loader'],
 /**
   *
   * @desc    view on edit a specific node
@@ -23,6 +24,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.template = options.template;
       this.materialId = options.materialId;
       this.caseStudyId = options.caseStudyId;
+      console.log(this.caseStudyId)
       this.qualities = options.qualities;
       
       var flowType = '';
@@ -40,15 +42,22 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         flowType = 'actor2actor';
       }
       
-      this.inFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                materialId: this.materialId,
-                                type: flowType});
-      this.outFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                 materialId: this.materialId,
-                                 type: flowType});
+      this.inFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                    materialId: this.materialId,
+                                    type: flowType});
+      this.outFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                      materialId: this.materialId,
+                                      type: flowType});
+      this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                        materialId: this.materialId,
+                                        type: flowType});
+      this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                        materialId: this.materialId,
+                                        type: flowType});
       var _this = this;
       
-      var loader = new Loader(this.el);
+      var loader = new Loader(document.getElementById('flows-edit'), 
+                              {disable: true});
       // fetch inFlows and outFlows with different query parameters
       this.inFlows.fetch({
         data: 'destination=' + this.model.id,
@@ -68,8 +77,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       * dom events (managed by jquery)
       */
     events: {
-      'click #upload-flows-button': 'uploadChanges'
-      //'click #add-input-button, #add-stock-button, #add-output-button': 'addRowEvent',
+      'click #upload-flows-button': 'uploadChanges',
+      'click #add-input-button, #add-output-button': 'addFlowEvent'
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
@@ -82,10 +91,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template();
-
-      // temp. disabled
-      this.el.querySelector('#add-stock-button').disabled = true;
-      this.el.querySelector('#remove-stock-button').disabled = true;
 
       // render a view on the attributes depending on type of node
       var attrDiv = this.el.querySelector('#attributes');
@@ -100,7 +105,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       });
     },
     
-    addFlowRow: function(tableId, flow, identifier){
+    addFlowRow: function(tableId, flow, targetIdentifier){
       var _this = this;
 
       var table = this.el.querySelector('#' + tableId);
@@ -114,6 +119,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
+        flow.markedForDeletion = checkbox.checked;
+        console.log(!flow.markedForDeletion)
       });
       
       // amount of flow
@@ -132,7 +139,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       
       var nodeSelect = document.createElement("select");
       var ids = [];
-      var targetId = flow.get(identifier);
+      var targetId = flow.get(targetIdentifier);
       this.model.collection.each(function(model){
         // no flow to itself allowed
         if (model.id != _this.model.id){
@@ -148,7 +155,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       row.insertCell(-1).appendChild(nodeSelect);
       
       nodeSelect.addEventListener('change', function() {
-        flow.set(identifier, nodeSelect.value);
+        flow.set(targetIdentifier, nodeSelect.value);
       });
       
       // select input for qualities
@@ -178,29 +185,34 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     },
 
     // on click add row button
-    addRowEvent: function(event){
+    addFlowEvent: function(event){
       var buttonId = event.currentTarget.id;
-      var rowTemplateId;
-      var columns = [];
-      var tableId = (buttonId == 'add-input-button') ? 'input-table':
-        (buttonId == 'add-output-button') ? 'output-table':
-        'stock-table'
-
-      var checkbox = {type: 'checkbox', value: false};
-      columns.push(checkbox);
-      var amount = {type: 'number', value: 0, min: 0};
-      columns.push(amount);
-
-      // stock has no origin/destination
-      if (buttonId == 'add-input-button' || buttonId == 'add-output-button'){
-        var names = [];
-        this.model.collection.each(function(m){names.push(m.get('name'))});
-        var node = {type: 'select', text: names, value: names};
-        columns.push(node);
+      var tableId;
+      var flow;
+      var targetIdentifier;
+      if (buttonId == 'add-input-button'){
+        tableId = 'input-table';
+        flow = this.newInFlows.add({});
+        targetIdentifier = 'origin';
+        flow = this.newOutFlows.add({
+          'amount': 0, 
+          'origin': null,
+          'destination': this.model.id,
+          'quality': null
+        });
       }
+      else if (buttonId == 'add-output-button'){
+        tableId = 'output-table';
+        targetIdentifier = 'destination';
+        flow = this.newOutFlows.add({
+          'amount': 0, 
+          'origin': this.model.id,
+          'destination': null,
+          'quality': null
+        });
+      }
+      this.addFlowRow(tableId, flow, targetIdentifier);
 
-      var qualities = {type: 'select', text: [1, 2, 3, 4]};
-      columns.push(qualities);
     },
 
 
@@ -265,9 +277,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
 
     deleteTableRows: function(tableId)  {
       var table = this.el.querySelector('#' + tableId);
-      console.log(table)
       var rowCount = table.rows.length;
-      console.log(rowCount)
 
       // var i=1 to start after header
       for(var i = rowCount - 1; i > 0; i--) {
@@ -316,15 +326,30 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     },
     
     uploadChanges: function(){
+      // delete exisiting flows if marked for deletion
+      // otherwise update them if they changed
       this.inFlows.each(function(model){
-        if (model.changedAttributes() != false)
+        if (model.markedForDeletion)
+          model.destroy()
+        else if (model.changedAttributes() != false)
           model.save();
       });
-      
       this.outFlows.each(function(model){
-        if (model.changedAttributes() != false)
+        if (model.markedForDeletion)
+          model.destroy()
+        else if (model.changedAttributes() != false)
           model.save();
       });
+      // save added flows only, when they are not marked for deletion
+      this.newInFlows.each(function(model){
+        if (!model.markedForDeletion)
+          model.save();
+      });
+      this.newOutFlows.each(function(model){
+        if (!model.markedForDeletion)
+          model.save();
+      });
+      this.close();
     },
 
     /*
