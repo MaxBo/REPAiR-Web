@@ -104,11 +104,13 @@ function($, Backbone, Sankey){
         var source = nodeIdxDict[stock.get('origin')];
         links.push({
           value: stock.get('amount'), 
-          source: stock.get('origin'), 
+          source: source, 
           target: i
         });
         i += 1;
       });
+      console.log(nodes);
+      console.log(links);
       var transformed = {nodes: nodes, links: links};
       return transformed;
     },
