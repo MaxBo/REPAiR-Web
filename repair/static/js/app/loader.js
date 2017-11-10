@@ -4,6 +4,11 @@ function Loader (parent) {
   parent.appendChild(div);
 
   this.remove = function(){
-    parent.removeChild(div);
+    try{
+      parent.removeChild(div);
+    }
+    catch(err){
+      console.log(err.message)
+    }
   }
 };

@@ -24,6 +24,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.template = options.template;
       this.materialId = options.materialId;
       this.caseStudyId = options.caseStudyId;
+      console.log(this.caseStudyId)
       this.qualities = options.qualities;
       
       var flowType = '';
@@ -41,18 +42,18 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         flowType = 'actor2actor';
       }
       
-      this.inFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                materialId: this.materialId,
-                                type: flowType});
-      this.outFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                 materialId: this.materialId,
-                                 type: flowType});
-      this.newInFlows = new Flows({caseStudyId: this.caseStudyId, 
-                                  materialId: this.materialId,
-                                  type: flowType});
-      this.newOutFlows = new Flows({caseStudyId: this.caseStudyId, 
+      this.inFlows = new Flows([], {caseStudyId: this.caseStudyId, 
                                     materialId: this.materialId,
                                     type: flowType});
+      this.outFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                      materialId: this.materialId,
+                                      type: flowType});
+      this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                        materialId: this.materialId,
+                                        type: flowType});
+      this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+                                        materialId: this.materialId,
+                                        type: flowType});
       var _this = this;
       
       var loader = new Loader(this.el);
@@ -193,6 +194,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         flow = this.newOutFlows.add({
           'amount': 0, 
           'origin': null,
+          'destination': this.model.id,
           'quality': null
         });
       }
@@ -201,6 +203,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         targetIdentifier = 'destination';
         flow = this.newOutFlows.add({
           'amount': 0, 
+          'origin': this.model.id,
           'destination': null,
           'quality': null
         });
@@ -271,9 +274,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
 
     deleteTableRows: function(tableId)  {
       var table = this.el.querySelector('#' + tableId);
-      console.log(table)
       var rowCount = table.rows.length;
-      console.log(rowCount)
 
       // var i=1 to start after header
       for(var i = rowCount - 1; i > 0; i--) {
@@ -326,11 +327,19 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         if (model.changedAttributes() != false)
           model.save();
       });
-      
       this.outFlows.each(function(model){
         if (model.changedAttributes() != false)
           model.save();
       });
+      console.log(this.newInFlows)
+      console.log(this.newOutFlows)
+      this.newInFlows.each(function(model){
+        model.save();
+      });
+      this.newOutFlows.each(function(model){
+        model.save();
+      });
+      this.close();
     },
 
     /*
