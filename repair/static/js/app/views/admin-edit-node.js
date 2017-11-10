@@ -31,15 +31,15 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.attrTableInner = '';
       if (this.model.tag == 'activity'){
         this.attrTableInner = this.getActivityAttrTable();
-        flowType = 'activity2activity';
+        flowType = 'activity';
       }
       else if (this.model.tag == 'activitygroup'){
         this.attrTableInner = this.getGroupAttrTable();
-        flowType = 'activitygroup2activitygroup';
+        flowType = 'activitygroup';
       }
       else if (this.model.tag == 'actor'){
         this.attrTableInner = this.getActorAttrTable();
-        flowType = 'actor2actor';
+        flowType = 'actor';
       }
       
       this.inFlows = new Flows([], {caseStudyId: this.caseStudyId, 

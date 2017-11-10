@@ -19,7 +19,10 @@ define([],
       materialsInCaseStudy: '/api/casestudies/{0}/materials',
       activityToActivity:   '/api/casestudies/{0}/materials/{1}/activity2activity/',
       groupToGroup:         '/api/casestudies/{0}/materials/{1}/group2group/',
-      actorToActor:         '/api/casestudies/{0}/materials/{1}/actor2actor/'
+      actorToActor:         '/api/casestudies/{0}/materials/{1}/actor2actor/',
+      groupStock:           '/api/casestudies/{0}/materials/{1}/groupstock/',
+      activityStock:        '/api/casestudies/{0}/materials/{1}/activitystock/',
+      actorStock:           '/api/casestudies/{0}/materials/{1}/actorstock/'
     };
   
     return config;

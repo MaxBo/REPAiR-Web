@@ -36,12 +36,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
       this.actors = new Actors({caseStudyId: caseStudyId});
       this.qualities = new Qualities();
       
-      // render the view after successfully retrieving the data of the casestudy
-      this.qualities.fetch({success: function(){
-        _this.model.fetch({
-          success: _this.render
-        })
-      }});
+      this.render();
     },
 
     /*
@@ -61,17 +56,11 @@ function($, Backbone, EditNodeView, ActivityGroups,
       // after fetching their data, show loader-symbol while fetching
       var loader = new Loader(document.getElementById('flows-edit'), 
                               {disable: true});
-      this.qualities.fetch().then(function(){
-        _this.model.fetch().then(function(){
-          _this.activityGroups.fetch().then(function(){
-            _this.activities.fetch().then(function(){
-              _this.actors.fetch().then(function(){
-                _this.renderDataTree();
-                loader.remove();
-              });
-            });
-          });
-        });
+      $.when(this.qualities.fetch(), this.model.fetch(), 
+             this.activityGroups.fetch(), this.activities.fetch(),
+             this.actors.fetch()).then(function() {
+        _this.renderDataTree();
+        loader.remove();
       });
 
     },

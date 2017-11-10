@@ -286,13 +286,16 @@ class StockSerializer(MaterialInCasestudyDetailCreateMixin,
 
 
 class GroupStockSerializer(StockSerializer):
-    origin = ActivityGroupField(view_name='activitygroup-detail')
+    origin = IDRelatedField()
+    #origin_url = ActivityGroupField(view_name='activitygroup-detail')
+    
     class Meta(StockSerializer.Meta):
         model = GroupStock
 
 
 class ActivityStockSerializer(StockSerializer):
-    origin = ActivityField(view_name='activity-detail')
+    origin = IDRelatedField()
+    #origin_url = ActivityField(view_name='activity-detail')
     class Meta(StockSerializer.Meta):
         model = ActivityStock
 
@@ -304,7 +307,8 @@ class ActorField(InCasestudyField):
 
 
 class ActorStockSerializer(StockSerializer):
-    origin = ActorField(view_name='actor-detail')
+    origin = IDRelatedField()
+    #origin_url = ActorField(view_name='actor-detail')
     class Meta(StockSerializer.Meta):
         model = ActorStock
 

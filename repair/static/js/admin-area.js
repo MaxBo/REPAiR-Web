@@ -2,9 +2,9 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
            'app/views/admin-data-view', 'app/collections/flows', 
            'app/collections/activitygroups', 'app/collections/materials',
-           'app/loader'], 
+           'app/collections/stocks', 'app/loader'], 
   function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
-            Materials) {
+            Materials, Stocks) {
   
     var caseStudySelect = document.getElementById('case-studies-select');
     var materialSelect = document.getElementById('flows-select');
@@ -22,11 +22,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         dataView.close();
       
       var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+      var stocks = new Stocks({caseStudyId: caseStudyId, 
+                               materialId: materialId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
         collection: groupToGroup,
-        activityGroups: activityGroups
+        activityGroups: activityGroups,
+        stocks: stocks
       });
     };
     
