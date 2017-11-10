@@ -56,7 +56,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
                                         type: flowType});
       var _this = this;
       
-      var loader = new Loader(this.el);
+      var loader = new Loader(document.getElementById('flows-edit'), 
+                              {disable: true});
       // fetch inFlows and outFlows with different query parameters
       this.inFlows.fetch({
         data: 'destination=' + this.model.id,

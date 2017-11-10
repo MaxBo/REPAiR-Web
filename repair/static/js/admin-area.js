@@ -1,7 +1,8 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
            'app/views/admin-data-view', 'app/collections/flows', 
-           'app/collections/activitygroups', 'app/collections/materials'], 
+           'app/collections/activitygroups', 'app/collections/materials',
+           'app/loader'], 
   function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
             Materials) {
   
@@ -47,7 +48,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     var onCaseStudyChange = function(){
       var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
       materials = new Materials({caseStudyId: caseStudyId});
-      materialSelect.disabled = true;
+      var loader = new Loader(document.getElementById('flows-edit'), 
+                              {disable: true});
       materials.fetch({success: function(){
         for(var i = materialSelect.options.length - 1 ; i >= 0 ; i--){
           materialSelect.remove(i);
@@ -58,7 +60,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
           option.value = material.id;
           materialSelect.add(option);
         });
-        materialSelect.disabled = false;
+        loader.remove();
         renderDataEntry(caseStudyId);
         renderDataView();
       }});

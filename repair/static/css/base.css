@@ -167,6 +167,11 @@ th {
   animation: spin 2s linear infinite;
 }
 
+.disabled {
+  pointer-events: none;
+  opacity: 0.7 !IMPORTANT;
+}
+
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }

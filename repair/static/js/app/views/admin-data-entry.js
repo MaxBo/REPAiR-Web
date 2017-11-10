@@ -59,12 +59,17 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
-      var loader = new Loader(this.el);
-      this.activityGroups.fetch().then(function(){
-        _this.activities.fetch().then(function(){
-          _this.actors.fetch().then(function(){
-            _this.renderDataTree();
-            loader.remove();
+      var loader = new Loader(document.getElementById('flows-edit'), 
+                              {disable: true});
+      this.qualities.fetch().then(function(){
+        _this.model.fetch().then(function(){
+          _this.activityGroups.fetch().then(function(){
+            _this.activities.fetch().then(function(){
+              _this.actors.fetch().then(function(){
+                _this.renderDataTree();
+                loader.remove();
+              });
+            });
           });
         });
       });
