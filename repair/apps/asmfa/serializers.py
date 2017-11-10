@@ -146,7 +146,11 @@ class MaterialInCasestudyDetailCreateMixin:
         casestudy_session = self.context['request'].session['casestudy_pk']
         casestudy_pk = casestudy_session['casestudy_pk']
         material_pk = casestudy_session['material_pk']
-        mic = MaterialInCasestudy.objects.get(id=material_pk)
+        # ToDo: raise some kind of exception or prevent creating object with 
+        # wrong material/casestudy combination somewhere else (view.update?)
+        # atm the server will just hang up here
+        mic = MaterialInCasestudy.objects.get(id=material_pk,
+                                              casestudy_id=casestudy_pk)
 
         obj = self.Meta.model.objects.create(
             material=mic,
