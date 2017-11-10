@@ -27,8 +27,6 @@ function($, Backbone, Sankey){
       
       $.when(this.activityGroups.fetch(), this.collection.fetch(), 
              this.stocks.fetch()).then(function() {
-          console.log(_this.stocks)
-          console.log(_this.stocks.url())
           loader.remove();
           if (_this.collection.length > 0)
             _this.render();

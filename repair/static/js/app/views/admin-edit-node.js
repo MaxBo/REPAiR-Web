@@ -1,5 +1,5 @@
 define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
-        'app/models/actor', 'app/collections/flows', 
+        'app/models/actor', 'app/collections/flows', 'app/collections/stocks', 
         'app/loader'],
 /**
   *
@@ -13,7 +13,7 @@ define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
   * @return  the EditNodeView class (for chaining)
   * @see     table for attributes and flows in and out of this node
   */
-function($, Backbone, ActivityGroup, Activity, Actor, Flows){
+function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
   var EditNodeView = Backbone.View.extend({
 
     /*
@@ -48,28 +48,30 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.outFlows = new Flows([], {caseStudyId: this.caseStudyId, 
                                       materialId: this.materialId,
                                       type: flowType});
+      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId, 
+                                    materialId: this.materialId,
+                                    type: flowType});
       this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId, 
                                         materialId: this.materialId,
                                         type: flowType});
       this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId, 
                                         materialId: this.materialId,
                                         type: flowType});
+      this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId, 
+                                      materialId: this.materialId,
+                                      type: flowType});
       var _this = this;
       
       var loader = new Loader(document.getElementById('flows-edit'), 
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
-      this.inFlows.fetch({
-        data: 'destination=' + this.model.id,
-        success: function(){
-          _this.outFlows.fetch({
-            data: 'origin=' + _this.model.id,
-            success: function(){
-              loader.remove();
-              _this.render();
-            }
-          })
-        }
+      
+      $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
+             this.outFlows.fetch({data: 'origin=' + this.model.id}),
+             this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
+          console.log(_this.stocks)
+          loader.remove();
+          _this.render();
       });
     },
 
@@ -78,7 +80,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       */
     events: {
       'click #upload-flows-button': 'uploadChanges',
-      'click #add-input-button, #add-output-button': 'addFlowEvent'
+      'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent'
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
@@ -103,9 +105,12 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       this.outFlows.each(function(flow){
         _this.addFlowRow('output-table', flow, 'destination');
       });
+      this.stocks.each(function(stock){
+        _this.addFlowRow('stock-table', stock, 'origin', true);
+      });
     },
     
-    addFlowRow: function(tableId, flow, targetIdentifier){
+    addFlowRow: function(tableId, flow, targetIdentifier, skipTarget){
       var _this = this;
 
       var table = this.el.querySelector('#' + tableId);
@@ -135,28 +140,30 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
         flow.set('amount', amount.value);
       });
       
-      // select input for target (origin resp. destination of flow)
-      
-      var nodeSelect = document.createElement("select");
-      var ids = [];
-      var targetId = flow.get(targetIdentifier);
-      this.model.collection.each(function(model){
-        // no flow to itself allowed
-        if (model.id != _this.model.id){
-          var option = document.createElement("option");
-          option.text = model.get('name');
-          option.value = model.id;
-          nodeSelect.add(option);
-          ids.push(model.id);
-        };
-      });
-      var idx = ids.indexOf(targetId);
-      nodeSelect.selectedIndex = idx.toString();
-      row.insertCell(-1).appendChild(nodeSelect);
-      
-      nodeSelect.addEventListener('change', function() {
-        flow.set(targetIdentifier, nodeSelect.value);
-      });
+      if (!skipTarget){
+        // select input for target (origin resp. destination of flow)
+        
+        var nodeSelect = document.createElement("select");
+        var ids = [];
+        var targetId = flow.get(targetIdentifier);
+        this.model.collection.each(function(model){
+          // no flow to itself allowed
+          if (model.id != _this.model.id){
+            var option = document.createElement("option");
+            option.text = model.get('name');
+            option.value = model.id;
+            nodeSelect.add(option);
+            ids.push(model.id);
+          };
+        });
+        var idx = ids.indexOf(targetId);
+        nodeSelect.selectedIndex = idx.toString();
+        row.insertCell(-1).appendChild(nodeSelect);
+        
+        nodeSelect.addEventListener('change', function() {
+          flow.set(targetIdentifier, nodeSelect.value);
+        });
+      }
       
       // select input for qualities
       
@@ -190,6 +197,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       var tableId;
       var flow;
       var targetIdentifier;
+      var skipTarget = false;
       if (buttonId == 'add-input-button'){
         tableId = 'input-table';
         flow = this.newInFlows.add({});
@@ -211,7 +219,17 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
           'quality': null
         });
       }
-      this.addFlowRow(tableId, flow, targetIdentifier);
+      else if (buttonId == 'add-stock-button'){
+        tableId = 'stock-table';
+        targetIdentifier = 'origin';
+        flow = this.newStocks.add({
+          'amount': 0, 
+          'origin': this.model.id,
+          'quality': null
+        });
+        skipTarget = true;
+      }
+      this.addFlowRow(tableId, flow, targetIdentifier, skipTarget);
 
     },
 
@@ -328,27 +346,24 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     uploadChanges: function(){
       // delete exisiting flows if marked for deletion
       // otherwise update them if they changed
-      this.inFlows.each(function(model){
+      var update = function(model){
         if (model.markedForDeletion)
           model.destroy()
         else if (model.changedAttributes() != false)
           model.save();
-      });
-      this.outFlows.each(function(model){
-        if (model.markedForDeletion)
-          model.destroy()
-        else if (model.changedAttributes() != false)
-          model.save();
-      });
+      };
+      this.inFlows.each(update);
+      this.outFlows.each(update);
+      this.stocks.each(update);
+      
       // save added flows only, when they are not marked for deletion
-      this.newInFlows.each(function(model){
+      var create = function(model){
         if (!model.markedForDeletion)
           model.save();
-      });
-      this.newOutFlows.each(function(model){
-        if (!model.markedForDeletion)
-          model.save();
-      });
+      }
+      this.newInFlows.each(create);
+      this.newOutFlows.each(create);
+      this.newStocks.each(create);
       this.close();
     },
 

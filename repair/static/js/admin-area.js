@@ -22,8 +22,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         dataView.close();
       
       var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
-      var stocks = new Stocks({caseStudyId: caseStudyId, 
-                               materialId: materialId});
+      var stocks = new Stocks([], {caseStudyId: caseStudyId, materialId: materialId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
