@@ -119,6 +119,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
       
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
+        flow.markedForDeletion = checkbox.checked;
+        console.log(!flow.markedForDeletion)
       });
       
       // amount of flow
@@ -324,21 +326,28 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows){
     },
     
     uploadChanges: function(){
+      // delete exisiting flows if marked for deletion
+      // otherwise update them if they changed
       this.inFlows.each(function(model){
-        if (model.changedAttributes() != false)
+        if (model.markedForDeletion)
+          model.destroy()
+        else if (model.changedAttributes() != false)
           model.save();
       });
       this.outFlows.each(function(model){
-        if (model.changedAttributes() != false)
+        if (model.markedForDeletion)
+          model.destroy()
+        else if (model.changedAttributes() != false)
           model.save();
       });
-      console.log(this.newInFlows)
-      console.log(this.newOutFlows)
+      // save added flows only, when they are not marked for deletion
       this.newInFlows.each(function(model){
-        model.save();
+        if (!model.markedForDeletion)
+          model.save();
       });
       this.newOutFlows.each(function(model){
-        model.save();
+        if (!model.markedForDeletion)
+          model.save();
       });
       this.close();
     },
