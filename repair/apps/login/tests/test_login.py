@@ -7,6 +7,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
+from repair.tests.test import BasicModelTest
 
 
 class ModelTest(TestCase):
@@ -97,5 +98,15 @@ class ViewTest(APITestCase):
 
         user_in_ams = UserInCasestudyFactory()
 
+class CasestudyTest(BasicModelTest, APITestCase):
 
+    url_key = "casestudy"
+    url_pks = dict()
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname')
+    put_data = {'name': 'puttestname', }
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        self.fact = CaseStudyFactory()
 
