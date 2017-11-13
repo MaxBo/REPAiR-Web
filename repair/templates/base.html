@@ -58,6 +58,26 @@
             </select>
             <input type="submit" value="Go" />
         </form>
+        <form id="casestudy-select" action="/login/session/" method="post">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.path }}" />
+            <select name="casestudy">
+                {% if view.casestudies|length > 0 %}
+                  {% for casestudy in view.casestudies %}
+                      <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected"{% endif %} >
+                          {{ casestudy.name }}
+                      </option>
+                  {% endfor %}
+                {% else %}
+                  {% for casestudy in casestudies %}
+                      <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected"{% endif %} >
+                          {{ casestudy.name }}
+                      </option>
+                  {% endfor %}
+                {% endif %}
+            </select>
+            <input type="submit" value="Go" />
+        </form>
       </div>
     </div>
   </nav>
