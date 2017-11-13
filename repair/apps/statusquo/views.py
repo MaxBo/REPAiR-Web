@@ -6,6 +6,7 @@ from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
+from repair.views import BaseView
 import numpy as np
 
 
@@ -22,9 +23,11 @@ class Testgraph1(TemplateView):
 
         return div
 
-def index(request):
-    template = loader.get_template('statusquo/index.html')
-    context = {}
-    context['indicatorgraph'] = Testgraph1().get_context_data()
-    html = template.render(context, request)
-    return HttpResponse(html)
+class StatusQuoView(BaseView):
+    def get(self, request):
+        template = loader.get_template('statusquo/index.html')
+        context = {}
+        context['indicatorgraph'] = Testgraph1().get_context_data()
+        context['casestudies'] = self.casestudies()
+        html = template.render(context, request)
+        return HttpResponse(html)

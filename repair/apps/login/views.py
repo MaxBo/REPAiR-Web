@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from django.views import View
+from django.http import HttpResponseRedirect
 from rest_framework.response import Response
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
@@ -142,6 +144,14 @@ class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
 
 ###############################################################################
 ###   views for the templates
+
+class SessionView(View):
+    def post(self, request):
+        if request.POST['casestudy']:
+            request.session['casestudy'] = request.POST['casestudy']
+            next = request.POST.get('next', '/')
+            return HttpResponseRedirect(next)
+            
 
 def casestudy(request, casestudy_id):
     """casestudy view"""
