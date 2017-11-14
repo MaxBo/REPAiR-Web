@@ -24,7 +24,7 @@ RUN chown -R circleci /opt/conda
 
 USER circleci
 
-ENV PATH /opt/conda/bin:$
+ENV PATH /opt/conda/bin:$PATH
 RUN conda create -y -n repair python=3.6
 ENV PATH /opt/conda/envs/repair:/opt/conda/envs/repair/Scripts:$PATH
 
