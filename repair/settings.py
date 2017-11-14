@@ -183,7 +183,7 @@ if os.name == 'posix':
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.so')
     GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                     'lib', 'libgeos.so')
+                                     'lib', 'libgeos_c.so')
     PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libproj.so')
 
