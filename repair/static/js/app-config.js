@@ -1,9 +1,22 @@
-define([],
-  function () {
+define(['cookies'],
+  function (Cookies) {
   
     var config = {
       URL: '/' // base application URL
     };
+    
+    config.getSession = function(callback){
+    
+      //var sessionid = Cookies.get('sessionid');
+      //console.log(sessionid)
+      fetch('/login/session', {
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'include'
+        }).then(response => response.json()).then(json => callback(json));
+    }
     
     config.api = {
       base:                 '/api', // base Rest-API URL

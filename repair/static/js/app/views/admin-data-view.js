@@ -64,6 +64,11 @@ function($, Backbone, Sankey){
     renderSankey: function(data){
       
       var width = this.el.clientWidth;
+      // this.el (#data-view) may be hidden at the moment this view is called 
+      // (is close to body width then, at least wider as the wrapper of the content), 
+      // in this case take width of first tab instead, because this one is always shown first
+      if (width >= document.getElementById('page-content-wrapper').clientWidth)
+        width = document.getElementById('data-entry').clientWidth;
       var height = this.el.classList.contains('fullscreen') ? 
                    this.el.clientHeight: width / 2;
       var sankey = new Sankey({

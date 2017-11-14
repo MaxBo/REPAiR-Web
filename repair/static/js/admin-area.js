@@ -2,11 +2,13 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
            'app/views/admin-data-view', 'app/collections/flows', 
            'app/collections/activitygroups', 'app/collections/materials',
-           'app/collections/stocks', 'app/loader'], 
+           'app/collections/stocks','app-config', 'app/loader'], 
   function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
-            Materials, Stocks) {
+            Materials, Stocks, appConfig) {
+    
   
-    var caseStudySelect = document.getElementById('case-studies-select');
+    
+    var caseStudyId;
     var materialSelect = document.getElementById('flows-select');
     
     var dataView;
@@ -14,7 +16,6 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     var materials;
   
     var renderDataView = function(event){
-      var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
       var materialId = materialSelect.options[materialSelect.selectedIndex].value;
       var groupToGroup = new Flows([], {caseStudyId: caseStudyId, 
                                         materialId: materialId});
@@ -46,8 +47,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       });
     };
     
-    var onCaseStudyChange = function(){
-      var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
+    var renderCaseStudy = function(){
       materials = new Materials({caseStudyId: caseStudyId});
       var loader = new Loader(document.getElementById('flows-edit'), 
                               {disable: true});
@@ -70,11 +70,17 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     var refreshButton = document.getElementById('refresh-view-btn');
     
     // selection of casestudy changed -> render new view
-    caseStudySelect.addEventListener('change', onCaseStudyChange);
     materialSelect.addEventListener('change', renderDataView);
     refreshButton.addEventListener('click', renderDataView);
     
     // initially show first case study (selected index 0)
-    onCaseStudyChange();
+    
+    
+    var session = appConfig.getSession(
+      function(session){
+        console.log(session)
+        caseStudyId = session['casestudy'];
+        renderCaseStudy();
+    });
   });
 });
