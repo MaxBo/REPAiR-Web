@@ -87,6 +87,8 @@ INSTALLED_APPS = [
     'require'
 ]
 
+#SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_AUTHENTIFICATION_CLASSES': [],

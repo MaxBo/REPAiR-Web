@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from django.views import View
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework.response import Response
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
@@ -151,6 +151,10 @@ class SessionView(View):
             request.session['casestudy'] = request.POST['casestudy']
             next = request.POST.get('next', '/')
             return HttpResponseRedirect(next)
+    
+    def get(self, request):
+        response =  {'casestudy': request.session['casestudy']}
+        return JsonResponse(response)
             
 
 def casestudy(request, casestudy_id):

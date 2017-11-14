@@ -22,24 +22,10 @@
       <div class="row">
         <div class="col-md-9">
           <div class="col-md-4">
-            {% trans "Case Study" %}
-            <br>
-            <select name="case-studies" id="case-studies-select">
-              {% for cs in case_studies %}
-                  <option value="{{ cs.id }}">{{ cs.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-4">
             {% trans "Flow" %}
             <br>
             <select name="flows" id="flows-select">
             </select>
-          </div>
-          <div class="col-md-4">
-            {% trans "Data Entered by" %}
-            <br>
-            <input type="text" name="user">
           </div>
         </div>
       </div>
