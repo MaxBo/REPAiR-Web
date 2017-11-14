@@ -114,6 +114,8 @@ class Actor(Node):
 
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                  default=1)
+    # if false - actor will be ignored
+    included = models.BooleanField(default=True)
 
 
 class Flow(models.Model):
