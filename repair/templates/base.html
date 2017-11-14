@@ -47,24 +47,30 @@
               <form id="casestudy-select" action="/login/session/" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="casestudy" style='margin-top: 15px;'>
-                      <!--you may pass the casestudies directly in the context or by deriving the BaseView-class 
-                      (when not defining get(), view.casestudies calls the function casestudies() of the BaseView-class)-->
-                      {% if view.casestudies|length > 0 %}
-                        {% for casestudy in view.casestudies %}
-                            <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected"{% endif %} >
-                                {{ casestudy.name }}
-                            </option>
-                        {% endfor %}
-                      {% else %}
-                        {% for casestudy in casestudies %}
-                            <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected"{% endif %} >
-                                {{ casestudy.name }}
-                            </option>
-                        {% endfor %}
-                      {% endif %}
-                  </select>
-                  <input type="submit" value="Go" />
+                  <input name="casestudy" id="casestudy" type="hidden">
+                  <div class="dropdown">
+                    <div class="btn-group">
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        {% trans "Casestudy" %}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                        {% if view.casestudies|length > 0 %}
+                          {% for casestudy in view.casestudies %}
+                            <li {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}>
+                              <a href="#" onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()">{{ casestudy.name }}
+                            </a></li>
+                          {% endfor %}
+                        {% else %}
+                          {% for casestudy in casestudies %}
+                            <li {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}>
+                              <a href="#" onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()">{{ casestudy.name }}
+                            </a></li>
+                          {% endfor %}
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
               </form>
             </li>
             <li id="admin-area-link"><a href="/admin">{% trans "Admin Area" %}</a></li>
