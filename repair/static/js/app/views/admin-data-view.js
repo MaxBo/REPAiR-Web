@@ -51,7 +51,6 @@ function($, Backbone, Sankey){
     },
     
     toggleFullscreen: function(){
-      console.log(this.el.classList)
       this.el.classList.toggle('fullscreen'); 
       if (this.sankeyData != null){
         this.renderSankey(this.sankeyData);
@@ -70,7 +69,7 @@ function($, Backbone, Sankey){
       if (width >= document.getElementById('page-content-wrapper').clientWidth)
         width = document.getElementById('data-entry').clientWidth;
       var height = this.el.classList.contains('fullscreen') ? 
-                   this.el.clientHeight: width / 2;
+                   this.el.clientHeight: width / 3;
       var sankey = new Sankey({
         height: height,
         width: width,

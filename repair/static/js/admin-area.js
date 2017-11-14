@@ -78,7 +78,6 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     
     var session = appConfig.getSession(
       function(session){
-        console.log(session)
         caseStudyId = session['casestudy'];
         renderCaseStudy();
     });
