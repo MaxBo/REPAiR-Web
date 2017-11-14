@@ -1,5 +1,7 @@
 FROM circleci/python:3.6.2-stretch-browsers
 
+ENV CIRCLECIPATH $PATH
+
 USER root
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -24,7 +26,8 @@ RUN chown -R circleci /opt/conda
 
 USER circleci
 
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH /opt/conda/bin:$CIRCLECIPATH
+RUN echo $PATH
 RUN conda create -y -n repair python=3.6
 ENV PATH /opt/conda/envs/repair:/opt/conda/envs/repair/Scripts:$PATH
 
