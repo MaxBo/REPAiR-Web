@@ -70,6 +70,16 @@ class ModelTestOld(TestCase):
         actor.administrative_location = location
         assert actor.administrative_location.geom.x == point.x
 
+    def test_actor_included(self):
+        """Test a geolocation"""
+        actor = Actor.objects.first()
+        actor.included = False
+        actor.save()
+        excluded_actors = Actor.objects.filter(included=False)
+        # test that there is now at least one ignored actor 
+        assert excluded_actors.count() > 0
+        assert excluded_actors.first().included is False
+        
 
 class MaterialTest(BasicModelTest, APITestCase):
 
