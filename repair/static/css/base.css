@@ -7,6 +7,16 @@ body {
   color: #000;
 }
 
+.fullscreen{
+  z-index: 9999; 
+  width: 100%; 
+  height: 100%; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  background-color: white;
+}
+
 #content {
   padding-top: 110px;
 }
@@ -121,6 +131,16 @@ table {
 th, td {
   text-align: left;
   padding: 8px;
+  position: relative;
+}
+
+tr.strikeout td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 2px solid red;
+    width: 100%;
 }
 
 tr:nth-child(even){background-color: #f2f2f2}
@@ -145,6 +165,11 @@ th {
   height: 120px;
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7 !IMPORTANT;
 }
 
 @-webkit-keyframes spin {

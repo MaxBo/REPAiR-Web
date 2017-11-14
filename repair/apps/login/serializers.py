@@ -12,6 +12,7 @@ from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 #### Base Classes                                                          ####
 ###############################################################################
 
+
 class IDRelatedField(serializers.PrimaryKeyRelatedField):
     """
     look for the related model of a related field
@@ -22,7 +23,7 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
         Model = view.queryset.model
         # look up self.parent in the values of the dictionary self.root.fields
         # and return the key as the field_name
-        field_name = self.get_field_name()
+        field_name = self.source or self.get_field_name()
         # look recursively for related model
         for model_name in self.source_attrs[:-1]:
             Model = Model.profile.related.related_model
@@ -47,7 +48,9 @@ class CreateWithUserInCasestudyMixin:
         """
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        #obj.__dict__.update(**validated_data)
         obj.save()
         return obj
 
@@ -360,11 +363,15 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
                                                              casestudy=cs)
 
             # update other profile attributes
-            profile.__dict__.update(**profile_data)
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            #profile.__dict__.update(**profile_data)
             profile.save()
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        #obj.__dict__.update(**validated_data)
         obj.save()
         return obj
 

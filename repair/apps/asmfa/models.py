@@ -49,6 +49,8 @@ class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
     # all the data for the Node class tables will be known in advance, the users will not have to fill that in
     source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
     sink = models.BooleanField(default=False)  # if true - there is no output, same
+    
+    done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
     class Meta:
         abstract = True
@@ -69,7 +71,7 @@ class ActivityGroup(Node):
                               ("W", "Waste Management"),
                               ("imp", "Import"),  # 'import' and 'export' are "special" types of activity groups/activities/actors
                               ("exp", "Export"))
-    code = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=255)
     name = models.CharField(max_length=255, choices=activity_group_choices)
 
     casestudy = models.ForeignKey(CaseStudy,
@@ -79,7 +81,7 @@ class ActivityGroup(Node):
 
 class Activity(Node):
 
-    nace = models.CharField(max_length=255, unique=True)  # NACE code, unique for each activity
+    nace = models.CharField(max_length=255)  # NACE code, unique for each activity
     name = models.CharField(max_length=255)  # not sure about the max length, leaving everywhere 255 for now
 
     activitygroup = models.ForeignKey(ActivityGroup,
@@ -89,7 +91,7 @@ class Activity(Node):
 
 class Actor(Node):
 
-    BvDid = models.CharField(max_length=255, unique=True) #unique actor identifier in ORBIS database
+    BvDid = models.CharField(max_length=255) #unique actor identifier in ORBIS database
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
@@ -132,33 +134,33 @@ class Flow(models.Model):
 class Group2Group(Flow):
 
     destination = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                    related_name='Inputs')
+                                    related_name='inputs')
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                               related_name='Outputs')
+                               related_name='outputs')
 
 
 class Activity2Activity(Flow):
 
     destination = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                    related_name='Inputs',
+                                    related_name='inputs',
                                     )
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                               related_name='Outputs',
+                               related_name='outputs',
                                )
 
 
 class Actor2Actor(Flow):
 
     destination = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                    related_name='Inputs')
+                                    related_name='inputs')
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                               related_name='Outputs')
+                               related_name='outputs')
 
 
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users
-    amount = models.PositiveIntegerField(blank=True)
+    amount = models.IntegerField(blank=True)
     material = models.ForeignKey(MaterialInCasestudy, on_delete=models.CASCADE,
                                          default=1)
     quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
@@ -171,16 +173,17 @@ class Stock(models.Model):
 class GroupStock(Stock):
 
         origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
 
 
 class ActivityStock(Stock):
 
         origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
 
 
 class ActorStock(Stock):
 
         origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                   related_name='Stocks')
+                                   related_name='stocks')
+

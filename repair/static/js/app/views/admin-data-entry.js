@@ -1,9 +1,9 @@
-define(['jquery', 'backbone', 'app/visualizations/sankey',
-  'app/views/admin-edit-node-view', 'app/collections/activitygroups',
-  'app/collections/activities', 'app/collections/actors',
-  'treeview', 'app/loader'],
-function($, Backbone, Sankey, EditNodeView, ActivityGroups,
-         Activities, Actors, treeview){
+define(['jquery', 'backbone',
+        'app/views/admin-edit-node', 'app/collections/activitygroups',
+        'app/collections/activities', 'app/collections/actors',
+        'app/collections/qualities', 'treeview', 'app/loader'],
+function($, Backbone, EditNodeView, ActivityGroups,
+         Activities, Actors, Qualities, treeview){
 
   /**
    *
@@ -16,16 +16,17 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
    * @see     tabs for data-entry (incl. a tree with available nodes to edit),
    *          sankey-diagram visualising the data and verification of nodes
    */
-  var EditFlowsView = Backbone.View.extend({
+  var DataEntryView = Backbone.View.extend({
     // the id of the script containing the template for this view
-    template:'edit-flows-template',
 
     /*
      * view-constructor
      */
-    initialize: function(){
+    initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      var _this = this;
+      this.template = options.template;
 
       var caseStudyId = this.model.id;
 
@@ -33,38 +34,33 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
       this.activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
       this.activities = new Activities({caseStudyId: caseStudyId});
       this.actors = new Actors({caseStudyId: caseStudyId});
-
-      // render the view after successfully retrieving the data of the casestudy
-      this.model.fetch({success: this.render});
+      this.qualities = new Qualities();
+      
+      this.render();
     },
 
     /*
      * dom events (managed by jquery)
      */
-    events: {
-      'click #refresh-view-btn': 'renderSankey',
-    },
+    events: {},
 
     /*
      * render the view
      */
     render: function(){
       var _this = this;
-      var html = document.getElementById(this.template).innerHTML;
-      var template = _.template(html);
-      this.el.innerHTML = template();
-      this.renderSankey();
+      var template = document.getElementById(this.template);
+      this.el.innerHTML = template.innerHTML;
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
-      var loader = Loader(_this.el.querySelector('#data-entry-tab'));
-      this.activityGroups.fetch().then(function(){
-        _this.activities.fetch().then(function(){
-          _this.actors.fetch().then(function(){
-            _this.renderDataTree();
-            loader.remove();
-          });
-        });
+      var loader = new Loader(document.getElementById('flows-edit'), 
+                              {disable: true});
+      $.when(this.qualities.fetch(), this.model.fetch(), 
+             this.activityGroups.fetch(), this.activities.fetch(),
+             this.actors.fetch()).then(function() {
+        _this.renderDataTree();
+        loader.remove();
       });
 
     },
@@ -84,10 +80,10 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
           model: actor,
           state: {checked: false}
         };
-        var activity_nace = actor.get('activity');
-        if (!(activity_nace in activityDict))
-          activityDict[activity_nace] = [];
-        activityDict[activity_nace].push(node);
+        var activity_id = actor.get('activity');
+        if (!(activity_id in activityDict))
+          activityDict[activity_id] = [];
+        activityDict[activity_id].push(node);
       });
 
       this.activityGroups.each(function(group){
@@ -98,12 +94,12 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
           nodes: [],
           state: {checked: false}
         };
-        dataDict[group.get('code')] = node;
+        dataDict[group.id] = node;
       });
 
       this.activities.each(function(activity){
-        var nace = activity.get('nace');
-        var nodes = (nace in activityDict) ? activityDict[nace]: [];
+        var id = activity.get('id');
+        var nodes = (id in activityDict) ? activityDict[id]: [];
         var node = {
           text: activity.get('name'),
           model: activity,
@@ -143,10 +139,12 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
       // currently selected material
       var flowSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
-        el: document.getElementById('data-entry'),
+        el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        material: flowSelect.value
+        materialId: flowSelect.value,
+        caseStudyId: this.model.id,
+        qualities: this.qualities
       });
     },
 
@@ -159,52 +157,6 @@ function($, Backbone, Sankey, EditNodeView, ActivityGroups,
       this.el.innerHTML = ''; // Remove view from DOM
     },
 
-    /*
-     * render a sankey diagram (currently of random data)
-     *
-     * ToDo: fetch real data when models are implemented
-     *       make a view out of this?
-     */
-    renderSankey: function(){
-      function generateRandomData() {
-        var dataObject = new Object();
-
-        var mostNodes = 20;
-        var mostLinks = 40;
-        var numNodes = Math.floor((Math.random()*mostNodes)+1);
-        var numLinks = Math.floor((Math.random()*mostLinks)+1);
-
-        // Generate nodes
-        dataObject.nodes = new Array();
-        for( var n = 0; n < numNodes; n++ ) {
-          var node = new Object();
-            node.name = "Node-" + n;
-          dataObject.nodes[n] = node;
-        }
-
-        // Generate links
-        dataObject.links = new Array();
-        for( var i = 0; i < numLinks; i++ ) {
-          var link = new Object();
-            link.target = link.source = Math.floor((Math.random()*numNodes));
-            while( link.source === link.target ) { link.target = Math.floor((Math.random()*numNodes)); }
-            link.value = Math.floor((Math.random() * 100) + 1);
-
-          dataObject.links[i] = link;
-        }
-
-        return dataObject;
-      };
-      var sankey = new Sankey({
-        height: 600,
-        divid: '#sankey',
-        title: 'D3 Sankey with cycle-support (random data, new data on click on "Refresh"-button)'
-      })
-      var randomData = generateRandomData();
-      sankey.render(randomData);
-    }
-
   });
-  return EditFlowsView;
-}
-);
+  return DataEntryView;
+});

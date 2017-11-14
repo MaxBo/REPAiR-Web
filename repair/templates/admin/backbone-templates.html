@@ -2,37 +2,30 @@
 
 <!-- Backbone templates for rendering dynamic views in admin area-->
 
-<!-- template for view on tabs of edit-flows in admin-area (change on case-study) -->
-<script type="text/template" id="edit-flows-template">
-  <div class="col-md-9">
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
-      <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
-      <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="data-entry-tab">
-        <div class="col-md-4" id="data-tree-group">
-          {% trans "Please choose a node to enter data for" %}
-          <div id="data-tree"></div>
-        </div>
-        <div class="col-md-8" id="data-entry">
-        </div>
-      </div>
-      <div class="tab-pane" id="sankey-tab">
-        <div class="row">
-          <button type="button" id="refresh-view-btn">
-            {% trans "Refresh" %}
-          </button> 
-        </div>
-        <div class="row"><div id="sankey"></div></div>
-      </div>
-      <div class="tab-pane" id="verification">
-        {% include "admin/verification.html" %}
+<!-- Data View -->
+
+<script type="text/template" id="data-view-template">
+  <div class="row">
+    <div id="sankey-wrapper">
+      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen"></button>
+      <div id="sankey">
       </div>
     </div>
   </div>
 </script>
+
+<!-- Data Entry -->
+
+<script type="text/template" id="data-entry-template">
+  <div class="col-md-4">
+    {% trans "Please choose a node to enter data for" %}
+    <div id="data-tree"></div>
+  </div>
+  <div class="col-md-8">
+    <div class="row"><div id="edit-node"></div></div>
+  </div>
+</script>
+
 
 <!-- template for view on edit a node -->
 <script type="text/template" id="edit-node-template">
@@ -46,6 +39,7 @@
       <table id='input-table' class='table'>
         <h3>{% trans "Input" %}</h3>
         <tr>
+          <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Quality" %}</th>
@@ -58,6 +52,7 @@
       <table id='stock-table' class='table'>
         <h3>{% trans "Stock" %}</h3>
         <tr>
+          <th></th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
@@ -69,6 +64,7 @@
       <table id='output-table' class='table'>
         <h3>{% trans "Output" %}</h3>
         <tr>
+          <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
           <th>{% trans "Quality" %}</th>
