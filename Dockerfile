@@ -31,5 +31,7 @@ USER circleci
 ENV PATH /opt/conda/bin:$CIRCLECIPATH
 RUN echo $PATH
 RUN conda create -y -c conda-forge -n repair python=3.6 gdal=2.1
-ENV PATH /opt/conda/envs/repair/bin:$PATH
+ENV PATH /opt/conda/envs/repair/bin:/opt/conda/envs/repair/lib:$PATH
+ENV CONDA_PREFIX /opt/conda/envs/repair
+ENV GDAL_DATA $CONDA_PREFIX/share/gdal
 RUN echo $PATH

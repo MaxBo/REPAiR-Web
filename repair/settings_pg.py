@@ -16,8 +16,6 @@ DB_NAME = os.environ['DB_NAME']
 DB_USER = os.environ['DB_USER']
 DB_PASS = os.environ['DB_PASS']
 
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal201.dll'
-
 DATABASES = {
     'default': {
 
