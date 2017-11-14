@@ -180,8 +180,8 @@ LANGUAGES = (
 )
 
 if os.name == 'posix':
-    settings.GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                              'lib', 'libgdal.so')
+    GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgdal.so')
 
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, "locale"),
