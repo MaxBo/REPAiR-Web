@@ -182,6 +182,10 @@ LANGUAGES = (
 if os.name == 'posix':
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.so')
+    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgeos.so')
+    PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libproj.so')
 
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, "locale"),
