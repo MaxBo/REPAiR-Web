@@ -30,5 +30,6 @@ ENV PATH /opt/conda/bin:$CIRCLECIPATH
 RUN echo $PATH
 RUN conda create -y -n repair python=3.6
 ENV PATH /opt/conda/envs/repair:/opt/conda/envs/repair/Scripts:$PATH
+RUN echo $PATH
 
 RUN conda install -y -c conda-forge gdal=2.1
