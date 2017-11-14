@@ -15,7 +15,7 @@ from repair.settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': 'db_tests.sqlite3',
     },
 
