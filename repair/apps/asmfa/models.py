@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from repair.apps.login.models import CaseStudy, Profile, GDSEModel
-
+from django.contrib.gis.db import models as gis
 
 class DataEntry(models.Model):
 
@@ -33,16 +33,15 @@ class Quality(GDSEModel):
     name = models.TextField()
 
 
-class Geolocation(models.Model):
+class Geolocation(gis.Model):
 
     # same as for DataEntry, also geometry will have to be included later
-    #street =
+    street = models.TextField()
     #building =
     #postcode =
     #country =
     #city =
-    #geom =
-    pass
+    geom = gis.PointField()
 
 
 class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
@@ -94,8 +93,16 @@ class Actor(Node):
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
-    #operationalLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE, related_name='operationalLocation')
-    #administrativeLocation = models.ForeignKey('Geolocation', on_delete=models.CASCADE, related_name='administrativeLocation')
+    operational_location = models.ForeignKey(
+        'Geolocation',
+        on_delete=models.CASCADE,
+        related_name='operational_location', 
+        null=True)
+    administrative_location = models.ForeignKey(
+        'Geolocation',
+        on_delete=models.CASCADE,
+        related_name='administrative_location', 
+        null=True)
     consCode = models.CharField(max_length=255)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
