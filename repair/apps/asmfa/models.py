@@ -36,12 +36,12 @@ class Quality(GDSEModel):
 class Geolocation(gis.Model):
 
     # same as for DataEntry, also geometry will have to be included later
-    street = models.TextField()
+    street = models.TextField(default='', blank=True)
     #building =
     #postcode =
     #country =
     #city =
-    geom = gis.PointField()
+    geom = gis.PointField(null=True)
 
 
 class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
