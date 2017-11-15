@@ -24,15 +24,14 @@ function($, Backbone, Sankey){
       this.stocks = options.stocks;
       var _this = this;
       var loader = new Loader(this.el);
-      
-      $.when(this.activityGroups.fetch(), this.collection.fetch(), 
-             this.stocks.fetch()).then(function() {
+
+      $.when(this.collection.fetch(),  this.stocks.fetch()).then(function() {
           loader.remove();
           if (_this.collection.length > 0)
             _this.render();
       });
     },
-    
+
     events: {
       'click #fullscreen-toggle': 'toggleFullscreen'
     },
@@ -44,31 +43,31 @@ function($, Backbone, Sankey){
       var template = document.getElementById(this.template);
       this.el.innerHTML = template.innerHTML;
 
-      this.sankeyData = this.transformData(this.activityGroups, 
+      this.sankeyData = this.transformData(this.activityGroups,
                                            this.collection,
                                            this.stocks)
       this.renderSankey(this.sankeyData);
     },
-    
+
     toggleFullscreen: function(){
-      this.el.classList.toggle('fullscreen'); 
+      this.el.classList.toggle('fullscreen');
       if (this.sankeyData != null){
         this.renderSankey(this.sankeyData);
       }
     },
 
     /*
-      * render a sankey diagram 
+      * render a sankey diagram
       */
     renderSankey: function(data){
-      
+
       var width = this.el.clientWidth;
-      // this.el (#data-view) may be hidden at the moment this view is called 
-      // (is close to body width then, at least wider as the wrapper of the content), 
+      // this.el (#data-view) may be hidden at the moment this view is called
+      // (is close to body width then, at least wider as the wrapper of the content),
       // in this case take width of first tab instead, because this one is always shown first
       if (width >= document.getElementById('page-content-wrapper').clientWidth)
         width = document.getElementById('data-entry').clientWidth;
-      var height = this.el.classList.contains('fullscreen') ? 
+      var height = this.el.classList.contains('fullscreen') ?
                    this.el.clientHeight: width / 3;
       var sankey = new Sankey({
         height: height,
@@ -96,8 +95,8 @@ function($, Backbone, Sankey){
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
         links.push({
-          value: modelLink.get('amount'), 
-          source: source, 
+          value: modelLink.get('amount'),
+          source: source,
           target: target
         });
       })
@@ -106,8 +105,8 @@ function($, Backbone, Sankey){
         nodes.push({id: id, name: 'Stock'});
         var source = nodeIdxDict[stock.get('origin')];
         links.push({
-          value: stock.get('amount'), 
-          source: source, 
+          value: stock.get('amount'),
+          source: source,
           target: i
         });
         i += 1;

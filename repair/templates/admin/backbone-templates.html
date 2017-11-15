@@ -2,6 +2,43 @@
 
 <!-- Backbone templates for rendering dynamic views in admin area-->
 
+<!-- Flows  -->
+
+<script type="text/template" id="flows-edit-template">
+  <div class="row">
+    <h3><%= casestudy %></h3>
+    <select name="flows" id="flows-select">
+      <% materials.each(function(material){ %>
+        <option value="<%= material.id %>"><%= material.get('material').code %></option>
+      <% }); %>
+    </select>
+  </div>
+  </br>
+  <div class="row">  <div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
+      <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+      <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="data-entry-tab">
+        <div class="row"><div id="data-entry"></div></div>
+      </div>
+      <div class="tab-pane" id="sankey-tab">
+        <div class="row">
+          <button type="button" id="refresh-view-btn">
+            {% trans "Refresh" %}
+          </button>
+        </div>
+        <div class="row"><div id="data-view"></div></div>
+      </div>
+      <div class="tab-pane" id="verification">
+        {% include "admin/verification.html" %}
+      </div>
+    </div>
+  </div>
+</script>
+
 <!-- Data View -->
 
 <script type="text/template" id="data-view-template">
@@ -45,7 +82,7 @@
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
-      </table> 
+      </table>
       <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
     <div class="row">
@@ -57,7 +94,7 @@
           <th>{% trans "Quality" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
-      </table> 
+      </table>
       <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
     <div class="row">
@@ -71,7 +108,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
-      </table> 
+      </table>
       <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
@@ -93,7 +130,7 @@
       <td>{% trans "Code" %}</td>
       <td><%= code %></td>
     </tr>
-  </table> 
+  </table>
 </script>
 
 <!-- template for view on attributes of an activity-node -->

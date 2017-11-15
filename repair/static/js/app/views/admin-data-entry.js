@@ -31,11 +31,11 @@ function($, Backbone, EditNodeView, ActivityGroups,
       var caseStudyId = this.model.id;
 
       // collections of nodes associated to the casestudy
-      this.activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+      this.activityGroups = options.activityGroups;
       this.activities = new Activities({caseStudyId: caseStudyId});
       this.actors = new Actors({caseStudyId: caseStudyId});
       this.qualities = new Qualities();
-      
+
       this.render();
     },
 
@@ -54,10 +54,9 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
-      var loader = new Loader(document.getElementById('flows-edit'), 
+      var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      $.when(this.qualities.fetch(), this.model.fetch(), 
-             this.activityGroups.fetch(), this.activities.fetch(),
+      $.when(this.qualities.fetch(), this.activities.fetch(),
              this.actors.fetch()).then(function() {
         _this.renderDataTree();
         loader.remove();

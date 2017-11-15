@@ -1,28 +1,25 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
-           'app/views/admin-data-view', 'app/collections/flows', 
+           'app/views/admin-data-view', 'app/collections/flows',
            'app/collections/activitygroups', 'app/collections/materials',
-           'app/collections/stocks','app-config', 'app/loader'], 
+           'app/collections/stocks','app-config', 'app/loader'],
   function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
             Materials, Stocks, appConfig) {
-    
-  
-    
-    var caseStudyId;
-    var materialSelect = document.getElementById('flows-select');
-    
+
+    var caseStudyId,
+        caseStudy,
+        activityGroups,
+        materials;
+
     var dataView;
     var dataEntryView;
-    var materials;
-  
-    var renderDataView = function(event){
-      var materialId = materialSelect.options[materialSelect.selectedIndex].value;
-      var groupToGroup = new Flows([], {caseStudyId: caseStudyId, 
+
+    var renderDataView = function(materialId, caseStudyId){
+      var groupToGroup = new Flows([], {caseStudyId: caseStudyId,
                                         materialId: materialId});
       if (dataView != null)
         dataView.close();
-      
-      var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+
       var stocks = new Stocks([], {caseStudyId: caseStudyId, materialId: materialId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
@@ -32,54 +29,59 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         stocks: stocks
       });
     };
-    
+
     // render data entry for currently selected casestudy
-    var renderDataEntry = function(caseStudyId){
+    var renderDataEntry = function(caseStudy){
       if (dataEntryView != null)
         dataEntryView.close();
-        
+
       // create casestudy-object and render view on it (data will be fetched in view)
-      var caseStudy = new CaseStudy({id: caseStudyId});
+
       dataEntryView = new DataEntryView({
         el: document.getElementById('data-entry'),
         template: 'data-entry-template',
-        model: caseStudy
+        model: caseStudy,
+        activityGroups: activityGroups
       });
     };
-    
-    var renderCaseStudy = function(){
-      materials = new Materials({caseStudyId: caseStudyId});
-      var loader = new Loader(document.getElementById('flows-edit'), 
-                              {disable: true});
-      materials.fetch({success: function(){
-        for(var i = materialSelect.options.length - 1 ; i >= 0 ; i--){
-          materialSelect.remove(i);
-        }
-        materials.each(function(material){
-          var option = document.createElement("option");
-          option.text = material.get('material').code;
-          option.value = material.id;
-          materialSelect.add(option);
-        });
-        loader.remove();
-        renderDataEntry(caseStudyId);
-        renderDataView();
-      }});
+
+    var renderCaseStudy = function(caseStudy){
+      var caseStudyId = caseStudy.id;
+      var flowInner = _.template(document.getElementById('flows-edit-template').innerHTML);
+      var el = document.getElementById('flows-edit');
+      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
+                                materials: materials});
+
+      var materialSelect = document.getElementById('flows-select');
+      var refreshButton = document.getElementById('refresh-view-btn');
+      var onMaterialChange = function(){
+        var materialId = materialSelect.options[materialSelect.selectedIndex].value;
+        renderDataView(materialId, caseStudyId);
+      }
+      materialSelect.addEventListener('change', onMaterialChange);
+      refreshButton.addEventListener('click', onMaterialChange);
+
+      renderDataEntry(caseStudy);
+
+      if (materials.length > 0){
+        renderDataView(materials.first().id, caseStudyId);
+      }
     }
-  
-    var refreshButton = document.getElementById('refresh-view-btn');
-    
-    // selection of casestudy changed -> render new view
-    materialSelect.addEventListener('change', renderDataView);
-    refreshButton.addEventListener('click', renderDataView);
-    
-    // initially show first case study (selected index 0)
-    
-    
+
     var session = appConfig.getSession(
       function(session){
-        caseStudyId = session['casestudy'];
-        renderCaseStudy();
+        var caseStudyId = session['casestudy'];
+        caseStudy = new CaseStudy({id: caseStudyId});
+        activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+        materials = new Materials({caseStudyId: caseStudyId});
+        if (caseStudyId == null)
+          return;
+        var loader = new Loader(document.getElementById('flows-edit'),
+                                {disable: true});
+        $.when(caseStudy.fetch(), activityGroups.fetch(), materials.fetch()).then(function() {
+          loader.remove();
+          renderCaseStudy(caseStudy);
+        });
     });
   });
 });
