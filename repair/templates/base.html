@@ -78,7 +78,7 @@
             <li>
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{{ redirect_to }}" />
+                  <input name="next" type="hidden" value="{{ request.path }}" />
                   <input name="language" id="language" type="hidden">
                   <div class="dropdown">
                     <div class="btn-group">
@@ -91,7 +91,7 @@
                         {% get_available_languages as LANGUAGES %}
                         {% for lang in LANGUAGES %}
                           <li {% if lang.0 == LANGUAGE_CODE %} class="active" {% endif %}>
-                            <a href="#" onclick="$('#language').val({{ lang.0 }}); $('#language-select').submit()">{{ lang.1 }} ({{ lang.0 }}
+                            <a href="#" onclick="$('#language').val('{{ lang.0 }}'); $('#language-select').submit()">{{ lang.1 }} ({{ lang.0 }})
                           </a></li>
                         {% endfor %}
                       </ul>
