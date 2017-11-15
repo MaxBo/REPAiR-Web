@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
 from django.utils.translation import ugettext_lazy as _
 
 DEBUG = False
@@ -77,7 +78,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'django.contrib.gis',
+    'django.contrib.gis',
     'rest_framework',
     'repair.apps.login',
     'repair.apps.asmfa',
@@ -135,11 +136,13 @@ WSGI_APPLICATION = 'repair.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
     },
 
 }
+
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 
 # Password validation
@@ -175,6 +178,14 @@ LANGUAGES = (
     ('hu', _('Hungarian')),
     ('it', _('Italian')),
 )
+
+if os.name == 'posix':
+    GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgdal.so')
+    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgeos_c.so')
+    PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libproj.so')
 
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, "locale"),

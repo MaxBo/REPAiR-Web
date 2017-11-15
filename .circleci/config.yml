@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6.2-stretch-browsers
+      - image: maxboh/circleci-miniconda-gdal
     steps:
       - checkout
       - run: mkdir test-reports
@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Install Python deps in a venv
           command: |
-            sudo pip install -r requirements-dev.txt
+            pip install -r requirements-dev.txt
       - run:
           name: run py.test
           command: |
