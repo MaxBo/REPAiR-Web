@@ -36,7 +36,7 @@ class ViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
-    
+
     if casestudy_only get only items of the current casestudy
     """
     casestudy_only = True
@@ -58,14 +58,14 @@ class ViewSetMixin(ABC):
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.set_casestudy(kwargs, request)
-        queryset = self._filter(kwargs, query_params=request.query_params, 
+        queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
             return Response(status=400)
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         return Response(serializer.data)
-    
+
     def retrieve(self, request, **kwargs):
         """
         filter the queryset with the lookup-arguments
@@ -81,7 +81,7 @@ class ViewSetMixin(ABC):
         model = get_object_or_404(queryset, pk=pk)
         serializer = SerializerClass(model, context={'request': request})
         return Response(serializer.data)
-    
+
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         """
         return a queryset filtered by lookup arguments and query parameters
@@ -100,7 +100,7 @@ class ViewSetMixin(ABC):
         except:
             queryset = None
         return queryset
-    
+
 
 
 class OnlySubsetMixin(ViewSetMixin):
@@ -151,11 +151,11 @@ class SessionView(View):
             request.session['casestudy'] = request.POST['casestudy']
             next = request.POST.get('next', '/')
             return HttpResponseRedirect(next)
-    
+
     def get(self, request):
-        response =  {'casestudy': request.session['casestudy']}
+        response =  {'casestudy': request.session.get('casestudy')}
         return JsonResponse(response)
-            
+
 
 def casestudy(request, casestudy_id):
     """casestudy view"""

@@ -54,11 +54,11 @@
     color: #999;
     display: block;
     border: 2px solid #fff;
-    border-radius: 10px;
+    /*border-radius: 10px;*/
     margin-top: 20px;
 }
 
-#sidebar li.active a {
+#sidebar li.active a, #sidebar li.active a:hover {
     color: #fff;
     background: #aad400;
     text-decoration: none;
@@ -67,6 +67,7 @@
 #sidebar li a:hover {
     border-style: solid;
     border-color: #aad400;
+    background-color: transparent;
 }
 
 #slide-icon
