@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
+import django
 from django.utils.translation import ugettext_lazy as _
 
 DEBUG = False
@@ -19,6 +20,16 @@ DEBUG = False
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
+
+if os.name == 'nt':
+    os.environ['GDAL_DATA'] = os.path.join(sys.prefix, 'Library',
+                                           'share', 'gdal')
+    os.environ['PATH'] = ';'.join([os.environ['PATH'],
+                                  os.path.join(os.path.dirname(
+                                      os.path.dirname(__file__)),
+                                 'spatialite'),
+                                  os.path.join(sys.prefix, 'Library', 'bin')])
+
 
 # The baseUrl to pass to the r.js optimizer.
 REQUIRE_BASE_URL = 'js'
