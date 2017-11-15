@@ -82,17 +82,22 @@
 
 .menu-arrow{
     float: left;
-    background-image: url("../img/menu-arrow-grey.png");
-    background-size: cover;
+    /*background-image: url("../img/menu-arrow-grey.png");*/
+    /*background-size: cover;*/
     /*background-size: 100%;*/
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    /*background-repeat: no-repeat;*/
+    /*background-position: 50% 50%;*/
     width: 40px;
     height: 50px;
+    font-size: 1.5em;
+    color: #4c5867;
+    text-align: center;
+    line-height: 50px;
 }
 
 .navbar-bottom > li.active > .menu-arrow, .navbar-bottom li:hover .menu-arrow {
-    background-image: url("../img/menu-arrow-green.png");
+    /*background-image: url("../img/menu-arrow-green.png");*/
+    color: #aad400;
 }
 
 #casestudy-select .dropdown .btn{
