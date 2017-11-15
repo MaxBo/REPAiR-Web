@@ -1,7 +1,7 @@
 .navbar {
     position: fixed;
     width: 100%;
-    z-index: 99999;
+    z-index: 9999;
     background-color: #ffffff;
     border-radius: 0px;
     border: 0px;
@@ -24,10 +24,6 @@
 .navbar-brand >img {
     /*width: 230px;*/
 }
-
-/*#language-select{
-    float: right;
-}*/
 
 .navbar > .container {
     margin-left: 0px;
@@ -100,15 +96,15 @@
     color: #aad400;
 }
 
-#casestudy-select .dropdown .btn{
-    color: #4c5867;
-    background-color: white;
+.navbar-top .dropdown .btn{
+    color: #4c5867 !IMPORTANT;
+    background-color: white !IMPORTANT;
     border: none;
     font-size: 1em;
     margin-top : -5px;
 }
 
-#casestudy-select .dropdown .active > a{
+.navbar-top .dropdown .active > a{
     background-color: #aad400;
 }
 

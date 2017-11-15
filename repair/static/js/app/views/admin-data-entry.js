@@ -1,9 +1,8 @@
 define(['jquery', 'backbone',
-        'app/views/admin-edit-node', 'app/collections/activitygroups',
+        'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/qualities', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, ActivityGroups,
-         Activities, Actors, Qualities, treeview){
+function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
   /**
    *
@@ -25,24 +24,21 @@ function($, Backbone, EditNodeView, ActivityGroups,
     initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      _.bindAll(this, 'renderDataEntry');
       var _this = this;
       this.template = options.template;
+      this.selectedModel = null;
 
       var caseStudyId = this.model.id;
 
       // collections of nodes associated to the casestudy
-      this.activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+      this.activityGroups = options.activityGroups;
       this.activities = new Activities({caseStudyId: caseStudyId});
       this.actors = new Actors({caseStudyId: caseStudyId});
       this.qualities = new Qualities();
-      
+
       this.render();
     },
-
-    /*
-     * dom events (managed by jquery)
-     */
-    events: {},
 
     /*
      * render the view
@@ -54,10 +50,9 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
-      var loader = new Loader(document.getElementById('flows-edit'), 
+      var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      $.when(this.qualities.fetch(), this.model.fetch(), 
-             this.activityGroups.fetch(), this.activities.fetch(),
+      $.when(this.qualities.fetch(), this.activities.fetch(),
              this.actors.fetch()).then(function() {
         _this.renderDataTree();
         loader.remove();
@@ -117,7 +112,8 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render view on node on click in data-tree
       var onClick = function(event, node){
-        _this.renderDataEntry(node.model);
+        _this.selectedModel = node.model;
+        _this.renderDataEntry();
       };
       var divid = '#data-tree';
       $(divid).treeview({data: dataTree, showTags: true,
@@ -132,19 +128,24 @@ function($, Backbone, EditNodeView, ActivityGroups,
     *
     * @param model  backbone-model of the node
     */
-    renderDataEntry: function(model){
+    renderDataEntry: function(){
+    console.log(this)
+      var model = this.selectedModel;
+      if (model == null)
+        return
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
       // currently selected material
-      var flowSelect = document.getElementById('flows-select');
+      var materialSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        materialId: flowSelect.value,
+        materialId: materialSelect.value,
         caseStudyId: this.model.id,
-        qualities: this.qualities
+        qualities: this.qualities,
+        onUpload: this.renderDataEntry // rerender after upload
       });
     },
 
