@@ -23,6 +23,7 @@
 
 .navbar-brand >img {
     /*width: 230px;*/
+    margin-left: 20px;
 }
 
 .navbar > .container {
