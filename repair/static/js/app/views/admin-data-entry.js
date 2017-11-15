@@ -24,8 +24,10 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
     initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      _.bindAll(this, 'renderDataEntry');
       var _this = this;
       this.template = options.template;
+      this.selectedModel = null;
 
       var caseStudyId = this.model.id;
 
@@ -37,11 +39,6 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
       this.render();
     },
-
-    /*
-     * dom events (managed by jquery)
-     */
-    events: {},
 
     /*
      * render the view
@@ -115,7 +112,8 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
       // render view on node on click in data-tree
       var onClick = function(event, node){
-        _this.renderDataEntry(node.model);
+        _this.selectedModel = node.model;
+        _this.renderDataEntry();
       };
       var divid = '#data-tree';
       $(divid).treeview({data: dataTree, showTags: true,
@@ -130,19 +128,24 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
     *
     * @param model  backbone-model of the node
     */
-    renderDataEntry: function(model){
+    renderDataEntry: function(){
+    console.log(this)
+      var model = this.selectedModel;
+      if (model == null)
+        return
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
       // currently selected material
-      var flowSelect = document.getElementById('flows-select');
+      var materialSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        materialId: flowSelect.value,
+        materialId: materialSelect.value,
         caseStudyId: this.model.id,
-        qualities: this.qualities
+        qualities: this.qualities,
+        onUpload: this.renderDataEntry // rerender after upload
       });
     },
 

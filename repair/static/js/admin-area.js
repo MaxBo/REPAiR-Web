@@ -54,11 +54,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
 
       var materialSelect = document.getElementById('flows-select');
       var refreshButton = document.getElementById('refresh-view-btn');
-      var onMaterialChange = function(){
+      var onMaterialChange = function(rerenderEntry){
         var materialId = materialSelect.options[materialSelect.selectedIndex].value;
         renderDataView(materialId, caseStudyId);
+        // can't safely add this inside view, because selector is not part of it's template
+        if (rerenderEntry == true)
+          dataEntryView.renderDataEntry();
       }
-      materialSelect.addEventListener('change', onMaterialChange);
+      materialSelect.addEventListener('change', function(){onMaterialChange(true)});
       refreshButton.addEventListener('click', onMaterialChange);
 
       renderDataEntry(caseStudy);

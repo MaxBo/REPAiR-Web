@@ -1,5 +1,5 @@
 define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
-        'app/models/actor', 'app/collections/flows', 'app/collections/stocks', 
+        'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
         'app/loader'],
 /**
   *
@@ -25,7 +25,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.materialId = options.materialId;
       this.caseStudyId = options.caseStudyId;
       this.qualities = options.qualities;
-      
+      this.onUpload = options.onUpload;
+
       var flowType = '';
       this.attrTableInner = '';
       if (this.model.tag == 'activity'){
@@ -40,31 +41,31 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         this.attrTableInner = this.getActorAttrTable();
         flowType = 'actor';
       }
-      
-      this.inFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+
+      this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
                                     materialId: this.materialId,
                                     type: flowType});
-      this.outFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+      this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
                                       materialId: this.materialId,
                                       type: flowType});
-      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId, 
+      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                     materialId: this.materialId,
                                     type: flowType});
-      this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+      this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
                                         materialId: this.materialId,
                                         type: flowType});
-      this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId, 
+      this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
                                         materialId: this.materialId,
                                         type: flowType});
-      this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId, 
+      this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                       materialId: this.materialId,
                                       type: flowType});
       var _this = this;
-      
-      var loader = new Loader(document.getElementById('flows-edit'), 
+
+      var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
-      
+
       $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
              this.outFlows.fetch({data: 'origin=' + this.model.id}),
              this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
@@ -94,7 +95,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       // render a view on the attributes depending on type of node
       var attrDiv = this.el.querySelector('#attributes');
       attrDiv.innerHTML = this.attrTableInner;
-      
+
       // render inFlows
       this.inFlows.each(function(flow){
         _this.addFlowRow('input-table', flow, 'origin');
@@ -106,39 +107,39 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         _this.addFlowRow('stock-table', stock, 'origin', true);
       });
     },
-    
+
     addFlowRow: function(tableId, flow, targetIdentifier, skipTarget){
       var _this = this;
 
       var table = this.el.querySelector('#' + tableId);
       var row = table.insertRow(-1);
-      
+
       // checkbox for marking deletion
-      
+
       var checkbox = document.createElement("input");
       checkbox.type = 'checkbox';
       row.insertCell(-1).appendChild(checkbox);
-      
+
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
         flow.markedForDeletion = checkbox.checked;
       });
-      
+
       // amount of flow
-      
+
       var amount = document.createElement("input");
       amount.value = flow.get('amount');
       amount.type = 'number';
       amount.min = 0;
       row.insertCell(-1).appendChild(amount);
-      
+
       amount.addEventListener('change', function() {
         flow.set('amount', amount.value);
       });
-      
+
       if (!skipTarget){
         // select input for target (origin resp. destination of flow)
-        
+
         var nodeSelect = document.createElement("select");
         var ids = [];
         var targetId = flow.get(targetIdentifier);
@@ -155,14 +156,14 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         var idx = ids.indexOf(targetId);
         nodeSelect.selectedIndex = idx.toString();
         row.insertCell(-1).appendChild(nodeSelect);
-        
+
         nodeSelect.addEventListener('change', function() {
           flow.set(targetIdentifier, nodeSelect.value);
         });
       }
-      
+
       // select input for qualities
-      
+
       var qualitySelect = document.createElement("select");
       var ids = [];
       var q = flow.get('quality');
@@ -176,15 +177,15 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var idx = ids.indexOf(q);
       qualitySelect.selectedIndex = idx.toString();
       row.insertCell(-1).appendChild(qualitySelect);
-      
+
       qualitySelect.addEventListener('change', function() {
         flow.set('quality', qualitySelect.value);
       });
-      
+
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
       var description = document.createElement("input");
       row.insertCell(-1).appendChild(description);
-      
+
     },
 
     // on click add row button
@@ -199,7 +200,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         flow = this.newInFlows.add({});
         targetIdentifier = 'origin';
         flow = this.newOutFlows.add({
-          'amount': 0, 
+          'amount': 0,
           'origin': null,
           'destination': this.model.id,
           'quality': null
@@ -209,7 +210,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         tableId = 'output-table';
         targetIdentifier = 'destination';
         flow = this.newOutFlows.add({
-          'amount': 0, 
+          'amount': 0,
           'origin': this.model.id,
           'destination': null,
           'quality': null
@@ -219,7 +220,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         tableId = 'stock-table';
         targetIdentifier = 'origin';
         flow = this.newStocks.add({
-          'amount': 0, 
+          'amount': 0,
           'origin': this.model.id,
           'quality': null
         });
@@ -248,7 +249,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         var column = columns[i];
         var cell = row.insertCell(i);
         if (column.type != null){
-          var child;              
+          var child;
           if (column.type == 'select'){
             child = document.createElement("select");
             for (j = 0; j < column.text.length; j++){
@@ -280,7 +281,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }
       return row;
     },
-    
+
     deleteRowEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId = (buttonId == 'remove-input-button') ? 'input-table':
@@ -338,7 +339,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         revenue: this.model.get('revenue')
       });
     },
-    
+
     uploadChanges: function(){
       // delete exisiting flows if marked for deletion
       // otherwise update them if they changed
@@ -351,7 +352,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.inFlows.each(update);
       this.outFlows.each(update);
       this.stocks.each(update);
-      
+
       // save added flows only, when they are not marked for deletion
       var create = function(model){
         if (!model.markedForDeletion)
@@ -360,6 +361,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.newInFlows.each(create);
       this.newOutFlows.each(create);
       this.newStocks.each(create);
+      // ToDo: chain the uploads
+      //this.onUpload();
       this.close();
     },
 
