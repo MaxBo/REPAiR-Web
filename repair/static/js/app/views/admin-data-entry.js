@@ -1,9 +1,8 @@
 define(['jquery', 'backbone',
-        'app/views/admin-edit-node', 'app/collections/activitygroups',
+        'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/qualities', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, ActivityGroups,
-         Activities, Actors, Qualities, treeview){
+function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
   /**
    *

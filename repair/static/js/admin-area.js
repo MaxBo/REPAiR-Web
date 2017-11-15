@@ -2,7 +2,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
            'app/views/admin-data-view', 'app/collections/flows',
            'app/collections/activitygroups', 'app/collections/materials',
-           'app/collections/stocks','app-config', 'app/loader'],
+           'app/collections/stocks', 'app-config', 'app/loader'],
   function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
             Materials, Stocks, appConfig) {
 

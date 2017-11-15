@@ -54,11 +54,11 @@
 <!-- Data Entry -->
 
 <script type="text/template" id="data-entry-template">
-  <div class="col-md-4">
+  <div class="col-md-3">
     {% trans "Please choose a node to enter data for" %}
     <div id="data-tree"></div>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-6">
     <div class="row"><div id="edit-node"></div></div>
   </div>
 </script>
@@ -72,9 +72,9 @@
     </button>
     <div class="row" id='attributes'>
     </div>
-    <div class="row">
+    <div class="row" style="overflow-x:auto;">
+      <h3>{% trans "Input" %}</h3>
       <table id='input-table' class='table'>
-        <h3>{% trans "Input" %}</h3>
         <tr>
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
@@ -85,21 +85,9 @@
       </table>
       <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
-    <div class="row">
-      <table id='stock-table' class='table'>
-        <h3>{% trans "Stock" %}</h3>
-        <tr>
-          <th></th>
-          <th>{% trans "Amount" %}</th>
-          <th>{% trans "Quality" %}</th>
-          <th>{% trans "Data Source" %}</th>
-        </tr>
-      </table>
-      <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
-    </div>
-    <div class="row">
+    <div class="row" style="overflow-x:auto;">
+      <h3>{% trans "Output" %}</h3>
       <table id='output-table' class='table'>
-        <h3>{% trans "Output" %}</h3>
         <tr>
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
@@ -110,6 +98,18 @@
         <tr>
       </table>
       <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+    <div class="row" style="overflow-x:auto;">
+        <h3>{% trans "Stock" %}</h3>
+      <table id='stock-table' class='table'>
+        <tr>
+          <th>{% trans "Remove Stock" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+      </table>
+      <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
 </script>
