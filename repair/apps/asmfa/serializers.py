@@ -251,7 +251,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website', 'activity', 'activity_url')
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included')
 
 
 class AllActorSerializer(ActorSerializer):

@@ -11,6 +11,7 @@ function($, Backbone, Actor){
       this.template = options.template;
       this.materialId = options.materialId;
       this.activities = options.activities;
+      this.showAll = true;
 
       var _this = this;
 
@@ -28,7 +29,8 @@ function($, Backbone, Actor){
       * dom events (managed by jquery)
       */
     events: {
-      'click #add-actor-button': 'addActorEvent'
+      'click #add-actor-button': 'addActorEvent', 
+      'change #included-filter-select': 'changeFilter'
     },
 
     /*
@@ -36,30 +38,51 @@ function($, Backbone, Actor){
       */
     render: function(){
       var _this = this;
+      
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});
+      
+      this.filterSelect = this.el.querySelector('#included-filter-select');
+      this.table = this.el.querySelector('#actors-table');
 
       // render inFlows
       this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
     },
+    
+    changeFilter: function(event){
+      this.showAll = event.target.value == '0';
+      for (var i = 1, row; row = this.table.rows[i]; i++) {
+          //console.log(row.cells[0].getElementsByTagName("input")[0])
+          //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
+          if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
+            row.style.display = "none";
+          else
+            row.style.display = "table-row";
+      }
+    },
 
     addActorRow: function(actor){
-      console.log(actor)
       var _this = this;
-
-      var table = this.el.querySelector('#actors-table');
-      var row = table.insertRow(-1);
+      
+      var row = this.table.insertRow(-1);
 
       // checkbox for marking deletion
 
       var checkbox = document.createElement("input");
       checkbox.type = 'checkbox';
+      var included = actor.get('included')
+      checkbox.checked = included;
+      if (!included){
+        row.classList.add('strikeout');
+        if (!this.showAll)
+          row.style.display = "block";
+      }
       row.insertCell(-1).appendChild(checkbox);
 
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
-        actor.markedForDeletion = checkbox.checked;
+        actor.set('included', checkbox.checked);
       });
       
       var addInput = function(attribute, inputType){
@@ -71,6 +94,7 @@ function($, Backbone, Actor){
   
         input.addEventListener('change', function() {
           actor.set(attribute, input.value);
+          input.classList.add('changed');
         });
       };
 
@@ -93,7 +117,8 @@ function($, Backbone, Actor){
       row.insertCell(-1).appendChild(activitySelect);
 
       activitySelect.addEventListener('change', function() {
-        actor.set(activity, activitySelect.value);
+        actor.set('activity', activitySelect.value);
+        activitySelect.classList.add('changed');
       });
 
       addInput('website');
@@ -127,6 +152,7 @@ function($, Backbone, Actor){
     },
 
     uploadChanges: function(){
+      
     },
 
     /*

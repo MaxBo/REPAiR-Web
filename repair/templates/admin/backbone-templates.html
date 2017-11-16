@@ -6,11 +6,24 @@
 <!-- Actors -->
 
 <script type="text/template" id="actors-edit-template">
-  <h3>{% trans "Actors" %} - <%= casestudy %></h3>
+  <div class="row">
+    <div class="col-md-3">
+      <h3>{% trans "Actors" %} - <%= casestudy %></h3>
+      <select name="included-filter" id="included-filter-select">
+        <option value="0">{% trans "show all" %}</option>
+        <option value="1">{% trans "show included only" %}</option>
+      </select>
+    </div>
+    <div class="col-md-9">
+      <button id='upload-actors-button' class="btn btn-primary">
+        <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+      </button>
+    </div>
+  </div>
   <div class="row" style="overflow-x:auto;">
     <table id='actors-table' class='table'>
       <tr>
-        <th>{% trans "Remove Actor" %}</th>
+        <th>{% trans "Included" %}</th>
         <th>{% trans "Name" %}</th>
         <th>{% trans "Activity" %}</th>
         <th>{% trans "Website" %}</th>
