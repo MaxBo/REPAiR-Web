@@ -16,9 +16,10 @@
     height: 75px;
     line-height: 45px;
     padding-left: 0px;
+    padding-top: 12px;
     z-index: 11;
-    margin-top: 10px;
-    margin-right: 10px;
+    margin-top: 0px;
+    /*margin-right: 10px;*/
 }
 
 .navbar-brand >img {
@@ -35,12 +36,12 @@
 
 .navbar-top {
     font-size: 1em;
-    margin-top: -100px;
+    margin-top: -85px;
     margin-left: 50px;
 }
 
 .navbar-bottom {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .navbar-bottom > li{
@@ -57,13 +58,18 @@
     padding-top: 0px !IMPORTANT;
     padding-bottom: 0px !IMPORTANT;
     float: left;
+    transition: font-size 0.25s ease-in-out;
 }
 
 .navbar-bottom > li:hover > a {
     color: #aad400 !IMPORTANT;
-    transition: color 0.5s ease;
     font-size: 2em;
-    transition: font-size 0.5s ease;
+    transition: color 0.25s ease;
+    transition: font-size 0.25s ease-in-out;
+}
+
+.navbar-top > li:hover > a, .navbar-top > li:hover button{
+    color: #aad400 !IMPORTANT;
 }
 
 .navbar-bottom > li.active > a{
