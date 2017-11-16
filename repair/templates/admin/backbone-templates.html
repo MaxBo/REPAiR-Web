@@ -24,6 +24,7 @@
     </table>
     <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
   </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- Flows  -->
@@ -46,10 +47,10 @@
         <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
       </ul>
       <div class="tab-content">
-        <div class="tab-pane active" id="data-entry-tab">
+        <div class="tab-pane fade in active" id="data-entry-tab">
           <div class="row"><div id="data-entry"></div></div>
         </div>
-        <div class="tab-pane" id="sankey-tab">
+        <div class="tab-pane fade in" id="sankey-tab">
           <div class="row">
             <button type="button" id="refresh-view-btn">
               {% trans "Refresh" %}
@@ -57,12 +58,13 @@
           </div>
           <div class="row"><div id="data-view"></div></div>
         </div>
-        <div class="tab-pane" id="verification">
+        <div class="tab-pane fade in" id="verification">
           {% include "admin/verification.html" %}
         </div>
       </div>
     </div>
   </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- Data View -->
