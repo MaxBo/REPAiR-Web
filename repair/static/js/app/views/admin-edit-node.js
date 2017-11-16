@@ -341,13 +341,18 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
     },
 
     uploadChanges: function(){
+      var _this = this;
+      
+      var modelsToSave = [];
+      var modelsToDestroy = [];
+      
       // delete exisiting flows if marked for deletion
       // otherwise update them if they changed
       var update = function(model){
         if (model.markedForDeletion)
-          model.destroy()
+          modelsToDestroy.push(model);
         else if (model.changedAttributes() != false)
-          model.save();
+          modelsToSave.push(model);
       };
       this.inFlows.each(update);
       this.outFlows.each(update);
@@ -355,15 +360,32 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
 
       // save added flows only, when they are not marked for deletion
       var create = function(model){
-        if (!model.markedForDeletion)
-          model.save();
+        console.log(model)
+        if (!model.markedForDeletion && Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
+          modelsToSave.push(model);
       }
       this.newInFlows.each(create);
       this.newOutFlows.each(create);
       this.newStocks.each(create);
-      // ToDo: chain the uploads
-      //this.onUpload();
-      this.close();
+      
+      // chain save and destroy operations
+      var saveComplete = _.invoke(modelsToSave, 'save');
+      var destructionComplete = _.invoke(modelsToDestroy, 'destroy');
+      
+      var loader = new Loader(document.getElementById('flows-edit'),
+                              {disable: true});
+      var onError = function(response){
+        alert(response.responseText); 
+        loader.remove();
+        _this.close();
+      };
+      $.when.apply($, saveComplete).done(function(){
+        $.when.apply($, destructionComplete).done(function(){
+          loader.remove();
+          console.log('upload complete');
+          _this.onUpload();
+        }).fail(onError);
+      }).fail(onError);
     },
 
     /*
