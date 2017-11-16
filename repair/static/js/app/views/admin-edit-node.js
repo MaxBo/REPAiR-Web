@@ -377,7 +377,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var onError = function(response){
         alert(response.responseText); 
         loader.remove();
-        _this.close();
       };
       $.when.apply($, saveComplete).done(function(){
         $.when.apply($, destructionComplete).done(function(){

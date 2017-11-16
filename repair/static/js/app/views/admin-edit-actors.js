@@ -12,6 +12,8 @@ function($, Backbone, Actor){
       this.materialId = options.materialId;
       this.activities = options.activities;
       this.showAll = true;
+      this.onUpload = options.onUpload;
+      console.log(this.onUpload)
 
       var _this = this;
 
@@ -30,7 +32,8 @@ function($, Backbone, Actor){
       */
     events: {
       'click #add-actor-button': 'addActorEvent', 
-      'change #included-filter-select': 'changeFilter'
+      'change #included-filter-select': 'changeFilter',
+      'click #upload-actors-button': 'uploadChanges'
     },
 
     /*
@@ -153,6 +156,32 @@ function($, Backbone, Actor){
 
     uploadChanges: function(){
       
+      var _this = this;
+      
+      var modelsToSave = [];
+      
+      var update = function(model){
+        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
+          modelsToSave.push(model);
+      };
+      this.collection.each(update);
+      console.log(modelsToSave)
+      
+      // chain save and destroy operations
+      var saveComplete = _.invoke(modelsToSave, 'save');
+      
+      var loader = new Loader(document.getElementById('flows-edit'),
+                              {disable: true});
+      var onError = function(response){
+        alert(response.responseText); 
+        loader.remove();
+      };
+      
+      $.when.apply($, saveComplete).done(function(){
+        loader.remove();
+        console.log('upload complete');
+        _this.onUpload();
+      }).fail(onError);
     },
 
     /*

@@ -60,7 +60,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         template: 'actors-edit-template',
         model: caseStudy,
         collection: new Actors({caseStudyId: caseStudy.id}),
-        activities: activities
+        activities: activities,
+        onUpload: function(){renderEditActors(caseStudy)}
       });
     };
 
