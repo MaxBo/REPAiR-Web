@@ -37,9 +37,13 @@ class ViewSetMixin(ABC):
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
 
-    if casestudy_only get only items of the current casestudy
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
     """
     casestudy_only = True
+    additional_filters = {}
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -97,8 +101,12 @@ class ViewSetMixin(ABC):
                 filter_args[k] = v
         try:
             queryset = self.queryset.model.objects.filter(**filter_args)
-        except:
-            queryset = None
+        except Exception as e:
+            print(e)
+            return None
+            
+        if len(self.additional_filters):
+            queryset = queryset.filter(**self.additional_filters)
         return queryset
 
 

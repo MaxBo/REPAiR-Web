@@ -100,7 +100,7 @@ class ActivityStockViewSet(OnlySubsetMixin, ModelViewSet):
 class ActorStockViewSet(OnlySubsetMixin, ModelViewSet):
     queryset = ActorStock.objects.all()
     serializer_class = ActorStockSerializer
-
+    additional_filters = {'origin__included': True}
 
 
 class FlowViewSet(OnlySubsetMixin, ModelViewSet, ABC):
@@ -126,3 +126,5 @@ class Activity2ActivityViewSet(FlowViewSet):
 class Actor2ActorViewSet(FlowViewSet):
     queryset = Actor2Actor.objects.all()
     serializer_class = Actor2ActorSerializer
+    additional_filters = {'origin__included': True,
+                         'destination__included': True}
