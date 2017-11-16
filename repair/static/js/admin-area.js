@@ -1,18 +1,21 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
-           'app/views/admin-data-view', 'app/collections/flows',
+           'app/views/admin-data-view', 'app/views/admin-edit-actors', 
+           'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
            'app/collections/activitygroups', 'app/collections/materials',
            'app/collections/stocks', 'app-config', 'app/loader'],
-  function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups,
-            Materials, Stocks, appConfig) {
+  function ($, CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
+            Activities, Actors, ActivityGroups, Materials, Stocks, appConfig) {
 
     var caseStudyId,
         caseStudy,
         activityGroups,
-        materials;
+        materials,
+        activities;
 
-    var dataView;
-    var dataEntryView;
+    var dataView,
+        dataEntryView,
+        editActorsView;
 
     var renderDataView = function(materialId, caseStudyId){
       var groupToGroup = new Flows([], {caseStudyId: caseStudyId,
@@ -41,7 +44,23 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         el: document.getElementById('data-entry'),
         template: 'data-entry-template',
         model: caseStudy,
-        activityGroups: activityGroups
+        activityGroups: activityGroups,
+        activities: activities
+      });
+    };
+    
+    var renderEditActors = function(caseStudy){
+      if (editActorsView != null)
+        editActorsView.close();
+
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      editActorsView = new EditActorsView({
+        el: document.getElementById('actors-edit'),
+        template: 'actors-edit-template',
+        model: caseStudy,
+        collection: new Actors({caseStudyId: caseStudy.id}),
+        activities: activities
       });
     };
 
@@ -65,6 +84,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       refreshButton.addEventListener('click', onMaterialChange);
 
       renderDataEntry(caseStudy);
+      renderEditActors(caseStudy);
 
       if (materials.length > 0){
         renderDataView(materials.first().id, caseStudyId);
@@ -76,12 +96,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         var caseStudyId = session['casestudy'];
         caseStudy = new CaseStudy({id: caseStudyId});
         activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+        activities = new Activities({caseStudyId: caseStudyId});
         materials = new Materials({caseStudyId: caseStudyId});
         if (caseStudyId == null)
           return;
-        var loader = new Loader(document.getElementById('flows-edit'),
+        var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
-        $.when(caseStudy.fetch(), activityGroups.fetch(), materials.fetch()).then(function() {
+        $.when(caseStudy.fetch(), activityGroups.fetch(), 
+               materials.fetch(), activities.fetch()).then(function() {
           loader.remove();
           renderCaseStudy(caseStudy);
         });
