@@ -38,7 +38,8 @@ from repair.tests.test import BasicModelTest
 
 class ModelTestOld(TestCase):
 
-    fixtures = ['user_fixture.json',
+    fixtures = ['auth_fixture',
+                'user_fixture.json',
                 'activities_dummy_data.json',]
 
     def test_string_representation(self):
