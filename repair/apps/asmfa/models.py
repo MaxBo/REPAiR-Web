@@ -91,7 +91,7 @@ class Activity(Node):
 
 class Actor(Node):
 
-    BvDid = models.CharField(max_length=255) #unique actor identifier in ORBIS database
+    BvDid = models.CharField(max_length=255, blank=True) #unique actor identifier in ORBIS database
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
@@ -105,12 +105,12 @@ class Actor(Node):
         on_delete=models.CASCADE,
         related_name='administrative_location', 
         null=True)
-    consCode = models.CharField(max_length=255)
+    consCode = models.CharField(max_length=255, blank=True)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
     employees = models.PositiveSmallIntegerField()
-    BvDii = models.CharField(max_length=255)
-    website = models.CharField(max_length=255)
+    BvDii = models.CharField(max_length=255, blank=True)
+    website = models.CharField(max_length=255, blank=True)
 
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                  default=1)
