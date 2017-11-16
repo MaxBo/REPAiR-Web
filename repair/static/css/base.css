@@ -176,6 +176,11 @@ th {
   opacity: 0.7 !IMPORTANT;
 }
 
+#to-top-anchor {
+  color: #4c5867 !IMPORTANT;
+  float: right;
+}
+
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }

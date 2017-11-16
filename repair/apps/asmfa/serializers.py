@@ -245,13 +245,18 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activity_pk': 'activity__id',
     }
     activity = IDRelatedField()
+    BvDid = serializers.CharField(allow_blank=True, required=False)
+    BvDii = serializers.CharField(allow_blank=True, required=False)
+    website = serializers.CharField(allow_blank=True, required=False)
+    consCode = serializers.CharField(allow_blank=True, required=False)
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
-                  'employees', 'BvDii', 'website', 'activity', 'activity_url')
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included')
 
 
 class AllActorSerializer(ActorSerializer):

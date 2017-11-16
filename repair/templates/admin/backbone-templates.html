@@ -1,12 +1,50 @@
 {% load i18n %}
 
-<!-- Backbone templates for rendering dynamic views in admin area-->
+<!-- Backbone templates (Underscore template engine) for rendering dynamic views in admin area -->
+
+
+<!-- Actors -->
+
+<script type="text/template" id="actors-edit-template">
+  <div class="row">
+    <div class="col-md-3">
+      <h3>{% trans "Actors" %} - <%= casestudy %></h3>
+      <select name="included-filter" id="included-filter-select">
+        <option value="0">{% trans "show all" %}</option>
+        <option value="1">{% trans "show included only" %}</option>
+      </select>
+    </div>
+    <div class="col-md-9">
+      <button id='upload-actors-button' class="btn btn-primary">
+        <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+      </button>
+    </div>
+  </div>
+  <div class="row" style="overflow-x:auto;">
+    <table id='actors-table' class='table'>
+      <tr>
+        <th>{% trans "Included" %}</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Activity" %}</th>
+        <th>{% trans "Website" %}</th>
+        <th>{% trans "Year" %}</th>
+        <th>{% trans "Revenue" %}</th>
+        <th>{% trans "Employees" %}</th>
+        <th>{% trans "BvDid" %}</th>
+        <th>{% trans "BvDii" %}</th>
+        <th>{% trans "ConsCode" %}</th>
+      </tr>
+    </table>
+    <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
+  </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+</script>
 
 <!-- Flows  -->
 
 <script type="text/template" id="flows-edit-template">
   <div class="row">
-    <h3><%= casestudy %></h3>
+    <h3>{% trans "Flows" %} - <%= casestudy %></h3>
     <select name="flows" id="flows-select">
       <% materials.each(function(material){ %>
         <option value="<%= material.id %>"><%= material.get('material').code %></option>
@@ -14,29 +52,32 @@
     </select>
   </div>
   </br>
-  <div class="row">  <div class="col-md-12">
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
-      <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
-      <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="data-entry-tab">
-        <div class="row"><div id="data-entry"></div></div>
-      </div>
-      <div class="tab-pane" id="sankey-tab">
-        <div class="row">
-          <button type="button" id="refresh-view-btn">
-            {% trans "Refresh" %}
-          </button>
+  <div class="row">  
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
+        <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+        <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade in active" id="data-entry-tab">
+          <div class="row"><div id="data-entry"></div></div>
         </div>
-        <div class="row"><div id="data-view"></div></div>
-      </div>
-      <div class="tab-pane" id="verification">
-        {% include "admin/verification.html" %}
+        <div class="tab-pane fade in" id="sankey-tab">
+          <div class="row">
+            <button type="button" id="refresh-view-btn">
+              {% trans "Refresh" %}
+            </button>
+          </div>
+          <div class="row"><div id="data-view"></div></div>
+        </div>
+        <div class="tab-pane fade in" id="verification">
+          {% include "admin/verification.html" %}
+        </div>
       </div>
     </div>
   </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- Data View -->

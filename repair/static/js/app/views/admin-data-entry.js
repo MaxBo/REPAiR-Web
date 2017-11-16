@@ -33,7 +33,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
       // collections of nodes associated to the casestudy
       this.activityGroups = options.activityGroups;
-      this.activities = new Activities({caseStudyId: caseStudyId});
+      this.activities = options.activities;
       this.actors = new Actors({caseStudyId: caseStudyId});
       this.qualities = new Qualities();
 
@@ -52,8 +52,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       // after fetching their data, show loader-symbol while fetching
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      $.when(this.qualities.fetch(), this.activities.fetch(),
-             this.actors.fetch()).then(function() {
+      $.when(this.qualities.fetch(), this.actors.fetch({data: 'included=True'})).then(function() {
         _this.renderDataTree();
         loader.remove();
       });
@@ -129,7 +128,6 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
     * @param model  backbone-model of the node
     */
     renderDataEntry: function(){
-    console.log(this)
       var model = this.selectedModel;
       if (model == null)
         return
