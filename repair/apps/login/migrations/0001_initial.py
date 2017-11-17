@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='User',
+            name='Profile',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
             ],
@@ -40,19 +40,19 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('casestudy', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='login.CaseStudy')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='login.User')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='login.Profile')),
             ],
             options={
                 'abstract': False,
             },
         ),
         migrations.AddField(
-            model_name='user',
+            model_name='profile',
             name='casestudies',
             field=models.ManyToManyField(through='login.UserInCasestudy', to='login.CaseStudy'),
         ),
         migrations.AddField(
-            model_name='user',
+            model_name='profile',
             name='user',
             field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
