@@ -38,7 +38,7 @@ input.changed, select.changed {
     background-color: #e6f2ff;
 }
 
-#actors-table tr.strikeout{
+#actors-table tr.strikeout td{
     background-color: #ffe6e6 !IMPORTANT;
     opacity: 0.8;
 }
