@@ -3,7 +3,12 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
 from django.contrib.gis.geos.point import Point
-
+from django.urls import reverse
+from django.core.serializers import serialize
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
+from rest_framework import status
+from repair.tests.test import BasicModelTest
 
 
 from repair.apps.asmfa.models import (
@@ -24,19 +29,13 @@ from repair.apps.asmfa.models import (
     Geolocation, 
     )
 
-from django.test import TestCase
-from django.core.validators import ValidationError
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
-from repair.tests.test import BasicModelTest
 
-class ModelTestOld(TestCase):
+
+class ASMFAModelTest(TestCase):
 
     fixtures = ['auth_fixture',
                 'user_fixture.json',
@@ -60,7 +59,6 @@ class ModelTestOld(TestCase):
 
             print('{} has {} test data entries'.format(
                 Model, Model.objects.count()))
-
 
     def test_geolocation(self):
         """Test a geolocation"""
@@ -111,34 +109,63 @@ class QualityTest(BasicModelTest, APITestCase):
         self.fact = QualityFactory()
 
 
+class GeolocationViewTest(APITestCase):
+
+    fixtures = ['auth_fixture', 'user_fixture.json',
+                'activities_dummy_data.json']
 
 
+    def test_locations(self):
+        cs = CaseStudyFactory()
+        url = reverse('geolocation-list', kwargs=dict(casestudy_pk=cs.pk))
+        location = GeolocationFactory(casestudy=cs)
+        data = {
+            'street': location.street,
+            'geom': location.geom.geojson}
+        response = self.client.post(url, data, format='json')
+        print(response)
+        response = self.client.get(url)
+        print(response.data)
 
+    def test_get_location(self):
+        lodz_pk = 3
+        lodz = reverse('casestudy-detail', kwargs=dict(pk=lodz_pk))
 
+        url = reverse('geolocation-list', kwargs=dict(casestudy_pk=lodz_pk))
+        location = GeolocationFactory()
+        data = {'street': 'Hauptstraße 13',
+                'casestudy': lodz,
+                'geom': location.geom.geojson,}
+        response = self.client.post(url, data, format='json')
+        print(response)
+        new_geolocation_id = response.data['id']
+        response = self.client.get(url)
+        print(response.data)
+        url = reverse('geolocation-detail', kwargs=dict(casestudy_pk=lodz_pk,
+                                                        pk=new_geolocation_id))
+        response = self.client.get(url)
+        print(response.data)
+        
+        new_street = 'Dorfstraße 2'
+        data = {'street': new_street,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        assert response.data['street'] == new_street
 
+        # patch a geometry as geojson
+        new_geom = Point(x=14, y=15, srid=4326)
+        data = {'geom': new_geom.geojson,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        geom = response.data['geom']
+        assert str(geom) == new_geom.geojson
+        assert geom['coordinates'] == [new_geom.x, new_geom.y]
 
-    #def no_tewedst_get_user(self):
-        #lodz = reverse('casestudy-detail', kwargs=dict(pk=3))
-
-        #url = reverse('user-list')
-        #data = {'username': 'MyUser',
-                #'casestudies': [lodz],
-                #'password': 'PW',
-                #'organization': 'GGR',
-                #'groups': [],
-                #'email': 'a.b@c.de',}
-        #response = self.client.post(url, data, format='json')
-        #print(response)
-        #response = self.client.get(url)
-        #print(response.data)
-        #url = reverse('user-detail', kwargs=dict(pk=4))
-        #response = self.client.get(url)
-        #print(response.data)
-        #new_mail = 'new@mail.de'
-        #data = {'email': new_mail,}
-        #self.client.patch(url, data)
-        #response = self.client.get(url)
-        #assert response.data['email'] == new_mail
-
-        #user_in_ams = UserInCasestudyFactory()
+        # patch a geometry in EWKT format
+        new_geom_ewkt = 'SRID=4269;POINT(-71.064544 42.28787)'
+        data = {'geom': new_geom_ewkt,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        geom = response.data['geom']
+        assert geom['coordinates'] == [-71.064544, 42.28787]
 

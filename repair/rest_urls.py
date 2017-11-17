@@ -37,6 +37,7 @@ from repair.apps.asmfa.views import (
     ActorStockViewSet,
     AllActivityViewSet,
     AllActorViewSet,
+    GeolocationInCasestudyViewSet, 
 )
 
 ## base routes ##
@@ -63,6 +64,7 @@ cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 cs_router.register(r'materials', MaterialInCasestudyViewSet)
+cs_router.register(r'geolocations', GeolocationInCasestudyViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 user_router = NestedSimpleRouter(cs_router, r'users',

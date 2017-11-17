@@ -16,7 +16,9 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
+                                      Geolocation, 
                                       )
+
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            InCaseStudyIdentityField,
@@ -385,3 +387,10 @@ class Actor2ActorSerializer(FlowSerializer):
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
                   'destination', 'destination_url')
 
+
+class GeolocationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    
+    class Meta:
+        model = Geolocation
+        fields = ('url', 'id', 'casestudy', 'geom', 'street')

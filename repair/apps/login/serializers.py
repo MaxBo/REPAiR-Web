@@ -398,6 +398,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     implementations = InCasestudyListField(view_name='implementation-list')
     materials = InCasestudyListField(view_name='materialincasestudy-list')
     activitygroups = InCasestudyListField(view_name='activitygroup-list')
+    geolocations = InCasestudyListField(view_name='geolocation-list')
 
     class Meta:
         model = CaseStudy
@@ -406,6 +407,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'implementations',
                   'materials',
                   'activitygroups',
+                  'geolocations', 
                   )
 
 

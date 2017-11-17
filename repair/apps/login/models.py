@@ -42,6 +42,12 @@ class GDSEUniqueNameModel(GDSEModel):
         super(GDSEUniqueNameModel, self).save(*args, **kwargs)
 
 
+def get_default(model):
+    """get a default value for a foreign key"""
+    value = model.objects.get_or_create(id=1)[0]
+    return value.pk
+
+
 class CaseStudy(GDSEModel):
     name = models.TextField()
 

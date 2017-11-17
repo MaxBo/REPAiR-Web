@@ -3,13 +3,15 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.login.models import CaseStudy, Profile, GDSEModel
+from repair.apps.login.models import (CaseStudy, Profile,
+                                      GDSEModel, get_default)
 from django.contrib.gis.db import models as gis
+
 
 class DataEntry(models.Model):
 
     # this I am leaving empty for now - we have to agree at the consortium how we define users and data sources
-    user = models.ForeignKey(Profile, default=1)
+    user = models.ForeignKey(Profile, default=get_default(Profile))
     source = models.CharField(max_length=255)
     #date =
 
@@ -36,6 +38,7 @@ class Quality(GDSEModel):
 class Geolocation(gis.Model):
 
     # same as for DataEntry, also geometry will have to be included later
+    casestudy = models.ForeignKey(CaseStudy, default=get_default(CaseStudy))
     street = models.TextField(default='', blank=True)
     #building =
     #postcode =
