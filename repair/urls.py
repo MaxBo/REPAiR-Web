@@ -37,5 +37,5 @@ urlpatterns = [
     # API urls
     #url('^login/', include('django.contrib.auth.urls')),
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^login/', include('repair.apps.login.urls')),
+    url(r'^login/', include('rest_framework.urls', namespace='rest_framework')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
