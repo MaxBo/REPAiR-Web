@@ -102,8 +102,12 @@ INSTALLED_APPS = [
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [],
-    'DEFAULT_AUTHENTIFICATION_CLASSES': [],
+    # ENABLE THIS TO LOCK THE API
+    #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated', ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
