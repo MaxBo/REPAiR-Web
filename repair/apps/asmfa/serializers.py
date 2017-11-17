@@ -62,7 +62,8 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer):
                                                              casestudy=cs)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj
 
@@ -243,6 +244,16 @@ class GeolocationInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
 
+class GeolocationInCasestudySetField(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class GeolocationInCasestudyListField(IdentityFieldMixin, GeolocationInCasestudySetField):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk': 'activity__activitygroup__casestudy__id'}
+
+
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -255,19 +266,57 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                                  source='activity',
                                  read_only=True)
     
-    operational_location_url = GeolocationInCasestudyField(
-        view_name='geolocation-detail',
-        source='operational_location')
     administrative_location_url = GeolocationInCasestudyField(
         view_name='geolocation-detail',
         source='administrative_location')
+    
+    operational_location_list = GeolocationInCasestudyListField(
+        source='operational_locations',
+        view_name='geolocation-list',
+        read_only=True)
+    operational_location_set = GeolocationInCasestudySetField(
+        source='operational_locations', 
+        many=True,
+        view_name='geolocation-detail')
 
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included', 'operational_location_url',
-                  'administrative_location_url')
+                  'included',
+                  'administrative_location_url',
+                  'operational_location_set',
+                  'operational_location_list',                  
+                  )
+
+    def update(self, obj, validated_data):
+        """
+        update the operation locations,
+        including selected solutions
+        """
+        actor = obj
+        actor_id = actor.id
+
+        # handle operational locations
+        new_op_locations = validated_data.pop('operational_locations', None)
+        if new_op_locations is not None:
+            ThroughModel = Actor.operational_locations.through
+            locations_qs = ThroughModel.objects.filter(
+                actor=actor)
+            # delete existing locations
+            locations_qs.exclude(location_id__in=(
+                loc.id for loc in new_op_locations)).delete()
+            # add or update new locations
+            for loc in new_op_locations:
+                ThroughModel.objects.update_or_create(
+                    actor=actor,
+                    location=loc)
+
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
 
 
 class AllActorSerializer(ActorSerializer):

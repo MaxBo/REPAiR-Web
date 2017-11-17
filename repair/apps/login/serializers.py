@@ -50,7 +50,6 @@ class CreateWithUserInCasestudyMixin:
         # update other attributes
         for attr, value in validated_data.items():
             setattr(obj, attr, value)
-        #obj.__dict__.update(**validated_data)
         obj.save()
         return obj
 
@@ -371,9 +370,10 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         # update other attributes
         for attr, value in validated_data.items():
             setattr(obj, attr, value)
-        #obj.__dict__.update(**validated_data)
+
         if 'password' in validated_data:
             obj.set_password(validated_data['password'])
+
         obj.save()
         return obj
 

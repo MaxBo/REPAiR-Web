@@ -283,7 +283,8 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
                     solution=sol)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj
 
@@ -437,6 +438,7 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
                     strategy=strategy)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj

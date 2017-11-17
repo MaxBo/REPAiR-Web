@@ -102,16 +102,14 @@ class Actor(Node):
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
-    operational_location = models.ForeignKey(
-        'Geolocation',
-        on_delete=models.CASCADE,
-        related_name='operational_location', 
-        null=True)
     administrative_location = models.ForeignKey(
         'Geolocation',
         on_delete=models.CASCADE,
         related_name='administrative_location', 
         null=True)
+    operational_locations = models.ManyToManyField(
+        Geolocation,
+        through='OperationalLocationOfActor')
     consCode = models.CharField(max_length=255, blank=True)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
@@ -123,6 +121,13 @@ class Actor(Node):
                                  default=1)
     # if false - actor will be ignored
     included = models.BooleanField(default=True)
+
+
+class OperationalLocationOfActor(models.Model):
+    location = models.ForeignKey(Geolocation)
+    actor = models.ForeignKey(Actor)
+    note = models.TextField(default='', blank=True)
+
 
 
 class Flow(models.Model):
