@@ -71,7 +71,7 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
 
 class UnitField(serializers.HyperlinkedRelatedField):
     """A Unit Field"""
-    queryset=Unit.objects.all()
+    queryset=Unit.objects
 
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
@@ -157,9 +157,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     user = UserInCasestudyField(view_name='userincasestudy-detail')
     solution_category = SolutionCategoryField(
         view_name='solutioncategory-detail')
-    #solution_category_id = serializers.PrimaryKeyRelatedField(
-        #source='solution_category',
-        #queryset=SolutionCategory.objects.all())
     solutionquantity_set = SolutionDetailListField(
         view_name='solutionquantity-list')
     solutionratiooneunit_set = SolutionDetailListField(

@@ -28,7 +28,7 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
         for model_name in self.source_attrs[:-1]:
             Model = Model.profile.related.related_model
         RelatedModel = getattr(Model, field_name).field.related_model
-        qs = RelatedModel.objects.all()
+        qs = RelatedModel.objects
         return qs
 
     def get_field_name(self):
@@ -304,7 +304,7 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
     """Serializer for put and post requests"""
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects.all(),
+        queryset = CaseStudy.objects,
         source='profile.casestudies',
         many=True,
         view_name='casestudy-detail',

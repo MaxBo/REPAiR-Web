@@ -53,17 +53,17 @@ from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
 
 class ActivityGroupViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
-    queryset = ActivityGroup.objects
+    queryset = ActivityGroup.objects.all()
 
 
 class ActivityViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivitySerializer
-    queryset = Activity.objects
+    queryset = Activity.objects.all()
 
 
 class ActorViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActorSerializer
-    queryset = Actor.objects
+    queryset = Actor.objects.all()
 
 
 class AllActivityViewSet(ActivityViewSet):
@@ -75,12 +75,12 @@ class AllActorViewSet(ActorViewSet):
 
 
 class MaterialViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Material.objects
+    queryset = Material.objects.all()
     serializer_class = MaterialSerializer
 
 
 class QualityViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Quality.objects
+    queryset = Quality.objects.all()
     serializer_class = QualitySerializer
     casestudy_only = False
 
@@ -89,22 +89,22 @@ class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows materialincasestudy to be viewed or edited.
     """
-    queryset = MaterialInCasestudy.objects
+    queryset = MaterialInCasestudy.objects.all()
     serializer_class = MaterialInCasestudySerializer
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
-    queryset = GroupStock.objects
+    queryset = GroupStock.objects.all()
     serializer_class = GroupStockSerializer
 
 
 class ActivityStockViewSet(OnlySubsetMixin, ModelViewSet):
-    queryset = ActivityStock.objects
+    queryset = ActivityStock.objects.all()
     serializer_class = ActivityStockSerializer
 
 
 class ActorStockViewSet(OnlySubsetMixin, ModelViewSet):
-    queryset = ActorStock.objects
+    queryset = ActorStock.objects.all()
     serializer_class = ActorStockSerializer
     additional_filters = {'origin__included': True}
 
@@ -120,28 +120,28 @@ class FlowViewSet(OnlySubsetMixin, ModelViewSet, ABC):
 
 
 class Group2GroupViewSet(FlowViewSet):
-    queryset = Group2Group.objects
+    queryset = Group2Group.objects.all()
     serializer_class = Group2GroupSerializer
 
 
 class Activity2ActivityViewSet(FlowViewSet):
-    queryset = Activity2Activity.objects
+    queryset = Activity2Activity.objects.all()
     serializer_class = Activity2ActivitySerializer
 
 
 class Actor2ActorViewSet(FlowViewSet):
-    queryset = Actor2Actor.objects
+    queryset = Actor2Actor.objects.all()
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                          'destination__included': True}
 
 
 class GeolocationInCasestudyViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Geolocation.objects
+    queryset = Geolocation.objects.all()
     serializer_class = GeolocationSerializer
 
 
 class OperationalLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
-    queryset = OperationalLocationOfActor.objects
+    queryset = OperationalLocationOfActor.objects.all()
     serializer_class = OperationalLocationOfActorSerializer
 

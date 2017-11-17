@@ -34,7 +34,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects.all(),
+        queryset = CaseStudy.objects,
         many=True,
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the material is used in')
@@ -111,7 +111,7 @@ class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
 
 class MaterialField(NestedHyperlinkedRelatedField):
     parent_lookup_kwargs = {'pk': 'id'}
-    queryset = Material.objects.all()
+    queryset = Material.objects
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
         return False
