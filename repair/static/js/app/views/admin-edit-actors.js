@@ -1,11 +1,11 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/loader'],
+define(['jquery', 'backbone', 'app/models/actor', 'tablesorter', 'app/loader'],
 
 function($, Backbone, Actor){
   var EditActorsView = Backbone.View.extend({
 
     /*
-     * view-constructor
-     */
+      * view-constructor
+      */
     initialize: function(options){
       _.bindAll(this, 'render');
       this.template = options.template;
@@ -13,17 +13,16 @@ function($, Backbone, Actor){
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
-      console.log(this.onUpload)
 
       var _this = this;
 
       var loader = new Loader(document.getElementById('actors-edit'),
-                              {disable: true});
+        {disable: true});
       // fetch inFlows and outFlows with different query parameters
 
       this.collection.fetch({success: function(){
-          loader.remove();
-          _this.render();
+        loader.remove();
+        _this.render();
       }});
     },
 
@@ -41,34 +40,88 @@ function($, Backbone, Actor){
       */
     render: function(){
       var _this = this;
-      
+
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});
-      
+
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');
 
-      // render inFlows
+      //// render inFlows
       this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+  
+      // ToDo: modularize this 
+      $.tablesorter.addParser({
+          id: 'inputs',
+          is: function(s) {
+              return false;
+          },
+          format: function(s, table, cell, cellIndex) {
+              var $c = $(cell);
+              // return 1 for true, 2 for false, so true sorts before false
+              if (!$c.hasClass('updateInput')) {
+                  $c
+                  .addClass('updateInput')
+                  .bind('keyup', function() {
+                      $(table).trigger('updateCell', [cell, false]); // false to prevent resort
+                  });
+              }
+              return $c.find('input').val();
+          },
+          type: 'text'
+      });
+      $.tablesorter.addParser({
+          id: 'select',
+          is: function(s) {
+              return false;
+          },
+          format: function(s, table, cell, cellIndex) {
+              var $c = $(cell);
+              // return 1 for true, 2 for false, so true sorts before false
+              if (!$c.hasClass('updateInput')) {
+                  $c
+                  .addClass('updateInput')
+                  .bind('keyup', function() {
+                      $(table).trigger('updateCell', [cell, false]); // false to prevent resort
+                  });
+              }
+              return $c.find('select option:selected').text();
+          },
+          type: 'text'
+      });
+      var sorter = $(this.table).tablesorter({
+        headers:{
+          0: {sorter: false},
+          1: {sorter: 'inputs'},
+          2: {sorter: 'select'},
+          3: {sorter: 'inputs'},
+          4: {sorter: 'inputs'},
+          5: {sorter: 'inputs'},
+          6: {sorter: 'inputs'},
+          7: {sorter: 'inputs'},
+          8: {sorter: 'inputs'},
+          9: {sorter: 'inputs'}
+        }
+      });
     },
-    
+
     changeFilter: function(event){
       this.showAll = event.target.value == '0';
       for (var i = 1, row; row = this.table.rows[i]; i++) {
-          //console.log(row.cells[0].getElementsByTagName("input")[0])
-          //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
-          if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
-            row.style.display = "none";
-          else
-            row.style.display = "table-row";
+        //console.log(row.cells[0].getElementsByTagName("input")[0])
+        //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
+        if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
+          row.style.display = "none";
+        else
+          row.style.display = "table-row";
       }
     },
 
     addActorRow: function(actor){
       var _this = this;
-      
-      var row = this.table.insertRow(-1);
+
+      var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
 
       // checkbox for marking deletion
 
@@ -87,14 +140,14 @@ function($, Backbone, Actor){
         row.classList.toggle('strikeout');
         actor.set('included', checkbox.checked);
       });
-      
+
       var addInput = function(attribute, inputType){
         var input = document.createElement("input");
         if (inputType == 'number')
           input.type = 'number'
         input.value = actor.get(attribute);
         row.insertCell(-1).appendChild(input);
-  
+
         input.addEventListener('change', function() {
           actor.set(attribute, input.value);
           input.classList.add('changed');
@@ -102,7 +155,7 @@ function($, Backbone, Actor){
       };
 
       addInput('name');
-      
+
         // select input for activity
 
       var activitySelect = document.createElement("select");
@@ -125,9 +178,9 @@ function($, Backbone, Actor){
       });
 
       addInput('website');
-      addInput('year');
-      addInput('revenue');
-      addInput('employees');
+      addInput('year', 'number');
+      addInput('revenue', 'number');
+      addInput('employees', 'number');
       addInput('BvDid');
       addInput('BvDii');
       addInput('consCode');
@@ -155,28 +208,28 @@ function($, Backbone, Actor){
     },
 
     uploadChanges: function(){
-      
+
       var _this = this;
-      
+
       var modelsToSave = [];
-      
+
       var update = function(model){
         if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
           modelsToSave.push(model);
       };
       this.collection.each(update);
       console.log(modelsToSave)
-      
+
       // chain save and destroy operations
       var saveComplete = _.invoke(modelsToSave, 'save');
-      
+
       var loader = new Loader(document.getElementById('flows-edit'),
-                              {disable: true});
+        {disable: true});
       var onError = function(response){
         alert(response.responseText); 
         loader.remove();
       };
-      
+
       $.when.apply($, saveComplete).done(function(){
         loader.remove();
         console.log('upload complete');

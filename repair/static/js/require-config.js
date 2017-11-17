@@ -15,10 +15,14 @@ requirejs.config({
     'treeview': 'libs/bootstrap-treeview.min',
     'backbone': 'libs/backbone-min',
     'underscore': 'libs/underscore-min',
-    'cookies': 'libs/js.cookie'
+    'cookies': 'libs/js.cookie',
+    'tablesorter': 'libs/jquery.tablesorter.widgets'
   },
   shim: {
     'almond': { exports: 'almond' },
+    'tablesorter': {
+      deps: ['libs/jquery.tablesorter.min']
+    },
     'backbone': {
       deps: ['underscore', 'jquery']
     },
