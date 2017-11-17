@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -16,7 +17,8 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
-                                      Geolocation, 
+                                      Geolocation,
+                                      OperationalLocationOfActor, 
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -249,9 +251,11 @@ class GeolocationInCasestudySetField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
 
-class GeolocationInCasestudyListField(IdentityFieldMixin, GeolocationInCasestudySetField):
+class GeolocationInCasestudyListField(IdentityFieldMixin,
+                                      GeolocationInCasestudySetField):
     """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'activity__activitygroup__casestudy__id'}
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
 
 
 class ActorSerializer(CreateWithUserInCasestudyMixin,
@@ -266,27 +270,14 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                                  source='activity',
                                  read_only=True)
     
-    administrative_location_url = GeolocationInCasestudyField(
-        view_name='geolocation-detail',
-        source='administrative_location')
     
-    operational_location_list = GeolocationInCasestudyListField(
-        source='operational_locations',
-        view_name='geolocation-list',
-        read_only=True)
-    operational_location_set = GeolocationInCasestudySetField(
-        source='operational_locations', 
-        many=True,
-        view_name='geolocation-detail')
-
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
                   'administrative_location_url',
-                  'operational_location_set',
-                  'operational_location_list',                  
+                  #'operational_location_list',                  
                   )
 
     def update(self, obj, validated_data):
@@ -319,9 +310,69 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         return obj
 
 
+class GeolocationInCasestudySet2Field(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
+
+
+class GeolocationInCasestudy2ListField(IdentityFieldMixin,
+                                      GeolocationInCasestudySet2Field):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id',
+                            'actor_pk': 'id',}
+
+
 class AllActorSerializer(ActorSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__casestudy__id'}
+
+    administrative_location_url = GeolocationInCasestudyField(
+        view_name='geolocation-detail',
+        source='administrative_location')
+    
+
+    operational_location_list = GeolocationInCasestudy2ListField(
+        source='operational_locations',
+        view_name='operationallocationofactor-list',
+        read_only=True)
+
+    operational_location_set = GeolocationInCasestudySet2Field(
+        source='operational_locations', 
+        many=True,
+        view_name='geolocation-detail')
+
+    class Meta:
+        model = Actor
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included',
+                  'administrative_location_url',
+                  'operational_location_set',
+                  'operational_location_list',                  
+                  )
+
+
+class LocationField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class Actor2Field(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+
+class OperationalLocationOfActorSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'location__casestudy__id',
+        'actor_pk': 'actor__id',
+    }
+    actor = Actor2Field(view_name='actor-detail')
+    location = LocationField(view_name='geolocation-detail')
+    class Meta:
+        model = OperationalLocationOfActor
+        fields = ('url', 'id', 'actor', 'location', 'note')
+
 
 
 class ActorListSerializer(serializers.ModelSerializer):
@@ -456,3 +507,11 @@ class GeolocationSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = Geolocation
         fields = ('url', 'id', 'casestudy', 'geom', 'street')
+
+
+class ActorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actor
+        fields = ('BvDid', 'name', 'activity')
+    
+

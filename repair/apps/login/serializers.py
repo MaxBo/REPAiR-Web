@@ -241,14 +241,6 @@ class InSolutionField(InCasestudyField):
         self.casestudy_pk_lookup['solution_pk'] = \
             self.parent_lookup_kwargs['solution_pk']
 
-    #def set_custom_query_params(self, obj, kwargs, Model):
-        #solution_pk_attr = self.extra_lookup_kwargs[self.filter_field].split('__')
-        #for attr in solution_pk_attr:
-            #obj = getattr(obj, attr)
-        #kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj,}
-        #qs = Model.objects.filter(**kwargs)
-        #return qs
-
 
 class InUICField(InCasestudyField):
     parent_lookup_kwargs = {

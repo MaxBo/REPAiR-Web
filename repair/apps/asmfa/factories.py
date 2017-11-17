@@ -141,3 +141,13 @@ class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+
+
+class OperationalLocationOfActorFactory(DjangoModelFactory):
+    class Meta:
+        model = models.OperationalLocationOfActor
+    note = 'a branch of an actor at a location'
+    actor = factory.SubFactory(ActorFactory)
+    location = factory.SubFactory(GeolocationFactory)
+    
+

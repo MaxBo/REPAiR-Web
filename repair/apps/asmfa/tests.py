@@ -26,7 +26,8 @@ from repair.apps.asmfa.models import (
     GroupStock,
     Node,
     Stock,
-    Geolocation, 
+    Geolocation,
+    OperationalLocationOfActor, 
     )
 
 
@@ -169,3 +170,43 @@ class GeolocationViewTest(APITestCase):
         geom = response.data['geom']
         assert geom['coordinates'] == [-71.064544, 42.28787]
 
+    def test_operational_location_of_actor(self):
+        """Test the creation of two operational locations of an actor"""
+        actor = ActorFactory()
+        cs = actor.activity.activitygroup.casestudy
+        loc1 = GeolocationFactory(casestudy=cs, street='S1')
+        loc2 = GeolocationFactory(casestudy=cs, street='S2')
+        loc3 = GeolocationFactory(casestudy=cs, street='S3')
+                
+        actor.administrative_location = loc1
+        actor.save()
+        OperationalLocationOfActor.objects.create(actor=actor,
+                                                  location=loc2,
+                                                  note='Main Branch')
+        OperationalLocationOfActor.objects.create(actor=actor,
+                                                  location=loc3,
+                                                  note='Second Branch')
+
+        url = reverse('actor-detail', kwargs=dict(casestudy_pk=cs.pk,
+                                                  pk=actor.pk))
+        response = self.client.get(url)
+        print(response.data)
+        
+        url = reverse('operationallocationofactor-list',
+                      kwargs=dict(casestudy_pk=cs.pk,
+                                  actor_pk=actor.pk))
+        response = self.client.get(url)
+        print(response.data)
+        
+        operational_location2 = OperationalLocationOfActor.objects.get(
+            actor=actor, location=loc2)
+
+        url = reverse('operationallocationofactor-detail',
+                          kwargs=dict(casestudy_pk=cs.pk,
+                                      actor_pk=actor.pk,
+                                      pk=operational_location2.pk))
+        response = self.client.get(url)
+        print(response.data)
+        assert response.status_code == 200
+        
+        

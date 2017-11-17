@@ -24,6 +24,7 @@ from repair.apps.asmfa.models import (
     ActivityStock,
     ActorStock,
     Geolocation,
+    OperationalLocationOfActor, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -44,6 +45,7 @@ from repair.apps.asmfa.serializers import (
     AllActivitySerializer,
     AllActorSerializer,
     GeolocationSerializer,
+    OperationalLocationOfActorSerializer, 
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -56,7 +58,7 @@ class ActivityGroupViewSet(ViewSetMixin, ModelViewSet):
 
 class ActivityViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects
 
 
 class ActorViewSet(ViewSetMixin, ModelViewSet):
@@ -73,12 +75,12 @@ class AllActorViewSet(ActorViewSet):
 
 
 class MaterialViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Material.objects.all()
+    queryset = Material.objects
     serializer_class = MaterialSerializer
 
 
 class QualityViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Quality.objects.all()
+    queryset = Quality.objects
     serializer_class = QualitySerializer
     casestudy_only = False
 
@@ -87,17 +89,17 @@ class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows materialincasestudy to be viewed or edited.
     """
-    queryset = MaterialInCasestudy.objects.all()
+    queryset = MaterialInCasestudy.objects
     serializer_class = MaterialInCasestudySerializer
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
-    queryset = GroupStock.objects.all()
+    queryset = GroupStock.objects
     serializer_class = GroupStockSerializer
 
 
 class ActivityStockViewSet(OnlySubsetMixin, ModelViewSet):
-    queryset = ActivityStock.objects.all()
+    queryset = ActivityStock.objects
     serializer_class = ActivityStockSerializer
 
 
@@ -137,4 +139,9 @@ class Actor2ActorViewSet(FlowViewSet):
 class GeolocationInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     queryset = Geolocation.objects
     serializer_class = GeolocationSerializer
+
+
+class OperationalLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
+    queryset = OperationalLocationOfActor.objects
+    serializer_class = OperationalLocationOfActorSerializer
 

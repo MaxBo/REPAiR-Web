@@ -37,7 +37,8 @@ from repair.apps.asmfa.views import (
     ActorStockViewSet,
     AllActivityViewSet,
     AllActorViewSet,
-    GeolocationInCasestudyViewSet, 
+    GeolocationInCasestudyViewSet,
+    OperationalLocationOfActorViewSet, 
 )
 
 ## base routes ##
@@ -109,6 +110,7 @@ ag_router.register(r'activities', ActivityViewSet)
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
 ac_router.register(r'actors', ActorViewSet)
 
+
 # /casestudies/*/materials/...
 mat_router = NestedSimpleRouter(cs_router, r'materials', lookup='material')
 mat_router.register(r'groupstock', GroupStockViewSet)
@@ -117,6 +119,12 @@ mat_router.register(r'actorstock', ActorStockViewSet)
 mat_router.register(r'group2group', Group2GroupViewSet)
 mat_router.register(r'activity2activity', Activity2ActivityViewSet)
 mat_router.register(r'actor2actor', Actor2ActorViewSet)
+
+# /casestudies/*/activitygroups/*/activities/*/actors/...
+actors_router = NestedSimpleRouter(cs_router, r'actors',
+                                   lookup='actor')
+actors_router.register(r'operational_locations',
+                       OperationalLocationOfActorViewSet)
 
 
 ## webhook ##
@@ -136,4 +144,5 @@ urlpatterns = [
     url(r'^', include(sii_router.urls)),
     url(r'^', include(mat_router.urls)),
     url(r'^', include(user_router.urls)),
+    url(r'^', include(actors_router.urls)),
 ]
