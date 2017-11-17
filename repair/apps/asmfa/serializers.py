@@ -239,6 +239,10 @@ class ActivityField(InCasestudyField):
                             'activitygroup_pk': 'activitygroup__id',}
 
 
+class GeolocationInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -250,11 +254,20 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
+    
+    operational_location_url = GeolocationInCasestudyField(
+        view_name='geolocation-detail',
+        source='operational_location')
+    administrative_location_url = GeolocationInCasestudyField(
+        view_name='geolocation-detail',
+        source='administrative_location')
+
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included')
+                  'included', 'operational_location_url',
+                  'administrative_location_url')
 
 
 class AllActorSerializer(ActorSerializer):

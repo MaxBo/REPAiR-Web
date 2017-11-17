@@ -45,6 +45,10 @@ class Geolocation(gis.Model):
     #country =
     #city =
     geom = gis.PointField(null=True)
+    
+    def __str__(self):
+        ret = '{s}@({g})'.format(s=self.street, g=self.geom)
+        return ret
 
 
 class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
