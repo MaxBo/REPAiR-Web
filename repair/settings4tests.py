@@ -27,10 +27,10 @@ MIGRATION_MODULES = {
     'default': None,
     'sessions': None,
 
-    'changes': None,
     'login': None,
-    'studyarea': None,
     'asmfa': None,
+    'studyarea': None,
+    'changes': None,
     'profiles': None,
     'snippets': None,
     'scaffold_templates': None,
