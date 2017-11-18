@@ -117,15 +117,21 @@ class GeolocationViewTest(APITestCase):
 
 
     def test_locations(self):
+        # create a casestudy and save as current session
         cs = CaseStudyFactory()
+        cs_url = reverse('casestudy-detail', kwargs=dict(pk=cs.pk))
+
         url = reverse('geolocation-list', kwargs=dict(casestudy_pk=cs.pk))
         location = GeolocationFactory(casestudy=cs)
         data = {
+            'casestudy': cs_url,
             'street': location.street,
             'geom': location.geom.geojson}
         response = self.client.post(url, data, format='json')
-        print(response)
+        print(response.status_text)
+        assert response.status_code == 201
         response = self.client.get(url)
+        assert response.status_code == 200
         print(response.data)
 
     def test_get_location(self):
