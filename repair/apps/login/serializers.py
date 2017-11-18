@@ -28,7 +28,7 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
         for model_name in self.source_attrs[:-1]:
             Model = Model.profile.related.related_model
         RelatedModel = getattr(Model, field_name).field.related_model
-        qs = RelatedModel.objects
+        qs = RelatedModel.objects.all()
         return qs
 
     def get_field_name(self):

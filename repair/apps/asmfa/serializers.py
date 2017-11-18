@@ -276,8 +276,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
-                  'administrative_location_url',
-                  #'operational_location_list',                  
+                  'administrative_location',              
                   )
 
     def update(self, obj, validated_data):
