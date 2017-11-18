@@ -3,6 +3,7 @@
 django
 django-require
 djangorestframework
+djangorestframework-gis
 drf-nested-routers
 numpy
 matplotlib

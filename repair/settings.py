@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'rest_framework',
+    'rest_framework_gis',
     'repair.apps.login',
     'repair.apps.asmfa',
     'repair.apps.studyarea',

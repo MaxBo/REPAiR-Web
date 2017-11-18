@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -16,7 +17,10 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
+                                      Geolocation,
+                                      OperationalLocationOfActor, 
                                       )
+
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            InCaseStudyIdentityField,
@@ -30,7 +34,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects.all(),
+        queryset = CaseStudy.objects,
         many=True,
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the material is used in')
@@ -60,7 +64,8 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer):
                                                              casestudy=cs)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj
 
@@ -106,7 +111,7 @@ class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
 
 class MaterialField(NestedHyperlinkedRelatedField):
     parent_lookup_kwargs = {'pk': 'id'}
-    queryset = Material.objects.all()
+    queryset = Material.objects
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
         return False
@@ -237,6 +242,22 @@ class ActivityField(InCasestudyField):
                             'activitygroup_pk': 'activitygroup__id',}
 
 
+class GeolocationInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class GeolocationInCasestudySetField(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class GeolocationInCasestudyListField(IdentityFieldMixin,
+                                      GeolocationInCasestudySetField):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -248,16 +269,110 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
+    
+    
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included')
+                  'included',
+                  'administrative_location_url',
+                  #'operational_location_list',                  
+                  )
+
+    def update(self, obj, validated_data):
+        """
+        update the operation locations,
+        including selected solutions
+        """
+        actor = obj
+        actor_id = actor.id
+
+        # handle operational locations
+        new_op_locations = validated_data.pop('operational_locations', None)
+        if new_op_locations is not None:
+            ThroughModel = Actor.operational_locations.through
+            locations_qs = ThroughModel.objects.filter(
+                actor=actor)
+            # delete existing locations
+            locations_qs.exclude(location_id__in=(
+                loc.id for loc in new_op_locations)).delete()
+            # add or update new locations
+            for loc in new_op_locations:
+                ThroughModel.objects.update_or_create(
+                    actor=actor,
+                    location=loc)
+
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
+
+
+class GeolocationInCasestudySet2Field(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
+
+
+class GeolocationInCasestudy2ListField(IdentityFieldMixin,
+                                      GeolocationInCasestudySet2Field):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id',
+                            'actor_pk': 'id',}
 
 
 class AllActorSerializer(ActorSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__casestudy__id'}
+
+    administrative_location_url = GeolocationInCasestudyField(
+        view_name='geolocation-detail',
+        source='administrative_location')
+    
+
+    operational_location_list = GeolocationInCasestudy2ListField(
+        source='operational_locations',
+        view_name='operationallocationofactor-list',
+        read_only=True)
+
+    operational_location_set = GeolocationInCasestudySet2Field(
+        source='operational_locations', 
+        many=True,
+        view_name='geolocation-detail')
+
+    class Meta:
+        model = Actor
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included',
+                  'administrative_location_url',
+                  'operational_location_set',
+                  'operational_location_list',                  
+                  )
+
+
+class LocationField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class Actor2Field(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+
+class OperationalLocationOfActorSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'location__casestudy__id',
+        'actor_pk': 'actor__id',
+    }
+    actor = Actor2Field(view_name='actor-detail')
+    location = LocationField(view_name='geolocation-detail')
+    class Meta:
+        model = OperationalLocationOfActor
+        fields = ('url', 'id', 'actor', 'location', 'note')
+
 
 
 class ActorListSerializer(serializers.ModelSerializer):
@@ -384,4 +499,19 @@ class Actor2ActorSerializer(FlowSerializer):
         model = Actor2Actor
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
                   'destination', 'destination_url')
+
+
+class GeolocationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    
+    class Meta:
+        model = Geolocation
+        fields = ('url', 'id', 'casestudy', 'geom', 'street')
+
+
+class ActorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actor
+        fields = ('BvDid', 'name', 'activity')
+    
 

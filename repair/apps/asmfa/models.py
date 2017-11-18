@@ -3,13 +3,15 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.login.models import CaseStudy, Profile, GDSEModel
+from repair.apps.login.models import (CaseStudy, Profile,
+                                      GDSEModel, get_default)
 from django.contrib.gis.db import models as gis
+
 
 class DataEntry(models.Model):
 
     # this I am leaving empty for now - we have to agree at the consortium how we define users and data sources
-    user = models.ForeignKey(Profile, default=1)
+    user = models.ForeignKey(Profile, default=get_default(Profile))
     source = models.CharField(max_length=255)
     #date =
 
@@ -36,12 +38,17 @@ class Quality(GDSEModel):
 class Geolocation(gis.Model):
 
     # same as for DataEntry, also geometry will have to be included later
+    casestudy = models.ForeignKey(CaseStudy, default=get_default(CaseStudy))
     street = models.TextField(default='', blank=True)
     #building =
     #postcode =
     #country =
     #city =
     geom = gis.PointField(null=True)
+    
+    def __str__(self):
+        ret = '{s}@({g})'.format(s=self.street, g=self.geom)
+        return ret
 
 
 class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
@@ -95,16 +102,14 @@ class Actor(Node):
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
-    operational_location = models.ForeignKey(
-        'Geolocation',
-        on_delete=models.CASCADE,
-        related_name='operational_location', 
-        null=True)
     administrative_location = models.ForeignKey(
         'Geolocation',
         on_delete=models.CASCADE,
         related_name='administrative_location', 
         null=True)
+    operational_locations = models.ManyToManyField(
+        Geolocation,
+        through='OperationalLocationOfActor')
     consCode = models.CharField(max_length=255, blank=True)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
@@ -116,6 +121,13 @@ class Actor(Node):
                                  default=1)
     # if false - actor will be ignored
     included = models.BooleanField(default=True)
+
+
+class OperationalLocationOfActor(models.Model):
+    location = models.ForeignKey(Geolocation)
+    actor = models.ForeignKey(Actor)
+    note = models.TextField(default='', blank=True)
+
 
 
 class Flow(models.Model):

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.db.utils import OperationalError, IntegrityError
 
 
 class GDSEModel(models.Model):
@@ -42,6 +43,27 @@ class GDSEUniqueNameModel(GDSEModel):
         super(GDSEUniqueNameModel, self).save(*args, **kwargs)
 
 
+def get_default(model):
+    """get a default value for a foreign key"""
+    try:
+        value = model.objects.get_or_create(id=1)[0]
+    except OperationalError as e:
+        """
+        Before running the migrations, the default value is queried from a
+        not yet existing database
+        """
+        print(e)
+        return 0
+    except IntegrityError as e:
+        """
+        Before running the migrations, the default value is queried from a
+        not yet existing database
+        """
+        print(e)
+        return 0
+    return value.pk
+
+
 class CaseStudy(GDSEModel):
     name = models.TextField()
 
@@ -77,7 +99,7 @@ class CaseStudy(GDSEModel):
             for implementation in uic.implementation_set.all():
                 implementations.add(implementation)
         return implementations
-
+    
 
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -87,6 +109,23 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
+    
+    #def save(self, **kwargs):
+        #"""look if a user exists and create it otherwise"""
+        #user = kwargs.pop('user', None)
+        #if user is None:
+            #user_id = kwargs.pop('id', None)
+            #user = User.objects.get_or_create(id=user_id)
+            ## the user creates the profile automatically
+        #else:
+            #self.user = user
+
+        #for attr, value in kwargs:
+            #setattr(self, attr, value)
+        #super().save()
+            
+    
+    
 
 
 @receiver(post_save, sender=User)

@@ -1,5 +1,6 @@
 import factory
 from factory.django import DjangoModelFactory
+from django.contrib.gis.geos.point import Point
 from repair.apps.login.factories import (UserInCasestudyFactory,
                                          ProfileFactory,
                                          CaseStudyFactory)
@@ -12,6 +13,14 @@ class DataEntryFactory(DjangoModelFactory):
         model = models.DataEntry
     source = 'data'
     user = factory.SubFactory(ProfileFactory)
+
+
+class GeolocationFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Geolocation
+    street = 'ThePoint'
+    geom = Point(x=11.1, y=12.2, srid=4326)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class MaterialFactory(DjangoModelFactory):
@@ -132,3 +141,13 @@ class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+
+
+class OperationalLocationOfActorFactory(DjangoModelFactory):
+    class Meta:
+        model = models.OperationalLocationOfActor
+    note = 'a branch of an actor at a location'
+    actor = factory.SubFactory(ActorFactory)
+    location = factory.SubFactory(GeolocationFactory)
+    
+
