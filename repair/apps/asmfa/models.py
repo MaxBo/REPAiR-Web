@@ -11,7 +11,8 @@ from repair.apps.login.models import (CaseStudy, Profile,
 
 class DataEntry(models.Model):
 
-    # this I am leaving empty for now - we have to agree at the consortium how we define users and data sources
+    # this I am leaving empty for now -
+ # we have to agree at the consortium how we define users and data sources
     user = models.ForeignKey(Profile, default=get_default(Profile))
     source = models.CharField(max_length=255)
     #date =
@@ -41,7 +42,7 @@ class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
     # all the data for the Node class tables will be known in advance, the users will not have to fill that in
     source = models.BooleanField(default=False)  # if true - there is no input, should be introduced as a constraint later
     sink = models.BooleanField(default=False)  # if true - there is no output, same
-    
+
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
     class Meta:
@@ -110,12 +111,12 @@ class Geolocation(gis.Model):
     city = models.TextField(default='', blank=True)
     geom = gis.PointField(null=True)
     note = models.TextField(blank=True, default='')
-    
+
     def __str__(self):
         ret = '{s}@({g})'.format(s=self.street, g=self.geom)
         return ret
     class Meta:
-        abstract = True    
+        abstract = True
 
 
 class Establishment(Geolocation):
@@ -124,13 +125,13 @@ class Establishment(Geolocation):
     def casestudy(self):
         return self.actor.activity.activitygroup.casestudy
     class Meta:
-        abstract = True    
+        abstract = True
 
 
 class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
-                                 null=True, 
+                                 null=True,
                                  default=get_default(Actor),
                                  related_name='administrative_location')
 
@@ -190,9 +191,9 @@ class Stock(models.Model):
     # stocks relate to only one node, also data will be entered by the users
     amount = models.IntegerField(blank=True)
     material = models.ForeignKey(MaterialInCasestudy, on_delete=models.CASCADE,
-                                         default=1)
+                                 default=1)
     quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-                                    default=13)
+                                default=13)
 
     class Meta:
         abstract = True
@@ -200,18 +201,17 @@ class Stock(models.Model):
 
 class GroupStock(Stock):
 
-        origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                   related_name='stocks')
+    origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                               related_name='stocks')
 
 
 class ActivityStock(Stock):
 
-        origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='stocks')
+    origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                               related_name='stocks')
 
 
 class ActorStock(Stock):
 
-        origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                   related_name='stocks')
-
+    origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
+                               related_name='stocks')

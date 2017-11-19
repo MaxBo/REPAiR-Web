@@ -1,8 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 from django.contrib.gis.geos.point import Point
-from repair.apps.login.factories import (UserInCasestudyFactory,
-                                         ProfileFactory,
+from repair.apps.login.factories import (ProfileFactory,
                                          CaseStudyFactory)
 
 from . import models
@@ -158,4 +157,3 @@ class OperationalLocationFactory(AdministrativeLocationFactory):
         model = models.OperationalLocation
     employees = 123
     turnover = 98765.43
-
