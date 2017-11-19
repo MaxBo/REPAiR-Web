@@ -5,5 +5,5 @@
 *.wpr
 *.wpu
 
-db.sqlite3
-migrations/
+db*.sqlite3
+

@@ -3,6 +3,7 @@
 django
 django-require
 djangorestframework
+drf-nested-routers
 numpy
 matplotlib
 plotly
@@ -13,6 +14,7 @@ django-debug-toolbar
 django-dynamic-fixture
 fake-factory
 factory_boy
+coreapi
 
 mock
 pytest

@@ -1,94 +1,15 @@
 from django.db import models
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db.models import signals
 # from django.contrib.gis.db import models
+from repair.apps.login.models import (GDSEUniqueNameModel,
+                                      GDSEModel,
+                                      UserInCasestudy)
 
-
-class GDSEModel(models.Model):
-    """Base class for the GDSE Models"""
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.name
-
-
-class GDSEUniqueNameModel(GDSEModel):
-    """Base class for the GDSE Models"""
-
-    class Meta:
-        abstract = True
-
-    def validate_unique(self, *args, **kwargs):
-        super(GDSEUniqueNameModel, self).validate_unique(*args, **kwargs)
-
-        qs = self.__class__._default_manager.filter(
-            name=self.name
-        )
-
-        if qs.exists():
-            for row in qs:
-                if row.casestudy == self.casestudy:
-                    raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
-                            cl=self.__class__.__name__, n=self.name, c=self.casestudy,))
-
-    def save(self, *args, **kwargs):
-        """Call :meth:`full_clean` before saving."""
-        if self.pk is None:
-            self.full_clean()
-        super(GDSEUniqueNameModel, self).save(*args, **kwargs)
-
-
-class CaseStudy(GDSEModel):
-    name = models.TextField()
-
-    @property
-    def solution_categories(self):
-        """
-        look for all solution categories created by the users of the casestudy
-        """
-        solution_categories = set()
-        for uic in self.userincasestudy_set.all():
-            for solution_category in uic.solutioncategory_set.all():
-                solution_categories.add(solution_category)
-        return solution_categories
-
-
-class User(GDSEModel):
-    name = models.TextField()
-    casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
-
-
-class UserInCasestudy(GDSEModel):
-    user = models.ForeignKey(User)
-    casestudy = models.ForeignKey(CaseStudy)
-
-    def __str__(self):
-        text = '{u} ({c})'
-        return text.format(u=self.user, c=self.casestudy,)
+from repair.apps.studyarea.models import Stakeholder
 
 
 class Unit(GDSEModel):
     name = models.TextField()
-
-
-class StakeholderCategory(GDSEUniqueNameModel):
-    case_study = models.ForeignKey(CaseStudy)
-    name = models.TextField()
-
-    @property
-    def casestudy(self):
-        return self.case_study
-
-
-class Stakeholder(GDSEUniqueNameModel):
-    stakeholder_category = models.ForeignKey(StakeholderCategory)
-    name = models.TextField()
-
-    @property
-    def casestudy(self):
-        return self.stakeholder_category.casestudy
 
 
 class SolutionCategory(GDSEUniqueNameModel):
@@ -181,15 +102,16 @@ def trigger_solutioninimplementationquantity_quantity(sender, instance,
     """
     Create SolutionInImplementationQuantity
     for each SolutionQuantity
-    each time a SolutionInImplementation is created.
+    each time a SolutionQuantity is created.
     """
     if created:
-        quantity = instance
-        solution = quantity.solution
-        sii_set = SolutionInImplementation.objects.filter(solution_id=solution.id)
+        solution_quantity = instance
+        solution = solution_quantity.solution
+        sii_set = SolutionInImplementation.objects.filter(
+            solution_id=solution.id)
         for sii in sii_set.all():
             new, is_created = SolutionInImplementationQuantity.objects.\
-                get_or_create(sii=sii, quantity=quantity)
+                get_or_create(sii=sii, quantity=solution_quantity)
             if is_created:
                 new.save()
 
@@ -246,7 +168,8 @@ class Strategy(GDSEUniqueNameModel):
     @property
     def participants(self):
         """
-        look for all stakeholders that participate in any of the implementations
+        look for all stakeholders that participate
+        in any of the implementations
         """
         # start with the coordinator
         participants = {self.coordinator}

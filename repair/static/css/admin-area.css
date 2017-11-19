@@ -9,3 +9,16 @@
 .admin-tab {
     border: 2px solid #e6e6e6;
 }
+
+#data-entry-tab{
+    padding-top: 20px;
+    min-height: 200px;
+}
+
+#upload-flows-button{
+    float: right;
+    width: auto;
+    margin-top: 10px;
+    background-color: #aad400;
+    border-width: 0px;
+}

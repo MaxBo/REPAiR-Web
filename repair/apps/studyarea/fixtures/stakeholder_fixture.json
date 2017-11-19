@@ -1,0 +1,98 @@
+[
+{
+  "model": "studyarea.stakeholdercategory",
+  "pk": 1,
+  "fields": {
+    "casestudy": 5,
+    "name": "Government"
+  }
+},
+{
+  "model": "studyarea.stakeholdercategory",
+  "pk": 2,
+  "fields": {
+    "casestudy": 5,
+    "name": "Waste companies"
+  }
+},
+{
+  "model": "studyarea.stakeholdercategory",
+  "pk": 3,
+  "fields": {
+    "casestudy": 5,
+    "name": "NGOs"
+  }
+},
+{
+  "model": "studyarea.stakeholdercategory",
+  "pk": 4,
+  "fields": {
+    "casestudy": 2,
+    "name": "Private"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 1,
+  "fields": {
+    "stakeholder_category": 1,
+    "name": "Altona"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 2,
+  "fields": {
+    "stakeholder_category": 1,
+    "name": "Stadt Hamburg"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 3,
+  "fields": {
+    "stakeholder_category": 1,
+    "name": "Kreis Pinneberg"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 4,
+  "fields": {
+    "stakeholder_category": 2,
+    "name": "Stadtreinigung Hamburg"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 5,
+  "fields": {
+    "stakeholder_category": 2,
+    "name": "GAP"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 6,
+  "fields": {
+    "stakeholder_category": 3,
+    "name": "NABU"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 16,
+  "fields": {
+    "stakeholder_category": 4,
+    "name": "Amsterdam Waste Initiative"
+  }
+},
+{
+  "model": "studyarea.stakeholder",
+  "pk": 17,
+  "fields": {
+    "stakeholder_category": 4,
+    "name": "Altona"
+  }
+}
+]

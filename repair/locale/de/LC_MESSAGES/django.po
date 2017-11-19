@@ -18,11 +18,11 @@ msgstr ""
 "Language-Team: \n"
 "X-Generator: Poedit 1.8.11\n"
 
-#: .\repair\apps\status_quo\views.py:20 .\repair\apps\study_area\views.py:28
+#: .\repair\apps\statusquo\views.py:20 .\repair\apps\studyarea\views.py:28
 msgid "Plotly graph"
 msgstr "Plotly Graph"
 
-#: .\repair\apps\study_area\views.py:40
+#: .\repair\apps\studyarea\views.py:40
 msgid "Plotly Histogram"
 msgstr ""
 
@@ -227,52 +227,52 @@ msgstr ""
 
 #: .\repair\templates\decisions\index.html:10
 #: .\repair\templates\impacts\index.html:10
-#: .\repair\templates\status_quo\index.html:10
+#: .\repair\templates\statusquo\index.html:10
 msgid "Flows"
 msgstr ""
 
 #: .\repair\templates\impacts\index.html:11
-#: .\repair\templates\status_quo\index.html:11
+#: .\repair\templates\statusquo\index.html:11
 msgid "Evaluation"
 msgstr ""
 
-#: .\repair\templates\status_quo\evaluation.html:7
+#: .\repair\templates\statusquo\evaluation.html:7
 msgid "<b>All indicators</b>"
 msgstr ""
 
-#: .\repair\templates\status_quo\evaluation.html:11
+#: .\repair\templates\statusquo\evaluation.html:11
 msgid "By endpoint"
 msgstr ""
 
-#: .\repair\templates\status_quo\evaluation.html:14
+#: .\repair\templates\statusquo\evaluation.html:14
 msgid "By midpoint"
 msgstr ""
 
-#: .\repair\templates\status_quo\evaluation.html:26
+#: .\repair\templates\statusquo\evaluation.html:26
 msgid "<b>Selected indicator</b>"
 msgstr ""
 
-#: .\repair\templates\status_quo\flows.html:7
+#: .\repair\templates\statusquo\flows.html:7
 msgid "Focus Area Only"
 msgstr ""
 
-#: .\repair\templates\status_quo\flows.html:12
+#: .\repair\templates\statusquo\flows.html:12
 msgid "Organic waste (from households only)"
 msgstr ""
 
-#: .\repair\templates\status_quo\flows.html:18
+#: .\repair\templates\statusquo\flows.html:18
 msgid "Material and waste flows <br> by <b>space</b>"
 msgstr ""
 
-#: .\repair\templates\status_quo\flows.html:24
+#: .\repair\templates\statusquo\flows.html:24
 msgid "Material and waste flows <br> by <b>activity</b>"
 msgstr ""
 
-#: .\repair\templates\study_area\basedata.html:7
+#: .\repair\templates\studyarea\basedata.html:7
 msgid "Text"
 msgstr ""
 
-#: .\repair\templates\study_area\basedata.html:8
+#: .\repair\templates\studyarea\basedata.html:8
 msgid ""
 "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy "
 "eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam "
@@ -291,30 +291,30 @@ msgstr ""
 "könnte eine deutsche Ubersetzung von Lorem Ipsum stehenHier könnte eine "
 "deutsche Ubersetzung von Lorem Ipsum stehen"
 
-#: .\repair\templates\study_area\basedata.html:22
+#: .\repair\templates\studyarea\basedata.html:22
 msgid "Map with Sankey"
 msgstr "Karte mit Sankey"
 
-#: .\repair\templates\study_area\basedata.html:24
+#: .\repair\templates\studyarea\basedata.html:24
 msgid "Interaction Test"
 msgstr "Interaktion Test"
 
-#: .\repair\templates\study_area\index.html:10
+#: .\repair\templates\studyarea\index.html:10
 msgid "Base data"
 msgstr ""
 
-#: .\repair\templates\study_area\index.html:11
+#: .\repair\templates\studyarea\index.html:11
 msgid "Stakeholders"
 msgstr ""
 
-#: .\repair\templates\study_area\stakeholders.html:7
+#: .\repair\templates\studyarea\stakeholders.html:7
 msgid "Government"
 msgstr ""
 
-#: .\repair\templates\study_area\stakeholders.html:17
+#: .\repair\templates\studyarea\stakeholders.html:17
 msgid "Waste Companies"
 msgstr ""
 
-#: .\repair\templates\study_area\stakeholders.html:26
+#: .\repair\templates\studyarea\stakeholders.html:26
 msgid "NGOs"
 msgstr ""

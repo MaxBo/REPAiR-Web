@@ -28,6 +28,9 @@ MIGRATION_MODULES = {
     'sessions': None,
 
     'changes': None,
+    'login': None,
+    'studyarea': None,
+    'asmfa': None,
     'profiles': None,
     'snippets': None,
     'scaffold_templates': None,

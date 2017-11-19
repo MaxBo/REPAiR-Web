@@ -30,6 +30,7 @@
           <img src="{{STATIC_URL}}img/repair-logo.png">
         </a>
       </div>
+
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav navbar-main">
           <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
@@ -38,24 +39,25 @@
           <li id="impacts-link"><a href="/impacts">{% trans "Impacts" %}</a></li>
           <li id="decisions-link"><a href="/decisions">{% trans "Decisions" %}</a></li>
           <li id="admin-area-link"><a href="/admin">{% trans "Admin Area" %}</a></li>
-          <li id="asmfa-link"><a href="/asmfa">{% trans "AS-MFA" %}</a></li>
+          <li id="login-link"><a href="/login/login">{% trans "Login" %}</a></li>
         </ul>
-          {% load i18n %}
 
-          <form id="language-select" action="{% url 'set_language' %}" method="post">
-              {% csrf_token %}
-              <input name="next" type="hidden" value="{{ redirect_to }}" />
-              <select name="language">
-                  {% get_current_language as LANGUAGE_CODE %}
-                  {% get_available_languages as LANGUAGES %}
-                  {% for lang in LANGUAGES %}
-                      <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected"{% endif %}>
-                          {{ lang.1 }} ({{ lang.0 }})
-                      </option>
-                  {% endfor %}
-              </select>
-              <input type="submit" value="Go" />
-          </form>
+        {% load i18n %}
+
+        <form id="language-select" action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ redirect_to }}" />
+            <select name="language">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang in LANGUAGES %}
+                    <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                        {{ lang.1 }} ({{ lang.0 }})
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Go" />
+        </form>
       </div>
     </div>
   </nav>
