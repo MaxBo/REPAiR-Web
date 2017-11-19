@@ -2357,12 +2357,12 @@
   "model": "asmfa.administrativelocation",
   "pk": 1,
   "fields": {
-    "street": "zjmhfm",
+    "street": "",
     "building": "",
     "postcode": "",
     "country": "",
     "city": "",
-    "geom": null,
+    "geom": "SRID=4326;POINT (10 10)",
     "note": "",
     "actor": 36
   }
@@ -2379,6 +2379,74 @@
     "geom": "SRID=4326;POINT (12 33.2)",
     "note": "aaaaa",
     "actor": 1
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 1,
+  "fields": {
+    "street": "Hauptstra\u00dfe",
+    "building": "12",
+    "postcode": "",
+    "country": "",
+    "city": "",
+    "geom": "SRID=4326;POINT (2 3)",
+    "note": "",
+    "actor": 1,
+    "employees": 12,
+    "turnover_currency": "EUR",
+    "turnover": "133.00"
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 8,
+  "fields": {
+    "street": "ASDAD",
+    "building": "",
+    "postcode": "5432",
+    "country": "",
+    "city": "",
+    "geom": "SRID=4326;POINT (33 4)",
+    "note": "",
+    "actor": 36,
+    "employees": 1,
+    "turnover_currency": "EUR",
+    "turnover": "99987.12"
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 9,
+  "fields": {
+    "street": "new_streetname3",
+    "building": "",
+    "postcode": "12345",
+    "country": "",
+    "city": "",
+    "geom": "SRID=4326;POINT (5 66)",
+    "note": "",
+    "actor": 36,
+    "employees": 12223,
+    "turnover_currency": "EUR",
+    "turnover": "0.00"
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 10,
+  "fields": {
+    "street": "ASSASD",
+    "building": "",
+    "postcode": "4532",
+    "country": "",
+    "city": "",
+    "geom": "SRID=4326;POINT (99 33)",
+    "note": "1235",
+    "actor": 36,
+    "employees": 1234,
+    "turnover_currency": "EUR",
+    "turnover": "552.00"
   }
 },
 {
