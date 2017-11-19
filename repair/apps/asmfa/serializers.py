@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from rest_framework_gis.serializers import (GeoModelSerializer,
+                                            GeoFeatureModelSerializer,
+                                            GeoFeatureModelListSerializer)
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -18,7 +20,8 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       ActivityStock,
                                       ActorStock,
                                       Geolocation,
-                                      OperationalLocationOfActor, 
+                                      AdministrativeLocation,
+                                      OperationalLocation, 
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -276,7 +279,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
-                  'administrative_location',              
+                  'administrativelocation',              
                   )
 
     def update(self, obj, validated_data):
@@ -322,34 +325,98 @@ class GeolocationInCasestudy2ListField(IdentityFieldMixin,
                             'actor_pk': 'id',}
 
 
+class AdminLocationGeojsonField(GeoFeatureModelSerializer):
+    actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields =  ['id', 'street', 'building', 'postcode', 'country',
+                  'city', 'note', 'actor']
+        
+
+class IdField(serializers.Field):
+    
+    def to_representation(self):
+        return str(self)
+    
+    
+class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
+    actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+    id = serializers.IntegerField(label='ID')
+    
+    class Meta:
+        model = OperationalLocation
+        geo_field = 'geom'
+        fields = ['id', 'street', 'building', 'postcode', 'country',
+                  'city', 'note', 'actor', 'employees', 'turnover']
+        
+
 class AllActorSerializer(ActorSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__casestudy__id'}
 
-    administrative_location_url = GeolocationInCasestudyField(
-        view_name='geolocation-detail',
-        source='administrative_location')
-    
+    administrative_location_geojson = AdminLocationGeojsonField(
+        source='administrative_location',
+        required=False,
+    )
 
-    operational_location_list = GeolocationInCasestudy2ListField(
+    operational_locations_geojson = OperationsLocationsGeojsonField(
         source='operational_locations',
-        view_name='operationallocationofactor-list',
-        read_only=True)
-
-    operational_location_set = GeolocationInCasestudySet2Field(
-        source='operational_locations', 
-        many=True,
-        view_name='geolocation-detail')
+        many=True, 
+        required=False, 
+    )
 
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
-                  'administrative_location_url',
-                  'operational_location_set',
-                  'operational_location_list',                  
+                  'administrative_location_geojson', 
+                  'operational_locations_geojson', 
                   )
+
+    def update(self, obj, validated_data):
+        """update the user-attributes, including profile information"""
+        actor = obj
+
+        # handle administrative location
+        administrative_location = validated_data.pop('administrative_location',
+                                                     None)
+        if administrative_location is not None:
+            ## get the actor from the request or take the obj
+            #actor = administrative_location.pop('actor', obj)
+            # look if actor has already an administrative location
+            aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+            for attr, value in administrative_location.items():
+                setattr(aloc, attr, value)
+            aloc.save()
+            #obj.administrativelocation = aloc
+
+        # handle operational locations
+        operational_locations = validated_data.pop('operational_locations',
+                                                   None)
+        if operational_locations is not None:
+            olocs = OperationalLocation.objects.filter(actor=actor)
+            # delete existing rows not needed any more
+            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              in operational_locations
+                                              if ol.get('id') is not None))
+            to_delete.delete()
+            # add or update new operational locations
+            for operational_location in operational_locations:
+                oloc = OperationalLocation.objects.update_or_create(
+                    actor=actor, id=operational_location.get('id'))[0]
+                
+                
+                for attr, value in operational_location.items():
+                    setattr(oloc, attr, value)
+                oloc.save()
+ 
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
 
 
 class LocationField(InCasestudyField):
@@ -359,20 +426,7 @@ class LocationField(InCasestudyField):
 class Actor2Field(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__casestudy__id'}
-
-
-class OperationalLocationOfActorSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'location__casestudy__id',
-        'actor_pk': 'actor__id',
-    }
-    actor = Actor2Field(view_name='actor-detail')
-    location = LocationField(view_name='geolocation-detail')
-    class Meta:
-        model = OperationalLocationOfActor
-        fields = ('url', 'id', 'actor', 'location', 'note')
-
-
+    
 
 class ActorListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -499,6 +553,36 @@ class Actor2ActorSerializer(FlowSerializer):
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
                   'destination', 'destination_url')
 
+
+class AllActorField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+
+class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
+                                       NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id'}
+    actor = AllActorField(view_name='actor-detail', read_only=True) 
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
+                  'city', 'geom', 'note', 'actor']
+
+
+class OperationalLocationSerializer(GeoFeatureModelSerializer,
+                                    NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id'}
+    actor = AllActorField(view_name='actor-detail', read_only=True) 
+
+    class Meta:
+        model = OperationalLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
+                  'city', 'geom', 'note', 'actor', 'employees', 'turnover']
+    
 
 class GeolocationSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}

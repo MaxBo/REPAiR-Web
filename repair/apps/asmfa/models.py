@@ -2,10 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.gis.db import models as gis
+from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import (CaseStudy, Profile,
                                       GDSEModel, get_default)
-from django.contrib.gis.db import models as gis
 
 
 class DataEntry(models.Model):
@@ -33,22 +34,6 @@ class Quality(GDSEModel):
     #material = models.ForeignKey(Material,
                                  #on_delete=models.CASCADE)
     name = models.TextField()
-
-
-class Geolocation(gis.Model):
-
-    # same as for DataEntry, also geometry will have to be included later
-    casestudy = models.ForeignKey(CaseStudy, default=get_default(CaseStudy))
-    street = models.TextField(default='', blank=True)
-    #building =
-    #postcode =
-    #country =
-    #city =
-    geom = gis.PointField(null=True)
-    
-    def __str__(self):
-        ret = '{s}@({g})'.format(s=self.street, g=self.geom)
-        return ret
 
 
 class Node(GDSEModel):  # should there be a separate model for the AS-MFA?
@@ -102,14 +87,6 @@ class Actor(Node):
     name = models.CharField(max_length=255)
 
     # locations also let's leave out for now, we can add them later
-    administrative_location = models.ForeignKey(
-        'Geolocation',
-        on_delete=models.CASCADE,
-        related_name='administrative_location', 
-        null=True)
-    operational_locations = models.ManyToManyField(
-        Geolocation,
-        through='OperationalLocationOfActor')
     consCode = models.CharField(max_length=255, blank=True)
     year = models.PositiveSmallIntegerField()
     revenue = models.PositiveIntegerField()
@@ -123,11 +100,48 @@ class Actor(Node):
     included = models.BooleanField(default=True)
 
 
-class OperationalLocationOfActor(models.Model):
-    location = models.ForeignKey(Geolocation)
-    actor = models.ForeignKey(Actor)
-    note = models.TextField(default='', blank=True)
+class Geolocation(gis.Model):
 
+    # same as for DataEntry, also geometry will have to be included later
+    street = models.TextField(default='', blank=True)
+    building = models.TextField(default='', blank=True)
+    postcode = models.TextField(default='', blank=True)
+    country = models.TextField(default='', blank=True)
+    city = models.TextField(default='', blank=True)
+    geom = gis.PointField(null=True)
+    note = models.TextField(blank=True, default='')
+    
+    def __str__(self):
+        ret = '{s}@({g})'.format(s=self.street, g=self.geom)
+        return ret
+    class Meta:
+        abstract = True    
+
+
+class Establishment(Geolocation):
+    actor = models.OneToOneField(Actor, default=get_default(Actor))
+    @property
+    def casestudy(self):
+        return self.actor.activity.activitygroup.casestudy
+    class Meta:
+        abstract = True    
+
+
+class AdministrativeLocation(Establishment):
+    """Administrative Location of Actor"""
+    actor = models.OneToOneField(Actor,
+                                 null=True, 
+                                 default=get_default(Actor),
+                                 related_name='administrative_location')
+
+
+class OperationalLocation(Establishment):
+    """Operational Location of Actor"""
+    actor = models.ForeignKey(Actor, default=get_default(Actor),
+                                 related_name='operational_locations')
+    employees = models.IntegerField(default=1)
+    turnover = MoneyField(max_digits=10, decimal_places=2,
+                          default_currency='EUR')
 
 
 class Flow(models.Model):

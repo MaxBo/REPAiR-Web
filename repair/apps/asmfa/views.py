@@ -24,7 +24,8 @@ from repair.apps.asmfa.models import (
     ActivityStock,
     ActorStock,
     Geolocation,
-    OperationalLocationOfActor, 
+    OperationalLocation,
+    AdministrativeLocation, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -45,7 +46,8 @@ from repair.apps.asmfa.serializers import (
     AllActivitySerializer,
     AllActorSerializer,
     GeolocationSerializer,
-    OperationalLocationOfActorSerializer, 
+    OperationalLocationSerializer,
+    AdministrativeLocationSerializer, 
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -136,12 +138,22 @@ class Actor2ActorViewSet(FlowViewSet):
                          'destination__included': True}
 
 
-class GeolocationInCasestudyViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Geolocation.objects.all()
-    serializer_class = GeolocationSerializer
+#class GeolocationInCasestudyViewSet(ViewSetMixin, ModelViewSet):
+    #queryset = Geolocation.objects.all()
+    #serializer_class = GeolocationSerializer
 
 
-class OperationalLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
-    queryset = OperationalLocationOfActor.objects.all()
-    serializer_class = OperationalLocationOfActorSerializer
+class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
+    queryset = AdministrativeLocation.objects.all()
+    serializer_class = AdministrativeLocationSerializer
+
+
+class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):
+    queryset = OperationalLocation.objects.all()
+    serializer_class = OperationalLocationSerializer
+
+
+#class OperationalLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
+    #queryset = OperationalLocationOfActor.objects.all()
+    #serializer_class = OperationalLocationOfActorSerializer
 
