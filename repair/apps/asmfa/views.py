@@ -1,13 +1,7 @@
 # API View
-from collections import OrderedDict
-from itertools import chain
 from abc import ABC
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ViewSet, ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -23,9 +17,8 @@ from repair.apps.asmfa.models import (
     GroupStock,
     ActivityStock,
     ActorStock,
-    Geolocation,
     OperationalLocation,
-    AdministrativeLocation, 
+    AdministrativeLocation,
 )
 
 from repair.apps.asmfa.serializers import (
@@ -36,7 +29,6 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
-    ActorListSerializer,
     MaterialSerializer,
     QualitySerializer,
     MaterialInCasestudySerializer,
@@ -45,9 +37,10 @@ from repair.apps.asmfa.serializers import (
     ActorStockSerializer,
     AllActivitySerializer,
     AllActorSerializer,
-    GeolocationSerializer,
+    AdministrativeLocationSerializer,
     OperationalLocationSerializer,
-    AdministrativeLocationSerializer, 
+    AdministrativeLocationOfActorSerializer,
+    OperationalLocationsOfActorSerializer,
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -135,12 +128,7 @@ class Actor2ActorViewSet(FlowViewSet):
     queryset = Actor2Actor.objects.all()
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
-                         'destination__included': True}
-
-
-#class GeolocationInCasestudyViewSet(ViewSetMixin, ModelViewSet):
-    #queryset = Geolocation.objects.all()
-    #serializer_class = GeolocationSerializer
+                          'destination__included': True}
 
 
 class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
@@ -153,7 +141,11 @@ class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = OperationalLocationSerializer
 
 
-#class OperationalLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
-    #queryset = OperationalLocationOfActor.objects.all()
-    #serializer_class = OperationalLocationOfActorSerializer
+class AdministrativeLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
+    queryset = AdministrativeLocation.objects.all()
+    serializer_class = AdministrativeLocationOfActorSerializer
 
+
+class OperationalLocationsOfActorViewSet(ViewSetMixin, ModelViewSet):
+    queryset = OperationalLocation.objects.all()
+    serializer_class = OperationalLocationsOfActorSerializer

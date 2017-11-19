@@ -1,15 +1,17 @@
-from django.test import TestCase
+import json
+from unittest import skipIf
+
 from django.core.validators import ValidationError
+from django.test import TestCase
+from django.urls import reverse
+
+from rest_framework import status
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
-import json
-from unittest import skipIf
 
 class BasicModelTest(object):
     url_key = ""
@@ -22,24 +24,24 @@ class BasicModelTest(object):
     def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
         response = self.client.get(url)
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
 
     def test_detail(self):
-        url = reverse(self.url_key + '-detail', kwargs={ **self.url_pks,
-                                                         'pk': self.fact.pk,})
+        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
+                                                        'pk': self.fact.pk,})
         # test get
         response = self.client.get(url)
         assert response.data['id'] == self.fact.pk
         # check status code for put
         response = self.client.put(url, data=self.put_data, format='json')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         # check if name has changed
         response = self.client.get(url)
         for key in self.put_data:
             assert response.data[key] == self.put_data[key]
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         # check if name has changed
         response = self.client.get(url)
         for key in self.patch_data:
@@ -49,10 +51,10 @@ class BasicModelTest(object):
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                         'pk': self.fact.pk, })
         response = self.client.get(url)
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         response = self.client.delete(url)
         response = self.client.get(url)
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_post(self):
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
@@ -63,6 +65,6 @@ class BasicModelTest(object):
         # get
         new_id = response.data['id']
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                   'pk': new_id})
+                                                        'pk': new_id})
         response = self.client.get(url)
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
