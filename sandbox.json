@@ -1,0 +1,6973 @@
+[
+{
+  "model": "GDSEmodel.product",
+  "pk": "Cardboard Box for Water Bottles",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Cardboard Cheese Box",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Farm Waste",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Municipal Solid Waste",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Plastic Deposit",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Plastic Juice Bottle",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Plastic Milk Bottle",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Plastic Water Bottle",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Restaurant Waste",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Sorted Cardboard Waste",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.product",
+  "pk": "Sorted Plastic",
+  "fields": {
+    "default": true
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "F1",
+  "fields": {
+    "name": "Animal-derived food waste",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "F2",
+  "fields": {
+    "name": "Vegetable food waste",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "P1",
+  "fields": {
+    "name": "Plastic packaging-PET",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "P2",
+  "fields": {
+    "name": "Plastic packaging-HDPE",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "P3",
+  "fields": {
+    "name": "Plastic packaging-PP",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "P4",
+  "fields": {
+    "name": "Plastic packaging-PS",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "PC1",
+  "fields": {
+    "name": "Magazines and advertisement",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "PC2",
+  "fields": {
+    "name": "Newsprint",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "PC6",
+  "fields": {
+    "name": "Other paper",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "PC7",
+  "fields": {
+    "name": "Cardboard and paperboard",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "Y1",
+  "fields": {
+    "name": "Plant material",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "Y2",
+  "fields": {
+    "name": "Woody plant material",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.material",
+  "pk": "Y3",
+  "fields": {
+    "name": "Humus",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 1,
+  "fields": {
+    "fraction": 1.0,
+    "own_product": "Plastic Water Bottle",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 2,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Plastic Milk Bottle",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 3,
+  "fields": {
+    "fraction": 0.8,
+    "own_product": "Plastic Milk Bottle",
+    "material": "F1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 4,
+  "fields": {
+    "fraction": 0.75,
+    "own_product": "Plastic Juice Bottle",
+    "material": "F2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 5,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Plastic Juice Bottle",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 6,
+  "fields": {
+    "fraction": 0.05,
+    "own_product": "Plastic Juice Bottle",
+    "material": "P2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 7,
+  "fields": {
+    "fraction": 0.8,
+    "own_product": "Cardboard Cheese Box",
+    "material": "F1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 8,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Cardboard Cheese Box",
+    "material": "PC7"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 9,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Cardboard Cheese Box",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 10,
+  "fields": {
+    "fraction": 0.5,
+    "own_product": "Cardboard Box for Water Bottles",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 11,
+  "fields": {
+    "fraction": 0.5,
+    "own_product": "Cardboard Box for Water Bottles",
+    "material": "PC7"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 12,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Farm Waste",
+    "material": "F1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 13,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Farm Waste",
+    "material": "F2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 14,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Farm Waste",
+    "material": "Y1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 15,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Farm Waste",
+    "material": "PC1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 16,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Farm Waste",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 17,
+  "fields": {
+    "fraction": 0.95,
+    "own_product": "Sorted Cardboard Waste",
+    "material": "PC1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 18,
+  "fields": {
+    "fraction": 0.05,
+    "own_product": "Sorted Cardboard Waste",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 19,
+  "fields": {
+    "fraction": 0.5,
+    "own_product": "Restaurant Waste",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 20,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Restaurant Waste",
+    "material": "F1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 21,
+  "fields": {
+    "fraction": 0.4,
+    "own_product": "Restaurant Waste",
+    "material": "F2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 22,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Municipal Solid Waste",
+    "material": "F1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 23,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Municipal Solid Waste",
+    "material": "F2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 24,
+  "fields": {
+    "fraction": 0.3,
+    "own_product": "Municipal Solid Waste",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 25,
+  "fields": {
+    "fraction": 0.1,
+    "own_product": "Municipal Solid Waste",
+    "material": "P2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 26,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Municipal Solid Waste",
+    "material": "PC6"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 27,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Municipal Solid Waste",
+    "material": "P4"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 28,
+  "fields": {
+    "fraction": 0.4,
+    "own_product": "Sorted Plastic",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 29,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Sorted Plastic",
+    "material": "P2"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 30,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Sorted Plastic",
+    "material": "P3"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 31,
+  "fields": {
+    "fraction": 0.2,
+    "own_product": "Sorted Plastic",
+    "material": "P4"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 32,
+  "fields": {
+    "fraction": 0.95,
+    "own_product": "Plastic Deposit",
+    "material": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.productfraction",
+  "pk": 33,
+  "fields": {
+    "fraction": 0.05,
+    "own_product": "Plastic Deposit",
+    "material": "P4"
+  }
+},
+{
+  "model": "GDSEmodel.dataentry",
+  "pk": 1,
+  "fields": {
+    "user": "rusne",
+    "source": "https://osf.io/xkhrp/",
+    "date": "2017-11-15T16:07:43.277Z",
+    "raw": true
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 0,
+  "fields": {
+    "postcode": "300994",
+    "address": "NAPLES STREET 94",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.906405082248 0.746335178976)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 1,
+  "fields": {
+    "postcode": "201083",
+    "address": "GHENT STREET 83",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.4630443898 0.57137713607)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 2,
+  "fields": {
+    "postcode": "301041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.685718117223 0.313190316409)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 3,
+  "fields": {
+    "postcode": "300421",
+    "address": "WASTE STREET 21",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.06909749121519999 0.133673570775)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 4,
+  "fields": {
+    "postcode": "100528",
+    "address": "AMSTERDAM STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.52859199889 0.793790179833)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 5,
+  "fields": {
+    "postcode": "200350",
+    "address": "REPAIR STREET 50",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.86701315391 0.5612900009290001)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 6,
+  "fields": {
+    "postcode": "101041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.0053616833364 0.146620211916)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 7,
+  "fields": {
+    "postcode": "200536",
+    "address": "AMSTERDAM STREET 36",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.248137644905 0.110890983321)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 8,
+  "fields": {
+    "postcode": "301030",
+    "address": "GHENT STREET 30",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.285070954541 0.719509306861)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 9,
+  "fields": {
+    "postcode": "200862",
+    "address": "PESC STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.716791786377 0.411555331052)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 10,
+  "fields": {
+    "postcode": "100747",
+    "address": "LODZ STREET 47",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.172183874951 0.44282738175)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 11,
+  "fields": {
+    "postcode": "100125",
+    "address": "SAND STREET 25",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.646253091555 0.0679925613609)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 12,
+  "fields": {
+    "postcode": "300691",
+    "address": "HAMBURG STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.412280891343 0.133266984828)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 13,
+  "fields": {
+    "postcode": "200449",
+    "address": "WASTE STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0529259978415 0.826601132776)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 14,
+  "fields": {
+    "postcode": "101086",
+    "address": "GHENT STREET 86",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.337608201576 0.80191743679)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 15,
+  "fields": {
+    "postcode": "200932",
+    "address": "NAPLES STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.225396316617 0.831935767215)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 16,
+  "fields": {
+    "postcode": "100813",
+    "address": "PESC STREET 13",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.457717302692 0.369475306251)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 17,
+  "fields": {
+    "postcode": "101022",
+    "address": "GHENT STREET 22",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.503693347875 0.554360755414)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 18,
+  "fields": {
+    "postcode": "101078",
+    "address": "GHENT STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.539208882215 0.320178062992)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 19,
+  "fields": {
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.289421236215 0.379828354671)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 20,
+  "fields": {
+    "postcode": "200418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.868567008296 0.207993296604)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 21,
+  "fields": {
+    "postcode": "100672",
+    "address": "HAMBURG STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.866460300216 0.24959970608)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 22,
+  "fields": {
+    "postcode": "100728",
+    "address": "LODZ STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.394997870615 0.873273491381)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 23,
+  "fields": {
+    "postcode": "300283",
+    "address": "BOX STREET 83",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.774211811287 0.944384931593)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 24,
+  "fields": {
+    "postcode": "300337",
+    "address": "REPAIR STREET 37",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.597275082483 0.992753953609)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 25,
+  "fields": {
+    "postcode": "201049",
+    "address": "GHENT STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.295792886303 0.748136407883)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 26,
+  "fields": {
+    "postcode": "300260",
+    "address": "BOX STREET 60",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.391318163478 0.0540450764031)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 27,
+  "fields": {
+    "postcode": "100810",
+    "address": "PESC STREET 10",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.807560293621 0.933563805446)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 28,
+  "fields": {
+    "postcode": "300727",
+    "address": "LODZ STREET 27",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.0819930620513 0.18484870247)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 29,
+  "fields": {
+    "postcode": "300164",
+    "address": "SAND STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.299345048503 0.124155562746)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 30,
+  "fields": {
+    "postcode": "100944",
+    "address": "NAPLES STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.45048141796 0.735336297135)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 31,
+  "fields": {
+    "postcode": "300335",
+    "address": "REPAIR STREET 35",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.721101297224 0.783156366755)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 32,
+  "fields": {
+    "postcode": "301054",
+    "address": "GHENT STREET 54",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.757625441046 0.5840397719630001)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 33,
+  "fields": {
+    "postcode": "300764",
+    "address": "LODZ STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.53356691508 0.743007613426)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 34,
+  "fields": {
+    "postcode": "300773",
+    "address": "LODZ STREET 73",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.542485549367 0.588230538771)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 35,
+  "fields": {
+    "postcode": "100418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.273535656905 0.8288192266)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 36,
+  "fields": {
+    "postcode": "300589",
+    "address": "AMSTERDAM STREET 89",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.373506415141 0.191836215702)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 37,
+  "fields": {
+    "postcode": "300153",
+    "address": "SAND STREET 53",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.622089685369 0.301637748216)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 38,
+  "fields": {
+    "postcode": "100195",
+    "address": "SAND STREET 95",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.38214146807 0.6405673664829999)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 39,
+  "fields": {
+    "postcode": "300687",
+    "address": "HAMBURG STREET 87",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.439787497333 0.854423763752)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 40,
+  "fields": {
+    "postcode": "100484",
+    "address": "WASTE STREET 84",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.116442098363 0.06461667717569999)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 41,
+  "fields": {
+    "postcode": "200618",
+    "address": "HAMBURG STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.277557185794 0.238253435717)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 42,
+  "fields": {
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.457081759757 0.54622399177)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 43,
+  "fields": {
+    "postcode": "200851",
+    "address": "PESC STREET 51",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0371774634869 0.526359021207)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 44,
+  "fields": {
+    "postcode": "300405",
+    "address": "WASTE STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.489764831381 0.577823279188)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 45,
+  "fields": {
+    "postcode": "300623",
+    "address": "HAMBURG STREET 23",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.468961770015 0.0354685439566)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 46,
+  "fields": {
+    "postcode": "200269",
+    "address": "BOX STREET 69",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.991228893655 0.47779362295)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 47,
+  "fields": {
+    "postcode": "200649",
+    "address": "HAMBURG STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.95231960168 0.205105020693)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 48,
+  "fields": {
+    "postcode": "200384",
+    "address": "REPAIR STREET 84",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.460551741263 0.986064887815)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 49,
+  "fields": {
+    "postcode": "200462",
+    "address": "WASTE STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.78276546285 0.745272591866)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 50,
+  "fields": {
+    "postcode": "201064",
+    "address": "GHENT STREET 64",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.905047465353 0.529808297403)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 51,
+  "fields": {
+    "postcode": "100340",
+    "address": "REPAIR STREET 40",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.0528009170516 0.995214013914)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 52,
+  "fields": {
+    "postcode": "100248",
+    "address": "BOX STREET 48",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.0340539086462 0.698648467934)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 53,
+  "fields": {
+    "postcode": "201010",
+    "address": "GHENT STREET 10",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.1517449138 0.216413839879)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 54,
+  "fields": {
+    "postcode": "200432",
+    "address": "WASTE STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.5564156053680001 0.0366778372306)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 55,
+  "fields": {
+    "postcode": "100372",
+    "address": "REPAIR STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.250266723523 0.592301484681)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 56,
+  "fields": {
+    "postcode": "200282",
+    "address": "BOX STREET 82",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0205417909621 0.357332618175)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 57,
+  "fields": {
+    "postcode": "200503",
+    "address": "AMSTERDAM STREET 3",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0591543469185 0.78768584692)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 58,
+  "fields": {
+    "postcode": "300819",
+    "address": "PESC STREET 19",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.256432081151 0.694692343946)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 59,
+  "fields": {
+    "postcode": "100617",
+    "address": "HAMBURG STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.226893685069 0.8925799140040001)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 60,
+  "fields": {
+    "postcode": "200154",
+    "address": "SAND STREET 54",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0220795688559 0.756243116784)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 61,
+  "fields": {
+    "postcode": "100878",
+    "address": "PESC STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.945939335544 0.429965674674)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 62,
+  "fields": {
+    "postcode": "300305",
+    "address": "REPAIR STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.188206535444 0.427736773601)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 63,
+  "fields": {
+    "postcode": "200525",
+    "address": "AMSTERDAM STREET 25",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.229974148723 0.09696658209719999)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 64,
+  "fields": {
+    "postcode": "300414",
+    "address": "WASTE STREET 14",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.978746485352 0.266251650289)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 65,
+  "fields": {
+    "postcode": "200107",
+    "address": "SAND STREET 7",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.666774552276 0.0640928541666)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 66,
+  "fields": {
+    "postcode": "100244",
+    "address": "BOX STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.356672364361 0.286762101776)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 67,
+  "fields": {
+    "postcode": "100711",
+    "address": "LODZ STREET 11",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.695796219895 0.125175070164)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 68,
+  "fields": {
+    "postcode": "300994",
+    "address": "NAPLES STREET 94",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.0346373247342 0.16103329404)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 69,
+  "fields": {
+    "postcode": "301026",
+    "address": "GHENT STREET 26",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.466967084516 0.662741976423)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 70,
+  "fields": {
+    "postcode": "100787",
+    "address": "LODZ STREET 87",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.09851308862990001 0.209731659522)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 71,
+  "fields": {
+    "postcode": "300318",
+    "address": "REPAIR STREET 18",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.9613000399229999 0.040242351296)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 72,
+  "fields": {
+    "postcode": "101017",
+    "address": "GHENT STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.825232414401 0.706438114091)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 73,
+  "fields": {
+    "postcode": "200130",
+    "address": "SAND STREET 30",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.251909791283 0.958948741719)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 74,
+  "fields": {
+    "postcode": "300242",
+    "address": "BOX STREET 42",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.557661341139 0.712527090685)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 75,
+  "fields": {
+    "postcode": "300166",
+    "address": "SAND STREET 66",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.06892159127310001 0.0232675684993)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 76,
+  "fields": {
+    "postcode": "100939",
+    "address": "NAPLES STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.678209452748 0.06554035013080001)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 77,
+  "fields": {
+    "postcode": "300471",
+    "address": "WASTE STREET 71",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.972350173417 0.174636871379)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 78,
+  "fields": {
+    "postcode": "200721",
+    "address": "LODZ STREET 21",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.61242689818 0.902381759219)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 79,
+  "fields": {
+    "postcode": "100945",
+    "address": "NAPLES STREET 45",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.757720053066 0.581422345337)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 80,
+  "fields": {
+    "postcode": "100567",
+    "address": "AMSTERDAM STREET 67",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.371531171986 0.812056986016)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 81,
+  "fields": {
+    "postcode": "200612",
+    "address": "HAMBURG STREET 12",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.567808304301 0.475786057984)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 82,
+  "fields": {
+    "postcode": "100407",
+    "address": "WASTE STREET 7",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.593655513856 0.144254630913)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 83,
+  "fields": {
+    "postcode": "200461",
+    "address": "WASTE STREET 61",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.837341834905 0.318378462574)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 84,
+  "fields": {
+    "postcode": "300165",
+    "address": "SAND STREET 65",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.189201240655 0.924641153606)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 85,
+  "fields": {
+    "postcode": "300201",
+    "address": "BOX STREET 1",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.951862280263 0.335336568561)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 86,
+  "fields": {
+    "postcode": "300762",
+    "address": "LODZ STREET 62",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.408341208082 0.964349796889)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 87,
+  "fields": {
+    "postcode": "100365",
+    "address": "REPAIR STREET 65",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.599790045884 0.318001233025)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 88,
+  "fields": {
+    "postcode": "200640",
+    "address": "HAMBURG STREET 40",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.531020634526 0.746248679911)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 89,
+  "fields": {
+    "postcode": "200978",
+    "address": "NAPLES STREET 78",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.191774527057 0.892201393076)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 90,
+  "fields": {
+    "postcode": "300598",
+    "address": "AMSTERDAM STREET 98",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.06334395315660001 0.721273798555)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 91,
+  "fields": {
+    "postcode": "300676",
+    "address": "HAMBURG STREET 76",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.702180846193 0.155822246344)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 92,
+  "fields": {
+    "postcode": "300970",
+    "address": "NAPLES STREET 70",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.490837233113 0.835836664181)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 93,
+  "fields": {
+    "postcode": "300667",
+    "address": "HAMBURG STREET 67",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.6149393866889999 0.08727738164480001)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 94,
+  "fields": {
+    "postcode": "101081",
+    "address": "GHENT STREET 81",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.167827128471 0.202567340795)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 95,
+  "fields": {
+    "postcode": "100139",
+    "address": "SAND STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.196385212785 0.426976311253)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 96,
+  "fields": {
+    "postcode": "300791",
+    "address": "LODZ STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.931801616602 0.379073885222)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 97,
+  "fields": {
+    "postcode": "200726",
+    "address": "LODZ STREET 26",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.0658573234512 0.303969188739)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 98,
+  "fields": {
+    "postcode": "200981",
+    "address": "NAPLES STREET 81",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.525772357017 0.844179500382)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 99,
+  "fields": {
+    "postcode": "300205",
+    "address": "BOX STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.9724470036840001 0.626629450231)"
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 100,
+  "fields": {
+    "postcode": null,
+    "address": null,
+    "country": "SB",
+    "city": null,
+    "geom": null
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 101,
+  "fields": {
+    "postcode": null,
+    "address": null,
+    "country": "EU",
+    "city": null,
+    "geom": null
+  }
+},
+{
+  "model": "GDSEmodel.geolocation",
+  "pk": 102,
+  "fields": {
+    "postcode": null,
+    "address": null,
+    "country": "-1",
+    "city": null,
+    "geom": null
+  }
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "C",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "COL",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "D",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "P1",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "P2",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "P3",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "R",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "S",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "SC",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "W",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "exp",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activitygroup",
+  "pk": "imp",
+  "fields": {}
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "00.inci",
+  "fields": {
+    "name": "Incineration",
+    "own_activitygroup": "W"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "00.land",
+  "fields": {
+    "name": "Landfill",
+    "own_activitygroup": "W"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "11.juice",
+  "fields": {
+    "name": "Manufacture of juice",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "11.milk",
+  "fields": {
+    "name": "Manufacture of milk",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "11.soft",
+  "fields": {
+    "name": "Manufacture of soft drinks",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "11.water",
+  "fields": {
+    "name": "Manufacture of mineral water",
+    "own_activitygroup": "P1"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "22.bottles",
+  "fields": {
+    "name": "Manufacture of bottles",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "22.boxes",
+  "fields": {
+    "name": "Manufacture of boxes",
+    "own_activitygroup": "P2"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "33.drinks",
+  "fields": {
+    "name": "Packaging of drinks",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "33.milk",
+  "fields": {
+    "name": "Packaging of milk",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "33.water",
+  "fields": {
+    "name": "Packaging of water",
+    "own_activitygroup": "P3"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "44.drinks",
+  "fields": {
+    "name": "Distribution of drinks",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "44.milk",
+  "fields": {
+    "name": "Distribution of milk",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "44.water",
+  "fields": {
+    "name": "Distribution of water",
+    "own_activitygroup": "D"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "55.market",
+  "fields": {
+    "name": "Selling in market",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "55.sm",
+  "fields": {
+    "name": "Selling in supermarket",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "55.whole",
+  "fields": {
+    "name": "Wholesale",
+    "own_activitygroup": "S"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "66.farm",
+  "fields": {
+    "name": "Farm Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "66.home",
+  "fields": {
+    "name": "Home Consuming",
+    "own_activitygroup": "C"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "77.bar",
+  "fields": {
+    "name": "Bar Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "77.cafe",
+  "fields": {
+    "name": "Cafe Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "77.rest",
+  "fields": {
+    "name": "Restaurant Consuming",
+    "own_activitygroup": "SC"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "88.depo",
+  "fields": {
+    "name": "Deposit",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "88.waste",
+  "fields": {
+    "name": "Sorted waste",
+    "own_activitygroup": "R"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "99.MSW",
+  "fields": {
+    "name": "Household waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "99.cat",
+  "fields": {
+    "name": "Catering waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "99.farm",
+  "fields": {
+    "name": "Farm waste",
+    "own_activitygroup": "COL"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ee.11",
+  "fields": {
+    "name": "Export Inside Country",
+    "own_activitygroup": "exp"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ee.22",
+  "fields": {
+    "name": "Export Inside EU",
+    "own_activitygroup": "exp"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ee.33",
+  "fields": {
+    "name": "Export Outside EU",
+    "own_activitygroup": "exp"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ii.11",
+  "fields": {
+    "name": "Import Inside Country",
+    "own_activitygroup": "imp"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ii.22",
+  "fields": {
+    "name": "Import Inside EU",
+    "own_activitygroup": "imp"
+  }
+},
+{
+  "model": "GDSEmodel.activity",
+  "pk": "ii.33",
+  "fields": {
+    "name": "Import Outside EU",
+    "own_activitygroup": "imp"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS00815710",
+  "fields": {
+    "name": "Dictum",
+    "eliminate": true,
+    "reason": 3,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 439000,
+    "employees": 3430,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS01028168",
+  "fields": {
+    "name": "Lorem",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 2336000,
+    "employees": 3890,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS01642773",
+  "fields": {
+    "name": "Elitvivamus",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 2886000,
+    "employees": 3580,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS02652525",
+  "fields": {
+    "name": "Nisised",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 505000,
+    "employees": 1980,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS02674154",
+  "fields": {
+    "name": "Praesent",
+    "eliminate": true,
+    "reason": 3,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7827000,
+    "employees": 5050,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS03309030",
+  "fields": {
+    "name": "Blandit",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7817000,
+    "employees": 8150,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS03379353",
+  "fields": {
+    "name": "Minim",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 4063000,
+    "employees": 4460,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.milk"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS03713217",
+  "fields": {
+    "name": "Eros",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7555000,
+    "employees": 6650,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS03742759",
+  "fields": {
+    "name": "Nisl",
+    "eliminate": true,
+    "reason": 5,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 2262000,
+    "employees": 3100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS03816192",
+  "fields": {
+    "name": "Delenit",
+    "eliminate": true,
+    "reason": 5,
+    "operationalLoc": "86",
+    "administrativeLoc": "86",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 4537000,
+    "employees": 9760,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04005682",
+  "fields": {
+    "name": "Varius",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 6199000,
+    "employees": 2250,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.MSW"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04092593",
+  "fields": {
+    "name": "Ante",
+    "eliminate": true,
+    "reason": 3,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 3710000,
+    "employees": 6690,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.inci"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04148780",
+  "fields": {
+    "name": "Eirmod",
+    "eliminate": true,
+    "reason": 5,
+    "operationalLoc": "73",
+    "administrativeLoc": "73",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 9171000,
+    "employees": 8490,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.depo"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04483373",
+  "fields": {
+    "name": "Posuere",
+    "eliminate": true,
+    "reason": 4,
+    "operationalLoc": "81",
+    "administrativeLoc": "81",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 883000,
+    "employees": 6470,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04934370",
+  "fields": {
+    "name": "Labore",
+    "eliminate": true,
+    "reason": 5,
+    "operationalLoc": "95",
+    "administrativeLoc": "95",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1022000,
+    "employees": 4360,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.inci"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS04983246",
+  "fields": {
+    "name": "Eirmod",
+    "eliminate": true,
+    "reason": 5,
+    "operationalLoc": "75",
+    "administrativeLoc": "75",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 6316000,
+    "employees": 4460,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05250539",
+  "fields": {
+    "name": "Etiam",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 5542000,
+    "employees": 270,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05563702",
+  "fields": {
+    "name": "Voluptua",
+    "eliminate": true,
+    "reason": 4,
+    "operationalLoc": "87",
+    "administrativeLoc": "87",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 8466000,
+    "employees": 8220,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05630966",
+  "fields": {
+    "name": "Gubergren",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 836000,
+    "employees": 3360,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05881571",
+  "fields": {
+    "name": "Cras",
+    "eliminate": true,
+    "reason": 3,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7298000,
+    "employees": 120,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.land"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05935484",
+  "fields": {
+    "name": "Liberoduis",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7461000,
+    "employees": 5990,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS05956814",
+  "fields": {
+    "name": "Gubergren",
+    "eliminate": true,
+    "reason": 4,
+    "operationalLoc": "88",
+    "administrativeLoc": "88",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 8715000,
+    "employees": 5830,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS06141033",
+  "fields": {
+    "name": "Ultriciespellentesque",
+    "eliminate": true,
+    "reason": 3,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 9699000,
+    "employees": 7940,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.whole"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS06485855",
+  "fields": {
+    "name": "Eratproin",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 2103000,
+    "employees": 6460,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS07620808",
+  "fields": {
+    "name": "Erat",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 6668000,
+    "employees": 690,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS08298451",
+  "fields": {
+    "name": "Accusam",
+    "eliminate": true,
+    "reason": 4,
+    "operationalLoc": "94",
+    "administrativeLoc": "94",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 6955000,
+    "employees": 9530,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS08318129",
+  "fields": {
+    "name": "Elitr",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 8432000,
+    "employees": 5790,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS08934594",
+  "fields": {
+    "name": "Assum",
+    "eliminate": true,
+    "reason": 4,
+    "operationalLoc": "99",
+    "administrativeLoc": "99",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 127000,
+    "employees": 9450,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.land"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS09140626",
+  "fields": {
+    "name": "Molestie",
+    "eliminate": true,
+    "reason": 2,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 7626000,
+    "employees": 2500,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "BS09510771",
+  "fields": {
+    "name": "Senectus",
+    "eliminate": true,
+    "reason": 1,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 426000,
+    "employees": 360,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000001",
+  "fields": {
+    "name": "Incinerator",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "0",
+    "administrativeLoc": "0",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.inci"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000002",
+  "fields": {
+    "name": "Landfilling bv",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "61",
+    "administrativeLoc": "1",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "00.land"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000110",
+  "fields": {
+    "name": "Happy Farm",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "72",
+    "administrativeLoc": "2",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.milk"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000111",
+  "fields": {
+    "name": "Cocacola",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "62",
+    "administrativeLoc": "3",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000112",
+  "fields": {
+    "name": "Pepsi",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "93",
+    "administrativeLoc": "4",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000113",
+  "fields": {
+    "name": "Sprite",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "91",
+    "administrativeLoc": "5",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.soft"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000114",
+  "fields": {
+    "name": "Apple Juice",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "89",
+    "administrativeLoc": "6",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000115",
+  "fields": {
+    "name": "Orange Juice",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "63",
+    "administrativeLoc": "7",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000116",
+  "fields": {
+    "name": "Fresh Juice",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "78",
+    "administrativeLoc": "8",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000117",
+  "fields": {
+    "name": "Frozen Juice",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "76",
+    "administrativeLoc": "9",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.juice"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000118",
+  "fields": {
+    "name": "Mountain Water",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "98",
+    "administrativeLoc": "10",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000119",
+  "fields": {
+    "name": "Vytautas Water",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "64",
+    "administrativeLoc": "11",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "11.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000221",
+  "fields": {
+    "name": "Pretty Bottle",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "97",
+    "administrativeLoc": "12",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.bottles"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000222",
+  "fields": {
+    "name": "Bottles Inc.",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "85",
+    "administrativeLoc": "13",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.bottles"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000223",
+  "fields": {
+    "name": "Boxes Inc.",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "74",
+    "administrativeLoc": "14",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000224",
+  "fields": {
+    "name": "Pack-a-Box.",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "77",
+    "administrativeLoc": "15",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000225",
+  "fields": {
+    "name": "3D-Box.",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "65",
+    "administrativeLoc": "16",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "22.boxes"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000331",
+  "fields": {
+    "name": "Cola&Sprite",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "83",
+    "administrativeLoc": "17",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000332",
+  "fields": {
+    "name": "Appelsientje",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "67",
+    "administrativeLoc": "18",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000333",
+  "fields": {
+    "name": "PETPETPET",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "90",
+    "administrativeLoc": "19",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000334",
+  "fields": {
+    "name": "WaterPack",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "68",
+    "administrativeLoc": "20",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000335",
+  "fields": {
+    "name": "TetraPak",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "92",
+    "administrativeLoc": "21",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "33.milk"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000441",
+  "fields": {
+    "name": "Drink Distributor",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "96",
+    "administrativeLoc": "22",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.drinks"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000442",
+  "fields": {
+    "name": "Water Distributor",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "69",
+    "administrativeLoc": "23",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.water"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000443",
+  "fields": {
+    "name": "Milk Distributor",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "84",
+    "administrativeLoc": "24",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "44.milk"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000550",
+  "fields": {
+    "name": "Wholeseller",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "79",
+    "administrativeLoc": "25",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.whole"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000551",
+  "fields": {
+    "name": "Jumbo",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "82",
+    "administrativeLoc": "26",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000552",
+  "fields": {
+    "name": "Albert Heijn",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "71",
+    "administrativeLoc": "27",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000553",
+  "fields": {
+    "name": "Lidl",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "80",
+    "administrativeLoc": "28",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000554",
+  "fields": {
+    "name": "Deen",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "80",
+    "administrativeLoc": "29",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000555",
+  "fields": {
+    "name": "Spar",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "80",
+    "administrativeLoc": "30",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.sm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000556",
+  "fields": {
+    "name": "Market 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "31",
+    "administrativeLoc": "31",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000557",
+  "fields": {
+    "name": "Market 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "70",
+    "administrativeLoc": "32",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000558",
+  "fields": {
+    "name": "Market 3",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "33",
+    "administrativeLoc": "33",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000559",
+  "fields": {
+    "name": "Market 4",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "34",
+    "administrativeLoc": "34",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "55.market"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000660",
+  "fields": {
+    "name": "Farm Type 4",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "35",
+    "administrativeLoc": "35",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000661",
+  "fields": {
+    "name": "Household Type 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "36",
+    "administrativeLoc": "36",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000662",
+  "fields": {
+    "name": "Household Type 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "37",
+    "administrativeLoc": "37",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000663",
+  "fields": {
+    "name": "Household Type 3",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "38",
+    "administrativeLoc": "38",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000664",
+  "fields": {
+    "name": "Household Type 4",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "39",
+    "administrativeLoc": "39",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000665",
+  "fields": {
+    "name": "Household Type 5",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "40",
+    "administrativeLoc": "40",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000666",
+  "fields": {
+    "name": "Household Type 6",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "41",
+    "administrativeLoc": "41",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.home"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000667",
+  "fields": {
+    "name": "Farm Type 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "42",
+    "administrativeLoc": "42",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000668",
+  "fields": {
+    "name": "Farm Type 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "43",
+    "administrativeLoc": "43",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000669",
+  "fields": {
+    "name": "Tourism",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "44",
+    "administrativeLoc": "44",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "66.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000771",
+  "fields": {
+    "name": "Restaurant 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "45",
+    "administrativeLoc": "45",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000772",
+  "fields": {
+    "name": "Restaurant 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "46",
+    "administrativeLoc": "46",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000773",
+  "fields": {
+    "name": "Restaurant 3",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "47",
+    "administrativeLoc": "47",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000774",
+  "fields": {
+    "name": "Restaurant 4",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "48",
+    "administrativeLoc": "48",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000775",
+  "fields": {
+    "name": "Bar 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "49",
+    "administrativeLoc": "49",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.bar"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000776",
+  "fields": {
+    "name": "Bar 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "50",
+    "administrativeLoc": "50",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.rest"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000777",
+  "fields": {
+    "name": "Cafe 1",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "51",
+    "administrativeLoc": "51",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000778",
+  "fields": {
+    "name": "Cafe 2",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "52",
+    "administrativeLoc": "52",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000779",
+  "fields": {
+    "name": "Cafe 3",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "53",
+    "administrativeLoc": "53",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "77.cafe"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000881",
+  "fields": {
+    "name": "Plastic Sorting bv",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "54",
+    "administrativeLoc": "54",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.waste"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000882",
+  "fields": {
+    "name": "Bottle Sorting bv",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "55",
+    "administrativeLoc": "55",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.waste"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000883",
+  "fields": {
+    "name": "Bottle Deposit bv",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "56",
+    "administrativeLoc": "56",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "88.depo"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000991",
+  "fields": {
+    "name": "MSW collector",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "57",
+    "administrativeLoc": "57",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.MSW"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000992",
+  "fields": {
+    "name": "Food&Plastic waste collector",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "58",
+    "administrativeLoc": "58",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.cat"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000993",
+  "fields": {
+    "name": "Restaurant waste collector",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "59",
+    "administrativeLoc": "59",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.cat"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "NL00000994",
+  "fields": {
+    "name": "Farm waste collector",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "60",
+    "administrativeLoc": "60",
+    "consCode": "111",
+    "year": 2017,
+    "revenue": 1000,
+    "employees": 100,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "own_activity": "99.farm"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ee00000001",
+  "fields": {
+    "name": "Export Inside Country",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ee.11"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ee00000002",
+  "fields": {
+    "name": "Export Inside EU",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ee.22"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ee00000003",
+  "fields": {
+    "name": "Export Outside EU",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ee.33"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ii00000001",
+  "fields": {
+    "name": "Import Inside Country",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "100",
+    "administrativeLoc": "100",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ii.11"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ii00000002",
+  "fields": {
+    "name": "Import Inside EU",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "101",
+    "administrativeLoc": "101",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ii.22"
+  }
+},
+{
+  "model": "GDSEmodel.actor",
+  "pk": "ii00000003",
+  "fields": {
+    "name": "Import Outside EU",
+    "eliminate": false,
+    "reason": 0,
+    "operationalLoc": "102",
+    "administrativeLoc": "102",
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "own_activity": "ii.33"
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 24,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "W",
+    "origin": "SC",
+    "product": "Restaurant Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 25,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "P3",
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 26,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "SC",
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 27,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "exp",
+    "origin": "D",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 28,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "S",
+    "origin": "imp",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 29,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 30,
+    "description": null,
+    "destination": "COL",
+    "origin": "C",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 30,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": "Some random description about the material",
+    "destination": "P3",
+    "origin": "P2",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 31,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "C",
+    "origin": "S",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 32,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 30,
+    "description": null,
+    "destination": "P2",
+    "origin": "R",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 33,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "SC",
+    "origin": "D",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 34,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 30,
+    "description": "Bad quality material",
+    "destination": "COL",
+    "origin": "SC",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 35,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "W",
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 36,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "exp",
+    "origin": "C",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 37,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 100,
+    "description": null,
+    "destination": "D",
+    "origin": "P3",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 38,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "R",
+    "origin": "SC",
+    "product": "Plastic Deposit",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 39,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 30,
+    "description": null,
+    "destination": "S",
+    "origin": "D",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 40,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": "Another random description",
+    "destination": "R",
+    "origin": "C",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 41,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "exp",
+    "origin": "S",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 42,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "W",
+    "origin": "P2",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 43,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "W",
+    "origin": "S",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 44,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "W",
+    "origin": "COL",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 45,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "exp",
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.group2group",
+  "pk": 46,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "C",
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 55,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "99.farm",
+    "origin": "66.farm",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 56,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "77.bar",
+    "origin": "44.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 57,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "ee.11",
+    "origin": "66.farm",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 58,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "88.waste",
+    "origin": "66.home",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 59,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "44.milk",
+    "origin": "33.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 60,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "ee.11",
+    "origin": "44.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 61,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.inci",
+    "origin": "55.whole",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 62,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "66.farm",
+    "origin": "55.market",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 63,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 40,
+    "description": null,
+    "destination": "44.water",
+    "origin": "33.drinks",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 64,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "ee.11",
+    "origin": "11.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 65,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 35,
+    "description": null,
+    "destination": "00.inci",
+    "origin": "99.MSW",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 66,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "99.cat",
+    "origin": "66.farm",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 67,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "55.market",
+    "origin": "44.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 68,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 25,
+    "description": null,
+    "destination": "33.water",
+    "origin": "22.boxes",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 69,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "99.MSW",
+    "origin": "77.cafe",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 70,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 40,
+    "description": null,
+    "destination": "44.milk",
+    "origin": "33.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 71,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "99.MSW",
+    "origin": "66.farm",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 72,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "22.bottles",
+    "origin": "88.depo",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 73,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "33.drinks",
+    "origin": "22.bottles",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 74,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "33.water",
+    "origin": "11.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 75,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "33.water",
+    "origin": "11.juice",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 76,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "99.MSW",
+    "origin": "77.rest",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 77,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "33.drinks",
+    "origin": "11.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 78,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "00.inci",
+    "origin": "99.cat",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 79,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "33.milk",
+    "origin": "22.boxes",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 80,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "33.drinks",
+    "origin": "11.juice",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 81,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "77.rest",
+    "origin": "44.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 82,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.land",
+    "origin": "22.boxes",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 83,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.inci",
+    "origin": "55.sm",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 84,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 30,
+    "description": null,
+    "destination": "66.home",
+    "origin": "55.sm",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 85,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "99.cat",
+    "origin": "66.home",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 86,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "66.farm",
+    "origin": "55.sm",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 87,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "ee.11",
+    "origin": "55.market",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 88,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "55.whole",
+    "origin": "44.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 89,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.land",
+    "origin": "77.rest",
+    "product": "Restaurant Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 90,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "22.bottles",
+    "origin": "88.waste",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 91,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "77.rest",
+    "origin": "11.soft",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 92,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "55.sm",
+    "origin": "44.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 93,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.inci",
+    "origin": "11.soft",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 94,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "88.waste",
+    "origin": "77.rest",
+    "product": "Plastic Deposit",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 95,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "22.boxes",
+    "origin": "88.waste",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 96,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "44.drinks",
+    "origin": "33.drinks",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 97,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "55.market",
+    "origin": "44.drinks",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 98,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "33.drinks",
+    "origin": "11.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 99,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "77.rest",
+    "origin": "44.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 100,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "88.depo",
+    "origin": "66.home",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 101,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "33.milk",
+    "origin": "11.water",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 102,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "99.MSW",
+    "origin": "66.home",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 103,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "00.land",
+    "origin": "77.bar",
+    "product": "Restaurant Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 104,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 50,
+    "description": null,
+    "destination": "55.sm",
+    "origin": "ii.11",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 105,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "77.cafe",
+    "origin": "44.milk",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 106,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "66.home",
+    "origin": "11.soft",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 107,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "99.cat",
+    "origin": "77.rest",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activity2activity",
+  "pk": 108,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "88.waste",
+    "origin": "77.cafe",
+    "product": "Plastic Deposit",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 1,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000001",
+    "origin": "NL00000111",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 2,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000771",
+    "origin": "NL00000112",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 3,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000661",
+    "origin": "NL00000113",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 4,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000331",
+    "origin": "NL00000114",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 5,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000332",
+    "origin": "NL00000115",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 6,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000333",
+    "origin": "NL00000116",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 7,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000334",
+    "origin": "NL00000117",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 8,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000335",
+    "origin": "NL00000118",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 9,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000331",
+    "origin": "NL00000119",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 10,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000332",
+    "origin": "NL00000110",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 11,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000333",
+    "origin": "NL00000110",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 12,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000331",
+    "origin": "NL00000110",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 13,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "ee00000001",
+    "origin": "NL00000110",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 14,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000331",
+    "origin": "NL00000221",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 15,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000331",
+    "origin": "NL00000222",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 16,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000332",
+    "origin": "NL00000222",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 17,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000333",
+    "origin": "NL00000223",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 18,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000334",
+    "origin": "NL00000224",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 19,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000334",
+    "origin": "NL00000225",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 20,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000335",
+    "origin": "NL00000225",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 21,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000002",
+    "origin": "NL00000225",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 22,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000441",
+    "origin": "NL00000331",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 23,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 25,
+    "description": null,
+    "destination": "NL00000442",
+    "origin": "NL00000331",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 24,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000441",
+    "origin": "NL00000332",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 25,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "NL00000442",
+    "origin": "NL00000332",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 26,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "NL00000443",
+    "origin": "NL00000333",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 27,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "NL00000443",
+    "origin": "NL00000334",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 28,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000443",
+    "origin": "NL00000335",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 29,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000551",
+    "origin": "ii00000001",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 30,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000552",
+    "origin": "ii00000001",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 31,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000553",
+    "origin": "ii00000001",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 32,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000554",
+    "origin": "ii00000001",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 33,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000555",
+    "origin": "ii00000001",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 34,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000556",
+    "origin": "NL00000441",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 35,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000557",
+    "origin": "NL00000441",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 36,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000558",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 37,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000559",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 38,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000550",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 39,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000771",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 40,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000772",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 41,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000773",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 42,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000774",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 43,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000775",
+    "origin": "NL00000442",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 44,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000776",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 45,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000777",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 46,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000778",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 47,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "NL00000779",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 48,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "destination": "ee00000001",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 49,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000554",
+    "origin": "NL00000443",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 50,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000001",
+    "origin": "NL00000550",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 51,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000001",
+    "origin": "NL00000551",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 52,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000661",
+    "origin": "NL00000553",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 53,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000662",
+    "origin": "NL00000553",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 54,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000663",
+    "origin": "NL00000552",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 55,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000664",
+    "origin": "NL00000554",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 56,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000665",
+    "origin": "NL00000554",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 57,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000666",
+    "origin": "NL00000554",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 58,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000667",
+    "origin": "NL00000555",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 59,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000668",
+    "origin": "NL00000555",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 60,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000669",
+    "origin": "NL00000556",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 61,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000660",
+    "origin": "NL00000557",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 62,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "ee00000001",
+    "origin": "NL00000558",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 63,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "ee00000001",
+    "origin": "NL00000559",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 75,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000660",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 76,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000661",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 77,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000881",
+    "origin": "NL00000661",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 78,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000881",
+    "origin": "NL00000662",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 79,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000882",
+    "origin": "NL00000663",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 80,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000883",
+    "origin": "NL00000664",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 81,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000992",
+    "origin": "NL00000665",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 82,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000992",
+    "origin": "NL00000666",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 83,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000994",
+    "origin": "NL00000667",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 84,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000993",
+    "origin": "NL00000668",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 85,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "ee00000001",
+    "origin": "NL00000669",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 86,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000002",
+    "origin": "NL00000771",
+    "product": "Restaurant Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 87,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000771",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 88,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000772",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 89,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000992",
+    "origin": "NL00000773",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 90,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000774",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 91,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000002",
+    "origin": "NL00000775",
+    "product": "Restaurant Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 92,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000881",
+    "origin": "NL00000776",
+    "product": "Plastic Deposit",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 93,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000881",
+    "origin": "NL00000777",
+    "product": "Plastic Deposit",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 94,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000778",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 95,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000991",
+    "origin": "NL00000779",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 96,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 20,
+    "description": null,
+    "destination": "NL00000225",
+    "origin": "NL00000881",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 97,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000221",
+    "origin": "NL00000882",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 98,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "destination": "NL00000222",
+    "origin": "NL00000883",
+    "product": "Sorted Plastic",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 99,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 35,
+    "description": null,
+    "destination": "NL00000001",
+    "origin": "NL00000991",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actor2actor",
+  "pk": 100,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 15,
+    "description": null,
+    "destination": "NL00000001",
+    "origin": "NL00000992",
+    "product": "Municipal Solid Waste",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.groupstock",
+  "pk": 5,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "SC",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.groupstock",
+  "pk": 6,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "S",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.groupstock",
+  "pk": 7,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "COL",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.groupstock",
+  "pk": 8,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "P1",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.groupstock",
+  "pk": 9,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "D",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 5,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "55.sm",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 6,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "99.farm",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 7,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "99.cat",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 8,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "11.soft",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 9,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "77.rest",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.activitystock",
+  "pk": 10,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "44.drinks",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 1,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000111",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 2,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000112",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 3,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000552",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 4,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000551",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 5,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000993",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 6,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000994",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 7,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 10,
+    "description": null,
+    "origin": "NL00000441",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "GDSEmodel.actorstock",
+  "pk": 8,
+  "fields": {
+    "keyFlow": "Org",
+    "amount": 5,
+    "description": null,
+    "origin": "NL00000771",
+    "product": "Plastic Water Bottle",
+    "entry": 1
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "group2group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "activitygroup"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "actor"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "actor2actor"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "activity2activity"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "activity"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "geolocation"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "groupstock"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "actorstock"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "activitystock"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 11,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "dataentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 12,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 13,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 14,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 15,
+  "fields": {
+    "app_label": "auth",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 16,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 17,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 18,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "productfraction"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 19,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "product"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 20,
+  "fields": {
+    "app_label": "GDSEmodel",
+    "model": "material"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add group2 group",
+    "content_type": 1,
+    "codename": "add_group2group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change group2 group",
+    "content_type": 1,
+    "codename": "change_group2group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete group2 group",
+    "content_type": 1,
+    "codename": "delete_group2group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can add activity group",
+    "content_type": 2,
+    "codename": "add_activitygroup"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can change activity group",
+    "content_type": 2,
+    "codename": "change_activitygroup"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can delete activity group",
+    "content_type": 2,
+    "codename": "delete_activitygroup"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can add actor",
+    "content_type": 3,
+    "codename": "add_actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can change actor",
+    "content_type": 3,
+    "codename": "change_actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can delete actor",
+    "content_type": 3,
+    "codename": "delete_actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can add actor2 actor",
+    "content_type": 4,
+    "codename": "add_actor2actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can change actor2 actor",
+    "content_type": 4,
+    "codename": "change_actor2actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can delete actor2 actor",
+    "content_type": 4,
+    "codename": "delete_actor2actor"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add activity2 activity",
+    "content_type": 5,
+    "codename": "add_activity2activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change activity2 activity",
+    "content_type": 5,
+    "codename": "change_activity2activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete activity2 activity",
+    "content_type": 5,
+    "codename": "delete_activity2activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can add activity",
+    "content_type": 6,
+    "codename": "add_activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can change activity",
+    "content_type": 6,
+    "codename": "change_activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can delete activity",
+    "content_type": 6,
+    "codename": "delete_activity"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can add geolocation",
+    "content_type": 7,
+    "codename": "add_geolocation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can change geolocation",
+    "content_type": 7,
+    "codename": "change_geolocation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can delete geolocation",
+    "content_type": 7,
+    "codename": "delete_geolocation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can add group stock",
+    "content_type": 8,
+    "codename": "add_groupstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can change group stock",
+    "content_type": 8,
+    "codename": "change_groupstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can delete group stock",
+    "content_type": 8,
+    "codename": "delete_groupstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add actor stock",
+    "content_type": 9,
+    "codename": "add_actorstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change actor stock",
+    "content_type": 9,
+    "codename": "change_actorstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete actor stock",
+    "content_type": 9,
+    "codename": "delete_actorstock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can add activity stock",
+    "content_type": 10,
+    "codename": "add_activitystock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can change activity stock",
+    "content_type": 10,
+    "codename": "change_activitystock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can delete activity stock",
+    "content_type": 10,
+    "codename": "delete_activitystock"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can add data entry",
+    "content_type": 11,
+    "codename": "add_dataentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can change data entry",
+    "content_type": 11,
+    "codename": "change_dataentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can delete data entry",
+    "content_type": 11,
+    "codename": "delete_dataentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 12,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 12,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 12,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 13,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 13,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 13,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 14,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 14,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 14,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 15,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 44,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 15,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 45,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 15,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 46,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 16,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 47,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 16,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 48,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 16,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 49,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 17,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 50,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 17,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 51,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 17,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 52,
+  "fields": {
+    "name": "Can add product fraction",
+    "content_type": 18,
+    "codename": "add_productfraction"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 53,
+  "fields": {
+    "name": "Can change product fraction",
+    "content_type": 18,
+    "codename": "change_productfraction"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 54,
+  "fields": {
+    "name": "Can delete product fraction",
+    "content_type": 18,
+    "codename": "delete_productfraction"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 55,
+  "fields": {
+    "name": "Can add product",
+    "content_type": 19,
+    "codename": "add_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 56,
+  "fields": {
+    "name": "Can change product",
+    "content_type": 19,
+    "codename": "change_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 57,
+  "fields": {
+    "name": "Can delete product",
+    "content_type": 19,
+    "codename": "delete_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 58,
+  "fields": {
+    "name": "Can add material",
+    "content_type": 20,
+    "codename": "add_material"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 59,
+  "fields": {
+    "name": "Can change material",
+    "content_type": 20,
+    "codename": "change_material"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 60,
+  "fields": {
+    "name": "Can delete material",
+    "content_type": 20,
+    "codename": "delete_material"
+  }
+}
+]

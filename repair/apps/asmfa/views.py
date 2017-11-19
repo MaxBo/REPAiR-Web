@@ -17,9 +17,9 @@ from repair.apps.asmfa.models import (
     Activity2Activity,
     Actor2Actor,
     Group2Group,
-    Material,
+    Keyflow,
     Quality,
-    MaterialInCasestudy,
+    KeyflowInCasestudy,
     GroupStock,
     ActivityStock,
     ActorStock,
@@ -36,9 +36,9 @@ from repair.apps.asmfa.serializers import (
     Activity2ActivitySerializer,
     Group2GroupSerializer,
     ActorListSerializer,
-    MaterialSerializer,
+    KeyflowSerializer,
     QualitySerializer,
-    MaterialInCasestudySerializer,
+    KeyflowInCasestudySerializer,
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
@@ -74,9 +74,9 @@ class AllActorViewSet(ActorViewSet):
     serializer_class = AllActorSerializer
 
 
-class MaterialViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
+class KeyflowViewSet(ModelViewSet):
+    queryset = Keyflow.objects.all()
+    serializer_class = KeyflowSerializer
 
 
 class QualityViewSet(ViewSetMixin, ModelViewSet):
@@ -85,12 +85,12 @@ class QualityViewSet(ViewSetMixin, ModelViewSet):
     casestudy_only = False
 
 
-class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
+class KeyflowInCasestudyViewSet(OnlyCasestudyMixin, ModelViewSet):
     """
-    API endpoint that allows materialincasestudy to be viewed or edited.
+    API endpoint that allows Keyflowincasestudy to be viewed or edited.
     """
-    queryset = MaterialInCasestudy.objects.all()
-    serializer_class = MaterialInCasestudySerializer
+    queryset = KeyflowInCasestudy.objects.all()
+    serializer_class = KeyflowInCasestudySerializer
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
