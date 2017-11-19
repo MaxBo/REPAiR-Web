@@ -13,6 +13,24 @@
 
 *pip install -r requirements-dev.txt*
 
+- On Windows:
+*conda install -c conda-forge gdal=2.1
+-   you have to add the spatialite directory to your PATH
+-   in teh settings.py the following environment variable has to be specified:
+-   SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
+-   the spatialite directory contains the mod_spatialite.dll 
+-   with its dependencies from 
+-   http://www.gaia-gis.it/gaia-sins/windows-bin-amd64/
+
+-   the following dlls have to be exchanged from the ones from mingw 
+-   according to this blog
+-   http://blog.jrg.com.br/2016/04/25/Fixing-spatialite-loading-problem/
+-   rename libstdc++_64-6.dll to libstdc++_64-6.dll.original
+-   copy libstdc++-6.dll form mingw and rename to libstdc++_64-6.dll
+-   copy libgcc_s_seh-1.dll form mingw
+-   rename libgcc_s_seh_64-1.dll to libgcc_s_seh_64-1.dll.original
+
+
 -   Depending on your IDE you may have to set up the environment variable of the
     sitename manually (DJANGO_SITENAME=repair), e.g. in WingIDE under *Project
     Properties \> Environment*

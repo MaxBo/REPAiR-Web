@@ -1,7 +1,10 @@
 from abc import ABC
 from django.shortcuts import render
 from django.contrib.auth.models import Group, User
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from django.views import View
+from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework.response import Response
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
@@ -29,11 +32,18 @@ class MultiSerializerViewSetMixin(ABC):
                    get_serializer_class()
 
 
-class OnlyCasestudyMixin(ABC):
+class ViewSetMixin(ABC):
     """
-    This Mixin provides a list and a create method to get only
-    items of the current casestudy
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
     """
+    casestudy_only = True
+    additional_filters = {}
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -50,16 +60,58 @@ class OnlyCasestudyMixin(ABC):
         Serializer-Class
         """
         SerializerClass = self.get_serializer_class()
-        self.set_casestudy(kwargs, request)
-        lookup_args = {v: kwargs[k] for k, v
-                       in SerializerClass.parent_lookup_kwargs.items()}
-        queryset = self.queryset.model.objects.filter(**lookup_args)
+        if self.casestudy_only:
+            self.set_casestudy(kwargs, request)
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=SerializerClass)
+        if queryset is None:
+            return Response(status=400)
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         return Response(serializer.data)
 
+    def retrieve(self, request, **kwargs):
+        """
+        filter the queryset with the lookup-arguments
+        and then render the filtered queryset with the serializer
+        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
+        Serializer-Class
+        """
+        SerializerClass = self.get_serializer_class()
+        if self.casestudy_only:
+            self.set_casestudy(kwargs, request)
+        pk = kwargs.pop('pk')
+        queryset = self._filter(kwargs, SerializerClass=SerializerClass)
+        model = get_object_or_404(queryset, pk=pk)
+        serializer = SerializerClass(model, context={'request': request})
+        return Response(serializer.data)
 
-class OnlySubsetMixin(OnlyCasestudyMixin):
+    def _filter(self, lookup_args, query_params={}, SerializerClass=None):
+        """
+        return a queryset filtered by lookup arguments and query parameters
+        return None if query parameters are malformed
+        """
+        SerializerClass = SerializerClass or self.get_serializer_class()
+        # filter the lookup arguments
+        filter_args = {v: lookup_args[k] for k, v
+                       in SerializerClass.parent_lookup_kwargs.items()}
+        # filter any query parameters matching fields of the model
+        for k, v in query_params.items():
+            if hasattr(self.queryset.model, k):
+                filter_args[k] = v
+        try:
+            queryset = self.queryset.model.objects.filter(**filter_args)
+        except Exception as e:
+            print(e)
+            return None
+            
+        if len(self.additional_filters):
+            queryset = queryset.filter(**self.additional_filters)
+        return queryset
+
+
+
+class OnlySubsetMixin(ViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -82,7 +134,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(viewsets.ModelViewSet):
+class CaseStudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
@@ -90,7 +142,7 @@ class CaseStudyViewSet(viewsets.ModelViewSet):
     serializer_class = CaseStudySerializer
 
 
-class UserInCasestudyViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
+class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
@@ -100,6 +152,18 @@ class UserInCasestudyViewSet(OnlyCasestudyMixin, viewsets.ModelViewSet):
 
 ###############################################################################
 ###   views for the templates
+
+class SessionView(View):
+    def post(self, request):
+        if request.POST['casestudy']:
+            request.session['casestudy'] = request.POST['casestudy']
+            next = request.POST.get('next', '/')
+            return HttpResponseRedirect(next)
+
+    def get(self, request):
+        response =  {'casestudy': request.session.get('casestudy')}
+        return JsonResponse(response)
+
 
 def casestudy(request, casestudy_id):
     """casestudy view"""

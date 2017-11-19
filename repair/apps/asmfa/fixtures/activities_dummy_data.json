@@ -168,6 +168,15 @@
   }
 },
 {
+  "model": "asmfa.materialincasestudy",
+  "pk": 30,
+  "fields": {
+    "material": 1,
+    "casestudy": 7,
+    "note": ""
+  }
+},
+{
   "model": "asmfa.quality",
   "pk": 1,
   "fields": {
@@ -196,11 +205,30 @@
   }
 },
 {
+  "model": "asmfa.geolocation",
+  "pk": 1,
+  "fields": {
+    "casestudy": 1,
+    "street": "Besan\u00e7onall\u00e9estra\u00dfe 123",
+    "geom": "SRID=4326;POINT (-71.064544 42.28787)"
+  }
+},
+{
+  "model": "asmfa.geolocation",
+  "pk": 2,
+  "fields": {
+    "casestudy": 1,
+    "street": "Hauptstra\u00dfe 14",
+    "geom": "SRID=4326;POINT (11.064544 12.28787)"
+  }
+},
+{
   "model": "asmfa.activitygroup",
   "pk": 1,
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "C",
     "name": "Consuming",
     "casestudy": 1
@@ -212,6 +240,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "COL",
     "name": "Collection",
     "casestudy": 1
@@ -223,6 +252,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "D",
     "name": "Distribution",
     "casestudy": 1
@@ -234,6 +264,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "code": "P1",
     "name": "Production",
     "casestudy": 1
@@ -245,6 +276,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "code": "P2",
     "name": "Production of packaging",
     "casestudy": 1
@@ -256,6 +288,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "P3",
     "name": "Packaging",
     "casestudy": 1
@@ -267,6 +300,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "R",
     "name": "Return Logistics",
     "casestudy": 1
@@ -278,6 +312,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "S",
     "name": "Selling",
     "casestudy": 1
@@ -289,6 +324,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "code": "SC",
     "name": "Selling and Cosuming",
     "casestudy": 1
@@ -300,6 +336,7 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "code": "W",
     "name": "Waste Management",
     "casestudy": 1
@@ -311,6 +348,7 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "code": "exp",
     "name": "Export",
     "casestudy": 1
@@ -322,9 +360,154 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "code": "imp",
     "name": "Import",
     "casestudy": 1
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 21,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "C",
+    "name": "Consuming",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 22,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "COL",
+    "name": "Collection",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 23,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "D",
+    "name": "Distribution",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 24,
+  "fields": {
+    "source": true,
+    "sink": false,
+    "done": false,
+    "code": "P1",
+    "name": "Production",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 25,
+  "fields": {
+    "source": true,
+    "sink": false,
+    "done": false,
+    "code": "P2",
+    "name": "Production of packaging",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 26,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "P3",
+    "name": "Packaging",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 27,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "R",
+    "name": "Return Logistics",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 28,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "S",
+    "name": "Selling",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 29,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "code": "SC",
+    "name": "Selling and Cosuming",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 30,
+  "fields": {
+    "source": false,
+    "sink": true,
+    "done": false,
+    "code": "W",
+    "name": "Waste Management",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 31,
+  "fields": {
+    "source": false,
+    "sink": true,
+    "done": false,
+    "code": "exp",
+    "name": "Export",
+    "casestudy": 7
+  }
+},
+{
+  "model": "asmfa.activitygroup",
+  "pk": 32,
+  "fields": {
+    "source": true,
+    "sink": false,
+    "done": false,
+    "code": "imp",
+    "name": "Import",
+    "casestudy": 7
   }
 },
 {
@@ -333,6 +516,7 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "nace": "00.inci",
     "name": "Incineration",
     "activitygroup": 10
@@ -344,6 +528,7 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "nace": "00.land",
     "name": "Landfill",
     "activitygroup": 10
@@ -355,6 +540,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "11.juice",
     "name": "Manufacture of juice",
     "activitygroup": 4
@@ -366,6 +552,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "11.milk",
     "name": "Manufacture of milk",
     "activitygroup": 4
@@ -377,6 +564,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "11.soft",
     "name": "Manufacture of soft drinks",
     "activitygroup": 4
@@ -388,6 +576,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "11.water",
     "name": "Manufacture of mineral water",
     "activitygroup": 4
@@ -399,6 +588,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "22.bottles",
     "name": "Manufacture of bottles",
     "activitygroup": 5
@@ -410,6 +600,7 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "22.boxes",
     "name": "Manufacture of boxes",
     "activitygroup": 5
@@ -421,6 +612,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "33.drinks",
     "name": "Packaging of drinks",
     "activitygroup": 6
@@ -432,6 +624,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "33.milk",
     "name": "Packaging of milk",
     "activitygroup": 6
@@ -443,6 +636,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "33.water",
     "name": "Packaging of water",
     "activitygroup": 6
@@ -454,6 +648,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "44.drinks",
     "name": "Distribution of drinks",
     "activitygroup": 3
@@ -465,6 +660,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "44.milk",
     "name": "Distribution of milk",
     "activitygroup": 3
@@ -476,6 +672,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "44.water",
     "name": "Distribution of water",
     "activitygroup": 3
@@ -487,6 +684,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "55.market",
     "name": "Selling in market",
     "activitygroup": 8
@@ -498,6 +696,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "55.sm",
     "name": "Selling in supermarket",
     "activitygroup": 8
@@ -509,6 +708,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "55.whole",
     "name": "Wholesale",
     "activitygroup": 8
@@ -520,6 +720,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "66.farm",
     "name": "Farm Consuming",
     "activitygroup": 1
@@ -531,6 +732,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "66.home",
     "name": "Home Consuming",
     "activitygroup": 1
@@ -542,6 +744,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "77.bar",
     "name": "Bar Consuming",
     "activitygroup": 9
@@ -553,6 +756,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "77.cafe",
     "name": "Cafe Consuming",
     "activitygroup": 9
@@ -564,6 +768,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "77.rest",
     "name": "Restaurant Consuming",
     "activitygroup": 9
@@ -575,6 +780,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "88.depo",
     "name": "Deposit",
     "activitygroup": 7
@@ -586,6 +792,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "88.waste",
     "name": "Sorted waste",
     "activitygroup": 7
@@ -597,6 +804,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "99.MSW",
     "name": "Household waste",
     "activitygroup": 2
@@ -608,6 +816,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "99.cat",
     "name": "Catering waste",
     "activitygroup": 2
@@ -619,6 +828,7 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "nace": "99.farm",
     "name": "Farm waste",
     "activitygroup": 2
@@ -630,6 +840,7 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "nace": "ee.xx",
     "name": "Export",
     "activitygroup": 11
@@ -641,9 +852,250 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "nace": "ii.xx",
     "name": "Import",
     "activitygroup": 12
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 30,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "33.milk",
+    "name": "Packaging of milk",
+    "activitygroup": 26
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 31,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "33.water",
+    "name": "Packaging of water",
+    "activitygroup": 26
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 32,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "44.drinks",
+    "name": "Distribution of drinks",
+    "activitygroup": 23
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 33,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "44.milk",
+    "name": "Distribution of milk",
+    "activitygroup": 23
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 34,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "44.water",
+    "name": "Distribution of water",
+    "activitygroup": 23
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 35,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "55.market",
+    "name": "Selling in market",
+    "activitygroup": 28
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 36,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "55.sm",
+    "name": "Selling in supermarket",
+    "activitygroup": 28
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 37,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "55.whole",
+    "name": "Wholesale",
+    "activitygroup": 28
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 38,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "66.farm",
+    "name": "Farm Consuming",
+    "activitygroup": 21
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 39,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "66.home",
+    "name": "Home Consuming",
+    "activitygroup": 21
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 40,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "77.bar",
+    "name": "Bar Consuming",
+    "activitygroup": 29
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 41,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "77.cafe",
+    "name": "Cafe Consuming",
+    "activitygroup": 29
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 42,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "77.rest",
+    "name": "Restaurant Consuming",
+    "activitygroup": 29
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 43,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "88.depo",
+    "name": "Deposit",
+    "activitygroup": 27
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 44,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "88.waste",
+    "name": "Sorted waste",
+    "activitygroup": 27
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 45,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "99.MSW",
+    "name": "Household waste",
+    "activitygroup": 22
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 46,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "99.cat",
+    "name": "Catering waste",
+    "activitygroup": 22
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 47,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "nace": "99.farm",
+    "name": "Farm waste",
+    "activitygroup": 22
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 48,
+  "fields": {
+    "source": false,
+    "sink": true,
+    "done": false,
+    "nace": "ee.xx",
+    "name": "Export",
+    "activitygroup": 31
+  }
+},
+{
+  "model": "asmfa.activity",
+  "pk": 49,
+  "fields": {
+    "source": true,
+    "sink": false,
+    "done": false,
+    "nace": "ii.xx",
+    "name": "Import",
+    "activitygroup": 32
   }
 },
 {
@@ -652,15 +1104,18 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "BvDid": "NL00000001",
     "name": "Incinerator",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 1
+    "activity": 1,
+    "included": true
   }
 },
 {
@@ -669,15 +1124,18 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "BvDid": "NL00000002",
     "name": "Landfilling bv",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 2
+    "activity": 2,
+    "included": true
   }
 },
 {
@@ -686,15 +1144,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000110",
     "name": "Happy Farm",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 4
+    "activity": 4,
+    "included": true
   }
 },
 {
@@ -703,15 +1164,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000111",
     "name": "Cocacola",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "activity": 5,
+    "included": true
   }
 },
 {
@@ -720,15 +1184,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000112",
     "name": "Pepsi",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "activity": 5,
+    "included": true
   }
 },
 {
@@ -737,15 +1204,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000113",
     "name": "Sprite",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5
+    "activity": 5,
+    "included": true
   }
 },
 {
@@ -754,15 +1224,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000114",
     "name": "Apple Juice",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "activity": 3,
+    "included": true
   }
 },
 {
@@ -771,15 +1244,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000115",
     "name": "Orange Juice",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "activity": 3,
+    "included": true
   }
 },
 {
@@ -788,15 +1264,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000116",
     "name": "Fresh Juice",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "activity": 3,
+    "included": true
   }
 },
 {
@@ -805,15 +1284,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000117",
     "name": "Frozen Juice",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3
+    "activity": 3,
+    "included": true
   }
 },
 {
@@ -822,15 +1304,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000118",
     "name": "Mountain Water",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6
+    "activity": 6,
+    "included": true
   }
 },
 {
@@ -839,15 +1324,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000119",
     "name": "Vytautas Water",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6
+    "activity": 6,
+    "included": true
   }
 },
 {
@@ -856,15 +1344,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000221",
     "name": "Pretty Bottle",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7
+    "activity": 7,
+    "included": true
   }
 },
 {
@@ -873,15 +1364,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000222",
     "name": "Bottles Inc.",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7
+    "activity": 7,
+    "included": true
   }
 },
 {
@@ -890,15 +1384,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000223",
     "name": "Boxes Inc.",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "activity": 8,
+    "included": true
   }
 },
 {
@@ -907,15 +1404,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000224",
     "name": "Pack-a-Box.",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "activity": 8,
+    "included": true
   }
 },
 {
@@ -924,15 +1424,18 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000225",
     "name": "3D-Box.",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8
+    "activity": 8,
+    "included": true
   }
 },
 {
@@ -941,15 +1444,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000331",
     "name": "Cola&Sprite",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9
+    "activity": 9,
+    "included": true
   }
 },
 {
@@ -958,15 +1464,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000332",
     "name": "Appelsientje",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9
+    "activity": 9,
+    "included": true
   }
 },
 {
@@ -975,15 +1484,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000333",
     "name": "PETPETPET",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11
+    "activity": 11,
+    "included": true
   }
 },
 {
@@ -992,15 +1504,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000334",
     "name": "WaterPack",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11
+    "activity": 11,
+    "included": true
   }
 },
 {
@@ -1009,15 +1524,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000335",
     "name": "TetraPak",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 10
+    "activity": 10,
+    "included": true
   }
 },
 {
@@ -1026,15 +1544,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000441",
     "name": "Drink Distributor",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 12
+    "activity": 12,
+    "included": true
   }
 },
 {
@@ -1043,15 +1564,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000442",
     "name": "Water Distributor",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 14
+    "activity": 14,
+    "included": true
   }
 },
 {
@@ -1060,15 +1584,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000443",
     "name": "Milk Distributor",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 13
+    "activity": 13,
+    "included": true
   }
 },
 {
@@ -1077,15 +1604,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000550",
     "name": "Wholeseller",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 17
+    "activity": 17,
+    "included": true
   }
 },
 {
@@ -1094,15 +1624,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000551",
     "name": "Jumbo",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "activity": 16,
+    "included": true
   }
 },
 {
@@ -1111,15 +1644,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000552",
     "name": "Albert Heijn",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "activity": 16,
+    "included": true
   }
 },
 {
@@ -1128,15 +1664,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000553",
     "name": "Lidl",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "activity": 16,
+    "included": true
   }
 },
 {
@@ -1145,15 +1684,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000554",
     "name": "Deen",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "activity": 16,
+    "included": true
   }
 },
 {
@@ -1162,15 +1704,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000555",
     "name": "Spar",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16
+    "activity": 16,
+    "included": true
   }
 },
 {
@@ -1179,15 +1724,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000556",
     "name": "Market 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "activity": 15,
+    "included": true
   }
 },
 {
@@ -1196,15 +1744,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000557",
     "name": "Market 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "activity": 15,
+    "included": true
   }
 },
 {
@@ -1213,15 +1764,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000558",
     "name": "Market 3",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "activity": 15,
+    "included": true
   }
 },
 {
@@ -1230,15 +1784,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000559",
     "name": "Market 4",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15
+    "activity": 15,
+    "included": true
   }
 },
 {
@@ -1247,15 +1804,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000660",
     "name": "Farm Type 4",
+    "administrative_location": 1,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "activity": 18,
+    "included": true
   }
 },
 {
@@ -1264,15 +1824,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000661",
     "name": "Household Type 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1281,15 +1844,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000662",
     "name": "Household Type 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1298,15 +1864,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000663",
     "name": "Household Type 3",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1315,15 +1884,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000664",
     "name": "Household Type 4",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1332,15 +1904,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000665",
     "name": "Household Type 5",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1349,15 +1924,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000666",
     "name": "Household Type 6",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19
+    "activity": 19,
+    "included": true
   }
 },
 {
@@ -1366,15 +1944,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000667",
     "name": "Farm Type 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "activity": 18,
+    "included": true
   }
 },
 {
@@ -1383,15 +1964,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000668",
     "name": "Farm Type 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "activity": 18,
+    "included": true
   }
 },
 {
@@ -1400,15 +1984,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000669",
     "name": "Tourism",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18
+    "activity": 18,
+    "included": true
   }
 },
 {
@@ -1417,15 +2004,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000771",
     "name": "Restaurant 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "activity": 22,
+    "included": true
   }
 },
 {
@@ -1434,15 +2024,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000772",
     "name": "Restaurant 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "activity": 22,
+    "included": true
   }
 },
 {
@@ -1451,15 +2044,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000773",
     "name": "Restaurant 3",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "activity": 22,
+    "included": true
   }
 },
 {
@@ -1468,15 +2064,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000774",
     "name": "Restaurant 4",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "activity": 22,
+    "included": true
   }
 },
 {
@@ -1485,15 +2084,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000775",
     "name": "Bar 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 20
+    "activity": 20,
+    "included": true
   }
 },
 {
@@ -1502,15 +2104,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000776",
     "name": "Bar 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22
+    "activity": 22,
+    "included": true
   }
 },
 {
@@ -1519,15 +2124,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000777",
     "name": "Cafe 1",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "activity": 21,
+    "included": true
   }
 },
 {
@@ -1536,15 +2144,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000778",
     "name": "Cafe 2",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "activity": 21,
+    "included": true
   }
 },
 {
@@ -1553,15 +2164,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000779",
     "name": "Cafe 3",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21
+    "activity": 21,
+    "included": true
   }
 },
 {
@@ -1570,15 +2184,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000881",
     "name": "Plastic Sorting bv",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24
+    "activity": 24,
+    "included": true
   }
 },
 {
@@ -1587,15 +2204,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000882",
     "name": "Bottle Sorting bv",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24
+    "activity": 24,
+    "included": true
   }
 },
 {
@@ -1604,15 +2224,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000883",
     "name": "Bottle Deposit bv",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 23
+    "activity": 23,
+    "included": true
   }
 },
 {
@@ -1621,15 +2244,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000991",
     "name": "MSW collector",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 25
+    "activity": 25,
+    "included": true
   }
 },
 {
@@ -1638,15 +2264,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000992",
     "name": "Food&Plastic waste collector",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26
+    "activity": 26,
+    "included": true
   }
 },
 {
@@ -1655,15 +2284,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000993",
     "name": "Restaurant waste collector",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26
+    "activity": 26,
+    "included": true
   }
 },
 {
@@ -1672,15 +2304,18 @@
   "fields": {
     "source": false,
     "sink": false,
+    "done": false,
     "BvDid": "NL00000994",
     "name": "Farm waste collector",
+    "administrative_location": null,
     "consCode": "111",
     "year": 2017,
     "revenue": 1000,
     "employees": 100,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 27
+    "activity": 27,
+    "included": true
   }
 },
 {
@@ -1689,15 +2324,18 @@
   "fields": {
     "source": false,
     "sink": true,
+    "done": false,
     "BvDid": "ee00000000",
     "name": "Export",
+    "administrative_location": null,
     "consCode": "",
     "year": 0,
     "revenue": 0,
     "employees": 0,
     "BvDii": "",
     "website": "",
-    "activity": 28
+    "activity": 28,
+    "included": true
   }
 },
 {
@@ -1706,15 +2344,125 @@
   "fields": {
     "source": true,
     "sink": false,
+    "done": false,
     "BvDid": "ii00000000",
     "name": "Import",
+    "administrative_location": null,
     "consCode": "",
     "year": 0,
     "revenue": 0,
     "employees": 0,
     "BvDii": "",
     "website": "",
-    "activity": 29
+    "activity": 29,
+    "included": true
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 64,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "BvDid": "",
+    "name": "Test",
+    "administrative_location": null,
+    "consCode": "1",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "BvDii": "1",
+    "website": "www.bla.org",
+    "activity": 30,
+    "included": true
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 65,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "BvDid": "",
+    "name": "Test2",
+    "administrative_location": null,
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "BvDii": "",
+    "website": "",
+    "activity": 31,
+    "included": true
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 66,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "BvDid": "",
+    "name": "Test3",
+    "administrative_location": null,
+    "consCode": "",
+    "year": 0,
+    "revenue": 0,
+    "employees": 0,
+    "BvDii": "",
+    "website": "",
+    "activity": 30,
+    "included": true
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 67,
+  "fields": {
+    "source": false,
+    "sink": false,
+    "done": false,
+    "BvDid": "",
+    "name": "dfbfsydb",
+    "administrative_location": null,
+    "consCode": "",
+    "year": 2017,
+    "revenue": 123,
+    "employees": 5125,
+    "BvDii": "",
+    "website": "dfb",
+    "activity": 10,
+    "included": false
+  }
+},
+{
+  "model": "asmfa.operationallocationofactor",
+  "pk": 5,
+  "fields": {
+    "location": 2,
+    "actor": 36,
+    "note": "This is the main location"
+  }
+},
+{
+  "model": "asmfa.operationallocationofactor",
+  "pk": 6,
+  "fields": {
+    "location": 1,
+    "actor": 36,
+    "note": "This is a smaller branch"
+  }
+},
+{
+  "model": "asmfa.operationallocationofactor",
+  "pk": 7,
+  "fields": {
+    "location": 1,
+    "actor": 36,
+    "note": "This location is the main location"
   }
 },
 {
@@ -1968,6 +2716,61 @@
     "quality": 1,
     "destination": 1,
     "origin": 4
+  }
+},
+{
+  "model": "asmfa.group2group",
+  "pk": 50,
+  "fields": {
+    "amount": 1,
+    "material": 30,
+    "quality": 1,
+    "destination": 23,
+    "origin": 21
+  }
+},
+{
+  "model": "asmfa.group2group",
+  "pk": 52,
+  "fields": {
+    "amount": 8,
+    "material": 30,
+    "quality": 1,
+    "destination": 21,
+    "origin": 25
+  }
+},
+{
+  "model": "asmfa.group2group",
+  "pk": 53,
+  "fields": {
+    "amount": 5,
+    "material": 30,
+    "quality": 2,
+    "destination": 26,
+    "origin": 32
+  }
+},
+{
+  "model": "asmfa.group2group",
+  "pk": 54,
+  "fields": {
+    "amount": 3,
+    "material": 30,
+    "quality": 3,
+    "destination": 30,
+    "origin": 22
+  }
+},
+{
+  "model": "asmfa.group2group",
+  "pk": 55,
+  "fields": {
+    "amount": 4,
+    "material": 30,
+    "quality": 2,
+    "destination": 28,
+    "origin": 30
   }
 },
 {

@@ -1,5 +1,14 @@
+# -*- coding: utf-8 -*-
+
 from django.test import TestCase
 from django.core.validators import ValidationError
+from django.contrib.gis.geos.point import Point
+from django.urls import reverse
+from django.core.serializers import serialize
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
+from rest_framework import status
+from repair.tests.test import BasicModelTest
 
 
 from repair.apps.asmfa.models import (
@@ -17,15 +26,21 @@ from repair.apps.asmfa.models import (
     GroupStock,
     Node,
     Stock,
+    Geolocation,
+    OperationalLocationOfActor, 
     )
 
-from repair.apps.login.models import CaseStudy
+
+from repair.apps.login.models import CaseStudy, User, Profile
+from repair.apps.login.factories import *
+from repair.apps.asmfa.factories import *
 
 
-class ModelTest(TestCase):
+class ASMFAModelTest(TestCase):
 
-    #fixtures = ['user_fixture.json',
-                #'activities_dummy_data.json',]
+    fixtures = ['auth_fixture',
+                'user_fixture.json',
+                'activities_dummy_data.json',]
 
     def test_string_representation(self):
         for Model in (
@@ -40,7 +55,164 @@ class ModelTest(TestCase):
             Geolocation,
             Group2Group,
             GroupStock,
+            Geolocation, 
             ):
 
             print('{} has {} test data entries'.format(
                 Model, Model.objects.count()))
+
+    def test_geolocation(self):
+        """Test a geolocation"""
+        point = Point(x=9.2, y=52.6, srid=4326)
+        location = Geolocation(geom=point,
+                               street='Hauptstraße')
+        actor = Actor.objects.first()
+        actor.administrative_location = location
+        assert actor.administrative_location.geom.x == point.x
+
+    def test_actor_included(self):
+        """Test a geolocation"""
+        actor = Actor.objects.first()
+        actor.included = False
+        actor.save()
+        excluded_actors = Actor.objects.filter(included=False)
+        # test that there is now at least one ignored actor 
+        assert excluded_actors.count() > 0
+        assert excluded_actors.first().included is False
+        
+
+class MaterialTest(BasicModelTest, APITestCase):
+
+    cs_url = 'http://testserver' + reverse('casestudy-detail',
+                                           kwargs=dict(pk=1))
+    url_key = "material"
+    url_pks = dict()
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname', casestudies=[cs_url], code='cdo')
+    put_data = dict(name='puttestname', casestudies=[cs_url])
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        csf = CaseStudyFactory()
+        self.fact = MaterialFactory()
+
+
+class QualityTest(BasicModelTest, APITestCase):
+
+    url_key = "quality"
+    url_pks = dict()
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname')
+    put_data = dict(name='puttestname')
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        self.fact = QualityFactory()
+
+
+class GeolocationViewTest(APITestCase):
+
+    fixtures = ['auth_fixture', 'user_fixture.json',
+                'activities_dummy_data.json']
+
+
+    def test_locations(self):
+        # create a casestudy and save as current session
+        cs = CaseStudyFactory()
+        cs_url = reverse('casestudy-detail', kwargs=dict(pk=cs.pk))
+
+        url = reverse('geolocation-list', kwargs=dict(casestudy_pk=cs.pk))
+        location = GeolocationFactory(casestudy=cs)
+        data = {
+            'casestudy': cs_url,
+            'street': location.street,
+            'geom': location.geom.geojson}
+        response = self.client.post(url, data, format='json')
+        print(response.status_text)
+        assert response.status_code == 201
+        response = self.client.get(url)
+        assert response.status_code == 200
+        print(response.data)
+
+    def test_get_location(self):
+        lodz_pk = 3
+        lodz = reverse('casestudy-detail', kwargs=dict(pk=lodz_pk))
+
+        url = reverse('geolocation-list', kwargs=dict(casestudy_pk=lodz_pk))
+        location = GeolocationFactory()
+        data = {'street': 'Hauptstraße 13',
+                'casestudy': lodz,
+                'geom': location.geom.geojson,}
+        response = self.client.post(url, data, format='json')
+        print(response)
+        new_geolocation_id = response.data['id']
+        response = self.client.get(url)
+        print(response.data)
+        url = reverse('geolocation-detail', kwargs=dict(casestudy_pk=lodz_pk,
+                                                        pk=new_geolocation_id))
+        response = self.client.get(url)
+        print(response.data)
+        
+        new_street = 'Dorfstraße 2'
+        data = {'street': new_street,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        assert response.data['street'] == new_street
+
+        # patch a geometry as geojson
+        new_geom = Point(x=14, y=15, srid=4326)
+        data = {'geom': new_geom.geojson,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        geom = response.data['geom']
+        assert str(geom) == new_geom.geojson
+        assert geom['coordinates'] == [new_geom.x, new_geom.y]
+
+        # patch a geometry in EWKT format
+        new_geom_ewkt = 'SRID=4269;POINT(-71.064544 42.28787)'
+        data = {'geom': new_geom_ewkt,}
+        self.client.patch(url, data)
+        response = self.client.get(url)
+        geom = response.data['geom']
+        assert geom['coordinates'] == [-71.064544, 42.28787]
+
+    def test_operational_location_of_actor(self):
+        """Test the creation of two operational locations of an actor"""
+        actor = ActorFactory()
+        cs = actor.activity.activitygroup.casestudy
+        loc1 = GeolocationFactory(casestudy=cs, street='S1')
+        loc2 = GeolocationFactory(casestudy=cs, street='S2')
+        loc3 = GeolocationFactory(casestudy=cs, street='S3')
+                
+        actor.administrative_location = loc1
+        actor.save()
+        OperationalLocationOfActor.objects.create(actor=actor,
+                                                  location=loc2,
+                                                  note='Main Branch')
+        OperationalLocationOfActor.objects.create(actor=actor,
+                                                  location=loc3,
+                                                  note='Second Branch')
+
+        url = reverse('actor-detail', kwargs=dict(casestudy_pk=cs.pk,
+                                                  pk=actor.pk))
+        response = self.client.get(url)
+        print(response.data)
+        
+        url = reverse('operationallocationofactor-list',
+                      kwargs=dict(casestudy_pk=cs.pk,
+                                  actor_pk=actor.pk))
+        response = self.client.get(url)
+        print(response.data)
+        
+        operational_location2 = OperationalLocationOfActor.objects.get(
+            actor=actor, location=loc2)
+
+        url = reverse('operationallocationofactor-detail',
+                          kwargs=dict(casestudy_pk=cs.pk,
+                                      actor_pk=actor.pk,
+                                      pk=operational_location2.pk))
+        response = self.client.get(url)
+        print(response.data)
+        assert response.status_code == 200
+        
+        

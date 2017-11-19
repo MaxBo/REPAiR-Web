@@ -1,0 +1,241 @@
+{% load i18n %}
+
+<!-- Backbone templates (Underscore template engine) for rendering dynamic views in admin area -->
+
+
+<!-- Actors -->
+
+<script type="text/template" id="actors-edit-template">
+  <div class="row">
+    <div class="col-md-3">
+      <h3>{% trans "Actors" %} - <%= casestudy %></h3>
+      <select name="included-filter" id="included-filter-select">
+        <option value="0">{% trans "show all" %}</option>
+        <option value="1">{% trans "show included only" %}</option>
+      </select>
+    </div>
+    <div class="col-md-9">
+      <button id='upload-actors-button' class="btn btn-primary">
+        <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+      </button>
+    </div>
+  </div>
+  <div class="row" style="overflow-x:auto;">
+    <table id='actors-table' class='tablesorter'>
+      <thead>
+        <tr>
+          <th>{% trans "Included" %}</th>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Activity" %}</th>
+          <th>{% trans "Website" %}</th>
+          <th>{% trans "Year" %}</th>
+          <th>{% trans "Revenue" %}</th>
+          <th>{% trans "Employees" %}</th>
+          <th>{% trans "BvDid" %}</th>
+          <th>{% trans "BvDii" %}</th>
+          <th>{% trans "ConsCode" %}</th>
+        </tr>
+      </thead> 
+      <tbody> 
+      </tbody> 
+    </table>
+    <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
+  </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+</script>
+
+<!-- Flows  -->
+
+<script type="text/template" id="flows-edit-template">
+  <div class="row">
+    <h3>{% trans "Flows" %} - <%= casestudy %></h3>
+    <select name="flows" id="flows-select">
+      <% materials.each(function(material){ %>
+        <option value="<%= material.id %>"><%= material.get('material').code %></option>
+      <% }); %>
+    </select>
+  </div>
+  </br>
+  <div class="row">  
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link'>{% trans "Data Entry" %}</a></li>
+        <li><a data-toggle="tab" href="#sankey-tab">{% trans "Data View" %}</a></li>
+        <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade in active" id="data-entry-tab">
+          <div class="row"><div id="data-entry"></div></div>
+        </div>
+        <div class="tab-pane fade in" id="sankey-tab">
+          <div class="row">
+            <button type="button" id="refresh-view-btn">
+              {% trans "Refresh" %}
+            </button>
+          </div>
+          <div class="row"><div id="data-view"></div></div>
+        </div>
+        <div class="tab-pane fade in" id="verification">
+          {% include "admin/verification.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+</script>
+
+<!-- Data View -->
+
+<script type="text/template" id="data-view-template">
+  <div class="row">
+    <div id="sankey-wrapper">
+      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen"></button>
+      <div id="sankey">
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- Data Entry -->
+
+<script type="text/template" id="data-entry-template">
+  <div class="col-md-3">
+    {% trans "Please choose a node to enter data for" %}
+    <div id="data-tree"></div>
+  </div>
+  <div class="col-md-6">
+    <div class="row"><div id="edit-node"></div></div>
+  </div>
+</script>
+
+
+<!-- template for view on edit a node -->
+<script type="text/template" id="edit-node-template">
+  <div class="col-md-12" style="border: 2px solid #e6e6e6;">
+    <button id='upload-flows-button' class="btn btn-primary">
+      <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
+    </button>
+    <div class="row" id='attributes'>
+    </div>
+    <div class="row" style="overflow-x:auto;">
+      <h3>{% trans "Input" %}</h3>
+      <table id='input-table' class='table'>
+        <tr>
+          <th>{% trans "Remove Flow" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Origin" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+      </table>
+      <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+    <div class="row" style="overflow-x:auto;">
+      <h3>{% trans "Output" %}</h3>
+      <table id='output-table' class='table'>
+        <tr>
+          <th>{% trans "Remove Flow" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Destination" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+        <tr>
+      </table>
+      <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+    <div class="row" style="overflow-x:auto;">
+        <h3>{% trans "Stock" %}</h3>
+      <table id='stock-table' class='table'>
+        <tr>
+          <th>{% trans "Remove Stock" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Data Source" %}</th>
+        </tr>
+      </table>
+      <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+  </div>
+</script>
+
+<!-- template for view on attributes of an activitygroup-node -->
+<script type="text/template" id="group-attributes-template">
+  <h3>{% trans "Activitygroup" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Code" %}</td>
+      <td><%= code %></td>
+    </tr>
+  </table>
+</script>
+
+<!-- template for view on attributes of an activity-node -->
+<script type="text/template" id="activity-attributes-template">
+  <h3>{% trans "Activity" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity Group" %}</td>
+      <td><%= group %></td>
+    </tr>
+    <tr>
+      <td>{% trans "NACE Code" %}</td>
+      <td><%= nace %></td>
+    </tr>
+  </table>
+</script>
+
+<!-- template for view on attributes of an actor-node -->
+<script type="text/template" id="actor-attributes-template">
+  <h3>{% trans "Actor" %}</h3>
+  <table>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td><%= name %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Material" %}</td>
+      <td><%= material %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity" %}</td>
+      <td><%= activity %></td>
+    </tr>
+    <tr>
+      <td>{% trans "BvDid" %}</td>
+      <td><%= bvdid %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Year" %}</td>
+      <td><%= year %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Employees" %}</td>
+      <td><%= employees %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Revenue" %}</td>
+      <td><%= revenue %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Website" %}</td>
+      <td><%= url %></td>
+    </tr>
+  </table>
+</script>

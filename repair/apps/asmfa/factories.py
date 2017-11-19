@@ -1,8 +1,9 @@
 import factory
 from factory.django import DjangoModelFactory
+from django.contrib.gis.geos.point import Point
 from repair.apps.login.factories import (UserInCasestudyFactory,
                                          ProfileFactory,
-                                         CasestudyFactory)
+                                         CaseStudyFactory)
 
 from . import models
 
@@ -12,6 +13,14 @@ class DataEntryFactory(DjangoModelFactory):
         model = models.DataEntry
     source = 'data'
     user = factory.SubFactory(ProfileFactory)
+
+
+class GeolocationFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Geolocation
+    street = 'ThePoint'
+    geom = Point(x=11.1, y=12.2, srid=4326)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class MaterialFactory(DjangoModelFactory):
@@ -37,7 +46,7 @@ class MaterialInCasestudyFactory(DjangoModelFactory):
         model = models.MaterialInCasestudy
     note = 'A Material in a Casestudy'
     material = factory.SubFactory(MaterialFactory)
-    casestudy = factory.SubFactory(CasestudyFactory)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class QualityFactory(DjangoModelFactory):
@@ -58,7 +67,7 @@ class ActivityGroupFactory(NodeFactory):
         model = models.ActivityGroup
     name = factory.Sequence(lambda n: "ActivityGroup #%s" % n)
     code = Meta.model.activity_group_choices[0]
-    casestudy = factory.SubFactory(CasestudyFactory)
+    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class ActivityFactory(NodeFactory):
@@ -132,3 +141,13 @@ class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+
+
+class OperationalLocationOfActorFactory(DjangoModelFactory):
+    class Meta:
+        model = models.OperationalLocationOfActor
+    note = 'a branch of an actor at a location'
+    actor = factory.SubFactory(ActorFactory)
+    location = factory.SubFactory(GeolocationFactory)
+    
+

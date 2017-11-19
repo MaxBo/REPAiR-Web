@@ -3,8 +3,22 @@ body {
   width: 100%;
   height: 100%;
   margin: 0px;
-  font-family: sans-serif;
+  font-family: 'Lato', sans-serif;
   color: #000;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Lato', sans-serif;
+}
+
+.fullscreen{
+  z-index: 99999;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: white;
 }
 
 #content {
@@ -121,6 +135,16 @@ table {
 th, td {
   text-align: left;
   padding: 8px;
+  position: relative;
+}
+
+tr.strikeout td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 2px solid red;
+    width: 100%;
 }
 
 tr:nth-child(even){background-color: #f2f2f2}
@@ -145,6 +169,16 @@ th {
   height: 120px;
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7 !IMPORTANT;
+}
+
+#to-top-anchor {
+  color: #4c5867 !IMPORTANT;
+  float: right;
 }
 
 @-webkit-keyframes spin {

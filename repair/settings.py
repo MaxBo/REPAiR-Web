@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
+import django
 from django.utils.translation import ugettext_lazy as _
 
 DEBUG = False
@@ -18,6 +20,16 @@ DEBUG = False
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
+
+if os.name == 'nt':
+    os.environ['GDAL_DATA'] = os.path.join(sys.prefix, 'Library',
+                                           'share', 'gdal')
+    os.environ['PATH'] = ';'.join([os.environ['PATH'],
+                                  os.path.join(os.path.dirname(
+                                      os.path.dirname(__file__)),
+                                 'spatialite'),
+                                  os.path.join(sys.prefix, 'Library', 'bin')])
+
 
 # The baseUrl to pass to the r.js optimizer.
 REQUIRE_BASE_URL = 'js'
@@ -77,8 +89,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'django.contrib.gis',
+    'django.contrib.gis',
     'rest_framework',
+    'rest_framework_gis',
     'repair.apps.login',
     'repair.apps.asmfa',
     'repair.apps.studyarea',
@@ -87,9 +100,15 @@ INSTALLED_APPS = [
     'require'
 ]
 
+#SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [],
-    'DEFAULT_AUTHENTIFICATION_CLASSES': [],
+    # ENABLE THIS TO LOCK THE API
+    #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated', ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
@@ -133,11 +152,13 @@ WSGI_APPLICATION = 'repair.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
     },
 
 }
+
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 
 # Password validation
@@ -173,6 +194,14 @@ LANGUAGES = (
     ('hu', _('Hungarian')),
     ('it', _('Italian')),
 )
+
+if os.name == 'posix':
+    GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgdal.so')
+    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgeos_c.so')
+    PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libproj.so')
 
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, "locale"),

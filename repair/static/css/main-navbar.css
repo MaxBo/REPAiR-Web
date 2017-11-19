@@ -1,31 +1,30 @@
 .navbar {
     position: fixed;
     width: 100%;
-    z-index: 11;
+    z-index: 9999;
     background-color: #ffffff;
     border-radius: 0px;
     border: 0px;
     border-bottom: 2px solid #e6e6e6;
+    padding-bottom: 20px;
 }
 
 .navbar-brand {
     position: relative;
-    width: 300px;
+    /*width: 300px;*/
     font-size: 2em;
     height: 75px;
     line-height: 45px;
     padding-left: 0px;
+    padding-top: 12px;
     z-index: 11;
-    padding-top: 0px;
-    margin-right: 10px;
+    margin-top: 0px;
+    /*margin-right: 10px;*/
 }
 
 .navbar-brand >img {
     /*width: 230px;*/
-}
-
-#language-select{
-    float: right;
+    margin-left: 20px;
 }
 
 .navbar > .container {
@@ -35,30 +34,88 @@
     width: 100%;
 }
 
-.navbar-main > li{
+.navbar-top {
+    font-size: 1em;
+    margin-top: -85px;
+    margin-left: 50px;
+}
+
+.navbar-bottom {
+    margin-top: 20px;
+}
+
+.navbar-bottom > li{
     z-index: 10;
     background-size:cover;
-    padding-left: 40px;
 }
 
-.navbar-main > li > a {
-    color: #cccccc !IMPORTANT;
+.navbar-bottom > li > a {
+    color: #4c5867 !IMPORTANT;
     font-size: 1.5em;
     text-align: center;
-    height: 75px;
-    line-height: 45px;
+    height: 50px;
+    line-height: 50px;
+    padding-top: 0px !IMPORTANT;
+    padding-bottom: 0px !IMPORTANT;
+    float: left;
+    transition: font-size 0.25s ease-in-out;
 }
 
-.navbar-main > li > a:hover {
-    color: #ffffff !IMPORTANT;
+.navbar-bottom > li:hover > a {
+    color: #aad400 !IMPORTANT;
+    font-size: 2em;
+    transition: color 0.25s ease;
+    transition: font-size 0.25s ease-in-out;
 }
 
-.navbar-main > li.active > a {
-    color: #ffffff !IMPORTANT;
+.navbar-top > li:hover > a, .navbar-top > li:hover button{
+    color: #aad400 !IMPORTANT;
+}
+
+.navbar-bottom > li.active > a{
+    font-size: 2em;
+    /*text-decoration: underline;*/
+}
+
+.navbar-bottom > li.active > a, .navbar-top > li.active > a  {
+    color: #aad400 !IMPORTANT;
     background-color: transparent !IMPORTANT;
+    /*text-decoration: underline;*/
 }
 
-.navbar-main > li:last-child { padding-left: 22px; }
+.menu-arrow{
+    float: left;
+    /*background-image: url("../img/menu-arrow-grey.png");*/
+    /*background-size: cover;*/
+    /*background-size: 100%;*/
+    /*background-repeat: no-repeat;*/
+    /*background-position: 50% 50%;*/
+    width: 40px;
+    height: 50px;
+    font-size: 1.5em;
+    color: #4c5867;
+    text-align: center;
+    line-height: 50px;
+}
+
+.navbar-bottom > li.active > .menu-arrow, .navbar-bottom li:hover .menu-arrow {
+    /*background-image: url("../img/menu-arrow-green.png");*/
+    color: #aad400;
+}
+
+.navbar-top .dropdown .btn{
+    color: #4c5867 !IMPORTANT;
+    background-color: white !IMPORTANT;
+    border: none;
+    font-size: 1em;
+    margin-top : -5px;
+}
+
+.navbar-top .dropdown .active > a{
+    background-color: #aad400;
+}
+
+/*.navbar-bottom > li:last-child { padding-left: 22px; }*/
 
 .navbar .navbar-collapse {
     position: relative;
@@ -73,49 +130,12 @@
 .btn.btn-circle { border-radius: 50px; }
 .btn.btn-outline { background-color: transparent; }
 
-#study-area-link{
-    padding-left: 10px;
-    border-radius: 10px 0px 0px 10px;
-    background-image: url("../img/mm-button-1.png");
-}
-
-#status-quo-link{
-    background-image: url("../img/mm-button-2.png");
-}
-
-#changes-link{
-    background-image: url("../img/mm-button-3.png");
-}
-
-#impacts-link{
-    background-image: url("../img/mm-button-4.png");
-}
-
-#decisions-link{
-    background-image: url("../img/mm-button-5.png");
-    padding-right: 20px;
-    padding-left: 40px;
-    border-radius: 0px 10px 10px 0px;
-}
-
-#admin-area-link{
-    background-color: #3a3a3a;
-    padding-left: 0px;
-    margin-left: 20px;
-    border-radius: 8px;
-}
-
-#login-link{
-    background-color: #3b3b3b;
-    padding-left: 0px;
-    margin-left: 20px;
-    border-radius: 8px;
-}
 
 @media screen and (max-width: 767px) {
-    .navbar .navbar-collapse .navbar-main > li:last-child { padding-left: 15px; padding-right: 15px; }
+    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-left: 15px; padding-right: 15px; }
 
     .navbar .nav-collapse { margin: 7.5px auto; padding: 0; }
     .navbar .nav-collapse .navbar-form { margin: 0; }
     .nav-collapse>li { float: none; }
+    .menu-arrow{ visibility: hidden; }
 }
