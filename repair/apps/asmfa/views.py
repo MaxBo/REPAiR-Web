@@ -41,6 +41,7 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
     OperationalLocationsOfActorSerializer,
+    AllActorListSerializer,
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -67,6 +68,7 @@ class AllActivityViewSet(ActivityViewSet):
 
 class AllActorViewSet(ActorViewSet):
     serializer_class = AllActorSerializer
+    serializers = {'list': AllActorListSerializer,}
 
 
 class MaterialViewSet(ViewSetMixin, ModelViewSet):
