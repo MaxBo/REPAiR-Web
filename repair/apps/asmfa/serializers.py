@@ -371,6 +371,13 @@ class AllActorSerializer(ActorSerializer):
                             'activity__activitygroup__casestudy__id'}
 
 
+class AllActorListSerializer(AllActorSerializer):
+    class Meta(AllActorSerializer.Meta):
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included',)
+
+
 class LocationField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 

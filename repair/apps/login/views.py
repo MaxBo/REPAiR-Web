@@ -44,6 +44,12 @@ class ViewSetMixin(ABC):
     """
     casestudy_only = True
     additional_filters = {}
+    serializer_class = None
+    serializers = {}
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action,
+                                    self.serializer_class)
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -107,7 +113,7 @@ class ViewSetMixin(ABC):
         except Exception as e:
             print(e)
             return None
-            
+
         if len(self.additional_filters):
             queryset = queryset.filter(**self.additional_filters)
         return queryset
