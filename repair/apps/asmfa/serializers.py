@@ -504,12 +504,17 @@ class AllActorField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__casestudy__id'}
 
+class ActorIDField(serializers.RelatedField):
+    """"""
+    def to_representation(self, value):
+        return value.id
+
 
 class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__casestudy__id'}
-    actor = AllActorField(view_name='actor-detail', read_only=True)
+    actor = ActorIDField(read_only=True)
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
@@ -540,7 +545,7 @@ class OperationalLocationSerializer(GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__casestudy__id'}
-    actor = AllActorField(view_name='actor-detail', read_only=True)
+    actor = ActorIDField(read_only=True)
 
     class Meta:
         model = OperationalLocation
