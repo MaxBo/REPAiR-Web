@@ -2,10 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.gis.db import models as gis
+from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import (CaseStudy, Profile,
                                       GDSEModel, get_default)
-from django.contrib.gis.db import models as gis
 
 from django.utils.timezone import now
 
@@ -297,4 +298,3 @@ class ActorStock(Stock):
                                     default='Sorted Plastic')
         entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                                   related_name='ActorStockData', default=1)
-

@@ -1,8 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 from django.contrib.gis.geos.point import Point
-from repair.apps.login.factories import (UserInCasestudyFactory,
-                                         ProfileFactory,
+from repair.apps.login.factories import (ProfileFactory,
                                          CaseStudyFactory)
 
 from . import models
@@ -13,14 +12,6 @@ class DataEntryFactory(DjangoModelFactory):
         model = models.DataEntry
     source = 'data'
     user = factory.SubFactory(ProfileFactory)
-
-
-class GeolocationFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Geolocation
-    street = 'ThePoint'
-    geom = Point(x=11.1, y=12.2, srid=4326)
-    casestudy = factory.SubFactory(CaseStudyFactory)
 
 
 class MaterialFactory(DjangoModelFactory):
@@ -143,11 +134,26 @@ class ActorStockFactory(FlowFactory):
     origin = factory.SubFactory(ActorFactory)
 
 
-class OperationalLocationOfActorFactory(DjangoModelFactory):
+class GeolocationFactory(DjangoModelFactory):
     class Meta:
-        model = models.OperationalLocationOfActor
-    note = 'a branch of an actor at a location'
-    actor = factory.SubFactory(ActorFactory)
-    location = factory.SubFactory(GeolocationFactory)
-    
+        model = models.Geolocation
+    note = 'a location'
+    street = 'MainStreet'
+    building = '12'
+    postcode = '12345'
+    city = 'Sevilla'
+    country = 'Spain'
+    geom = Point(x=11.1, y=12.2, srid=4326)
 
+
+class AdministrativeLocationFactory(GeolocationFactory):
+    class Meta:
+        model = models.AdministrativeLocation
+    actor = factory.SubFactory(ActorFactory)
+
+
+class OperationalLocationFactory(AdministrativeLocationFactory):
+    class Meta:
+        model = models.OperationalLocation
+    employees = 123
+    turnover = 98765.43

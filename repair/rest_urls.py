@@ -37,8 +37,10 @@ from repair.apps.asmfa.views import (
     ActorStockViewSet,
     AllActivityViewSet,
     AllActorViewSet,
-    GeolocationInCasestudyViewSet,
-    OperationalLocationOfActorViewSet, 
+    AdministrativeLocationOfActorViewSet,
+    OperationalLocationsOfActorViewSet,
+    AdministrativeLocationViewSet,
+    OperationalLocationViewSet, 
 )
 
 ## base routes ##
@@ -64,8 +66,9 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
-cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
-cs_router.register(r'geolocations', GeolocationInCasestudyViewSet)
+cs_router.register(r'materials', MaterialInCasestudyViewSet)
+cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
+cs_router.register(r'operationallocations', OperationalLocationViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 user_router = NestedSimpleRouter(cs_router, r'users',
@@ -122,8 +125,11 @@ mat_router.register(r'actor2actor', Actor2ActorViewSet)
 # /casestudies/*/activitygroups/*/activities/*/actors/...
 actors_router = NestedSimpleRouter(cs_router, r'actors',
                                    lookup='actor')
-actors_router.register(r'operational_locations',
-                       OperationalLocationOfActorViewSet)
+actors_router.register(r'administrativelocation',
+                   AdministrativeLocationOfActorViewSet)
+actors_router.register(r'operationallocations',
+                   OperationalLocationsOfActorViewSet)
+
 
 
 ## webhook ##
