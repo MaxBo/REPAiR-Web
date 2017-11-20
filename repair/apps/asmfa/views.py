@@ -1,13 +1,7 @@
 # API View
-from collections import OrderedDict
-from itertools import chain
 from abc import ABC
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ViewSet, ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -22,7 +16,10 @@ from repair.apps.asmfa.models import (
     MaterialInCasestudy,
     GroupStock,
     ActivityStock,
-    ActorStock)
+    ActorStock,
+    OperationalLocation,
+    AdministrativeLocation,
+)
 
 from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer,
@@ -32,7 +29,6 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
-    ActorListSerializer,
     MaterialSerializer,
     QualitySerializer,
     MaterialInCasestudySerializer,
@@ -40,14 +36,20 @@ from repair.apps.asmfa.serializers import (
     ActivityStockSerializer,
     ActorStockSerializer,
     AllActivitySerializer,
-    AllActorSerializer)
+    AllActorSerializer,
+    AdministrativeLocationSerializer,
+    OperationalLocationSerializer,
+    AdministrativeLocationOfActorSerializer,
+    OperationalLocationsOfActorSerializer,
+    AllActorListSerializer,
+)
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
 
 
 class ActivityGroupViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
-    queryset = ActivityGroup.objects
+    queryset = ActivityGroup.objects.all()
 
 
 class ActivityViewSet(ViewSetMixin, ModelViewSet):
@@ -57,7 +59,7 @@ class ActivityViewSet(ViewSetMixin, ModelViewSet):
 
 class ActorViewSet(ViewSetMixin, ModelViewSet):
     serializer_class = ActorSerializer
-    queryset = Actor.objects
+    queryset = Actor.objects.all()
 
 
 class AllActivityViewSet(ActivityViewSet):
@@ -66,6 +68,7 @@ class AllActivityViewSet(ActivityViewSet):
 
 class AllActorViewSet(ActorViewSet):
     serializer_class = AllActorSerializer
+    serializers = {'list': AllActorListSerializer,}
 
 
 class MaterialViewSet(ViewSetMixin, ModelViewSet):
@@ -127,4 +130,24 @@ class Actor2ActorViewSet(FlowViewSet):
     queryset = Actor2Actor.objects.all()
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
-                         'destination__included': True}
+                          'destination__included': True}
+
+
+class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
+    queryset = AdministrativeLocation.objects.all()
+    serializer_class = AdministrativeLocationSerializer
+
+
+class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):
+    queryset = OperationalLocation.objects.all()
+    serializer_class = OperationalLocationSerializer
+
+
+class AdministrativeLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
+    queryset = AdministrativeLocation.objects.all()
+    serializer_class = AdministrativeLocationOfActorSerializer
+
+
+class OperationalLocationsOfActorViewSet(ViewSetMixin, ModelViewSet):
+    queryset = OperationalLocation.objects.all()
+    serializer_class = OperationalLocationsOfActorSerializer

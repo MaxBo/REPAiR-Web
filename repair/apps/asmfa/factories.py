@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
-from repair.apps.login.factories import (UserInCasestudyFactory,
-                                         ProfileFactory,
+from django.contrib.gis.geos.point import Point
+from repair.apps.login.factories import (ProfileFactory,
                                          CaseStudyFactory)
 
 from . import models
@@ -132,3 +132,28 @@ class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+
+
+class GeolocationFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Geolocation
+    note = 'a location'
+    street = 'MainStreet'
+    building = '12'
+    postcode = '12345'
+    city = 'Sevilla'
+    country = 'Spain'
+    geom = Point(x=11.1, y=12.2, srid=4326)
+
+
+class AdministrativeLocationFactory(GeolocationFactory):
+    class Meta:
+        model = models.AdministrativeLocation
+    actor = factory.SubFactory(ActorFactory)
+
+
+class OperationalLocationFactory(AdministrativeLocationFactory):
+    class Meta:
+        model = models.OperationalLocation
+    employees = 123
+    turnover = 98765.43

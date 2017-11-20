@@ -50,7 +50,6 @@ class CreateWithUserInCasestudyMixin:
         # update other attributes
         for attr, value in validated_data.items():
             setattr(obj, attr, value)
-        #obj.__dict__.update(**validated_data)
         obj.save()
         return obj
 
@@ -242,14 +241,6 @@ class InSolutionField(InCasestudyField):
         self.casestudy_pk_lookup['solution_pk'] = \
             self.parent_lookup_kwargs['solution_pk']
 
-    #def set_custom_query_params(self, obj, kwargs, Model):
-        #solution_pk_attr = self.extra_lookup_kwargs[self.filter_field].split('__')
-        #for attr in solution_pk_attr:
-            #obj = getattr(obj, attr)
-        #kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj,}
-        #qs = Model.objects.filter(**kwargs)
-        #return qs
-
 
 class InUICField(InCasestudyField):
     parent_lookup_kwargs = {
@@ -313,7 +304,7 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
     """Serializer for put and post requests"""
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects.all(),
+        queryset = CaseStudy.objects,
         source='profile.casestudies',
         many=True,
         view_name='casestudy-detail',
@@ -371,9 +362,10 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         # update other attributes
         for attr, value in validated_data.items():
             setattr(obj, attr, value)
-        #obj.__dict__.update(**validated_data)
+
         if 'password' in validated_data:
             obj.set_password(validated_data['password'])
+
         obj.save()
         return obj
 
@@ -398,6 +390,12 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     implementations = InCasestudyListField(view_name='implementation-list')
     materials = InCasestudyListField(view_name='materialincasestudy-list')
     activitygroups = InCasestudyListField(view_name='activitygroup-list')
+    activities = InCasestudyListField(view_name='activity-list')
+    actors = InCasestudyListField(view_name='actor-list')
+    administrative_locations = InCasestudyListField(
+        view_name='administrativelocation-list')
+    operational_locations = InCasestudyListField(
+        view_name='operationallocation-list')
 
     class Meta:
         model = CaseStudy
@@ -406,6 +404,10 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'implementations',
                   'materials',
                   'activitygroups',
+                  'activities',
+                  'actors', 
+                  'administrative_locations',
+                  'operational_locations', 
                   )
 
 

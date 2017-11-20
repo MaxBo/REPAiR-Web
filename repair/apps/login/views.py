@@ -44,13 +44,16 @@ class ViewSetMixin(ABC):
     """
     casestudy_only = True
     additional_filters = {}
+    serializer_class = None
+    serializers = {}
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action,
+                                    self.serializer_class)
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
         request.session['casestudy_pk'] = kwargs
-        #casestudy_pk = kwargs.get('casestudy_pk')
-        #if casestudy_pk is not None:
-            #request.session['casestudy_pk'] = {'casestudy_pk': casestudy_pk}
 
     def list(self, request, **kwargs):
         """
@@ -69,6 +72,12 @@ class ViewSetMixin(ABC):
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         return Response(serializer.data)
+
+    def create(self, request, **kwargs):
+        """set the """
+        if self.casestudy_only:
+            self.set_casestudy(kwargs, request)
+        return super().create(request, **kwargs)
 
     def retrieve(self, request, **kwargs):
         """
@@ -104,7 +113,7 @@ class ViewSetMixin(ABC):
         except Exception as e:
             print(e)
             return None
-            
+
         if len(self.additional_filters):
             queryset = queryset.filter(**self.additional_filters)
         return queryset

@@ -71,7 +71,7 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
 
 class UnitField(serializers.HyperlinkedRelatedField):
     """A Unit Field"""
-    queryset=Unit.objects.all()
+    queryset=Unit.objects
 
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
@@ -157,9 +157,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     user = UserInCasestudyField(view_name='userincasestudy-detail')
     solution_category = SolutionCategoryField(
         view_name='solutioncategory-detail')
-    #solution_category_id = serializers.PrimaryKeyRelatedField(
-        #source='solution_category',
-        #queryset=SolutionCategory.objects.all())
     solutionquantity_set = SolutionDetailListField(
         view_name='solutionquantity-list')
     solutionratiooneunit_set = SolutionDetailListField(
@@ -283,7 +280,8 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
                     solution=sol)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj
 
@@ -437,6 +435,7 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
                     strategy=strategy)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
         obj.save()
         return obj

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from rest_framework_gis.serializers import (GeoFeatureModelSerializer)
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -16,11 +17,12 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
-                                      )
+                                      AdministrativeLocation,
+                                      OperationalLocation,
+                                     )
+
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
-                                           InCaseStudyIdentityField,
-                                           InCasestudyListField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            NestedHyperlinkedRelatedField,
@@ -30,7 +32,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects.all(),
+        queryset=CaseStudy.objects,
         many=True,
         view_name='casestudy-detail',
         help_text=_('Select the Casestudies the material is used in')
@@ -41,35 +43,36 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id', 'code', 'name', 'casestudies')
 
 
-    def update(self, obj, validated_data):
+    def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
-        material = obj
+        material = instance
 
         # handle groups
         new_casestudies = validated_data.pop('casestudies', None)
         if new_casestudies is not None:
-            MaterialInCasestudy = Material.casestudies.through
-            casestudy_qs = MaterialInCasestudy.objects.filter(
+            ThroughModel = Material.casestudies.through
+            casestudy_qs = ThroughModel.objects.filter(
                 material=material.id)
             # delete existing groups
             casestudy_qs.exclude(
                 casestudy__id__in=(cs.id for cs in new_casestudies)).delete()
             # add or update new groups
             for cs in new_casestudies:
-                MaterialInCasestudy.objects.update_or_create(material=material,
-                                                             casestudy=cs)
+                ThroughModel.objects.update_or_create(material=material,
+                                                      casestudy=cs)
 
         # update other attributes
-        obj.__dict__.update(**validated_data)
-        obj.save()
-        return obj
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         """Create a new material"""
         code = validated_data.pop('code')
 
         material = Material.objects.create(code=code)
-        self.update(obj=material, validated_data=validated_data)
+        self.update(instance=material, validated_data=validated_data)
         return material
 
 
@@ -106,7 +109,7 @@ class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
 
 class MaterialField(NestedHyperlinkedRelatedField):
     parent_lookup_kwargs = {'pk': 'id'}
-    queryset = Material.objects.all()
+    queryset = Material.objects
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
         return False
@@ -140,13 +143,13 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
 class MaterialInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        # Note by Christoph: why is the material_pk in session['casestudy_pk'] 
+        # Note by Christoph: why is the material_pk in session['casestudy_pk']
         # alongside with the key casestudy_pk?
         # is it supposed to be this way?
         casestudy_session = self.context['request'].session['casestudy_pk']
         casestudy_pk = casestudy_session['casestudy_pk']
         material_pk = casestudy_session['material_pk']
-        # ToDo: raise some kind of exception or prevent creating object with 
+        # ToDo: raise some kind of exception or prevent creating object with
         # wrong material/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
         mic = MaterialInCasestudy.objects.get(id=material_pk,
@@ -171,7 +174,7 @@ class ActivityListField(IdentityFieldMixin, ActivitySetField):
 
 
 class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
-                               NestedHyperlinkedModelSerializer):
+                              NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     activity_list = ActivityListField(
         source='activity_set',
@@ -237,6 +240,55 @@ class ActivityField(InCasestudyField):
                             'activitygroup_pk': 'activitygroup__id',}
 
 
+class GeolocationInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class GeolocationInCasestudySetField(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class GeolocationInCasestudyListField(IdentityFieldMixin,
+                                      GeolocationInCasestudySetField):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+
+class GeolocationInCasestudySet2Field(InCasestudyField):
+    lookup_url_kwarg = 'casestudy_pk'
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
+
+
+class GeolocationInCasestudy2ListField(IdentityFieldMixin,
+                                       GeolocationInCasestudySet2Field):
+    """"""
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id',
+                            'actor_pk': 'id',}
+
+
+class AdminLocationGeojsonField(GeoFeatureModelSerializer):
+    actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields = ['id', 'street', 'building', 'postcode', 'country',
+                  'city', 'note', 'actor']
+
+
+class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
+    actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+    id = serializers.IntegerField(label='ID')
+
+    class Meta:
+        model = OperationalLocation
+        geo_field = 'geom'
+        fields = ['id', 'street', 'building', 'postcode', 'country',
+                  'city', 'note', 'actor', 'employees', 'turnover']
+
+
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -248,11 +300,70 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
+
+    administrative_location_geojson = AdminLocationGeojsonField(
+        source='administrative_location',
+        required=False,
+    )
+
+    operational_locations_geojson = OperationsLocationsGeojsonField(
+        source='operational_locations',
+        many=True,
+        required=False,
+    )
+
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included')
+                  'included',
+                  'administrative_location_geojson',
+                  'operational_locations_geojson',
+                 )
+
+
+    def update(self, obj, validated_data):
+        """update the user-attributes, including profile information"""
+        actor = obj
+
+        # handle administrative location
+        administrative_location = validated_data.pop('administrative_location',
+                                                     None)
+        if administrative_location is not None:
+            ## get the actor from the request or take the obj
+            #actor = administrative_location.pop('actor', obj)
+            # look if actor has already an administrative location
+            aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+            for attr, value in administrative_location.items():
+                setattr(aloc, attr, value)
+            aloc.save()
+            #obj.administrativelocation = aloc
+
+        # handle operational locations
+        operational_locations = validated_data.pop('operational_locations',
+                                                   None)
+        if operational_locations is not None:
+            olocs = OperationalLocation.objects.filter(actor=actor)
+            # delete existing rows not needed any more
+            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              in operational_locations
+                                              if ol.get('id') is not None))
+            to_delete.delete()
+            # add or update new operational locations
+            for operational_location in operational_locations:
+                oloc = OperationalLocation.objects.update_or_create(
+                    actor=actor, id=operational_location.get('id'))[0]
+
+
+                for attr, value in operational_location.items():
+                    setattr(oloc, attr, value)
+                oloc.save()
+
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
 
 
 class AllActorSerializer(ActorSerializer):
@@ -260,10 +371,20 @@ class AllActorSerializer(ActorSerializer):
                             'activity__activitygroup__casestudy__id'}
 
 
-class ActorListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Actor
-        fields = ('BvDid', 'name', 'activity')
+class AllActorListSerializer(AllActorSerializer):
+    class Meta(AllActorSerializer.Meta):
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
+                  'included',)
+
+
+class LocationField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+
+class Actor2Field(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
 
 
 class MaterialInCasestudyField(InCasestudyField):
@@ -290,7 +411,7 @@ class GroupStockSerializer(StockSerializer):
     origin = IDRelatedField()
     quality = IDRelatedField()
     #origin_url = ActivityGroupField(view_name='activitygroup-detail')
-    
+
     class Meta(StockSerializer.Meta):
         model = GroupStock
 
@@ -345,7 +466,7 @@ class Group2GroupSerializer(FlowSerializer):
                                          source='destination',
                                          read_only=True)
     quality = IDRelatedField()
-    
+
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
@@ -385,3 +506,111 @@ class Actor2ActorSerializer(FlowSerializer):
         fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
                   'destination', 'destination_url')
 
+
+class AllActorField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'activity__activitygroup__casestudy__id'}
+
+class ActorIDField(serializers.RelatedField):
+    """"""
+    def to_representation(self, value):
+        return value.id
+
+
+class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
+                                       NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id'}
+    actor = ActorIDField(read_only=True)
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
+                  'city', 'geom', 'note', 'actor']
+
+
+class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id',
+                            'actor_pk': 'actor__id',}
+
+    def create(self, validated_data):
+        """Create a new AdministrativeLocation"""
+        actor = validated_data.pop('actor', None)
+        if actor is None:
+            actor_pk = self.context['request'].session['casestudy_pk']['actor_pk']
+            actor = Actor.objects.get(pk=actor_pk)
+
+        aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+        for attr, value in validated_data.items():
+            setattr(aloc, attr, value)
+        aloc.save()
+        return aloc
+
+
+class OperationalLocationSerializer(GeoFeatureModelSerializer,
+                                    NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id'}
+    actor = ActorIDField(read_only=True)
+
+    class Meta:
+        model = OperationalLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
+                  'city', 'geom', 'note', 'actor', 'employees', 'turnover']
+
+
+class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
+    parent_lookup_kwargs = {'casestudy_pk':
+                            'actor__activity__activitygroup__casestudy__id',
+                            'actor_pk': 'actor__id',}
+    id = serializers.IntegerField(label='ID', required=False)
+
+    def create(self, validated_data):
+        """Handle Post on OperationalLocations"""
+        actor_pk = self.context['request'].session['casestudy_pk']['actor_pk']
+        actor = Actor.objects.get(pk=actor_pk)
+
+        operational_locations = validated_data.get('features', None)
+
+        if operational_locations is None:
+            # No Feature Collection: Add Single Location
+            validated_data['actor'] = actor
+            return super().create(validated_data)
+        else:
+            # Feature Collection: Add all Locations
+            olocs = OperationalLocation.objects.filter(actor=actor)
+            # delete existing rows not needed any more
+            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              in operational_locations
+                                              if ol.get('id') is not None))
+            to_delete.delete()
+            # add or update new operational locations
+            for operational_location in operational_locations:
+                oloc = OperationalLocation.objects.update_or_create(
+                    actor=actor, id=operational_location.get('id'))[0]
+
+
+                for attr, value in operational_location.items():
+                    setattr(oloc, attr, value)
+                oloc.save()
+
+        # return the last location that was created
+        return oloc
+
+    def to_internal_value(self, data):
+        """
+        Override the parent method to parse all features and
+        remove the GeoJSON formatting
+        """
+        if data.get('type') == 'FeatureCollection':
+            internal_data_list = list()
+            for feature in data.get('features', []):
+                if 'properties' in data:
+                    feature = self.unformat_geojson(feature)
+                internal_data = super().to_internal_value(feature)
+                internal_data_list.append(internal_data)
+
+            return {'features': internal_data_list}
+        return super().to_internal_value(data)
