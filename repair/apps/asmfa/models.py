@@ -11,31 +11,6 @@ from repair.apps.login.models import (CaseStudy, Profile,
 from django.utils.timezone import now
 
 
-class Product(GDSEModel):
-
-    # not sure about the max length, leaving everywhere 255 for now
-    name = models.CharField(max_length=255, primary_key=True)
-    default = models.BooleanField(default=True)
-
-
-class Material(GDSEModel):
-
-    # not the same as the former Material class that has been renamed to Keyflow
-    code = models.CharField(max_length=10, primary_key=True)
-    name = models.CharField(max_length=255)
-    flowType = models.CharField(max_length=255)
-
-
-class ProductFraction(GDSEModel):
-
-    fraction = models.FloatField()
-
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='fractions')
-    material = models.ForeignKey(Material, on_delete=models.CASCADE,
-                                 related_name='products')
-
-
 class DataEntry(GDSEModel):
 
     user = models.CharField(max_length=255, default="tester")
@@ -83,6 +58,31 @@ class KeyflowInCasestudy(models.Model):
     # note = models.TextField(default='', blank=True)
 
 
+class Product(GDSEModel):
+
+    # not sure about the max length, leaving everywhere 255 for now
+    name = models.CharField(max_length=255, primary_key=True)
+    default = models.BooleanField(default=True)
+
+
+class Material(GDSEModel):
+
+    # not the same as the former Material class that has been renamed to Keyflow
+    code = models.CharField(max_length=10, primary_key=True)
+    name = models.CharField(max_length=255)
+    flowType = models.CharField(max_length=255)
+
+
+class ProductFraction(GDSEModel):
+
+    fraction = models.FloatField()
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='fractions')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+                                 related_name='products')
+
+
 class Quality(GDSEModel):
     # not used anymore
 
@@ -90,26 +90,6 @@ class Quality(GDSEModel):
                                 # on_delete=models.CASCADE)
     # name = models.TextField()
     pass
-
-
-class Geolocation(gis.Model):
-
-    country_choices = (("NL", "The Netherlands"),
-                       ("IT", "Italy"),
-                       ("PL", "Poland"),
-                       ("DE", "Germany"),
-                       ("BE", "Belgium"),
-                       ("HU", "Hungary"),
-                       ("SB", "Sandbox"),
-                       ("EU", "European Union"),
-                       ("-1", "Outside EU"))
-
-    postcode = models.CharField(max_length=10, blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, choices=country_choices,
-                               default="-1")
-    city = models.CharField(max_length=255, blank=True, null=True)
-    geom = gis.PointField(blank=True, null=True)
 
 
 class Node(GDSEModel):
@@ -184,18 +164,71 @@ class Actor(Node):
 
     consCode = models.CharField(max_length=255, blank=True, null=True)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
-    revenue = models.PositiveIntegerField(blank=True, null=True)
-    employees = models.PositiveSmallIntegerField(blank=True, null=True)
     description_eng = models.TextField(max_length=510, blank=True, null=True)
     description = models.TextField(max_length=510, blank=True, null=True)
     BvDii = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
+    employees = models.IntegerField(default=1)
+    turnover = MoneyField(max_digits=10, decimal_places=2,
+                          default_currency='EUR')
 
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                  default=1)
     # if false - actor will be ignored
     included = models.BooleanField(default=True)
 
+
+class Geolocation(gis.Model):
+
+    country_choices = (("NL", "The Netherlands"),
+                       ("IT", "Italy"),
+                       ("PL", "Poland"),
+                       ("DE", "Germany"),
+                       ("BE", "Belgium"),
+                       ("HU", "Hungary"),
+                       ("SB", "Sandbox"),
+                       ("EU", "European Union"),
+                       ("-1", "Outside EU"))
+
+    postcode = models.CharField(max_length=10, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=255, choices=country_choices,
+                               default="-1")
+    city = models.CharField(max_length=255, blank=True, null=True)
+    geom = gis.PointField(blank=True, null=True)
+
+    def __str__(self):
+        ret = '{s}@({g})'.format(s=self.address, g=self.geom)
+        return ret
+
+    class Meta:
+        abstract = True
+
+
+class Establishment(Geolocation):
+
+    actor = models.OneToOneField(Actor, default=get_default(Actor))
+
+    @property
+    def casestudy(self):
+        return self.actor.activity.activitygroup.casestudy
+
+    class Meta:
+        abstract = True
+
+
+class AdministrativeLocation(Establishment):
+    """Administrative Location of Actor"""
+    actor = models.OneToOneField(Actor,
+                                 null=True,
+                                 default=get_default(Actor),
+                                 related_name='administrative_location')
+
+
+class OperationalLocation(Establishment):
+    """Operational Location of Actor"""
+    actor = models.ForeignKey(Actor, default=get_default(Actor),
+                              related_name='operational_locations')
 
 
 class Flow(models.Model):
