@@ -196,13 +196,22 @@ LANGUAGES = (
     ('it', _('Italian')),
 )
 
-if os.name == 'posix':
+if sys.platform == 'linux':
+    # Linux
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.so')
     GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgeos_c.so')
     PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libproj.so')
+elif sys.platform == 'darwin':
+    # Max OS
+    GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgdal.dylib')
+    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libgeos_c.dylib')
+    PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
+                                     'lib', 'libproj.dylib')
 
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, "locale"),
