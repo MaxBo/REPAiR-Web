@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework.response import Response
+from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
@@ -71,7 +72,8 @@ class ViewSetMixin(ABC):
             return Response(status=400)
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
-        return Response(serializer.data)
+        data = self.filter_fields(serializer, request)
+        return Response(data)
 
     def create(self, request, **kwargs):
         """set the """
@@ -90,10 +92,26 @@ class ViewSetMixin(ABC):
         if self.casestudy_only:
             self.set_casestudy(kwargs, request)
         pk = kwargs.pop('pk')
-        queryset = self._filter(kwargs, SerializerClass=SerializerClass)
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=SerializerClass)
         model = get_object_or_404(queryset, pk=pk)
         serializer = SerializerClass(model, context={'request': request})
-        return Response(serializer.data)
+        data = self.filter_fields(serializer, request)
+        return Response(data)
+
+    def filter_fields(self, serializer, request):
+        """
+        limit amount of fields of response by optional query parameter 'field'
+        """
+        data = serializer.data
+        fields = request.query_params.getlist('field')
+        if fields:
+            if isinstance(data, ReturnDict):
+                data = {k: v for k, v in data.items() if k in fields}
+            else:
+                data = [{k: v for k, v in row.items() if k in fields}
+                        for row in data]
+        return data
 
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         """
