@@ -1,6 +1,7 @@
-define(['jquery', 'backbone', 'app/models/actor', 'tablesorter-pager', 'app/loader'],
+define(['jquery', 'backbone', 'app/models/actor', 'app/visualizations/map', 
+        'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor){
+function($, Backbone, Actor, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -111,6 +112,15 @@ function($, Backbone, Actor){
       var sel = document.getElementById('pagesize');
       sel.selectedIndex = 1;
       sel.dispatchEvent(new Event('change'));
+      
+      var map = new Map({
+        divid: 'actors-map', 
+        baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+              subdomains: ['','a.','b.','c.','d.'],
+              attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+            })},
+        overlayLayers: {}
+      });
     },
 
     changeFilter: function(event){
