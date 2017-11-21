@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
@@ -76,7 +77,22 @@
               </form>
             </li>
             <li id="admin-area-link"><a href="/admin">{% trans "Admin Area" %}</a></li>
-            <li id="login-link"><a href="/login/login">{% trans "Login" %}</a></li>
+            <li id="login-link">
+              {% if request.user.is_authenticated %}
+              <div class="dropdown">
+                <div class="btn-group">
+                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                    {{ request.user.username }}
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a href="/login/logout">{% trans "Logout" %}</a></li>
+                  </ul>
+                </div>
+              </div>
+              {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
+              {% endif %}
+            </li>
             <li>
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
