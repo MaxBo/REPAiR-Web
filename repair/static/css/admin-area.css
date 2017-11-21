@@ -57,3 +57,7 @@ input.changed, select.changed {
     top: 0px !IMPORTANT;
     position: relative !IMPORTANT;
 }
+
+#warning {
+    display: none;
+}

@@ -30,6 +30,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       this.selectedModel = null;
 
       var caseStudyId = this.model.id;
+      console.log(caseStudyId)
 
       // collections of nodes associated to the casestudy
       this.activityGroups = options.activityGroups;
