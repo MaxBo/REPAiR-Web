@@ -113,7 +113,7 @@ function($, Backbone, Actor, Map){
       sel.selectedIndex = 1;
       sel.dispatchEvent(new Event('change'));
       
-      var map = new Map({
+      this.map = new Map({
         divid: 'actors-map', 
         baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
               subdomains: ['','a.','b.','c.','d.'],
@@ -201,6 +201,16 @@ function($, Backbone, Actor, Map){
       addInput('BvDid');
       addInput('BvDii');
       addInput('consCode');
+      
+      row.addEventListener('click', function() {
+        var selected = _this.table.getElementsByClassName("selected");
+        _.each(selected, function(row){
+          row.classList.remove('selected');
+        });
+        row.classList.add('selected');
+        _this.map.removeMarkers();
+        _this.map.addMarker();
+      });
 
     },
 

@@ -12,17 +12,8 @@ define([
         zoom: 4,
         fullscreenControl: true
     });
-
-    var marker = L.marker(new L.LatLng(50,15), {draggable: 'true'}).addTo(map);
-    marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng);
     
-    marker.on('dragend', function(event){
-      var marker = event.target;
-      var position = marker.getLatLng();
-      marker.setLatLng(new L.LatLng(position.lat, position.lng),{draggable:'true'});
-      map.panTo(new L.LatLng(position.lat, position.lng));
-      marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng);
-    });
+    var marker;
     
     $.each(options.baseLayers, function(name, layer) {
       layer.addTo(map);
@@ -32,10 +23,29 @@ define([
     
     function onMapClick(e) {
         marker.setLatLng(e.latlng);
-        marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng);
+        marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng).openPopup();
     }
+    
     map.doubleClickZoom.disable(); 
     map.on('dblclick', onMapClick);
+    
+    this.removeMarkers = function(){
+      if (marker != null)
+        map.removeLayer(marker)
+    }
+    this.addMarker = function(){
+      marker = L.marker(new L.LatLng(50,15), {draggable: 'true'}).addTo(map);
+      marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng).openPopup();
+      
+      marker.on('dragend', function(event){
+        var marker = event.target;
+        var position = marker.getLatLng();
+        marker.setLatLng(new L.LatLng(position.lat, position.lng),{draggable:'true'});
+        map.panTo(new L.LatLng(position.lat, position.lng));
+        marker.bindPopup(marker.getLatLng().lat + ', ' + marker.getLatLng().lng).openPopup();
+      });
+    
+    }
   };
   
   

@@ -61,3 +61,7 @@ input.changed, select.changed {
 #warning {
     display: none;
 }
+
+tr.selected td{
+    background-color: #cfff9b !IMPORTANT;
+}
