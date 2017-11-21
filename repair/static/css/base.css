@@ -178,7 +178,11 @@ th {
 
 #to-top-anchor {
   color: #4c5867 !IMPORTANT;
-  float: right;
+  background-color: white;
+  position: fixed;
+  /*float: right;*/
+  right: 10px;
+  bottom: 10px;
 }
 
 @-webkit-keyframes spin {

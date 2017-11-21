@@ -39,13 +39,16 @@
       <tbody> 
       </tbody> 
     </table>
+  </div>
+  <div class="row">
+    <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
     <!-- pager -->
     <div id="pager" class="pager">
       <form>
         <img src="{{STATIC_URL}}img/first.png" class="first"/>
         <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
         <!-- the "pagedisplay" can be any element, including an input -->
-        <span class="pagedisplay" data-pager-output-filtered="{startRow:input} &ndash; {endRow} / {filteredRows} of {totalRows} total rows"></span>
+        <input type="text" class="pagedisplay"/>
         <img src="{{STATIC_URL}}img/next.png" class="next"/>
         <img src="{{STATIC_URL}}img/last.png" class="last"/>
         <select id="pagesize" class="pagesize">
@@ -57,7 +60,6 @@
         </select>
       </form>
     </div>
-    <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
