@@ -153,10 +153,10 @@ class KeyflowInCasestudyDetailCreateMixin:
         # ToDo: raise some kind of exception or prevent creating object with
         # wrong material/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
-        mic = KeyflowInCasestudy.objects.get(id=keyflow_pk,
+        mic = KeyflowInCasestudy.objects.get(id=keyflow_pk)
+        validated_data['Keyflow'] = mic
 
         obj = self.Meta.model.objects.create(
-            Keyflow=mic,
             **validated_data)
         return obj
 

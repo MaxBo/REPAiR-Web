@@ -1,10 +1,15 @@
 import repair.settings
+import logging
 from django.db import models
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.core.exceptions import (ValidationError,
+                                    NON_FIELD_ERRORS,
+                                    AppRegistryNotReady)
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.utils import OperationalError, IntegrityError
+
+logger = logging.getLogger(__name__)
 
 
 class GDSEModel(models.Model):
@@ -47,19 +52,19 @@ def get_default(model):
     """get a default value for a foreign key"""
     try:
         value = model.objects.get_or_create(id=1)[0]
-    except OperationalError as e:
+    except (OperationalError, AppRegistryNotReady) as e:
         """
         Before running the migrations, the default value is queried from a
         not yet existing database
         """
-        print(e)
+        logger.debug(e)
         return 0
     except IntegrityError as e:
         """
         Before running the migrations, the default value is queried from a
         not yet existing database
         """
-        print(e)
+        logger.debug(e)
         return 0
     return value.pk
 
