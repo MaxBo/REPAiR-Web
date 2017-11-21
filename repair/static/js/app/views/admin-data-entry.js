@@ -30,7 +30,6 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       this.selectedModel = null;
 
       var caseStudyId = this.model.id;
-      console.log(caseStudyId)
 
       // collections of nodes associated to the casestudy
       this.activityGroups = options.activityGroups;
@@ -143,6 +142,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
         template: 'edit-node-template',
         model: model,
         materialId: materialSelect.value,
+        materialName: materialSelect.options[materialSelect.selectedIndex].text,
         caseStudyId: this.model.id,
         qualities: this.qualities,
         onUpload: this.renderDataEntry // rerender after upload
