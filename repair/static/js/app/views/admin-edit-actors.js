@@ -110,16 +110,16 @@ function($, Backbone, Actor, Map){
       // workaround for a bug in tablesorter-pager by triggering
       // event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
-      sel.selectedIndex = 1;
+      sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
       
       this.map = new Map({
         divid: 'actors-map', 
-        baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-              subdomains: ['','a.','b.','c.','d.'],
-              attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-            })},
-        overlayLayers: {}
+        //baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+              //subdomains: ['','a.','b.','c.','d.'],
+              //attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+            //})},
+        //overlayLayers: {}
       });
     },
 
@@ -147,14 +147,14 @@ function($, Backbone, Actor, Map){
       var included = actor.get('included')
       checkbox.checked = included;
       if (!included){
-        row.classList.add('strikeout');
+        row.classList.add('dsbld');
         if (!this.showAll)
           row.style.display = "block";
       }
       row.insertCell(-1).appendChild(checkbox);
 
       checkbox.addEventListener('change', function() {
-        row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
         actor.set('included', checkbox.checked);
       });
 

@@ -8,6 +8,8 @@ requirejs.config({
     'leaflet': 'libs/leaflet',
     'esri-leaflet': 'libs/esri-leaflet',
     'leaflet-fullscreen': 'libs/leaflet.fullscreen.min',
+    'openlayers': 'libs/ol',
+    'ol-contextmenu': 'libs/ol-contextmenu',
     'spatialsankey': 'libs/spatialsankey',
     'cyclesankey': 'libs/cycle-sankey',
     'jquery': 'libs/jquery-3.2.1.min',
@@ -22,11 +24,14 @@ requirejs.config({
     'almond': { exports: 'almond' },
     'tablesorter': { deps: ['jquery', 'libs/jquery.tablesorter.min'] },
     'tablesorter-pager': { deps: ['tablesorter'] },
+    'leaflet-fullscreen': { deps: ['leaflet'] },
     'backbone': { deps: ['underscore', 'jquery'] },
     'spatialsankey': { deps: ['d3'] },
     'cyclesankey': { deps: ['d3'] },
   }
 });
+
+/* OVERRIDE FUNCTIONS */
 
 /* String formatter taken from https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 example: "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET")
