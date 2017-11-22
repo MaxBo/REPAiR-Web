@@ -68,18 +68,18 @@
 },
 {
   "model": "changes.solutioncategory",
-  "pk": 7,
-  "fields": {
-    "user": 3,
-    "name": "Financial"
-  }
-},
-{
-  "model": "changes.solutioncategory",
   "pk": 8,
   "fields": {
     "user": 5,
     "name": "Police"
+  }
+},
+{
+  "model": "changes.solutioncategory",
+  "pk": 9,
+  "fields": {
+    "user": 1,
+    "name": "iamthenewcategeroy"
   }
 },
 {
@@ -171,6 +171,50 @@
   }
 },
 {
+  "model": "changes.solution",
+  "pk": 18,
+  "fields": {
+    "user": 1,
+    "solution_category": 2,
+    "name": "123213",
+    "description": "3123",
+    "one_unit_equals": "two units and one horse"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 19,
+  "fields": {
+    "user": 1,
+    "solution_category": 2,
+    "name": "143143",
+    "description": "21312",
+    "one_unit_equals": "134"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 20,
+  "fields": {
+    "user": 1,
+    "solution_category": 2,
+    "name": "new",
+    "description": "omg so new",
+    "one_unit_equals": "millions"
+  }
+},
+{
+  "model": "changes.solution",
+  "pk": 21,
+  "fields": {
+    "user": 1,
+    "solution_category": 2,
+    "name": "1new",
+    "description": "omg so new",
+    "one_unit_equals": "millions"
+  }
+},
+{
   "model": "changes.solutionquantity",
   "pk": 1,
   "fields": {
@@ -216,6 +260,33 @@
   }
 },
 {
+  "model": "changes.solutionquantity",
+  "pk": 8,
+  "fields": {
+    "solution": 3,
+    "unit": 5,
+    "name": "price"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 9,
+  "fields": {
+    "solution": 1,
+    "unit": 4,
+    "name": "Anzahl"
+  }
+},
+{
+  "model": "changes.solutionquantity",
+  "pk": 10,
+  "fields": {
+    "solution": 1,
+    "unit": 3,
+    "name": "H\u00f6he"
+  }
+},
+{
   "model": "changes.solutionratiooneunit",
   "pk": 1,
   "fields": {
@@ -245,23 +316,14 @@
   }
 },
 {
-  "model": "changes.implementation",
-  "pk": 2,
-  "fields": {
-    "user": 3,
-    "name": "Regulative reform bundle 2025",
-    "coordinating_stakeholder": 1
-  }
-},
-{
   "model": "changes.solutioninimplementation",
   "pk": 1,
   "fields": {
     "solution": 3,
     "implementation": 1,
     "participants": [
-      4,
-      2
+      2,
+      4
     ]
   }
 },
@@ -283,32 +345,27 @@
     "solution": 6,
     "implementation": 1,
     "participants": [
-      6,
-      2
-    ]
-  }
-},
-{
-  "model": "changes.solutioninimplementation",
-  "pk": 4,
-  "fields": {
-    "solution": 4,
-    "implementation": 2,
-    "participants": [
       2,
-      1
+      6
     ]
   }
 },
 {
   "model": "changes.solutioninimplementation",
-  "pk": 5,
+  "pk": 6,
   "fields": {
-    "solution": 3,
-    "implementation": 2,
-    "participants": [
-      1
-    ]
+    "solution": 7,
+    "implementation": 1,
+    "participants": []
+  }
+},
+{
+  "model": "changes.solutioninimplementation",
+  "pk": 8,
+  "fields": {
+    "solution": 2,
+    "implementation": 1,
+    "participants": []
   }
 },
 {
@@ -337,18 +394,46 @@
 },
 {
   "model": "changes.solutioninimplementationnote",
-  "pk": 4,
-  "fields": {
-    "sii": 4,
-    "note": "As discussed in workshop #2"
-  }
-},
-{
-  "model": "changes.solutioninimplementationnote",
   "pk": 5,
   "fields": {
     "sii": 2,
     "note": "Another Note"
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 1,
+  "fields": {
+    "sii": 1,
+    "quantity": 1,
+    "value": 123.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 2,
+  "fields": {
+    "sii": 1,
+    "quantity": 7,
+    "value": 2.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 3,
+  "fields": {
+    "sii": 2,
+    "quantity": 5,
+    "value": 0.0
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 4,
+  "fields": {
+    "sii": 3,
+    "quantity": 6,
+    "value": 0.0
   }
 },
 {
@@ -380,29 +465,20 @@
 },
 {
   "model": "changes.solutioninimplementationquantity",
-  "pk": 8,
-  "fields": {
-    "sii": 4,
-    "quantity": 3,
-    "value": 1.0
-  }
-},
-{
-  "model": "changes.solutioninimplementationquantity",
-  "pk": 13,
-  "fields": {
-    "sii": 5,
-    "quantity": 3,
-    "value": 2.0
-  }
-},
-{
-  "model": "changes.solutioninimplementationquantity",
   "pk": 14,
   "fields": {
     "sii": 1,
     "quantity": 7,
     "value": 2.5
+  }
+},
+{
+  "model": "changes.solutioninimplementationquantity",
+  "pk": 15,
+  "fields": {
+    "sii": 1,
+    "quantity": 8,
+    "value": 333.0
   }
 },
 {
@@ -451,15 +527,6 @@
   }
 },
 {
-  "model": "changes.solutioninimplementationgeometry",
-  "pk": 6,
-  "fields": {
-    "sii": 4,
-    "name": "Dort",
-    "geom": "TheGeometry"
-  }
-},
-{
   "model": "changes.strategy",
   "pk": 1,
   "fields": {
@@ -467,8 +534,7 @@
     "name": "Vision Waste 2035",
     "coordinator": 1,
     "implementations": [
-      1,
-      2
+      1
     ]
   }
 }

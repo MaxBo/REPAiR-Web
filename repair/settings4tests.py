@@ -15,7 +15,7 @@ from repair.settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': 'db_tests.sqlite3',
     },
 
@@ -27,10 +27,10 @@ MIGRATION_MODULES = {
     'default': None,
     'sessions': None,
 
-    'changes': None,
     'login': None,
-    'studyarea': None,
     'asmfa': None,
+    'studyarea': None,
+    'changes': None,
     'profiles': None,
     'snippets': None,
     'scaffold_templates': None,

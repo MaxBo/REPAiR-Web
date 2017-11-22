@@ -1,57 +1,115 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
-           'app/views/admin-data-view', 'app/collections/flows', 
-           'app/collections/activitygroups'], 
-  function ($, CaseStudy, DataEntryView, DataView, Flows, ActivityGroups) {
-  
-    var caseStudySelect = document.getElementById('case-studies-select');
-    var materialSelect = document.getElementById('flows-select');
-    
-    var dataView;
-    var dataEntry;
-  
-    var renderDataView = function(){
-      var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
-      var materialId = materialSelect.options[materialSelect.selectedIndex].value;
-      var groupToGroup = new Flows({caseStudyId: caseStudyId, 
-                                    materialId: materialId});
+           'app/views/admin-data-view', 'app/views/admin-edit-actors', 
+           'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
+           'app/collections/activitygroups', 'app/collections/materials',
+           'app/collections/stocks', 'app-config', 'app/loader'],
+  function ($, CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
+            Activities, Actors, ActivityGroups, Materials, Stocks, appConfig) {
+
+    var caseStudyId,
+        caseStudy,
+        activityGroups,
+        materials,
+        activities;
+
+    var dataView,
+        dataEntryView,
+        editActorsView;
+
+    var renderDataView = function(materialId, caseStudyId){
+      var groupToGroup = new Flows([], {caseStudyId: caseStudyId,
+                                        materialId: materialId});
       if (dataView != null)
         dataView.close();
-      
-      var activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+
+      var stocks = new Stocks([], {caseStudyId: caseStudyId, materialId: materialId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
         collection: groupToGroup,
-        activityGroups: activityGroups
+        activityGroups: activityGroups,
+        stocks: stocks
       });
     };
-    
+
     // render data entry for currently selected casestudy
-    var renderDataEntry = function(){
-      var caseStudyId = caseStudySelect.options[caseStudySelect.selectedIndex].value;
-      if (dataEntry != null)
-        dataEntry.close();
-        
+    var renderDataEntry = function(caseStudy){
+      if (dataEntryView != null)
+        dataEntryView.close();
+
       // create casestudy-object and render view on it (data will be fetched in view)
-      var caseStudy = new CaseStudy({id: caseStudyId});
-      dataEntry = new DataEntryView({
+
+      dataEntryView = new DataEntryView({
         el: document.getElementById('data-entry'),
         template: 'data-entry-template',
-        model: caseStudy
+        model: caseStudy,
+        activityGroups: activityGroups,
+        activities: activities
       });
     };
-  
-    var refreshButton = document.getElementById('refresh-view-btn');
     
-    // selection of casestudy changed -> render new view
-    caseStudySelect.addEventListener('change', renderDataEntry);
-    caseStudySelect.addEventListener('change', renderDataView);
-    materialSelect.addEventListener('change', renderDataView);
-    refreshButton.addEventListener('click', renderDataView);
-    
-    // initially show first case study (selected index 0)
-    renderDataEntry();
-    renderDataView();
+    var renderEditActors = function(caseStudy){
+      if (editActorsView != null)
+        editActorsView.close();
+
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      editActorsView = new EditActorsView({
+        el: document.getElementById('actors-edit'),
+        template: 'actors-edit-template',
+        model: caseStudy,
+        collection: new Actors({caseStudyId: caseStudy.id}),
+        activities: activities,
+        onUpload: function(){renderEditActors(caseStudy)}
+      });
+    };
+
+    var renderCaseStudy = function(caseStudy){
+      var caseStudyId = caseStudy.id;
+      var flowInner = _.template(document.getElementById('flows-edit-template').innerHTML);
+      var el = document.getElementById('flows-edit');
+      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
+                                materials: materials});
+
+      var materialSelect = document.getElementById('flows-select');
+      var refreshButton = document.getElementById('refresh-view-btn');
+      var onMaterialChange = function(rerenderEntry){
+        var materialId = materialSelect.options[materialSelect.selectedIndex].value;
+        renderDataView(materialId, caseStudyId);
+        // can't safely add this inside view, because selector is not part of it's template
+        if (rerenderEntry == true)
+          dataEntryView.renderDataEntry();
+      }
+      materialSelect.addEventListener('change', function(){onMaterialChange(true)});
+      refreshButton.addEventListener('click', onMaterialChange);
+
+      renderDataEntry(caseStudy);
+      renderEditActors(caseStudy);
+
+      if (materials.length > 0){
+        renderDataView(materials.first().id, caseStudyId);
+      }
+    }
+
+    var session = appConfig.getSession(
+      function(session){
+        var caseStudyId = session['casestudy'];
+        if (caseStudyId == null){
+          document.getElementById('warning').style.display = 'block';
+          return;
+        }
+        caseStudy = new CaseStudy({id: caseStudyId});
+        activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+        activities = new Activities({caseStudyId: caseStudyId});
+        materials = new Materials({caseStudyId: caseStudyId});
+        var loader = new Loader(document.getElementById('content'),
+                                {disable: true});
+        $.when(caseStudy.fetch(), activityGroups.fetch(), 
+               materials.fetch(), activities.fetch()).then(function() {
+          loader.remove();
+          renderCaseStudy(caseStudy);
+        });
+    });
   });
 });

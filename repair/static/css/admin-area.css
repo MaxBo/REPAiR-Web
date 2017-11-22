@@ -19,7 +19,7 @@
     min-height: 300px;
 }
 
-#upload-flows-button{
+#upload-flows-button, #upload-actors-button{
     float: right;
     width: auto;
     margin-top: 10px;
@@ -32,4 +32,32 @@
     top: 20px;
     right: 20px;
     font-size: 2em;
+}
+
+input.changed, select.changed {
+    background-color: #e6f2ff;
+}
+
+#actors-table tr.strikeout td{
+    background-color: #ffe6e6 !IMPORTANT;
+    opacity: 0.8;
+}
+
+#actors-table tr.strikeout td:before {
+    border: none;
+}
+
+#actors-table th{
+    color: white !IMPORTANT;
+    background-color:  #aad400 !IMPORTANT;
+}
+
+/*tablesorter does a bad job with placing pager by default*/
+#pager {
+    top: 0px !IMPORTANT;
+    position: relative !IMPORTANT;
+}
+
+#warning {
+    display: none;
 }

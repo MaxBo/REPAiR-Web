@@ -1,0 +1,120 @@
+[
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "Gruppe 123",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": -1,
+  "fields": {
+    "password": "i",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "AnonymusUser",
+    "first_name": "",
+    "last_name": "",
+    "email": "my.name@is.rabbit",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-11-01T18:11:08.551Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Max",
+    "first_name": "",
+    "last_name": "",
+    "email": "bohnet@ggr-planung.de",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-11-01T18:11:08.613Z",
+    "groups": [
+      1
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "JM",
+    "first_name": "",
+    "last_name": "",
+    "email": "gutsche@ggr-planung.de",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-11-01T18:11:08.660Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "Andreas",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Andreas",
+    "first_name": "",
+    "last_name": "",
+    "email": "andreas.obersteeg@hcu-hamburg.de",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-11-01T18:11:08.707Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$xChcS1dXFJgX$2CMXWET3xFAfwSt5lTjdsdC8fqNLVgjmTQn0QJYxpQg=",
+    "last_login": "2017-11-06T10:56:05.325Z",
+    "is_superuser": false,
+    "username": "Cfr",
+    "first_name": "",
+    "last_name": "",
+    "email": "cfr@ggr-planung.de",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-11-06T10:55:44.091Z",
+    "groups": [
+      1
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user_groups",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "group": 1
+  }
+},
+{
+  "model": "auth.user_groups",
+  "pk": 2,
+  "fields": {
+    "user": 4,
+    "group": 1
+  }
+}
+]

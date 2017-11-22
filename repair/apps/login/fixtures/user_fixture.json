@@ -42,56 +42,51 @@
   }
 },
 {
-  "model": "auth.user",
+  "model": "login.casestudy",
+  "pk": 7,
+  "fields": {
+    "name": "SandboxCity"
+  }
+},
+{
+  "model": "login.profile",
   "pk": -1,
   "fields": {
-    "username": "AnonymusUser",
-    "email": "my.name@is.rabbit"
+    "user": -1,
+    "organization": ""
   }
 },
 {
-  "model": "auth.user",
+  "model": "login.profile",
   "pk": 1,
   "fields": {
-    "username": "Max",
-    "email": "bohnet@ggr-planung.de"
+    "user": 1,
+    "organization": ""
   }
 },
 {
-  "model": "auth.user",
+  "model": "login.profile",
   "pk": 2,
   "fields": {
-    "username": "JM",
-    "email": "gutsche@ggr-planung.de"
+    "user": 2,
+    "organization": ""
   }
 },
 {
-  "model": "auth.user",
+  "model": "login.profile",
   "pk": 3,
   "fields": {
-    "username": "Andreas",
-    "email": "andreas.obersteeg@hcu-hamburg.de"
+    "user": 3,
+    "organization": "HafenCity"
   }
 },
 {
   "model": "login.profile",
-  "pk": -1,"fields": {"user":-1,
-    "organization": ""}
-},
-{
-  "model": "login.profile",
-  "pk": 1,"fields": {"user":1,
-    "organization": ""}
-},
-{
-  "model": "login.profile",
-  "pk": 2,"fields": {"user":2,
-    "organization": ""}
-},
-{
-  "model": "login.profile",
-  "pk": 3,"fields": {"user":3,
-    "organization": ""}
+  "pk": 4,
+  "fields": {
+    "user": 4,
+    "organization": "GGR"
+  }
 },
 {
   "model": "login.userincasestudy",
@@ -107,15 +102,6 @@
   "pk": 2,
   "fields": {
     "user": 2,
-    "casestudy": 5,
-    "role": ""
-  }
-},
-{
-  "model": "login.userincasestudy",
-  "pk": 3,
-  "fields": {
-    "user": 3,
     "casestudy": 5,
     "role": ""
   }
@@ -145,54 +131,141 @@
     "user": 2,
     "casestudy": 3,
     "role": ""
-  }  },
+  }
+},
 {
   "model": "login.userincasestudy",
-  "pk": 8,
+  "pk": 14,
   "fields": {
-    "user": -1,
+    "user": 3,
+    "casestudy": 5,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 15,
+  "fields": {
+    "user": 4,
     "casestudy": 1,
     "role": ""
- } },
+  }
+},
 {
   "model": "login.userincasestudy",
-  "pk": 9,
+  "pk": 16,
+  "fields": {
+    "user": 4,
+    "casestudy": 2,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 17,
+  "fields": {
+    "user": 4,
+    "casestudy": 3,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 18,
+  "fields": {
+    "user": 4,
+    "casestudy": 4,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 19,
+  "fields": {
+    "user": 4,
+    "casestudy": 5,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 20,
+  "fields": {
+    "user": 4,
+    "casestudy": 6,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 21,
+  "fields": {
+    "user": 4,
+    "casestudy": 7,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 30,
   "fields": {
     "user": -1,
     "casestudy": 2,
     "role": ""
- } },
-  {
+  }
+},
+{
   "model": "login.userincasestudy",
-  "pk": 10,
+  "pk": 31,
   "fields": {
     "user": -1,
     "casestudy": 3,
     "role": ""
- } },
-  {
+  }
+},
+{
   "model": "login.userincasestudy",
-  "pk": 11,
+  "pk": 32,
   "fields": {
     "user": -1,
     "casestudy": 4,
     "role": ""
- }},
-  {
+  }
+},
+{
   "model": "login.userincasestudy",
-  "pk": 12,
+  "pk": 33,
   "fields": {
     "user": -1,
     "casestudy": 5,
     "role": ""
-  }},
-  {
+  }
+},
+{
   "model": "login.userincasestudy",
-  "pk": 13,
+  "pk": 34,
   "fields": {
     "user": -1,
     "casestudy": 6,
     "role": ""
- } }
-
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 35,
+  "fields": {
+    "user": -1,
+    "casestudy": 7,
+    "role": ""
+  }
+},
+{
+  "model": "login.userincasestudy",
+  "pk": 36,
+  "fields": {
+    "user": -1,
+    "casestudy": 1,
+    "role": ""
+  }
+}
 ]

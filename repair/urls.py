@@ -20,19 +20,13 @@ from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-
-
-def index(request):
-    template = loader.get_template('index.html')
-    context = {}
-    html = template.render(context, request)
-    return HttpResponse(html)
+from repair.views import HomeView
 
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    url(r'^$', index, name='index'),
+    url(r'^$', HomeView.as_view(), name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', include('repair.apps.admin.urls')),
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
@@ -41,7 +35,6 @@ urlpatterns = [
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
-    #url('^login/', include('django.contrib.auth.urls')),
+    url('^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^login/', include('rest_framework.urls', namespace='rest_framework')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

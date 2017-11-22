@@ -1,9 +1,8 @@
 define(['jquery', 'backbone',
-        'app/views/admin-edit-node', 'app/collections/activitygroups',
+        'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/qualities', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, ActivityGroups,
-         Activities, Actors, Qualities, treeview){
+function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
 
   /**
    *
@@ -25,29 +24,21 @@ function($, Backbone, EditNodeView, ActivityGroups,
     initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderDataTree');
+      _.bindAll(this, 'renderDataEntry');
       var _this = this;
       this.template = options.template;
+      this.selectedModel = null;
 
       var caseStudyId = this.model.id;
 
       // collections of nodes associated to the casestudy
-      this.activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
-      this.activities = new Activities({caseStudyId: caseStudyId});
+      this.activityGroups = options.activityGroups;
+      this.activities = options.activities;
       this.actors = new Actors({caseStudyId: caseStudyId});
       this.qualities = new Qualities();
-      
-      // render the view after successfully retrieving the data of the casestudy
-      this.qualities.fetch({success: function(){
-        _this.model.fetch({
-          success: _this.render
-        })
-      }});
-    },
 
-    /*
-     * dom events (managed by jquery)
-     */
-    events: {},
+      this.render();
+    },
 
     /*
      * render the view
@@ -59,14 +50,11 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render the tree conatining all nodes
       // after fetching their data, show loader-symbol while fetching
-      var loader = new Loader(this.el);
-      this.activityGroups.fetch().then(function(){
-        _this.activities.fetch().then(function(){
-          _this.actors.fetch().then(function(){
-            _this.renderDataTree();
-            loader.remove();
-          });
-        });
+      var loader = new Loader(document.getElementById('flows-edit'),
+                              {disable: true});
+      $.when(this.qualities.fetch(), this.actors.fetch({data: 'included=True'})).then(function() {
+        _this.renderDataTree();
+        loader.remove();
       });
 
     },
@@ -96,7 +84,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
         var node = {
           text: group.get('code') + ": " + group.get('name'),
           model: group,
-          icon: 'glyphicon glyphicon-tasks',
+          icon: 'fa fa-cubes',
           nodes: [],
           state: {checked: false}
         };
@@ -109,7 +97,7 @@ function($, Backbone, EditNodeView, ActivityGroups,
         var node = {
           text: activity.get('name'),
           model: activity,
-          icon: 'glyphicon glyphicon-cog',
+          icon: 'fa fa-cube',
           nodes: nodes,
           state: {checked: false}
         };
@@ -123,13 +111,15 @@ function($, Backbone, EditNodeView, ActivityGroups,
 
       // render view on node on click in data-tree
       var onClick = function(event, node){
-        _this.renderDataEntry(node.model);
+        _this.selectedModel = node.model;
+        _this.renderDataEntry();
       };
       var divid = '#data-tree';
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
-                         showCheckbox: true});
+                         //showCheckbox: true
+                         });
       $(divid).treeview('collapseAll', {silent: true});
     },
 
@@ -138,19 +128,24 @@ function($, Backbone, EditNodeView, ActivityGroups,
     *
     * @param model  backbone-model of the node
     */
-    renderDataEntry: function(model){
+    renderDataEntry: function(){
+      var model = this.selectedModel;
+      if (model == null)
+        return
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
       // currently selected material
-      var flowSelect = document.getElementById('flows-select');
+      var materialSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        materialId: flowSelect.value,
+        materialId: materialSelect.value,
+        materialName: materialSelect.options[materialSelect.selectedIndex].text,
         caseStudyId: this.model.id,
-        qualities: this.qualities
+        qualities: this.qualities,
+        onUpload: this.renderDataEntry // rerender after upload
       });
     },
 

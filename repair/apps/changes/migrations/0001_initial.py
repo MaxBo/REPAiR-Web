@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('login', '0004_auto_20171101_1154'),
         ('studyarea', '0002_links_nodes_person'),
-        ('login', '0002_auto_20171027_1908'),
     ]
 
     operations = [

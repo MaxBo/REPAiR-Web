@@ -12,7 +12,7 @@ from repair.tests.test import BasicModelTest
 
 class ModelTest(TestCase):
 
-    fixtures = ['user_fixture.json']
+    fixtures = ['auth_fixture', 'user_fixture.json']
 
 
     def test_profile_creation(self):
@@ -62,7 +62,7 @@ class ModelTest(TestCase):
 
 class ViewTest(APITestCase):
 
-    fixtures = ['user_fixture.json']
+    fixtures = ['auth_fixture', 'user_fixture.json']
 
 
     def test_get_group(self):
