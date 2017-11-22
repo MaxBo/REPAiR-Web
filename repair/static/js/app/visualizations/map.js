@@ -29,43 +29,74 @@ define([
       view: view
     });
     
-  var pin_icon_blue = '/static/img/simpleicon-places/svg/map-marker-blue.svg';
-  var pin_icon_red = '/static/img/simpleicon-places/svg/map-marker-red.svg';
-  this.addmarker = function(obj, options) {
-    var coord4326 = ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'),
-        template = '({x}, {y})',
-        feature = new ol.Feature({
-          type: 'removable',
-          geometry: new ol.geom.Point(obj.coordinate)
-        });
-
-    if (options.icon){
-       var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon({ scale: .08, src: options.icon }),
-        text: new ol.style.Text({
-          offsetY: 25,
-          text: ol.coordinate.format(coord4326, template, 2),
-          font: '15px Open Sans,sans-serif',
-          fill: new ol.style.Fill({ color: '#111' }),
-          stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
-        })
-      });
-      feature.setStyle(iconStyle);
-    }
-    vectorLayer.getSource().addFeature(feature);
-    }
+    var pin_icon_blue = '/static/img/simpleicon-places/svg/map-marker-blue.svg';
+    var pin_icon_orange = '/static/img/simpleicon-places/svg/map-marker-orange.svg';
+    var pin_icon_red = '/static/img/simpleicon-places/svg/map-marker-red.svg';
+    
+    this.addmarker = function(obj, options) {
+      var coord4326 = ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'),
+          template = '({x}, {y})',
+          feature = new ol.Feature({
+            type: 'removable',
+            geometry: new ol.geom.Point(obj.coordinate)
+          });
   
+      if (options.icon){
+         var iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({ scale: .08, src: options.icon }),
+          text: new ol.style.Text({
+            offsetY: 25,
+            text: ol.coordinate.format(coord4326, template, 2),
+            font: '15px Open Sans,sans-serif',
+            fill: new ol.style.Fill({ color: '#111' }),
+            stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
+          })
+        });
+        feature.setStyle(iconStyle); 
+      }
+      var dragStyle;
+      if (options.dragIcon){
+         dragStyle = new ol.style.Style({
+          image: new ol.style.Icon({ scale: .08, src: options.dragIcon }),
+          text: new ol.style.Text({
+            offsetY: 25,
+            text: ol.coordinate.format(coord4326, template, 2),
+            font: '15px Open Sans,sans-serif',
+            fill: new ol.style.Fill({ color: '#111' }),
+            stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
+          })
+        })
+      }
+      //console.log(iconStyle)
+      // Drag and drop feature
+      var dragInteraction = new ol.interaction.Modify({
+          features: new ol.Collection([feature]),
+          style: dragStyle,
+          pixelTolerance: 20
+      });
+      
+      // Add the event to the drag and drop feature
+      dragInteraction.on('modifyend',function(){
+          console.log('drag');
+      },feature);
+      
+      map.addInteraction(dragInteraction);
+      vectorLayer.getSource().addFeature(feature);
+  
+    }
+    
     var _this = this;
     var contextmenu_items = [
       {
         text: 'Add/Move Administr. Loc.',
         icon: pin_icon_blue,
-        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_blue })}
+        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_blue, dragIcon: pin_icon_orange
+        })}
       },
       {
         text: 'Add Operational Loc.',
         icon: pin_icon_red,
-        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_red })}
+        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_red, dragIcon: pin_icon_orange })}
       },
       '-' // this is a separator
     ];
