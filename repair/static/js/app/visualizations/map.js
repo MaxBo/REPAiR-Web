@@ -12,6 +12,8 @@ define([
   var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
   
   var Map = function(options){
+    var interactions = [];
+  
     var map = new ol.Map({
       layers: [
         new ol.layer.Tile({
@@ -33,14 +35,13 @@ define([
     this.addmarker = function(coordinate, options) {
       var proj = options.projection || map_projection;
       
-      var c4326 = ol.proj.transform(coordinate, proj, 'EPSG:4326'),
-          transform
-          template = '({x}, {y})';
+      var template = '({x}, {y})';
           
       var feature = new ol.Feature({
             type: 'removable',
             // transform to map projection
-            geometry: new ol.geom.Point(ol.proj.transform(coordinate, proj, map_projection))
+            geometry: new ol.geom.Point(
+              ol.proj.transform(coordinate, proj, map_projection))
           });
       
       if (options.icon){
@@ -48,7 +49,7 @@ define([
           image: new ol.style.Icon({ scale: .08, src: options.icon }),
           text: new ol.style.Text({
             offsetY: 25,
-            text: ol.coordinate.format(c4326, template, 2),
+            text: ol.coordinate.format(coordinate, template, 2),
             font: '15px Open Sans,sans-serif',
             fill: new ol.style.Fill({ color: '#111' }),
             stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
@@ -59,14 +60,7 @@ define([
       var dragStyle;
       if (options.dragIcon){
          dragStyle = new ol.style.Style({
-          image: new ol.style.Icon({ scale: .08, src: options.dragIcon }),
-          text: new ol.style.Text({
-            offsetY: 25,
-            text: ol.coordinate.format(c4326, template, 2),
-            font: '15px Open Sans,sans-serif',
-            fill: new ol.style.Fill({ color: '#111' }),
-            stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
-          })
+          image: new ol.style.Icon({ scale: .08, src: options.dragIcon })
         })
       }
       
@@ -78,16 +72,27 @@ define([
       });
       
       // Add the event to the drag and drop feature
-      dragInteraction.on('modifyend',function(){
-          console.log('drag');
-      },feature);
+      dragInteraction.on('modifyend', function(){
+        if(options.onDrag){
+          var coordinate = feature.getGeometry().getCoordinates();
+          var transformed = ol.proj.transform(coordinate, map_projection, proj);
+          iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+          vectorLayer.changed();
+          options.onDrag(transformed);
+        }        
+      }, feature);
       
+      interactions.push(dragInteraction);
       map.addInteraction(dragInteraction);
       vectorLayer.getSource().addFeature(feature);
   
     }
     
     this.removeMarkers = function(){
+      map.getInteractions().forEach(function (interaction) {
+          if (interaction instanceof ol.interaction.Modify) 
+             map.removeInteraction(interaction);
+      });
       vectorLayer.getSource().clear();
     };
     

@@ -225,7 +225,7 @@ function($, Backbone, Actor, Locations, Map){
 
     },
 
-    // add row on click on button
+    // add row when button is clicked
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
@@ -310,34 +310,24 @@ function($, Backbone, Actor, Locations, Map){
         
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];
           opLocList = this.opLocations.filterActor(actor.id);
-      
-      //this.map.addmarker()
-      this.renderLocTables(adminLoc, opLocList)
+          
       var _this = this;
-      function addMarker(loc, pin){
-        var coords = loc.get('geometry').coordinates; 
-        _this.map.addmarker(coords, { 
-              icon: pin, 
-              dragIcon: _this.pins.orange, 
-              projection: 'EPSG:4326'
-        });
-      }
-      this.map.removeMarkers();
-      addMarker(adminLoc, this.pins.blue);
-      _.each(opLocList, function(loc){addMarker(loc, _this.pins.red);});
-    },
-    
-    renderLocTables: function(adminLoc, opLocations){
-      var _this = this;
-      var adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
-      var opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
+          adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
+          opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
       adminTable.innerHTML = '';
       opTable.innerHTML = '';
-      function addRow(table, loc){
+      
+      function formatCoords(c){
+        return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
+      }
+      
+      function addMarker(loc, pin, table){ 
         if (loc == null)
           return;
-        var row = table.insertRow(-1);
+      
+        /* add table rows */
         
+        var row = table.insertRow(-1);
         // add a crosshair icon to center on coordinate on click
         var centerDiv = document.createElement('div');
         centerDiv.className = "fa fa-crosshairs";
@@ -348,14 +338,27 @@ function($, Backbone, Actor, Locations, Map){
           _this.map.center(coords, {projection: 'EPSG:4326'})
         });
         cell.style.cursor = 'pointer';
-        
-        row.insertCell(-1).innerHTML = coords;
+        var coordCell = row.insertCell(-1);
+        coordCell.innerHTML = formatCoords(coords);
         row.insertCell(-1).innerHTML = loc.get('properties').note;
+        
+        /* add markers */
+        
+        _this.map.addmarker(coords, { 
+          icon: pin, 
+          dragIcon: _this.pins.orange, 
+          projection: 'EPSG:4326',
+          onDrag: function(coords){
+            coordCell.innerHTML = formatCoords(coords);
+            loc.get('geometry').coordinates = coords;
+          }
+        });
       }
-      addRow(adminTable, adminLoc);
-      _.each(opLocList, function(loc){addRow(opTable, loc)});
+      this.map.removeMarkers();
+      addMarker(adminLoc, this.pins.blue, adminTable);
+      _.each(opLocList, function(loc){addMarker(loc, _this.pins.red, opTable);});
     },
-
+    
     /*
      * remove this view from the DOM
      */
