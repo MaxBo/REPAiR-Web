@@ -2,10 +2,11 @@ define([
   'openlayers', 'ol-contextmenu'
 ], function(ol, ContextMenu)
 {
+  var map_projection = 'EPSG:3857'
 
   var view = new ol.View({
-    projection: 'EPSG:3857',
-    center: ol.proj.transform([13.4, 52.5], 'EPSG:4326', 'EPSG:3857'),
+    projection: map_projection,
+    center: ol.proj.transform([13.4, 52.5], 'EPSG:4326', map_projection),
     zoom: 10
   });
   var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
@@ -29,24 +30,25 @@ define([
       view: view
     });
     
-    var pin_icon_blue = '/static/img/simpleicon-places/svg/map-marker-blue.svg';
-    var pin_icon_orange = '/static/img/simpleicon-places/svg/map-marker-orange.svg';
-    var pin_icon_red = '/static/img/simpleicon-places/svg/map-marker-red.svg';
-    
-    this.addmarker = function(obj, options) {
-      var coord4326 = ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'),
-          template = '({x}, {y})',
-          feature = new ol.Feature({
+    this.addmarker = function(coordinate, options) {
+      var proj = options.projection || map_projection;
+      
+      var c4326 = ol.proj.transform(coordinate, proj, 'EPSG:4326'),
+          transform
+          template = '({x}, {y})';
+          
+      var feature = new ol.Feature({
             type: 'removable',
-            geometry: new ol.geom.Point(obj.coordinate)
+            // transform to map projection
+            geometry: new ol.geom.Point(ol.proj.transform(coordinate, proj, map_projection))
           });
-  
+      
       if (options.icon){
          var iconStyle = new ol.style.Style({
           image: new ol.style.Icon({ scale: .08, src: options.icon }),
           text: new ol.style.Text({
             offsetY: 25,
-            text: ol.coordinate.format(coord4326, template, 2),
+            text: ol.coordinate.format(c4326, template, 2),
             font: '15px Open Sans,sans-serif',
             fill: new ol.style.Fill({ color: '#111' }),
             stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
@@ -60,14 +62,14 @@ define([
           image: new ol.style.Icon({ scale: .08, src: options.dragIcon }),
           text: new ol.style.Text({
             offsetY: 25,
-            text: ol.coordinate.format(coord4326, template, 2),
+            text: ol.coordinate.format(c4326, template, 2),
             font: '15px Open Sans,sans-serif',
             fill: new ol.style.Fill({ color: '#111' }),
             stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
           })
         })
       }
-      //console.log(iconStyle)
+      
       // Drag and drop feature
       var dragInteraction = new ol.interaction.Modify({
           features: new ol.Collection([feature]),
@@ -85,47 +87,41 @@ define([
   
     }
     
-    var _this = this;
-    var contextmenu_items = [
-      {
-        text: 'Add/Move Administr. Loc.',
-        icon: pin_icon_blue,
-        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_blue, dragIcon: pin_icon_orange
-        })}
-      },
-      {
-        text: 'Add Operational Loc.',
-        icon: pin_icon_red,
-        callback: function(obj){ _this.addmarker(obj, { icon: pin_icon_red, dragIcon: pin_icon_orange })}
-      },
-      '-' // this is a separator
-    ];
-    
-    var contextmenu = new ContextMenu({
-      width: 180,
-      items: contextmenu_items
-    });
-    map.addControl(contextmenu);
-    
-    var removeMarkerItem = {
-      text: 'Remove this Marker',
-      classname: 'marker',
-      callback: removeMarker
+    this.removeMarkers = function(){
+      vectorLayer.getSource().clear();
     };
     
-    contextmenu.on('open', function (evt) {
-      var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+    function removeMarker(obj) {
+      vectorLayer.getSource().removeFeature(obj.data.marker);
+    }
+    
+    this.addContextMenu = function (contextmenu_items){
+      var contextmenu = new ContextMenu({
+        width: 180,
+        items: contextmenu_items
+      });
+      map.addControl(contextmenu);
       
-      if (feature && feature.get('type') === 'removable') {
-        contextmenu.clear();
-        removeMarkerItem.data = { marker: feature };
-        contextmenu.push(removeMarkerItem);
-      } else {
-        contextmenu.clear();
-        contextmenu.extend(contextmenu_items);
-        contextmenu.extend(contextmenu.getDefaultItems());
-      }
-    });
+      var removeMarkerItem = {
+        text: 'Remove this Marker',
+        classname: 'marker',
+        callback: removeMarker
+      };
+      
+      contextmenu.on('open', function (evt) {
+        var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+        
+        if (feature && feature.get('type') === 'removable') {
+          contextmenu.clear();
+          removeMarkerItem.data = { marker: feature };
+          contextmenu.push(removeMarkerItem);
+        } else {
+          contextmenu.clear();
+          contextmenu.extend(contextmenu_items);
+          contextmenu.extend(contextmenu.getDefaultItems());
+        }
+      });
+    }
     
     map.on('pointermove', function (e) {
       if (e.dragging) return;
@@ -136,21 +132,11 @@ define([
       map.getTargetElement().style.cursor = hit ? 'pointer' : '';
     });
     
-    // from https://github.com/DmitryBaranovskiy/raphael
-    function elastic(t) {
-      return Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3) + 1;
-    }
-    
-    function center(obj) {
-      view.animate({
-        duration: 700,
-        easing: elastic,
-        center: obj.coordinate
-      });
-    }
-    
-    function removeMarker(obj) {
-      vectorLayer.getSource().removeFeature(obj.data.marker);
+    this.center = function(coordinate, options) {
+      if (options.projection)
+        coordinate = ol.proj.transform(coordinate, options.projection, map_projection)
+      
+      view.animate({center: coordinate});//, {zoom: 10});
     }
 
   };

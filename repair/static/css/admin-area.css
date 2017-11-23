@@ -59,8 +59,8 @@ input.changed, select.changed {
 }
 
 tr.selected td{
-    background-color: #aad400 !IMPORTANT;
-    border: 2px solid #aad400;
+    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.6);
 }
 .map:-moz-full-screen {
   width: 100%;

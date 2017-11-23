@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/visualizations/map', 
-        'tablesorter-pager', 'app/loader'],
+define(['jquery', 'backbone', 'app/models/actor', 'app/collections/locations', 
+        'app/visualizations/map', 'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor, Map){
+function($, Backbone, Actor, Locations, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -9,22 +9,37 @@ function($, Backbone, Actor, Map){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
+      
       this.template = options.template;
       this.materialId = options.materialId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
+      
+      this.pins = {
+        blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
+        orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
+        red: '/static/img/simpleicon-places/svg/map-marker-red.svg'
+      }
 
       var _this = this;
+      
+      this.adminLocations = new Locations({
+        caseStudyId: this.collection.caseStudyId, type: 'administrative'
+      })
+      
+      this.opLocations = new Locations({
+        caseStudyId: this.collection.caseStudyId, type: 'operational'
+      })
 
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
-      // fetch inFlows and outFlows with different query parameters
-
-      this.collection.fetch({success: function(){
-        loader.remove();
-        _this.render();
-      }});
+        
+      $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
+             this.collection.fetch()).then(function() {
+          loader.remove();
+          _this.render();
+      });
     },
 
     /*
@@ -113,14 +128,6 @@ function($, Backbone, Actor, Map){
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
       
-      this.map = new Map({
-        divid: 'actors-map', 
-        //baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-              //subdomains: ['','a.','b.','c.','d.'],
-              //attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-            //})},
-        //overlayLayers: {}
-      });
     },
 
     changeFilter: function(event){
@@ -202,19 +209,23 @@ function($, Backbone, Actor, Map){
       addInput('BvDii');
       addInput('consCode');
       
+      // row is clicked -> highlight and render locations on map      
       row.addEventListener('click', function() {
+        _this.el.querySelector('#actor-name').innerHTML = actor.get('name');
         var selected = _this.table.getElementsByClassName("selected");
         _.each(selected, function(row){
           row.classList.remove('selected');
         });
         row.classList.add('selected');
-        _this.map.removeMarkers();
-        _this.map.addMarker();
+        if (_this.activeActor != actor.id){
+          _this.activeActor = actor.id;
+          _this.renderMarkers(actor);
+        }
       });
 
     },
 
-    // on click add row button
+    // add row on click on button
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
@@ -264,10 +275,90 @@ function($, Backbone, Actor, Map){
         _this.onUpload();
       }).fail(onError);
     },
+    
+    initMap: function(){
+      var _this = this;
+      
+      this.map = new Map({
+        divid: 'actors-map', 
+      });
+      
+      var items = [
+        {
+          text: 'Add/Move Administr. Loc.',
+          icon: this.pins.blue,
+          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
+            icon: _this.pins.blue, dragIcon: _this.pins.orange
+          })}
+        },
+        {
+          text: 'Add Operational Loc.',
+          icon: this.pins.red,
+          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
+            icon: _this.pins.red, dragIcon: _this.pins.orange 
+          })}
+        },
+        '-' // this is a separator
+      ];
+      
+      this.map.addContextMenu(items)
+    },
+    
+    renderMarkers: function(actor){
+      if (this.map == null)
+        this.initMap();
+        
+      var adminLoc = this.adminLocations.filterActor(actor.id)[0];
+          opLocList = this.opLocations.filterActor(actor.id);
+      
+      //this.map.addmarker()
+      this.renderLocTables(adminLoc, opLocList)
+      var _this = this;
+      function addMarker(loc, pin){
+        var coords = loc.get('geometry').coordinates; 
+        _this.map.addmarker(coords, { 
+              icon: pin, 
+              dragIcon: _this.pins.orange, 
+              projection: 'EPSG:4326'
+        });
+      }
+      this.map.removeMarkers();
+      addMarker(adminLoc, this.pins.blue);
+      _.each(opLocList, function(loc){addMarker(loc, _this.pins.red);});
+    },
+    
+    renderLocTables: function(adminLoc, opLocations){
+      var _this = this;
+      var adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
+      var opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
+      adminTable.innerHTML = '';
+      opTable.innerHTML = '';
+      function addRow(table, loc){
+        if (loc == null)
+          return;
+        var row = table.insertRow(-1);
+        
+        // add a crosshair icon to center on coordinate on click
+        var centerDiv = document.createElement('div');
+        centerDiv.className = "fa fa-crosshairs";
+        var cell = row.insertCell(-1);
+        var coords = loc.get('geometry').coordinates;
+        cell.appendChild(centerDiv);
+        cell.addEventListener('click', function(){ 
+          _this.map.center(coords, {projection: 'EPSG:4326'})
+        });
+        cell.style.cursor = 'pointer';
+        
+        row.insertCell(-1).innerHTML = coords;
+        row.insertCell(-1).innerHTML = loc.get('properties').note;
+      }
+      addRow(adminTable, adminLoc);
+      _.each(opLocList, function(loc){addRow(opTable, loc)});
+    },
 
     /*
-      * remove this view from the DOM
-      */
+     * remove this view from the DOM
+     */
     close: function(){
       this.undelegateEvents(); // remove click events
       this.unbind(); // Unbind all local event bindings

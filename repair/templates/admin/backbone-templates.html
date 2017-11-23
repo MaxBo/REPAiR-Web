@@ -65,7 +65,34 @@
       </div>
     </div>
     <div class='col-md-3' style="border: 1px solid #e6e6e6;">
-      <div id="actors-map" style="min-height: 400px;" class="map"></div>
+      
+      <h4 id="actor-name" class="row">{% trans "Please choose an actor by clicking a row." %}</h4>
+      <div id="actors-map" style="min-height: 400px; background-color: #e6e6e6" class="map row"></div>
+      <table id="adminloc-table" class="row">
+        </br>
+        <h4>Administrative Location</h4>
+        <thead>
+            <tr>
+              <th></th>
+              <th>{% trans "Location" %}</th>
+              <th>{% trans "Note" %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+      </table>
+      <table id="oploc-table" class="row">
+        <h4>Operational Locations</h4>
+        <thead>
+            <tr>
+              <th></th>
+              <th>{% trans "Location" %}</th>
+              <th>{% trans "Note" %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+      </table>
     </div>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
