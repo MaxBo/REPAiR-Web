@@ -26,7 +26,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            NestedHyperlinkedRelatedField,
-                                           IDRelatedField)
+                                           IDRelatedField,
+                                           CasestudyField)
 
 
 class MaterialSerializer(NestedHyperlinkedModelSerializer):
@@ -118,7 +119,8 @@ class MaterialField(NestedHyperlinkedRelatedField):
 class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialSerializer(read_only=True)
+    material = MaterialField(view_name='material-detail')
+    #material = MaterialSerializer(read_only=True)
     groupstock_set = InMaterialSetField(view_name='groupstock-list')
     group2group_set = InMaterialSetField(view_name='group2group-list')
     activitystock_set = InMaterialSetField(view_name='activitystock-list')
@@ -139,6 +141,29 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actorstock_set',
                   'actor2actor_set')
 
+
+class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    note = serializers.CharField(required=False, allow_blank=True)
+    material = MaterialField(view_name='material-detail')
+    #casestudy = CasestudyField(view_name='casestudy-detail')
+
+    class Meta:
+        model = MaterialInCasestudy
+        fields = ('material',
+                  'note',
+                  )
+
+    def create(self, validated_data):
+        """Create a new material in casestury"""
+        casestudy_session = self.context['request'].session['casestudy_pk']
+        casestudy_pk = casestudy_session['casestudy_pk']
+        casestudy = CaseStudy.objects.get(id=casestudy_pk)
+
+        obj = self.Meta.model.objects.create(
+            casestudy=casestudy,
+            **validated_data)
+        return obj
 
 class MaterialInCasestudyDetailCreateMixin:
     def create(self, validated_data):

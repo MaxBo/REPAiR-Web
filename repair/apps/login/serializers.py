@@ -405,10 +405,18 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'materials',
                   'activitygroups',
                   'activities',
-                  'actors', 
+                  'actors',
                   'administrative_locations',
-                  'operational_locations', 
+                  'operational_locations',
                   )
+
+
+class CasestudyField(NestedHyperlinkedRelatedField):
+    parent_lookup_kwargs = {'pk': 'id'}
+    queryset = CaseStudy.objects
+    """This is fixed in rest_framework_nested, but not yet available on pypi"""
+    def use_pk_only_optimization(self):
+        return False
 
 
 class UserInCasestudyField(InCasestudyField):

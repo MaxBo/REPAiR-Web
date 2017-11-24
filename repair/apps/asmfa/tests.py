@@ -6,6 +6,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest
+from rest_framework import status
+
 
 
 from repair.apps.asmfa.models import (
@@ -24,12 +26,8 @@ from repair.apps.asmfa.models import (
     )
 
 
-from repair.apps.login.factories import CaseStudyFactory
-from repair.apps.asmfa.factories import (MaterialFactory,
-                                         QualityFactory,
-                                         AdministrativeLocationFactory,
-                                         OperationalLocationFactory,
-                                         )
+from repair.apps.login.factories import *
+from repair.apps.asmfa.factories import *
 
 
 
@@ -79,19 +77,87 @@ class ASMFAModelTest(TestCase):
 
 
 class MaterialTest(BasicModelTest, APITestCase):
+    casestudy = 17
 
-    cs_url = 'http://testserver' + reverse('casestudy-detail',
-                                           kwargs=dict(pk=1))
-    url_key = "material"
-    url_pks = dict()
-    url_pk = dict(pk=1)
-    post_data = dict(name='posttestname', casestudies=[cs_url], code='cdo')
-    put_data = dict(name='puttestname', casestudies=[cs_url])
-    patch_data = dict(name='patchtestname')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+                                           kwargs=dict(pk=cls.casestudy))
+        cls.url_key = "material"
+        cls.url_pks = dict()
+        cls.url_pk = dict(pk=1)
+        cls.post_data = dict(name='posttestname',
+                             casestudies=[cls.cs_url], code='cdo')
+        cls.put_data = dict(name='puttestname',
+                            casestudies=[cls.cs_url])
+        cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        csf = CaseStudyFactory()
-        self.fact = MaterialFactory()
+        self.obj = MaterialFactory()
+
+
+class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    material = 3
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+                                   kwargs=dict(pk=cls.casestudy))
+        cls.material_url = cls.baseurl + reverse('material-detail',
+                                                 kwargs=dict(pk=cls.material))
+
+
+        cls.url_key = "materialincasestudy"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.material)
+
+        cls.put_data = dict(note='new_put_note',
+                             material=cls.material_url,
+                             )
+        cls.post_data = dict(note='new_note',
+                             material=cls.material_url,
+                             )
+
+        cls.patch_data = dict(note='patchtestnote')
+
+    def setUp(self):
+        self.obj = MaterialInCasestudyFactory(casestudy=self.uic.casestudy,
+                                              material__id=self.material)
+
+    def test_post(self):
+        url = reverse(self.url_key +'-list', kwargs=self.url_pks)
+        # post
+        response = self.client.post(url, self.post_data)
+        for key in self.post_data:
+            assert response.data[key] == self.post_data[key]
+        assert response.status_code == status.HTTP_201_CREATED
+
+
+class ActorInCaseStudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    actor = 5
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+                                       kwargs=dict(pk=cls.casestudy))
+        cls.url_key = "actor"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.actor)
+        cls.post_data = dict(name='posttestname', year=2017, revenue=1000, employees=2,
+                             activity=1)
+        cls.put_data = dict(name='posttestname', year=2017, revenue=1000, employees=2,
+                            activity=1)
+        cls.patch_data = dict(name='patchtestname')
+
+
+    def setUp(self):
+        self.obj = ActorFactory(activity__activitygroup__casestudy=self.uic.casestudy)
+
 
 
 class QualityTest(BasicModelTest, APITestCase):
@@ -104,7 +170,7 @@ class QualityTest(BasicModelTest, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.fact = QualityFactory()
+        self.obj = QualityFactory()
 
 
 class GeolocationViewTest(APITestCase):

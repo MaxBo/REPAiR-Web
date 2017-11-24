@@ -3,6 +3,7 @@ from django.core.validators import ValidationError
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
+from repair.apps.changes.factories import *
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
@@ -96,11 +97,20 @@ class ViewTest(APITestCase):
         response = self.client.get(url)
         assert response.data['email'] == new_mail
 
-        user_in_ams = UserInCasestudyFactory()
 
 class CasestudyTest(BasicModelTest, APITestCase):
 
     url_key = "casestudy"
+    sub_urls = ["userincasestudy_set",
+                "solution_categories",
+                "stakeholder_categories",
+                "implementations",
+                "materials",
+                "activitygroups",
+                "activities",
+                "actors",
+                "administrative_locations",
+                "operational_locations"]
     url_pks = dict()
     url_pk = dict(pk=1)
     post_data = dict(name='posttestname')
@@ -108,5 +118,19 @@ class CasestudyTest(BasicModelTest, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.fact = CaseStudyFactory()
+        self.obj = CaseStudyFactory()
+
+
+class SolutioncategoryInCasestudyTest(BasicModelTest):  #, APITestCase):
+
+    url_key = "solutioncategory"
+    sub_urls = []
+    url_pks = dict(casestudy_pk=1)
+    url_pk = dict(pk=1)
+    post_data = dict(name='posttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
+    put_data = dict(name='puttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
+    patch_data = dict(name='patchtestname')
+
+    def setUp(self):
+        self.obj = SolutionCategoryFactory()
 
