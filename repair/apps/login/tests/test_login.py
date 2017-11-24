@@ -97,7 +97,6 @@ class ViewTest(APITestCase):
         response = self.client.get(url)
         assert response.data['email'] == new_mail
 
-        user_in_ams = UserInCasestudyFactory()
 
 class CasestudyTest(BasicModelTest, APITestCase):
 

@@ -77,11 +77,11 @@ class ASMFAModelTest(TestCase):
 
 
 class MaterialTest(BasicModelTest, APITestCase):
-    casestudy = 171
+    casestudy = 17
 
     @classmethod
     def setUpClass(cls):
-        super(MaterialTest, cls).setUpClass()
+        super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                            kwargs=dict(pk=cls.casestudy))
         cls.url_key = "material"
@@ -99,11 +99,11 @@ class MaterialTest(BasicModelTest, APITestCase):
 
 class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
 
-    casestudy = 1711
+    casestudy = 17
     material = 3
     @classmethod
     def setUpClass(cls):
-        super(MaterialInCaseStudyTest, cls).setUpClass()
+        super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                    kwargs=dict(pk=cls.casestudy))
         cls.material_url = cls.baseurl + reverse('material-detail',
@@ -142,7 +142,7 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
     actor = 5
     @classmethod
     def setUpClass(cls):
-        super(ActorInCaseStudyTest, cls).setUpClass()
+        super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                        kwargs=dict(pk=cls.casestudy))
         cls.url_key = "actor"

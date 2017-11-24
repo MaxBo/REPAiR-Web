@@ -26,10 +26,19 @@ class BasicModelTest(object):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.uic = UserInCasestudyFactory(user__user__id=-1,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
-        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        user = cls.uic.user.user
+        cs = cls.uic.casestudy
+        user.delete()
+        cs.delete()
+        del cls.uic
+        super().tearDownClass()
 
     def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
