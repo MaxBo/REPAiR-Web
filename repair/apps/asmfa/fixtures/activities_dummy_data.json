@@ -2390,7 +2390,7 @@
     "postcode": "",
     "country": "",
     "city": "",
-    "geom": "SRID=4326;POINT (2 3)",
+    "geom": "SRID=4326;POINT (5 3)",
     "note": "",
     "actor": 1,
     "employees": 12,

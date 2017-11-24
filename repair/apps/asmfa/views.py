@@ -32,6 +32,7 @@ from repair.apps.asmfa.serializers import (
     MaterialSerializer,
     QualitySerializer,
     MaterialInCasestudySerializer,
+    MaterialInCasestudyPostSerializer,
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
@@ -88,6 +89,7 @@ class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     queryset = MaterialInCasestudy.objects.all()
     serializer_class = MaterialInCasestudySerializer
+    serializers = {'create': MaterialInCasestudyPostSerializer}
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):

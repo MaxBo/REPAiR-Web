@@ -14,25 +14,6 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer)
 
 
-class MultiSerializerViewSetMixin(ABC):
-    """
-    use this mixin to define different serializers
-    for post and put requests
-    To define them in the serializer_action_classes
-
-    serializer_action_classes = {'list': MyGetSerializer,
-                                 'create': MyPostSerializer,}
-    """
-    serializer_action_classes = {}
-
-    def get_serializer_class(self):
-        try:
-            return self.serializer_action_classes[self.action]
-        except (KeyError, AttributeError):
-            return super(MultiSerializerViewSetMixin, self).\
-                   get_serializer_class()
-
-
 class ViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by

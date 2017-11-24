@@ -14,12 +14,22 @@ from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
 
 class BasicModelTest(object):
+    baseurl = 'http://testserver'
     url_key = ""
+    sub_urls = []
     url_pks = dict()
     url_pk = dict()
     post_data = dict()
     put_data = dict()
     patch_data = dict()
+    casestudy = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.uic = UserInCasestudyFactory(user__user__id=-1,
+                                         user__user__username='Anonymus User',
+                                         casestudy__id = cls.casestudy)
+        super().setUpClass()
 
     def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
@@ -27,11 +37,11 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_200_OK
 
     def test_detail(self):
-        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                        'pk': self.fact.pk,})
+        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
         # test get
         response = self.client.get(url)
-        assert response.data['id'] == self.fact.pk
+        assert response.data['id'] == self.obj.pk
         # check status code for put
         response = self.client.put(url, data=self.put_data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -49,7 +59,7 @@ class BasicModelTest(object):
 
     def test_delete(self):
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                        'pk': self.fact.pk, })
+                                                        'pk': self.obj.pk, })
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
         response = self.client.delete(url)
@@ -68,3 +78,12 @@ class BasicModelTest(object):
                                                         'pk': new_id})
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
+
+    def test_get_urls(self):
+        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
+                                                            'pk': self.obj.pk,})
+        response = self.client.get(url)
+        for key in self.sub_urls:
+            key_response = self.client.get(response.data[key])
+            assert key_response.status_code == status.HTTP_200_OK
+

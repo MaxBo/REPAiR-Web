@@ -2,7 +2,8 @@ import factory
 from factory.django import DjangoModelFactory
 from django.contrib.gis.geos.point import Point
 from repair.apps.login.factories import (ProfileFactory,
-                                         CaseStudyFactory)
+                                         CaseStudyFactory,
+                                         UserInCasestudyFactory)
 
 from . import models
 

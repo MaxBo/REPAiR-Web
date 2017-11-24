@@ -17,8 +17,7 @@ from rest_framework import status, generics, mixins
 
 
 from repair.apps.login.views import (ViewSetMixin,
-                                     OnlySubsetMixin,
-                                     MultiSerializerViewSetMixin)
+                                     OnlySubsetMixin)
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.changes.models import (
     Unit,
