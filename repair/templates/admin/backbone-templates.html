@@ -39,7 +39,27 @@
       <tbody> 
       </tbody> 
     </table>
+  </div>
+  <div class="row">
     <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
+    <!-- pager -->
+    <div id="pager" class="pager">
+      <form>
+        <img src="{{STATIC_URL}}img/first.png" class="first"/>
+        <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
+        <!-- the "pagedisplay" can be any element, including an input -->
+        <input type="text" class="pagedisplay"/>
+        <img src="{{STATIC_URL}}img/next.png" class="next"/>
+        <img src="{{STATIC_URL}}img/last.png" class="last"/>
+        <select id="pagesize" class="pagesize">
+          <option value="20">20</option>
+          <option value="40">40</option>
+          <option value="60">60</option>
+          <option value="100">100</option>
+          <option value="1000">1000</option>
+        </select>
+      </form>
+    </div>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>

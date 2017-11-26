@@ -26,7 +26,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            NestedHyperlinkedRelatedField,
-                                           IDRelatedField)
+                                           IDRelatedField,
+                                           CasestudyField)
 
 
 class KeyflowSerializer(NestedHyperlinkedModelSerializer):
@@ -93,8 +94,8 @@ class InKeyflowField(InCasestudyField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.casestudy_pk_lookup['Keyflow_pk'] = \
-            self.parent_lookup_kwargs['Keyflow_pk']
+        self.url_pks_lookup['material_pk'] = \
+            self.parent_lookup_kwargs['material_pk']
 
 
 class InKeyflowSetField(IdentityFieldMixin, InKeyflowField, ):
@@ -117,15 +118,14 @@ class KeyflowField(NestedHyperlinkedRelatedField):
 class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    Keyflow = KeyflowField(
-        view_name='Keyflow-detail',
-    )
-    groupstock_set = InKeyflowSetField(view_name='groupstock-list')
-    group2group_set = InKeyflowSetField(view_name='group2group-list')
-    activitystock_set = InKeyflowSetField(view_name='activitystock-list')
-    activity2activity_set = InKeyflowSetField(view_name='activity2activity-list')
-    actorstock_set = InKeyflowSetField(view_name='actorstock-list')
-    actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
+    material = MaterialField(view_name='material-detail')
+    #material = MaterialSerializer(read_only=True)
+    groupstock_set = InMaterialSetField(view_name='groupstock-list')
+    group2group_set = InMaterialSetField(view_name='group2group-list')
+    activitystock_set = InMaterialSetField(view_name='activitystock-list')
+    activity2activity_set = InMaterialSetField(view_name='activity2activity-list')
+    actorstock_set = InMaterialSetField(view_name='actorstock-list')
+    actor2actor_set = InMaterialSetField(view_name='actor2actor-list')
 
     class Meta:
         model = KeyflowInCasestudy
@@ -141,15 +141,36 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actor2actor_set')
 
 
-class KeyflowInCasestudyDetailCreateMixin:
+class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    note = serializers.CharField(required=False, allow_blank=True)
+    material = MaterialField(view_name='material-detail')
+    #casestudy = CasestudyField(view_name='casestudy-detail')
+
+    class Meta:
+        model = MaterialInCasestudy
+        fields = ('material',
+                  'note',
+                  )
+
+    def create(self, validated_data):
+        """Create a new material in casestury"""
+        url_pks = self.context['request'].session['url_pks']
+        casestudy_pk = url_pks['casestudy_pk']
+        casestudy = CaseStudy.objects.get(id=casestudy_pk)
+
+        obj = self.Meta.model.objects.create(
+            casestudy=casestudy,
+            **validated_data)
+        return obj
+
+
+class MaterialInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        # Note by Christoph: why is the keyflow_pk in session['casestudy_pk']
-        # alongside with the key casestudy_pk?
-        # is it supposed to be this way?
-        casestudy_session = self.context['request'].session['casestudy_pk']
-        casestudy_pk = casestudy_session['casestudy_pk']
-        keyflow_pk = casestudy_session['keyflow_pk']
+        url_pks = self.context['request'].session['url_pks']
+        casestudy_pk = url_pks['casestudy_pk']
+        material_pk = url_pks['material_pk']
         # ToDo: raise some kind of exception or prevent creating object with
         # wrong keyflow/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
@@ -425,9 +446,10 @@ class ActivityStockSerializer(StockSerializer):
 
 
 class ActorField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'activity__activitygroup__casestudy__id',
-                            'activitygroup_pk': 'activity__activitygroup__id',
-                            'activity_pk': 'activity__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'activity__activitygroup__casestudy__id',
+        'activitygroup_pk': 'activity__activitygroup__id',
+        'activity_pk': 'activity__id',}
 
 
 class ActorStockSerializer(StockSerializer):
@@ -503,7 +525,8 @@ class Actor2ActorSerializer(FlowSerializer):
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
-        fields = ('id', 'amount', 'quality', 'keyflow', 'origin', 'origin_url',
+        fields = ('id', 'amount', 'quality', 'material',
+                  'origin', 'origin_url',
                   'destination', 'destination_url')
 
 
@@ -538,7 +561,8 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
         """Create a new AdministrativeLocation"""
         actor = validated_data.pop('actor', None)
         if actor is None:
-            actor_pk = self.context['request'].session['casestudy_pk']['actor_pk']
+            url_pks = self.context['request'].session['url_pks']
+            actor_pk = url_pks['actor_pk']
             actor = Actor.objects.get(pk=actor_pk)
 
         aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
@@ -569,7 +593,8 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
 
     def create(self, validated_data):
         """Handle Post on OperationalLocations"""
-        actor_pk = self.context['request'].session['casestudy_pk']['actor_pk']
+        url_pks = self.context['request'].session['url_pks']
+        actor_pk = url_pks['actor_pk']
         actor = Actor.objects.get(pk=actor_pk)
 
         operational_locations = validated_data.get('features', None)

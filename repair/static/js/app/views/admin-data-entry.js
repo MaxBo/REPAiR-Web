@@ -84,7 +84,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
         var node = {
           text: group.get('code') + ": " + group.get('name'),
           model: group,
-          icon: 'glyphicon glyphicon-tasks',
+          icon: 'fa fa-cubes',
           nodes: [],
           state: {checked: false}
         };
@@ -97,7 +97,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
         var node = {
           text: activity.get('name'),
           model: activity,
-          icon: 'glyphicon glyphicon-cog',
+          icon: 'fa fa-cube',
           nodes: nodes,
           state: {checked: false}
         };
@@ -118,7 +118,8 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
-                         showCheckbox: true});
+                         //showCheckbox: true
+                         });
       $(divid).treeview('collapseAll', {silent: true});
     },
 
@@ -141,6 +142,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
         template: 'edit-node-template',
         model: model,
         materialId: materialSelect.value,
+        materialName: materialSelect.options[materialSelect.selectedIndex].text,
         caseStudyId: this.model.id,
         qualities: this.qualities,
         onUpload: this.renderDataEntry // rerender after upload

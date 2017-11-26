@@ -51,3 +51,13 @@ input.changed, select.changed {
     color: white !IMPORTANT;
     background-color:  #aad400 !IMPORTANT;
 }
+
+/*tablesorter does a bad job with placing pager by default*/
+#pager {
+    top: 0px !IMPORTANT;
+    position: relative !IMPORTANT;
+}
+
+#warning {
+    display: none;
+}

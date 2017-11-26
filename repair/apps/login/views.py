@@ -6,30 +6,12 @@ from rest_framework import viewsets
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework.response import Response
+from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer,
                                            UserInCasestudySerializer)
-
-
-class MultiSerializerViewSetMixin(ABC):
-    """
-    use this mixin to define different serializers
-    for post and put requests
-    To define them in the serializer_action_classes
-
-    serializer_action_classes = {'list': MyGetSerializer,
-                                 'create': MyPostSerializer,}
-    """
-    serializer_action_classes = {}
-
-    def get_serializer_class(self):
-        try:
-            return self.serializer_action_classes[self.action]
-        except (KeyError, AttributeError):
-            return super(MultiSerializerViewSetMixin, self).\
-                   get_serializer_class()
 
 
 class ViewSetMixin(ABC):
@@ -53,7 +35,7 @@ class ViewSetMixin(ABC):
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
-        request.session['casestudy_pk'] = kwargs
+        request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
         """
@@ -71,7 +53,8 @@ class ViewSetMixin(ABC):
             return Response(status=400)
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
-        return Response(serializer.data)
+        data = self.filter_fields(serializer, request)
+        return Response(data)
 
     def create(self, request, **kwargs):
         """set the """
@@ -90,10 +73,26 @@ class ViewSetMixin(ABC):
         if self.casestudy_only:
             self.set_casestudy(kwargs, request)
         pk = kwargs.pop('pk')
-        queryset = self._filter(kwargs, SerializerClass=SerializerClass)
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=SerializerClass)
         model = get_object_or_404(queryset, pk=pk)
         serializer = SerializerClass(model, context={'request': request})
-        return Response(serializer.data)
+        data = self.filter_fields(serializer, request)
+        return Response(data)
+
+    def filter_fields(self, serializer, request):
+        """
+        limit amount of fields of response by optional query parameter 'field'
+        """
+        data = serializer.data
+        fields = request.query_params.getlist('field')
+        if fields:
+            if isinstance(data, ReturnDict):
+                data = {k: v for k, v in data.items() if k in fields}
+            else:
+                data = [{k: v for k, v in row.items() if k in fields}
+                        for row in data]
+        return data
 
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         """
@@ -124,7 +123,7 @@ class OnlySubsetMixin(ViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
-        request.session['casestudy_pk'] = kwargs
+        request.session['url_pks'] = kwargs
 
 
 class UserViewSet(viewsets.ModelViewSet):

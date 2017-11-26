@@ -12,6 +12,7 @@ class CaseStudyFactory(DjangoModelFactory):
 
 
 
+
 class UserFactory(DjangoModelFactory):
     username = factory.Sequence(lambda n: 'User {0}'.format(n))
     email = 'uschi@google.com'

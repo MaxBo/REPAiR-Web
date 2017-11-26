@@ -31,7 +31,8 @@ from repair.apps.asmfa.serializers import (
     Group2GroupSerializer,
     KeyflowSerializer,
     QualitySerializer,
-    KeyflowInCasestudySerializer,
+    MaterialInCasestudySerializer,
+    MaterialInCasestudyPostSerializer,
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
@@ -86,8 +87,9 @@ class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows Keyflowincasestudy to be viewed or edited.
     """
-    queryset = KeyflowInCasestudy.objects.all()
-    serializer_class = KeyflowInCasestudySerializer
+    queryset = MaterialInCasestudy.objects.all()
+    serializer_class = MaterialInCasestudySerializer
+    serializers = {'create': MaterialInCasestudyPostSerializer}
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):

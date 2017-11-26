@@ -23,6 +23,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       _.bindAll(this, 'render');
       this.template = options.template;
       this.materialId = options.materialId;
+      this.materialName = options.materialName;
       this.caseStudyId = options.caseStudyId;
       this.qualities = options.qualities;
       this.onUpload = options.onUpload;
@@ -309,7 +310,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.material,
+        material: this.materialName,
         code: this.model.get('code')
       });
     },
@@ -319,7 +320,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.material,
+        material: this.materialName,
         group: this.model.get('activitygroup'),
         nace: this.model.get('nace')
       });
@@ -330,7 +331,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.material,
+        material: this.materialName,
         bvdid: this.model.get('BvDid'),
         activity: this.model.get('activity'),
         url: this.model.get('website'),

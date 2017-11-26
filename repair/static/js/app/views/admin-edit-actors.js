@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'app/models/actor', 'tablesorter', 'app/loader'],
+define(['jquery', 'backbone', 'app/models/actor', 'tablesorter-pager', 'app/loader'],
 
 function($, Backbone, Actor){
   var EditActorsView = Backbone.View.extend({
@@ -90,7 +90,7 @@ function($, Backbone, Actor){
           },
           type: 'text'
       });
-      var sorter = $(this.table).tablesorter({
+      $(this.table).tablesorter({
         headers:{
           0: {sorter: false},
           1: {sorter: 'inputs'},
@@ -102,8 +102,15 @@ function($, Backbone, Actor){
           7: {sorter: 'inputs'},
           8: {sorter: 'inputs'},
           9: {sorter: 'inputs'}
-        }
-      });
+        },
+        widgets: ['zebra']
+      }).tablesorterPager({container: $("#pager")});
+      
+      // workaround for a bug in tablesorter-pager by triggering
+      // event that pager-selection changed to redraw number of visible rows
+      var sel = document.getElementById('pagesize');
+      sel.selectedIndex = 1;
+      sel.dispatchEvent(new Event('change'));
     },
 
     changeFilter: function(event){
@@ -200,7 +207,8 @@ function($, Backbone, Actor){
         "employees": 0,
         "BvDii": "",
         "website": "",
-        "activity": null
+        "activity": null,
+        "caseStudyId": this.model.id
       });
       this.collection.add(actor);
       this.addActorRow(actor);

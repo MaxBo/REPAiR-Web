@@ -95,12 +95,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     var session = appConfig.getSession(
       function(session){
         var caseStudyId = session['casestudy'];
+        if (caseStudyId == null){
+          document.getElementById('warning').style.display = 'block';
+          return;
+        }
         caseStudy = new CaseStudy({id: caseStudyId});
         activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
         activities = new Activities({caseStudyId: caseStudyId});
         materials = new Materials({caseStudyId: caseStudyId});
-        if (caseStudyId == null)
-          return;
         var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
         $.when(caseStudy.fetch(), activityGroups.fetch(), 
