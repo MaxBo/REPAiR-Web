@@ -40,7 +40,7 @@ from repair.apps.asmfa.views import (
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
-    OperationalLocationViewSet, 
+    OperationalLocationViewSet,
 )
 
 ## base routes ##
@@ -66,7 +66,7 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
-cs_router.register(r'materials', MaterialInCasestudyViewSet)
+cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 cs_router.register(r'operationallocations', OperationalLocationViewSet)
 

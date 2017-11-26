@@ -29,7 +29,6 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
-    ActorListSerializer,
     KeyflowSerializer,
     QualitySerializer,
     KeyflowInCasestudySerializer,
@@ -83,7 +82,7 @@ class QualityViewSet(ViewSetMixin, ModelViewSet):
     casestudy_only = False
 
 
-class KeyflowInCasestudyViewSet(OnlyCasestudyMixin, ModelViewSet):
+class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows Keyflowincasestudy to be viewed or edited.
     """

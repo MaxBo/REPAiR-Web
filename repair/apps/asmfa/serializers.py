@@ -45,20 +45,20 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
-        material = instance
+        keyflow = instance
 
         # handle groups
         new_casestudies = validated_data.pop('casestudies', None)
         if new_casestudies is not None:
-            ThroughModel = Material.casestudies.through
+            ThroughModel = Keyflow.casestudies.through
             casestudy_qs = ThroughModel.objects.filter(
-                material=material.id)
+                keyflow=keyflow.id)
             # delete existing groups
             casestudy_qs.exclude(
                 casestudy__id__in=(cs.id for cs in new_casestudies)).delete()
             # add or update new groups
             for cs in new_casestudies:
-                ThroughModel.objects.update_or_create(material=material,
+                ThroughModel.objects.update_or_create(keyflow=keyflow,
                                                       casestudy=cs)
 
         # update other attributes
@@ -71,9 +71,9 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
         """Create a new Keyflow"""
         code = validated_data.pop('code')
 
-        material = Material.objects.create(code=code)
-        self.update(instance=material, validated_data=validated_data)
-        return material
+        keyflow = Keyflow.objects.create(code=code)
+        self.update(instance=keyflow, validated_data=validated_data)
+        return keyflow
 
 
 class QualitySerializer(NestedHyperlinkedModelSerializer):
@@ -144,14 +144,14 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
 class KeyflowInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        # Note by Christoph: why is the material_pk in session['casestudy_pk']
+        # Note by Christoph: why is the keyflow_pk in session['casestudy_pk']
         # alongside with the key casestudy_pk?
         # is it supposed to be this way?
         casestudy_session = self.context['request'].session['casestudy_pk']
         casestudy_pk = casestudy_session['casestudy_pk']
-        material_pk = casestudy_session['material_pk']
+        keyflow_pk = casestudy_session['keyflow_pk']
         # ToDo: raise some kind of exception or prevent creating object with
-        # wrong material/casestudy combination somewhere else (view.update?)
+        # wrong keyflow/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
         mic = KeyflowInCasestudy.objects.get(id=keyflow_pk)
         validated_data['Keyflow'] = mic
@@ -387,7 +387,7 @@ class Actor2Field(InCasestudyField):
                             'activity__activitygroup__casestudy__id'}
 
 
-class MaterialInCasestudyField(InCasestudyField):
+class KeyflowInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
                             }
 
