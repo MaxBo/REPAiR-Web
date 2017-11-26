@@ -127,8 +127,12 @@ class SolutioncategoryInCasestudyTest(BasicModelTest):  #, APITestCase):
     sub_urls = []
     url_pks = dict(casestudy_pk=1)
     url_pk = dict(pk=1)
-    post_data = dict(name='posttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
-    put_data = dict(name='puttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
+    post_data = dict(
+        name='posttestname',
+        user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
+    put_data = dict(
+        name='puttestname',
+        user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
     patch_data = dict(name='patchtestname')
 
     def setUp(self):

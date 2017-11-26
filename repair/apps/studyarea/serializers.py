@@ -19,8 +19,9 @@ class StakeholderCategoryField(InCasestudyField):
 
 class StakeholderSetField(InCasestudyField):
     lookup_url_kwarg = 'stakeholdercategory_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'stakeholder_category__casestudy__id',
-                            'stakeholdercategory_pk': 'stakeholder_category__id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id', }
 
 
 class StakeholderListField(IdentityFieldMixin, StakeholderSetField):
