@@ -71,7 +71,7 @@ class Material(GDSEModel):
     # not the same as the former Material class that has been renamed to Keyflow
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=255)
-    flowType = models.CharField(max_length=255)
+    flowType = models.CharField(max_length=255, null=True)
 
 
 class ProductFraction(GDSEModel):
@@ -202,7 +202,7 @@ class Geolocation(gis.Model):
 
 class Establishment(Geolocation):
 
-    #actor = models.OneToOneField(Actor, default=get_default(Actor))
+    # actor = models.OneToOneField(Actor, default=get_default(Actor))
 
     @property
     def casestudy(self):
@@ -216,14 +216,14 @@ class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
                                  null=True,
-                                 # default=get_default(Actor),
+                                 default=get_default(Actor),
                                  related_name='administrative_location')
 
 
 class OperationalLocation(Establishment):
     """Operational Location of Actor"""
     actor = models.ForeignKey(Actor,
-                              # default=get_default(Actor),
+                              default=get_default(Actor),
                               related_name='operational_locations')
 
 
@@ -233,7 +233,7 @@ class Flow(models.Model):
     # called this "keyflow" instead of "material", not to confuse with Material class
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-                                # default=1)
+    #                             default=1)
 
     class Meta:
         abstract = True
@@ -246,8 +246,7 @@ class Group2Group(Flow):
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='GroupFlows',
-                                default='Sorted Plastic')
+                                related_name='GroupFlows')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='Group2GroupData', default=1)
 
@@ -261,8 +260,7 @@ class Activity2Activity(Flow):
                                related_name='outputs',
                                )
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActivityFlows',
-                                default='Sorted Plastic')
+                                related_name='ActivityFlows')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='Activity2ActivityData', default=1)
 
@@ -274,8 +272,7 @@ class Actor2Actor(Flow):
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActorFlows',
-                                default='Sorted Plastic')
+                                related_name='ActorFlows')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='Actor2ActorData', default=1)
 

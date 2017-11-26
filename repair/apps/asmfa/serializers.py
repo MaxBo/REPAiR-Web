@@ -88,23 +88,23 @@ class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
         'Keyflow__casestudy__id',
-        'Keyflow_pk': 'Keyflow__id',}
+        'keyflow_pk': 'Keyflow__id',}
     extra_lookup_kwargs = {}
-    filter_field = 'Keyflow_pk'
+    filter_field = 'keyflow_pk'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url_pks_lookup['material_pk'] = \
-            self.parent_lookup_kwargs['material_pk']
+        self.url_pks_lookup['keyflow_pk'] = \
+            self.parent_lookup_kwargs['keyflow_pk']
 
 
 class InKeyflowSetField(IdentityFieldMixin, InKeyflowField, ):
     """Field that returns a list of all items in the casestudy"""
-    lookup_url_kwarg = 'Keyflow_pk'
+    lookup_url_kwarg = 'keyflow_pk'
     parent_lookup_kwargs = {
         'casestudy_pk':
         'casestudy__id',
-        'Keyflow_pk': 'id',}
+        'keyflow_pk': 'id',}
 
 
 class KeyflowField(NestedHyperlinkedRelatedField):
@@ -118,14 +118,14 @@ class KeyflowField(NestedHyperlinkedRelatedField):
 class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(view_name='material-detail')
-    #material = MaterialSerializer(read_only=True)
-    groupstock_set = InMaterialSetField(view_name='groupstock-list')
-    group2group_set = InMaterialSetField(view_name='group2group-list')
-    activitystock_set = InMaterialSetField(view_name='activitystock-list')
-    activity2activity_set = InMaterialSetField(view_name='activity2activity-list')
-    actorstock_set = InMaterialSetField(view_name='actorstock-list')
-    actor2actor_set = InMaterialSetField(view_name='actor2actor-list')
+    keyflow = KeyflowField(view_name='keyflow-detail')
+    #keyflow = KeyflowSerializer(read_only=True)
+    groupstock_set = InKeyflowSetField(view_name='groupstock-list')
+    group2group_set = InKeyflowSetField(view_name='group2group-list')
+    activitystock_set = InKeyflowSetField(view_name='activitystock-list')
+    activity2activity_set = InKeyflowSetField(view_name='activity2activity-list')
+    actorstock_set = InKeyflowSetField(view_name='actorstock-list')
+    actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
     class Meta:
         model = KeyflowInCasestudy
@@ -141,20 +141,20 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actor2actor_set')
 
 
-class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
+class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(view_name='material-detail')
+    keyflow = KeyflowField(view_name='keyflow-detail')
     #casestudy = CasestudyField(view_name='casestudy-detail')
 
     class Meta:
-        model = MaterialInCasestudy
-        fields = ('material',
+        model = KeyflowInCasestudy
+        fields = ('keyflow',
                   'note',
                   )
 
     def create(self, validated_data):
-        """Create a new material in casestury"""
+        """Create a new keyflow in casestury"""
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
         casestudy = CaseStudy.objects.get(id=casestudy_pk)
@@ -165,12 +165,12 @@ class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
         return obj
 
 
-class MaterialInCasestudyDetailCreateMixin:
+class KeyflowInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
-        material_pk = url_pks['material_pk']
+        keyflow_pk = url_pks['keyflow_pk']
         # ToDo: raise some kind of exception or prevent creating object with
         # wrong keyflow/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
@@ -525,7 +525,7 @@ class Actor2ActorSerializer(FlowSerializer):
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
-        fields = ('id', 'amount', 'quality', 'material',
+        fields = ('id', 'amount', 'quality', 'keyflow',
                   'origin', 'origin_url',
                   'destination', 'destination_url')
 
