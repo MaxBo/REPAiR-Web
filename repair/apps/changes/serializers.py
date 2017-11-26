@@ -1,14 +1,12 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 from repair.apps.changes.models import (Unit,
                                         SolutionCategory,
                                         Solution,
                                         Implementation,
                                         SolutionInImplementation,
-                                        UserInCasestudy,
                                         SolutionQuantity,
                                         SolutionRatioOneUnit,
                                         SolutionInImplementationNote,
@@ -17,9 +15,8 @@ from repair.apps.changes.models import (Unit,
                                         Strategy,
                                         )
 
-from repair.apps.login.serializers import (UserInCasestudySerializer,
+from repair.apps.login.serializers import (InCasestudyField,
                                            UserInCasestudyField,
-                                           InCasestudyField,
                                            InSolutionField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
@@ -43,7 +40,6 @@ class SolutionField(InCasestudyField):
                             'solutioncategory_pk': 'solution_category__id',}
     extra_lookup_kwargs = {'casestudy_pk':
                            'implementation__user__casestudy__id'}
-
 
 
 class SolutionSetField(InCasestudyField):
@@ -71,7 +67,7 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
 
 class UnitField(serializers.HyperlinkedRelatedField):
     """A Unit Field"""
-    queryset=Unit.objects
+    queryset = Unit.objects
 
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
@@ -98,8 +94,9 @@ class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
 class SolutionDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        casestudy_pk = self.context['request'].session['casestudy_pk']
-        solution = Solution.objects.get(id=casestudy_pk['solution_pk'])
+        url_pks = self.context['request'].session['url_pks']
+        solution_pk = url_pks['solution_pk']
+        solution = Solution.objects.get(id=solution_pk)
 
         obj = self.Meta.model.objects.create(
             solution=solution,
@@ -168,7 +165,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'one_unit_equals', 'solution_category',
                   'solutionquantity_set',
                   'solutionratiooneunit_set',
-                  #'solution_category_id', 
+                  #'solution_category_id',
                   #'implementation_set',
                   )
         read_only_fields = ('url', 'id', )
@@ -177,8 +174,9 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
 class SolutionInImplementationSetField(InCasestudyField):
     """Returns a list of links to the solutions"""
     lookup_url_kwarg = 'implementation_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'implementation__user__casestudy__id',
-                            'implementation_pk': 'implementation__id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'implementation__user__casestudy__id',
+        'implementation_pk': 'implementation__id', }
 
 
 class ImplementationInStrategySetField(InCasestudyField):
@@ -192,8 +190,6 @@ class SolutionIISetField(InCasestudyField):
     lookup_url_kwarg = 'solutioncategory_pk'
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
                             'solutioncategory_pk': 'id', }
-    #extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
-
 
 
 class SolutionInImplementationsListField(IdentityFieldMixin,
@@ -262,7 +258,6 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         including selected solutions
         """
         implementation = obj
-        implementation_id = implementation.id
 
         # handle solutions
         new_solutions = validated_data.pop('solutions', None)
@@ -335,15 +330,17 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
 
 
 class SolutionInImplementationField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'implementation__user__casestudy__id',
-                            'implementation_pk': 'implementation__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'implementation__user__casestudy__id',
+        'implementation_pk': 'implementation__id',}
 
 
 class SolutionInImplementationDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
-        casestudy_pk = self.context['request'].session['casestudy_pk']
-        sii = SolutionInImplementation.objects.get(id=casestudy_pk['solution_pk'])
+        url_pks = self.context['request'].session['url_pks']
+        solution_pks = url_pks['solution_pk']
+        sii = SolutionInImplementation.objects.get(id=solution_pks)
 
         obj = self.Meta.model.objects.create(
             sii=sii,
@@ -417,7 +414,6 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
         including selected solutions
         """
         strategy = obj
-        strategy_id = strategy.id
 
         # handle implementations
         new_implementations = validated_data.pop('implementations', None)
