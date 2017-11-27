@@ -23,11 +23,12 @@ class BasicModelTest(object):
     put_data = dict()
     patch_data = dict()
     casestudy = None
+    user = -1
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.uic = UserInCasestudyFactory(user__user__id=-1,
+        cls.uic = UserInCasestudyFactory(user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
 

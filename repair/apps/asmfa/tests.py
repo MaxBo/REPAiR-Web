@@ -148,15 +148,72 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
         cls.url_key = "actor"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.actor)
-        cls.post_data = dict(name='posttestname', year=2017, revenue=1000, employees=2,
-                             activity=1)
-        cls.put_data = dict(name='posttestname', year=2017, revenue=1000, employees=2,
-                            activity=1)
+        cls.post_data = dict(name='posttestname', year=2017, revenue=1000,
+                             employees=2, activity=1)
+        cls.put_data = dict(name='posttestname', year=2017, revenue=1000,
+                            employees=2, activity=1)
         cls.patch_data = dict(name='patchtestname')
 
 
     def setUp(self):
         self.obj = ActorFactory(activity__activitygroup__casestudy=self.uic.casestudy)
+
+
+class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    activity = 5
+    activitygroup = 90
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.ag_url = cls.baseurl + reverse('activitygroup-detail',
+                                           kwargs=dict(pk=cls.activity,
+                                                       casestudy_pk=cls.casestudy))
+        cls.url_key = "activity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.activity)
+        cls.post_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.put_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.patch_data = dict(name='Test Name')
+
+
+    def setUp(self):
+        self.obj = ActivityFactory(
+            activitygroup__casestudy=self.uic.casestudy,
+            activitygroup__id=self.activitygroup)
+
+
+class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    activitygroup = 90
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        #cls.ag_url = cls.baseurl + reverse('activitygroup-detail',
+                                           #kwargs=dict(pk=cls.activity,
+                                                       #casestudy_pk=cls.casestudy))
+        cls.url_key = "activitygroup"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.activitygroup)
+        cls.post_data = dict(code="Test Code", name='P1')
+        cls.put_data = dict(code="Test Code", name='P1')
+        cls.patch_data = dict(name='P1')
+
+
+    def setUp(self):
+        self.obj = ActivityGroupFactory(casestudy=self.uic.casestudy)
+
+    def test_post(self):
+        """
+        not sure: Matching query does not exist
+        """
+        pass
 
 
 

@@ -155,7 +155,7 @@ class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
                   )
 
     def create(self, validated_data):
-        """Create a new material in casestury"""
+        """Create a new material in casestudy"""
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
         casestudy = CaseStudy.objects.get(id=casestudy_pk)
