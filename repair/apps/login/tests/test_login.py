@@ -123,14 +123,40 @@ class CasestudyTest(BasicModelTest, APITestCase):
 
 class SolutioncategoryInCasestudyTest(BasicModelTest):  #, APITestCase):
 
+    usr_url = 'http://testserver' + reverse('user-detail', kwargs=dict(pk = 1))
     url_key = "solutioncategory"
-    sub_urls = []
+    sub_urls = ['user', 'solution_set']
     url_pks = dict(casestudy_pk=1)
     url_pk = dict(pk=1)
-    post_data = dict(name='posttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
-    put_data = dict(name='puttestname', user='http://testserver' + reverse('user-detail', kwargs=dict(pk = 1)))
+    post_data = dict(name='posttestname', user=usr_url)
+    put_data = dict(name='puttestname', user=usr_url)
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
         self.obj = SolutionCategoryFactory()
+
+
+class UserInCasestudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    user = 3
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        #cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+        #                           kwargs=dict(pk=cls.casestudy))
+        #cls.material_url = cls.baseurl + reverse('material-detail',
+                                                 #kwargs=dict(pk=cls.material))
+
+
+        cls.url_key = "userincasestudy"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.user)
+
+        cls.put_data = dict(role='new_put_role')
+        cls.post_data = dict(role='new_role')
+        cls.patch_data = dict(role='patchtest_role')
+
+    def setUp(self):
+        self.obj = ProfileFactory(user=self.uic.user.user).user
 
