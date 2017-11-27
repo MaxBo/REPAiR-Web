@@ -54,20 +54,21 @@ class StudyAreaIndexView(BaseView):
     def get(self, request):
         casestudy_list = CaseStudy.objects.order_by('id')[:20]
         users = Profile.objects.order_by('id')[:20]
-    
+
         # get the current casestudy
-        casestudy = request.session.get('casestudy_pk', {}).get('casestudy_pk')
+        url_pks = request.session.get('url_pks', {})
+        casestudy = url_pks.get('casestudy_pk')
         if casestudy:
             stakeholder_category_list = \
                 StakeholderCategory.objects.filter(casestudy=casestudy)
         else:
             stakeholder_category_list = StakeholderCategory.objects.all()
-    
+
         context = {'casestudy_list': casestudy_list,
                    'users': users,
                    'stakeholder_category_list': stakeholder_category_list,
                    }
-    
+
         context['graph1'] = Testgraph1().get_context_data()
         context['graph2'] = Testgraph2().get_context_data()
         context['casestudies'] = self.casestudies()

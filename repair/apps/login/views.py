@@ -35,7 +35,7 @@ class ViewSetMixin(ABC):
 
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
-        request.session['casestudy_pk'] = kwargs
+        request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
         """
@@ -123,7 +123,7 @@ class OnlySubsetMixin(ViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
-        request.session['casestudy_pk'] = kwargs
+        request.session['url_pks'] = kwargs
 
 
 class UserViewSet(viewsets.ModelViewSet):
