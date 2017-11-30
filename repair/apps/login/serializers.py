@@ -59,8 +59,8 @@ class CreateWithUserInCasestudyMixin:
         if not user:
             request = self.context['request']
             user_id = request.user.id or -1  # for the anonymus user
-            casestudy_id = request.session.get('casestudy_pk', {}).\
-                get('casestudy_pk')
+            url_pks = request.session.get('url_pks', {})
+            casestudy_id = url_pks.get('casestudy_pk')
             user = UserInCasestudy.objects.get(user_id=user_id,
                                                casestudy_id=casestudy_id)
 
@@ -140,7 +140,7 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
     extra_lookup_kwargs = {}
 
     def __init__(self, *args, **kwargs):
-        self.casestudy_pk_lookup = {
+        self.url_pks_lookup = {
             'casestudy_pk': self.parent_lookup_kwargs['casestudy_pk']}
 
         super().__init__(*args, **kwargs)
@@ -166,13 +166,13 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
         obj = self.root.instance
         kwargs = {}
         if obj:
-            for pk, field_name in self.casestudy_pk_lookup.items():
+            for pk, field_name in self.url_pks_lookup.items():
                 value = self.get_value_from_obj(obj, pk=pk)
                 kwargs[field_name] = value
             return self.set_custom_queryset(obj, kwargs, Model)
         else:
-            casestudy_pk = view.request.session.get('casestudy_pk', {})
-            value = casestudy_pk.get(self.filter_field)
+            url_pks = view.request.session.get('url_pks', {})
+            value = url_pks.get(self.filter_field)
             if value:
                 RelatedModel = view.queryset.model
                 kwargs2 = {self.root.parent_lookup_kwargs[self.filter_field]:
@@ -204,19 +204,30 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
         return qs
 
     def get_value_from_obj(self, obj, pk='casestudy_pk'):
-        casestudy_from_object = self.root.parent_lookup_kwargs.get(
+        """
+        get the value of the field defined by `pk` from the obj
+
+        Parameters
+        ----------
+        obj: django-object
+            the object
+        pk: str
+          the key
+        """
+        pk_field_from_object = self.root.parent_lookup_kwargs.get(
             pk,
             self.extra_lookup_kwargs.get(pk))
-        casestudy_pk = casestudy_from_object.split('__')
-        for attr in casestudy_pk:
-            obj = getattr(obj, attr)
-        return obj
+        url_pk = pk_field_from_object.split('__')
+        value = obj
+        for attr in url_pk:
+            value = getattr(value, attr)
+        return value
 
     def get_casestudy_pk(self):
         """
-        get the casestudy primary key field from the casestudy_pk_lookup
+        get the casestudy primary key field from the url_pks_lookup
         """
-        casestudy_pk = self.casestudy_pk_lookup.get(
+        casestudy_pk = self.url_pks_lookup.get(
             'casestudy_pk',
             # or if not specified in the parent_lookup_kwargs
             self.parent_lookup_kwargs.get('casestudy_pk'))
@@ -236,9 +247,9 @@ class InSolutionField(InCasestudyField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.casestudy_pk_lookup['solutioncategory_pk'] = \
+        self.url_pks_lookup['solutioncategory_pk'] = \
             self.parent_lookup_kwargs['solutioncategory_pk']
-        self.casestudy_pk_lookup['solution_pk'] = \
+        self.url_pks_lookup['solution_pk'] = \
             self.parent_lookup_kwargs['solution_pk']
 
 
@@ -252,7 +263,7 @@ class InUICField(InCasestudyField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.casestudy_pk_lookup['user_pk'] = \
+        self.url_pks_lookup['user_pk'] = \
             self.parent_lookup_kwargs['user_pk']
 
 
@@ -405,10 +416,18 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'materials',
                   'activitygroups',
                   'activities',
-                  'actors', 
+                  'actors',
                   'administrative_locations',
-                  'operational_locations', 
+                  'operational_locations',
                   )
+
+
+class CasestudyField(NestedHyperlinkedRelatedField):
+    parent_lookup_kwargs = {'pk': 'id'}
+    queryset = CaseStudy.objects
+    """This is fixed in rest_framework_nested, but not yet available on pypi"""
+    def use_pk_only_optimization(self):
+        return False
 
 
 class UserInCasestudyField(InCasestudyField):
