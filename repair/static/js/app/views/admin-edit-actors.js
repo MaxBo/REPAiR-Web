@@ -1,6 +1,7 @@
-define(['jquery', 'backbone', 'app/models/actor', 'tablesorter-pager', 'app/loader'],
+define(['jquery', 'backbone', 'app/models/actor', 'app/collections/geolocations', 
+        'app/visualizations/map', 'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor){
+function($, Backbone, Actor, Locations, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -8,22 +9,37 @@ function($, Backbone, Actor){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
+      
       this.template = options.template;
       this.materialId = options.materialId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
+      
+      this.pins = {
+        blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
+        orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
+        red: '/static/img/simpleicon-places/svg/map-marker-red.svg'
+      }
 
       var _this = this;
+      
+      this.adminLocations = new Locations({
+        caseStudyId: this.collection.caseStudyId, type: 'administrative'
+      })
+      
+      this.opLocations = new Locations({
+        caseStudyId: this.collection.caseStudyId, type: 'operational'
+      })
 
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
-      // fetch inFlows and outFlows with different query parameters
-
-      this.collection.fetch({success: function(){
-        loader.remove();
-        _this.render();
-      }});
+        
+      $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
+             this.collection.fetch()).then(function() {
+          loader.remove();
+          _this.render();
+      });
     },
 
     /*
@@ -109,8 +125,9 @@ function($, Backbone, Actor){
       // workaround for a bug in tablesorter-pager by triggering
       // event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
-      sel.selectedIndex = 1;
+      sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
+      
     },
 
     changeFilter: function(event){
@@ -137,14 +154,14 @@ function($, Backbone, Actor){
       var included = actor.get('included')
       checkbox.checked = included;
       if (!included){
-        row.classList.add('strikeout');
+        row.classList.add('dsbld');
         if (!this.showAll)
           row.style.display = "block";
       }
       row.insertCell(-1).appendChild(checkbox);
 
       checkbox.addEventListener('change', function() {
-        row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
         actor.set('included', checkbox.checked);
       });
 
@@ -191,10 +208,24 @@ function($, Backbone, Actor){
       addInput('BvDid');
       addInput('BvDii');
       addInput('consCode');
+      
+      // row is clicked -> highlight and render locations on map      
+      row.addEventListener('click', function() {
+        _this.el.querySelector('#actor-name').innerHTML = actor.get('name');
+        var selected = _this.table.getElementsByClassName("selected");
+        _.each(selected, function(row){
+          row.classList.remove('selected');
+        });
+        row.classList.add('selected');
+        if (_this.activeActor != actor.id){
+          _this.activeActor = actor.id;
+          _this.renderMarkers(actor);
+        }
+      });
 
     },
 
-    // on click add row button
+    // add row when button is clicked
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
@@ -223,10 +254,10 @@ function($, Backbone, Actor){
 
       var update = function(model){
         if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
-          modelsToSave.push(model);
+          console.log(model)//modelsToSave.push(model);
       };
-      this.collection.each(update);
-      console.log(modelsToSave)
+      //this.collection.each(update);
+      this.adminLocations.each(update);
 
       // chain save and destroy operations
       var saveComplete = _.invoke(modelsToSave, 'save');
@@ -244,10 +275,97 @@ function($, Backbone, Actor){
         _this.onUpload();
       }).fail(onError);
     },
-
+    
+    initMap: function(){
+      var _this = this;
+      
+      this.map = new Map({
+        divid: 'actors-map', 
+      });
+      
+      var items = [
+        {
+          text: 'Add/Move Administr. Loc.',
+          icon: this.pins.blue,
+          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
+            icon: _this.pins.blue, dragIcon: _this.pins.orange
+          })}
+        },
+        {
+          text: 'Add Operational Loc.',
+          icon: this.pins.red,
+          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
+            icon: _this.pins.red, dragIcon: _this.pins.orange 
+          })}
+        },
+        '-' // this is a separator
+      ];
+      
+      this.map.addContextMenu(items)
+    },
+    
+    renderMarkers: function(actor){
+      if (this.map == null)
+        this.initMap();
+        
+      var adminLoc = this.adminLocations.filterActor(actor.id)[0];
+          opLocList = this.opLocations.filterActor(actor.id);
+          
+      var _this = this;
+          adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
+          opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
+      adminTable.innerHTML = '';
+      opTable.innerHTML = '';
+      
+      function formatCoords(c){
+        return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
+      }
+      
+      function addMarker(loc, pin, table){ 
+        if (loc == null)
+          return;
+      
+        /* add table rows */
+        
+        var row = table.insertRow(-1);
+        // add a crosshair icon to center on coordinate on click
+        var centerDiv = document.createElement('div');
+        //centerDiv.className = "fa fa-crosshairs";
+        var img = document.createElement("img");
+        img.src = pin;
+        img.setAttribute('height', '30px');
+        centerDiv.appendChild(img);
+        var cell = row.insertCell(-1);
+        var coords = loc.get('geometry').get('coordinates');
+        cell.appendChild(centerDiv);
+        cell.addEventListener('click', function(){ 
+          _this.map.center(coords, {projection: 'EPSG:4326'})
+        });
+        cell.style.cursor = 'pointer';
+        var coordCell = row.insertCell(-1);
+        coordCell.innerHTML = formatCoords(coords);
+        row.insertCell(-1).innerHTML = loc.get('properties').note;
+        
+        /* add markers */
+        
+        _this.map.addmarker(coords, { 
+          icon: pin, 
+          //dragIcon: _this.pins.orange, 
+          projection: 'EPSG:4326',
+          onDrag: function(coords){
+            coordCell.innerHTML = formatCoords(coords);
+            loc.get('geometry').set("coordinates", coords);
+          }
+        });
+      }
+      this.map.removeMarkers();
+      addMarker(adminLoc, this.pins.blue, adminTable);
+      _.each(opLocList, function(loc){addMarker(loc, _this.pins.red, opTable);});
+    },
+    
     /*
-      * remove this view from the DOM
-      */
+     * remove this view from the DOM
+     */
     close: function(){
       this.undelegateEvents(); // remove click events
       this.unbind(); // Unbind all local event bindings

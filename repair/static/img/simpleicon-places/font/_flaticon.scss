@@ -1,0 +1,163 @@
+    /*
+    Flaticon icon font: Flaticon
+    Creation date: 22/06/2016 15:04
+    */
+
+    @font-face {
+  font-family: "Flaticon";
+  src: url("./Flaticon.eot");
+  src: url("./Flaticon.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon.woff") format("woff"),
+       url("./Flaticon.ttf") format("truetype"),
+       url("./Flaticon.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon";
+    src: url("./Flaticon.svg#Flaticon") format("svg");
+  }
+}
+
+    .fi:before{
+        display: inline-block;
+  font-family: "Flaticon";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+    }
+
+    .flaticon-beach-umbrella-black-silhouette:before { content: "\f100"; }
+.flaticon-beach-umbrella-for-protection-from-the-sun:before { content: "\f101"; }
+.flaticon-boat-black-silhouette:before { content: "\f102"; }
+.flaticon-building:before { content: "\f103"; }
+.flaticon-building-of-antique-design-style-with-two-columns-and-triangular-roof-front:before { content: "\f104"; }
+.flaticon-building-with-columns-and-rounded-roof:before { content: "\f105"; }
+.flaticon-building-with-columns-and-triangular-roof:before { content: "\f106"; }
+.flaticon-buildings:before { content: "\f107"; }
+.flaticon-castle-black-shape:before { content: "\f108"; }
+.flaticon-church-black-silhouette-with-a-cross-on-top:before { content: "\f109"; }
+.flaticon-coconut-with-straw:before { content: "\f10a"; }
+.flaticon-compass-for-orientation:before { content: "\f10b"; }
+.flaticon-compass-for-orientation-1:before { content: "\f10c"; }
+.flaticon-compass-of-circular-shape:before { content: "\f10d"; }
+.flaticon-compass-tool-for-orientation:before { content: "\f10e"; }
+.flaticon-compass-winds-star-symbol:before { content: "\f10f"; }
+.flaticon-compass-with-winds-star:before { content: "\f110"; }
+.flaticon-factory-building:before { content: "\f111"; }
+.flaticon-factory-building-1:before { content: "\f112"; }
+.flaticon-flag-map-marker:before { content: "\f113"; }
+.flaticon-flag-map-marker-1:before { content: "\f114"; }
+.flaticon-heart-map-marker:before { content: "\f115"; }
+.flaticon-home:before { content: "\f116"; }
+.flaticon-home-black-shape:before { content: "\f117"; }
+.flaticon-home-building:before { content: "\f118"; }
+.flaticon-home-front:before { content: "\f119"; }
+.flaticon-home-of-birds:before { content: "\f11a"; }
+.flaticon-home-outline-with-black-door-and-roof:before { content: "\f11b"; }
+.flaticon-home-symbol:before { content: "\f11c"; }
+.flaticon-map-black-folded-paper-shape:before { content: "\f11d"; }
+.flaticon-map-flag-marker:before { content: "\f11e"; }
+.flaticon-map-folded-paper:before { content: "\f11f"; }
+.flaticon-map-folded-paper-of-three-parts-outline:before { content: "\f120"; }
+.flaticon-map-folded-paper-outline:before { content: "\f121"; }
+.flaticon-map-folded-paper-with-a-flag:before { content: "\f122"; }
+.flaticon-map-grid-with-placeholder-interface-symbol:before { content: "\f123"; }
+.flaticon-map-marker:before { content: "\f124"; }
+.flaticon-map-marker-1:before { content: "\f125"; }
+.flaticon-map-marker-2:before { content: "\f126"; }
+.flaticon-map-marker-3:before { content: "\f127"; }
+.flaticon-map-marker-4:before { content: "\f128"; }
+.flaticon-map-marker-5:before { content: "\f129"; }
+.flaticon-map-marker-6:before { content: "\f12a"; }
+.flaticon-map-marker-of-original-shape:before { content: "\f12b"; }
+.flaticon-map-marker-or-gross-speech-bubble-of-rectangular-rounded-shape:before { content: "\f12c"; }
+.flaticon-map-marker-point:before { content: "\f12d"; }
+.flaticon-map-marker-tool:before { content: "\f12e"; }
+.flaticon-map-marker-variant-tool:before { content: "\f12f"; }
+.flaticon-map-marker-with-a-person-shape:before { content: "\f130"; }
+.flaticon-map-marker-with-two-arrows-pointing-opposite-directions:before { content: "\f131"; }
+.flaticon-map-perspective-with-a-placeholder-on-it:before { content: "\f132"; }
+.flaticon-map-pin:before { content: "\f133"; }
+.flaticon-map-with-a-pin:before { content: "\f134"; }
+.flaticon-map-with-pin:before { content: "\f135"; }
+.flaticon-map-with-placeholder:before { content: "\f136"; }
+.flaticon-palm-tree-shape:before { content: "\f137"; }
+.flaticon-placeholder-tool:before { content: "\f138"; }
+.flaticon-sailboat-black-silhouette:before { content: "\f139"; }
+.flaticon-sunbathing:before { content: "\f13a"; }
+.flaticon-sunbathing-1:before { content: "\f13b"; }
+.flaticon-tower-of-town:before { content: "\f13c"; }
+.flaticon-town-tower-building:before { content: "\f13d"; }
+    
+    $font-Flaticon-beach-umbrella-black-silhouette: "\f100";
+    $font-Flaticon-beach-umbrella-for-protection-from-the-sun: "\f101";
+    $font-Flaticon-boat-black-silhouette: "\f102";
+    $font-Flaticon-building: "\f103";
+    $font-Flaticon-building-of-antique-design-style-with-two-columns-and-triangular-roof-front: "\f104";
+    $font-Flaticon-building-with-columns-and-rounded-roof: "\f105";
+    $font-Flaticon-building-with-columns-and-triangular-roof: "\f106";
+    $font-Flaticon-buildings: "\f107";
+    $font-Flaticon-castle-black-shape: "\f108";
+    $font-Flaticon-church-black-silhouette-with-a-cross-on-top: "\f109";
+    $font-Flaticon-coconut-with-straw: "\f10a";
+    $font-Flaticon-compass-for-orientation: "\f10b";
+    $font-Flaticon-compass-for-orientation-1: "\f10c";
+    $font-Flaticon-compass-of-circular-shape: "\f10d";
+    $font-Flaticon-compass-tool-for-orientation: "\f10e";
+    $font-Flaticon-compass-winds-star-symbol: "\f10f";
+    $font-Flaticon-compass-with-winds-star: "\f110";
+    $font-Flaticon-factory-building: "\f111";
+    $font-Flaticon-factory-building-1: "\f112";
+    $font-Flaticon-flag-map-marker: "\f113";
+    $font-Flaticon-flag-map-marker-1: "\f114";
+    $font-Flaticon-heart-map-marker: "\f115";
+    $font-Flaticon-home: "\f116";
+    $font-Flaticon-home-black-shape: "\f117";
+    $font-Flaticon-home-building: "\f118";
+    $font-Flaticon-home-front: "\f119";
+    $font-Flaticon-home-of-birds: "\f11a";
+    $font-Flaticon-home-outline-with-black-door-and-roof: "\f11b";
+    $font-Flaticon-home-symbol: "\f11c";
+    $font-Flaticon-map-black-folded-paper-shape: "\f11d";
+    $font-Flaticon-map-flag-marker: "\f11e";
+    $font-Flaticon-map-folded-paper: "\f11f";
+    $font-Flaticon-map-folded-paper-of-three-parts-outline: "\f120";
+    $font-Flaticon-map-folded-paper-outline: "\f121";
+    $font-Flaticon-map-folded-paper-with-a-flag: "\f122";
+    $font-Flaticon-map-grid-with-placeholder-interface-symbol: "\f123";
+    $font-Flaticon-map-marker: "\f124";
+    $font-Flaticon-map-marker-1: "\f125";
+    $font-Flaticon-map-marker-2: "\f126";
+    $font-Flaticon-map-marker-3: "\f127";
+    $font-Flaticon-map-marker-4: "\f128";
+    $font-Flaticon-map-marker-5: "\f129";
+    $font-Flaticon-map-marker-6: "\f12a";
+    $font-Flaticon-map-marker-of-original-shape: "\f12b";
+    $font-Flaticon-map-marker-or-gross-speech-bubble-of-rectangular-rounded-shape: "\f12c";
+    $font-Flaticon-map-marker-point: "\f12d";
+    $font-Flaticon-map-marker-tool: "\f12e";
+    $font-Flaticon-map-marker-variant-tool: "\f12f";
+    $font-Flaticon-map-marker-with-a-person-shape: "\f130";
+    $font-Flaticon-map-marker-with-two-arrows-pointing-opposite-directions: "\f131";
+    $font-Flaticon-map-perspective-with-a-placeholder-on-it: "\f132";
+    $font-Flaticon-map-pin: "\f133";
+    $font-Flaticon-map-with-a-pin: "\f134";
+    $font-Flaticon-map-with-pin: "\f135";
+    $font-Flaticon-map-with-placeholder: "\f136";
+    $font-Flaticon-palm-tree-shape: "\f137";
+    $font-Flaticon-placeholder-tool: "\f138";
+    $font-Flaticon-sailboat-black-silhouette: "\f139";
+    $font-Flaticon-sunbathing: "\f13a";
+    $font-Flaticon-sunbathing-1: "\f13b";
+    $font-Flaticon-tower-of-town: "\f13c";
+    $font-Flaticon-town-tower-building: "\f13d";
