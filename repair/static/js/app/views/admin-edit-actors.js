@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/collections/locations', 
+define(['jquery', 'backbone', 'app/models/actor', 'app/collections/geolocations', 
         'app/visualizations/map', 'tablesorter-pager', 'app/loader'],
 
 function($, Backbone, Actor, Locations, Map){
@@ -254,10 +254,10 @@ function($, Backbone, Actor, Locations, Map){
 
       var update = function(model){
         if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
-          modelsToSave.push(model);
+          console.log(model)//modelsToSave.push(model);
       };
-      this.collection.each(update);
-      console.log(modelsToSave)
+      //this.collection.each(update);
+      this.adminLocations.each(update);
 
       // chain save and destroy operations
       var saveComplete = _.invoke(modelsToSave, 'save');
@@ -332,7 +332,7 @@ function($, Backbone, Actor, Locations, Map){
         var centerDiv = document.createElement('div');
         centerDiv.className = "fa fa-crosshairs";
         var cell = row.insertCell(-1);
-        var coords = loc.get('geometry').coordinates;
+        var coords = loc.get('geometry').get('coordinates');
         cell.appendChild(centerDiv);
         cell.addEventListener('click', function(){ 
           _this.map.center(coords, {projection: 'EPSG:4326'})
@@ -350,7 +350,7 @@ function($, Backbone, Actor, Locations, Map){
           projection: 'EPSG:4326',
           onDrag: function(coords){
             coordCell.innerHTML = formatCoords(coords);
-            loc.get('geometry').coordinates = coords;
+            loc.get('geometry').set("coordinates", coords);
           }
         });
       }

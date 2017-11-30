@@ -73,11 +73,11 @@ define([
       
       // Add the event to the drag and drop feature
       dragInteraction.on('modifyend', function(){
+        var coordinate = feature.getGeometry().getCoordinates();
+        var transformed = ol.proj.transform(coordinate, map_projection, proj);
+        iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+        vectorLayer.changed();
         if(options.onDrag){
-          var coordinate = feature.getGeometry().getCoordinates();
-          var transformed = ol.proj.transform(coordinate, map_projection, proj);
-          iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-          vectorLayer.changed();
           options.onDrag(transformed);
         }        
       }, feature);

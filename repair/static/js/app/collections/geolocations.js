@@ -1,6 +1,6 @@
-define(["backbone", "app-config"],
+define(["backbone", "app/models/geolocation", "app-config"],
 
-  function(Backbone, config) {
+  function(Backbone, Geolocation, config) {
 
     var Locations = Backbone.Collection.extend({
       url: function(){
@@ -12,6 +12,8 @@ define(["backbone", "app-config"],
         this.caseStudyId = options.caseStudyId;
         this.type = options.type;
       },
+      model: Geolocation,
+      
       //override
       parse: function(response) {
         // return the features as models of this collection, else you would only get one model regardless of feature-count
