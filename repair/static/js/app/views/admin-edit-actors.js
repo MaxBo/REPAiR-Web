@@ -330,7 +330,11 @@ function($, Backbone, Actor, Locations, Map){
         var row = table.insertRow(-1);
         // add a crosshair icon to center on coordinate on click
         var centerDiv = document.createElement('div');
-        centerDiv.className = "fa fa-crosshairs";
+        //centerDiv.className = "fa fa-crosshairs";
+        var img = document.createElement("img");
+        img.src = pin;
+        img.setAttribute('height', '30px');
+        centerDiv.appendChild(img);
         var cell = row.insertCell(-1);
         var coords = loc.get('geometry').get('coordinates');
         cell.appendChild(centerDiv);
@@ -346,7 +350,7 @@ function($, Backbone, Actor, Locations, Map){
         
         _this.map.addmarker(coords, { 
           icon: pin, 
-          dragIcon: _this.pins.orange, 
+          //dragIcon: _this.pins.orange, 
           projection: 'EPSG:4326',
           onDrag: function(coords){
             coordCell.innerHTML = formatCoords(coords);
