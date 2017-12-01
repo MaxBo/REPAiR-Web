@@ -128,6 +128,11 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
     actorstock_set = InMaterialSetField(view_name='actorstock-list')
     actor2actor_set = InMaterialSetField(view_name='actor2actor-list')
 
+    code = serializers.CharField(source='material.code',
+                                 allow_blank=True, required=False)
+    name = serializers.CharField(source='material.name',
+                                 allow_blank=True, required=False)
+
     class Meta:
         model = MaterialInCasestudy
         fields = ('url',
@@ -139,7 +144,9 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'activitystock_set',
                   'activity2activity_set',
                   'actorstock_set',
-                  'actor2actor_set')
+                  'actor2actor_set',
+                  'code',
+                  'name')
 
 
 class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
