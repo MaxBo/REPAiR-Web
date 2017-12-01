@@ -30,7 +30,15 @@ define([
         new ol.control.FullScreen({source: options.divid})
       ]),
       view: view
-    });
+    });    
+    
+    this.toMapProjection = function(coordinate, projection) {
+      return ol.proj.transform(coordinate, projection, map_projection);
+    }
+    
+    this.toProjection = function(coordinate, projection) {
+      return ol.proj.transform(coordinate, map_projection, projection);
+    }
     
     this.addmarker = function(coordinate, options) {
       var proj = options.projection || map_projection;
@@ -41,7 +49,7 @@ define([
             type: 'removable',
             // transform to map projection
             geometry: new ol.geom.Point(
-              ol.proj.transform(coordinate, proj, map_projection))
+              this.toMapProjection(coordinate, proj))
           });
       
       if (options.icon){
@@ -139,7 +147,7 @@ define([
     
     this.center = function(coordinate, options) {
       if (options.projection)
-        coordinate = ol.proj.transform(coordinate, options.projection, map_projection)
+        coordinate = this.toMapProjection(coordinate, options.projection)
       
       view.animate({center: coordinate});//, {zoom: 10});
     }
