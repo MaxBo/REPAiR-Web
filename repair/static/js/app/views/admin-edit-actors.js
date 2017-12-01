@@ -128,6 +128,7 @@ function($, Backbone, Actor, Locations, Map){
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
       
+      this.initMap();
     },
 
     changeFilter: function(event){
@@ -305,12 +306,10 @@ function($, Backbone, Actor, Locations, Map){
     },
     
     renderMarkers: function(actor){
-      if (this.map == null)
-        this.initMap();
         
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];
           opLocList = this.opLocations.filterActor(actor.id);
-          
+      
       var _this = this;
           adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
           opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
@@ -361,6 +360,10 @@ function($, Backbone, Actor, Locations, Map){
       this.map.removeMarkers();
       addMarker(adminLoc, this.pins.blue, adminTable);
       _.each(opLocList, function(loc){addMarker(loc, _this.pins.red, opTable);});
+      
+      if (adminLoc != null)
+        this.map.center(adminLoc.get('geometry').get('coordinates'),
+                        {projection: 'EPSG:4326'});
     },
     
     /*
