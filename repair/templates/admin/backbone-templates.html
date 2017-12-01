@@ -20,45 +20,79 @@
       </button>
     </div>
   </div>
-  <div class="row" style="overflow-x:auto;">
-    <table id='actors-table' class='tablesorter'>
-      <thead>
-        <tr>
-          <th>{% trans "Included" %}</th>
-          <th>{% trans "Name" %}</th>
-          <th>{% trans "Activity" %}</th>
-          <th>{% trans "Website" %}</th>
-          <th>{% trans "Year" %}</th>
-          <th>{% trans "Revenue" %}</th>
-          <th>{% trans "Employees" %}</th>
-          <th>{% trans "BvDid" %}</th>
-          <th>{% trans "BvDii" %}</th>
-          <th>{% trans "ConsCode" %}</th>
-        </tr>
-      </thead> 
-      <tbody> 
-      </tbody> 
-    </table>
-  </div>
   <div class="row">
-    <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
-    <!-- pager -->
-    <div id="pager" class="pager">
-      <form>
-        <img src="{{STATIC_URL}}img/first.png" class="first"/>
-        <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-        <!-- the "pagedisplay" can be any element, including an input -->
-        <input type="text" class="pagedisplay"/>
-        <img src="{{STATIC_URL}}img/next.png" class="next"/>
-        <img src="{{STATIC_URL}}img/last.png" class="last"/>
-        <select id="pagesize" class="pagesize">
-          <option value="20">20</option>
-          <option value="40">40</option>
-          <option value="60">60</option>
-          <option value="100">100</option>
-          <option value="1000">1000</option>
-        </select>
-      </form>
+    <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
+      <div class="row" style="overflow-x:auto;">
+        <table id='actors-table' class='tablesorter'>
+          <thead>
+            <tr>
+              <th>{% trans "Included" %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Activity" %}</th>
+              <th>{% trans "Website" %}</th>
+              <th>{% trans "Year" %}</th>
+              <th>{% trans "Revenue" %}</th>
+              <th>{% trans "Employees" %}</th>
+              <th>{% trans "BvDid" %}</th>
+              <th>{% trans "BvDii" %}</th>
+              <th>{% trans "ConsCode" %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+        </table>
+      </div>
+      <div class="row">
+        <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
+        <!-- pager -->
+        <div id="pager" class="pager">
+          <form>
+            <img src="{{STATIC_URL}}img/first.png" class="first"/>
+            <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
+            <!-- the "pagedisplay" can be any element, including an input -->
+            <input type="text" class="pagedisplay"/>
+            <img src="{{STATIC_URL}}img/next.png" class="next"/>
+            <img src="{{STATIC_URL}}img/last.png" class="last"/>
+            <select id="pagesize" class="pagesize">
+              <option value="20">20</option>
+              <option value="40">40</option>
+              <option value="60">60</option>
+              <option value="100">100</option>
+              <option value="1000">1000</option>
+            </select>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class='col-md-3' style="border: 1px solid #e6e6e6;">
+      
+      <h4 id="actor-name" class="row">{% trans "Please choose an actor by clicking a row." %}</h4>
+      <div id="actors-map" style="min-height: 400px; background-color: #e6e6e6" class="map row"></div>
+      <table id="adminloc-table" class="row">
+        </br>
+        <h4>Administrative Location</h4>
+        <thead>
+            <tr>
+              <th></th>
+              <th>{% trans "Location" %}</th>
+              <th>{% trans "Note" %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+      </table>
+      <table id="oploc-table" class="row">
+        <h4>Operational Locations</h4>
+        <thead>
+            <tr>
+              <th></th>
+              <th>{% trans "Location" %}</th>
+              <th>{% trans "Note" %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+      </table>
     </div>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>

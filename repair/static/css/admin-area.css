@@ -38,13 +38,9 @@ input.changed, select.changed {
     background-color: #e6f2ff;
 }
 
-#actors-table tr.strikeout td{
+#actors-table tr.dsbld td{
     background-color: #ffe6e6 !IMPORTANT;
     opacity: 0.8;
-}
-
-#actors-table tr.strikeout td:before {
-    border: none;
 }
 
 #actors-table th{
@@ -60,4 +56,28 @@ input.changed, select.changed {
 
 #warning {
     display: none;
+}
+
+tr.selected td{
+    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.6);
+}
+.map:-moz-full-screen {
+  width: 100%;
+  height: 100%;
+}
+.map:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+}
+.map:-ms-fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.map:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.ol-rotate {
+  top: 3em;
 }
