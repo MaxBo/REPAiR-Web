@@ -216,6 +216,37 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         pass
 
 
+class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    activity = 5
+    activitygroup = 90
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.ag_url = cls.baseurl + reverse('activitygroup-detail',
+                                           kwargs=dict(pk=cls.activity,
+                                                       casestudy_pk=cls.casestudy))
+        cls.url_key = "activity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           activitygroup_pk=cls.activitygroup)
+        cls.url_pk = dict(pk=cls.activity)
+        cls.post_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.put_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.patch_data = dict(name='Test Name')
+
+
+    def setUp(self):
+        self.obj = ActivityFactory(
+            activitygroup__casestudy=self.uic.casestudy,
+            activitygroup__id=self.activitygroup)
+
+
+
 
 class QualityTest(BasicModelTest, APITestCase):
 
