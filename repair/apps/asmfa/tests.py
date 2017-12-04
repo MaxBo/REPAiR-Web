@@ -110,7 +110,7 @@ class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
                                                  kwargs=dict(pk=cls.keyflow))
 
 
-        cls.url_key = keyflowincasestudy"
+        cls.url_key = "keyflowincasestudy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.keyflow)
 
@@ -628,7 +628,6 @@ class TestLocationsOfActor(APITestCase):
             # update the first location
                 {'geom': new_geom2.geojson,
                  'id': location2.id,
-                 'turnover': 99987.12,
                  'address': new_streetname2,
                  },
                 # create a new location (no id provided)

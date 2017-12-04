@@ -50,8 +50,6 @@ class QualityFactory(DjangoModelFactory):
 class NodeFactory(DjangoModelFactory):
     class Meta:
         model = models.Node
-    source = True
-    sink = True
 
 
 class ActivityGroupFactory(NodeFactory):
