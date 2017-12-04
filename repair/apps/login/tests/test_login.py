@@ -233,7 +233,8 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.usr_url = cls.baseurl + reverse('userincasestudy-detail',
-                                       kwargs=dict(pk=cls.user, casestudy_pk=cls.casestudy))
+                                       kwargs=dict(pk=cls.user,
+                                                   casestudy_pk=cls.casestudy))
         cls.sol_set = []
         cls.url_key = "implementation"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)

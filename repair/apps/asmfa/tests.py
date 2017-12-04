@@ -136,6 +136,42 @@ class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
 
 
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest):  #, APITestCase):
+    """TODO:"""
+    casestudy = 17
+    material = 3
+    origin = 20
+    destination = 12
+    activity2activity = 13
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+                                   kwargs=dict(pk=cls.casestudy))
+        cls.material_url = cls.baseurl + reverse('material-detail',
+                                                 kwargs=dict(pk=cls.material))
+
+
+        cls.url_key = "materialincasestudy"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pk = dict(pk=cls.material)
+
+        cls.put_data = dict(note='new_put_note',
+                             material=cls.material_url,
+                             )
+        cls.post_data = dict(note='new_note',
+                             material=cls.material_url,
+                             )
+
+        cls.patch_data = dict(note='patchtestnote')
+
+    def setUp(self):
+        self.obj = Activity2ActivityFactory(id=self.activity2activity,
+                                            origin__id=self.origin,
+                                            destination__id=self.destination)
+
+
+
 class ActorInCaseStudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
