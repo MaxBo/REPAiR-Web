@@ -25,6 +25,8 @@ define([
         .nodeWidth(15)
         .nodePadding(10)
         .size([width, height]);
+      
+      //sankey.nodeAlign(d3.sankeyLeft)
 
       var path = sankey.link();
 

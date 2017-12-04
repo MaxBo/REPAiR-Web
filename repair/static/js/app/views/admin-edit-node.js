@@ -161,7 +161,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         nodeSelect.addEventListener('change', function() {
           flow.set(targetIdentifier, nodeSelect.value);
         });
-      }
+      };
 
       // select input for qualities
 
@@ -187,6 +187,18 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var description = document.createElement("input");
       row.insertCell(-1).appendChild(description);
 
+      this.addDataSourceRow(tableId, flow);
+      return row;
+    },
+      
+    addDataSourceRow: function(tableId, flow){
+      var table = this.el.querySelector('#' + tableId);
+      var row = table.insertRow(-1);
+      row.insertCell(-1).innerHTML = 'Datasources:';
+      row.insertCell(-1).appendChild(document.createElement("input"));
+      row.insertCell(-1).appendChild(document.createElement("input"));
+      row.insertCell(-1).appendChild(document.createElement("input"));
+      return row;
     },
 
     // on click add row button
