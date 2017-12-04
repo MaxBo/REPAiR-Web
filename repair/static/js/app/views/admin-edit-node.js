@@ -25,7 +25,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.keyflowId = options.keyflowId;
       this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
-      this.qualities = options.qualities;
       this.onUpload = options.onUpload;
 
       var flowType = '';
@@ -163,41 +162,62 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         });
       };
 
-      // select input for qualities
-
-      var qualitySelect = document.createElement("select");
-      var ids = [];
-      var q = flow.get('quality');
-      this.qualities.each(function(quality){
-        var option = document.createElement("option");
-        option.text = quality.get('name');
-        option.value = quality.id;
-        qualitySelect.add(option);
-        ids.push(quality.id);
-      });
-      var idx = ids.indexOf(q);
-      qualitySelect.selectedIndex = idx.toString();
-      row.insertCell(-1).appendChild(qualitySelect);
-
-      qualitySelect.addEventListener('change', function() {
-        flow.set('quality', qualitySelect.value);
-      });
-
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
       var description = document.createElement("input");
+      var ids = [];
       row.insertCell(-1).appendChild(description);
 
-      this.addDataSourceRow(tableId, flow);
-      return row;
-    },
+      description.addEventListener('change', function() {
+        flow.set('description', description.value);
+      });
+
+      // general datasource
+      var options = ['bumm', 'tschackalacka']
+      var datasource = document.createElement("select");
+      _.each(options, function(opt){
+        var option = document.createElement("option");
+        option.text = opt;
+        option.value = opt;
+        datasource.add(option);
+      });
+      cell = row.insertCell(-1);
+      cell.appendChild(datasource);
+      var collapse = document.createElement('div');
+      var dsRow = table.insertRow(-1);
       
-    addDataSourceRow: function(tableId, flow){
-      var table = this.el.querySelector('#' + tableId);
-      var row = table.insertRow(-1);
-      row.insertCell(-1).innerHTML = 'Datasources:';
-      row.insertCell(-1).appendChild(document.createElement("input"));
-      row.insertCell(-1).appendChild(document.createElement("input"));
-      row.insertCell(-1).appendChild(document.createElement("input"));
+      dsRow.classList.add('hidden');
+      collapse.classList.add('glyphicon');
+      collapse.classList.add('glyphicon-chevron-down');
+      collapse.addEventListener('click', function(){
+        dsRow.classList.toggle('hidden');
+        collapse.classList.toggle('glyphicon-chevron-down');
+        collapse.classList.toggle('glyphicon-chevron-up');
+      });
+      cell.appendChild(collapse);
+      
+      // own row for individual Datasources
+      
+      dsRow.insertCell(-1);
+      var datasourcableAttributes = ['amount', targetIdentifier, 'description'];
+      _.each(datasourcableAttributes, function(attr){
+        var sel = document.createElement("select");
+        var cell = dsRow.insertCell(-1).appendChild(sel);
+        _.each(options, function(opt){
+          var option = document.createElement("option");
+          option.text = opt;
+          option.value = opt;
+          cell.add(option);
+        });
+        // general datasource overrides all sub datasources
+        datasource.addEventListener('change', function(){
+          sel.selectedIndex = datasource.selectedIndex;
+        });
+        // sub datasources changes -> show that general datasource is custom by leaving it blank
+        sel.addEventListener('change', function(){
+          datasource.selectedIndex = -1;
+        });
+      });
+      
       return row;
     },
 
