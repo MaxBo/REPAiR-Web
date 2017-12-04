@@ -126,6 +126,11 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     actorstock_set = InKeyflowSetField(view_name='actorstock-list')
     actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
+    code = serializers.CharField(source='material.code',
+                                 allow_blank=True, required=False)
+    name = serializers.CharField(source='material.name',
+                                 allow_blank=True, required=False)
+
     class Meta:
         model = KeyflowInCasestudy
         fields = ('url',
@@ -137,7 +142,9 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'activitystock_set',
                   'activity2activity_set',
                   'actorstock_set',
-                  'actor2actor_set')
+                  'actor2actor_set',
+                  'code',
+                  'name')
 
 
 class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):

@@ -19,6 +19,7 @@ class BasicModelTest(object):
     sub_urls = []
     url_pks = dict()
     url_pk = dict()
+    post_urls = []
     post_data = dict()
     put_data = dict()
     patch_data = dict()
@@ -68,8 +69,8 @@ class BasicModelTest(object):
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
-        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                        'pk': self.obj.pk, })
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
         response = self.client.delete(url)
@@ -96,4 +97,12 @@ class BasicModelTest(object):
         for key in self.sub_urls:
             key_response = self.client.get(response.data[key])
             assert key_response.status_code == status.HTTP_200_OK
+
+    def test_post_url_exist(self):
+        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
+        response = self.client.get(url)
+        for url in self.post_urls:
+            response = self.client.get(url)
+            assert response.status_code == status.HTTP_200_OK
 
