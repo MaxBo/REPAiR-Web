@@ -105,7 +105,7 @@
     <h3>{% trans "Flows" %} - <%= casestudy %></h3>
     <select name="flows" id="flows-select">
       <% keyflows.each(function(keyflow){ %>
-        <option value="<%= keyflow.id %>"><%= keyflow.get('keyflow').code %></option>
+        <option value="<%= keyflow.id %>"><%= keyflow.get('name') %></option>
       <% }); %>
     </select>
   </div>
@@ -178,7 +178,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
@@ -191,7 +191,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
@@ -204,7 +204,7 @@
         <tr>
           <th>{% trans "Remove Stock" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
@@ -241,7 +241,7 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "keyflow" %}</td>
+      <td>{% trans "Keyflow" %}</td>
       <td><%= keyflow %></td>
     </tr>
     <tr>
@@ -264,7 +264,7 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Flow" %}</td>
+      <td>{% trans "Keyflow" %}</td>
       <td><%= keyflow %></td>
     </tr>
     <tr>

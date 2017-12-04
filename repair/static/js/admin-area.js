@@ -5,7 +5,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
            'app/collections/activitygroups', 'app/collections/keyflows',
            'app/collections/stocks', 'app-config', 'app/loader'],
   function ($, CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
-            Activities, Actors, ActivityGroups, Materials, Stocks, appConfig) {
+            Activities, Actors, ActivityGroups, Keyflows, Stocks, appConfig) {
 
     var caseStudyId,
         caseStudy,
@@ -74,15 +74,15 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
 
       var keyflowSelect = document.getElementById('flows-select');
       var refreshButton = document.getElementById('refresh-view-btn');
-      var onMaterialChange = function(rerenderEntry){
+      var onKeyflowChange = function(rerenderEntry){
         var keyflowId = keyflowSelect.options[keyflowSelect.selectedIndex].value;
         renderDataView(keyflowId, caseStudyId);
         // can't safely add this inside view, because selector is not part of it's template
         if (rerenderEntry == true)
           dataEntryView.renderDataEntry();
       }
-      keyflowSelect.addEventListener('change', function(){onMaterialChange(true)});
-      refreshButton.addEventListener('click', onMaterialChange);
+      keyflowSelect.addEventListener('change', function(){onKeyflowChange(true)});
+      refreshButton.addEventListener('click', onKeyflowChange);
 
       renderDataEntry(caseStudy);
       renderEditActors(caseStudy);
@@ -102,7 +102,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         caseStudy = new CaseStudy({id: caseStudyId});
         activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
         activities = new Activities({caseStudyId: caseStudyId});
-        keyflows = new Materials({caseStudyId: caseStudyId});
+        keyflows = new Keyflows({caseStudyId: caseStudyId});
         var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
         $.when(caseStudy.fetch(), activityGroups.fetch(), 
