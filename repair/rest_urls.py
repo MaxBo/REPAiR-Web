@@ -30,8 +30,8 @@ from repair.apps.asmfa.views import (
     Group2GroupViewSet,
     Actor2ActorViewSet,
     QualityViewSet,
-    MaterialViewSet,
-    MaterialInCasestudyViewSet,
+    KeyflowViewSet,
+    KeyflowInCasestudyViewSet,
     GroupStockViewSet,
     ActivityStockViewSet,
     ActorStockViewSet,
@@ -40,7 +40,7 @@ from repair.apps.asmfa.views import (
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
-    OperationalLocationViewSet, 
+    OperationalLocationViewSet,
 )
 
 ## base routes ##
@@ -50,7 +50,7 @@ router.register(r'users', login_views.UserViewSet)
 router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
-router.register(r'materials', MaterialViewSet)
+router.register(r'keyflows', KeyflowViewSet)
 router.register(r'qualities', QualityViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
@@ -66,7 +66,7 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 #cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
-cs_router.register(r'materials', MaterialInCasestudyViewSet)
+cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 cs_router.register(r'operationallocations', OperationalLocationViewSet)
 
@@ -113,9 +113,8 @@ ag_router.register(r'activities', ActivityViewSet)
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
 ac_router.register(r'actors', ActorViewSet)
 
-
-# /casestudies/*/materials/...
-mat_router = NestedSimpleRouter(cs_router, r'materials', lookup='material')
+# /casestudies/*/Keyflows/...
+mat_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 mat_router.register(r'groupstock', GroupStockViewSet)
 mat_router.register(r'activitystock', ActivityStockViewSet)
 mat_router.register(r'actorstock', ActorStockViewSet)
