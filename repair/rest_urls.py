@@ -29,7 +29,6 @@ from repair.apps.asmfa.views import (
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
-    QualityViewSet,
     KeyflowViewSet,
     KeyflowInCasestudyViewSet,
     GroupStockViewSet,
@@ -51,7 +50,6 @@ router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'qualities', QualityViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -65,7 +63,6 @@ cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
-#cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 cs_router.register(r'operationallocations', OperationalLocationViewSet)

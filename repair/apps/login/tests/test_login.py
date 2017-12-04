@@ -105,7 +105,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
                 "solution_categories",
                 "stakeholder_categories",
                 "implementations",
-                "materials",
+                "keyflows",
                 "activitygroups",
                 "activities",
                 "actors",

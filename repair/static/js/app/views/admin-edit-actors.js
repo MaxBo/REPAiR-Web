@@ -13,7 +13,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.materialId = options.materialId;
+      this.keyflowId = options.keyflowId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;

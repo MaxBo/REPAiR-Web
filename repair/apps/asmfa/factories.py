@@ -15,9 +15,9 @@ class DataEntryFactory(DjangoModelFactory):
     user = factory.SubFactory(ProfileFactory)
 
 
-class MaterialFactory(DjangoModelFactory):
+class KeyflowFactory(DjangoModelFactory):
     class Meta:
-        model = models.Material
+        model = models.Keyflow
     name = 'PET Plastic'
     code = 'PET'
 
@@ -33,11 +33,11 @@ class MaterialFactory(DjangoModelFactory):
                 self.casestudies.add(casestudy)
 
 
-class MaterialInCasestudyFactory(DjangoModelFactory):
+class KeyflowInCasestudyFactory(DjangoModelFactory):
     class Meta:
-        model = models.MaterialInCasestudy
-    note = 'A Material in a Casestudy'
-    material = factory.SubFactory(MaterialFactory)
+        model = models.KeyflowInCasestudy
+    note = 'A Keyflow in a Casestudy'
+    keyflow = factory.SubFactory(KeyflowFactory)
     casestudy = factory.SubFactory(CaseStudyFactory)
 
 
@@ -87,7 +87,7 @@ class FlowFactory(DjangoModelFactory):
     class Meta:
         model = models.Flow
     amount = 1234
-    material = factory.SubFactory(MaterialInCasestudyFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     quality = factory.SubFactory(QualityFactory)
 
 

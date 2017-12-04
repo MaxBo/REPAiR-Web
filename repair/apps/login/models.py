@@ -145,7 +145,6 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
             print(instance.profile)
 
 
-
 class UserInCasestudy(GDSEModel):
     user = models.ForeignKey(Profile)
     casestudy = models.ForeignKey(CaseStudy)

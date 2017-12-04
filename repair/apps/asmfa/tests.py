@@ -76,7 +76,7 @@ class ASMFAModelTest(TestCase):
         assert excluded_actors.first().included is False
 
 
-class MaterialTest(BasicModelTest, APITestCase):
+class KeyflowTest(BasicModelTest, APITestCase):
     casestudy = 17
 
     @classmethod
@@ -84,7 +84,7 @@ class MaterialTest(BasicModelTest, APITestCase):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                            kwargs=dict(pk=cls.casestudy))
-        cls.url_key = "material"
+        cls.url_key = "keyflow"
         cls.url_pks = dict()
         cls.url_pk = dict(pk=1)
         cls.post_data = dict(name='posttestname',
@@ -94,38 +94,38 @@ class MaterialTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.obj = MaterialFactory()
+        self.obj = KeyflowFactory()
 
 
-class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
-    material = 3
+    keyflow = 3
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                    kwargs=dict(pk=cls.casestudy))
-        cls.material_url = cls.baseurl + reverse('material-detail',
-                                                 kwargs=dict(pk=cls.material))
+        cls.keyflow_url = cls.baseurl + reverse('keyflow-detail',
+                                                 kwargs=dict(pk=cls.keyflow))
 
 
-        cls.url_key = "materialincasestudy"
+        cls.url_key = keyflowincasestudy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
-        cls.url_pk = dict(pk=cls.material)
+        cls.url_pk = dict(pk=cls.keyflow)
 
         cls.put_data = dict(note='new_put_note',
-                             material=cls.material_url,
+                             keyflow=cls.keyflow_url,
                              )
         cls.post_data = dict(note='new_note',
-                             material=cls.material_url,
+                             keyflow=cls.keyflow,
                              )
 
         cls.patch_data = dict(note='patchtestnote')
 
     def setUp(self):
-        self.obj = MaterialInCasestudyFactory(casestudy=self.uic.casestudy,
-                                              material__id=self.material)
+        self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
+                                              keyflow__id=self.keyflow)
 
     def test_post(self):
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
