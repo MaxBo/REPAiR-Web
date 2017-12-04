@@ -135,14 +135,14 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
-      // currently selected material
-      var materialSelect = document.getElementById('flows-select');
+      // currently selected keyflow
+      var keyflowSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        materialId: materialSelect.value,
-        materialName: materialSelect.options[materialSelect.selectedIndex].text,
+        keyflowId: keyflowSelect.value,
+        keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
         caseStudyId: this.model.id,
         qualities: this.qualities,
         onUpload: this.renderDataEntry // rerender after upload

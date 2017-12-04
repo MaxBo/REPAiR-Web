@@ -104,8 +104,8 @@
   <div class="row">
     <h3>{% trans "Flows" %} - <%= casestudy %></h3>
     <select name="flows" id="flows-select">
-      <% materials.each(function(material){ %>
-        <option value="<%= material.id %>"><%= material.get('material').code %></option>
+      <% keyflows.each(function(keyflow){ %>
+        <option value="<%= keyflow.id %>"><%= keyflow.get('keyflow').code %></option>
       <% }); %>
     </select>
   </div>
@@ -222,8 +222,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Flow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
@@ -241,8 +241,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "keyflow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity Group" %}</td>
@@ -264,8 +264,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Flow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity" %}</td>

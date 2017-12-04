@@ -5,8 +5,8 @@ define(["backbone", "app-config"],
     var Materials = Backbone.Collection.extend({
       url: function(){
           if (this.caseStudyId != null)
-            return config.api.materialsInCaseStudy.format(this.caseStudyId);
-          else config.api.materials
+            return config.api.keyflowsInCaseStudy.format(this.caseStudyId);
+          else config.api.keyflows
       },
       
       initialize: function (options) {
@@ -14,6 +14,6 @@ define(["backbone", "app-config"],
       }
     });
 
-    return Materials;
+    return Keyflows;
   }
 );

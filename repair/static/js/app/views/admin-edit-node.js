@@ -8,7 +8,7 @@ define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
   * @param   options.el        html-element the view will be rendered in
   * @param   options.model     backbone-model of the node
   * @param   options.template  the id of the script containing the template for this view
-  * @param   options.material  the material of the flows
+  * @param   options.keyflow   the keyflow of the flows
   *
   * @return  the EditNodeView class (for chaining)
   * @see     table for attributes and flows in and out of this node
@@ -22,8 +22,8 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
     initialize: function(options){
       _.bindAll(this, 'render');
       this.template = options.template;
-      this.materialId = options.materialId;
-      this.materialName = options.materialName;
+      this.keyflowId = options.keyflowId;
+      this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
       this.qualities = options.qualities;
       this.onUpload = options.onUpload;
@@ -44,22 +44,22 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }
 
       this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                    materialId: this.materialId,
+                                    keyflowId: this.keyflowId,
                                     type: flowType});
       this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                      materialId: this.materialId,
+                                      keyflowId: this.keyflowId,
                                       type: flowType});
       this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
-                                    materialId: this.materialId,
+                                    keyflowId: this.keyflowId,
                                     type: flowType});
       this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                        materialId: this.materialId,
+                                        keyflowId: this.keyflowId,
                                         type: flowType});
       this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                        materialId: this.materialId,
+                                        keyflowId: this.keyflowId,
                                         type: flowType});
       this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
-                                      materialId: this.materialId,
+                                      keyflowId: this.keyflowId,
                                       type: flowType});
       var _this = this;
 
@@ -322,7 +322,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         code: this.model.get('code')
       });
     },
@@ -332,7 +332,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         group: this.model.get('activitygroup'),
         nace: this.model.get('nace')
       });
@@ -343,7 +343,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         bvdid: this.model.get('BvDid'),
         activity: this.model.get('activity'),
         url: this.model.get('website'),
