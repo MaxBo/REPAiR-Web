@@ -76,7 +76,7 @@ class ActorFactory(NodeFactory):
     name = factory.Sequence(lambda n: "Actor #%s" % n)
     consCode = 'ConsCode1'
     year = 2017
-    revenue = 100000
+    turnover = 100000
     employees = 100
     BvDii = 'BvDii99'
     website = 'www.example.com'
@@ -139,7 +139,7 @@ class GeolocationFactory(DjangoModelFactory):
     class Meta:
         model = models.Geolocation
     note = 'a location'
-    street = 'MainStreet'
+    address = 'MainStreet'
     building = '12'
     postcode = '12345'
     city = 'Sevilla'

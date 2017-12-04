@@ -186,7 +186,7 @@ function($, Backbone, Actor){
 
       addInput('website');
       addInput('year', 'number');
-      addInput('revenue', 'number');
+      addInput('turnover', 'number');
       addInput('employees', 'number');
       addInput('BvDid');
       addInput('BvDii');
@@ -203,7 +203,7 @@ function($, Backbone, Actor){
         "name": "",
         "consCode": "",
         "year": 0,
-        "revenue": 0,
+        "turnover": 0,
         "employees": 0,
         "BvDii": "",
         "website": "",

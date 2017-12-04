@@ -185,6 +185,7 @@ class Geolocation(gis.Model):
                        ("EU", "European Union"),
                        ("-1", "Outside EU"))
 
+    name = models.TextField(blank=True, null=True)
     postcode = models.CharField(max_length=10, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     country = models.CharField(max_length=255, choices=country_choices,

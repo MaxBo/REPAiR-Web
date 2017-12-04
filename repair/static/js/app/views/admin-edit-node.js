@@ -337,7 +337,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         url: this.model.get('website'),
         year: this.model.get('year'),
         employees: this.model.get('employees'),
-        revenue: this.model.get('revenue')
+        turnover: this.model.get('turnover')
       });
     },
 

@@ -399,7 +399,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     solution_categories = InCasestudyListField(
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
-    materials = InCasestudyListField(view_name='materialincasestudy-list')
+    keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     activitygroups = InCasestudyListField(view_name='activitygroup-list')
     activities = InCasestudyListField(view_name='activity-list')
     actors = InCasestudyListField(view_name='actor-list')
@@ -413,7 +413,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
-                  'materials',
+                  'keyflows',
                   'activitygroups',
                   'activities',
                   'actors',
