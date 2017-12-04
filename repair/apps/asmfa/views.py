@@ -77,12 +77,6 @@ class KeyflowViewSet(ModelViewSet):
     serializer_class = KeyflowSerializer
 
 
-class QualityViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Quality.objects.all()
-    serializer_class = QualitySerializer
-    casestudy_only = False
-
-
 class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     API endpoint that allows Keyflowincasestudy to be viewed or edited.

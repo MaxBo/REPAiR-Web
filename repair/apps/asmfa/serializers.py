@@ -126,9 +126,9 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     actorstock_set = InKeyflowSetField(view_name='actorstock-list')
     actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
-    code = serializers.CharField(source='material.code',
+    code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
-    name = serializers.CharField(source='material.name',
+    name = serializers.CharField(source='keyflow.name',
                                  allow_blank=True, required=False)
 
     class Meta:
@@ -584,7 +584,7 @@ class OperationalLocationSerializer(GeoFeatureModelSerializer,
         model = OperationalLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor', 'employees', 'turnover']
+                  'city', 'geom', 'name', 'actor']
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
