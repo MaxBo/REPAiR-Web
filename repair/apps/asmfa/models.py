@@ -99,8 +99,8 @@ class Node(GDSEModel):
     # sink = models.BooleanField(default=False) # not used anymore
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
-    keyflow = models.ForeignKey(KeyflowInCasestudy,
-                                  on_delete=models.CASCADE)
+    #keyflow = models.ForeignKey(KeyflowInCasestudy,
+                                  #on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -123,6 +123,9 @@ class ActivityGroup(Node):
                               ("exp", "Export"))
     code = models.CharField(max_length=10, choices=activity_group_choices)
     name = models.CharField(max_length=255)
+    keyflow = models.ForeignKey(KeyflowInCasestudy,
+                                on_delete=models.CASCADE)
+
 
 
 class Activity(Node):

@@ -88,9 +88,10 @@ class KeyflowTest(BasicModelTest, APITestCase):
         cls.url_pks = dict()
         cls.url_pk = dict(pk=1)
         cls.post_data = dict(name='posttestname',
-                             casestudies=[cls.cs_url], code='cdo')
+                             casestudies=[cls.cs_url], code='Food')
         cls.put_data = dict(name='puttestname',
-                            casestudies=[cls.cs_url])
+                            casestudies=[cls.cs_url],
+                            code='Food')
         cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
@@ -156,7 +157,7 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ActorFactory(activity__activitygroup__casestudy=self.uic.casestudy)
+        self.obj = ActorFactory(activity__activitygroup__keyflow__casestudy=self.uic.casestudy)
 
 
 class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
@@ -184,7 +185,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         self.obj = ActivityFactory(
-            activitygroup__casestudy=self.uic.casestudy,
+            activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
 
 
@@ -207,7 +208,7 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ActivityGroupFactory(casestudy=self.uic.casestudy)
+        self.obj = ActivityGroupFactory(keyflow__casestudy=self.uic.casestudy)
 
     def test_post(self):
         """
@@ -221,6 +222,7 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
     casestudy = 17
     activity = 5
     activitygroup = 90
+    keyflow = 23
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -242,13 +244,14 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         self.obj = ActivityFactory(
-            activitygroup__casestudy=self.uic.casestudy,
+            activitygroup__keyflow__id=self.keyflow,
+            activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
 
 
 
 
-class QualityTest(BasicModelTest, APITestCase):
+class QualityTest(BasicModelTest):  #, APITestCase):
 
     url_key = "quality"
     url_pks = dict()

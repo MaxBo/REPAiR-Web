@@ -21,6 +21,8 @@ class KeyflowFactory(DjangoModelFactory):
     name = 'PET Plastic'
     code = 'PET'
 
+    #casestudy = factory.SubFactory(CaseStudyFactory)
+
     @factory.post_generation
     def casestudies(self, create, extracted, **kwargs):
         if not create:
@@ -31,6 +33,7 @@ class KeyflowFactory(DjangoModelFactory):
             # A list of casestudies were passed in, use them
             for casestudy in extracted:
                 self.casestudies.add(casestudy)
+
 
 
 class KeyflowInCasestudyFactory(DjangoModelFactory):
@@ -57,7 +60,7 @@ class ActivityGroupFactory(NodeFactory):
         model = models.ActivityGroup
     name = factory.Sequence(lambda n: "ActivityGroup #%s" % n)
     code = Meta.model.activity_group_choices[0]
-    casestudy = factory.SubFactory(CaseStudyFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
 class ActivityFactory(NodeFactory):
@@ -65,6 +68,7 @@ class ActivityFactory(NodeFactory):
         model = models.Activity
     name = factory.Sequence(lambda n: "Activity #%s" % n)
     nace = '52.Retail'
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     activitygroup = factory.SubFactory(ActivityGroupFactory)
 
 
