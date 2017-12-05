@@ -68,7 +68,7 @@ class ActivityFactory(NodeFactory):
         model = models.Activity
     name = factory.Sequence(lambda n: "Activity #%s" % n)
     nace = '52.Retail'
-    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     activitygroup = factory.SubFactory(ActivityGroupFactory)
 
 
