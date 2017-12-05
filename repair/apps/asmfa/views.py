@@ -11,9 +11,9 @@ from repair.apps.asmfa.models import (
     Activity2Activity,
     Actor2Actor,
     Group2Group,
-    Material,
+    Keyflow,
     Quality,
-    MaterialInCasestudy,
+    KeyflowInCasestudy,
     GroupStock,
     ActivityStock,
     ActorStock,
@@ -29,10 +29,10 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
-    MaterialSerializer,
+    KeyflowSerializer,
     QualitySerializer,
-    MaterialInCasestudySerializer,
-    MaterialInCasestudyPostSerializer,
+    KeyflowInCasestudySerializer,
+    KeyflowInCasestudyPostSerializer,
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
@@ -41,6 +41,7 @@ from repair.apps.asmfa.serializers import (
     AdministrativeLocationSerializer,
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
+    AdministrativeLocationOfActorPostSerializer, 
     OperationalLocationsOfActorSerializer,
     AllActorListSerializer,
 )
@@ -72,24 +73,18 @@ class AllActorViewSet(ActorViewSet):
     serializers = {'list': AllActorListSerializer,}
 
 
-class MaterialViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
+class KeyflowViewSet(ModelViewSet):
+    queryset = Keyflow.objects.all()
+    serializer_class = KeyflowSerializer
 
 
-class QualityViewSet(ViewSetMixin, ModelViewSet):
-    queryset = Quality.objects.all()
-    serializer_class = QualitySerializer
-    casestudy_only = False
-
-
-class MaterialInCasestudyViewSet(ViewSetMixin, ModelViewSet):
+class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
-    API endpoint that allows materialincasestudy to be viewed or edited.
+    API endpoint that allows Keyflowincasestudy to be viewed or edited.
     """
-    queryset = MaterialInCasestudy.objects.all()
-    serializer_class = MaterialInCasestudySerializer
-    serializers = {'create': MaterialInCasestudyPostSerializer}
+    queryset = KeyflowInCasestudy.objects.all()
+    serializer_class = KeyflowInCasestudySerializer
+    serializers = {'create': KeyflowInCasestudyPostSerializer}
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
@@ -138,6 +133,7 @@ class Actor2ActorViewSet(FlowViewSet):
 class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
+    serializers = {'create': AdministrativeLocationOfActorPostSerializer}
 
 
 class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):

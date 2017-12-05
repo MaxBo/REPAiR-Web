@@ -1,8 +1,8 @@
 define(['jquery', 'backbone',
         'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
-        'app/collections/qualities', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
+        'treeview', 'app/loader'],
+function($, Backbone, EditNodeView, Activities, Actors, treeview){
 
   /**
    *
@@ -35,7 +35,6 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       this.activityGroups = options.activityGroups;
       this.activities = options.activities;
       this.actors = new Actors({caseStudyId: caseStudyId});
-      this.qualities = new Qualities();
 
       this.render();
     },
@@ -52,7 +51,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       // after fetching their data, show loader-symbol while fetching
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      $.when(this.qualities.fetch(), this.actors.fetch({data: 'included=True'})).then(function() {
+      $.when(this.actors.fetch({data: 'included=True'})).then(function() {
         _this.renderDataTree();
         loader.remove();
       });
@@ -135,16 +134,15 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
-      // currently selected material
-      var materialSelect = document.getElementById('flows-select');
+      // currently selected keyflow
+      var keyflowSelect = document.getElementById('flows-select');
       this.editNodeView = new EditNodeView({
         el: document.getElementById('edit-node'),
         template: 'edit-node-template',
         model: model,
-        materialId: materialSelect.value,
-        materialName: materialSelect.options[materialSelect.selectedIndex].text,
+        keyflowId: keyflowSelect.value,
+        keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
         caseStudyId: this.model.id,
-        qualities: this.qualities,
         onUpload: this.renderDataEntry // rerender after upload
       });
     },

@@ -1,503 +1,992 @@
 [
 {
-  "model": "asmfa.material",
+  "model": "asmfa.dataentry",
   "pk": 1,
   "fields": {
-    "code": "PET plastic",
-    "name": "PET"
+    "user": "rusne",
+    "source": "https://osf.io/xkhrp/",
+    "date": "2017-11-15T16:07:43.277Z",
+    "raw": true
   }
 },
 {
-  "model": "asmfa.material",
+  "model": "asmfa.keyflow",
+  "pk": 1,
+  "fields": {
+    "code": "Org",
+    "name": "Organic"
+  }
+},
+{
+  "model": "asmfa.keyflow",
   "pk": 2,
   "fields": {
-    "code": "Organic",
-    "name": "Org"
+    "code": "CDW",
+    "name": "Construction & Demolition"
   }
 },
 {
-  "model": "asmfa.material",
+  "model": "asmfa.keyflow",
   "pk": 3,
   "fields": {
-    "code": "PVC plastic",
-    "name": "PVC"
+    "code": "Food",
+    "name": "Food"
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflow",
+  "pk": 4,
+  "fields": {
+    "code": "MSW",
+    "name": "Municipal Solid Waste"
+  }
+},
+{
+  "model": "asmfa.keyflow",
+  "pk": 5,
+  "fields": {
+    "code": "PCPW",
+    "name": "Post-Consumer Plastic"
+  }
+},
+{
+  "model": "asmfa.keyflow",
+  "pk": 6,
+  "fields": {
+    "code": "HHW",
+    "name": "Household Hazardous Waste"
+  }
+},
+{
+  "model": "asmfa.keyflowincasestudy",
   "pk": 1,
   "fields": {
-    "material": 1,
+    "keyflow": 1,
     "casestudy": 1,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 15,
   "fields": {
-    "material": 1,
+    "keyflow": 1,
     "casestudy": 4,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 16,
   "fields": {
-    "material": 1,
+    "keyflow": 1,
     "casestudy": 3,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 17,
   "fields": {
-    "material": 1,
+    "keyflow": 1,
     "casestudy": 5,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 18,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 1,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 19,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 2,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 20,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 3,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 21,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 4,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 22,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 5,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 23,
   "fields": {
-    "material": 2,
+    "keyflow": 2,
     "casestudy": 6,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 24,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 1,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 25,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 2,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 26,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 3,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 27,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 4,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 28,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 5,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 29,
   "fields": {
-    "material": 3,
+    "keyflow": 3,
     "casestudy": 6,
     "note": ""
   }
 },
 {
-  "model": "asmfa.materialincasestudy",
+  "model": "asmfa.keyflowincasestudy",
   "pk": 30,
   "fields": {
-    "material": 1,
+    "keyflow": 1,
     "casestudy": 7,
     "note": ""
   }
 },
 {
-  "model": "asmfa.quality",
+  "model": "asmfa.product",
   "pk": 1,
   "fields": {
-    "name": "High"
+    "name": "Plastic Water Bottle",
+    "default": true,
+    "keyflow": 30
   }
+},
+{
+  "model": "asmfa.product",
+  "pk": 2,
+  "fields": {
+    "name": "Plastic Milk Bottle",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 3,
+  "fields": {
+    "name": "Plastic Juice Bottle",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 4,
+  "fields": {
+    "name": "Cardboard Cheese Box",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 5,
+  "fields": {
+    "name": "Cardboard Box for Water Bottles",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 6,
+  "fields": {
+    "name": "Farm Waste",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 7,
+  "fields": {
+    "name": "Sorted Cardboard Waste",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 8,
+  "fields": {
+    "name": "Restaurant Waste",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 9,
+  "fields": {
+    "name": "Municipal Solid Waste",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 10,
+  "fields": {
+    "name": "Sorted Plastic",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.product",
+  "pk": 11,
+  "fields": {
+    "name": "Plastic Deposit",
+    "default": true,
+    "keyflow": 30
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 1,
+  "fields": {
+    "code": "F1",
+    "name": "Animal-derived food waste",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 2,
+  "fields": {
+    "code": "F2",
+    "name": "Vegetable food waste",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 3,
+  "fields": {
+    "code": "Y1",
+    "name": "Plant material",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 4,
+  "fields": {
+    "code": "Y2",
+    "name": "Woody plant material",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 5,
+  "fields": {
+    "code": "Y3",
+    "name": "Humus",
+    "flowType": "Organic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 6,
+  "fields": {
+    "code": "PC1",
+    "name": "Magazines and advertisement",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 7,
+  "fields": {
+    "code": "PC2",
+    "name": "Newsprint",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 8,
+  "fields": {
+    "code": "PC6",
+    "name": "Other paper",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 9,
+  "fields": {
+    "code": "PC7",
+    "name": "Cardboard and paperboard",
+    "flowType": "Paper and Cardboard Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 10,
+  "fields": {
+    "code": "P1",
+    "name": "Plastic packaging-PET",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 11,
+  "fields": {
+    "code": "P2",
+    "name": "Plastic packaging-HDPE",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 12,
+  "fields": {
+    "code": "P3",
+    "name": "Plastic packaging-PP",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "asmfa.material",
+  "pk": 13,
+  "fields": {
+    "code": "P4",
+    "name": "Plastic packaging-PS",
+    "flowType": "Plastic Waste"
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 1,
+  "fields": {
+    "fraction": 1.0,
+    "product": 1,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 2,
+  "fields": {
+    "fraction": 0.2,
+    "product": 2,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 3,
+  "fields": {
+    "fraction": 0.8,
+    "product": 2,
+    "material": 1
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 4,
+  "fields": {
+    "fraction": 0.75,
+    "product": 3,
+    "material": 2
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 5,
+  "fields": {
+    "fraction": 0.2,
+    "product": 3,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 6,
+  "fields": {
+    "fraction": 0.05,
+    "product": 3,
+    "material": 11
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 7,
+  "fields": {
+    "fraction": 0.8,
+    "product": 4,
+    "material": 1
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 8,
+  "fields": {
+    "fraction": 0.1,
+    "product": 4,
+    "material": 9
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 9,
+  "fields": {
+    "fraction": 0.1,
+    "product": 4,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 10,
+  "fields": {
+    "fraction": 0.5,
+    "product": 5,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 11,
+  "fields": {
+    "fraction": 0.5,
+    "product": 5,
+    "material": 9
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 12,
+  "fields": {
+    "fraction": 0.2,
+    "product": 6,
+    "material": 1
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 13,
+  "fields": {
+    "fraction": 0.2,
+    "product": 6,
+    "material": 2
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 14,
+  "fields": {
+    "fraction": 0.2,
+    "product": 6,
+    "material": 3
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 15,
+  "fields": {
+    "fraction": 0.2,
+    "product": 6,
+    "material": 6
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 16,
+  "fields": {
+    "fraction": 0.2,
+    "product": 6,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 17,
+  "fields": {
+    "fraction": 0.95,
+    "product": 7,
+    "material": 6
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 18,
+  "fields": {
+    "fraction": 0.05,
+    "product": 7,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 19,
+  "fields": {
+    "fraction": 0.5,
+    "product": 8,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 20,
+  "fields": {
+    "fraction": 0.1,
+    "product": 8,
+    "material": 1
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 21,
+  "fields": {
+    "fraction": 0.4,
+    "product": 8,
+    "material": 2
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 22,
+  "fields": {
+    "fraction": 0.1,
+    "product": 9,
+    "material": 1
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 23,
+  "fields": {
+    "fraction": 0.1,
+    "product": 9,
+    "material": 2
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 24,
+  "fields": {
+    "fraction": 0.3,
+    "product": 9,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 25,
+  "fields": {
+    "fraction": 0.1,
+    "product": 9,
+    "material": 11
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 26,
+  "fields": {
+    "fraction": 0.2,
+    "product": 9,
+    "material": 8
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 27,
+  "fields": {
+    "fraction": 0.2,
+    "product": 9,
+    "material": 13
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 28,
+  "fields": {
+    "fraction": 0.4,
+    "product": 10,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 29,
+  "fields": {
+    "fraction": 0.2,
+    "product": 10,
+    "material": 11
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 30,
+  "fields": {
+    "fraction": 0.2,
+    "product": 10,
+    "material": 12
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 31,
+  "fields": {
+    "fraction": 0.2,
+    "product": 10,
+    "material": 13
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 32,
+  "fields": {
+    "fraction": 0.95,
+    "product": 11,
+    "material": 10
+  }
+},
+{
+  "model": "asmfa.productfraction",
+  "pk": 33,
+  "fields": {
+    "fraction": 0.05,
+    "product": 11,
+    "material": 13
+  }
+},
+{
+  "model": "asmfa.quality",
+  "pk": 1,
+  "fields": {}
 },
 {
   "model": "asmfa.quality",
   "pk": 2,
-  "fields": {
-    "name": "Medium"
-  }
+  "fields": {}
 },
 {
   "model": "asmfa.quality",
   "pk": 3,
-  "fields": {
-    "name": "Low"
-  }
+  "fields": {}
 },
 {
   "model": "asmfa.quality",
   "pk": 4,
-  "fields": {
-    "name": "Waste"
-  }
+  "fields": {}
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 1,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "C",
     "name": "Consuming",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 2,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "COL",
     "name": "Collection",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 3,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "D",
     "name": "Distribution",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 4,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "P1",
     "name": "Production",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 5,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "P2",
     "name": "Production of packaging",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 6,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "P3",
     "name": "Packaging",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 7,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "R",
     "name": "Return Logistics",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 8,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "S",
     "name": "Selling",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 9,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "SC",
     "name": "Selling and Cosuming",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 10,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "code": "W",
     "name": "Waste Management",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 11,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "code": "exp",
     "name": "Export",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 12,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "imp",
     "name": "Import",
-    "casestudy": 1
+    "keyflow": 30
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 21,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "C",
     "name": "Consuming",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 22,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "COL",
     "name": "Collection",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 23,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "D",
     "name": "Distribution",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 24,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "P1",
     "name": "Production",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 25,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "P2",
     "name": "Production of packaging",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 26,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "P3",
     "name": "Packaging",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 27,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "R",
     "name": "Return Logistics",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 28,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "S",
     "name": "Selling",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 29,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "code": "SC",
     "name": "Selling and Cosuming",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 30,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "code": "W",
     "name": "Waste Management",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 31,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "code": "exp",
     "name": "Export",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activitygroup",
   "pk": 32,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "code": "imp",
     "name": "Import",
-    "casestudy": 7
+    "keyflow": 1
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 1,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "nace": "00.inci",
     "name": "Incineration",
@@ -508,8 +997,6 @@
   "model": "asmfa.activity",
   "pk": 2,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "nace": "00.land",
     "name": "Landfill",
@@ -520,8 +1007,6 @@
   "model": "asmfa.activity",
   "pk": 3,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "11.juice",
     "name": "Manufacture of juice",
@@ -532,8 +1017,6 @@
   "model": "asmfa.activity",
   "pk": 4,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "11.milk",
     "name": "Manufacture of milk",
@@ -544,8 +1027,6 @@
   "model": "asmfa.activity",
   "pk": 5,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "11.soft",
     "name": "Manufacture of soft drinks",
@@ -556,8 +1037,6 @@
   "model": "asmfa.activity",
   "pk": 6,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "11.water",
     "name": "Manufacture of mineral water",
@@ -568,8 +1047,6 @@
   "model": "asmfa.activity",
   "pk": 7,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "22.bottles",
     "name": "Manufacture of bottles",
@@ -580,8 +1057,6 @@
   "model": "asmfa.activity",
   "pk": 8,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
     "nace": "22.boxes",
     "name": "Manufacture of boxes",
@@ -592,8 +1067,6 @@
   "model": "asmfa.activity",
   "pk": 9,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "33.drinks",
     "name": "Packaging of drinks",
@@ -604,8 +1077,6 @@
   "model": "asmfa.activity",
   "pk": 10,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "33.milk",
     "name": "Packaging of milk",
@@ -616,8 +1087,6 @@
   "model": "asmfa.activity",
   "pk": 11,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "33.water",
     "name": "Packaging of water",
@@ -628,8 +1097,6 @@
   "model": "asmfa.activity",
   "pk": 12,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "44.drinks",
     "name": "Distribution of drinks",
@@ -640,8 +1107,6 @@
   "model": "asmfa.activity",
   "pk": 13,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "44.milk",
     "name": "Distribution of milk",
@@ -652,8 +1117,6 @@
   "model": "asmfa.activity",
   "pk": 14,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "44.water",
     "name": "Distribution of water",
@@ -664,8 +1127,6 @@
   "model": "asmfa.activity",
   "pk": 15,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "55.market",
     "name": "Selling in market",
@@ -676,8 +1137,6 @@
   "model": "asmfa.activity",
   "pk": 16,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "55.sm",
     "name": "Selling in supermarket",
@@ -688,8 +1147,6 @@
   "model": "asmfa.activity",
   "pk": 17,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "55.whole",
     "name": "Wholesale",
@@ -700,8 +1157,6 @@
   "model": "asmfa.activity",
   "pk": 18,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "66.farm",
     "name": "Farm Consuming",
@@ -712,8 +1167,6 @@
   "model": "asmfa.activity",
   "pk": 19,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "66.home",
     "name": "Home Consuming",
@@ -724,8 +1177,6 @@
   "model": "asmfa.activity",
   "pk": 20,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "77.bar",
     "name": "Bar Consuming",
@@ -736,8 +1187,6 @@
   "model": "asmfa.activity",
   "pk": 21,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "77.cafe",
     "name": "Cafe Consuming",
@@ -748,8 +1197,6 @@
   "model": "asmfa.activity",
   "pk": 22,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "77.rest",
     "name": "Restaurant Consuming",
@@ -760,8 +1207,6 @@
   "model": "asmfa.activity",
   "pk": 23,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "88.depo",
     "name": "Deposit",
@@ -772,8 +1217,6 @@
   "model": "asmfa.activity",
   "pk": 24,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "88.waste",
     "name": "Sorted waste",
@@ -784,8 +1227,6 @@
   "model": "asmfa.activity",
   "pk": 25,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "99.MSW",
     "name": "Household waste",
@@ -796,8 +1237,6 @@
   "model": "asmfa.activity",
   "pk": 26,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "99.cat",
     "name": "Catering waste",
@@ -808,8 +1247,6 @@
   "model": "asmfa.activity",
   "pk": 27,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
     "nace": "99.farm",
     "name": "Farm waste",
@@ -820,1633 +1257,4619 @@
   "model": "asmfa.activity",
   "pk": 28,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
-    "nace": "ee.xx",
-    "name": "Export",
-    "activitygroup": 11
+    "nace": "ii.11",
+    "name": "Import Inside Country",
+    "activitygroup": 12
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 29,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "nace": "ii.xx",
-    "name": "Import",
-    "activitygroup": 12
+    "nace": "ee.11",
+    "name": "Export Inside Country",
+    "activitygroup": 11
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 30,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "nace": "33.milk",
-    "name": "Packaging of milk",
-    "activitygroup": 26
+    "nace": "ii.22",
+    "name": "Import Inside EU",
+    "activitygroup": 12
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 31,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "nace": "33.water",
-    "name": "Packaging of water",
-    "activitygroup": 26
+    "nace": "ee.22",
+    "name": "Export Inside EU",
+    "activitygroup": 11
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 32,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "nace": "44.drinks",
-    "name": "Distribution of drinks",
-    "activitygroup": 23
+    "nace": "ii.33",
+    "name": "Import Outside EU",
+    "activitygroup": 12
   }
 },
 {
   "model": "asmfa.activity",
   "pk": 33,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "nace": "44.milk",
-    "name": "Distribution of milk",
-    "activitygroup": 23
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 34,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "44.water",
-    "name": "Distribution of water",
-    "activitygroup": 23
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 35,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "55.market",
-    "name": "Selling in market",
-    "activitygroup": 28
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 36,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "55.sm",
-    "name": "Selling in supermarket",
-    "activitygroup": 28
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 37,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "55.whole",
-    "name": "Wholesale",
-    "activitygroup": 28
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 38,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "66.farm",
-    "name": "Farm Consuming",
-    "activitygroup": 21
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 39,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "66.home",
-    "name": "Home Consuming",
-    "activitygroup": 21
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 40,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "77.bar",
-    "name": "Bar Consuming",
-    "activitygroup": 29
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 41,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "77.cafe",
-    "name": "Cafe Consuming",
-    "activitygroup": 29
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 42,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "77.rest",
-    "name": "Restaurant Consuming",
-    "activitygroup": 29
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 43,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "88.depo",
-    "name": "Deposit",
-    "activitygroup": 27
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 44,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "88.waste",
-    "name": "Sorted waste",
-    "activitygroup": 27
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 45,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "99.MSW",
-    "name": "Household waste",
-    "activitygroup": 22
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 46,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "99.cat",
-    "name": "Catering waste",
-    "activitygroup": 22
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 47,
-  "fields": {
-    "source": false,
-    "sink": false,
-    "done": false,
-    "nace": "99.farm",
-    "name": "Farm waste",
-    "activitygroup": 22
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 48,
-  "fields": {
-    "source": false,
-    "sink": true,
-    "done": false,
-    "nace": "ee.xx",
-    "name": "Export",
-    "activitygroup": 31
-  }
-},
-{
-  "model": "asmfa.activity",
-  "pk": 49,
-  "fields": {
-    "source": true,
-    "sink": false,
-    "done": false,
-    "nace": "ii.xx",
-    "name": "Import",
-    "activitygroup": 32
+    "nace": "ee.33",
+    "name": "Export Outside EU",
+    "activitygroup": 11
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 1,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "BvDid": "NL00000001",
     "name": "Incinerator",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 1,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 1
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 2,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
     "BvDid": "NL00000002",
     "name": "Landfilling bv",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 2,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 2
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 3,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000110",
-    "name": "Happy Farm",
+    "BvDid": "NL00000111",
+    "name": "Cocacola",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 4,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 4,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000111",
-    "name": "Cocacola",
+    "BvDid": "NL00000115",
+    "name": "Orange Juice",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 3
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 5,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000112",
-    "name": "Pepsi",
+    "BvDid": "NL00000225",
+    "name": "3D-Box.",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 8
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 6,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000113",
-    "name": "Sprite",
+    "BvDid": "NL00000332",
+    "name": "Appelsientje",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 5,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 9
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 7,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000114",
-    "name": "Apple Juice",
+    "BvDid": "NL00000334",
+    "name": "WaterPack",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 11
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 8,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000115",
-    "name": "Orange Juice",
+    "BvDid": "NL00000442",
+    "name": "Water Distributor",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 14
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 9,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000116",
-    "name": "Fresh Juice",
+    "BvDid": "NL00000557",
+    "name": "Market 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 15
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 10,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000117",
-    "name": "Frozen Juice",
+    "BvDid": "NL00000556",
+    "name": "Market 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 3,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 15
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 11,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000118",
-    "name": "Mountain Water",
+    "BvDid": "NL00000119",
+    "name": "Vytautas Water",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 6
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 12,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000119",
-    "name": "Vytautas Water",
+    "BvDid": "NL00000558",
+    "name": "Market 3",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 6,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 15
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 13,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000221",
-    "name": "Pretty Bottle",
+    "BvDid": "NL00000559",
+    "name": "Market 4",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 15
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 14,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000222",
-    "name": "Bottles Inc.",
+    "BvDid": "NL00000660",
+    "name": "Farm Type 4",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 7,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 18
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 15,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000223",
-    "name": "Boxes Inc.",
+    "BvDid": "NL00000661",
+    "name": "Household Type 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 16,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000224",
-    "name": "Pack-a-Box.",
+    "BvDid": "NL00000662",
+    "name": "Household Type 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 17,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000225",
-    "name": "3D-Box.",
+    "BvDid": "NL00000663",
+    "name": "Household Type 3",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 8,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 18,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000331",
-    "name": "Cola&Sprite",
+    "BvDid": "NL00000664",
+    "name": "Household Type 4",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 19,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000332",
-    "name": "Appelsientje",
+    "BvDid": "NL00000665",
+    "name": "Household Type 5",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 9,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 20,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000333",
-    "name": "PETPETPET",
+    "BvDid": "NL00000666",
+    "name": "Household Type 6",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 21,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000334",
-    "name": "WaterPack",
+    "BvDid": "NL00000667",
+    "name": "Farm Type 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 11,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 18
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 22,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000335",
-    "name": "TetraPak",
+    "BvDid": "NL00000668",
+    "name": "Farm Type 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 10,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 18
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 23,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000441",
-    "name": "Drink Distributor",
+    "BvDid": "NL00000669",
+    "name": "Tourism",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 12,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 18
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 24,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000442",
-    "name": "Water Distributor",
+    "BvDid": "NL00000771",
+    "name": "Restaurant 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 14,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 22
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 25,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000443",
-    "name": "Milk Distributor",
+    "BvDid": "NL00000772",
+    "name": "Restaurant 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 13,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 22
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 26,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000550",
-    "name": "Wholeseller",
+    "BvDid": "NL00000773",
+    "name": "Restaurant 3",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 17,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 22
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 27,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000551",
-    "name": "Jumbo",
+    "BvDid": "NL00000774",
+    "name": "Restaurant 4",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 22
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 28,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000552",
-    "name": "Albert Heijn",
+    "BvDid": "NL00000775",
+    "name": "Bar 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 20
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 29,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000553",
-    "name": "Lidl",
+    "BvDid": "NL00000776",
+    "name": "Bar 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 20
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 30,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000554",
-    "name": "Deen",
+    "BvDid": "NL00000777",
+    "name": "Cafe 1",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 21
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 31,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000555",
-    "name": "Spar",
+    "BvDid": "NL00000778",
+    "name": "Cafe 2",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 16,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 21
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 32,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000556",
-    "name": "Market 1",
+    "BvDid": "NL00000779",
+    "name": "Cafe 3",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 21
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 33,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000557",
-    "name": "Market 2",
+    "BvDid": "NL00000881",
+    "name": "Plastic Sorting bv",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 24
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 34,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000558",
-    "name": "Market 3",
+    "BvDid": "NL00000882",
+    "name": "Bottle Sorting bv",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 24
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 35,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000559",
-    "name": "Market 4",
+    "BvDid": "NL00000883",
+    "name": "Bottle Deposit bv",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 15,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 23
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 36,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000660",
-    "name": "Farm Type 4",
+    "BvDid": "NL00000991",
+    "name": "MSW collector",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 25
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 37,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000661",
-    "name": "Household Type 1",
+    "BvDid": "NL00000992",
+    "name": "Food&Plastic waste collector",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 26
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 38,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000662",
-    "name": "Household Type 2",
+    "BvDid": "NL00000993",
+    "name": "Restaurant waste collector",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 26
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 39,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000663",
-    "name": "Household Type 3",
+    "BvDid": "NL00000994",
+    "name": "Farm waste collector",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 27
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 40,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000664",
-    "name": "Household Type 4",
+    "BvDid": "BS04148780",
+    "name": "Eirmod",
+    "reason": 5,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 8490,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 8
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 41,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000665",
-    "name": "Household Type 5",
+    "BvDid": "BS04983246",
+    "name": "Eirmod",
+    "reason": 5,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 4460,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 26
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 42,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000666",
-    "name": "Household Type 6",
+    "BvDid": "BS02652525",
+    "name": "Nisised",
+    "reason": 1,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 19,
-    "included": true
+    "employees": 1980,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 1
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 43,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000667",
-    "name": "Farm Type 1",
+    "BvDid": "BS07620808",
+    "name": "Erat",
+    "reason": 1,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18,
-    "included": true
+    "employees": 690,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 4
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 44,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000668",
-    "name": "Farm Type 2",
+    "BvDid": "BS01642773",
+    "name": "Elitvivamus",
+    "reason": 2,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18,
-    "included": true
+    "employees": 3580,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 6
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 45,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000669",
-    "name": "Tourism",
+    "BvDid": "BS06485855",
+    "name": "Eratproin",
+    "reason": 2,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 18,
-    "included": true
+    "employees": 6460,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 4
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 46,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000771",
-    "name": "Restaurant 1",
+    "BvDid": "NL00000110",
+    "name": "Happy Farm",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 4
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 47,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000772",
-    "name": "Restaurant 2",
+    "BvDid": "NL00000112",
+    "name": "Pepsi",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 48,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000773",
-    "name": "Restaurant 3",
+    "BvDid": "NL00000113",
+    "name": "Sprite",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 49,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000774",
-    "name": "Restaurant 4",
+    "BvDid": "NL00000114",
+    "name": "Apple Juice",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 3
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 50,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000775",
-    "name": "Bar 1",
+    "BvDid": "NL00000116",
+    "name": "Fresh Juice",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 20,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 3
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 51,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000776",
-    "name": "Bar 2",
+    "BvDid": "NL00000117",
+    "name": "Frozen Juice",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 22,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 3
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 52,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000777",
-    "name": "Cafe 1",
+    "BvDid": "NL00000118",
+    "name": "Mountain Water",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 6
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 53,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000778",
-    "name": "Cafe 2",
+    "BvDid": "NL00000221",
+    "name": "Pretty Bottle",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 7
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 54,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000779",
-    "name": "Cafe 3",
+    "BvDid": "NL00000222",
+    "name": "Bottles Inc.",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 21,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 7
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 55,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000881",
-    "name": "Plastic Sorting bv",
+    "BvDid": "NL00000223",
+    "name": "Boxes Inc.",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 8
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 56,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000882",
-    "name": "Bottle Sorting bv",
+    "BvDid": "NL00000224",
+    "name": "Pack-a-Box.",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 24,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 8
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 57,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000883",
-    "name": "Bottle Deposit bv",
+    "BvDid": "NL00000331",
+    "name": "Cola&Sprite",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 23,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 9
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 58,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000991",
-    "name": "MSW collector",
+    "BvDid": "NL00000333",
+    "name": "PETPETPET",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 25,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 11
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 59,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000992",
-    "name": "Food&Plastic waste collector",
+    "BvDid": "NL00000335",
+    "name": "TetraPak",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 10
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 60,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000993",
-    "name": "Restaurant waste collector",
+    "BvDid": "NL00000441",
+    "name": "Drink Distributor",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 26,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 12
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 61,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "NL00000994",
-    "name": "Farm waste collector",
+    "BvDid": "NL00000443",
+    "name": "Milk Distributor",
+    "reason": 0,
+    "included": true,
     "consCode": "111",
     "year": 2017,
-    "revenue": 1000,
-    "employees": 100,
+    "description_eng": null,
+    "description": null,
     "BvDii": "A",
     "website": "www.website.org",
-    "activity": 27,
-    "included": true
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 13
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 62,
   "fields": {
-    "source": false,
-    "sink": true,
     "done": false,
-    "BvDid": "ee00000000",
-    "name": "Export",
-    "consCode": "",
-    "year": 0,
-    "revenue": 0,
-    "employees": 0,
-    "BvDii": "",
-    "website": "",
-    "activity": 28,
-    "included": true
+    "BvDid": "NL00000550",
+    "name": "Wholeseller",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 17
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 63,
   "fields": {
-    "source": true,
-    "sink": false,
     "done": false,
-    "BvDid": "ii00000000",
-    "name": "Import",
-    "consCode": "",
-    "year": 0,
-    "revenue": 0,
-    "employees": 0,
-    "BvDii": "",
-    "website": "",
-    "activity": 29,
-    "included": true
+    "BvDid": "NL00000551",
+    "name": "Jumbo",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 64,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "",
-    "name": "Test",
-    "consCode": "1",
-    "year": 0,
-    "revenue": 0,
-    "employees": 0,
-    "BvDii": "1",
-    "website": "www.bla.org",
-    "activity": 30,
-    "included": true
+    "BvDid": "NL00000552",
+    "name": "Albert Heijn",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 65,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "",
-    "name": "Test2",
-    "consCode": "",
-    "year": 0,
-    "revenue": 0,
-    "employees": 0,
-    "BvDii": "",
-    "website": "",
-    "activity": 31,
-    "included": true
+    "BvDid": "NL00000553",
+    "name": "Lidl",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 66,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "",
-    "name": "Test3",
-    "consCode": "",
-    "year": 0,
-    "revenue": 0,
-    "employees": 0,
-    "BvDii": "",
-    "website": "",
-    "activity": 30,
-    "included": true
+    "BvDid": "NL00000554",
+    "name": "Deen",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
   }
 },
 {
   "model": "asmfa.actor",
   "pk": 67,
   "fields": {
-    "source": false,
-    "sink": false,
     "done": false,
-    "BvDid": "",
-    "name": "dfbfsydb",
-    "consCode": "",
+    "BvDid": "NL00000555",
+    "name": "Spar",
+    "reason": 0,
+    "included": true,
+    "consCode": "111",
     "year": 2017,
-    "revenue": 123,
-    "employees": 5125,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 68,
+  "fields": {
+    "done": false,
+    "BvDid": "BS04483373",
+    "name": "Posuere",
+    "reason": 4,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 6470,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 69,
+  "fields": {
+    "done": false,
+    "BvDid": "BS03816192",
+    "name": "Delenit",
+    "reason": 5,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 9760,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 6
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 70,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05563702",
+    "name": "Voluptua",
+    "reason": 4,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 8220,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 71,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05956814",
+    "name": "Gubergren",
+    "reason": 4,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 5830,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 9
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 72,
+  "fields": {
+    "done": false,
+    "BvDid": "BS08298451",
+    "name": "Accusam",
+    "reason": 4,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 9530,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 6
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 73,
+  "fields": {
+    "done": false,
+    "BvDid": "BS08934594",
+    "name": "Assum",
+    "reason": 4,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 9450,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 22
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 74,
+  "fields": {
+    "done": false,
+    "BvDid": "BS03742759",
+    "name": "Nisl",
+    "reason": 5,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 3100,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 20
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 75,
+  "fields": {
+    "done": false,
+    "BvDid": "BS04934370",
+    "name": "Labore",
+    "reason": 5,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 4360,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 18
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 76,
+  "fields": {
+    "done": false,
+    "BvDid": "ii00000001",
+    "name": "Import Inside Country",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
     "BvDii": "",
-    "website": "dfb",
-    "activity": 10,
-    "included": false
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 28
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 77,
+  "fields": {
+    "done": false,
+    "BvDid": "ee00000001",
+    "name": "Export Inside Country",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 29
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 78,
+  "fields": {
+    "done": false,
+    "BvDid": "ii00000002",
+    "name": "Import Inside EU",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 30
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 79,
+  "fields": {
+    "done": false,
+    "BvDid": "ee00000002",
+    "name": "Export Inside EU",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 31
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 80,
+  "fields": {
+    "done": false,
+    "BvDid": "ii00000003",
+    "name": "Import Outside EU",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 32
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 81,
+  "fields": {
+    "done": false,
+    "BvDid": "ee00000003",
+    "name": "Export Outside EU",
+    "reason": 0,
+    "included": true,
+    "consCode": "",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "",
+    "website": "",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 33
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 82,
+  "fields": {
+    "done": false,
+    "BvDid": "BS09510771",
+    "name": "Senectus",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 360,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 12
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 83,
+  "fields": {
+    "done": false,
+    "BvDid": "BS03309030",
+    "name": "Blandit",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 8150,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 12
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 84,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05935484",
+    "name": "Liberoduis",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 5990,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 85,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05250539",
+    "name": "Etiam",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 270,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 25
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 86,
+  "fields": {
+    "done": false,
+    "BvDid": "BS04005682",
+    "name": "Varius",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 2250,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 5
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 87,
+  "fields": {
+    "done": false,
+    "BvDid": "BS08318129",
+    "name": "Elitr",
+    "reason": 1,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 5790,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 10
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 88,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05630966",
+    "name": "Gubergren",
+    "reason": 2,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 3360,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 89,
+  "fields": {
+    "done": false,
+    "BvDid": "BS01028168",
+    "name": "Lorem",
+    "reason": 2,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 3890,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 3
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 90,
+  "fields": {
+    "done": false,
+    "BvDid": "BS03379353",
+    "name": "Minim",
+    "reason": 2,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 4460,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 12
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 91,
+  "fields": {
+    "done": false,
+    "BvDid": "BS03713217",
+    "name": "Eros",
+    "reason": 2,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 6650,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 92,
+  "fields": {
+    "done": false,
+    "BvDid": "BS09140626",
+    "name": "Molestie",
+    "reason": 2,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 2500,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 21
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 93,
+  "fields": {
+    "done": false,
+    "BvDid": "BS02674154",
+    "name": "Praesent",
+    "reason": 3,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 5050,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 9
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 94,
+  "fields": {
+    "done": false,
+    "BvDid": "BS06141033",
+    "name": "Ultriciespellentesque",
+    "reason": 3,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 7940,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 21
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 95,
+  "fields": {
+    "done": false,
+    "BvDid": "BS05881571",
+    "name": "Cras",
+    "reason": 3,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 120,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 19
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 96,
+  "fields": {
+    "done": false,
+    "BvDid": "BS04092593",
+    "name": "Ante",
+    "reason": 3,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 6690,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 16
+  }
+},
+{
+  "model": "asmfa.actor",
+  "pk": 97,
+  "fields": {
+    "done": false,
+    "BvDid": "BS00815710",
+    "name": "Dictum",
+    "reason": 3,
+    "included": true,
+    "consCode": "111",
+    "year": 2017,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "A",
+    "website": "www.website.org",
+    "employees": 3430,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 1
   }
 },
 {
   "model": "asmfa.administrativelocation",
   "pk": 1,
   "fields": {
-    "street": "",
-    "building": "",
-    "postcode": "",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (10 10)",
-    "note": "",
-    "actor": 36
+    "name": null,
+    "postcode": "201083",
+    "address": "GHENT STREET 83",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.463044 0.571377)",
+    "actor": 1
   }
 },
 {
   "model": "asmfa.administrativelocation",
   "pk": 2,
   "fields": {
-    "street": "sfbddb",
-    "building": "",
-    "postcode": "",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (12 33.2)",
-    "note": "aaaaa",
-    "actor": 1
+    "name": null,
+    "postcode": "301041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.685718 0.31319)",
+    "actor": 2
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 3,
+  "fields": {
+    "name": null,
+    "postcode": "300421",
+    "address": "WASTE STREET 21",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.06909700000000001 0.133674)",
+    "actor": 3
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 4,
+  "fields": {
+    "name": null,
+    "postcode": "100528",
+    "address": "AMSTERDAM STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.528592 0.79379)",
+    "actor": 4
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 5,
+  "fields": {
+    "name": null,
+    "postcode": "200350",
+    "address": "REPAIR STREET 50",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.867013 0.56129)",
+    "actor": 5
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 6,
+  "fields": {
+    "name": null,
+    "postcode": "101041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.005362 0.14662)",
+    "actor": 6
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 7,
+  "fields": {
+    "name": null,
+    "postcode": "200536",
+    "address": "AMSTERDAM STREET 36",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.248138 0.110891)",
+    "actor": 7
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 8,
+  "fields": {
+    "name": null,
+    "postcode": "301030",
+    "address": "GHENT STREET 30",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.285071 0.719509)",
+    "actor": 8
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 9,
+  "fields": {
+    "name": null,
+    "postcode": "200862",
+    "address": "PESC STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.716792 0.411555)",
+    "actor": 9
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 10,
+  "fields": {
+    "name": null,
+    "postcode": "100747",
+    "address": "LODZ STREET 47",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.172184 0.442827)",
+    "actor": 10
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 11,
+  "fields": {
+    "name": null,
+    "postcode": "100125",
+    "address": "SAND STREET 25",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.646253 0.067993)",
+    "actor": 11
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 12,
+  "fields": {
+    "name": null,
+    "postcode": "300691",
+    "address": "HAMBURG STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.412281 0.133267)",
+    "actor": 12
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 13,
+  "fields": {
+    "name": null,
+    "postcode": "200449",
+    "address": "WASTE STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.052926 0.826601)",
+    "actor": 13
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 14,
+  "fields": {
+    "name": null,
+    "postcode": "101086",
+    "address": "GHENT STREET 86",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.337608 0.801917)",
+    "actor": 14
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 15,
+  "fields": {
+    "name": null,
+    "postcode": "200932",
+    "address": "NAPLES STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.225396 0.831936)",
+    "actor": 15
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 16,
+  "fields": {
+    "name": null,
+    "postcode": "100813",
+    "address": "PESC STREET 13",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.457717 0.369475)",
+    "actor": 16
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 17,
+  "fields": {
+    "name": null,
+    "postcode": "101022",
+    "address": "GHENT STREET 22",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.5036929999999999 0.554361)",
+    "actor": 17
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 18,
+  "fields": {
+    "name": null,
+    "postcode": "101078",
+    "address": "GHENT STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.539209 0.320178)",
+    "actor": 18
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 19,
+  "fields": {
+    "name": null,
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.289421 0.379828)",
+    "actor": 19
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 20,
+  "fields": {
+    "name": null,
+    "postcode": "200418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.868567 0.207993)",
+    "actor": 20
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 21,
+  "fields": {
+    "name": null,
+    "postcode": "100672",
+    "address": "HAMBURG STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.86646 0.2496)",
+    "actor": 21
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 22,
+  "fields": {
+    "name": null,
+    "postcode": "100728",
+    "address": "LODZ STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.394998 0.873273)",
+    "actor": 22
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 23,
+  "fields": {
+    "name": null,
+    "postcode": "300283",
+    "address": "BOX STREET 83",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.774212 0.944385)",
+    "actor": 23
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 24,
+  "fields": {
+    "name": null,
+    "postcode": "300337",
+    "address": "REPAIR STREET 37",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.597275 0.992754)",
+    "actor": 24
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 25,
+  "fields": {
+    "name": null,
+    "postcode": "201049",
+    "address": "GHENT STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.295793 0.748136)",
+    "actor": 25
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 26,
+  "fields": {
+    "name": null,
+    "postcode": "300260",
+    "address": "BOX STREET 60",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.391318 0.054045)",
+    "actor": 26
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 27,
+  "fields": {
+    "name": null,
+    "postcode": "100810",
+    "address": "PESC STREET 10",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.8075599999999999 0.9335639999999999)",
+    "actor": 27
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 28,
+  "fields": {
+    "name": null,
+    "postcode": "300727",
+    "address": "LODZ STREET 27",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.081993 0.184849)",
+    "actor": 28
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 29,
+  "fields": {
+    "name": null,
+    "postcode": "300164",
+    "address": "SAND STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.299345 0.124156)",
+    "actor": 29
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 30,
+  "fields": {
+    "name": null,
+    "postcode": "100944",
+    "address": "NAPLES STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.450481 0.735336)",
+    "actor": 30
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 31,
+  "fields": {
+    "name": null,
+    "postcode": "300335",
+    "address": "REPAIR STREET 35",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.721101 0.783156)",
+    "actor": 31
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 32,
+  "fields": {
+    "name": null,
+    "postcode": "301054",
+    "address": "GHENT STREET 54",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.757625 0.58404)",
+    "actor": 32
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 33,
+  "fields": {
+    "name": null,
+    "postcode": "300764",
+    "address": "LODZ STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.533567 0.743008)",
+    "actor": 33
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 34,
+  "fields": {
+    "name": null,
+    "postcode": "300773",
+    "address": "LODZ STREET 73",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.542486 0.5882309999999999)",
+    "actor": 34
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 35,
+  "fields": {
+    "name": null,
+    "postcode": "100418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.273536 0.828819)",
+    "actor": 35
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 36,
+  "fields": {
+    "name": null,
+    "postcode": "300589",
+    "address": "AMSTERDAM STREET 89",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.373506 0.191836)",
+    "actor": 36
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 37,
+  "fields": {
+    "name": null,
+    "postcode": "300153",
+    "address": "SAND STREET 53",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.62209 0.301638)",
+    "actor": 37
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 38,
+  "fields": {
+    "name": null,
+    "postcode": "100195",
+    "address": "SAND STREET 95",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.382141 0.640567)",
+    "actor": 38
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 39,
+  "fields": {
+    "name": null,
+    "postcode": "300687",
+    "address": "HAMBURG STREET 87",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.439787 0.854424)",
+    "actor": 39
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 40,
+  "fields": {
+    "name": null,
+    "postcode": "100484",
+    "address": "WASTE STREET 84",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.116442 0.06461699999999999)",
+    "actor": 40
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 41,
+  "fields": {
+    "name": null,
+    "postcode": "200618",
+    "address": "HAMBURG STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.277557 0.238253)",
+    "actor": 41
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 42,
+  "fields": {
+    "name": null,
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.457082 0.546224)",
+    "actor": 42
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 43,
+  "fields": {
+    "name": null,
+    "postcode": "200851",
+    "address": "PESC STREET 51",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.037177 0.526359)",
+    "actor": 43
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 44,
+  "fields": {
+    "name": null,
+    "postcode": "300405",
+    "address": "WASTE STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.489765 0.577823)",
+    "actor": 44
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 45,
+  "fields": {
+    "name": null,
+    "postcode": "300623",
+    "address": "HAMBURG STREET 23",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.468962 0.035469)",
+    "actor": 45
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 46,
+  "fields": {
+    "name": null,
+    "postcode": "200269",
+    "address": "BOX STREET 69",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.991229 0.477794)",
+    "actor": 46
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 47,
+  "fields": {
+    "name": null,
+    "postcode": "200649",
+    "address": "HAMBURG STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.9523200000000001 0.205105)",
+    "actor": 47
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 48,
+  "fields": {
+    "name": null,
+    "postcode": "200384",
+    "address": "REPAIR STREET 84",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.460552 0.986065)",
+    "actor": 48
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 49,
+  "fields": {
+    "name": null,
+    "postcode": "200462",
+    "address": "WASTE STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.782765 0.745273)",
+    "actor": 49
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 50,
+  "fields": {
+    "name": null,
+    "postcode": "201064",
+    "address": "GHENT STREET 64",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.905047 0.5298079999999999)",
+    "actor": 50
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 51,
+  "fields": {
+    "name": null,
+    "postcode": "100340",
+    "address": "REPAIR STREET 40",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.052801 0.995214)",
+    "actor": 51
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 52,
+  "fields": {
+    "name": null,
+    "postcode": "100248",
+    "address": "BOX STREET 48",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.034054 0.698648)",
+    "actor": 52
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 53,
+  "fields": {
+    "name": null,
+    "postcode": "201010",
+    "address": "GHENT STREET 10",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.151745 0.216414)",
+    "actor": 53
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 54,
+  "fields": {
+    "name": null,
+    "postcode": "200432",
+    "address": "WASTE STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.556416 0.036678)",
+    "actor": 54
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 55,
+  "fields": {
+    "name": null,
+    "postcode": "100372",
+    "address": "REPAIR STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.250267 0.592301)",
+    "actor": 55
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 56,
+  "fields": {
+    "name": null,
+    "postcode": "200282",
+    "address": "BOX STREET 82",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.020542 0.357333)",
+    "actor": 56
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 57,
+  "fields": {
+    "name": null,
+    "postcode": "200503",
+    "address": "AMSTERDAM STREET 3",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.059154 0.787686)",
+    "actor": 57
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 58,
+  "fields": {
+    "name": null,
+    "postcode": "300819",
+    "address": "PESC STREET 19",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.256432 0.694692)",
+    "actor": 58
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 59,
+  "fields": {
+    "name": null,
+    "postcode": "100617",
+    "address": "HAMBURG STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.226894 0.89258)",
+    "actor": 59
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 60,
+  "fields": {
+    "name": null,
+    "postcode": "200154",
+    "address": "SAND STREET 54",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.02208 0.756243)",
+    "actor": 60
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 61,
+  "fields": {
+    "name": null,
+    "postcode": "100878",
+    "address": "PESC STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.945939 0.429966)",
+    "actor": 61
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 62,
+  "fields": {
+    "name": null,
+    "postcode": "300305",
+    "address": "REPAIR STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.188207 0.427737)",
+    "actor": 62
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 63,
+  "fields": {
+    "name": null,
+    "postcode": "200525",
+    "address": "AMSTERDAM STREET 25",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.229974 0.096967)",
+    "actor": 63
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 64,
+  "fields": {
+    "name": null,
+    "postcode": "300414",
+    "address": "WASTE STREET 14",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.978746 0.266252)",
+    "actor": 64
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 65,
+  "fields": {
+    "name": null,
+    "postcode": "200107",
+    "address": "SAND STREET 7",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.666775 0.064093)",
+    "actor": 65
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 66,
+  "fields": {
+    "name": null,
+    "postcode": "100244",
+    "address": "BOX STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.356672 0.286762)",
+    "actor": 66
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 67,
+  "fields": {
+    "name": null,
+    "postcode": "100711",
+    "address": "LODZ STREET 11",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.695796 0.125175)",
+    "actor": 67
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 68,
+  "fields": {
+    "name": null,
+    "postcode": "300994",
+    "address": "NAPLES STREET 94",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.034637 0.161033)",
+    "actor": 68
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 69,
+  "fields": {
+    "name": null,
+    "postcode": "301026",
+    "address": "GHENT STREET 26",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.466967 0.6627420000000001)",
+    "actor": 69
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 70,
+  "fields": {
+    "name": null,
+    "postcode": "100787",
+    "address": "LODZ STREET 87",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.098513 0.209732)",
+    "actor": 70
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 71,
+  "fields": {
+    "name": null,
+    "postcode": "300318",
+    "address": "REPAIR STREET 18",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.9613 0.040242)",
+    "actor": 71
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 72,
+  "fields": {
+    "name": null,
+    "postcode": "101017",
+    "address": "GHENT STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.825232 0.706438)",
+    "actor": 72
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 73,
+  "fields": {
+    "name": null,
+    "postcode": "200130",
+    "address": "SAND STREET 30",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.25191 0.9589490000000001)",
+    "actor": 73
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 74,
+  "fields": {
+    "name": null,
+    "postcode": "300242",
+    "address": "BOX STREET 42",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.557661 0.712527)",
+    "actor": 74
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 75,
+  "fields": {
+    "name": null,
+    "postcode": "300166",
+    "address": "SAND STREET 66",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.068922 0.023268)",
+    "actor": 75
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 76,
+  "fields": {
+    "name": null,
+    "postcode": "100939",
+    "address": "NAPLES STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.678209 0.06554)",
+    "actor": 76
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 77,
+  "fields": {
+    "name": null,
+    "postcode": "300471",
+    "address": "WASTE STREET 71",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.97235 0.174637)",
+    "actor": 77
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 78,
+  "fields": {
+    "name": null,
+    "postcode": "200721",
+    "address": "LODZ STREET 21",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.6124270000000001 0.902382)",
+    "actor": 78
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 79,
+  "fields": {
+    "name": null,
+    "postcode": "100945",
+    "address": "NAPLES STREET 45",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.7577199999999999 0.581422)",
+    "actor": 79
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 80,
+  "fields": {
+    "name": null,
+    "postcode": "100567",
+    "address": "AMSTERDAM STREET 67",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.371531 0.812057)",
+    "actor": 80
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 81,
+  "fields": {
+    "name": null,
+    "postcode": "200612",
+    "address": "HAMBURG STREET 12",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.567808 0.475786)",
+    "actor": 81
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 82,
+  "fields": {
+    "name": null,
+    "postcode": "100407",
+    "address": "WASTE STREET 7",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.593656 0.144255)",
+    "actor": 82
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 83,
+  "fields": {
+    "name": null,
+    "postcode": "200461",
+    "address": "WASTE STREET 61",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.837342 0.318378)",
+    "actor": 83
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 84,
+  "fields": {
+    "name": null,
+    "postcode": "300165",
+    "address": "SAND STREET 65",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.189201 0.924641)",
+    "actor": 84
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 85,
+  "fields": {
+    "name": null,
+    "postcode": "300201",
+    "address": "BOX STREET 1",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.951862 0.335337)",
+    "actor": 85
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 86,
+  "fields": {
+    "name": null,
+    "postcode": "300762",
+    "address": "LODZ STREET 62",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.408341 0.96435)",
+    "actor": 86
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 87,
+  "fields": {
+    "name": null,
+    "postcode": "100365",
+    "address": "REPAIR STREET 65",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.59979 0.318001)",
+    "actor": 87
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 88,
+  "fields": {
+    "name": null,
+    "postcode": "200640",
+    "address": "HAMBURG STREET 40",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.531021 0.7462490000000001)",
+    "actor": 88
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 89,
+  "fields": {
+    "name": null,
+    "postcode": "200978",
+    "address": "NAPLES STREET 78",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.191775 0.892201)",
+    "actor": 89
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 90,
+  "fields": {
+    "name": null,
+    "postcode": "300598",
+    "address": "AMSTERDAM STREET 98",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.063344 0.721274)",
+    "actor": 90
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 91,
+  "fields": {
+    "name": null,
+    "postcode": "300676",
+    "address": "HAMBURG STREET 76",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.7021810000000001 0.155822)",
+    "actor": 91
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 92,
+  "fields": {
+    "name": null,
+    "postcode": "300970",
+    "address": "NAPLES STREET 70",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.490837 0.8358370000000001)",
+    "actor": 92
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 93,
+  "fields": {
+    "name": null,
+    "postcode": "300667",
+    "address": "HAMBURG STREET 67",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.614939 0.08727699999999999)",
+    "actor": 93
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 94,
+  "fields": {
+    "name": null,
+    "postcode": "101081",
+    "address": "GHENT STREET 81",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.167827 0.202567)",
+    "actor": 94
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 95,
+  "fields": {
+    "name": null,
+    "postcode": "100139",
+    "address": "SAND STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.196385 0.426976)",
+    "actor": 95
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 96,
+  "fields": {
+    "name": null,
+    "postcode": "300791",
+    "address": "LODZ STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.931802 0.379074)",
+    "actor": 96
+  }
+},
+{
+  "model": "asmfa.administrativelocation",
+  "pk": 97,
+  "fields": {
+    "name": null,
+    "postcode": "200726",
+    "address": "LODZ STREET 26",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.065857 0.303969)",
+    "actor": 97
   }
 },
 {
   "model": "asmfa.operationallocation",
   "pk": 1,
   "fields": {
-    "street": "Hauptstra\u00dfe",
-    "building": "12",
-    "postcode": "",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (5 3)",
-    "note": "",
-    "actor": 1,
-    "employees": 12,
-    "turnover_currency": "EUR",
-    "turnover": "133.00"
+    "name": null,
+    "postcode": "201083",
+    "address": "GHENT STREET 83",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.463044 0.571377)",
+    "actor": 1
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 2,
+  "fields": {
+    "name": null,
+    "postcode": "301041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.685718 0.31319)",
+    "actor": 2
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 3,
+  "fields": {
+    "name": null,
+    "postcode": "300421",
+    "address": "WASTE STREET 21",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.06909700000000001 0.133674)",
+    "actor": 3
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 4,
+  "fields": {
+    "name": null,
+    "postcode": "100528",
+    "address": "AMSTERDAM STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.528592 0.79379)",
+    "actor": 4
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 5,
+  "fields": {
+    "name": null,
+    "postcode": "200350",
+    "address": "REPAIR STREET 50",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.867013 0.56129)",
+    "actor": 5
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 6,
+  "fields": {
+    "name": null,
+    "postcode": "101041",
+    "address": "GHENT STREET 41",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.005362 0.14662)",
+    "actor": 6
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 7,
+  "fields": {
+    "name": null,
+    "postcode": "200536",
+    "address": "AMSTERDAM STREET 36",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.248138 0.110891)",
+    "actor": 7
   }
 },
 {
   "model": "asmfa.operationallocation",
   "pk": 8,
   "fields": {
-    "street": "ASDAD",
-    "building": "",
-    "postcode": "5432",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (33 4)",
-    "note": "",
-    "actor": 36,
-    "employees": 1,
-    "turnover_currency": "EUR",
-    "turnover": "99987.12"
+    "name": null,
+    "postcode": "301030",
+    "address": "GHENT STREET 30",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.285071 0.719509)",
+    "actor": 8
   }
 },
 {
   "model": "asmfa.operationallocation",
   "pk": 9,
   "fields": {
-    "street": "new_streetname3",
-    "building": "",
-    "postcode": "12345",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (5 66)",
-    "note": "",
-    "actor": 36,
-    "employees": 12223,
-    "turnover_currency": "EUR",
-    "turnover": "0.00"
+    "name": null,
+    "postcode": "200862",
+    "address": "PESC STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.716792 0.411555)",
+    "actor": 9
   }
 },
 {
   "model": "asmfa.operationallocation",
   "pk": 10,
   "fields": {
-    "street": "ASSASD",
-    "building": "",
-    "postcode": "4532",
-    "country": "",
-    "city": "",
-    "geom": "SRID=4326;POINT (99 33)",
-    "note": "1235",
-    "actor": 36,
-    "employees": 1234,
-    "turnover_currency": "EUR",
-    "turnover": "552.00"
+    "name": null,
+    "postcode": "100747",
+    "address": "LODZ STREET 47",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.172184 0.442827)",
+    "actor": 10
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 11,
+  "fields": {
+    "name": null,
+    "postcode": "100125",
+    "address": "SAND STREET 25",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.646253 0.067993)",
+    "actor": 11
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 12,
+  "fields": {
+    "name": null,
+    "postcode": "300691",
+    "address": "HAMBURG STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.412281 0.133267)",
+    "actor": 12
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 13,
+  "fields": {
+    "name": null,
+    "postcode": "200449",
+    "address": "WASTE STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.052926 0.826601)",
+    "actor": 13
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 14,
+  "fields": {
+    "name": null,
+    "postcode": "101086",
+    "address": "GHENT STREET 86",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.337608 0.801917)",
+    "actor": 14
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 15,
+  "fields": {
+    "name": null,
+    "postcode": "200932",
+    "address": "NAPLES STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.225396 0.831936)",
+    "actor": 15
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 16,
+  "fields": {
+    "name": null,
+    "postcode": "100813",
+    "address": "PESC STREET 13",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.457717 0.369475)",
+    "actor": 16
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 17,
+  "fields": {
+    "name": null,
+    "postcode": "101022",
+    "address": "GHENT STREET 22",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.5036929999999999 0.554361)",
+    "actor": 17
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 18,
+  "fields": {
+    "name": null,
+    "postcode": "101078",
+    "address": "GHENT STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.539209 0.320178)",
+    "actor": 18
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 19,
+  "fields": {
+    "name": null,
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.289421 0.379828)",
+    "actor": 19
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 20,
+  "fields": {
+    "name": null,
+    "postcode": "200418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.868567 0.207993)",
+    "actor": 20
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 21,
+  "fields": {
+    "name": null,
+    "postcode": "100672",
+    "address": "HAMBURG STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.86646 0.2496)",
+    "actor": 21
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 22,
+  "fields": {
+    "name": null,
+    "postcode": "100728",
+    "address": "LODZ STREET 28",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.394998 0.873273)",
+    "actor": 22
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 23,
+  "fields": {
+    "name": null,
+    "postcode": "300283",
+    "address": "BOX STREET 83",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.774212 0.944385)",
+    "actor": 23
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 24,
+  "fields": {
+    "name": null,
+    "postcode": "300337",
+    "address": "REPAIR STREET 37",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.597275 0.992754)",
+    "actor": 24
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 25,
+  "fields": {
+    "name": null,
+    "postcode": "201049",
+    "address": "GHENT STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.295793 0.748136)",
+    "actor": 25
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 26,
+  "fields": {
+    "name": null,
+    "postcode": "300260",
+    "address": "BOX STREET 60",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.391318 0.054045)",
+    "actor": 26
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 27,
+  "fields": {
+    "name": null,
+    "postcode": "100810",
+    "address": "PESC STREET 10",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.8075599999999999 0.9335639999999999)",
+    "actor": 27
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 28,
+  "fields": {
+    "name": null,
+    "postcode": "300727",
+    "address": "LODZ STREET 27",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.081993 0.184849)",
+    "actor": 28
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 29,
+  "fields": {
+    "name": null,
+    "postcode": "300164",
+    "address": "SAND STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.299345 0.124156)",
+    "actor": 29
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 30,
+  "fields": {
+    "name": null,
+    "postcode": "100944",
+    "address": "NAPLES STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.450481 0.735336)",
+    "actor": 30
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 31,
+  "fields": {
+    "name": null,
+    "postcode": "300335",
+    "address": "REPAIR STREET 35",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.721101 0.783156)",
+    "actor": 31
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 32,
+  "fields": {
+    "name": null,
+    "postcode": "301054",
+    "address": "GHENT STREET 54",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.757625 0.58404)",
+    "actor": 32
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 33,
+  "fields": {
+    "name": null,
+    "postcode": "300764",
+    "address": "LODZ STREET 64",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.533567 0.743008)",
+    "actor": 33
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 34,
+  "fields": {
+    "name": null,
+    "postcode": "300773",
+    "address": "LODZ STREET 73",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.542486 0.5882309999999999)",
+    "actor": 34
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 35,
+  "fields": {
+    "name": null,
+    "postcode": "100418",
+    "address": "WASTE STREET 18",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.273536 0.828819)",
+    "actor": 35
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 36,
+  "fields": {
+    "name": null,
+    "postcode": "300589",
+    "address": "AMSTERDAM STREET 89",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.373506 0.191836)",
+    "actor": 36
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 37,
+  "fields": {
+    "name": null,
+    "postcode": "300153",
+    "address": "SAND STREET 53",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.62209 0.301638)",
+    "actor": 37
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 38,
+  "fields": {
+    "name": null,
+    "postcode": "100195",
+    "address": "SAND STREET 95",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.382141 0.640567)",
+    "actor": 38
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 39,
+  "fields": {
+    "name": null,
+    "postcode": "300687",
+    "address": "HAMBURG STREET 87",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.439787 0.854424)",
+    "actor": 39
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 40,
+  "fields": {
+    "name": null,
+    "postcode": "100484",
+    "address": "WASTE STREET 84",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.116442 0.06461699999999999)",
+    "actor": 40
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 41,
+  "fields": {
+    "name": null,
+    "postcode": "200618",
+    "address": "HAMBURG STREET 18",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.277557 0.238253)",
+    "actor": 41
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 42,
+  "fields": {
+    "name": null,
+    "postcode": "200473",
+    "address": "WASTE STREET 73",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.457082 0.546224)",
+    "actor": 42
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 43,
+  "fields": {
+    "name": null,
+    "postcode": "200851",
+    "address": "PESC STREET 51",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.037177 0.526359)",
+    "actor": 43
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 44,
+  "fields": {
+    "name": null,
+    "postcode": "300405",
+    "address": "WASTE STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.489765 0.577823)",
+    "actor": 44
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 45,
+  "fields": {
+    "name": null,
+    "postcode": "300623",
+    "address": "HAMBURG STREET 23",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.468962 0.035469)",
+    "actor": 45
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 46,
+  "fields": {
+    "name": null,
+    "postcode": "200269",
+    "address": "BOX STREET 69",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.991229 0.477794)",
+    "actor": 46
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 47,
+  "fields": {
+    "name": null,
+    "postcode": "200649",
+    "address": "HAMBURG STREET 49",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.9523200000000001 0.205105)",
+    "actor": 47
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 48,
+  "fields": {
+    "name": null,
+    "postcode": "200384",
+    "address": "REPAIR STREET 84",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.460552 0.986065)",
+    "actor": 48
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 49,
+  "fields": {
+    "name": null,
+    "postcode": "200462",
+    "address": "WASTE STREET 62",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.782765 0.745273)",
+    "actor": 49
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 50,
+  "fields": {
+    "name": null,
+    "postcode": "201064",
+    "address": "GHENT STREET 64",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.905047 0.5298079999999999)",
+    "actor": 50
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 51,
+  "fields": {
+    "name": null,
+    "postcode": "100340",
+    "address": "REPAIR STREET 40",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.052801 0.995214)",
+    "actor": 51
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 52,
+  "fields": {
+    "name": null,
+    "postcode": "100248",
+    "address": "BOX STREET 48",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.034054 0.698648)",
+    "actor": 52
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 53,
+  "fields": {
+    "name": null,
+    "postcode": "201010",
+    "address": "GHENT STREET 10",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.151745 0.216414)",
+    "actor": 53
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 54,
+  "fields": {
+    "name": null,
+    "postcode": "200432",
+    "address": "WASTE STREET 32",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.556416 0.036678)",
+    "actor": 54
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 55,
+  "fields": {
+    "name": null,
+    "postcode": "100372",
+    "address": "REPAIR STREET 72",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.250267 0.592301)",
+    "actor": 55
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 56,
+  "fields": {
+    "name": null,
+    "postcode": "200282",
+    "address": "BOX STREET 82",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.020542 0.357333)",
+    "actor": 56
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 57,
+  "fields": {
+    "name": null,
+    "postcode": "200503",
+    "address": "AMSTERDAM STREET 3",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.059154 0.787686)",
+    "actor": 57
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 58,
+  "fields": {
+    "name": null,
+    "postcode": "300819",
+    "address": "PESC STREET 19",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.256432 0.694692)",
+    "actor": 58
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 59,
+  "fields": {
+    "name": null,
+    "postcode": "100617",
+    "address": "HAMBURG STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.226894 0.89258)",
+    "actor": 59
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 60,
+  "fields": {
+    "name": null,
+    "postcode": "200154",
+    "address": "SAND STREET 54",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.02208 0.756243)",
+    "actor": 60
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 61,
+  "fields": {
+    "name": null,
+    "postcode": "100878",
+    "address": "PESC STREET 78",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.945939 0.429966)",
+    "actor": 61
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 62,
+  "fields": {
+    "name": null,
+    "postcode": "300305",
+    "address": "REPAIR STREET 5",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.188207 0.427737)",
+    "actor": 62
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 63,
+  "fields": {
+    "name": null,
+    "postcode": "200525",
+    "address": "AMSTERDAM STREET 25",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.229974 0.096967)",
+    "actor": 63
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 64,
+  "fields": {
+    "name": null,
+    "postcode": "300414",
+    "address": "WASTE STREET 14",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.978746 0.266252)",
+    "actor": 64
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 65,
+  "fields": {
+    "name": null,
+    "postcode": "200107",
+    "address": "SAND STREET 7",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.666775 0.064093)",
+    "actor": 65
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 66,
+  "fields": {
+    "name": null,
+    "postcode": "100244",
+    "address": "BOX STREET 44",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.356672 0.286762)",
+    "actor": 66
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 67,
+  "fields": {
+    "name": null,
+    "postcode": "100711",
+    "address": "LODZ STREET 11",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.695796 0.125175)",
+    "actor": 67
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 68,
+  "fields": {
+    "name": null,
+    "postcode": "300994",
+    "address": "NAPLES STREET 94",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.034637 0.161033)",
+    "actor": 68
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 69,
+  "fields": {
+    "name": null,
+    "postcode": "301026",
+    "address": "GHENT STREET 26",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.466967 0.6627420000000001)",
+    "actor": 69
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 70,
+  "fields": {
+    "name": null,
+    "postcode": "100787",
+    "address": "LODZ STREET 87",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.098513 0.209732)",
+    "actor": 70
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 71,
+  "fields": {
+    "name": null,
+    "postcode": "300318",
+    "address": "REPAIR STREET 18",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.9613 0.040242)",
+    "actor": 71
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 72,
+  "fields": {
+    "name": null,
+    "postcode": "101017",
+    "address": "GHENT STREET 17",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.825232 0.706438)",
+    "actor": 72
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 73,
+  "fields": {
+    "name": null,
+    "postcode": "200130",
+    "address": "SAND STREET 30",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.25191 0.9589490000000001)",
+    "actor": 73
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 74,
+  "fields": {
+    "name": null,
+    "postcode": "300242",
+    "address": "BOX STREET 42",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.557661 0.712527)",
+    "actor": 74
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 75,
+  "fields": {
+    "name": null,
+    "postcode": "300166",
+    "address": "SAND STREET 66",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.068922 0.023268)",
+    "actor": 75
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 76,
+  "fields": {
+    "name": null,
+    "postcode": "100939",
+    "address": "NAPLES STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.678209 0.06554)",
+    "actor": 76
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 77,
+  "fields": {
+    "name": null,
+    "postcode": "300471",
+    "address": "WASTE STREET 71",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.97235 0.174637)",
+    "actor": 77
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 78,
+  "fields": {
+    "name": null,
+    "postcode": "200721",
+    "address": "LODZ STREET 21",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.6124270000000001 0.902382)",
+    "actor": 78
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 79,
+  "fields": {
+    "name": null,
+    "postcode": "100945",
+    "address": "NAPLES STREET 45",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.7577199999999999 0.581422)",
+    "actor": 79
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 80,
+  "fields": {
+    "name": null,
+    "postcode": "100567",
+    "address": "AMSTERDAM STREET 67",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.371531 0.812057)",
+    "actor": 80
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 81,
+  "fields": {
+    "name": null,
+    "postcode": "200612",
+    "address": "HAMBURG STREET 12",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.567808 0.475786)",
+    "actor": 81
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 82,
+  "fields": {
+    "name": null,
+    "postcode": "100407",
+    "address": "WASTE STREET 7",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.593656 0.144255)",
+    "actor": 82
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 83,
+  "fields": {
+    "name": null,
+    "postcode": "200461",
+    "address": "WASTE STREET 61",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.837342 0.318378)",
+    "actor": 83
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 84,
+  "fields": {
+    "name": null,
+    "postcode": "300165",
+    "address": "SAND STREET 65",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.189201 0.924641)",
+    "actor": 84
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 85,
+  "fields": {
+    "name": null,
+    "postcode": "300201",
+    "address": "BOX STREET 1",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.951862 0.335337)",
+    "actor": 85
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 86,
+  "fields": {
+    "name": null,
+    "postcode": "300762",
+    "address": "LODZ STREET 62",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.408341 0.96435)",
+    "actor": 86
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 87,
+  "fields": {
+    "name": null,
+    "postcode": "100365",
+    "address": "REPAIR STREET 65",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.59979 0.318001)",
+    "actor": 87
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 88,
+  "fields": {
+    "name": null,
+    "postcode": "200640",
+    "address": "HAMBURG STREET 40",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.531021 0.7462490000000001)",
+    "actor": 88
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 89,
+  "fields": {
+    "name": null,
+    "postcode": "200978",
+    "address": "NAPLES STREET 78",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.191775 0.892201)",
+    "actor": 89
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 90,
+  "fields": {
+    "name": null,
+    "postcode": "300598",
+    "address": "AMSTERDAM STREET 98",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.063344 0.721274)",
+    "actor": 90
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 91,
+  "fields": {
+    "name": null,
+    "postcode": "300676",
+    "address": "HAMBURG STREET 76",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.7021810000000001 0.155822)",
+    "actor": 91
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 92,
+  "fields": {
+    "name": null,
+    "postcode": "300970",
+    "address": "NAPLES STREET 70",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.490837 0.8358370000000001)",
+    "actor": 92
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 93,
+  "fields": {
+    "name": null,
+    "postcode": "300667",
+    "address": "HAMBURG STREET 67",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.614939 0.08727699999999999)",
+    "actor": 93
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 94,
+  "fields": {
+    "name": null,
+    "postcode": "101081",
+    "address": "GHENT STREET 81",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.167827 0.202567)",
+    "actor": 94
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 95,
+  "fields": {
+    "name": null,
+    "postcode": "100139",
+    "address": "SAND STREET 39",
+    "country": "SB",
+    "city": "SANDBOX CITY",
+    "geom": "SRID=4326;POINT (0.196385 0.426976)",
+    "actor": 95
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 96,
+  "fields": {
+    "name": null,
+    "postcode": "300791",
+    "address": "LODZ STREET 91",
+    "country": "SB",
+    "city": "GDSE CITY",
+    "geom": "SRID=4326;POINT (0.931802 0.379074)",
+    "actor": 96
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 97,
+  "fields": {
+    "name": null,
+    "postcode": "200726",
+    "address": "LODZ STREET 26",
+    "country": "SB",
+    "city": "REPAIR CITY",
+    "geom": "SRID=4326;POINT (0.065857 0.303969)",
+    "actor": 97
   }
 },
 {
@@ -2454,10 +5877,11 @@
   "pk": 24,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 9
+    "origin": 9,
+    "product": 8,
+    "entry": 1
   }
 },
 {
@@ -2465,10 +5889,11 @@
   "pk": 25,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 6,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2476,10 +5901,11 @@
   "pk": 26,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2487,10 +5913,11 @@
   "pk": 27,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 3
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2498,10 +5925,11 @@
   "pk": 28,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 8,
-    "origin": 12
+    "origin": 12,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2509,10 +5937,11 @@
   "pk": 29,
   "fields": {
     "amount": 30,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 1
+    "origin": 1,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2520,10 +5949,11 @@
   "pk": 30,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 6,
-    "origin": 5
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2531,10 +5961,11 @@
   "pk": 31,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 8
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2542,10 +5973,11 @@
   "pk": 32,
   "fields": {
     "amount": 30,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 5,
-    "origin": 7
+    "origin": 7,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2553,10 +5985,11 @@
   "pk": 33,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 3
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2564,10 +5997,11 @@
   "pk": 34,
   "fields": {
     "amount": 30,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 9
+    "origin": 9,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2575,10 +6009,11 @@
   "pk": 35,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2586,10 +6021,11 @@
   "pk": 36,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 1
+    "origin": 1,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2597,10 +6033,11 @@
   "pk": 37,
   "fields": {
     "amount": 100,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 3,
-    "origin": 6
+    "origin": 6,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2608,10 +6045,11 @@
   "pk": 38,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 7,
-    "origin": 9
+    "origin": 9,
+    "product": 11,
+    "entry": 1
   }
 },
 {
@@ -2619,10 +6057,11 @@
   "pk": 39,
   "fields": {
     "amount": 30,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 8,
-    "origin": 3
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2630,10 +6069,11 @@
   "pk": 40,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 7,
-    "origin": 1
+    "origin": 1,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2641,10 +6081,11 @@
   "pk": 41,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 8
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2652,10 +6093,11 @@
   "pk": 42,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 5
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2663,10 +6105,11 @@
   "pk": 43,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 8
+    "origin": 8,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2674,10 +6117,11 @@
   "pk": 44,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 2
+    "origin": 2,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2685,10 +6129,11 @@
   "pk": 45,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2696,10 +6141,11 @@
   "pk": 46,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2707,10 +6153,11 @@
   "pk": 50,
   "fields": {
     "amount": 1,
-    "material": 30,
-    "quality": 1,
+    "keyflow": 1,
     "destination": 23,
-    "origin": 21
+    "origin": 21,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2718,10 +6165,11 @@
   "pk": 52,
   "fields": {
     "amount": 8,
-    "material": 30,
-    "quality": 1,
+    "keyflow": 1,
     "destination": 21,
-    "origin": 25
+    "origin": 25,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2729,10 +6177,11 @@
   "pk": 53,
   "fields": {
     "amount": 5,
-    "material": 30,
-    "quality": 2,
+    "keyflow": 1,
     "destination": 26,
-    "origin": 32
+    "origin": 32,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2740,10 +6189,11 @@
   "pk": 54,
   "fields": {
     "amount": 3,
-    "material": 30,
-    "quality": 3,
+    "keyflow": 1,
     "destination": 30,
-    "origin": 22
+    "origin": 22,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2751,10 +6201,11 @@
   "pk": 55,
   "fields": {
     "amount": 4,
-    "material": 30,
-    "quality": 2,
+    "keyflow": 1,
     "destination": 28,
-    "origin": 30
+    "origin": 30,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2762,10 +6213,11 @@
   "pk": 55,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 27,
-    "origin": 18
+    "origin": 18,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2773,10 +6225,11 @@
   "pk": 56,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 20,
-    "origin": 14
+    "origin": 14,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2784,10 +6237,11 @@
   "pk": 57,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 28,
-    "origin": 18
+    "keyflow": 30,
+    "destination": 29,
+    "origin": 18,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2795,10 +6249,11 @@
   "pk": 58,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 24,
-    "origin": 19
+    "origin": 19,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2806,10 +6261,11 @@
   "pk": 59,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 13,
-    "origin": 10
+    "origin": 10,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2817,10 +6273,11 @@
   "pk": 60,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 28,
-    "origin": 13
+    "keyflow": 30,
+    "destination": 29,
+    "origin": 13,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2828,10 +6285,11 @@
   "pk": 61,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 17
+    "origin": 17,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2839,10 +6297,11 @@
   "pk": 62,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 18,
-    "origin": 15
+    "origin": 15,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2850,10 +6309,11 @@
   "pk": 63,
   "fields": {
     "amount": 40,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 14,
-    "origin": 9
+    "origin": 9,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2861,10 +6321,11 @@
   "pk": 64,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 28,
-    "origin": 4
+    "keyflow": 30,
+    "destination": 29,
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2872,10 +6333,11 @@
   "pk": 65,
   "fields": {
     "amount": 35,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 25
+    "origin": 25,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2883,10 +6345,11 @@
   "pk": 66,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 26,
-    "origin": 18
+    "origin": 18,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2894,10 +6357,11 @@
   "pk": 67,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 15,
-    "origin": 14
+    "origin": 14,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2905,10 +6369,11 @@
   "pk": 68,
   "fields": {
     "amount": 25,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 8
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2916,10 +6381,11 @@
   "pk": 69,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 25,
-    "origin": 21
+    "origin": 21,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2927,10 +6393,11 @@
   "pk": 70,
   "fields": {
     "amount": 40,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 13,
-    "origin": 11
+    "origin": 11,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2938,10 +6405,11 @@
   "pk": 71,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 25,
-    "origin": 18
+    "origin": 18,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -2949,10 +6417,11 @@
   "pk": 72,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 7,
-    "origin": 23
+    "origin": 23,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -2960,10 +6429,11 @@
   "pk": 73,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 7
+    "origin": 7,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2971,10 +6441,11 @@
   "pk": 74,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2982,10 +6453,11 @@
   "pk": 75,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 11,
-    "origin": 3
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -2993,10 +6465,11 @@
   "pk": 76,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 25,
-    "origin": 22
+    "origin": 22,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3004,10 +6477,11 @@
   "pk": 77,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 6
+    "origin": 6,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3015,10 +6489,11 @@
   "pk": 78,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 26
+    "origin": 26,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -3026,10 +6501,11 @@
   "pk": 79,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 8
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3037,10 +6513,11 @@
   "pk": 80,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 3
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3048,10 +6525,11 @@
   "pk": 81,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 22,
-    "origin": 13
+    "origin": 13,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3059,10 +6537,11 @@
   "pk": 82,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 8
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3070,10 +6549,11 @@
   "pk": 83,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 16
+    "origin": 16,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3081,10 +6561,11 @@
   "pk": 84,
   "fields": {
     "amount": 30,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 19,
-    "origin": 16
+    "origin": 16,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3092,10 +6573,11 @@
   "pk": 85,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 26,
-    "origin": 19
+    "origin": 19,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -3103,10 +6585,11 @@
   "pk": 86,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 18,
-    "origin": 16
+    "origin": 16,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3114,10 +6597,11 @@
   "pk": 87,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 28,
-    "origin": 15
+    "keyflow": 30,
+    "destination": 29,
+    "origin": 15,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3125,10 +6609,11 @@
   "pk": 88,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 17,
-    "origin": 14
+    "origin": 14,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3136,10 +6621,11 @@
   "pk": 89,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 22
+    "origin": 22,
+    "product": 8,
+    "entry": 1
   }
 },
 {
@@ -3147,10 +6633,11 @@
   "pk": 90,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 7,
-    "origin": 24
+    "origin": 24,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3158,10 +6645,11 @@
   "pk": 91,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 22,
-    "origin": 5
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3169,10 +6657,11 @@
   "pk": 92,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 16,
-    "origin": 13
+    "origin": 13,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3180,10 +6669,11 @@
   "pk": 93,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 5
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3191,10 +6681,11 @@
   "pk": 94,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 24,
-    "origin": 22
+    "origin": 22,
+    "product": 11,
+    "entry": 1
   }
 },
 {
@@ -3202,10 +6693,11 @@
   "pk": 95,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 8,
-    "origin": 24
+    "origin": 24,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3213,10 +6705,11 @@
   "pk": 96,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 12,
-    "origin": 9
+    "origin": 9,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3224,10 +6717,11 @@
   "pk": 97,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 15,
-    "origin": 12
+    "origin": 12,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3235,10 +6729,11 @@
   "pk": 98,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 9,
-    "origin": 4
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3246,10 +6741,11 @@
   "pk": 99,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 22,
-    "origin": 14
+    "origin": 14,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3257,10 +6753,11 @@
   "pk": 100,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 23,
-    "origin": 19
+    "origin": 19,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3268,10 +6765,11 @@
   "pk": 101,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 10,
-    "origin": 6
+    "origin": 6,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3279,10 +6777,11 @@
   "pk": 102,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 25,
-    "origin": 19
+    "origin": 19,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -3290,10 +6789,11 @@
   "pk": 103,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 20
+    "origin": 20,
+    "product": 8,
+    "entry": 1
   }
 },
 {
@@ -3301,10 +6801,11 @@
   "pk": 104,
   "fields": {
     "amount": 50,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 16,
-    "origin": 29
+    "origin": 28,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3312,10 +6813,11 @@
   "pk": 105,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 21,
-    "origin": 13
+    "origin": 13,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3323,10 +6825,11 @@
   "pk": 106,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
+    "keyflow": 30,
     "destination": 19,
-    "origin": 5
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3334,10 +6837,11 @@
   "pk": 107,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
+    "keyflow": 30,
     "destination": 26,
-    "origin": 22
+    "origin": 22,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3345,10 +6849,11 @@
   "pk": 108,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
+    "keyflow": 30,
     "destination": 24,
-    "origin": 21
+    "origin": 21,
+    "product": 11,
+    "entry": 1
   }
 },
 {
@@ -3356,10 +6861,11 @@
   "pk": 1,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 4
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3367,10 +6873,11 @@
   "pk": 2,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 46,
-    "origin": 5
+    "keyflow": 30,
+    "destination": 24,
+    "origin": 47,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3378,10 +6885,11 @@
   "pk": 3,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 37,
-    "origin": 6
+    "keyflow": 30,
+    "destination": 15,
+    "origin": 48,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3389,10 +6897,11 @@
   "pk": 4,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 18,
-    "origin": 7
+    "keyflow": 30,
+    "destination": 57,
+    "origin": 49,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3400,10 +6909,11 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 19,
-    "origin": 8
+    "keyflow": 30,
+    "destination": 6,
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3411,10 +6921,11 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 20,
-    "origin": 9
+    "keyflow": 30,
+    "destination": 58,
+    "origin": 50,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3422,10 +6933,11 @@
   "pk": 7,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 21,
-    "origin": 10
+    "keyflow": 30,
+    "destination": 7,
+    "origin": 51,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3433,10 +6945,11 @@
   "pk": 8,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 22,
-    "origin": 11
+    "keyflow": 30,
+    "destination": 59,
+    "origin": 52,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3444,10 +6957,11 @@
   "pk": 9,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 18,
-    "origin": 12
+    "keyflow": 30,
+    "destination": 57,
+    "origin": 11,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3455,10 +6969,11 @@
   "pk": 10,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 19,
-    "origin": 3
+    "keyflow": 30,
+    "destination": 6,
+    "origin": 46,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3466,10 +6981,11 @@
   "pk": 11,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 20,
-    "origin": 3
+    "keyflow": 30,
+    "destination": 58,
+    "origin": 46,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3477,10 +6993,11 @@
   "pk": 12,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 18,
-    "origin": 3
+    "keyflow": 30,
+    "destination": 57,
+    "origin": 46,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3488,10 +7005,11 @@
   "pk": 13,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 62,
-    "origin": 3
+    "keyflow": 30,
+    "destination": 77,
+    "origin": 46,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3499,10 +7017,11 @@
   "pk": 14,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 18,
-    "origin": 13
+    "keyflow": 30,
+    "destination": 57,
+    "origin": 53,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3510,10 +7029,11 @@
   "pk": 15,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 18,
-    "origin": 14
+    "keyflow": 30,
+    "destination": 57,
+    "origin": 54,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3521,10 +7041,11 @@
   "pk": 16,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 19,
-    "origin": 14
+    "keyflow": 30,
+    "destination": 6,
+    "origin": 54,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3532,10 +7053,11 @@
   "pk": 17,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 20,
-    "origin": 15
+    "keyflow": 30,
+    "destination": 58,
+    "origin": 55,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3543,10 +7065,11 @@
   "pk": 18,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 21,
-    "origin": 16
+    "keyflow": 30,
+    "destination": 7,
+    "origin": 56,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3554,10 +7077,11 @@
   "pk": 19,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 21,
-    "origin": 17
+    "keyflow": 30,
+    "destination": 7,
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3565,10 +7089,11 @@
   "pk": 20,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 22,
-    "origin": 17
+    "keyflow": 30,
+    "destination": 59,
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3576,10 +7101,11 @@
   "pk": 21,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 17
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3587,10 +7113,11 @@
   "pk": 22,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 23,
-    "origin": 18
+    "keyflow": 30,
+    "destination": 60,
+    "origin": 57,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3598,10 +7125,11 @@
   "pk": 23,
   "fields": {
     "amount": 25,
-    "material": 1,
-    "quality": 1,
-    "destination": 24,
-    "origin": 18
+    "keyflow": 30,
+    "destination": 8,
+    "origin": 57,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3609,10 +7137,11 @@
   "pk": 24,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 23,
-    "origin": 19
+    "keyflow": 30,
+    "destination": 60,
+    "origin": 6,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3620,10 +7149,11 @@
   "pk": 25,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 1,
-    "destination": 24,
-    "origin": 19
+    "keyflow": 30,
+    "destination": 8,
+    "origin": 6,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3631,10 +7161,11 @@
   "pk": 26,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
-    "destination": 25,
-    "origin": 20
+    "keyflow": 30,
+    "destination": 61,
+    "origin": 58,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3642,10 +7173,11 @@
   "pk": 27,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
-    "destination": 25,
-    "origin": 21
+    "keyflow": 30,
+    "destination": 61,
+    "origin": 7,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3653,10 +7185,11 @@
   "pk": 28,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 25,
-    "origin": 22
+    "keyflow": 30,
+    "destination": 61,
+    "origin": 59,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3664,10 +7197,11 @@
   "pk": 29,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 27,
-    "origin": 63
+    "keyflow": 30,
+    "destination": 63,
+    "origin": 76,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3675,10 +7209,11 @@
   "pk": 30,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 28,
-    "origin": 63
+    "keyflow": 30,
+    "destination": 64,
+    "origin": 76,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3686,10 +7221,11 @@
   "pk": 31,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 29,
-    "origin": 63
+    "keyflow": 30,
+    "destination": 65,
+    "origin": 76,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3697,10 +7233,11 @@
   "pk": 32,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 30,
-    "origin": 63
+    "keyflow": 30,
+    "destination": 66,
+    "origin": 76,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3708,10 +7245,11 @@
   "pk": 33,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 31,
-    "origin": 63
+    "keyflow": 30,
+    "destination": 67,
+    "origin": 76,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3719,10 +7257,11 @@
   "pk": 34,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 32,
-    "origin": 23
+    "keyflow": 30,
+    "destination": 10,
+    "origin": 60,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3730,10 +7269,11 @@
   "pk": 35,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 33,
-    "origin": 23
+    "keyflow": 30,
+    "destination": 9,
+    "origin": 60,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3741,10 +7281,11 @@
   "pk": 36,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 34,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 12,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3752,10 +7293,11 @@
   "pk": 37,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 35,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 13,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3763,10 +7305,11 @@
   "pk": 38,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 26,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 62,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3774,10 +7317,11 @@
   "pk": 39,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 46,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 24,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3785,10 +7329,11 @@
   "pk": 40,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 47,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 25,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3796,10 +7341,11 @@
   "pk": 41,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 48,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 26,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3807,10 +7353,11 @@
   "pk": 42,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 49,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 27,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3818,10 +7365,11 @@
   "pk": 43,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 50,
-    "origin": 24
+    "keyflow": 30,
+    "destination": 28,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3829,10 +7377,11 @@
   "pk": 44,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 51,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 29,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3840,10 +7389,11 @@
   "pk": 45,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 52,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 30,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3851,10 +7401,11 @@
   "pk": 46,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 53,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 31,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3862,10 +7413,11 @@
   "pk": 47,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 54,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 32,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3873,10 +7425,11 @@
   "pk": 48,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "destination": 62,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 77,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3884,10 +7437,11 @@
   "pk": 49,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 30,
-    "origin": 25
+    "keyflow": 30,
+    "destination": 66,
+    "origin": 61,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3895,10 +7449,11 @@
   "pk": 50,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 26
+    "origin": 62,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3906,10 +7461,11 @@
   "pk": 51,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 27
+    "origin": 63,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -3917,10 +7473,11 @@
   "pk": 52,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 37,
-    "origin": 29
+    "keyflow": 30,
+    "destination": 15,
+    "origin": 65,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3928,10 +7485,11 @@
   "pk": 53,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 38,
-    "origin": 29
+    "keyflow": 30,
+    "destination": 16,
+    "origin": 65,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3939,10 +7497,11 @@
   "pk": 54,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 39,
-    "origin": 28
+    "keyflow": 30,
+    "destination": 17,
+    "origin": 64,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3950,10 +7509,11 @@
   "pk": 55,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 40,
-    "origin": 30
+    "keyflow": 30,
+    "destination": 18,
+    "origin": 66,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3961,10 +7521,11 @@
   "pk": 56,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 41,
-    "origin": 30
+    "keyflow": 30,
+    "destination": 19,
+    "origin": 66,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3972,10 +7533,11 @@
   "pk": 57,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 42,
-    "origin": 30
+    "keyflow": 30,
+    "destination": 20,
+    "origin": 66,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3983,10 +7545,11 @@
   "pk": 58,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 43,
-    "origin": 31
+    "keyflow": 30,
+    "destination": 21,
+    "origin": 67,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -3994,10 +7557,11 @@
   "pk": 59,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 44,
-    "origin": 31
+    "keyflow": 30,
+    "destination": 22,
+    "origin": 67,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4005,10 +7569,11 @@
   "pk": 60,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 45,
-    "origin": 32
+    "keyflow": 30,
+    "destination": 23,
+    "origin": 10,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4016,10 +7581,11 @@
   "pk": 61,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 36,
-    "origin": 33
+    "keyflow": 30,
+    "destination": 14,
+    "origin": 9,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4027,10 +7593,11 @@
   "pk": 62,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 62,
-    "origin": 34
+    "keyflow": 30,
+    "destination": 77,
+    "origin": 12,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4038,10 +7605,11 @@
   "pk": 63,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 62,
-    "origin": 35
+    "keyflow": 30,
+    "destination": 77,
+    "origin": 13,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4049,10 +7617,11 @@
   "pk": 75,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 36
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 14,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4060,10 +7629,11 @@
   "pk": 76,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 37
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 15,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4071,10 +7641,11 @@
   "pk": 77,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 55,
-    "origin": 37
+    "keyflow": 30,
+    "destination": 33,
+    "origin": 15,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4082,10 +7653,11 @@
   "pk": 78,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 55,
-    "origin": 38
+    "keyflow": 30,
+    "destination": 33,
+    "origin": 16,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4093,10 +7665,11 @@
   "pk": 79,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 56,
-    "origin": 39
+    "keyflow": 30,
+    "destination": 34,
+    "origin": 17,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4104,10 +7677,11 @@
   "pk": 80,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 57,
-    "origin": 40
+    "keyflow": 30,
+    "destination": 35,
+    "origin": 18,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4115,10 +7689,11 @@
   "pk": 81,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 59,
-    "origin": 41
+    "keyflow": 30,
+    "destination": 37,
+    "origin": 19,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4126,10 +7701,11 @@
   "pk": 82,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 59,
-    "origin": 42
+    "keyflow": 30,
+    "destination": 37,
+    "origin": 20,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4137,10 +7713,11 @@
   "pk": 83,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 61,
-    "origin": 43
+    "keyflow": 30,
+    "destination": 39,
+    "origin": 21,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4148,10 +7725,11 @@
   "pk": 84,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 60,
-    "origin": 44
+    "keyflow": 30,
+    "destination": 38,
+    "origin": 22,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4159,10 +7737,11 @@
   "pk": 85,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 62,
-    "origin": 45
+    "keyflow": 30,
+    "destination": 77,
+    "origin": 23,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4170,10 +7749,11 @@
   "pk": 86,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 46
+    "origin": 24,
+    "product": 8,
+    "entry": 1
   }
 },
 {
@@ -4181,10 +7761,11 @@
   "pk": 87,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 46
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 24,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4192,10 +7773,11 @@
   "pk": 88,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 47
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 25,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4203,10 +7785,11 @@
   "pk": 89,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 59,
-    "origin": 48
+    "keyflow": 30,
+    "destination": 37,
+    "origin": 26,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4214,10 +7797,11 @@
   "pk": 90,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 49
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 27,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4225,10 +7809,11 @@
   "pk": 91,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 2,
-    "origin": 50
+    "origin": 28,
+    "product": 8,
+    "entry": 1
   }
 },
 {
@@ -4236,10 +7821,11 @@
   "pk": 92,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 55,
-    "origin": 51
+    "keyflow": 30,
+    "destination": 33,
+    "origin": 29,
+    "product": 11,
+    "entry": 1
   }
 },
 {
@@ -4247,10 +7833,11 @@
   "pk": 93,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 2,
-    "destination": 55,
-    "origin": 52
+    "keyflow": 30,
+    "destination": 33,
+    "origin": 30,
+    "product": 11,
+    "entry": 1
   }
 },
 {
@@ -4258,10 +7845,11 @@
   "pk": 94,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 53
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 31,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4269,10 +7857,11 @@
   "pk": 95,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 3,
-    "destination": 58,
-    "origin": 54
+    "keyflow": 30,
+    "destination": 36,
+    "origin": 32,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4280,10 +7869,11 @@
   "pk": 96,
   "fields": {
     "amount": 20,
-    "material": 1,
-    "quality": 1,
-    "destination": 17,
-    "origin": 55
+    "keyflow": 30,
+    "destination": 5,
+    "origin": 33,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4291,10 +7881,11 @@
   "pk": 97,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 13,
-    "origin": 56
+    "keyflow": 30,
+    "destination": 53,
+    "origin": 34,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4302,10 +7893,11 @@
   "pk": 98,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "destination": 14,
-    "origin": 57
+    "keyflow": 30,
+    "destination": 54,
+    "origin": 35,
+    "product": 10,
+    "entry": 1
   }
 },
 {
@@ -4313,10 +7905,11 @@
   "pk": 99,
   "fields": {
     "amount": 35,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 58
+    "origin": 36,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4324,10 +7917,11 @@
   "pk": 100,
   "fields": {
     "amount": 15,
-    "material": 1,
-    "quality": 4,
+    "keyflow": 30,
     "destination": 1,
-    "origin": 59
+    "origin": 37,
+    "product": 9,
+    "entry": 1
   }
 },
 {
@@ -4335,9 +7929,11 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 9
+    "keyflow": 30,
+    "description": null,
+    "origin": 9,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4345,9 +7941,11 @@
   "pk": 6,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 8
+    "keyflow": 30,
+    "description": null,
+    "origin": 8,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4355,9 +7953,11 @@
   "pk": 7,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 2
+    "keyflow": 30,
+    "description": null,
+    "origin": 2,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4365,9 +7965,11 @@
   "pk": 8,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 4
+    "keyflow": 30,
+    "description": null,
+    "origin": 4,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4375,9 +7977,11 @@
   "pk": 9,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 3
+    "keyflow": 30,
+    "description": null,
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4385,9 +7989,11 @@
   "pk": 5,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 16
+    "keyflow": 30,
+    "description": null,
+    "origin": 16,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4395,9 +8001,11 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 27
+    "keyflow": 30,
+    "description": null,
+    "origin": 27,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4405,9 +8013,11 @@
   "pk": 7,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 26
+    "keyflow": 30,
+    "description": null,
+    "origin": 26,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4415,9 +8025,11 @@
   "pk": 8,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 5
+    "keyflow": 30,
+    "description": null,
+    "origin": 5,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4425,9 +8037,11 @@
   "pk": 9,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 22
+    "keyflow": 30,
+    "description": null,
+    "origin": 22,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4435,9 +8049,11 @@
   "pk": 10,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 12
+    "keyflow": 30,
+    "description": null,
+    "origin": 12,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4445,9 +8061,11 @@
   "pk": 1,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 4
+    "keyflow": 30,
+    "description": null,
+    "origin": 3,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4455,9 +8073,11 @@
   "pk": 2,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 5
+    "keyflow": 30,
+    "description": null,
+    "origin": 47,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4465,9 +8085,11 @@
   "pk": 3,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 28
+    "keyflow": 30,
+    "description": null,
+    "origin": 64,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4475,9 +8097,11 @@
   "pk": 4,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 27
+    "keyflow": 30,
+    "description": null,
+    "origin": 63,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4485,9 +8109,11 @@
   "pk": 5,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 60
+    "keyflow": 30,
+    "description": null,
+    "origin": 38,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4495,9 +8121,11 @@
   "pk": 6,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 61
+    "keyflow": 30,
+    "description": null,
+    "origin": 39,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4505,9 +8133,11 @@
   "pk": 7,
   "fields": {
     "amount": 10,
-    "material": 1,
-    "quality": 1,
-    "origin": 23
+    "keyflow": 30,
+    "description": null,
+    "origin": 60,
+    "product": 1,
+    "entry": 1
   }
 },
 {
@@ -4515,9 +8145,11 @@
   "pk": 8,
   "fields": {
     "amount": 5,
-    "material": 1,
-    "quality": 1,
-    "origin": 46
+    "keyflow": 30,
+    "description": null,
+    "origin": 24,
+    "product": 1,
+    "entry": 1
   }
 }
 ]

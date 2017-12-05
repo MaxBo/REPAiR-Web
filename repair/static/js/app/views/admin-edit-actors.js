@@ -13,7 +13,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.materialId = options.materialId;
+      this.keyflowId = options.keyflowId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
@@ -61,6 +61,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
     render: function(){
       var _this = this;
 
+      console.log(this.collection)
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});
@@ -210,7 +211,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
 
       addInput('website');
       addInput('year', 'number');
-      addInput('revenue', 'number');
+      addInput('turnover', 'number');
       addInput('employees', 'number');
       addInput('BvDid');
       addInput('BvDii');
@@ -241,7 +242,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
         "name": "",
         "consCode": "",
         "year": 0,
-        "revenue": 0,
+        "turnover": 0,
         "employees": 0,
         "BvDii": "",
         "website": "",
@@ -343,6 +344,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       /* add table rows */
       
       var row = table.insertRow(-1);
+      var _this = this;
       // add a crosshair icon to center on coordinate on click
       var centerDiv = document.createElement('div');
       //centerDiv.className = "fa fa-crosshairs";
@@ -354,7 +356,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       var coords = loc.get('geometry').get('coordinates');
       cell.appendChild(centerDiv);
       cell.addEventListener('click', function(){ 
-        this.map.center(coords, {projection: this.projection})
+        _this.map.center(coords, {projection: _this.projection})
       });
       cell.style.cursor = 'pointer';
       var coordCell = row.insertCell(-1);
