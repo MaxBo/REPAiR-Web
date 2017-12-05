@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import sys
 import django
+
 from django.utils.translation import ugettext_lazy as _
 
 DEBUG = False

@@ -8,7 +8,7 @@ define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
   * @param   options.el        html-element the view will be rendered in
   * @param   options.model     backbone-model of the node
   * @param   options.template  the id of the script containing the template for this view
-  * @param   options.material  the material of the flows
+  * @param   options.keyflow   the keyflow of the flows
   *
   * @return  the EditNodeView class (for chaining)
   * @see     table for attributes and flows in and out of this node
@@ -22,10 +22,9 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
     initialize: function(options){
       _.bindAll(this, 'render');
       this.template = options.template;
-      this.materialId = options.materialId;
-      this.materialName = options.materialName;
+      this.keyflowId = options.keyflowId;
+      this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
-      this.qualities = options.qualities;
       this.onUpload = options.onUpload;
 
       var flowType = '';
@@ -44,22 +43,22 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }
 
       this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                    materialId: this.materialId,
+                                    keyflowId: this.keyflowId,
                                     type: flowType});
       this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                      materialId: this.materialId,
+                                      keyflowId: this.keyflowId,
                                       type: flowType});
       this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
-                                    materialId: this.materialId,
+                                    keyflowId: this.keyflowId,
                                     type: flowType});
       this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                        materialId: this.materialId,
+                                        keyflowId: this.keyflowId,
                                         type: flowType});
       this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
-                                        materialId: this.materialId,
+                                        keyflowId: this.keyflowId,
                                         type: flowType});
       this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
-                                      materialId: this.materialId,
+                                      keyflowId: this.keyflowId,
                                       type: flowType});
       var _this = this;
 
@@ -161,32 +160,66 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         nodeSelect.addEventListener('change', function() {
           flow.set(targetIdentifier, nodeSelect.value);
         });
-      }
-
-      // select input for qualities
-
-      var qualitySelect = document.createElement("select");
-      var ids = [];
-      var q = flow.get('quality');
-      this.qualities.each(function(quality){
-        var option = document.createElement("option");
-        option.text = quality.get('name');
-        option.value = quality.id;
-        qualitySelect.add(option);
-        ids.push(quality.id);
-      });
-      var idx = ids.indexOf(q);
-      qualitySelect.selectedIndex = idx.toString();
-      row.insertCell(-1).appendChild(qualitySelect);
-
-      qualitySelect.addEventListener('change', function() {
-        flow.set('quality', qualitySelect.value);
-      });
+      };
 
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
       var description = document.createElement("input");
+      var ids = [];
       row.insertCell(-1).appendChild(description);
 
+      description.addEventListener('change', function() {
+        flow.set('description', description.value);
+      });
+
+      // general datasource
+      var options = ['bumm', 'tschackalacka']
+      var datasource = document.createElement("select");
+      _.each(options, function(opt){
+        var option = document.createElement("option");
+        option.text = opt;
+        option.value = opt;
+        datasource.add(option);
+      });
+      cell = row.insertCell(-1);
+      cell.appendChild(datasource);
+      var collapse = document.createElement('div');
+      collapse.style.cursor = 'pointer';
+      var dsRow = table.insertRow(-1);
+      
+      dsRow.classList.add('hidden');
+      collapse.classList.add('glyphicon');
+      collapse.classList.add('glyphicon-chevron-down');
+      collapse.addEventListener('click', function(){
+        dsRow.classList.toggle('hidden');
+        collapse.classList.toggle('glyphicon-chevron-down');
+        collapse.classList.toggle('glyphicon-chevron-up');
+      });
+      cell.appendChild(collapse);
+      
+      // own row for individual Datasources
+      
+      dsRow.insertCell(-1);
+      var datasourcableAttributes = ['amount', targetIdentifier, 'description'];
+      _.each(datasourcableAttributes, function(attr){
+        var sel = document.createElement("select");
+        var cell = dsRow.insertCell(-1).appendChild(sel);
+        _.each(options, function(opt){
+          var option = document.createElement("option");
+          option.text = opt;
+          option.value = opt;
+          cell.add(option);
+        });
+        // general datasource overrides all sub datasources
+        datasource.addEventListener('change', function(){
+          sel.selectedIndex = datasource.selectedIndex;
+        });
+        // sub datasources changes -> show that general datasource is custom by leaving it blank
+        sel.addEventListener('change', function(){
+          datasource.selectedIndex = -1;
+        });
+      });
+      
+      return row;
     },
 
     // on click add row button
@@ -310,7 +343,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         code: this.model.get('code')
       });
     },
@@ -320,7 +353,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         group: this.model.get('activitygroup'),
         nace: this.model.get('nace')
       });
@@ -331,13 +364,13 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var template = _.template(html);
       return template({
         name: this.model.get('name'),
-        material: this.materialName,
+        keyflow: this.keyflowName,
         bvdid: this.model.get('BvDid'),
         activity: this.model.get('activity'),
         url: this.model.get('website'),
         year: this.model.get('year'),
         employees: this.model.get('employees'),
-        revenue: this.model.get('revenue')
+        turnover: this.model.get('turnover')
       });
     },
 

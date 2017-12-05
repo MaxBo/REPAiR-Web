@@ -104,8 +104,8 @@
   <div class="row">
     <h3>{% trans "Flows" %} - <%= casestudy %></h3>
     <select name="flows" id="flows-select">
-      <% materials.each(function(material){ %>
-        <option value="<%= material.id %>"><%= material.get('material').code %></option>
+      <% keyflows.each(function(keyflow){ %>
+        <option value="<%= keyflow.id %>"><%= keyflow.get('name') %></option>
       <% }); %>
     </select>
   </div>
@@ -157,7 +157,7 @@
     {% trans "Please choose a node to enter data for" %}
     <div id="data-tree"></div>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-9">
     <div class="row"><div id="edit-node"></div></div>
   </div>
 </script>
@@ -178,7 +178,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
@@ -191,7 +191,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
@@ -204,7 +204,7 @@
         <tr>
           <th>{% trans "Remove Stock" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
@@ -222,8 +222,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Flow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
@@ -241,8 +241,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Keyflow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity Group" %}</td>
@@ -264,8 +264,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Keyflow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity" %}</td>
@@ -285,7 +285,7 @@
     </tr>
     <tr>
       <td>{% trans "Revenue" %}</td>
-      <td><%= revenue %></td>
+      <td><%= turnover %></td>
     </tr>
     <tr>
       <td>{% trans "Website" %}</td>
