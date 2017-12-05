@@ -74,9 +74,9 @@ class Material(GDSEModel):
     flowType = models.CharField(max_length=255, null=True)
 
 
-class ProductFraction(GDSEModel):
+class ProductFraction(models.Model):
 
-    fraction = models.FloatField()
+    fraction = models.FloatField(default=1)
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='fractions')

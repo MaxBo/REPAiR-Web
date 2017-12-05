@@ -19,6 +19,9 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       ActorStock,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      Product,
+                                      ProductFraction,
+                                      Material, 
                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -656,3 +659,86 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
 
             return {'features': internal_data_list}
         return super().to_internal_value(data)
+
+
+
+class ProductFractionSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ProductFraction
+        fields = ('id',
+                  'product',
+                  'material',
+                  'fraction')
+        read_only_fields = ['id', 'product']
+        
+        
+class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
+                        NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+    fractions = ProductFractionSerializer(many=True)
+    
+    class Meta:
+        model = Product
+        fields = ('url', 'id', 'name', 'default',
+                  'keyflow',
+                  'fractions', 
+                  )
+        
+    def create(self, validated_data):
+        fractions = validated_data.pop('fractions')
+        obj = super().create(validated_data)
+        validated_data['fractions'] = fractions
+        self.update(obj, validated_data)
+        return obj
+    
+    def update(self, obj, validated_data):
+        """update the user-attributes, including fraction information"""
+        product = obj
+
+        # handle product fractions
+        new_fractions = validated_data.pop('fractions', None)
+
+        if new_fractions is not None:
+            product_fractions = ProductFraction.objects.filter(product=product)
+            # delete existing rows not needed any more
+            to_delete = product_fractions.exclude(
+                material__id__in=(getattr(fraction.get('material'), 'id') for fraction
+                        in new_fractions
+                        if getattr(fraction.get('material'), 'id') is not None))
+            to_delete.delete()
+            # add or update new fractions
+            for new_fraction in new_fractions:
+                material_id = getattr(new_fraction.get('material'), 'id')
+                material = Material.objects.get(id=material_id)
+                #fraction = ProductFraction.objects.get(product=product,
+                                                       #material__id=material_id)
+                fraction = ProductFraction.objects.update_or_create(
+                    product=product,
+                    material=material)[0]
+
+
+                for attr, value in new_fraction.items():
+                    if attr in ('product', 'material'):
+                        continue
+                    setattr(fraction, attr, value)
+                fraction.save()
+
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
+
+
+class MaterialSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
+    
+    class Meta:
+        model = Material
+        fields = ('url', 'id', 'name', 'code', 'flowType')

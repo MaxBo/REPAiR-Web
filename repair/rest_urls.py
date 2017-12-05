@@ -40,6 +40,8 @@ from repair.apps.asmfa.views import (
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
     OperationalLocationViewSet,
+    ProductViewSet,
+    MaterialViewSet, 
 )
 
 ## base routes ##
@@ -50,6 +52,7 @@ router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
+router.register(r'materials', MaterialViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -110,14 +113,16 @@ ag_router.register(r'activities', ActivityViewSet)
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
 ac_router.register(r'actors', ActorViewSet)
 
-# /casestudies/*/Keyflows/...
-mat_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
-mat_router.register(r'groupstock', GroupStockViewSet)
-mat_router.register(r'activitystock', ActivityStockViewSet)
-mat_router.register(r'actorstock', ActorStockViewSet)
-mat_router.register(r'group2group', Group2GroupViewSet)
-mat_router.register(r'activity2activity', Activity2ActivityViewSet)
-mat_router.register(r'actor2actor', Actor2ActorViewSet)
+# /casestudies/*/keyflows/...
+kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
+kf_router.register(r'groupstock', GroupStockViewSet)
+kf_router.register(r'activitystock', ActivityStockViewSet)
+kf_router.register(r'actorstock', ActorStockViewSet)
+kf_router.register(r'group2group', Group2GroupViewSet)
+kf_router.register(r'activity2activity', Activity2ActivityViewSet)
+kf_router.register(r'actor2actor', Actor2ActorViewSet)
+kf_router.register(r'products', ProductViewSet)
+
 
 # /casestudies/*/activitygroups/*/activities/*/actors/...
 actors_router = NestedSimpleRouter(cs_router, r'actors',
@@ -144,7 +149,7 @@ urlpatterns = [
     url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
-    url(r'^', include(mat_router.urls)),
+    url(r'^', include(kf_router.urls)),
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
 ]
