@@ -118,7 +118,6 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
     keyflow = KeyflowField(view_name='keyflow-detail')
-    #keyflow = KeyflowSerializer(read_only=True)
     groupstock_set = InKeyflowSetField(view_name='groupstock-list')
     group2group_set = InKeyflowSetField(view_name='group2group-list')
     activitystock_set = InKeyflowSetField(view_name='activitystock-list')
@@ -363,6 +362,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
             # look if actor has already an administrative location
             aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
             for attr, value in administrative_location.items():
+                if attr == 'actor':
+                    continue
                 setattr(aloc, attr, value)
             aloc.save()
             #obj.administrativelocation = aloc
@@ -384,6 +385,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
 
                 for attr, value in operational_location.items():
+                    if attr == 'actor':
+                        continue
                     setattr(oloc, attr, value)
                 oloc.save()
 
@@ -552,7 +555,9 @@ class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
         model = AdministrativeLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor']
+                  'city', 'geom', 'name',
+                  'actor',
+                  ]
 
 
 class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
@@ -573,6 +578,15 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
             setattr(aloc, attr, value)
         aloc.save()
         return aloc
+
+
+class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorSerializer):
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name',
+                  ]
 
 
 class OperationalLocationSerializer(GeoFeatureModelSerializer,

@@ -41,6 +41,7 @@ from repair.apps.asmfa.serializers import (
     AdministrativeLocationSerializer,
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
+    AdministrativeLocationOfActorPostSerializer, 
     OperationalLocationsOfActorSerializer,
     AllActorListSerializer,
 )
@@ -132,6 +133,7 @@ class Actor2ActorViewSet(FlowViewSet):
 class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
+    serializers = {'create': AdministrativeLocationOfActorPostSerializer}
 
 
 class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):

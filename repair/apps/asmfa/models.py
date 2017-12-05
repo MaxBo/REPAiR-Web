@@ -217,15 +217,15 @@ class Establishment(Geolocation):
 class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
-                                 null=True,
-                                 default=get_default(Actor),
+                                 #null=True,
+                                 #default=get_default(Actor),
                                  related_name='administrative_location')
 
 
 class OperationalLocation(Establishment):
     """Operational Location of Actor"""
     actor = models.ForeignKey(Actor,
-                              default=get_default(Actor),
+                              #default=get_default(Actor),
                               related_name='operational_locations')
 
 
