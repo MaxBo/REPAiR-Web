@@ -78,12 +78,15 @@ class ASMFAModelTest(TestCase):
 
 class KeyflowTest(BasicModelTest, APITestCase):
     casestudy = 17
+    keyflow = 3
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                            kwargs=dict(pk=cls.casestudy))
+        cls.keyflow_url = cls.baseurl + reverse('keyflow-detail',
+                                                 kwargs=dict(pk=cls.keyflow))
         cls.url_key = "keyflow"
         cls.url_pks = dict()
         cls.url_pk = dict(pk=1)
@@ -119,10 +122,10 @@ class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
                              keyflow=cls.keyflow_url,
                              )
         cls.post_data = dict(note='new_note',
-                             keyflow=cls.keyflow,
+                             keyflow=cls.keyflow_url,
                              )
 
-        cls.patch_data = dict(name='patchtestnote')
+        cls.patch_data = dict(note='patchtestnote')
 
     def setUp(self):
         self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
@@ -149,10 +152,10 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
         cls.url_key = "actor"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.actor)
-        cls.post_data = dict(name='posttestname', year=2017, turnover=1000.0,
-                             employees=2, activity=1)
-        cls.put_data = dict(name='posttestname', year=2017, turnover=1000.0,
-                            employees=2, activity=1)
+        cls.post_data = dict(name='posttestname', year=2017, turnover='1000.00',
+                             employees=2, activity=1, BvDid='141234')
+        cls.put_data = dict(name='posttestname', year=2017, turnover='1000.00',
+                            employees=2, activity=1, BvDid='141234')
         cls.patch_data = dict(name='patchtestname')
 
 

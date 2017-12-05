@@ -60,6 +60,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         for key in self.put_data:
             assert response.data[key] == self.put_data[key]
+            #self.assertJSONEqual(response.data[key], self.put_data[key])            
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
