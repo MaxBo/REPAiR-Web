@@ -61,6 +61,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
     render: function(){
       var _this = this;
 
+      console.log(this.collection)
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});

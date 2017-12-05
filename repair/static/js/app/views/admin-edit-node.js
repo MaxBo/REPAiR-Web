@@ -183,6 +183,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       cell = row.insertCell(-1);
       cell.appendChild(datasource);
       var collapse = document.createElement('div');
+      collapse.style.cursor = 'pointer';
       var dsRow = table.insertRow(-1);
       
       dsRow.classList.add('hidden');
