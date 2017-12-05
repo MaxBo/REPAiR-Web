@@ -144,6 +144,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actorstock_set',
                   'actor2actor_set',
                   'code',
+                  'note', 
                   'name')
 
 

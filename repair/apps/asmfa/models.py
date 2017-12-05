@@ -99,8 +99,6 @@ class Node(GDSEModel):
     # sink = models.BooleanField(default=False) # not used anymore
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
-    #keyflow = models.ForeignKey(KeyflowInCasestudy,
-                                  #on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -210,7 +208,7 @@ class Establishment(Geolocation):
 
     @property
     def casestudy(self):
-        return self.actor.activity.activitygroup.casestudy
+        return self.actor.activity.activitygroup.keyflow.casestudy
 
     class Meta:
         abstract = True

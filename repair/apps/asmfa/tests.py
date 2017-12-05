@@ -122,7 +122,7 @@ class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
                              keyflow=cls.keyflow,
                              )
 
-        cls.patch_data = dict(note='patchtestnote')
+        cls.patch_data = dict(name='patchtestnote')
 
     def setUp(self):
         self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
@@ -145,13 +145,13 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
-                                       kwargs=dict(pk=cls.casestudy))
+                                           kwargs=dict(pk=cls.casestudy))
         cls.url_key = "actor"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.actor)
-        cls.post_data = dict(name='posttestname', year=2017, revenue=1000,
+        cls.post_data = dict(name='posttestname', year=2017, turnover=1000.0,
                              employees=2, activity=1)
-        cls.put_data = dict(name='posttestname', year=2017, revenue=1000,
+        cls.put_data = dict(name='posttestname', year=2017, turnover=1000.0,
                             employees=2, activity=1)
         cls.patch_data = dict(name='patchtestname')
 
@@ -202,8 +202,8 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         cls.url_key = "activitygroup"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.activitygroup)
-        cls.post_data = dict(code="Test Code", name='P1')
-        cls.put_data = dict(code="Test Code", name='P1')
+        cls.post_data = dict(code="P1", name='Test Code')
+        cls.put_data = dict(code="P1", name='Test Code')
         cls.patch_data = dict(name='P1')
 
 
@@ -247,8 +247,6 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__keyflow__id=self.keyflow,
             activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
-
-
 
 
 class QualityTest(BasicModelTest):  #, APITestCase):

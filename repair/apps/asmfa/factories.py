@@ -140,9 +140,8 @@ class ActorStockFactory(FlowFactory):
 class GeolocationFactory(DjangoModelFactory):
     class Meta:
         model = models.Geolocation
-    note = 'a location'
+    name = 'a location'
     address = 'MainStreet'
-    building = '12'
     postcode = '12345'
     city = 'Sevilla'
     country = 'Spain'
@@ -158,5 +157,3 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
-    employees = 123
-    turnover = 98765.43
