@@ -13,6 +13,7 @@ requirejs.config({
     'spatialsankey': 'libs/spatialsankey',
     'cyclesankey': 'libs/cycle-sankey',
     'jquery': 'libs/jquery-3.2.1.min',
+    'bootstrap': 'libs/bootstrap',
     'treeview': 'libs/bootstrap-treeview.min',
     'backbone': 'libs/backbone-min',
     'underscore': 'libs/underscore-min',
@@ -22,12 +23,13 @@ requirejs.config({
   },
   shim: {
     'almond': { exports: 'almond' },
-    'tablesorter': { deps: ['jquery', 'libs/jquery.tablesorter.min'] },
+    'tablesorter': { deps: ['libs/jquery.tablesorter.min'] },
     'tablesorter-pager': { deps: ['tablesorter'] },
     'leaflet-fullscreen': { deps: ['leaflet'] },
-    'backbone': { deps: ['underscore', 'jquery'] },
+    'backbone': { deps: ['jquery', 'underscore']},
     'spatialsankey': { deps: ['d3'] },
     'cyclesankey': { deps: ['d3'] },
+    'bootstrap': { deps: ['jquery'], exports: '$.fn.popover' }
   }
 });
 

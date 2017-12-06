@@ -1,6 +1,6 @@
-define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
+define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
-        'app/loader'],
+        'app/loader', 'bootstrap'],
 /**
   *
   * @desc    view on edit a specific node
@@ -13,7 +13,7 @@ define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
   * @return  the EditNodeView class (for chaining)
   * @see     table for attributes and flows in and out of this node
   */
-function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
+function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
   var EditNodeView = Backbone.View.extend({
 
     /*
@@ -180,15 +180,45 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       var idx = ids.indexOf(p);
       productSelect.selectedIndex = idx.toString();
-      row.insertCell(-1).appendChild(productSelect);
+      cell = row.insertCell(-1); 
+      cell.appendChild(productSelect);
 
       productSelect.addEventListener('change', function() {
         flow.set('product', productSelect.value);
       });
+      
+      // information popup for products
+      var info = document.createElement('div');
+      info.style.cursor = 'pointer';
+      info.style.marginLeft = "5px";
+      info.classList.add('pop-function');
+      info.setAttribute('rel', 'popover');
+      info.classList.add('glyphicon');
+      info.classList.add('glyphicon-info-sign');
+      info.title = 'composition of product';
+      cell.appendChild(info);
+      
+      var popOverSettings = {
+          placement: 'right',
+          container: 'body',
+          trigger: 'hover',
+          html: true,
+          content: function () {
+              var product = _this.products.get(productSelect.value);
+              var html = document.getElementById('popover-product-template').innerHTML;
+              var template = _.template(html);
+              var content = template({fractions: product.get('fractions'), 
+                                      materials: _this.materials});
+              return content;
+          }
+      }
+      $(info).popover(popOverSettings);
+      
 
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
-      var description = document.createElement("input");
-      var ids = [];
+      var description = document.createElement("textarea");
+      description.rows = "1";
+      //description.style.resize = 'both';
       row.insertCell(-1).appendChild(description);
 
       description.addEventListener('change', function() {
@@ -210,8 +240,11 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       collapse.style.cursor = 'pointer';
       var dsRow = table.insertRow(-1);
       
+      // collapse icon to show/hide individual datasources
       dsRow.classList.add('hidden');
+      collapse.style.marginLeft = "4px";
       collapse.classList.add('glyphicon');
+      collapse.title = 'show individual datasources';
       collapse.classList.add('glyphicon-chevron-down');
       collapse.addEventListener('click', function(){
         dsRow.classList.toggle('hidden');
@@ -244,6 +277,10 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       
       return row;
+    },
+    
+    popupProductInfo: function(productId){
+      console.log(productId);
     },
 
     // on click add row button
@@ -288,57 +325,6 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
 
     },
 
-
-    /**
-    * add a row to the given table
-    *
-    * @param tableId  id of the table to add a row to
-    * @param columns  array of objects to put in each column
-    *                 attributes of object: type (optional)  - 'select'/'number'/'text'
-    *                                       value (required) - single value or array (array for select only)
-    *                                       min (optional) - min. value (number only)
-    *                                       max (optional) - max. value (number only
-    *                 (same order in array as in table required)
-    */
-    addTableRow: function(tableId, columns){
-      var table = this.el.querySelector('#' + tableId);
-      var row = table.insertRow(-1);
-      for (i = 0; i < columns.length; i++){
-        var column = columns[i];
-        var cell = row.insertCell(i);
-        if (column.type != null){
-          var child;
-          if (column.type == 'select'){
-            child = document.createElement("select");
-            for (j = 0; j < column.text.length; j++){
-              var option = document.createElement("option");
-              option.text = column.text[j];
-              if (column.value != null)
-                option.value = column.value[j];
-              child.add(option);
-            }
-            if (column.selected != null)
-              child.selectedIndex = column.selected.toString();
-          }
-          else{
-            var child = document.createElement("input");
-            if (column.type == 'number'){
-              child.type = "number";
-              if (column.min != null) child.min = column.min;
-              if (column.max != null) child.max = column.max;
-            }
-            else if (column.type == 'checkbox')
-              child.type = "checkbox";
-
-            child.value = column.value;
-          }
-          cell.appendChild(child);
-        }
-        else
-          cell.innerHTML = column.value;
-      }
-      return row;
-    },
 
     deleteRowEvent: function(event){
       var buttonId = event.currentTarget.id;

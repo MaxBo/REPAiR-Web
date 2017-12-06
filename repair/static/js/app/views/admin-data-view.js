@@ -1,5 +1,5 @@
-define(['jquery', 'backbone', 'app/visualizations/sankey', 'app/loader'],
-function($, Backbone, Sankey){
+define(['backbone', 'app/visualizations/sankey', 'app/loader'],
+function(Backbone, Sankey){
 
   /**
     *

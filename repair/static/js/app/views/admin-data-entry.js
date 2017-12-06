@@ -1,8 +1,8 @@
-define(['jquery', 'backbone',
+define(['backbone',
         'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/products', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, Activities, Actors, Products, treeview){
+function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
 
   /**
    *

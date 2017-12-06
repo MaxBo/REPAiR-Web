@@ -216,6 +216,12 @@
   </div>
 </script>
 
+<script type="text/template" id="popover-product-template">
+  <% _.each(fractions, function(fraction){ %>
+    <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
+  <% }); %>
+</script>
+
 <!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
   <h3>{% trans "Activitygroup" %}</h3>

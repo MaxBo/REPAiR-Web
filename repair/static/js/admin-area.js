@@ -1,11 +1,11 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
-  require(['jquery', 'app/models/casestudy', 'app/views/admin-data-entry',
+  require(['app/models/casestudy', 'app/views/admin-data-entry',
            'app/views/admin-data-view', 'app/views/admin-edit-actors', 
            'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
            'app/collections/activitygroups', 'app/collections/keyflows',
            'app/collections/stocks', 'app/collections/materials', 
            'app-config', 'app/loader'],
-  function ($, CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
+  function (CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
             Activities, Actors, ActivityGroups, Keyflows, Stocks, Materials,
             appConfig) {
 
@@ -94,6 +94,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       if (keyflows.length > 0){
         renderDataView(keyflows.first().id, caseStudyId);
       }
+      
     }
 
     var session = appConfig.getSession(
