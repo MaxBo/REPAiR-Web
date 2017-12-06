@@ -195,7 +195,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       info.setAttribute('rel', 'popover');
       info.classList.add('glyphicon');
       info.classList.add('glyphicon-info-sign');
-      info.title = 'composition of product';
+      info.title = 'Composition';
       cell.appendChild(info);
       
       var popOverSettings = {
@@ -205,10 +205,12 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
           html: true,
           content: function () {
               var product = _this.products.get(productSelect.value);
+              if (product == null) return '';
               var html = document.getElementById('popover-product-template').innerHTML;
               var template = _.template(html);
               var content = template({fractions: product.get('fractions'), 
-                                      materials: _this.materials});
+                                      materials: _this.materials,
+                                      productName: product.get('name')});
               return content;
           }
       }
@@ -256,7 +258,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       // own row for individual Datasources
       
       dsRow.insertCell(-1);
-      var datasourcableAttributes = ['amount', targetIdentifier, 'description'];
+      var datasourcableAttributes = ['amount', targetIdentifier, 'product'];
       _.each(datasourcableAttributes, function(attr){
         var sel = document.createElement("select");
         var cell = dsRow.insertCell(-1).appendChild(sel);
