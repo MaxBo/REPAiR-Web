@@ -485,7 +485,7 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
         fields = ('url', 'id',
                   'keyflow',
                   'amount', 'origin',
-                  'destination')
+                  'destination', 'product')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -493,6 +493,7 @@ class Group2GroupSerializer(FlowSerializer):
     origin_url = ActivityGroupField(view_name='activitygroup-detail',
                                     source='origin',
                                     read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActivityGroupField(view_name='activitygroup-detail',
                                          source='destination',
@@ -502,7 +503,7 @@ class Group2GroupSerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url')
+                  'destination', 'destination_url', 'product')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -510,6 +511,7 @@ class Activity2ActivitySerializer(FlowSerializer):
     origin_url = ActivityField(view_name='activity-detail',
                                 source='origin',
                                 read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActivityField(view_name='activity-detail',
                                     source='destination',
@@ -519,7 +521,7 @@ class Activity2ActivitySerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url')
+                  'destination', 'destination_url', 'product')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -527,6 +529,7 @@ class Actor2ActorSerializer(FlowSerializer):
     origin_url = ActorField(view_name='actor-detail',
                             source='origin',
                             read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActorField(view_name='actor-detail',
                                  source='destination',
@@ -536,12 +539,13 @@ class Actor2ActorSerializer(FlowSerializer):
         model = Actor2Actor
         fields = ('id', 'amount', 'keyflow',
                   'origin', 'origin_url',
-                  'destination', 'destination_url')
+                  'destination', 'destination_url', 'product')
 
 
 class AllActorField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activity__activitygroup__keyflow__casestudy__id'}
+
 
 class ActorIDField(serializers.RelatedField):
     """"""
@@ -659,7 +663,6 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
 
             return {'features': internal_data_list}
         return super().to_internal_value(data)
-
 
 
 class ProductFractionSerializer(serializers.ModelSerializer):

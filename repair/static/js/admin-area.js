@@ -3,15 +3,18 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
            'app/views/admin-data-view', 'app/views/admin-edit-actors', 
            'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
            'app/collections/activitygroups', 'app/collections/keyflows',
-           'app/collections/stocks', 'app-config', 'app/loader'],
+           'app/collections/stocks', 'app/collections/materials', 
+           'app-config', 'app/loader'],
   function ($, CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
-            Activities, Actors, ActivityGroups, Keyflows, Stocks, appConfig) {
+            Activities, Actors, ActivityGroups, Keyflows, Stocks, Materials,
+            appConfig) {
 
     var caseStudyId,
         caseStudy,
         activityGroups,
         keyflows,
-        activities;
+        activities,
+        materials;
 
     var dataView,
         dataEntryView,
@@ -45,7 +48,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         template: 'data-entry-template',
         model: caseStudy,
         activityGroups: activityGroups,
-        activities: activities
+        activities: activities,
+        materials: materials
       });
     };
     
@@ -101,11 +105,12 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         }
         caseStudy = new CaseStudy({id: caseStudyId});
         activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
+        materials = new Materials();
         activities = new Activities({caseStudyId: caseStudyId});
         keyflows = new Keyflows({caseStudyId: caseStudyId});
         var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
-        $.when(caseStudy.fetch(), activityGroups.fetch(), 
+        $.when(caseStudy.fetch(), activityGroups.fetch(), materials.fetch(), 
                keyflows.fetch(), activities.fetch()).then(function() {
           loader.remove();
           renderCaseStudy(caseStudy);

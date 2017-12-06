@@ -25,6 +25,11 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.keyflowId = options.keyflowId;
       this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
+      this.products = options.products;
+      this.materials = options.materials;
+      console.log(this.products)
+      console.log(this.materials)
+      
       this.onUpload = options.onUpload;
 
       var flowType = '';
@@ -161,6 +166,25 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
           flow.set(targetIdentifier, nodeSelect.value);
         });
       };
+      
+      // input for product
+      var productSelect = document.createElement("select");
+      var ids = [];
+      var p = flow.get('product');
+      this.products.each(function(product){
+        var option = document.createElement("option");
+        option.text = product.get('name');
+        option.value = product.id;
+        productSelect.add(option);
+        ids.push(product.id);
+      });
+      var idx = ids.indexOf(p);
+      productSelect.selectedIndex = idx.toString();
+      row.insertCell(-1).appendChild(productSelect);
+
+      productSelect.addEventListener('change', function() {
+        flow.set('product', productSelect.value);
+      });
 
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
       var description = document.createElement("input");
@@ -172,7 +196,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
 
       // general datasource
-      var options = ['bumm', 'tschackalacka']
+      var options = ['dummy-source', 'another dummy-source']
       var datasource = document.createElement("select");
       _.each(options, function(opt){
         var option = document.createElement("option");
