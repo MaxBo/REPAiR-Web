@@ -19,6 +19,8 @@ from repair.apps.asmfa.models import (
     ActorStock,
     OperationalLocation,
     AdministrativeLocation,
+    Product,
+    Material, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -44,6 +46,8 @@ from repair.apps.asmfa.serializers import (
     AdministrativeLocationOfActorPostSerializer, 
     OperationalLocationsOfActorSerializer,
     AllActorListSerializer,
+    ProductSerializer,
+    MaterialSerializer, 
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -149,3 +153,13 @@ class AdministrativeLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
 class OperationalLocationsOfActorViewSet(ViewSetMixin, ModelViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
+
+
+class ProductViewSet(ViewSetMixin, ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    
+    
+class MaterialViewSet(ViewSetMixin, ModelViewSet):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer

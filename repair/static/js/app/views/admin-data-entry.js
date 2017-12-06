@@ -1,8 +1,8 @@
-define(['jquery', 'backbone',
+define(['backbone',
         'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
-        'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, Activities, Actors, treeview){
+        'app/collections/products', 'treeview', 'app/loader'],
+function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
 
   /**
    *
@@ -34,6 +34,7 @@ function($, Backbone, EditNodeView, Activities, Actors, treeview){
       // collections of nodes associated to the casestudy
       this.activityGroups = options.activityGroups;
       this.activities = options.activities;
+      this.materials = options.materials;
       this.actors = new Actors({caseStudyId: caseStudyId});
 
       this.render();
@@ -134,17 +135,33 @@ function($, Backbone, EditNodeView, Activities, Actors, treeview){
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
-      // currently selected keyflow
+      var _this = this;
+      
       var keyflowSelect = document.getElementById('flows-select');
-      this.editNodeView = new EditNodeView({
-        el: document.getElementById('edit-node'),
-        template: 'edit-node-template',
-        model: model,
-        keyflowId: keyflowSelect.value,
-        keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
-        caseStudyId: this.model.id,
-        onUpload: this.renderDataEntry // rerender after upload
-      });
+      function renderNode(){
+        // currently selected keyflow
+        _this.editNodeView = new EditNodeView({
+          el: document.getElementById('edit-node'),
+          template: 'edit-node-template',
+          model: model,
+          materials: _this.materials,
+          products: _this.products,
+          keyflowId: _this.keyflowId,
+          keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
+          caseStudyId: _this.model.id,
+          onUpload: _this.renderDataEntry // rerender after upload
+        });
+      }
+      
+      // keyflow changed -> change products
+      if (this.keyflowId != keyflowSelect.value){
+        this.keyflowId = keyflowSelect.value;
+        this.products = new Products({caseStudyId: this.model.id, 
+                                      keyflowId: this.keyflowId});
+        this.products.fetch({success: renderNode})
+      }
+      else
+        renderNode();
     },
 
     /*

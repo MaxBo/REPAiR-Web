@@ -74,9 +74,9 @@ class Material(GDSEModel):
     flowType = models.CharField(max_length=255, null=True)
 
 
-class ProductFraction(GDSEModel):
+class ProductFraction(models.Model):
 
-    fraction = models.FloatField()
+    fraction = models.FloatField(default=1)
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='fractions')
@@ -217,7 +217,7 @@ class Establishment(Geolocation):
 class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
-                                 #null=True,
+                                 null=True,
                                  #default=get_default(Actor),
                                  related_name='administrative_location')
 
@@ -236,6 +236,7 @@ class Flow(models.Model):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
     #                             default=1)
+    description = models.TextField(max_length=510, blank=True, null=True)
 
     class Meta:
         abstract = True

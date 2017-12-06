@@ -31,7 +31,7 @@
               <th>{% trans "Activity" %}</th>
               <th>{% trans "Website" %}</th>
               <th>{% trans "Year" %}</th>
-              <th>{% trans "Revenue" %}</th>
+              <th>{% trans "Turnover" %}</th>
               <th>{% trans "Employees" %}</th>
               <th>{% trans "BvDid" %}</th>
               <th>{% trans "BvDii" %}</th>
@@ -178,6 +178,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
+          <th>{% trans "Product" %}</th>
           <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
@@ -191,6 +192,7 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
+          <th>{% trans "Product" %}</th>
           <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
@@ -204,6 +206,7 @@
         <tr>
           <th>{% trans "Remove Stock" %}</th>
           <th>{% trans "Amount" %}</th>
+          <th>{% trans "Product" %}</th>
           <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
@@ -211,6 +214,13 @@
       <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
+</script>
+
+<script type="text/template" id="popover-product-template">
+  <!--<b><%= productName %></b>-->
+  <% _.each(fractions, function(fraction){ %>
+    <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
+  <% }); %>
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->
@@ -284,7 +294,7 @@
       <td><%= employees %></td>
     </tr>
     <tr>
-      <td>{% trans "Revenue" %}</td>
+      <td>{% trans "Turnover" %}</td>
       <td><%= turnover %></td>
     </tr>
     <tr>

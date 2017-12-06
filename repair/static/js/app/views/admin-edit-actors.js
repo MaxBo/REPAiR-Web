@@ -1,8 +1,8 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/collections/geolocations', 
+define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
         'app/models/geolocation', 'app/visualizations/map', 
         'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor, Locations, Geolocation, Map){
+function(Backbone, Actor, Locations, Geolocation, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -37,7 +37,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
         
-      this.projection = 'EPSG:4326';
+      this.projection = 'EPSG:4326'; 
         
       $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
              this.collection.fetch()).then(function() {
@@ -61,7 +61,6 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
     render: function(){
       var _this = this;
 
-      console.log(this.collection)
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});
