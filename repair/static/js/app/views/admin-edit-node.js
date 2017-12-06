@@ -27,8 +27,6 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.caseStudyId = options.caseStudyId;
       this.products = options.products;
       this.materials = options.materials;
-      console.log(this.products)
-      console.log(this.materials)
       
       this.onUpload = options.onUpload;
 
@@ -220,6 +218,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
       var description = document.createElement("textarea");
       description.rows = "1";
+      description.value = flow.get('description');
       //description.style.resize = 'both';
       row.insertCell(-1).appendChild(description);
 
@@ -279,10 +278,6 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       
       return row;
-    },
-    
-    popupProductInfo: function(productId){
-      console.log(productId);
     },
 
     // on click add row button
@@ -391,7 +386,6 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       
       var modelsToSave = [];
       var modelsToDestroy = [];
-      
       // delete exisiting flows if marked for deletion
       // otherwise update them if they changed
       var update = function(model){
@@ -406,7 +400,6 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
 
       // save added flows only, when they are not marked for deletion
       var create = function(model){
-        console.log(model)
         if (!model.markedForDeletion && Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
           modelsToSave.push(model);
       }

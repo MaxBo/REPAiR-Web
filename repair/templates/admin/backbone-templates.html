@@ -217,6 +217,7 @@
 </script>
 
 <script type="text/template" id="popover-product-template">
+  <!--<b><%= productName %></b>-->
   <% _.each(fractions, function(fraction){ %>
     <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
   <% }); %>
