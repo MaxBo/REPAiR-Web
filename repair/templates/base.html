@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery.touchSwipe.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
     <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
     <title>{% block title %}REPAiR{% endblock %}</title>
@@ -148,6 +149,23 @@
   </div>
   <script>
     $("a").one( "click", function(){$(document).resize()});//document.resize()
+    <!--var sidebar = document.getElementById('sidebar-wrapper');-->
+    <!--sidebar.addEventListener('click', function(){-->
+      <!--sidebar.classList.toggle('active');-->
+    <!--})-->
+    $("#sidebar-wrapper").swipe({
+    swipeStatus:function(event, phase, direction, distance, duration, fingers)
+        {
+            if (phase=="move" && direction =="right") {
+                 $(".container").addClass("open-sidebar");
+                 return false;
+            }
+            if (phase=="move" && direction =="left") {
+                 $(".container").removeClass("open-sidebar");
+                 return false;
+            }
+        }
+    });
   </script>
 </body>
 </html>
