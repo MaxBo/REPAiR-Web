@@ -3,11 +3,11 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
            'app/views/admin-data-view', 'app/views/admin-edit-actors', 
            'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
            'app/collections/activitygroups', 'app/collections/keyflows',
-           'app/collections/stocks', 'app/collections/materials', 
-           'app-config', 'app/loader'],
+           'app/collections/stocks', 'app/collections/materials',
+           'app/collections/products', 'app-config', 'app/loader'],
   function (CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
             Activities, Actors, ActivityGroups, Keyflows, Stocks, Materials,
-            appConfig) {
+            Products, appConfig) {
 
     var caseStudyId,
         caseStudy,
@@ -27,12 +27,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         dataView.close();
 
       var stocks = new Stocks([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      var products = new Products({caseStudyId: caseStudyId, keyflowId: keyflowId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
         collection: groupToGroup,
         activityGroups: activityGroups,
-        stocks: stocks
+        stocks: stocks,
+        products: products
       });
     };
 
