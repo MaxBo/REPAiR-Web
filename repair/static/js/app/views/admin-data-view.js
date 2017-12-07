@@ -96,7 +96,8 @@ function(Backbone, Sankey){
         var value = modelLink.get('amount');
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
-        var productName = products.get(modelLink.get('product')).get('name');
+        var product = products.get(modelLink.get('product'))
+        var productName = (product != null) ? product.get('name') : 'undefined';
         links.push({
           value: modelLink.get('amount'),
           source: source,
