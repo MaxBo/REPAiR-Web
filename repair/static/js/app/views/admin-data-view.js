@@ -22,10 +22,12 @@ function(Backbone, Sankey){
       this.template = options.template;
       this.activityGroups = options.activityGroups;
       this.stocks = options.stocks;
+      this.products = options.products;
       var _this = this;
       var loader = new Loader(this.el);
 
-      $.when(this.collection.fetch(),  this.stocks.fetch()).then(function() {
+      $.when(this.collection.fetch(), this.stocks.fetch(), 
+             this.products.fetch()).then(function() {
           loader.remove();
           if (_this.collection.length > 0)
             _this.render();
@@ -44,8 +46,7 @@ function(Backbone, Sankey){
       this.el.innerHTML = template.innerHTML;
 
       this.sankeyData = this.transformData(this.activityGroups,
-                                           this.collection,
-                                           this.stocks)
+                                           this.collection, this.stocks)
       this.renderSankey(this.sankeyData);
     },
 
@@ -79,6 +80,7 @@ function(Backbone, Sankey){
     },
 
     transformData: function(models, modelLinks, stocks){
+      var products = this.products;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -94,10 +96,12 @@ function(Backbone, Sankey){
         var value = modelLink.get('amount');
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
+        var productName = products.get(modelLink.get('product')).get('name');
         links.push({
           value: modelLink.get('amount'),
           source: source,
-          target: target
+          target: target,
+          text: productName
         });
       })
       stocks.each(function(stock){
