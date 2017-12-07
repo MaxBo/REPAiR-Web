@@ -161,7 +161,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-
+      //var row = document.createElement("TR");
       // checkbox for marking deletion
 
       var checkbox = document.createElement("input");
@@ -237,6 +237,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
           _this.renderMarkers(actor);
         }
       });
+      return row;
     },
 
     // add row when button is clicked
@@ -256,8 +257,11 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         "caseStudyId": this.model.id
       });
       this.collection.add(actor);
-      this.addActorRow(actor);
-
+      var row = this.addActorRow(actor);
+      // let tablesorter know, that there is a new row
+      $('table').trigger('addRows', [$(row)]);
+      // workaround for going to last page by emulating click
+      document.getElementById('goto-last-page').click();
     },
 
     uploadChanges: function(){
