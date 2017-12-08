@@ -20,11 +20,12 @@
 }
 
 #upload-flows-button, #upload-actors-button{
-    float: right;
+    
+/*    float: right;
     width: auto;
     margin-top: 10px;
     background-color: #aad400;
-    border-width: 0px;
+    border-width: 0px;*/
 }
 
 #fullscreen-toggle{

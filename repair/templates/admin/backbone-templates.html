@@ -7,18 +7,16 @@
 
 <script type="text/template" id="actors-edit-template">
   <div class="row">
-    <div class="col-md-3">
-      <h3>{% trans "Actors" %} - <%= casestudy %></h3>
-      <select name="included-filter" id="included-filter-select">
-        <option value="0">{% trans "show all" %}</option>
-        <option value="1">{% trans "show included only" %}</option>
-      </select>
-    </div>
-    <div class="col-md-9">
-      <button id='upload-actors-button' class="btn btn-primary">
-        <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
-      </button>
-    </div>
+    <h3>{% trans "Actors" %} - <%= casestudy %></h3>
+    <select name="included-filter" id="included-filter-select">
+      <option value="0">{% trans "show all" %}</option>
+      <option value="1">{% trans "show included only" %}</option>
+    </select>
+  </div>
+  <div class="row">
+    <button id='upload-actors-button' class="btn btn-primary">
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    </button>
   </div>
   <div class="row">
     <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
@@ -120,14 +118,14 @@
       <div class="tab-content">
         <div class="tab-pane fade in active" id="data-entry-tab">
           <button type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px;">
-            {% trans "Refresh" %}
+            <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh" %} 
           </button>
           <div class="row"><div id="data-entry"></div></div>
         </div>
         <div class="tab-pane fade in" id="sankey-tab">
           <div class="row">
             <button type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px;">
-              {% trans "Refresh" %}
+              <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh" %}
             </button>
           </div>
           <div class="row"><div id="data-view"></div></div>
@@ -156,11 +154,11 @@
 <!-- Data Entry -->
 
 <script type="text/template" id="data-entry-template">
-  <div class="col-md-3">
+  <div class="col-md-3" style="padding-bottom: 50px;">
     <div id="data-tree"></div>
   </div>
   <div class="col-md-9">
-    <div class="row"><div id="edit-node"></div></div>
+    <div id="edit-node" style="margin-top: -50px;"></div>
   </div>
 </script>
 
@@ -168,16 +166,16 @@
 <!-- template for view on editing a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12">
-    <button id='upload-flows-button' class="btn btn-primary">
-      <span class="glyphicon glyphicon-upload"> {% trans "Upload" %}</span>
-    </button>
     <div class="row" id='attributes'>
     </div>
+    <button id='upload-flows-button' class="btn btn-primary">
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    </button>
     <div class="row" style="overflow-x:auto;">
       <h3>{% trans "Input" %}</h3>
       <table id='input-table' class='table'>
         <tr>
-          <th>{% trans "Remove Flow" %}</th>
+          <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Product" %}</th>
@@ -192,7 +190,7 @@
       <h3>{% trans "Output" %}</h3>
       <table id='output-table' class='table'>
         <tr>
-          <th>{% trans "Remove Flow" %}</th>
+          <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
           <th>{% trans "Product" %}</th>
@@ -208,7 +206,7 @@
         <h3>{% trans "Stock" %}</h3>
       <table id='stock-table' class='table'>
         <tr>
-          <th>{% trans "Remove Stock" %}</th>
+          <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Product" %}</th>
           <th>{% trans "Raw" %}</th>
