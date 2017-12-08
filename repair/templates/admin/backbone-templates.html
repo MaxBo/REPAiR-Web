@@ -41,7 +41,7 @@
         </table>
       </div>
       <div class="row">
-        <button id='add-actor-button'><span class="glyphicon glyphicon-plus"></span></button>
+        <button id='add-actor-button'  title="{% trans "add new actor" %}"><span class="glyphicon glyphicon-plus"></span></button>
         <!-- pager -->
         <div id="pager" class="pager">
           <form>
@@ -112,11 +112,11 @@
     <div class="col-md-12">
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link' style="padding-right: 39px">{% trans "Data Entry" %}
-          <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px;">
+          <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px; outline: none;">
             <span class="glyphicon glyphicon-refresh"></span>
           </button></a></li>
         <li><a data-toggle="tab" href="#sankey-tab" style="padding-right: 39px">{% trans "Data View" %}
-          <button title="{% trans "Refresh Sankey-Diagram" %}" type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px;">
+          <button title="{% trans "Refresh Sankey-Diagram" %}" type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px; outline: none;">
             <span class="glyphicon glyphicon-refresh"></span>
           </button></a></li>
         <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
@@ -142,7 +142,7 @@
 <script type="text/template" id="data-view-template">
   <div class="row">
     <div id="sankey-wrapper">
-      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen btn btn-primary"></button>
+      <button id="fullscreen-toggle" title="{% trans "toggle fullscreen" %}" class="glyphicon glyphicon-fullscreen btn btn-primary"></button>
       <div id="sankey">
       </div>
     </div>
@@ -182,7 +182,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-input-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='add-input-button' title="{% trans "add input" %}"><span class="glyphicon glyphicon-plus"></span></button>
     </div>
     <div class="row" style="overflow-x:auto;">
       <h3>{% trans "Output" %}</h3>
@@ -198,7 +198,7 @@
         </tr>
         <tr>
       </table>
-      <button id='add-output-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='add-output-button' title="{% trans "add output" %}"><span class="glyphicon glyphicon-plus"></span></button>
     </div>
     <div class="row" style="overflow-x:auto;">
         <h3>{% trans "Stock" %}</h3>
@@ -212,7 +212,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
+      <button id='add-stock-button' title="{% trans "add stock" %}"><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
 </script>

@@ -219,6 +219,12 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
           }
       }
       $(info).popover(popOverSettings);
+      //var addProductButton = document.createElement('button');
+      //var glyph = document.createElement('span')
+      //glyph.classList.add('glyphicon');
+      //glyph.classList.add('glyphicon-plus');
+      //productWrapper.appendChild(addProductButton);
+      //addProductButton.appendChild(glyph);
       
       // raw checkbox
       var rawCheckbox = document.createElement("input");

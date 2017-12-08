@@ -37,6 +37,7 @@
     background-color: #aad400;
     display: none;
     border-radius: 20px;
+    border: none;
 }
 
 .nav-tabs li.active button {
@@ -96,4 +97,10 @@ tr.selected td{
 }
 .ol-rotate {
   top: 3em;
+}
+
+td button {
+    padding: 0px 5px 0px 5px;
+    margin-left: 3px;
+    margin-right: 3px;
 }
