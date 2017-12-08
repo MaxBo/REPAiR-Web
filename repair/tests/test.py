@@ -24,12 +24,15 @@ class BasicModelTest(object):
     put_data = dict()
     patch_data = dict()
     casestudy = None
+    userincasestudy = 26
     user = -1
+    do_not_check = []
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.uic = UserInCasestudyFactory(user__user__id=cls.user,
+        cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
+                                         user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
 
@@ -59,14 +62,18 @@ class BasicModelTest(object):
         # check if name has changed
         response = self.client.get(url)
         for key in self.put_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
             assert response.data[key] == self.put_data[key]
-            #self.assertJSONEqual(response.data[key], self.put_data[key])            
+            #self.assertJSONEqual(response.data[key], self.put_data[key])
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
         # check if name has changed
         response = self.client.get(url)
         for key in self.patch_data:
+            if key not in response.data.keys():
+                continue
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
@@ -83,6 +90,8 @@ class BasicModelTest(object):
         # post
         response = self.client.post(url, self.post_data)
         for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
             assert response.data[key] == self.post_data[key]
         # get
         new_id = response.data['id']
