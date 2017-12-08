@@ -44,10 +44,10 @@ class KeyflowInCasestudyFactory(DjangoModelFactory):
     casestudy = factory.SubFactory(CaseStudyFactory)
 
 
-class QualityFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Quality
-    name = 'Best Quality'
+#class QualityFactory(DjangoModelFactory):
+    #class Meta:
+        #model = models.Quality
+    #name = 'Best Quality'
 
 
 class NodeFactory(DjangoModelFactory):
@@ -90,7 +90,15 @@ class FlowFactory(DjangoModelFactory):
         model = models.Flow
     amount = 1234
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
-    quality = factory.SubFactory(QualityFactory)
+    #quality = factory.SubFactory(QualityFactory)
+
+
+class ProductFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Product
+    name = factory.Sequence(lambda n: "Product #%s" % n)
+    default = True
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
 class Group2GroupFactory(FlowFactory):
@@ -105,6 +113,7 @@ class Activity2ActivityFactory(FlowFactory):
         model = models.Activity2Activity
     origin = factory.SubFactory(ActivityFactory)
     destination = factory.SubFactory(ActivityFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class Actor2ActorFactory(FlowFactory):
@@ -112,6 +121,7 @@ class Actor2ActorFactory(FlowFactory):
         model = models.Actor2Actor
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class StockFactory(FlowFactory):
@@ -129,12 +139,14 @@ class ActivityStockFactory(FlowFactory):
     class Meta:
         model = models.ActivityStock
     origin = factory.SubFactory(ActivityFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class GeolocationFactory(DjangoModelFactory):
@@ -157,3 +169,4 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
+

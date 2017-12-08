@@ -231,7 +231,7 @@ class OperationalLocation(Establishment):
 
 class Flow(models.Model):
 
-    amount = models.PositiveIntegerField(blank=True)
+    amount = models.PositiveIntegerField(blank=True, default=0)
     # called this "keyflow" instead of "material", not to confuse with Material class
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
@@ -283,7 +283,7 @@ class Actor2Actor(Flow):
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users
-    amount = models.IntegerField(blank=True)
+    amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
 

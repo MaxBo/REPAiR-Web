@@ -59,14 +59,18 @@ class BasicModelTest(object):
         # check if name has changed
         response = self.client.get(url)
         for key in self.put_data:
+            if key not in response.data.keys():
+                continue
             assert response.data[key] == self.put_data[key]
-            #self.assertJSONEqual(response.data[key], self.put_data[key])            
+            #self.assertJSONEqual(response.data[key], self.put_data[key])
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
         # check if name has changed
         response = self.client.get(url)
         for key in self.patch_data:
+            if key not in response.data.keys():
+                continue
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
