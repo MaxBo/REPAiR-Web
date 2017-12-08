@@ -148,8 +148,6 @@ function(Backbone, Actor, Locations, Geolocation, Map){
     changeFilter: function(event){
       this.showAll = event.target.value == '0';
       for (var i = 1, row; row = this.table.rows[i]; i++) {
-        //console.log(row.cells[0].getElementsByTagName("input")[0])
-        //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
         if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
           row.style.display = "none";
         else
@@ -232,7 +230,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
           row.classList.remove('selected');
         });
         row.classList.add('selected');
-        if (_this.activeActorId != actor.id){
+        if (_this.activeActorId != actor.id || actor.id == null){
           _this.activeActorId = actor.id;
           _this.renderMarkers(actor);
         }
@@ -340,7 +338,6 @@ function(Backbone, Actor, Locations, Geolocation, Map){
                                       properties: properties})
       loc.setGeometry(coord);
       collection.add(loc);
-      console.log(collection)
       this.addMarker(loc, pin, table);
     },
     
