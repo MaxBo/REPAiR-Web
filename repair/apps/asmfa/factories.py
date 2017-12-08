@@ -106,6 +106,7 @@ class Group2GroupFactory(FlowFactory):
         model = models.Group2Group
     origin = factory.SubFactory(ActivityGroupFactory)
     destination = factory.SubFactory(ActivityGroupFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class Activity2ActivityFactory(FlowFactory):
@@ -133,6 +134,7 @@ class GroupStockFactory(FlowFactory):
     class Meta:
         model = models.GroupStock
     origin = factory.SubFactory(ActivityGroupFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class ActivityStockFactory(FlowFactory):
