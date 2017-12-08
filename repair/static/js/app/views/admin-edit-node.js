@@ -139,6 +139,8 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       amount.addEventListener('change', function() {
         flow.set('amount', amount.value);
       });
+      
+      // origin respectively destination (skipped at stocks)
 
       if (!skipTarget){
         // select input for target (origin resp. destination of flow)
@@ -214,8 +216,17 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }
       $(info).popover(popOverSettings);
       
+      // raw checkbox
+      var rawCheckbox = document.createElement("input");
+      rawCheckbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(rawCheckbox);
 
-      // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
+      rawCheckbox.addEventListener('change', function() {
+        flow.set('raw', rawCheckbox.checked);
+      });
+      
+      // description field
+      
       var description = document.createElement("textarea");
       description.rows = "1";
       description.value = flow.get('description');
