@@ -72,7 +72,13 @@ function(Backbone, Actor, Locations, Geolocation, Map){
 
       //// render inFlows
       this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-  
+      
+      this.setupTable();
+      this.initMap();
+    },
+    
+    setupTable: function(){
+    
       // ToDo: modularize this 
       $.tablesorter.addParser({
           id: 'inputs',
@@ -125,16 +131,18 @@ function(Backbone, Actor, Locations, Geolocation, Map){
           8: {sorter: 'inputs'},
           9: {sorter: 'inputs'}
         },
-        widgets: ['zebra']
-      }).tablesorterPager({container: $("#pager")});
+        //widgets: ['zebra']
+      })
+      
+      // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
+      if ($(this.table).find('tr').length > 1)
+        $(this.table).tablesorterPager({container: $("#pager")});
       
       // workaround for a bug in tablesorter-pager by triggering
       // event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
-      
-      this.initMap();
     },
 
     changeFilter: function(event){
@@ -153,7 +161,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-
+      //var row = document.createElement("TR");
       // checkbox for marking deletion
 
       var checkbox = document.createElement("input");
@@ -229,7 +237,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
           _this.renderMarkers(actor);
         }
       });
-
+      return row;
     },
 
     // add row when button is clicked
@@ -249,8 +257,11 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         "caseStudyId": this.model.id
       });
       this.collection.add(actor);
-      this.addActorRow(actor);
-
+      var row = this.addActorRow(actor);
+      // let tablesorter know, that there is a new row
+      $('table').trigger('addRows', [$(row)]);
+      // workaround for going to last page by emulating click
+      document.getElementById('goto-last-page').click();
     },
 
     uploadChanges: function(){
