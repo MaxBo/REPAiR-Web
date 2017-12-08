@@ -52,6 +52,7 @@
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
                   <select name="casestudy" onchange="$('#casestudy-select').submit()"">
+                    <option selected disabled>{% trans "Select Casestudy" %}</option>
                     {% if view.casestudies|length > 0 %}
                       {% for casestudy in view.casestudies %}
                         <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected" {% endif %}>
