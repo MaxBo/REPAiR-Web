@@ -110,6 +110,7 @@
     font-size: 1em;
     margin-top : 15px;
     outline: none;
+    text-align-last: right;
 }
 
 /*.navbar-top select option:checked, .navbar-top select option:hover{

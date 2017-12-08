@@ -79,7 +79,6 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
                                 keyflows: keyflows});
 
       var keyflowSelect = document.getElementById('flows-select');
-      var refreshButton = document.getElementById('refresh-view-btn');
       var onKeyflowChange = function(rerenderEntry){
         var keyflowId = keyflowSelect.options[keyflowSelect.selectedIndex].value;
         renderDataView(keyflowId, caseStudyId);
@@ -88,7 +87,13 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
           dataEntryView.renderDataEntry();
       }
       keyflowSelect.addEventListener('change', function(){onKeyflowChange(true)});
-      refreshButton.addEventListener('click', onKeyflowChange);
+      
+      // rerender view on data (aka sankey)
+      document.getElementById('refresh-dataview-btn').addEventListener(
+        'click', onKeyflowChange);
+      // rerender view on data-entries
+      document.getElementById('refresh-dataentry-btn').addEventListener(
+        'click', function(){renderDataEntry(caseStudy)});
 
       renderDataEntry(caseStudy);
       renderEditActors(caseStudy);
