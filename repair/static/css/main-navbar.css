@@ -103,19 +103,20 @@
     color: #aad400;
 }
 
-.navbar-top .dropdown .btn{
+.navbar-top select{
     color: #4c5867 !IMPORTANT;
     background-color: white !IMPORTANT;
     border: none;
     font-size: 1em;
-    margin-top : -5px;
+    margin-top : 15px;
+    outline: none;
+    text-align-last: right;
 }
 
-.navbar-top .dropdown .active > a{
+/*.navbar-top select option:checked, .navbar-top select option:hover{
+    color: white;
     background-color: #aad400;
-}
-
-/*.navbar-bottom > li:last-child { padding-left: 22px; }*/
+}*/
 
 .navbar .navbar-collapse {
     position: relative;
