@@ -14,7 +14,7 @@
     </select>
   </div>
   <div class="row">
-    <button id='upload-actors-button' class="btn btn-danger">
+    <button id='upload-actors-button' title="{% trans "upload changes made to actors and their locations" %}" class="btn btn-danger">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
     </button>
   </div>
@@ -112,11 +112,11 @@
     <div class="col-md-12">
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#data-entry-tab" id='data-link' style="padding-right: 39px">{% trans "Data Entry" %}
-          <button title="Refresh Actors" type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px;">
+          <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px;">
             <span class="glyphicon glyphicon-refresh"></span>
           </button></a></li>
         <li><a data-toggle="tab" href="#sankey-tab" style="padding-right: 39px">{% trans "Data View" %}
-          <button title="Refresh Sankey-Diagram" type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px;">
+          <button title="{% trans "Refresh Sankey-Diagram" %}" type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px;">
             <span class="glyphicon glyphicon-refresh"></span>
           </button></a></li>
         <li><a data-toggle="tab" href="#verification">{% trans "Verification" %}</a></li>
@@ -166,7 +166,7 @@
   <div class="col-md-12">
     <div class="row" id='attributes'>
     </div>
-    <button id='upload-flows-button' class="btn btn-danger">
+    <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
     </button>
     <div class="row" style="overflow-x:auto;">
