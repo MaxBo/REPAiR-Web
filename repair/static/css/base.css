@@ -90,16 +90,6 @@ div.fullscreen{
   color: #fff;
   background-color: #333;
 }
-.btn {
-  color: #fff;
-  height: 60px;
-  font-size: 1.6em;
-  width: 100%;
-  white-space: normal;
-  -webkit-appearance: none;
-  border-radius: 10px;
-  margin-bottom: 4px;
-}
 .btn-panel {
   background-color: #5688d8;
   line-height: 50px;

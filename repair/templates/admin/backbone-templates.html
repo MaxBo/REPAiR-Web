@@ -119,11 +119,14 @@
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade in active" id="data-entry-tab">
+          <button type="button" id="refresh-dataentry-btn" class="btn btn-primary" style="margin-left: 20px;">
+            {% trans "Refresh" %}
+          </button>
           <div class="row"><div id="data-entry"></div></div>
         </div>
         <div class="tab-pane fade in" id="sankey-tab">
           <div class="row">
-            <button type="button" id="refresh-view-btn">
+            <button type="button" id="refresh-dataview-btn" class="btn btn-primary" style="margin-left: 20px;">
               {% trans "Refresh" %}
             </button>
           </div>
@@ -143,7 +146,7 @@
 <script type="text/template" id="data-view-template">
   <div class="row">
     <div id="sankey-wrapper">
-      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen"></button>
+      <button id="fullscreen-toggle" class="glyphicon glyphicon-fullscreen btn btn-primary"></button>
       <div id="sankey">
       </div>
     </div>
@@ -154,7 +157,6 @@
 
 <script type="text/template" id="data-entry-template">
   <div class="col-md-3">
-    {% trans "Please choose a node to enter data for" %}
     <div id="data-tree"></div>
   </div>
   <div class="col-md-9">

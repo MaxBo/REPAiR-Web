@@ -31,7 +31,7 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 2em;
+    font-size: 1em;
 }
 
 input.changed, select.changed {
