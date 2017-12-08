@@ -137,46 +137,16 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.post_data = dict(
             name='posttestname',
             user='http://testserver' + reverse('userincasestudy-detail',
-                                               kwargs=dict(pk=cls.uic.user.user.id,
+                                               kwargs=dict(pk=cls.uic.id,
                                                            casestudy_pk=cls.casestudy)))
-        cls.put_data = dict(
-            name='puttestname',
-            user='http://testserver' + reverse('user-detail',
-                                               kwargs=dict(pk=cls.uic.user.user.id)))
-        cls.patch_data = dict(name='patchtestname')
+        cls.put_data = cls.post_data
 
 
     def setUp(self):
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           user__user__user=self.uic.user.user,
-                                           user__casestudy=self.uic.casestudy)
+                                           user=self.uic,
+                                           )
 
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
-
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
-
-    def test_post(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
 
 class UserInCasestudyTest(BasicModelTest, APITestCase):
 
@@ -196,30 +166,13 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ProfileFactory(user=self.uic.user.user).user
+        self.obj = self.uic
 
     def test_post(self):
         """
+        MAX:
         Error: NotNull constraint failed for casestudy_id, although it is
         not needed in api/docs
-        """
-        pass
-
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
-
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
         """
         pass
 
@@ -228,12 +181,13 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     user = 20
+    userincasestudy = 21
     implementation = 30
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.usr_url = cls.baseurl + reverse('userincasestudy-detail',
-                                       kwargs=dict(pk=cls.user,
+                                       kwargs=dict(pk=cls.userincasestudy,
                                                    casestudy_pk=cls.casestudy))
         cls.sol_set = []
         cls.url_key = "implementation"
@@ -249,32 +203,15 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ImplementationFactory(user=self.uic)
+        self.obj = ImplementationFactory(id=self.implementation,
+                                         user=self.uic)
 
-    def test_post(self):
-        """
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
-
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
-
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
+    #def test_post(self):
+        #"""
+        #Error: NotNull constraint failed for casestudy_id, although it is
+        #not needed in api/docs
+        #"""
+        #pass
 
 
 class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
@@ -314,27 +251,13 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         self.obj = SolutionInImplementationFactory(
-            solution__user=self.uic, solution__id=self.solution,
+            solution__user=self.uic,
+            solution__solution_category__user=self.uic,
+            solution__id=self.solution,
             implementation__user=self.uic,
             implementation__id=self.implementation,
             solution__solution_category__id=self.solutioncategory,
             id=self.solution_implementation)
-
-    def test_post(self):
-        """
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
-
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
 
 
 class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
