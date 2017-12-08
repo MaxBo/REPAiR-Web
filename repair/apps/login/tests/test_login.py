@@ -227,6 +227,48 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest
                                            )
 
 
+class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    solutioncategory = 21
+    solution = 36
+    solutionquantity = 28
+    userincasestudy = 67
+    user = 99
+    unit = 75
+    solutionratiooneunit = 84
+    do_not_check = ['value']
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.unit_url = cls.baseurl + reverse('unit-detail',
+                                             kwargs=dict(pk=cls.unit))
+        #cls.solutioncategory_url = cls.baseurl + \
+            #reverse('solutioncategory-detail',
+                    #kwargs=dict(pk=cls.solutioncategory,
+                                #casestudy_pk=cls.casestudy))
+        cls.url_key = "solutionratiooneunit"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           solutioncategory_pk=cls.solutioncategory,
+                           solution_pk=cls.solution)
+        cls.url_pk = dict(pk=cls.solutionratiooneunit)
+        cls.post_data = dict(name='posttestname',
+                             value=345,
+                             unit=cls.unit_url,
+                             )
+        cls.put_data = cls.post_data
+        cls.patch_data = dict(name="test name")
+
+    def setUp(self):
+        self.obj = SolutionRatioOneUnitFactory(id=self.solutionratiooneunit,
+                                               solution__id=self.solution,
+                                               unit__id=self.unit,
+                                               solution__solution_category__id=self.solutioncategory,
+                                               solution__solution_category__user=self.uic,
+                                               solution__user=self.uic,
+                                               )
+
+
 class UserInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17

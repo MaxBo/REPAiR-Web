@@ -26,6 +26,7 @@ class BasicModelTest(object):
     casestudy = None
     userincasestudy = 26
     user = -1
+    do_not_check = []
 
     @classmethod
     def setUpClass(cls):
@@ -61,7 +62,7 @@ class BasicModelTest(object):
         # check if name has changed
         response = self.client.get(url)
         for key in self.put_data:
-            if key not in response.data.keys():
+            if key not in response.data.keys() or key in self.do_not_check:
                 continue
             assert response.data[key] == self.put_data[key]
             #self.assertJSONEqual(response.data[key], self.put_data[key])
@@ -89,6 +90,8 @@ class BasicModelTest(object):
         # post
         response = self.client.post(url, self.post_data)
         for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
             assert response.data[key] == self.post_data[key]
         # get
         new_id = response.data['id']
