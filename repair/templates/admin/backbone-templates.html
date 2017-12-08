@@ -31,7 +31,7 @@
               <th>{% trans "Activity" %}</th>
               <th>{% trans "Website" %}</th>
               <th>{% trans "Year" %}</th>
-              <th>{% trans "Revenue" %}</th>
+              <th>{% trans "Turnover" %}</th>
               <th>{% trans "Employees" %}</th>
               <th>{% trans "BvDid" %}</th>
               <th>{% trans "BvDii" %}</th>
@@ -52,7 +52,7 @@
             <!-- the "pagedisplay" can be any element, including an input -->
             <input type="text" class="pagedisplay"/>
             <img src="{{STATIC_URL}}img/next.png" class="next"/>
-            <img src="{{STATIC_URL}}img/last.png" class="last"/>
+            <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
             <select id="pagesize" class="pagesize">
               <option value="20">20</option>
               <option value="40">40</option>
@@ -67,7 +67,7 @@
     <div class='col-md-3' style="border: 1px solid #e6e6e6;">
       
       <h4 id="actor-name" class="row">{% trans "Please choose an actor by clicking a row." %}</h4>
-      <div id="actors-map" style="min-height: 400px; background-color: #e6e6e6" class="map row"></div>
+      <div id="actors-map" style="min-height: 400px" class="map row"></div>
       <table id="adminloc-table" class="row">
         </br>
         <h4>Administrative Location</h4>
@@ -104,8 +104,8 @@
   <div class="row">
     <h3>{% trans "Flows" %} - <%= casestudy %></h3>
     <select name="flows" id="flows-select">
-      <% materials.each(function(material){ %>
-        <option value="<%= material.id %>"><%= material.get('material').code %></option>
+      <% keyflows.each(function(keyflow){ %>
+        <option value="<%= keyflow.id %>"><%= keyflow.get('name') %></option>
       <% }); %>
     </select>
   </div>
@@ -157,7 +157,7 @@
     {% trans "Please choose a node to enter data for" %}
     <div id="data-tree"></div>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-9">
     <div class="row"><div id="edit-node"></div></div>
   </div>
 </script>
@@ -178,7 +178,8 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Product" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
@@ -191,7 +192,8 @@
           <th>{% trans "Remove Flow" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Product" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
@@ -204,13 +206,21 @@
         <tr>
           <th>{% trans "Remove Stock" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Quality" %}</th>
+          <th>{% trans "Product" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
       <button id='add-stock-button'><span class="glyphicon glyphicon-plus"></span></button>
     </div>
   </div>
+</script>
+
+<script type="text/template" id="popover-product-template">
+  <!--<b><%= productName %></b>-->
+  <% _.each(fractions, function(fraction){ %>
+    <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
+  <% }); %>
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->
@@ -222,8 +232,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Flow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
@@ -241,8 +251,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Keyflow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity Group" %}</td>
@@ -264,8 +274,8 @@
       <td><%= name %></td>
     </tr>
     <tr>
-      <td>{% trans "Material" %}</td>
-      <td><%= material %></td>
+      <td>{% trans "Keyflow" %}</td>
+      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Activity" %}</td>
@@ -284,8 +294,8 @@
       <td><%= employees %></td>
     </tr>
     <tr>
-      <td>{% trans "Revenue" %}</td>
-      <td><%= revenue %></td>
+      <td>{% trans "Turnover" %}</td>
+      <td><%= turnover %></td>
     </tr>
     <tr>
       <td>{% trans "Website" %}</td>

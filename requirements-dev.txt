@@ -1,6 +1,6 @@
 -e .
 
-django
+django==1.11.5
 django-require
 djangorestframework
 djangorestframework-gis

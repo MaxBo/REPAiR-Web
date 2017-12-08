@@ -11,14 +11,17 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Actor2Actor,
                                       Activity2Activity,
                                       Group2Group,
-                                      Material,
+                                      Keyflow,
                                       Quality,
-                                      MaterialInCasestudy,
+                                      KeyflowInCasestudy,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      Product,
+                                      ProductFraction,
+                                      Material, 
                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -30,36 +33,36 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            CasestudyField)
 
 
-class MaterialSerializer(NestedHyperlinkedModelSerializer):
+class KeyflowSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     casestudies = serializers.HyperlinkedRelatedField(
         queryset=CaseStudy.objects,
         many=True,
         view_name='casestudy-detail',
-        help_text=_('Select the Casestudies the material is used in')
+        help_text=_('Select the Casestudies the Keyflow is used in')
     )
 
     class Meta:
-        model = Material
+        model = Keyflow
         fields = ('url', 'id', 'code', 'name', 'casestudies')
 
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
-        material = instance
+        keyflow = instance
 
         # handle groups
         new_casestudies = validated_data.pop('casestudies', None)
         if new_casestudies is not None:
-            ThroughModel = Material.casestudies.through
+            ThroughModel = Keyflow.casestudies.through
             casestudy_qs = ThroughModel.objects.filter(
-                material=material.id)
+                keyflow=keyflow.id)
             # delete existing groups
             casestudy_qs.exclude(
                 casestudy__id__in=(cs.id for cs in new_casestudies)).delete()
             # add or update new groups
             for cs in new_casestudies:
-                ThroughModel.objects.update_or_create(material=material,
+                ThroughModel.objects.update_or_create(keyflow=keyflow,
                                                       casestudy=cs)
 
         # update other attributes
@@ -69,12 +72,12 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer):
         return instance
 
     def create(self, validated_data):
-        """Create a new material"""
+        """Create a new Keyflow"""
         code = validated_data.pop('code')
 
-        material = Material.objects.create(code=code)
-        self.update(instance=material, validated_data=validated_data)
-        return material
+        keyflow = Keyflow.objects.create(code=code)
+        self.update(instance=keyflow, validated_data=validated_data)
+        return keyflow
 
 
 class QualitySerializer(NestedHyperlinkedModelSerializer):
@@ -84,60 +87,57 @@ class QualitySerializer(NestedHyperlinkedModelSerializer):
         model = Quality
         fields = ('url', 'id', 'name')
 
-
-class InMaterialField(InCasestudyField):
+class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
-        'material__casestudy__id',
-        'material_pk': 'material__id',}
+        'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',}
     extra_lookup_kwargs = {}
-    filter_field = 'material_pk'
+    filter_field = 'keyflow_pk'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url_pks_lookup['material_pk'] = \
-            self.parent_lookup_kwargs['material_pk']
+        self.url_pks_lookup['keyflow_pk'] = \
+            self.parent_lookup_kwargs['keyflow_pk']
 
 
-class InMaterialSetField(IdentityFieldMixin, InMaterialField, ):
+class InKeyflowSetField(IdentityFieldMixin, InKeyflowField, ):
     """Field that returns a list of all items in the casestudy"""
-    lookup_url_kwarg = 'material_pk'
+    lookup_url_kwarg = 'keyflow_pk'
     parent_lookup_kwargs = {
-        'casestudy_pk':
-        'casestudy__id',
-        'material_pk': 'id',}
+        'casestudy_pk': 'casestudy__id',
+        'keyflow_pk': 'id',}
 
 
-class MaterialField(NestedHyperlinkedRelatedField):
+class KeyflowField(NestedHyperlinkedRelatedField):
     parent_lookup_kwargs = {'pk': 'id'}
-    queryset = Material.objects
+    queryset = Keyflow.objects
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
         return False
 
 
-class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
+class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(view_name='material-detail')
-    #material = MaterialSerializer(read_only=True)
-    groupstock_set = InMaterialSetField(view_name='groupstock-list')
-    group2group_set = InMaterialSetField(view_name='group2group-list')
-    activitystock_set = InMaterialSetField(view_name='activitystock-list')
-    activity2activity_set = InMaterialSetField(view_name='activity2activity-list')
-    actorstock_set = InMaterialSetField(view_name='actorstock-list')
-    actor2actor_set = InMaterialSetField(view_name='actor2actor-list')
+    keyflow = KeyflowField(view_name='keyflow-detail')
+    groupstock_set = InKeyflowSetField(view_name='groupstock-list')
+    group2group_set = InKeyflowSetField(view_name='group2group-list')
+    activitystock_set = InKeyflowSetField(view_name='activitystock-list')
+    activity2activity_set = InKeyflowSetField(view_name='activity2activity-list')
+    actorstock_set = InKeyflowSetField(view_name='actorstock-list')
+    actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
-    code = serializers.CharField(source='material.code',
+    code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
-    name = serializers.CharField(source='material.name',
+    name = serializers.CharField(source='keyflow.name',
                                  allow_blank=True, required=False)
 
     class Meta:
-        model = MaterialInCasestudy
+        model = KeyflowInCasestudy
         fields = ('url',
                   'id',
-                  'material',
+                  'keyflow',
                   'note',
                   'groupstock_set',
                   'group2group_set',
@@ -146,23 +146,24 @@ class MaterialInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actorstock_set',
                   'actor2actor_set',
                   'code',
+                  'note', 
                   'name')
 
 
-class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
+class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    material = MaterialField(view_name='material-detail')
+    keyflow = KeyflowField(view_name='keyflow-detail')
     #casestudy = CasestudyField(view_name='casestudy-detail')
 
     class Meta:
-        model = MaterialInCasestudy
-        fields = ('material',
+        model = KeyflowInCasestudy
+        fields = ('keyflow',
                   'note',
                   )
 
     def create(self, validated_data):
-        """Create a new material in casestudy"""
+        """Create a new keyflow in casestury"""
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
         casestudy = CaseStudy.objects.get(id=casestudy_pk)
@@ -173,39 +174,38 @@ class MaterialInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
         return obj
 
 
-class MaterialInCasestudyDetailCreateMixin:
+class KeyflowInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
-        material_pk = url_pks['material_pk']
+        keyflow_pk = url_pks['keyflow_pk']
         # ToDo: raise some kind of exception or prevent creating object with
-        # wrong material/casestudy combination somewhere else (view.update?)
+        # wrong keyflow/casestudy combination somewhere else (view.update?)
         # atm the server will just hang up here
-        mic = MaterialInCasestudy.objects.get(id=material_pk,
-                                              casestudy_id=casestudy_pk)
+        mic = KeyflowInCasestudy.objects.get(id=keyflow_pk)
+        validated_data['keyflow'] = mic
 
         obj = self.Meta.model.objects.create(
-            material=mic,
             **validated_data)
         return obj
 
 
 class ActivitySetField(InCasestudyField):
     lookup_url_kwarg = 'activitygroup_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
                             'activitygroup_pk': 'activitygroup__id', }
 
 
 class ActivityListField(IdentityFieldMixin, ActivitySetField):
     """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk': 'keyflow__casestudy__id',
                             'activitygroup_pk': 'id', }
 
 
 class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
                               NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    parent_lookup_kwargs = {'casestudy_pk': 'keyflow__casestudy__id'}
     activity_list = ActivityListField(
         source='activity_set',
         view_name='activity-list')
@@ -222,19 +222,19 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
 
 
 class ActivityGroupField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    parent_lookup_kwargs = {'casestudy_pk': 'keyflow__casestudy__id'}
 
 
 class ActorSetField(InCasestudyField):
     lookup_url_kwarg = 'activity_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'activity__activitygroup__casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
                             'activitygroup_pk': 'activity__activitygroup__id',
                             'activity_pk': 'activity__id',}
 
 
 class ActorListField(IdentityFieldMixin, ActorSetField):
     """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
                             'activitygroup_pk': 'activitygroup__id',
                             'activity_pk': 'id',}
 
@@ -242,7 +242,7 @@ class ActorListField(IdentityFieldMixin, ActorSetField):
 class ActivitySerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'activitygroup__casestudy__id',
+        'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
         'activitygroup_pk': 'activitygroup__id',
     }
     activitygroup = IDRelatedField()
@@ -262,11 +262,11 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
 
 
 class AllActivitySerializer(ActivitySerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id'}
+    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__keyflow__casestudy__id'}
 
 
 class ActivityField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__casestudy__id',
+    parent_lookup_kwargs = {'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
                             'activitygroup_pk': 'activitygroup__id',}
 
 
@@ -283,7 +283,7 @@ class GeolocationInCasestudyListField(IdentityFieldMixin,
                                       GeolocationInCasestudySetField):
     """"""
     parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__casestudy__id'}
+                            'activity__activitygroup__keyflow__casestudy__id'}
 
 
 class GeolocationInCasestudySet2Field(InCasestudyField):
@@ -295,7 +295,7 @@ class GeolocationInCasestudy2ListField(IdentityFieldMixin,
                                        GeolocationInCasestudySet2Field):
     """"""
     parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__casestudy__id',
+                            'activity__activitygroup__keyflow__casestudy__id',
                             'actor_pk': 'id',}
 
 
@@ -304,8 +304,8 @@ class AdminLocationGeojsonField(GeoFeatureModelSerializer):
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
-        fields = ['id', 'street', 'building', 'postcode', 'country',
-                  'city', 'note', 'actor']
+        fields = ['id', 'address', 'postcode', 'country',
+                  'city', 'name', 'actor']
 
 
 class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
@@ -315,14 +315,14 @@ class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
     class Meta:
         model = OperationalLocation
         geo_field = 'geom'
-        fields = ['id', 'street', 'building', 'postcode', 'country',
-                  'city', 'note', 'actor', 'employees', 'turnover']
+        fields = ['id', 'address', 'postcode', 'country',
+                  'city', 'name', 'actor']
 
 
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'activity__activitygroup__casestudy__id',
+        'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
         'activitygroup_pk': 'activity__activitygroup__id',
         'activity_pk': 'activity__id',
     }
@@ -344,7 +344,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = Actor
-        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
                   'administrative_location_geojson',
@@ -365,6 +365,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
             # look if actor has already an administrative location
             aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
             for attr, value in administrative_location.items():
+                if attr == 'actor':
+                    continue
                 setattr(aloc, attr, value)
             aloc.save()
             #obj.administrativelocation = aloc
@@ -386,6 +388,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
 
                 for attr, value in operational_location.items():
+                    if attr == 'actor':
+                        continue
                     setattr(oloc, attr, value)
                 oloc.save()
 
@@ -398,12 +402,12 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
 class AllActorSerializer(ActorSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__casestudy__id'}
+                            'activity__activitygroup__keyflow__casestudy__id'}
 
 
 class AllActorListSerializer(AllActorSerializer):
     class Meta(AllActorSerializer.Meta):
-        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'revenue',
+        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',)
 
@@ -414,32 +418,31 @@ class LocationField(InCasestudyField):
 
 class Actor2Field(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__casestudy__id'}
+                            'activity__activitygroup__keyflow__casestudy__id'}
 
 
-class MaterialInCasestudyField(InCasestudyField):
+class KeyflowInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
                             }
 
 
-class StockSerializer(MaterialInCasestudyDetailCreateMixin,
-                      NestedHyperlinkedModelSerializer):
-    material = MaterialInCasestudyField(view_name='materialincasestudy-detail',
+class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
+                           NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                         read_only=True)
     parent_lookup_kwargs = {
-        'casestudy_pk': 'material__casestudy__id',
-        'material_pk': 'material__id',
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
     }
     class Meta:
         model = Stock
-        fields = ('url', 'id', 'origin', 'amount', 'quality',
-                  'material',
+        fields = ('url', 'id', 'origin', 'amount',
+                  'keyflow',
                   )
 
 
 class GroupStockSerializer(StockSerializer):
     origin = IDRelatedField()
-    quality = IDRelatedField()
     #origin_url = ActivityGroupField(view_name='activitygroup-detail')
 
     class Meta(StockSerializer.Meta):
@@ -448,7 +451,6 @@ class GroupStockSerializer(StockSerializer):
 
 class ActivityStockSerializer(StockSerializer):
     origin = IDRelatedField()
-    quality = IDRelatedField()
     #origin_url = ActivityField(view_name='activity-detail')
     class Meta(StockSerializer.Meta):
         model = ActivityStock
@@ -456,35 +458,34 @@ class ActivityStockSerializer(StockSerializer):
 
 class ActorField(InCasestudyField):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'activity__activitygroup__casestudy__id',
+        'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
         'activitygroup_pk': 'activity__activitygroup__id',
         'activity_pk': 'activity__id',}
 
 
 class ActorStockSerializer(StockSerializer):
     origin = IDRelatedField()
-    quality = IDRelatedField()
     #origin_url = ActorField(view_name='actor-detail')
     class Meta(StockSerializer.Meta):
         model = ActorStock
 
 
-class FlowSerializer(MaterialInCasestudyDetailCreateMixin,
+class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
                      NestedHyperlinkedModelSerializer):
     """Abstract Base Class for a Flow Serializer"""
     parent_lookup_kwargs = {
-        'casestudy_pk': 'material__casestudy__id',
-        'material_pk': 'material__id',
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
     }
-    material = MaterialInCasestudyField(view_name='materialincasestudy-detail',
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                         read_only=True)
 
     class Meta:
         model = Flow
         fields = ('url', 'id',
-                  'material',
-                  'amount', 'quality', 'origin',
-                  'destination')
+                  'keyflow',
+                  'amount', 'origin',
+                  'destination', 'product', 'description')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -492,16 +493,17 @@ class Group2GroupSerializer(FlowSerializer):
     origin_url = ActivityGroupField(view_name='activitygroup-detail',
                                     source='origin',
                                     read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActivityGroupField(view_name='activitygroup-detail',
                                          source='destination',
                                          read_only=True)
-    quality = IDRelatedField()
+    #quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Group2Group
-        fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
-                  'destination', 'destination_url')
+        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
+                  'destination', 'destination_url', 'product', 'description')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -509,16 +511,17 @@ class Activity2ActivitySerializer(FlowSerializer):
     origin_url = ActivityField(view_name='activity-detail',
                                 source='origin',
                                 read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActivityField(view_name='activity-detail',
                                     source='destination',
                                     read_only=True)
-    quality = IDRelatedField()
+    #quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
-        fields = ('id', 'amount', 'quality', 'material', 'origin', 'origin_url',
-                  'destination', 'destination_url')
+        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
+                  'destination', 'destination_url', 'product', 'description')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -526,22 +529,23 @@ class Actor2ActorSerializer(FlowSerializer):
     origin_url = ActorField(view_name='actor-detail',
                             source='origin',
                             read_only=True)
+    product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActorField(view_name='actor-detail',
                                  source='destination',
                                  read_only=True)
-    quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
-        fields = ('id', 'amount', 'quality', 'material',
+        fields = ('id', 'amount', 'keyflow',
                   'origin', 'origin_url',
-                  'destination', 'destination_url')
+                  'destination', 'destination_url', 'product', 'description')
 
 
 class AllActorField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__casestudy__id'}
+                            'activity__activitygroup__keyflow__casestudy__id'}
+
 
 class ActorIDField(serializers.RelatedField):
     """"""
@@ -552,18 +556,20 @@ class ActorIDField(serializers.RelatedField):
 class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__casestudy__id'}
+                            'actor__activity__activitygroup__keyflow__casestudy__id'}
     actor = ActorIDField(read_only=True)
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
-        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
-                  'city', 'geom', 'note', 'actor']
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name',
+                  'actor',
+                  ]
 
 
 class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__casestudy__id',
+                            'actor__activity__activitygroup__keyflow__casestudy__id',
                             'actor_pk': 'actor__id',}
 
     def create(self, validated_data):
@@ -581,22 +587,31 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
         return aloc
 
 
+class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorSerializer):
+    class Meta:
+        model = AdministrativeLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name',
+                  ]
+
+
 class OperationalLocationSerializer(GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__casestudy__id'}
+                            'actor__activity__activitygroup__keyflow__casestudy__id'}
     actor = ActorIDField(read_only=True)
 
     class Meta:
         model = OperationalLocation
         geo_field = 'geom'
-        fields = ['id', 'url', 'street', 'building', 'postcode', 'country',
-                  'city', 'geom', 'note', 'actor', 'employees', 'turnover']
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name', 'actor']
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__casestudy__id',
+                            'actor__activity__activitygroup__keyflow__casestudy__id',
                             'actor_pk': 'actor__id',}
     id = serializers.IntegerField(label='ID', required=False)
 
@@ -648,3 +663,85 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
 
             return {'features': internal_data_list}
         return super().to_internal_value(data)
+
+
+class ProductFractionSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ProductFraction
+        fields = ('id',
+                  'product',
+                  'material',
+                  'fraction')
+        read_only_fields = ['id', 'product']
+        
+        
+class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
+                        NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+    fractions = ProductFractionSerializer(many=True)
+    
+    class Meta:
+        model = Product
+        fields = ('url', 'id', 'name', 'default',
+                  'keyflow',
+                  'fractions', 
+                  )
+        
+    def create(self, validated_data):
+        fractions = validated_data.pop('fractions')
+        obj = super().create(validated_data)
+        validated_data['fractions'] = fractions
+        self.update(obj, validated_data)
+        return obj
+    
+    def update(self, obj, validated_data):
+        """update the user-attributes, including fraction information"""
+        product = obj
+
+        # handle product fractions
+        new_fractions = validated_data.pop('fractions', None)
+
+        if new_fractions is not None:
+            product_fractions = ProductFraction.objects.filter(product=product)
+            # delete existing rows not needed any more
+            to_delete = product_fractions.exclude(
+                material__id__in=(getattr(fraction.get('material'), 'id') for fraction
+                        in new_fractions
+                        if getattr(fraction.get('material'), 'id') is not None))
+            to_delete.delete()
+            # add or update new fractions
+            for new_fraction in new_fractions:
+                material_id = getattr(new_fraction.get('material'), 'id')
+                material = Material.objects.get(id=material_id)
+                #fraction = ProductFraction.objects.get(product=product,
+                                                       #material__id=material_id)
+                fraction = ProductFraction.objects.update_or_create(
+                    product=product,
+                    material=material)[0]
+
+
+                for attr, value in new_fraction.items():
+                    if attr in ('product', 'material'):
+                        continue
+                    setattr(fraction, attr, value)
+                fraction.save()
+
+        # update other attributes
+        for attr, value in validated_data.items():
+            setattr(obj, attr, value)
+        obj.save()
+        return obj
+
+
+class MaterialSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
+    
+    class Meta:
+        model = Material
+        fields = ('url', 'id', 'name', 'code', 'flowType')

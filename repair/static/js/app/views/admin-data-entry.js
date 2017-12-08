@@ -1,8 +1,8 @@
-define(['jquery', 'backbone',
+define(['backbone',
         'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
-        'app/collections/qualities', 'treeview', 'app/loader'],
-function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
+        'app/collections/products', 'treeview', 'app/loader'],
+function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
 
   /**
    *
@@ -34,8 +34,8 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       // collections of nodes associated to the casestudy
       this.activityGroups = options.activityGroups;
       this.activities = options.activities;
+      this.materials = options.materials;
       this.actors = new Actors({caseStudyId: caseStudyId});
-      this.qualities = new Qualities();
 
       this.render();
     },
@@ -52,7 +52,7 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       // after fetching their data, show loader-symbol while fetching
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      $.when(this.qualities.fetch(), this.actors.fetch({data: 'included=True'})).then(function() {
+      $.when(this.actors.fetch({data: 'included=True'})).then(function() {
         _this.renderDataTree();
         loader.remove();
       });
@@ -135,18 +135,33 @@ function($, Backbone, EditNodeView, Activities, Actors, Qualities, treeview){
       if (this.editNodeView != null){
         this.editNodeView.close();
       };
-      // currently selected material
-      var materialSelect = document.getElementById('flows-select');
-      this.editNodeView = new EditNodeView({
-        el: document.getElementById('edit-node'),
-        template: 'edit-node-template',
-        model: model,
-        materialId: materialSelect.value,
-        materialName: materialSelect.options[materialSelect.selectedIndex].text,
-        caseStudyId: this.model.id,
-        qualities: this.qualities,
-        onUpload: this.renderDataEntry // rerender after upload
-      });
+      var _this = this;
+      
+      var keyflowSelect = document.getElementById('flows-select');
+      function renderNode(){
+        // currently selected keyflow
+        _this.editNodeView = new EditNodeView({
+          el: document.getElementById('edit-node'),
+          template: 'edit-node-template',
+          model: model,
+          materials: _this.materials,
+          products: _this.products,
+          keyflowId: _this.keyflowId,
+          keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
+          caseStudyId: _this.model.id,
+          onUpload: _this.renderDataEntry // rerender after upload
+        });
+      }
+      
+      // keyflow changed -> change products
+      if (this.keyflowId != keyflowSelect.value){
+        this.keyflowId = keyflowSelect.value;
+        this.products = new Products({caseStudyId: this.model.id, 
+                                      keyflowId: this.keyflowId});
+        this.products.fetch({success: renderNode})
+      }
+      else
+        renderNode();
     },
 
     /*

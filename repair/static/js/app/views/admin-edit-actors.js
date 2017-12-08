@@ -1,8 +1,8 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/collections/geolocations', 
+define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
         'app/models/geolocation', 'app/visualizations/map', 
         'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor, Locations, Geolocation, Map){
+function(Backbone, Actor, Locations, Geolocation, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -13,7 +13,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.materialId = options.materialId;
+      this.keyflowId = options.keyflowId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
@@ -37,7 +37,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
         
-      this.projection = 'EPSG:4326';
+      this.projection = 'EPSG:4326'; 
         
       $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
              this.collection.fetch()).then(function() {
@@ -72,7 +72,13 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
 
       //// render inFlows
       this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-  
+      
+      this.setupTable();
+      this.initMap();
+    },
+    
+    setupTable: function(){
+    
       // ToDo: modularize this 
       $.tablesorter.addParser({
           id: 'inputs',
@@ -125,16 +131,18 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
           8: {sorter: 'inputs'},
           9: {sorter: 'inputs'}
         },
-        widgets: ['zebra']
-      }).tablesorterPager({container: $("#pager")});
+        //widgets: ['zebra']
+      })
+      
+      // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
+      if ($(this.table).find('tr').length > 1)
+        $(this.table).tablesorterPager({container: $("#pager")});
       
       // workaround for a bug in tablesorter-pager by triggering
       // event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
-      
-      this.initMap();
     },
 
     changeFilter: function(event){
@@ -153,7 +161,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-
+      //var row = document.createElement("TR");
       // checkbox for marking deletion
 
       var checkbox = document.createElement("input");
@@ -210,7 +218,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
 
       addInput('website');
       addInput('year', 'number');
-      addInput('revenue', 'number');
+      addInput('turnover', 'number');
       addInput('employees', 'number');
       addInput('BvDid');
       addInput('BvDii');
@@ -229,7 +237,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
           _this.renderMarkers(actor);
         }
       });
-
+      return row;
     },
 
     // add row when button is clicked
@@ -241,7 +249,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
         "name": "",
         "consCode": "",
         "year": 0,
-        "revenue": 0,
+        "turnover": 0,
         "employees": 0,
         "BvDii": "",
         "website": "",
@@ -249,8 +257,11 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
         "caseStudyId": this.model.id
       });
       this.collection.add(actor);
-      this.addActorRow(actor);
-
+      var row = this.addActorRow(actor);
+      // let tablesorter know, that there is a new row
+      $('table').trigger('addRows', [$(row)]);
+      // workaround for going to last page by emulating click
+      document.getElementById('goto-last-page').click();
     },
 
     uploadChanges: function(){
@@ -343,6 +354,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       /* add table rows */
       
       var row = table.insertRow(-1);
+      var _this = this;
       // add a crosshair icon to center on coordinate on click
       var centerDiv = document.createElement('div');
       //centerDiv.className = "fa fa-crosshairs";
@@ -354,7 +366,7 @@ function($, Backbone, Actor, Locations, Geolocation, Map){
       var coords = loc.get('geometry').get('coordinates');
       cell.appendChild(centerDiv);
       cell.addEventListener('click', function(){ 
-        this.map.center(coords, {projection: this.projection})
+        _this.map.center(coords, {projection: _this.projection})
       });
       cell.style.cursor = 'pointer';
       var coordCell = row.insertCell(-1);
