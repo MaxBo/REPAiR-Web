@@ -7,7 +7,7 @@ define(["backbone", "app/models/activitygroup", "app-config"],
         return config.api.activitygroups.format(this.caseStudyId);
       },
       
-      initialize: function (options) {
+      initialize: function (models, options) {
         this.caseStudyId = options.caseStudyId;
       },
       model: ActivityGroup

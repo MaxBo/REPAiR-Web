@@ -1,8 +1,11 @@
 define(['backbone',
         'app/views/admin-edit-node',
         'app/collections/activities', 'app/collections/actors',
-        'app/collections/products', 'treeview', 'app/loader'],
-function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
+        'app/collections/products', 'app/collections/flows', 
+        'app/collections/stocks', 'app/collections/activitygroups', 
+        'app/visualizations/sankey', 'treeview', 'app/loader'],
+function(Backbone, EditNodeView, Activities, Actors, Products, Flows, 
+         Stocks, ActivityGroups, Sankey, treeview){
 
   /**
    *
@@ -15,7 +18,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
    * @see     tabs for data-entry (incl. a tree with available nodes to edit),
    *          sankey-diagram visualising the data and verification of nodes
    */
-  var DataEntryView = Backbone.View.extend({
+  var FlowsView = Backbone.View.extend({
     // the id of the script containing the template for this view
 
     /*
@@ -27,36 +30,129 @@ function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
       _.bindAll(this, 'renderDataEntry');
       var _this = this;
       this.template = options.template;
+      this.keyflowId = this.model.id;
       this.selectedModel = null;
 
-      var caseStudyId = this.model.id;
+      this.caseStudyId = this.model.get('casestudy');
+      this.materials = options.materials;
 
       // collections of nodes associated to the casestudy
-      this.activityGroups = options.activityGroups;
-      this.activities = options.activities;
-      this.materials = options.materials;
-      this.actors = new Actors({caseStudyId: caseStudyId});
+      this.groupToGroup = new Flows([], {caseStudyId: this.caseStudyId,
+                                         keyflowId: this.keyflowId});
 
-      this.render();
+      this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId});
+      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+      this.products = new Products({caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+      this.actors = new Actors({caseStudyId: this.caseStudyId});
+      this.activities = new Activities({caseStudyId: this.caseStudyId});
+
+      var loader = new Loader(document.getElementById('flows-edit'),
+                              {disable: true});
+
+      $.when(this.actors.fetch({data: 'included=True'}, this.products.fetch(), 
+             this.stocks.fetch(), this.activityGroups.fetch(), this.activities.fetch(),
+             )).then(function(){
+        _this.render();
+        loader.remove();
+      });
+    },
+    
+    events: {
+      'click #fullscreen-toggle': 'toggleFullscreen',
+      'click #refresh-dataview-btn': 'renderSankey'
     },
 
     /*
      * render the view
      */
     render: function(){
+      console.log(this.activityGroups)
+      if (this.activityGroups.length == 0)
+        return;
       var _this = this;
       var template = document.getElementById(this.template);
       this.el.innerHTML = template.innerHTML;
+      this.renderDataTree();
+      this.renderSankey();
+    },
+    
+    
+    toggleFullscreen: function(){
+      document.getElementById('sankey-wrapper').classList.toggle('fullscreen');
+      this.renderSankey();
+    },
 
-      // render the tree conatining all nodes
-      // after fetching their data, show loader-symbol while fetching
-      var loader = new Loader(document.getElementById('flows-edit'),
-                              {disable: true});
-      $.when(this.actors.fetch({data: 'included=True'})).then(function() {
-        _this.renderDataTree();
+    /*
+      * render a sankey diagram
+      */
+    renderSankey: function(){
+      var el = document.getElementById('sankey-wrapper');
+      var loader = new Loader(el, {disable: true});
+      var _this = this;
+      
+      function render(){
+        
         loader.remove();
-      });
+        _this.sankeyData = _this.transformData(_this.activityGroups,
+                                               _this.groupToGroup, _this.stocks)
+        var width = el.clientWidth;
+        // this.el (#data-view) may be hidden at the moment this view is called
+        // (is close to body width then, at least wider as the wrapper of the content),
+        // in this case take width of first tab instead, because this one is always shown first
+        if (width >= document.getElementById('page-content-wrapper').clientWidth)
+          width = document.getElementById('data-entry-tab').clientWidth;
+        var height = el.classList.contains('fullscreen') ?
+                     el.clientHeight: width / 3;
+        var sankey = new Sankey({
+          height: height,
+          width: width,
+          divid: '#sankey',
+          title: ''
+        })
+        sankey.render(_this.sankeyData);
+      };
+      this.groupToGroup.fetch({success: render})
+    },
 
+    transformData: function(models, modelLinks, stocks){
+      var products = this.products;
+      var nodes = [];
+      var nodeIdxDict = {}
+      var i = 0;
+      models.each(function(model){
+        var id = model.id;
+        var name = model.get('name');
+        nodes.push({id: id, name: name});
+        nodeIdxDict[id] = i;
+        i += 1;
+      });
+      var links = [];
+      modelLinks.each(function(modelLink){
+        var value = modelLink.get('amount');
+        var source = nodeIdxDict[modelLink.get('origin')];
+        var target = nodeIdxDict[modelLink.get('destination')];
+        var product = products.get(modelLink.get('product'))
+        var productName = (product != null) ? product.get('name') : 'undefined';
+        links.push({
+          value: modelLink.get('amount'),
+          source: source,
+          target: target,
+          text: productName
+        });
+      })
+      stocks.each(function(stock){
+        var id = 'stock-' + stock.id;
+        nodes.push({id: id, name: 'Stock'});
+        var source = nodeIdxDict[stock.get('origin')];
+        links.push({
+          value: stock.get('amount'),
+          source: source,
+          target: i
+        });
+        i += 1;
+      });
+      var transformed = {nodes: nodes, links: links};
+      return transformed;
     },
 
     /*
@@ -148,7 +244,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
           products: _this.products,
           keyflowId: _this.keyflowId,
           keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
-          caseStudyId: _this.model.id,
+          caseStudyId: _this.caseStudyId,
           onUpload: _this.renderDataEntry // rerender after upload
         });
       }
@@ -174,5 +270,5 @@ function(Backbone, EditNodeView, Activities, Actors, Products, treeview){
     },
 
   });
-  return DataEntryView;
+  return FlowsView;
 });

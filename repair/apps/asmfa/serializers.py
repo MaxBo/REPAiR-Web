@@ -120,6 +120,7 @@ class KeyflowField(NestedHyperlinkedRelatedField):
 class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
+    casestudy = IDRelatedField()
     keyflow = KeyflowField(view_name='keyflow-detail')
     groupstock_set = InKeyflowSetField(view_name='groupstock-list')
     group2group_set = InKeyflowSetField(view_name='group2group-list')
@@ -138,6 +139,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'keyflow',
+                  'casestudy', 
                   'note',
                   'groupstock_set',
                   'group2group_set',

@@ -1,8 +1,9 @@
 define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
-        'app/models/geolocation', 'app/visualizations/map', 
+        'app/models/geolocation', 'app/collections/activities', 
+        'app/visualizations/map', 
         'tablesorter-pager', 'app/loader'],
 
-function(Backbone, Actor, Locations, Geolocation, Map){
+function(Backbone, Actor, Locations, Geolocation, Activities, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -14,7 +15,8 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       
       this.template = options.template;
       this.keyflowId = options.keyflowId;
-      this.activities = options.activities;
+      
+      this.activities = new Activities({caseStudyId: this.model.id});
       this.showAll = true;
       this.onUpload = options.onUpload;
       
