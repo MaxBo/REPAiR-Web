@@ -20,18 +20,35 @@
 }
 
 #upload-flows-button, #upload-actors-button{
-    float: right;
+    
+/*    float: right;
     width: auto;
     margin-top: 10px;
     background-color: #aad400;
-    border-width: 0px;
+    border-width: 0px;*/
+}
+
+.nav-tabs li button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 1px 5px 1px 5px;
+    border: none;
+    background-color: #aad400;
+    display: none;
+    border-radius: 20px;
+    border: none;
+}
+
+.nav-tabs li.active button {
+    display: block;
 }
 
 #fullscreen-toggle{
     position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 2em;
+    font-size: 1em;
 }
 
 input.changed, select.changed {
@@ -80,4 +97,10 @@ tr.selected td{
 }
 .ol-rotate {
   top: 3em;
+}
+
+td button {
+    padding: 0px 5px 0px 5px;
+    margin-left: 3px;
+    margin-right: 3px;
 }

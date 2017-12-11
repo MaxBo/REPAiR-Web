@@ -139,6 +139,8 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       amount.addEventListener('change', function() {
         flow.set('amount', amount.value);
       });
+      
+      // origin respectively destination (skipped at stocks)
 
       if (!skipTarget){
         // select input for target (origin resp. destination of flow)
@@ -165,6 +167,11 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         });
       };
       
+      var productWrapper = document.createElement("span");
+      // prevent breaking 
+      productWrapper.setAttribute("style", "white-space: nowrap");
+      row.insertCell(-1).appendChild(productWrapper); 
+      
       // input for product
       var productSelect = document.createElement("select");
       var ids = [];
@@ -178,8 +185,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       var idx = ids.indexOf(p);
       productSelect.selectedIndex = idx.toString();
-      cell = row.insertCell(-1); 
-      cell.appendChild(productSelect);
+      productWrapper.appendChild(productSelect);
 
       productSelect.addEventListener('change', function() {
         flow.set('product', productSelect.value);
@@ -194,7 +200,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       info.classList.add('glyphicon');
       info.classList.add('glyphicon-info-sign');
       info.title = 'Composition';
-      cell.appendChild(info);
+      productWrapper.appendChild(info);
       
       var popOverSettings = {
           placement: 'right',
@@ -213,9 +219,24 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
           }
       }
       $(info).popover(popOverSettings);
+      //var addProductButton = document.createElement('button');
+      //var glyph = document.createElement('span')
+      //glyph.classList.add('glyphicon');
+      //glyph.classList.add('glyphicon-plus');
+      //productWrapper.appendChild(addProductButton);
+      //addProductButton.appendChild(glyph);
       
+      // raw checkbox
+      var rawCheckbox = document.createElement("input");
+      rawCheckbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(rawCheckbox);
 
-      // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
+      rawCheckbox.addEventListener('change', function() {
+        flow.set('raw', rawCheckbox.checked);
+      });
+      
+      // description field
+      
       var description = document.createElement("textarea");
       description.rows = "1";
       description.value = flow.get('description');
@@ -227,6 +248,11 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
 
       // general datasource
+      
+      var sourceWrapper = document.createElement("span");
+      row.insertCell(-1).appendChild(sourceWrapper);
+      // prevent breaking 
+      sourceWrapper.setAttribute("style", "white-space: nowrap");
       var options = ['dummy-source', 'another dummy-source']
       var datasource = document.createElement("select");
       _.each(options, function(opt){
@@ -235,8 +261,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         option.value = opt;
         datasource.add(option);
       });
-      cell = row.insertCell(-1);
-      cell.appendChild(datasource);
+      sourceWrapper.appendChild(datasource);
       var collapse = document.createElement('div');
       collapse.style.cursor = 'pointer';
       var dsRow = table.insertRow(-1);
@@ -252,7 +277,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         collapse.classList.toggle('glyphicon-chevron-down');
         collapse.classList.toggle('glyphicon-chevron-up');
       });
-      cell.appendChild(collapse);
+      sourceWrapper.appendChild(collapse);
       
       // own row for individual Datasources
       

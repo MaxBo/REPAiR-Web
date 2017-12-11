@@ -3,11 +3,11 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
            'app/views/admin-data-view', 'app/views/admin-edit-actors', 
            'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
            'app/collections/activitygroups', 'app/collections/keyflows',
-           'app/collections/stocks', 'app/collections/materials', 
-           'app-config', 'app/loader'],
+           'app/collections/stocks', 'app/collections/materials',
+           'app/collections/products', 'app-config', 'app/loader'],
   function (CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
             Activities, Actors, ActivityGroups, Keyflows, Stocks, Materials,
-            appConfig) {
+            Products, appConfig) {
 
     var caseStudyId,
         caseStudy,
@@ -27,12 +27,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         dataView.close();
 
       var stocks = new Stocks([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      var products = new Products({caseStudyId: caseStudyId, keyflowId: keyflowId});
       dataView = new DataView({
         el: document.getElementById('data-view'),
         template: 'data-view-template',
         collection: groupToGroup,
         activityGroups: activityGroups,
-        stocks: stocks
+        stocks: stocks,
+        products: products
       });
     };
 
@@ -77,7 +79,6 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
                                 keyflows: keyflows});
 
       var keyflowSelect = document.getElementById('flows-select');
-      var refreshButton = document.getElementById('refresh-view-btn');
       var onKeyflowChange = function(rerenderEntry){
         var keyflowId = keyflowSelect.options[keyflowSelect.selectedIndex].value;
         renderDataView(keyflowId, caseStudyId);
@@ -86,7 +87,13 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
           dataEntryView.renderDataEntry();
       }
       keyflowSelect.addEventListener('change', function(){onKeyflowChange(true)});
-      refreshButton.addEventListener('click', onKeyflowChange);
+      
+      // rerender view on data (aka sankey)
+      document.getElementById('refresh-dataview-btn').addEventListener(
+        'click', onKeyflowChange);
+      // rerender view on data-entries
+      document.getElementById('refresh-dataentry-btn').addEventListener(
+        'click', function(){renderDataEntry(caseStudy)});
 
       renderDataEntry(caseStudy);
       renderEditActors(caseStudy);

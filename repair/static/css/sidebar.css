@@ -25,7 +25,7 @@
     z-index: 10;
 }
 
-#sidebar-wrapper:hover {
+#sidebar-wrapper:hover, #sidebar-wrapper.active{
     background #999;
     left: 0px;
 }
