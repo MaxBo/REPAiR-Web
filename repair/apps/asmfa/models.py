@@ -39,22 +39,9 @@ class KeyflowInCasestudy(models.Model):
     casestudy = models.ForeignKey(CaseStudy)
     note = models.TextField(default='', blank=True)
 
-
-# class Material(GDSEModel):
-    # now called Keyflow, not to confuse with the other Material class
-
-    # code = models.TextField(unique=True, default='')
-    # name = models.TextField()
-    # casestudies = models.ManyToManyField(CaseStudy,
-    #                                      through='MaterialInCasestudy')
-
-
-# class MaterialInCasestudy(models.Model):
-    # now called KeyflowInCasestudy
-
-    # material = models.ForeignKey(Material)
-    # casestudy = models.ForeignKey(CaseStudy)
-    # note = models.TextField(default='', blank=True)
+    def __str__(self):
+        return 'KeyflowInCasestudy {pk}: {k} in {c}'.format(
+            pk=self.pk, k=self.keyflow, c=self.casestudy)
 
 
 class Product(GDSEModel):
@@ -204,11 +191,13 @@ class Geolocation(gis.Model):
 
 class Establishment(Geolocation):
 
-    # actor = models.OneToOneField(Actor, default=get_default(Actor))
-
     @property
     def casestudy(self):
         return self.actor.activity.activitygroup.keyflow.casestudy
+
+    @property
+    def keyflow(self):
+        return self.actor.activity.activitygroup.keyflow
 
     class Meta:
         abstract = True
@@ -218,14 +207,12 @@ class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
                                  null=True,
-                                 #default=get_default(Actor),
                                  related_name='administrative_location')
 
 
 class OperationalLocation(Establishment):
     """Operational Location of Actor"""
     actor = models.ForeignKey(Actor,
-                              #default=get_default(Actor),
                               related_name='operational_locations')
 
 
