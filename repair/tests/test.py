@@ -24,6 +24,7 @@ class BasicModelTest(object):
     put_data = dict()
     patch_data = dict()
     casestudy = None
+    keyflow = None
     user = -1
 
     @classmethod
@@ -32,6 +33,8 @@ class BasicModelTest(object):
         cls.uic = UserInCasestudyFactory(user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
+        cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
+                                            casestudy=cls.uic.casestudy)
 
     @classmethod
     def tearDownClass(cls):
@@ -60,7 +63,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         for key in self.put_data:
             assert response.data[key] == self.put_data[key]
-            #self.assertJSONEqual(response.data[key], self.put_data[key])            
+            #self.assertJSONEqual(response.data[key], self.put_data[key])
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
