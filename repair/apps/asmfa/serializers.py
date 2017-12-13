@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import URLValidator
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer)
 
 from repair.apps.login.models import CaseStudy
@@ -354,6 +355,25 @@ class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
         fields = ['id', 'address', 'postcode', 'country',
                   'city', 'name', 'actor']
 
+class URLWithoutProtocolValidator(URLValidator):
+    def __call__(self, value):
+        if len(value.split('://')) < 2:
+            value = 'http://{}'.format(value)
+        return super().__call__(value)
+
+
+class URLFieldWithoutProtocol(serializers.URLField):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # remove URL-Validator
+        url_validator = URLValidator(message=self.error_messages['invalid'])
+        url_validator = self.validators.remove(url_validator)
+        # add new validator
+        validator = URLWithoutProtocolValidator(
+            message=self.error_messages['invalid'])
+        self.validators.append(validator)
+
+
 
 class ActorSerializer(CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
@@ -378,6 +398,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         many=True,
         required=False,
     )
+    website = URLFieldWithoutProtocol()
 
     class Meta:
         model = Actor

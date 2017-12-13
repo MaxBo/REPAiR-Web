@@ -1102,3 +1102,30 @@ class TestLocationsOfActor(APITestCase):
         geom = response.data['geometry']
         self.assertJSONEqual(str(geom), new_geom.geojson)
         assert response.data['properties']['address'] == new_streetname
+
+
+class TestActor(APITestCase):
+    def test_actor_website(self):
+        """Test updating a website for an actor"""
+        # create actor and casestudy
+        actor = ActorFactory()
+        keyflow = actor.activity.activitygroup.keyflow
+
+        # define the urls
+        url_actor = reverse('actor-detail',
+                            kwargs={'casestudy_pk': keyflow.casestudy_id,
+                                    'keyflow_pk': keyflow.pk,
+                                    'pk': actor.pk,})
+
+        data_to_test = [
+            {'website' : 'website.without.http.de'},
+            {'website' : 'https://website.without.http.de'},
+        ]
+
+        for data in data_to_test:
+            response = self.client.patch(url_actor, data)
+            assert response.status_code == status.HTTP_200_OK
+
+        data = {'website' : 'website.without.http+.de'}
+        response = self.client.patch(url_actor, data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
