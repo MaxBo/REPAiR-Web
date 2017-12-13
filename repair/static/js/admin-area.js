@@ -1,10 +1,10 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
   require(['app/models/casestudy', 'app/views/admin-flows',
-           'app/views/admin-actors', 
+           'app/views/admin-actors', 'app/views/admin-products', 
            'app/collections/flows', 'app/collections/actors',
            'app/collections/keyflows', 'app/collections/materials',
            'app-config', 'app/loader'],
-  function (CaseStudy, FlowsView, EditActorsView, Flows, 
+  function (CaseStudy, FlowsView, EditActorsView, EditProductsView, Flows, 
             Actors, Keyflows, Materials,
             appConfig) {
 
@@ -14,7 +14,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         materials;
 
     var flowsView,
-        editActorsView;
+        editActorsView,
+        editProductsView;
 
     function renderFlows(keyflow){
       if (flowsView != null)
@@ -42,6 +43,22 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         onUpload: function(){renderEditActors(keyflow)}
       });
     };
+    
+    function renderEditProducts(keyflow){
+      if (editProductsView != null)
+        editProductsView.close();
+
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      editProductsView = new EditProductsView({
+        el: document.getElementById('products-edit'),
+        template: 'products-edit-template',
+        model: keyflow,
+        caseStudy: caseStudy,
+        materials: materials, 
+        onUpload: function(){renderEditProducts(keyflow)}
+      });
+    };
 
     function render(caseStudy){
 
@@ -52,6 +69,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         document.getElementById('keyflow-warning').style.display = 'none';
         renderFlows(keyflow);
         renderEditActors(keyflow);
+        renderEditProducts(keyflow);
       });
       document.getElementById('keyflow-select').disabled = false;
     }

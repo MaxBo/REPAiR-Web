@@ -24,12 +24,14 @@
       <div class="tab-content">
         <div class="tab-pane fade in active" id="data-entry-tab">
           <div class="row">  
-            <div class="col-md-3" style="padding-bottom: 15px;">
-              {% trans "Activity Groups / Activities / Actors"%}
+            {% trans "Activity Groups / Activities / Actors"%}
+          </div>
+          <div class="row">  
+            <div class="col-md-3">
               <div id="data-tree"></div>
             </div>
             <div class="col-md-9">
-              <div id="edit-node" style="margin-top: -15px;"></div>
+              <div id="edit-node"></div>
             </div>
           </div>
         </div>
@@ -51,7 +53,7 @@
 
 <!-- template for view on editing a node -->
 <script type="text/template" id="edit-node-template">
-  <div class="col-md-12">
+  <div class="col-md-12" style="border: solid 1px #ddd">
     <div class="row" id='attributes'>
     </div>
     <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger">
@@ -294,6 +296,7 @@
 <!-- Products -->
 
 <script type="text/template" id="products-edit-template">
+  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Products" %}</h3>
   <div class="row">
     <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
@@ -307,34 +310,13 @@
           <thead>
             <tr>
               <th>{% trans "Name" %}</th>
-              <th>{% trans "Default" %}</th>
               <th>{% trans "Fractions" %}</th>
+              <th>{% trans "Default" %}</th>
             </tr>
           </thead> 
           <tbody> 
           </tbody> 
         </table>
-      </div>
-      <div class="row">
-        <button id='add-product-button'  title="{% trans "add new product" %}"><span class="glyphicon glyphicon-plus"></span></button>
-        <!-- pager -->
-        <div id="products-pager" class="pager">
-          <form>
-            <img src="{{STATIC_URL}}img/first.png" class="first"/>
-            <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-            <!-- the "pagedisplay" can be any element, including an input -->
-            <input type="text" class="pagedisplay"/>
-            <img src="{{STATIC_URL}}img/next.png" class="next"/>
-            <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
-            <select id="pagesize" class="pagesize">
-              <option value="20">20</option>
-              <option value="40">40</option>
-              <option value="60">60</option>
-              <option value="100">100</option>
-              <option value="1000">1000</option>
-            </select>
-          </form>
-        </div>
       </div>
     </div>
   </div>

@@ -7,6 +7,12 @@ body {
   color: #000;
 }
 
+.row{
+    margin-left:0px;
+    margin-right:0px;
+    padding: 4px;
+}
+
 h1, h2, h3, h4 {
   font-family: 'Lato', sans-serif;
 }
@@ -137,7 +143,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 
-tr:nth-child(even){background-color: #f2f2f2}
+/*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
   background-color:  #aad400;
@@ -227,3 +233,11 @@ td.tablesorter-pager {
   cursor: default;
 }
 
+.sub-table {
+  margin: 0px 0px 0px 0px;
+  width: auto;
+}
+
+.sub-table td{
+  background: none !important;
+}

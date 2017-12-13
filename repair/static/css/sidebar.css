@@ -1,9 +1,3 @@
-.row{
-    margin-left:0px;
-    margin-right:0px;
-    padding: 4px;
-}
-
 #wrapper {
     padding-left: 60px;
     transition: all .4s ease 0s;
@@ -52,7 +46,7 @@
 
 /* this one is for icons out of li-elements */
 #sidebar > div > .sub-icon{
-    color: #ccff66;
+    color: #aad400;
     margin-right: 15px;
 }
 
