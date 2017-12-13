@@ -362,17 +362,15 @@ class URLWithoutProtocolValidator(URLValidator):
         return super().__call__(value)
 
 
-class URLFieldWithoutProtocol(serializers.URLField):
+class URLFieldWithoutProtocol(serializers.CharField):
+    default_error_messages = {'invalid': _('Enter a valid URL.')}
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # remove URL-Validator
-        url_validator = URLValidator(message=self.error_messages['invalid'])
-        url_validator = self.validators.remove(url_validator)
         # add new validator
         validator = URLWithoutProtocolValidator(
             message=self.error_messages['invalid'])
         self.validators.append(validator)
-
 
 
 class ActorSerializer(CreateWithUserInCasestudyMixin,
