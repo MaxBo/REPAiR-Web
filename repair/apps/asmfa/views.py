@@ -20,7 +20,7 @@ from repair.apps.asmfa.models import (
     OperationalLocation,
     AdministrativeLocation,
     Product,
-    Material, 
+    Material,
 )
 
 from repair.apps.asmfa.serializers import (
@@ -43,11 +43,11 @@ from repair.apps.asmfa.serializers import (
     AdministrativeLocationSerializer,
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
-    AdministrativeLocationOfActorPostSerializer, 
+    AdministrativeLocationOfActorPostSerializer,
     OperationalLocationsOfActorSerializer,
     AllActorListSerializer,
     ProductSerializer,
-    MaterialSerializer, 
+    MaterialSerializer,
 )
 
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
@@ -88,7 +88,8 @@ class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
     """
     queryset = KeyflowInCasestudy.objects.all()
     serializer_class = KeyflowInCasestudySerializer
-    serializers = {'create': KeyflowInCasestudyPostSerializer}
+    serializers = {'create': KeyflowInCasestudyPostSerializer,
+                   'update': KeyflowInCasestudyPostSerializer,}
 
 
 class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
@@ -158,8 +159,8 @@ class OperationalLocationsOfActorViewSet(ViewSetMixin, ModelViewSet):
 class ProductViewSet(ViewSetMixin, ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
-    
+
+
 class MaterialViewSet(ViewSetMixin, ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
