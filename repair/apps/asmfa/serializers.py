@@ -159,7 +159,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'keyflow',
-                  'casestudy', 
+                  'casestudy',
                   'note',
                   'groupstock_set',
                   'group2group_set',
@@ -190,16 +190,24 @@ class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
                   'note',
                   )
 
-    def create(self, validated_data):
-        """Create a new keyflow in casestury"""
+    def get_casestudy(self):
         url_pks = self.context['request'].session['url_pks']
         casestudy_pk = url_pks['casestudy_pk']
         casestudy = CaseStudy.objects.get(id=casestudy_pk)
+        return casestudy
 
+    def create(self, validated_data):
+        """Create a new keyflow in casestury"""
+        casestudy = self.get_casestudy()
         obj = self.Meta.model.objects.create(
             casestudy=casestudy,
             **validated_data)
         return obj
+
+    def update(self, obj, validated_data):
+        casestudy = self.get_casestudy()
+        validated_data['casestudy'] = casestudy
+        return super().update(obj, validated_data)
 
 
 class KeyflowInCasestudyDetailCreateMixin:
@@ -398,7 +406,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         many=True,
         required=False,
     )
-    website = URLFieldWithoutProtocol()
+    website = URLFieldWithoutProtocol(required=False)
 
     class Meta:
         model = Actor
