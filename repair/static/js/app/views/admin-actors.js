@@ -20,6 +20,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.activities = new Activities([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
       this.actors = new Actors([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
       this.showAll = true;
+      this.caseStudy = options.caseStudy;
+      this.caseStudyId = this.model.get('casestudy');
       this.onUpload = options.onUpload;
       
       this.pins = {
@@ -66,7 +68,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.model.get('name')});
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+                                    keyflow: this.model.get('name')});
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');

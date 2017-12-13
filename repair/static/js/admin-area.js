@@ -20,10 +20,11 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       if (flowsView != null)
         flowsView.close();
       flowsView = new FlowsView({
-        el: document.getElementById('flows-content'),
+        el: document.getElementById('flows-edit'),
         template: 'flows-edit-template',
         model: keyflow,
-        materials: materials
+        materials: materials, 
+        caseStudy: caseStudy
       });
     };
     
@@ -34,56 +35,33 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       // create casestudy-object and render view on it (data will be fetched in view)
 
       editActorsView = new EditActorsView({
-        el: document.getElementById('actors-content'),
+        el: document.getElementById('actors-edit'),
         template: 'actors-edit-template',
         model: keyflow,
+        caseStudy: caseStudy,
         onUpload: function(){renderEditActors(keyflow)}
       });
     };
 
     function render(caseStudy){
-      var caseStudyId = caseStudy.id;
-      var flowInner = _.template(document.getElementById('flows-template').innerHTML);
-      var el = document.getElementById('flows-edit');
-      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
-                                keyflows: keyflows});
 
-      var keyflowSelect = document.getElementById('flows-select');
+      var keyflowSelect = document.getElementById('keyflow-select');
+      document.getElementById('keyflow-warning').style.display = 'block';
       keyflowSelect.addEventListener('change', function(){
         var keyflow = keyflows.get(keyflowSelect.value);
+        document.getElementById('keyflow-warning').style.display = 'none';
         renderFlows(keyflow);
-      });
-      
-      var flowInner = _.template(document.getElementById('actors-template').innerHTML);
-      var el = document.getElementById('actors-edit');
-      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
-                                keyflows: keyflows});
-      var actorsKeyflowSelect = document.getElementById('actors-flows-select');
-      actorsKeyflowSelect.addEventListener('change', function(){
-        var keyflow = keyflows.get(actorsKeyflowSelect.value);
         renderEditActors(keyflow);
       });
-      
-      //// rerender view on data (aka sankey)
-      //document.getElementById('refresh-dataview-btn').addEventListener(
-        //'click', onKeyflowChange);
-      //// rerender view on data-entries
-      //document.getElementById('refresh-dataentry-btn').addEventListener(
-        //'click', function(){renderDataEntry(caseStudy)});
-
-
-      if (keyflows.length > 0){
-        renderFlows(keyflows.first());
-        renderEditActors(keyflows.first());
-      }
-      
+      document.getElementById('keyflow-select').disabled = false;
     }
 
     var session = appConfig.getSession(
       function(session){
         var caseStudyId = session['casestudy'];
         if (caseStudyId == null){
-          document.getElementById('warning').style.display = 'block';
+          document.getElementById('casestudy-warning').style.display = 'block';
+          document.getElementById('keyflow-warning').style.display = 'none';
           return;
         }
         caseStudy = new CaseStudy({id: caseStudyId});

@@ -50,7 +50,21 @@
     text-indent: 20px;
 }
 
-#sidebar li a {
+/* this one is for icons out of li-elements */
+#sidebar > div > .sub-icon{
+    color: #ccff66;
+    margin-right: 15px;
+}
+
+#sidebar li a{
+    color: #999;
+    display: block;
+    border: 2px solid #fff;
+    /*border-radius: 10px;*/
+    margin-top: 20px;
+}
+
+#sidebar li a{
     color: #999;
     display: block;
     border: 2px solid #fff;
@@ -76,6 +90,18 @@
     float: right;
     padding: 50px 5px 30px 0px;
     font-size: 1.5em;
+}
+
+#sidebar label{
+    /*float: right;*/
+    color: black;
+}
+
+#sidebar select{
+    /*float: right;
+    width: 100%;*/
+    color: black;
+    margin-bottom: 30px;
 }
 
 .sub-icon

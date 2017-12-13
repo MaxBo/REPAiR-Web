@@ -71,7 +71,7 @@ input.changed, select.changed {
     position: relative !IMPORTANT;
 }
 
-#warning {
+#casestudy-warning, #keyflow-warning {
     display: none;
 }
 

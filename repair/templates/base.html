@@ -132,24 +132,7 @@
     </div>
   </div>
   <script>
-    $("a").one( "click", function(){$(document).resize()});//document.resize()
-    <!--var sidebar = document.getElementById('sidebar-wrapper');-->
-    <!--sidebar.addEventListener('click', function(){-->
-      <!--sidebar.classList.toggle('active');-->
-    <!--})-->
-    $("#sidebar-wrapper").swipe({
-    swipeStatus:function(event, phase, direction, distance, duration, fingers)
-        {
-            if (phase=="move" && direction =="right") {
-                 $(".container").addClass("open-sidebar");
-                 return false;
-            }
-            if (phase=="move" && direction =="left") {
-                 $(".container").removeClass("open-sidebar");
-                 return false;
-            }
-        }
-    });
+    
   </script>
 </body>
 </html>

@@ -32,6 +32,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       this.template = options.template;
       this.keyflowId = this.model.id;
       this.selectedModel = null;
+      this.caseStudy = options.caseStudy;
 
       this.caseStudyId = this.model.get('casestudy');
       this.materials = options.materials;
@@ -69,8 +70,10 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       if (this.activityGroups.length == 0)
         return;
       var _this = this;
-      var template = document.getElementById(this.template);
-      this.el.innerHTML = template.innerHTML;
+      var html = document.getElementById(this.template).innerHTML
+      var template = _.template(html);
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+                                    keyflow: this.model.get('name')});
       this.renderDataTree();
       this.renderSankey();
     },
@@ -232,7 +235,6 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       };
       var _this = this;
       
-      var keyflowSelect = document.getElementById('flows-select');
       function renderNode(){
         // currently selected keyflow
         _this.editNodeView = new EditNodeView({
@@ -242,21 +244,12 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
           materials: _this.materials,
           products: _this.products,
           keyflowId: _this.keyflowId,
-          keyflowName: keyflowSelect.options[keyflowSelect.selectedIndex].text,
+          keyflowName: _this.model.get('name'),
           caseStudyId: _this.caseStudyId,
           onUpload: _this.renderDataEntry // rerender after upload
         });
       }
-      
-      // keyflow changed -> change products
-      if (this.keyflowId != keyflowSelect.value){
-        this.keyflowId = keyflowSelect.value;
-        this.products = new Products([], {caseStudyId: this.model.id, 
-                                      keyflowId: this.keyflowId});
-        this.products.fetch({success: renderNode})
-      }
-      else
-        renderNode();
+      renderNode();
     },
 
     /*
