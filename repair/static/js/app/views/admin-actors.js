@@ -1,9 +1,9 @@
 define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
         'app/models/geolocation', 'app/collections/activities', 
-        'app/visualizations/map', 
+        'app/collections/actors', 'app/visualizations/map', 
         'tablesorter-pager', 'app/loader'],
 
-function(Backbone, Actor, Locations, Geolocation, Activities, Map){
+function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -14,9 +14,11 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
       _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.keyflowId = options.keyflowId;
+      var keyflowId = this.model.id,
+          caseStudyId = this.model.get('casestudy');
       
-      this.activities = new Activities({caseStudyId: this.model.id});
+      this.activities = new Activities([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      this.actors = new Actors([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
       this.showAll = true;
       this.onUpload = options.onUpload;
       
@@ -28,12 +30,12 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
 
       var _this = this;
       
-      this.adminLocations = new Locations({
-        caseStudyId: this.model.id, type: 'administrative'
+      this.adminLocations = new Locations([], {
+        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'administrative'
       })
       
-      this.opLocations = new Locations({
-        caseStudyId: this.model.id, type: 'operational'
+      this.opLocations = new Locations([], {
+        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'operational'
       })
 
       var loader = new Loader(document.getElementById('actors-edit'),
@@ -42,7 +44,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
       this.projection = 'EPSG:4326'; 
         
       $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
-             this.collection.fetch()).then(function() {
+             this.actors.fetch()).then(function() {
           loader.remove();
           _this.render();
       });
@@ -73,7 +75,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
       this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
       //// render inFlows
-      this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+      this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
       
       this.setupTable();
       this.initMap();
@@ -244,7 +246,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({
+      var actor = new Actor({}, {
         "BvDid": "",
         "name": "",
         "consCode": "",
@@ -254,9 +256,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
         "BvDii": "",
         "website": "",
         "activity": null,
-        "caseStudyId": this.model.id
+        "caseStudyId": this.model.get('casestudy')
       });
-      this.collection.add(actor);
+      this.actors.add(actor);
       var row = this.addActorRow(actor);
       // let tablesorter know, that there is a new row
       $('table').trigger('addRows', [$(row)]);
@@ -271,11 +273,12 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
       var modelsToSave = [];
 
       var update = function(model){
-        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
-          console.log(model)//modelsToSave.push(model);
+        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0){
+          modelsToSave.push(model);
+        }
       };
-      //this.collection.each(update);
-      this.adminLocations.each(update);
+      this.actors.each(update);
+      //this.adminLocations.each(update);
 
       // chain save and destroy operations
       var saveComplete = _.invoke(modelsToSave, 'save');
@@ -286,7 +289,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
         alert(response.responseText); 
         loader.remove();
       };
-
       $.when.apply($, saveComplete).done(function(){
         loader.remove();
         console.log('upload complete');
@@ -333,13 +335,13 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Map){
       this.map.addContextMenu(items)
     },
     
-    addLocation: function(coord, collection, pin, table){
+    addLocation: function(coord, actors, pin, table){
       var properties = {actor: this.activeActorId}
-      var loc = new collection.model({caseStudyId: this.model.id,
-                                      type: collection.type,
+      var loc = new actors.model({}, {caseStudyId: this.model.get('casestudy'),
+                                      type: actors.type,
                                       properties: properties})
       loc.setGeometry(coord);
-      collection.add(loc);
+      actors.add(loc);
       this.addMarker(loc, pin, table);
     },
     

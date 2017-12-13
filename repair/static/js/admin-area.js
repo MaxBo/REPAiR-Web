@@ -27,18 +27,17 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       });
     };
     
-    function renderEditActors(caseStudy){
+    function renderEditActors(keyflow){
       if (editActorsView != null)
         editActorsView.close();
 
       // create casestudy-object and render view on it (data will be fetched in view)
 
       editActorsView = new EditActorsView({
-        el: document.getElementById('actors-edit'),
+        el: document.getElementById('actors-content'),
         template: 'actors-edit-template',
-        model: caseStudy,
-        collection: new Actors({caseStudyId: caseStudy.id}),
-        onUpload: function(){renderEditActors(caseStudy)}
+        model: keyflow,
+        onUpload: function(){renderEditActors(keyflow)}
       });
     };
 
@@ -50,10 +49,19 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
                                 keyflows: keyflows});
 
       var keyflowSelect = document.getElementById('flows-select');
-      
       keyflowSelect.addEventListener('change', function(){
         var keyflow = keyflows.get(keyflowSelect.value);
         renderFlows(keyflow);
+      });
+      
+      var flowInner = _.template(document.getElementById('actors-template').innerHTML);
+      var el = document.getElementById('actors-edit');
+      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
+                                keyflows: keyflows});
+      var actorsKeyflowSelect = document.getElementById('actors-flows-select');
+      actorsKeyflowSelect.addEventListener('change', function(){
+        var keyflow = keyflows.get(actorsKeyflowSelect.value);
+        renderEditActors(keyflow);
       });
       
       //// rerender view on data (aka sankey)
@@ -66,8 +74,8 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
 
       if (keyflows.length > 0){
         renderFlows(keyflows.first());
+        renderEditActors(keyflows.first());
       }
-      renderEditActors(caseStudy);
       
     }
 
@@ -80,7 +88,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         }
         caseStudy = new CaseStudy({id: caseStudyId});
         materials = new Materials();
-        keyflows = new Keyflows({caseStudyId: caseStudyId});
+        keyflows = new Keyflows([], {caseStudyId: caseStudyId});
         var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
         $.when(caseStudy.fetch(), materials.fetch(), 

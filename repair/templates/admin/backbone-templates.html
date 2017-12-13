@@ -10,13 +10,15 @@
 <script type="text/template" id="flows-template">
   <div class="row">
     <h3>{% trans "Flows" %} - <%= casestudy %></h3>
+    {% trans "Flowtype" %}
     <select name="flows" id="flows-select">
       <% keyflows.each(function(keyflow){ %>
         <option value="<%= keyflow.id %>"><%= keyflow.get('name') %></option>
       <% }); %>
     </select>
   </div>
-  <div id='flows-content'></div>
+  </br>
+  <div class="row" id='flows-content'></div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
@@ -209,18 +211,34 @@
 
 <!-- Actors -->
 
-<script type="text/template" id="actors-edit-template">
+<script type="text/template" id="actors-template">
   <div class="row">
     <h3>{% trans "Actors" %} - <%= casestudy %></h3>
-    <select name="included-filter" id="included-filter-select">
-      <option value="0">{% trans "show all" %}</option>
-      <option value="1">{% trans "show included only" %}</option>
+    {% trans "Flowtype" %}
+    <select name="flows" id="actors-flows-select">
+      <% keyflows.each(function(keyflow){ %>
+        <option value="<%= keyflow.id %>"><%= keyflow.get('name') %></option>
+      <% }); %>
     </select>
   </div>
+  </br>
+  <div class="row" id='actors-content'></div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+</script>
+
+<script type="text/template" id="actors-edit-template">
   <div class="row">
     <button id='upload-actors-button' title="{% trans "upload changes made to actors and their locations" %}" class="btn btn-danger">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
     </button>
+  </div>
+  </br>
+  <div class="row">
+    {% trans "Filter table" %}
+    <select name="included-filter" id="included-filter-select">
+      <option value="0">{% trans "show all" %}</option>
+      <option value="1">{% trans "show included only" %}</option>
+    </select>
   </div>
   <div class="row">
     <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">

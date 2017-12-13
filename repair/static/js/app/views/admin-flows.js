@@ -40,11 +40,11 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       this.groupToGroup = new Flows([], {caseStudyId: this.caseStudyId,
                                          keyflowId: this.keyflowId});
 
-      this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId});
+      this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.stocks = new Stocks([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.products = new Products({caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.actors = new Actors({caseStudyId: this.caseStudyId});
-      this.activities = new Activities({caseStudyId: this.caseStudyId});
+      this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+      this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+      this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
@@ -66,7 +66,6 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
      * render the view
      */
     render: function(){
-      console.log(this.activityGroups)
       if (this.activityGroups.length == 0)
         return;
       var _this = this;
@@ -252,7 +251,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       // keyflow changed -> change products
       if (this.keyflowId != keyflowSelect.value){
         this.keyflowId = keyflowSelect.value;
-        this.products = new Products({caseStudyId: this.model.id, 
+        this.products = new Products([], {caseStudyId: this.model.id, 
                                       keyflowId: this.keyflowId});
         this.products.fetch({success: renderNode})
       }
