@@ -105,7 +105,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
                 "solution_categories",
                 "stakeholder_categories",
                 "implementations",
-                "materials",
+                "keyflows",
                 "activitygroups",
                 "activities",
                 "actors",
@@ -137,46 +137,137 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.post_data = dict(
             name='posttestname',
             user='http://testserver' + reverse('userincasestudy-detail',
-                                               kwargs=dict(pk=cls.uic.user.user.id,
+                                               kwargs=dict(pk=cls.uic.id,
                                                            casestudy_pk=cls.casestudy)))
-        cls.put_data = dict(
-            name='puttestname',
-            user='http://testserver' + reverse('user-detail',
-                                               kwargs=dict(pk=cls.uic.user.user.id)))
-        cls.patch_data = dict(name='patchtestname')
+        cls.put_data = cls.post_data
 
 
     def setUp(self):
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           user__user__user=self.uic.user.user,
-                                           user__casestudy=self.uic.casestudy)
+                                           user=self.uic,
+                                           )
 
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
 
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
+class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
 
-    def test_post(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
+    casestudy = 17
+    solutioncategory = 21
+    solution = 36
+    userincasestudy = 67
+    user = 99
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        #cls.cs_url = cls.baseurl + reverse('casestudy-detail',
+                                       #kwargs=dict(pk=cls.casestudy))
+        cls.solutioncategory_url = cls.baseurl + \
+            reverse('solutioncategory-detail',
+                    kwargs=dict(pk=cls.solutioncategory,
+                                casestudy_pk=cls.casestudy))
+        cls.url_key = "solution"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           solutioncategory_pk=cls.solutioncategory)
+        cls.url_pk = dict(pk=cls.solution)
+        cls.post_data = dict(name='posttestname',
+                             user='http://testserver' + \
+                             reverse('userincasestudy-detail',
+                                     kwargs=dict(pk=cls.uic.id,
+                                                 casestudy_pk=cls.casestudy)),
+                             description="This is a description",
+                             one_unit_equals='20',
+                             solution_category=cls.solutioncategory_url,
+                             )
+        cls.put_data = cls.post_data
+        cls.patch_data = dict(name="test name")
+
+    def setUp(self):
+        self.obj = SolutionFactory(id=self.solution,
+                                   solution_category__id=self.solutioncategory,
+                                   solution_category__user=self.uic,
+                                   user=self.uic,
+                                   )
+
+
+class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    solutioncategory = 21
+    solution = 36
+    solutionquantity = 28
+    userincasestudy = 67
+    user = 99
+    unit = 75
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.unit_url = cls.baseurl + reverse('unit-detail',
+                                             kwargs=dict(pk=cls.unit))
+        #cls.solutioncategory_url = cls.baseurl + \
+            #reverse('solutioncategory-detail',
+                    #kwargs=dict(pk=cls.solutioncategory,
+                                #casestudy_pk=cls.casestudy))
+        cls.url_key = "solutionquantity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           solutioncategory_pk=cls.solutioncategory,
+                           solution_pk=cls.solution)
+        cls.url_pk = dict(pk=cls.solutionquantity)
+        cls.post_data = dict(name='posttestname',
+                             unit=cls.unit_url,
+                             )
+        cls.put_data = cls.post_data
+        cls.patch_data = dict(name="test name")
+
+    def setUp(self):
+        self.obj = SolutionQuantityFactory(id=self.solutionquantity,
+                                           solution__id=self.solution,
+                                           unit__id=self.unit,
+                                           solution__solution_category__id=self.solutioncategory,
+                                           solution__solution_category__user=self.uic,
+                                           solution__user=self.uic,
+                                           )
+
+
+class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    solutioncategory = 21
+    solution = 36
+    solutionquantity = 28
+    userincasestudy = 67
+    user = 99
+    unit = 75
+    solutionratiooneunit = 84
+    do_not_check = ['value']
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.unit_url = cls.baseurl + reverse('unit-detail',
+                                             kwargs=dict(pk=cls.unit))
+        #cls.solutioncategory_url = cls.baseurl + \
+            #reverse('solutioncategory-detail',
+                    #kwargs=dict(pk=cls.solutioncategory,
+                                #casestudy_pk=cls.casestudy))
+        cls.url_key = "solutionratiooneunit"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           solutioncategory_pk=cls.solutioncategory,
+                           solution_pk=cls.solution)
+        cls.url_pk = dict(pk=cls.solutionratiooneunit)
+        cls.post_data = dict(name='posttestname',
+                             value=345,
+                             unit=cls.unit_url,
+                             )
+        cls.put_data = cls.post_data
+        cls.patch_data = dict(name="test name")
+
+    def setUp(self):
+        self.obj = SolutionRatioOneUnitFactory(id=self.solutionratiooneunit,
+                                               solution__id=self.solution,
+                                               unit__id=self.unit,
+                                               solution__solution_category__id=self.solutioncategory,
+                                               solution__solution_category__user=self.uic,
+                                               solution__user=self.uic,
+                                               )
+
 
 class UserInCasestudyTest(BasicModelTest, APITestCase):
 
@@ -196,30 +287,13 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ProfileFactory(user=self.uic.user.user).user
+        self.obj = self.uic
 
     def test_post(self):
         """
+        MAX:
         Error: NotNull constraint failed for casestudy_id, although it is
         not needed in api/docs
-        """
-        pass
-
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
-
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
         """
         pass
 
@@ -228,12 +302,14 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     user = 20
+    userincasestudy = 21
     implementation = 30
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.usr_url = cls.baseurl + reverse('userincasestudy-detail',
-                                       kwargs=dict(pk=cls.user, casestudy_pk=cls.casestudy))
+                                       kwargs=dict(pk=cls.userincasestudy,
+                                                   casestudy_pk=cls.casestudy))
         cls.sol_set = []
         cls.url_key = "implementation"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
@@ -248,29 +324,176 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
-        self.obj = ImplementationFactory(user=self.uic)
+        self.obj = ImplementationFactory(id=self.implementation,
+                                         user=self.uic)
 
-    def test_post(self):
-        """
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
+    #def test_post(self):
+        #"""
+        #Error: NotNull constraint failed for casestudy_id, although it is
+        #not needed in api/docs
+        #"""
+        #pass
 
-    def test_detail(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
 
-    def test_delete(self):
-        """
-        Not Sure what to do:
-        UserInCasestudyFactory is called, but url with user_pk and casestudy_pk
-        id not found. self.uic.casestudy.id and self.uic.user.user.id exist and
-        are right
-        """
-        pass
+class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
+
+    casestudy = 17
+    user = 20
+    implementation = 30
+    solution = 20
+    solutioncategory = 56
+    solution_implementation = 40
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.solution_url = cls.baseurl + \
+            reverse('solution-detail',
+                    kwargs=dict(casestudy_pk=cls.casestudy,
+                                solutioncategory_pk=cls.solutioncategory,
+                                pk=cls.solution))
+        cls.implementation_url = cls.baseurl + \
+            reverse('implementation-detail',
+                    kwargs=dict(casestudy_pk=cls.casestudy,
+                                pk=cls.implementation))
+        cls.post_urls = [cls.solution_url, cls.implementation_url]
+        cls.sol_set = []
+        cls.url_key = "solutioninimplementation"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           implementation_pk=cls.implementation)
+        cls.url_pk = dict(pk=cls.solution)
+        cls.post_data = dict(solution=cls.solution_url,
+                             implementation=cls.implementation_url)
+        cls.put_data = dict(solution=cls.solution_url,
+                             implementation=cls.implementation_url)
+        cls.patch_data = dict(solution=cls.solution_url,
+                             implementation=cls.implementation_url)
+
+
+    def setUp(self):
+        self.obj = SolutionInImplementationFactory(
+            solution__user=self.uic,
+            solution__solution_category__user=self.uic,
+            solution__id=self.solution,
+            implementation__user=self.uic,
+            implementation__id=self.implementation,
+            solution__solution_category__id=self.solutioncategory,
+            id=self.solution_implementation)
+
+
+class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
+                                                        APITestCase):
+
+    casestudy = 17
+    user = 20
+    implementation = 30
+    solution = 20
+    solutioncategory = 56
+    solution_implementation = 40
+    geometry = 25
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.sol_set = []
+        cls.url_key = "solutioninimplementationgeometry"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           implementation_pk=cls.implementation,
+                           solution_pk=cls.solution_implementation)
+        cls.url_pk = dict(pk=cls.geometry)
+        cls.post_data = dict(name="test name",
+                             geom="test geom")
+        cls.put_data = dict(name="test name",
+                             geom="test geom")
+        cls.patch_data = dict(name="test name",
+                             geom="test geom")
+
+
+    def setUp(self):
+        self.obj = SolutionInImplementationGeometryFactory(
+            sii__solution__user=self.uic, sii__solution__id=self.solution,
+            sii__implementation__user=self.uic,
+            sii__implementation__id=self.implementation,
+            sii__solution__solution_category__id=self.solutioncategory,
+            sii__id=self.solution_implementation,
+            id=self.geometry)
+
+
+class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
+                                                    APITestCase):
+
+    casestudy = 17
+    user = 20
+    implementation = 30
+    solution = 20
+    solutioncategory = 56
+    solution_implementation = 40
+    note = 25
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.sol_set = []
+        cls.url_key = "solutioninimplementationnote"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           implementation_pk=cls.implementation,
+                           solution_pk=cls.solution_implementation)
+        cls.url_pk = dict(pk=cls.note)
+        cls.post_data = dict(note="test note")
+        cls.put_data = dict(note="test note")
+        cls.patch_data = dict(note="test note")
+
+
+    def setUp(self):
+        self.obj = SolutionInImplementationNoteFactory(
+            sii__solution__user=self.uic, sii__solution__id=self.solution,
+            sii__implementation__user=self.uic,
+            sii__implementation__id=self.implementation,
+            sii__solution__solution_category__id=self.solutioncategory,
+            sii__id=self.solution_implementation,
+            id=self.note)
+
+
+class QuantityInSolutionInImplementationInCasestudyTest(BasicModelTest):  #,APITestCase):
+    """
+    Test is not working:
+    - delete is not allowed
+    - post is not possible via Browser api
+    """
+    casestudy = 17
+    user = 20
+    implementation = 30
+    solution = 20
+    solutioncategory = 56
+    solution_implementation = 40
+    quantity = 25
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.sol_set = []
+        cls.url_key = "solutioninimplementationquantity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           implementation_pk=cls.implementation,
+                           solution_pk=cls.solution_implementation)
+        cls.quantity_url = cls.baseurl + \
+            reverse('solutionquantity-detail',
+                    kwargs=dict(casestudy_pk=cls.casestudy,
+                                solutioncategory_pk=cls.solutioncategory,
+                                solution_pk=cls.solution,
+                                pk=cls.quantity))
+        cls.post_urls = [cls.quantity_url]
+        cls.url_pk = dict(pk=cls.quantity)
+        cls.post_data = dict(value=1000.12, quantity=cls.quantity_url)
+        cls.put_data = dict(value=1000.12, quantity=cls.quantity_url)
+        cls.patch_data = dict(value=1000.12, quantity=cls.quantity_url)
+
+
+    def setUp(self):
+        self.obj = SolutionInImplementationQuantityFactory(
+            sii__solution__user=self.uic, sii__solution__id=self.solution,
+            sii__implementation__user=self.uic,
+            sii__implementation__id=self.implementation,
+            sii__solution__solution_category__id=self.solutioncategory,
+            sii__id=self.solution_implementation,
+            id=self.quantity)

@@ -1,7 +1,8 @@
-define(['jquery', 'backbone', 'app/models/actor', 'app/collections/geolocations', 
-        'app/visualizations/map', 'tablesorter-pager', 'app/loader'],
+define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
+        'app/models/geolocation', 'app/visualizations/map', 
+        'tablesorter-pager', 'app/loader'],
 
-function($, Backbone, Actor, Locations, Map){
+function(Backbone, Actor, Locations, Geolocation, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -9,9 +10,10 @@ function($, Backbone, Actor, Locations, Map){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
+      _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.materialId = options.materialId;
+      this.keyflowId = options.keyflowId;
       this.activities = options.activities;
       this.showAll = true;
       this.onUpload = options.onUpload;
@@ -25,15 +27,17 @@ function($, Backbone, Actor, Locations, Map){
       var _this = this;
       
       this.adminLocations = new Locations({
-        caseStudyId: this.collection.caseStudyId, type: 'administrative'
+        caseStudyId: this.model.id, type: 'administrative'
       })
       
       this.opLocations = new Locations({
-        caseStudyId: this.collection.caseStudyId, type: 'operational'
+        caseStudyId: this.model.id, type: 'operational'
       })
 
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
+        
+      this.projection = 'EPSG:4326'; 
         
       $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
              this.collection.fetch()).then(function() {
@@ -63,10 +67,18 @@ function($, Backbone, Actor, Locations, Map){
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');
+      this.adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
+      this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
       //// render inFlows
       this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-  
+      
+      this.setupTable();
+      this.initMap();
+    },
+    
+    setupTable: function(){
+    
       // ToDo: modularize this 
       $.tablesorter.addParser({
           id: 'inputs',
@@ -119,22 +131,23 @@ function($, Backbone, Actor, Locations, Map){
           8: {sorter: 'inputs'},
           9: {sorter: 'inputs'}
         },
-        widgets: ['zebra']
-      }).tablesorterPager({container: $("#pager")});
+        //widgets: ['zebra']
+      })
+      
+      // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
+      if ($(this.table).find('tr').length > 1)
+        $(this.table).tablesorterPager({container: $("#pager")});
       
       // workaround for a bug in tablesorter-pager by triggering
       // event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
-      
     },
 
     changeFilter: function(event){
       this.showAll = event.target.value == '0';
       for (var i = 1, row; row = this.table.rows[i]; i++) {
-        //console.log(row.cells[0].getElementsByTagName("input")[0])
-        //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
         if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
           row.style.display = "none";
         else
@@ -146,7 +159,7 @@ function($, Backbone, Actor, Locations, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-
+      //var row = document.createElement("TR");
       // checkbox for marking deletion
 
       var checkbox = document.createElement("input");
@@ -203,7 +216,7 @@ function($, Backbone, Actor, Locations, Map){
 
       addInput('website');
       addInput('year', 'number');
-      addInput('revenue', 'number');
+      addInput('turnover', 'number');
       addInput('employees', 'number');
       addInput('BvDid');
       addInput('BvDii');
@@ -217,12 +230,12 @@ function($, Backbone, Actor, Locations, Map){
           row.classList.remove('selected');
         });
         row.classList.add('selected');
-        if (_this.activeActor != actor.id){
-          _this.activeActor = actor.id;
+        if (_this.activeActorId != actor.id || actor.id == null){
+          _this.activeActorId = actor.id;
           _this.renderMarkers(actor);
         }
       });
-
+      return row;
     },
 
     // add row when button is clicked
@@ -234,7 +247,7 @@ function($, Backbone, Actor, Locations, Map){
         "name": "",
         "consCode": "",
         "year": 0,
-        "revenue": 0,
+        "turnover": 0,
         "employees": 0,
         "BvDii": "",
         "website": "",
@@ -242,8 +255,11 @@ function($, Backbone, Actor, Locations, Map){
         "caseStudyId": this.model.id
       });
       this.collection.add(actor);
-      this.addActorRow(actor);
-
+      var row = this.addActorRow(actor);
+      // let tablesorter know, that there is a new row
+      $('table').trigger('addRows', [$(row)]);
+      // workaround for going to last page by emulating click
+      document.getElementById('goto-last-page').click();
     },
 
     uploadChanges: function(){
@@ -283,20 +299,31 @@ function($, Backbone, Actor, Locations, Map){
         divid: 'actors-map', 
       });
       
+      var onAddAdminLoc = function(obj){
+        if (_this.activeActorId == null) return; 
+        var adminLoc = _this.adminLocations.filterActor(_this.activeActorId)[0];
+        if (adminLoc != null) return;
+        var coord = _this.map.toProjection(obj.coordinate, _this.projection);
+        _this.addLocation(coord, _this.adminLocations, _this.pins.blue, _this.adminTable);
+      };
+    
+    
+      var onAddOpLoc = function(obj){
+        if (_this.activeActorId == null) return; 
+        var coord = _this.map.toProjection(obj.coordinate, _this.projection);
+        _this.addLocation(coord, _this.opLocations, _this.pins.red, _this.opTable);
+      };
+    
       var items = [
         {
           text: 'Add/Move Administr. Loc.',
           icon: this.pins.blue,
-          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
-            icon: _this.pins.blue, dragIcon: _this.pins.orange
-          })}
+          callback: onAddAdminLoc
         },
         {
           text: 'Add Operational Loc.',
           icon: this.pins.red,
-          callback: function(obj){ _this.map.addmarker(obj.coordinate, { 
-            icon: _this.pins.red, dragIcon: _this.pins.orange 
-          })}
+          callback: onAddOpLoc
         },
         '-' // this is a separator
       ];
@@ -304,63 +331,74 @@ function($, Backbone, Actor, Locations, Map){
       this.map.addContextMenu(items)
     },
     
-    renderMarkers: function(actor){
-      if (this.map == null)
-        this.initMap();
-        
-      var adminLoc = this.adminLocations.filterActor(actor.id)[0];
-          opLocList = this.opLocations.filterActor(actor.id);
-          
-      var _this = this;
-          adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
-          opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
-      adminTable.innerHTML = '';
-      opTable.innerHTML = '';
-      
+    addLocation: function(coord, collection, pin, table){
+      var properties = {actor: this.activeActorId}
+      var loc = new collection.model({caseStudyId: this.model.id,
+                                      type: collection.type,
+                                      properties: properties})
+      loc.setGeometry(coord);
+      collection.add(loc);
+      this.addMarker(loc, pin, table);
+    },
+    
+    
+    addMarker: function(loc, pin, table){ 
+      if (loc == null)
+        return;
       function formatCoords(c){
         return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
       }
+      /* add table rows */
       
-      function addMarker(loc, pin, table){ 
-        if (loc == null)
-          return;
+      var row = table.insertRow(-1);
+      var _this = this;
+      // add a crosshair icon to center on coordinate on click
+      var centerDiv = document.createElement('div');
+      //centerDiv.className = "fa fa-crosshairs";
+      var img = document.createElement("img");
+      img.src = pin;
+      img.setAttribute('height', '30px');
+      centerDiv.appendChild(img);
+      var cell = row.insertCell(-1);
+      var coords = loc.get('geometry').get('coordinates');
+      cell.appendChild(centerDiv);
+      cell.addEventListener('click', function(){ 
+        _this.map.center(coords, {projection: _this.projection})
+      });
+      cell.style.cursor = 'pointer';
+      var coordCell = row.insertCell(-1);
+      coordCell.innerHTML = formatCoords(coords);
+      row.insertCell(-1).innerHTML = loc.get('properties').note;
       
-        /* add table rows */
-        
-        var row = table.insertRow(-1);
-        // add a crosshair icon to center on coordinate on click
-        var centerDiv = document.createElement('div');
-        //centerDiv.className = "fa fa-crosshairs";
-        var img = document.createElement("img");
-        img.src = pin;
-        img.setAttribute('height', '30px');
-        centerDiv.appendChild(img);
-        var cell = row.insertCell(-1);
-        var coords = loc.get('geometry').get('coordinates');
-        cell.appendChild(centerDiv);
-        cell.addEventListener('click', function(){ 
-          _this.map.center(coords, {projection: 'EPSG:4326'})
-        });
-        cell.style.cursor = 'pointer';
-        var coordCell = row.insertCell(-1);
-        coordCell.innerHTML = formatCoords(coords);
-        row.insertCell(-1).innerHTML = loc.get('properties').note;
-        
-        /* add markers */
-        
-        _this.map.addmarker(coords, { 
-          icon: pin, 
-          //dragIcon: _this.pins.orange, 
-          projection: 'EPSG:4326',
-          onDrag: function(coords){
-            coordCell.innerHTML = formatCoords(coords);
-            loc.get('geometry').set("coordinates", coords);
-          }
-        });
-      }
+      /* add markers */
+      
+      this.map.addmarker(coords, { 
+        icon: pin, 
+        //dragIcon: this.pins.orange, 
+        projection: this.projection,
+        onDrag: function(coords){
+          coordCell.innerHTML = formatCoords(coords);
+          loc.get('geometry').set("coordinates", coords);
+        }
+      });
+    },
+    
+    renderMarkers: function(actor){
+      
+      var adminLoc = this.adminLocations.filterActor(actor.id)[0];
+          opLocList = this.opLocations.filterActor(actor.id);
+      
+      var _this = this;
+      this.adminTable.innerHTML = '';
+      this.opTable.innerHTML = '';
+      
       this.map.removeMarkers();
-      addMarker(adminLoc, this.pins.blue, adminTable);
-      _.each(opLocList, function(loc){addMarker(loc, _this.pins.red, opTable);});
+      this.addMarker(adminLoc, this.pins.blue, this.adminTable);
+      _.each(opLocList, function(loc){_this.addMarker(loc, _this.pins.red, _this.opTable);});
+      
+      if (adminLoc != null)
+        this.map.center(adminLoc.get('geometry').get('coordinates'),
+                        {projection: this.projection});
     },
     
     /*

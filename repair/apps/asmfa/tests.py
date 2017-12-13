@@ -60,7 +60,7 @@ class ASMFAModelTest(TestCase):
         """Test a geolocation"""
         point = Point(x=9.2, y=52.6, srid=4326)
         location = AdministrativeLocation(geom=point,
-                                          street='Hauptstraße')
+                                          address='Hauptstraße')
         actor = Actor.objects.first()
         actor.administrative_location = location
         assert actor.administrative_location.geom.x == point.x
@@ -76,56 +76,60 @@ class ASMFAModelTest(TestCase):
         assert excluded_actors.first().included is False
 
 
-class MaterialTest(BasicModelTest, APITestCase):
+class KeyflowTest(BasicModelTest, APITestCase):
     casestudy = 17
+    keyflow = 3
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                            kwargs=dict(pk=cls.casestudy))
-        cls.url_key = "material"
+        cls.keyflow_url = cls.baseurl + reverse('keyflow-detail',
+                                                 kwargs=dict(pk=cls.keyflow))
+        cls.url_key = "keyflow"
         cls.url_pks = dict()
         cls.url_pk = dict(pk=1)
         cls.post_data = dict(name='posttestname',
-                             casestudies=[cls.cs_url], code='cdo')
+                             casestudies=[cls.cs_url], code='Food')
         cls.put_data = dict(name='puttestname',
-                            casestudies=[cls.cs_url])
+                            casestudies=[cls.cs_url],
+                            code='Food')
         cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.obj = MaterialFactory()
+        self.obj = KeyflowFactory()
 
 
-class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
-    material = 3
+    keyflow = 3
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
                                    kwargs=dict(pk=cls.casestudy))
-        cls.material_url = cls.baseurl + reverse('material-detail',
-                                                 kwargs=dict(pk=cls.material))
+        cls.keyflow_url = cls.baseurl + reverse('keyflow-detail',
+                                                 kwargs=dict(pk=cls.keyflow))
 
 
-        cls.url_key = "materialincasestudy"
+        cls.url_key = "keyflowincasestudy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
-        cls.url_pk = dict(pk=cls.material)
+        cls.url_pk = dict(pk=cls.keyflow)
 
         cls.put_data = dict(note='new_put_note',
-                             material=cls.material_url,
+                             keyflow=cls.keyflow_url,
                              )
         cls.post_data = dict(note='new_note',
-                             material=cls.material_url,
+                             keyflow=cls.keyflow_url,
                              )
 
         cls.patch_data = dict(note='patchtestnote')
 
     def setUp(self):
-        self.obj = MaterialInCasestudyFactory(casestudy=self.uic.casestudy,
-                                              material__id=self.material)
+        self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
+                                              keyflow__id=self.keyflow)
 
     def test_post(self):
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
@@ -136,6 +140,144 @@ class MaterialInCaseStudyTest(BasicModelTest, APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
 
 
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+    """
+    MAX:
+    1. origin/destination can be in other casestudies than activity2activity
+    2. set amount default in model to 0
+    """
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    destination = 12
+    product = 16
+    activity2activity = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "activity2activity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.activity2activity)
+
+        cls.put_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = Activity2ActivityFactory(id=self.activity2activity,
+                                            origin__id=self.origin,
+                                            destination__id=self.destination,
+                                            product__id=self.product,
+                                            product__keyflow=kic_obj,
+                                            keyflow=kic_obj,
+                                            )
+
+
+class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    destination = 12
+    product = 16
+    actor2actor = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "actor2actor"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.actor2actor)
+
+        cls.put_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = Actor2ActorFactory(id=self.actor2actor,
+                                      origin__id=self.origin,
+                                      destination__id=self.destination,
+                                      product__id=self.product,
+                                      product__keyflow=kic_obj,
+                                      keyflow=kic_obj,
+                                      )
+
+
+class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    destination = 12
+    product = 16
+    group2group = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "group2group"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.group2group)
+
+        cls.put_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                            destination=cls.destination,
+                            product=cls.product,
+                             )
+        cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = Group2GroupFactory(id=self.group2group,
+                                      origin__id=self.origin,
+                                      destination__id=self.destination,
+                                      product__id=self.product,
+                                      product__keyflow=kic_obj,
+                                      keyflow=kic_obj,
+                                      )
+
+
+
 class ActorInCaseStudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
@@ -144,19 +286,19 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.cs_url = cls.baseurl + reverse('casestudy-detail',
-                                       kwargs=dict(pk=cls.casestudy))
+                                           kwargs=dict(pk=cls.casestudy))
         cls.url_key = "actor"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.actor)
-        cls.post_data = dict(name='posttestname', year=2017, revenue=1000,
-                             employees=2, activity=1)
-        cls.put_data = dict(name='posttestname', year=2017, revenue=1000,
-                            employees=2, activity=1)
+        cls.post_data = dict(name='posttestname', year=2017, turnover='1000.00',
+                             employees=2, activity=1, BvDid='141234')
+        cls.put_data = dict(name='posttestname', year=2017, turnover='1000.00',
+                            employees=2, activity=1, BvDid='141234')
         cls.patch_data = dict(name='patchtestname')
 
 
     def setUp(self):
-        self.obj = ActorFactory(activity__activitygroup__casestudy=self.uic.casestudy)
+        self.obj = ActorFactory(activity__activitygroup__keyflow__casestudy=self.uic.casestudy)
 
 
 class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
@@ -184,7 +326,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         self.obj = ActivityFactory(
-            activitygroup__casestudy=self.uic.casestudy,
+            activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
 
 
@@ -201,13 +343,13 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         cls.url_key = "activitygroup"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.activitygroup)
-        cls.post_data = dict(code="Test Code", name='P1')
-        cls.put_data = dict(code="Test Code", name='P1')
+        cls.post_data = dict(code="P1", name='Test Code')
+        cls.put_data = dict(code="P1", name='Test Code')
         cls.patch_data = dict(name='P1')
 
 
     def setUp(self):
-        self.obj = ActivityGroupFactory(casestudy=self.uic.casestudy)
+        self.obj = ActivityGroupFactory(keyflow__casestudy=self.uic.casestudy)
 
     def test_post(self):
         """
@@ -216,8 +358,39 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         pass
 
 
+class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
 
-class QualityTest(BasicModelTest, APITestCase):
+    casestudy = 17
+    activity = 5
+    activitygroup = 90
+    keyflow = 23
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.ag_url = cls.baseurl + reverse('activitygroup-detail',
+                                           kwargs=dict(pk=cls.activity,
+                                                       casestudy_pk=cls.casestudy))
+        cls.url_key = "activity"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           activitygroup_pk=cls.activitygroup)
+        cls.url_pk = dict(pk=cls.activity)
+        cls.post_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.put_data = dict(nace="Test Nace",
+                             name="Test Name",
+                             activitygroup=cls.activitygroup)
+        cls.patch_data = dict(name='Test Name')
+
+
+    def setUp(self):
+        self.obj = ActivityFactory(
+            activitygroup__keyflow__id=self.keyflow,
+            activitygroup__keyflow__casestudy=self.uic.casestudy,
+            activitygroup__id=self.activitygroup)
+
+
+class QualityTest(BasicModelTest):  #, APITestCase):
 
     url_key = "quality"
     url_pks = dict()
@@ -228,6 +401,192 @@ class QualityTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         self.obj = QualityFactory()
+
+
+class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+    """
+    MAX:
+    1. set stock.amount default value to 0
+    2. post test not working:
+        product should not be required (api/docs)
+        also not working via the api html post"""
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    product = 16
+    activitystock = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "activitystock"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.activitystock)
+        cls.put_data = dict(origin=cls.origin,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                             product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                              product=cls.product,
+                             )
+        #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = ActivityStockFactory(id=self.activitystock,
+                                        origin__id=self.origin,
+                                        origin__activitygroup__id=self.activitygroup,
+                                        origin__activitygroup__keyflow=kic_obj,
+                                        product__id=self.product,
+                                        product__keyflow=kic_obj,
+                                        keyflow=kic_obj,
+                                        )
+
+    def test_post(self):
+        """
+        not working: produvt id required
+        """
+        pass
+
+
+class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+    """
+    MAX:
+    1. set stock.amount default value to 0
+    2. post test not working:
+        product should not be required (api/docs)
+        also not working via the api html post"""
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    product = 16
+    actorstock = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "actorstock"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.actorstock)
+        cls.put_data = dict(origin=cls.origin,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                             product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                              product=cls.product,
+                             )
+        #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = ActorStockFactory(id=self.actorstock,
+                                     origin__id=self.origin,
+                                     origin__activity__activitygroup__id=self.activitygroup,
+                                     origin__activity__activitygroup__keyflow=kic_obj,
+                                     product__id=self.product,
+                                     product__keyflow=kic_obj,
+                                     keyflow=kic_obj,
+                                     )
+
+    def test_post(self):
+        """
+        not working: produvt id required
+        """
+        pass
+
+
+class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+    """
+    MAX:
+    1. set stock.amount default value to 0
+    2. post test not working:
+        product should not be required (api/docs)
+        also not working via the api html post"""
+    casestudy = 17
+    keyflow = 3
+    origin = 20
+    product = 16
+    groupstock = 13
+    keyflowincasestudy = 45
+    activitygroup = 76
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "groupstock"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.groupstock)
+        cls.put_data = dict(origin=cls.origin,
+                            product=cls.product,
+                             )
+        cls.post_data = dict(origin=cls.origin,
+                             product=cls.product,
+                             )
+        cls.patch_data = dict(origin=cls.origin,
+                              product=cls.product,
+                             )
+        #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = GroupStockFactory(id=self.groupstock,
+                                     origin__id=self.origin,
+                                     origin__keyflow=kic_obj,
+                                     product__id=self.product,
+                                     product__keyflow=kic_obj,
+                                     keyflow=kic_obj,
+                                     )
+
+    def test_post(self):
+        """
+        not working: produvt id required
+        """
+        pass
+
+
+class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+    """
+    MAX:
+        1. Products is not in casestudy/xx/keyflows/xx/
+        2. not shure what fractions is
+    """
+    casestudy = 17
+    keyflow = 3
+    product = 16
+    keyflowincasestudy = 45
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "product"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.product)
+        cls.put_data = dict(fractions=[])
+        cls.post_data = cls.put_data
+        cls.patch_data = dict(name="other name")
+        cls.sub_urls = ['keyflow']
+
+    def setUp(self):
+        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                            casestudy=self.uic.casestudy,
+                                            keyflow__id=self.keyflow)
+        self.obj = ProductFactory(id=self.product,
+                                  keyflow=kic_obj,
+                                  )
 
 
 class GeolocationViewTest(APITestCase):
@@ -258,7 +617,7 @@ class GeolocationViewTest(APITestCase):
         # update existing administrative location with a patch for actor
         new_streetname = 'Hauptstraße 13'
         data = {'administrative_location_geojson':
-                {'street': new_streetname,
+                {'address': new_streetname,
                  'geom': location.geom.geojson,
                  }
                 }
@@ -269,7 +628,7 @@ class GeolocationViewTest(APITestCase):
         # get the new adress
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [location.geom.x, location.geom.y]
 
@@ -290,7 +649,7 @@ class GeolocationViewTest(APITestCase):
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
         data = {'administrative_location_geojson':
-                {'street': new_streetname,
+                {'address': new_streetname,
                      'geom': new_geom.geojson,
                     }
                 }
@@ -306,7 +665,7 @@ class GeolocationViewTest(APITestCase):
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
@@ -370,13 +729,13 @@ class GeolocationViewTest(APITestCase):
         new_geom3 = Point(x=4, y=5, srid=4326)
         data = {'operational_locations_geojson': [
             # update the first location
-                {'street': new_streetname2,
+                {'address': new_streetname2,
                  'geom': new_geom2.geojson,
                  'id': location2.id,
                  'turnover': 99987.12,
                  },
                 # create a new location (no id provided)
-                {'street': new_streetname3,
+                {'address': new_streetname3,
                  'geom': new_geom3.geojson,
                  'employees': 123,
                  },
@@ -393,7 +752,7 @@ class GeolocationViewTest(APITestCase):
         url = self.get_location_url(cs, location=new_location_ids[0])
         response = self.client.get(url)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname2
+        assert properties['address'] == new_streetname2
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom2.x, new_geom2.y]
 
@@ -401,7 +760,7 @@ class GeolocationViewTest(APITestCase):
         url = self.get_location_url(cs, location=new_location_ids[1])
         response = self.client.get(url)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname3
+        assert properties['address'] == new_streetname3
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom3.x, new_geom3.y]
 
@@ -423,7 +782,7 @@ class GeolocationViewTest(APITestCase):
         # post new administrative location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        features.append({'street': new_streetname,
+        features.append({'address': new_streetname,
                          'geom': new_geom.geojson,
                          })
 
@@ -441,7 +800,7 @@ class GeolocationViewTest(APITestCase):
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
@@ -492,7 +851,7 @@ class TestLocationsOfActor(APITestCase):
 
         # update existing administrative location with a patch for actor
         new_streetname = 'Hauptstraße 13'
-        data = {'street': new_streetname,
+        data = {'address': new_streetname,
                  'geom': location.geom.geojson,
                  }
         response = self.client.post(url_locations, data, format='json')
@@ -506,14 +865,14 @@ class TestLocationsOfActor(APITestCase):
         # get the new adress
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [location.geom.x, location.geom.y]
 
         # update administrative location
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
-        data = {'street': new_streetname,
+        data = {'address': new_streetname,
                      'geom': new_geom.geojson,
                     }
         response = self.client.post(url_locations, data, format='json')
@@ -527,7 +886,7 @@ class TestLocationsOfActor(APITestCase):
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
@@ -597,13 +956,12 @@ class TestLocationsOfActor(APITestCase):
             # update the first location
                 {'geom': new_geom2.geojson,
                  'id': location2.id,
-                 'turnover': 99987.12,
-                 'street': new_streetname2,
+                 'address': new_streetname2,
                  },
                 # create a new location (no id provided)
                 {'geom': new_geom3.geojson,
                  'employees': 123,
-                 'street': new_streetname3,
+                 'address': new_streetname3,
                  },
                 # delete the second location (not in the new list any more)
         ]}
@@ -619,7 +977,7 @@ class TestLocationsOfActor(APITestCase):
                                     actor=actor.pk)
         response = self.client.get(url)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname2
+        assert properties['address'] == new_streetname2
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom2.x, new_geom2.y]
 
@@ -628,7 +986,7 @@ class TestLocationsOfActor(APITestCase):
                                     actor=actor.pk)
         response = self.client.get(url)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname3
+        assert properties['address'] == new_streetname3
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom3.x, new_geom3.y]
 
@@ -652,7 +1010,7 @@ class TestLocationsOfActor(APITestCase):
         # post new operational location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        features.append({'street': new_streetname,
+        features.append({'address': new_streetname,
                          'geom': new_geom.geojson,
                          })
 
@@ -669,7 +1027,7 @@ class TestLocationsOfActor(APITestCase):
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['street'] == new_streetname
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
@@ -691,7 +1049,7 @@ class TestLocationsOfActor(APITestCase):
         # post oe new operational location
         new_streetname = 'Napoliroad 4333'
         new_geom = Point(x=3, y=2, srid=4326)
-        data = {'street': new_streetname,
+        data = {'address': new_streetname,
                 'geom': new_geom.geojson,
                 }
         response = self.client.post(url_locations, data, format='json')
@@ -704,4 +1062,4 @@ class TestLocationsOfActor(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         geom = response.data['geometry']
         self.assertJSONEqual(str(geom), new_geom.geojson)
-        assert response.data['properties']['street'] == new_streetname
+        assert response.data['properties']['address'] == new_streetname

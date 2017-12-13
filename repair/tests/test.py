@@ -19,16 +19,20 @@ class BasicModelTest(object):
     sub_urls = []
     url_pks = dict()
     url_pk = dict()
+    post_urls = []
     post_data = dict()
     put_data = dict()
     patch_data = dict()
     casestudy = None
+    userincasestudy = 26
     user = -1
+    do_not_check = []
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.uic = UserInCasestudyFactory(user__user__id=cls.user,
+        cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
+                                         user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
 
@@ -58,18 +62,23 @@ class BasicModelTest(object):
         # check if name has changed
         response = self.client.get(url)
         for key in self.put_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
             assert response.data[key] == self.put_data[key]
+            #self.assertJSONEqual(response.data[key], self.put_data[key])
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
         # check if name has changed
         response = self.client.get(url)
         for key in self.patch_data:
+            if key not in response.data.keys():
+                continue
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
-        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                        'pk': self.obj.pk, })
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
         response = self.client.delete(url)
@@ -81,6 +90,8 @@ class BasicModelTest(object):
         # post
         response = self.client.post(url, self.post_data)
         for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
             assert response.data[key] == self.post_data[key]
         # get
         new_id = response.data['id']
@@ -96,4 +107,12 @@ class BasicModelTest(object):
         for key in self.sub_urls:
             key_response = self.client.get(response.data[key])
             assert key_response.status_code == status.HTTP_200_OK
+
+    def test_post_url_exist(self):
+        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
+        response = self.client.get(url)
+        for url in self.post_urls:
+            response = self.client.get(url)
+            assert response.status_code == status.HTTP_200_OK
 

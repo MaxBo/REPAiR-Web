@@ -15,11 +15,13 @@ class DataEntryFactory(DjangoModelFactory):
     user = factory.SubFactory(ProfileFactory)
 
 
-class MaterialFactory(DjangoModelFactory):
+class KeyflowFactory(DjangoModelFactory):
     class Meta:
-        model = models.Material
+        model = models.Keyflow
     name = 'PET Plastic'
     code = 'PET'
+
+    #casestudy = factory.SubFactory(CaseStudyFactory)
 
     @factory.post_generation
     def casestudies(self, create, extracted, **kwargs):
@@ -33,25 +35,24 @@ class MaterialFactory(DjangoModelFactory):
                 self.casestudies.add(casestudy)
 
 
-class MaterialInCasestudyFactory(DjangoModelFactory):
+
+class KeyflowInCasestudyFactory(DjangoModelFactory):
     class Meta:
-        model = models.MaterialInCasestudy
-    note = 'A Material in a Casestudy'
-    material = factory.SubFactory(MaterialFactory)
+        model = models.KeyflowInCasestudy
+    note = 'A Keyflow in a Casestudy'
+    keyflow = factory.SubFactory(KeyflowFactory)
     casestudy = factory.SubFactory(CaseStudyFactory)
 
 
-class QualityFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Quality
-    name = 'Best Quality'
+#class QualityFactory(DjangoModelFactory):
+    #class Meta:
+        #model = models.Quality
+    #name = 'Best Quality'
 
 
 class NodeFactory(DjangoModelFactory):
     class Meta:
         model = models.Node
-    source = True
-    sink = True
 
 
 class ActivityGroupFactory(NodeFactory):
@@ -59,7 +60,7 @@ class ActivityGroupFactory(NodeFactory):
         model = models.ActivityGroup
     name = factory.Sequence(lambda n: "ActivityGroup #%s" % n)
     code = Meta.model.activity_group_choices[0]
-    casestudy = factory.SubFactory(CaseStudyFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
 class ActivityFactory(NodeFactory):
@@ -67,6 +68,7 @@ class ActivityFactory(NodeFactory):
         model = models.Activity
     name = factory.Sequence(lambda n: "Activity #%s" % n)
     nace = '52.Retail'
+    #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     activitygroup = factory.SubFactory(ActivityGroupFactory)
 
 
@@ -76,7 +78,7 @@ class ActorFactory(NodeFactory):
     name = factory.Sequence(lambda n: "Actor #%s" % n)
     consCode = 'ConsCode1'
     year = 2017
-    revenue = 100000
+    turnover = 100000
     employees = 100
     BvDii = 'BvDii99'
     website = 'www.example.com'
@@ -87,8 +89,16 @@ class FlowFactory(DjangoModelFactory):
     class Meta:
         model = models.Flow
     amount = 1234
-    material = factory.SubFactory(MaterialInCasestudyFactory)
-    quality = factory.SubFactory(QualityFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    #quality = factory.SubFactory(QualityFactory)
+
+
+class ProductFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Product
+    name = factory.Sequence(lambda n: "Product #%s" % n)
+    default = True
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
 class Group2GroupFactory(FlowFactory):
@@ -96,6 +106,7 @@ class Group2GroupFactory(FlowFactory):
         model = models.Group2Group
     origin = factory.SubFactory(ActivityGroupFactory)
     destination = factory.SubFactory(ActivityGroupFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class Activity2ActivityFactory(FlowFactory):
@@ -103,6 +114,7 @@ class Activity2ActivityFactory(FlowFactory):
         model = models.Activity2Activity
     origin = factory.SubFactory(ActivityFactory)
     destination = factory.SubFactory(ActivityFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class Actor2ActorFactory(FlowFactory):
@@ -110,6 +122,7 @@ class Actor2ActorFactory(FlowFactory):
         model = models.Actor2Actor
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class StockFactory(FlowFactory):
@@ -121,26 +134,28 @@ class GroupStockFactory(FlowFactory):
     class Meta:
         model = models.GroupStock
     origin = factory.SubFactory(ActivityGroupFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class ActivityStockFactory(FlowFactory):
     class Meta:
         model = models.ActivityStock
     origin = factory.SubFactory(ActivityFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
+    product = factory.SubFactory(ProductFactory)
 
 
 class GeolocationFactory(DjangoModelFactory):
     class Meta:
         model = models.Geolocation
-    note = 'a location'
-    street = 'MainStreet'
-    building = '12'
+    name = 'a location'
+    address = 'MainStreet'
     postcode = '12345'
     city = 'Sevilla'
     country = 'Spain'
@@ -156,5 +171,4 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
-    employees = 123
-    turnover = 98765.43
+

@@ -25,6 +25,8 @@ define([
         .nodeWidth(15)
         .nodePadding(10)
         .size([width, height]);
+      
+      //sankey.nodeAlign(d3.sankeyLeft)
 
       var path = sankey.link();
 
@@ -57,7 +59,7 @@ define([
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
       link.append("title")
-        .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + format(d.value); });
+        .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + d.text + "\n" + format(d.value); });
 
       var node = allgraphics.append("g").attr("id", "node-container")
         .selectAll(".node")

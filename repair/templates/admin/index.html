@@ -7,8 +7,9 @@
     document.getElementById("admin-area-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon glyphicon glyphicon-user"></span></a></li>
-    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon glyphicon glyphicon-retweet"></span></a></li>
+    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
+    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-group"></span></a></li>
+    <li><a href="#products-edit" data-toggle="pill"> {% trans "Edit Products" %} <span class="sub-icon fa fa-shopping-bag"></span></a></li>
   </ul>
 {% endblock %}
 
@@ -22,11 +23,14 @@
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
   <h3 id="warning">{% trans "Please Select a Casestudy first!" %}</h3>
   <div class="tab-content">
+    <!-- Flow editor -->
+    <div class="tab-pane fade in active" id="flows-edit">
+    </div>
     <!-- Actor editor-->
     <div class="tab-pane fade in" id="actors-edit">
     </div>
-    <!-- Flow editor -->
-    <div class="tab-pane fade in active" id="flows-edit">
+    <!-- Product editor-->
+    <div class="tab-pane fade in" id="products-edit">
     </div>
   </div>
 {% include "admin/backbone-templates.html" %}
