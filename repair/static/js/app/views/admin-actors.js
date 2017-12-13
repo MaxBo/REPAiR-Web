@@ -43,7 +43,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         
       this.projection = 'EPSG:4326'; 
         
-      $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
+      $.when(this.adminLocations.fetch(), this.opLocations.fetch(), this.activities.fetch(),
              this.actors.fetch()).then(function() {
           loader.remove();
           _this.render();
@@ -64,7 +64,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       */
     render: function(){
       var _this = this;
-
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.model.get('name')});
