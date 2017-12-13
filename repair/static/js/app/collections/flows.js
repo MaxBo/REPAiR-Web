@@ -10,7 +10,7 @@ define(["backbone", "app-config"],
         return url.format(this.caseStudyId, this.keyflowId);
       },
       
-      initialize: function (models, options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
         this.keyflowId = options.keyflowId;
         this.type = options.type;

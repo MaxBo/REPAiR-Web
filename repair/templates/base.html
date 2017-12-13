@@ -110,11 +110,13 @@
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
       <a class="sidebar-toggle">
-        <span id="slide-icon" >
-          <span class="glyphicon glyphicon-chevron-left"></span>
-          <span class="glyphicon glyphicon-chevron-right"></span>
-        </span>
+        <!--<span id="slide-icon" >-->
+          <!--<span class="glyphicon glyphicon-chevron-left"></span>-->
+          <!--<span class="glyphicon glyphicon-chevron-right"></span>-->
+        <!--</span>-->
       </a>
+      </br>
+      </br>
       {% block sidebar %}
       {% endblock %}
     </div>
@@ -132,24 +134,7 @@
     </div>
   </div>
   <script>
-    $("a").one( "click", function(){$(document).resize()});//document.resize()
-    <!--var sidebar = document.getElementById('sidebar-wrapper');-->
-    <!--sidebar.addEventListener('click', function(){-->
-      <!--sidebar.classList.toggle('active');-->
-    <!--})-->
-    $("#sidebar-wrapper").swipe({
-    swipeStatus:function(event, phase, direction, distance, duration, fingers)
-        {
-            if (phase=="move" && direction =="right") {
-                 $(".container").addClass("open-sidebar");
-                 return false;
-            }
-            if (phase=="move" && direction =="left") {
-                 $(".container").removeClass("open-sidebar");
-                 return false;
-            }
-        }
-    });
+    
   </script>
 </body>
 </html>

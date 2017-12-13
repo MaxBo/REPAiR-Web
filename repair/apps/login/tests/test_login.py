@@ -101,16 +101,12 @@ class ViewTest(APITestCase):
 class CasestudyTest(BasicModelTest, APITestCase):
 
     url_key = "casestudy"
-    sub_urls = ["userincasestudy_set",
-                "solution_categories",
-                "stakeholder_categories",
-                "implementations",
-                "keyflows",
-                "activitygroups",
-                "activities",
-                "actors",
-                "administrative_locations",
-                "operational_locations"]
+    #sub_urls = ["userincasestudy_set",
+                #"solution_categories",
+                #"stakeholder_categories",
+                #"implementations",
+                #"keyflows",
+                #]
     url_pks = dict()
     url_pk = dict(pk=1)
     post_data = dict(name='posttestname')
@@ -118,7 +114,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
-        self.obj = CaseStudyFactory()
+        self.obj = self.kic.casestudy
 
 
 class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
