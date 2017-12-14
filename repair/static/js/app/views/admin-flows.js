@@ -81,13 +81,14 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
     
     toggleFullscreen: function(){
       document.getElementById('sankey-wrapper').classList.toggle('fullscreen');
-      this.renderSankey();
+      this.renderSankey({skipFetch: true});
     },
 
     /*
       * render a sankey diagram
       */
-    renderSankey: function(){
+    renderSankey: function(options){
+      var options = options || {};
       var el = document.getElementById('sankey-wrapper');
       var loader = new Loader(el, {disable: true});
       var _this = this;
@@ -113,7 +114,11 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
         })
         sankey.render(_this.sankeyData);
       };
-      this.groupToGroup.fetch({success: render})
+      if (options.skipFetch){
+        render();
+      }
+      else
+        this.groupToGroup.fetch({success: render});
     },
 
     transformData: function(models, modelLinks, stocks){
