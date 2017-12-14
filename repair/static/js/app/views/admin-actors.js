@@ -29,6 +29,16 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
         red: '/static/img/simpleicon-places/svg/map-marker-red.svg'
       }
+      
+      // TODO: get this from database or template
+      this.reasons = {
+        //0: "Included",
+        1: "Outside Region, inside country",
+        2: "Outside Region, inside EU",
+        3: "Outside Region, outside EU",
+        4: "Outside Material Scope",
+        5: "Does Not Produce Waste"
+      }
 
       var _this = this;
       
@@ -165,25 +175,84 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-      //var row = document.createElement("TR");
-      // checkbox for marking deletion
+      
+      /* column INCLUDED with reason of exclusion*/
 
+      var inclusionWrapper = document.createElement("div");
+      inclusionWrapper.style = 'min-width: 200px;';
       var checkbox = document.createElement("input");
       checkbox.type = 'checkbox';
       var included = actor.get('included')
       checkbox.checked = included;
+      inclusionWrapper.appendChild(checkbox);
+      
+      var form = document.createElement("form");
+      var radios = [];
+      var targetReason = actor.get('reason');
+      
+      // add radio button with reason
+      function addRadio(reasonId, name){
+        var span = document.createElement("span");
+        span.style = 'white-space: nowrap;';
+        var radio = document.createElement("input");
+        radio.type = 'radio';
+        radio.style = 'margin-right: 2px;';
+        radio.name = 'actor' + actor.id;
+        radio.value = reasonId;
+        span.appendChild(radio);
+        form.appendChild(span);
+        form.appendChild(document.createElement("br"));
+        radios.push(radio);
+        // set reason to model on change by user
+        radio.addEventListener('change', function() {
+          actor.set('reason', radio.value);
+        });
+        // set reason as stored in model
+        if (reasonId == targetReason){
+          radio.checked = true;
+        }
+        var label = document.createElement("label");
+        label.innerHTML = name;
+        span.appendChild(label);
+      }
+      // iterate reasons and add radio buttons for each one
+      for (var reasonId in this.reasons){
+        addRadio(reasonId, this.reasons[reasonId]);
+      };
+      inclusionWrapper.appendChild(form);
+      
+      row.insertCell(-1).appendChild(inclusionWrapper);
+
       if (!included){
         row.classList.add('dsbld');
         if (!this.showAll)
           row.style.display = "block";
       }
-      row.insertCell(-1).appendChild(checkbox);
-
+      else
+        form.style.display = "none";
+      
+      // set inclusion/exclusion made by user to model, show/hide reason
       checkbox.addEventListener('change', function() {
         row.classList.toggle('dsbld');
         actor.set('included', checkbox.checked);
+        if(checkbox.checked){
+          form.style.display = "none";
+          // set reason to "included"
+          actor.set('reason', 0);
+        }
+        else {
+          form.style.display = "block";
+          // reason 0 is "included" - set it to first other reason available
+          if (actor.get('reason') == 0){
+            actor.set('reason', 1)
+            radios[0].checked = true; // radios-array starts with first reason other than "included"
+          }
+        }
       });
-
+      
+      /* add an input-field to the row, 
+       * tracking changes made by user to the attribute and automatically updating the model 
+       */
       var addInput = function(attribute, inputType){
         var input = document.createElement("input");
         if (inputType == 'number')
@@ -199,7 +268,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
 
       addInput('name');
 
-        // select input for activity
+     
+      /* column ACTIVITY (selection)*/
 
       var activitySelect = document.createElement("select");
       var ids = [];
@@ -220,6 +290,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         activitySelect.classList.add('changed');
       });
 
+      
+      /* other simple input-columns*/
       addInput('website');
       addInput('year', 'number');
       addInput('turnover', 'number');
@@ -244,7 +316,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       return row;
     },
 
-    // add row when button is clicked
+    /* 
+     * add row when button is clicked 
+     */
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
@@ -268,6 +342,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       document.getElementById('goto-last-page').click();
     },
 
+    /* 
+     * check the models for changes and upload the changed/added ones 
+     */
     uploadChanges: function(){
 
       var _this = this;
@@ -298,6 +375,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       }).fail(onError);
     },
     
+    /* 
+     * initial setup of the map-view
+     */
     initMap: function(){
       var _this = this;
       
@@ -337,6 +417,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.map.addContextMenu(items)
     },
     
+    /* 
+     * add a location to the map
+     */
     addLocation: function(coord, actors, pin, table){
       var properties = {actor: this.activeActorId}
       var loc = new actors.model({}, {caseStudyId: this.model.get('casestudy'),
@@ -348,6 +431,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     },
     
     
+    /* 
+     * add a marker with given location to the map and the table
+     */
     addMarker: function(loc, pin, table){ 
       if (loc == null)
         return;
@@ -389,6 +475,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       });
     },
     
+    /* 
+     * render the locations of the given actor as markers inside the map and table
+     */
     renderMarkers: function(actor){
       
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];

@@ -24,7 +24,7 @@
       <div class="tab-content">
         <div class="tab-pane fade in active" id="data-entry-tab">
           <div class="row">  
-            {% trans "Activity Groups / Activities / Actors"%}
+            {% trans "Activity Groups" %} / {% trans "Activities" %} / {% trans "Actors" %}
           </div>
           <div class="row">  
             <div class="col-md-3">
@@ -54,13 +54,19 @@
 <!-- template for view on editing a node -->
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12" style="border: solid 1px #ddd">
-    <div class="row" id='attributes'>
+    <div class="row">
+      <h3>
+        <%= name %> 
+        <div id='node-info' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
+      </h3>
+      <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger">
+        <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+      </button>
     </div>
-    <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-    </button>
-    <div class="row" style="overflow-x:auto;">
-      <h3>{% trans "Input" %}</h3>
+    </br>
+    </br>
+    <div class="row bordered" style="overflow-x:auto;">
+      <h4>{% trans "Input" %}</h4>
       <table id='input-table' class='table'>
         <tr>
           <th>{% trans "Remove" %}</th>
@@ -74,8 +80,9 @@
       </table>
       <button id='add-input-button' title="{% trans "add input" %}"><span class="glyphicon glyphicon-plus"></span></button>
     </div>
-    <div class="row" style="overflow-x:auto;">
-      <h3>{% trans "Output" %}</h3>
+    <br>
+    <div class="row bordered" style="overflow-x:auto;">
+      <h4>{% trans "Output" %}</h4>
       <table id='output-table' class='table'>
         <tr>
           <th>{% trans "Remove" %}</th>
@@ -90,8 +97,9 @@
       </table>
       <button id='add-output-button' title="{% trans "add output" %}"><span class="glyphicon glyphicon-plus"></span></button>
     </div>
-    <div class="row" style="overflow-x:auto;">
-        <h3>{% trans "Stock" %}</h3>
+    <br>
+    <div class="row bordered" style="overflow-x:auto;">
+        <h4>{% trans "Stock" %}</h4>
       <table id='stock-table' class='table'>
         <tr>
           <th>{% trans "Remove" %}</th>
@@ -116,7 +124,7 @@
 
 <!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
-  <h3>{% trans "Activitygroup" %}</h3>
+  <h4>{% trans "Activitygroup" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
@@ -135,7 +143,7 @@
 
 <!-- template for view on attributes of an activity-node -->
 <script type="text/template" id="activity-attributes-template">
-  <h3>{% trans "Activity" %}</h3>
+  <h4>{% trans "Activity" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
@@ -158,7 +166,7 @@
 
 <!-- template for view on attributes of an actor-node -->
 <script type="text/template" id="actor-attributes-template">
-  <h3>{% trans "Actor" %}</h3>
+  <h4>{% trans "Actor" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
@@ -190,7 +198,7 @@
     </tr>
     <tr>
       <td>{% trans "Website" %}</td>
-      <td><%= url %></td>
+      <td><a target="_blank" href="http://<%= url %>"><%= url %></a></td>
     </tr>
   </table>
 </script>
@@ -215,7 +223,7 @@
     </select>
   </div>
   <div class="row">
-    <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
+    <div class='col-md-9 bordered' style="resize: horizontal; overflow: auto">
       <div class="row" style="overflow-x:auto;">
         <table id='actors-table' class='tablesorter'>
           <thead>

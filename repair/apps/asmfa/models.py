@@ -224,6 +224,7 @@ class Flow(models.Model):
     # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
     #                             default=1)
     description = models.TextField(max_length=510, blank=True, null=True)
+    year = models.IntegerField(default=2016)
 
     class Meta:
         abstract = True
@@ -276,6 +277,7 @@ class Stock(models.Model):
 
     # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
                                     # default=13)
+    year = models.IntegerField(default=2016)
 
     class Meta:
         abstract = True

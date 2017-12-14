@@ -49,6 +49,9 @@
     color: #aad400;
     margin-right: 15px;
 }
+#sidebar > div{
+    border-bottom: solid 1px #e6e6e6;
+}
 
 #sidebar li a{
     color: #999;
@@ -96,6 +99,7 @@
     width: 100%;*/
     color: black;
     margin-bottom: 30px;
+    font-size: 0.9em;
 }
 
 .sub-icon
