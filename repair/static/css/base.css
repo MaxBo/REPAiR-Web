@@ -240,4 +240,15 @@ td.tablesorter-pager {
 
 .sub-table td{
   background: none !important;
+  border-bottom: none !important;
+}
+
+tr.popunder > td{
+  border-top: none !important;
+  padding-top: 0px !important;
+}
+
+.bordered {
+  border: 1px solid #e6e6e6;
+  padding: 10px;
 }

@@ -93,11 +93,16 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template();
-
-      // render a view on the attributes depending on type of node
-      var attrDiv = this.el.querySelector('#attributes');
-      attrDiv.innerHTML = this.attrTableInner;
+      this.el.innerHTML = template({name: this.model.get('name')});
+      
+      var popOverSettings = {
+          placement: 'right',
+          container: 'body',
+          trigger: 'manual',
+          html: true,
+          content: this.attrTableInner
+      }
+      this.setupPopover($('#node-info').popover(popOverSettings));
 
       // render inFlows
       this.inFlows.each(function(flow){
@@ -108,6 +113,24 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       this.stocks.each(function(stock){
         _this.addFlowRow('stock-table', stock, 'origin', true);
+      });
+    },
+    
+    /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
+    setupPopover: function(el){
+      el.on("mouseenter", function () {
+        var _this = this;
+        $(this).popover("show");
+        $(".popover").on("mouseleave", function () {
+          $(_this).popover('hide');
+        });
+      }).on("mouseleave", function () {
+        var _this = this;
+        setTimeout(function () {
+          if (!$(".popover:hover").length) {
+            $(_this).popover("hide");
+          }
+        }, 300);
       });
     },
 
@@ -205,7 +228,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var popOverSettings = {
           placement: 'right',
           container: 'body',
-          trigger: 'hover',
+          trigger: 'manual',
           html: true,
           content: function () {
               var product = _this.products.get(productSelect.value);
@@ -218,7 +241,8 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
               return content;
           }
       }
-      $(info).popover(popOverSettings);
+      
+      this.setupPopover($(info).popover(popOverSettings));
       //var addProductButton = document.createElement('button');
       //var glyph = document.createElement('span')
       //glyph.classList.add('glyphicon');
@@ -281,16 +305,19 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       
       // own row for individual Datasources
       
+      dsRow.classList.add('popunder');
       dsRow.insertCell(-1);
       var datasourcableAttributes = ['amount', targetIdentifier, 'product'];
       _.each(datasourcableAttributes, function(attr){
         var sel = document.createElement("select");
-        var cell = dsRow.insertCell(-1).appendChild(sel);
+        var cell = dsRow.insertCell(-1);
+        cell.appendChild(sel);
         _.each(options, function(opt){
           var option = document.createElement("option");
           option.text = opt;
           option.value = opt;
-          cell.add(option);
+          sel.add(option);
+          
         });
         // general datasource overrides all sub datasources
         datasource.addEventListener('change', function(){
