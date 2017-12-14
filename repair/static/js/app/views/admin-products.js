@@ -46,15 +46,14 @@ function(Backbone, Products){
 
       this.table = this.el.querySelector('#products-table');
 
-      //// render inFlows
-      this.products.each(function(product){_this.addProductRow(product)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+      this.products.each(function(product){_this.addProductRow(product)}); 
       $(this.table).tablesorter({
         headers:{
           0: {sorter: false},
           1: {sorter: false},
           2: {sorter: false},
         },
-        widgets: ['zebra']
+        //widgets: ['zebra']
       });
     },
     

@@ -74,8 +74,8 @@ input.changed, select.changed {
 }
 
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
-    border: 2px solid rgba(170, 212, 0, 0.6);
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.3);
 }
 .map:-moz-full-screen {
   width: 100%;
