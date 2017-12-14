@@ -16,61 +16,76 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     var flowsView,
         editActorsView,
         editProductsView;
+        
+    var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
+        refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
+        refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
     function renderFlows(keyflow){
+      if (keyflow == null) return;
       if (flowsView != null)
         flowsView.close();
       flowsView = new FlowsView({
-        el: document.getElementById('flows-edit'),
+        el: document.getElementById('flows-content'),
         template: 'flows-edit-template',
         model: keyflow,
         materials: materials, 
         caseStudy: caseStudy
       });
+      refreshFlowsBtn.style.display = 'block';
     };
     
     function renderEditActors(keyflow){
+      if (keyflow == null) return;
       if (editActorsView != null)
         editActorsView.close();
-
       // create casestudy-object and render view on it (data will be fetched in view)
 
       editActorsView = new EditActorsView({
-        el: document.getElementById('actors-edit'),
+        el: document.getElementById('actors-content'),
         template: 'actors-edit-template',
         model: keyflow,
         caseStudy: caseStudy,
         onUpload: function(){renderEditActors(keyflow)}
       });
+      refreshActorsBtn.style.display = 'block';
     };
     
     function renderEditProducts(keyflow){
+      if (keyflow == null) return;
       if (editProductsView != null)
         editProductsView.close();
 
       // create casestudy-object and render view on it (data will be fetched in view)
 
       editProductsView = new EditProductsView({
-        el: document.getElementById('products-edit'),
+        el: document.getElementById('products-content'),
         template: 'products-edit-template',
         model: keyflow,
         caseStudy: caseStudy,
         materials: materials, 
         onUpload: function(){renderEditProducts(keyflow)}
       });
+      refreshProductsBtn.style.display = 'block';
     };
 
     function render(caseStudy){
 
       var keyflowSelect = document.getElementById('keyflow-select');
+      function getKeyflow(){
+        return keyflows.get(keyflowSelect.value);
+      }
       document.getElementById('keyflow-warning').style.display = 'block';
       keyflowSelect.addEventListener('change', function(){
-        var keyflow = keyflows.get(keyflowSelect.value);
+        var keyflow = getKeyflow();
         document.getElementById('keyflow-warning').style.display = 'none';
         renderFlows(keyflow);
         renderEditActors(keyflow);
         renderEditProducts(keyflow);
       });
+      refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
+      refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
+      refreshActorsBtn.addEventListener('click', function(){renderEditActors(getKeyflow())});
       document.getElementById('keyflow-select').disabled = false;
     }
 
