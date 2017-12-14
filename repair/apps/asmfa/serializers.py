@@ -501,7 +501,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
-                  'keyflow',
+                  'keyflow', 'year', 
                   )
 
 
@@ -550,7 +550,7 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
         fields = ('url', 'id',
                   'keyflow',
                   'amount', 'origin',
-                  'destination', 'product', 'description')
+                  'destination', 'product', 'description', 'year')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -568,7 +568,8 @@ class Group2GroupSerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description')
+                  'destination', 'destination_url', 'product', 'description',
+                  'year')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -586,7 +587,8 @@ class Activity2ActivitySerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description')
+                  'destination', 'destination_url', 'product', 'description',
+                  'year')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -604,7 +606,8 @@ class Actor2ActorSerializer(FlowSerializer):
         model = Actor2Actor
         fields = ('id', 'amount', 'keyflow',
                   'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description')
+                  'destination', 'destination_url', 'product', 'description',
+                  'year')
 
 
 class AllActorField(InCasestudyField):
