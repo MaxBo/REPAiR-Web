@@ -32,11 +32,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    padding: 1px 5px 1px 5px;
     border: none;
-    background-color: #aad400;
-    display: none;
-    border-radius: 20px;
     border: none;
 }
 
@@ -46,9 +42,11 @@
 
 #fullscreen-toggle{
     position: absolute;
-    top: 20px;
+    top: 40px;
     right: 20px;
     font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
 }
 
 input.changed, select.changed {
@@ -76,8 +74,8 @@ input.changed, select.changed {
 }
 
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
-    border: 2px solid rgba(170, 212, 0, 0.6);
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.3);
 }
 .map:-moz-full-screen {
   width: 100%;

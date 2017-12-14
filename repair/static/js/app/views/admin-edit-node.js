@@ -150,18 +150,25 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         row.classList.toggle('strikeout');
         flow.markedForDeletion = checkbox.checked;
       });
+      
+      /* add an input-field to the row, 
+       * tracking changes made by user to the attribute and automatically updating the model 
+       */
+      var addInput = function(attribute, inputType){
+        var input = document.createElement("input");
+        if (inputType != null)
+          input.type = inputType;
+        input.value = flow.get(attribute);
+        row.insertCell(-1).appendChild(input);
 
-      // amount of flow
+        input.addEventListener('change', function() {
+          flow.set(attribute, input.value);
+        });
+        return input;
+      };
 
-      var amount = document.createElement("input");
-      amount.value = flow.get('amount');
-      amount.type = 'number';
+      var amount = addInput('amount', 'number');
       amount.min = 0;
-      row.insertCell(-1).appendChild(amount);
-
-      amount.addEventListener('change', function() {
-        flow.set('amount', amount.value);
-      });
       
       // origin respectively destination (skipped at stocks)
 
@@ -243,14 +250,9 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }
       
       this.setupPopover($(info).popover(popOverSettings));
-      //var addProductButton = document.createElement('button');
-      //var glyph = document.createElement('span')
-      //glyph.classList.add('glyphicon');
-      //glyph.classList.add('glyphicon-plus');
-      //productWrapper.appendChild(addProductButton);
-      //addProductButton.appendChild(glyph);
       
       // raw checkbox
+      
       var rawCheckbox = document.createElement("input");
       rawCheckbox.type = 'checkbox';
       row.insertCell(-1).appendChild(rawCheckbox);
@@ -258,6 +260,10 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       rawCheckbox.addEventListener('change', function() {
         flow.set('raw', rawCheckbox.checked);
       });
+      
+      var year = addInput('year', 'number');
+      year.min = 0;
+      year.max = 3000;
       
       // description field
       
@@ -270,7 +276,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       description.addEventListener('change', function() {
         flow.set('description', description.value);
       });
-
+      
       // general datasource
       
       var sourceWrapper = document.createElement("span");

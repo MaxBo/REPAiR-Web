@@ -252,3 +252,16 @@ tr.popunder > td{
   border: 1px solid #e6e6e6;
   padding: 10px;
 }
+
+button.refresh{
+  padding: 1px 5px 1px 5px;
+  border-radius: 20px;
+  outline: none !important;
+  display: none;
+  background-color: #aad400 !important;
+  border: none;
+}
+
+button.refresh:hover{
+  background-color: #8fb300 !important;
+}
