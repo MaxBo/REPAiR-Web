@@ -38,11 +38,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       this.materials = options.materials;
 
       // collections of nodes associated to the casestudy
-      this.groupToGroup = new Flows([], {caseStudyId: this.caseStudyId,
-                                         keyflowId: this.keyflowId});
-
       this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
@@ -51,7 +47,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
                               {disable: true});
 
       $.when(this.actors.fetch({data: 'included=True'}, this.products.fetch(), 
-             this.stocks.fetch(), this.activityGroups.fetch(), this.activities.fetch(),
+             this.activityGroups.fetch(), this.activities.fetch(),
              )).then(function(){
         _this.render();
         loader.remove();
@@ -60,7 +56,8 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
     
     events: {
       'click #fullscreen-toggle': 'toggleFullscreen',
-      'click #refresh-dataview-btn': 'renderSankey'
+      'click #refresh-dataview-btn': 'renderSankey',
+      'change #data-view-type-select': 'renderSankey'
     },
 
     /*
@@ -93,11 +90,14 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       var loader = new Loader(el, {disable: true});
       var _this = this;
       
+      var type = document.getElementById('data-view-type-select').value;
+
       function render(){
-        
         loader.remove();
-        _this.sankeyData = _this.transformData(_this.activityGroups,
-                                               _this.groupToGroup, _this.stocks)
+        var nodes = (type == 'activity') ? _this.activities :
+                    (type == 'actor') ? _this.actors :
+                    _this.activityGroups;
+        _this.sankeyData = _this.transformData(nodes, _this.flows, _this.stocks)
         var width = el.clientWidth;
         // this.el (#data-view) may be hidden at the moment this view is called
         // (is close to body width then, at least wider as the wrapper of the content),
@@ -114,11 +114,18 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
         })
         sankey.render(_this.sankeyData);
       };
-      if (options.skipFetch){
+      if (this.flows != null & options.skipFetch){
         render();
       }
-      else
-        this.groupToGroup.fetch({success: render});
+      else{
+        this.flows = new Flows([], {caseStudyId: this.caseStudyId,
+                                    keyflowId: this.keyflowId,
+                                    type: type});
+        this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
+                                      keyflowId: this.keyflowId,
+                                      type: type});
+        $.when(this.stocks.fetch(), this.flows.fetch()).then(render);
+      }
     },
 
     transformData: function(models, modelLinks, stocks){

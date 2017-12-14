@@ -257,7 +257,6 @@ button.refresh{
   padding: 1px 5px 1px 5px;
   border-radius: 20px;
   outline: none !important;
-  display: none;
   background-color: #aad400 !important;
   border: none;
 }
