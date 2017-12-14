@@ -100,7 +100,6 @@ function(Backbone, Products){
         matSelect.selectedIndex = idx.toString();
         fRow.insertCell(-1).appendChild(matSelect);
       });
-      console.log(fractions)
 
       // "default" checkbox
 

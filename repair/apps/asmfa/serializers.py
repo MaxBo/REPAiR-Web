@@ -413,6 +413,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
+                  'reason', 
                   'administrative_location_geojson',
                   'operational_locations_geojson',
                  )
@@ -477,7 +478,7 @@ class AllActorListSerializer(AllActorSerializer):
     class Meta(AllActorSerializer.Meta):
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included',)
+                  'included', 'reason', )
 
 
 class LocationField(InCasestudyField):
