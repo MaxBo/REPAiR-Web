@@ -42,7 +42,7 @@
 
 #fullscreen-toggle{
     position: absolute;
-    top: 40px;
+    top: 60px;
     right: 20px;
     font-size: 1em;
     opacity: 0.8;
@@ -53,7 +53,7 @@ input.changed, select.changed {
     background-color: #e6f2ff;
 }
 
-#actors-table tr.dsbld td{
+tr.dsbld td{
     background-color: #ffe6e6 !IMPORTANT;
     opacity: 0.8;
 }

@@ -148,6 +148,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
 
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
         flow.markedForDeletion = checkbox.checked;
       });
       
