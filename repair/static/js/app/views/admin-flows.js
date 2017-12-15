@@ -92,12 +92,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       
       var type = document.getElementById('data-view-type-select').value;
 
-      function render(){
-        loader.remove();
-        var nodes = (type == 'activity') ? _this.activities :
-                    (type == 'actor') ? _this.actors :
-                    _this.activityGroups;
-        _this.sankeyData = _this.transformData(nodes, _this.flows, _this.stocks)
+      function render(data){
         var width = el.clientWidth;
         // this.el (#data-view) may be hidden at the moment this view is called
         // (is close to body width then, at least wider as the wrapper of the content),
@@ -112,11 +107,15 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
           divid: '#sankey',
           title: ''
         })
-        sankey.render(_this.sankeyData);
+        sankey.render(data);
       };
-      if (this.flows != null & options.skipFetch){
-        render();
+      
+      // skip reloading data and render
+      if (this.sankeyData != null & options.skipFetch){
+        loader.remove();
+        render(this.sankeyData);
       }
+      // (re)load and transform data and render
       else{
         this.flows = new Flows([], {caseStudyId: this.caseStudyId,
                                     keyflowId: this.keyflowId,
@@ -124,7 +123,15 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
         this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                       keyflowId: this.keyflowId,
                                       type: type});
-        $.when(this.stocks.fetch(), this.flows.fetch()).then(render);
+        var nodes = (type == 'activity') ? _this.activities :
+                    (type == 'actor') ? _this.actors :
+                    _this.activityGroups;
+        $.when(this.stocks.fetch(), this.flows.fetch()).then(function(){
+          _this.sankeyData = _this.transformData(nodes, _this.flows, _this.stocks);
+          loader.remove();
+          render(_this.sankeyData);
+        }
+        );
       }
     },
 
@@ -156,8 +163,8 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       })
       stocks.each(function(stock){
         var id = 'stock-' + stock.id;
-        nodes.push({id: id, name: 'Stock'});
         var source = nodeIdxDict[stock.get('origin')];
+        nodes.push({id: id, name: 'Stock', alignToSource: {x: 50, y: 0}});
         links.push({
           value: stock.get('amount'),
           source: source,
