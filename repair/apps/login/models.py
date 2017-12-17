@@ -19,7 +19,7 @@ class GDSEModel(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.name
+        return self.name or ''
 
 
 class GDSEUniqueNameModel(GDSEModel):
