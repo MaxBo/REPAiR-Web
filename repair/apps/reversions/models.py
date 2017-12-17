@@ -5,6 +5,22 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           )
 
+from repair.apps.asmfa.models import (Actor,
+                                      Activity,
+                                      ActivityGroup,
+                                      ActorStock,
+                                      ActivityStock,
+                                      GroupStock,
+                                      Actor2Actor,
+                                      Activity2Activity,
+                                      Group2Group,
+                                      Material,
+                                      Product,
+                                      ProductFraction,
+                                      AdministrativeLocation,
+                                      OperationalLocation,
+                                    )
+
 @admin.register(CaseStudy)
 class CaseStudyAdmin(VersionAdmin):
     """Versioning of casestudy"""
@@ -19,3 +35,71 @@ class StakeholderCategoryAdmin(VersionAdmin):
 class StakeholderAdmin(VersionAdmin):
     """Versioning of Stakeholder"""
 
+
+@admin.register(ActivityGroup)
+class ActivityGroupAdmin(VersionAdmin):
+    """Versioning of ActivityGroup"""
+
+@admin.register(Activity)
+class ActivityAdmin(VersionAdmin):
+    """Versioning of Activity"""
+
+
+@admin.register(Actor)
+class ActorAdmin(VersionAdmin):
+    """Versioning of Actor"""
+
+
+@admin.register(GroupStock)
+class GroupStockAdmin(VersionAdmin):
+    """Versioning of GroupStock"""
+
+
+@admin.register(ActivityStock)
+class ActivityStockAdmin(VersionAdmin):
+    """Versioning of ActivityStock"""
+
+
+@admin.register(ActorStock)
+class ActorStockAdmin(VersionAdmin):
+    """Versioning of ActorStock"""
+
+
+@admin.register(Group2Group)
+class Group2GroupAdmin(VersionAdmin):
+    """Versioning of Group2Group"""
+
+
+@admin.register(Activity2Activity)
+class Activity2ActivityAdmin(VersionAdmin):
+    """Versioning of Activity2Activity"""
+
+
+@admin.register(Actor2Actor)
+class Actor2ActorAdmin(VersionAdmin):
+    """Versioning of Actor2Actor"""
+
+
+@admin.register(Material)
+class MaterialAdmin(VersionAdmin):
+    """Versioning of Material"""
+
+
+@admin.register(Product)
+class ProductAdmin(VersionAdmin):
+    """Versioning of Product"""
+
+
+@admin.register(ProductFraction)
+class ProductFractionAdmin(VersionAdmin):
+    """Versioning of ProductFraction"""
+
+
+@admin.register(AdministrativeLocation)
+class AdministrativeLocationAdmin(VersionAdmin):
+    """Versioning of AdministrativeLocation"""
+
+
+@admin.register(OperationalLocation)
+class OperationalLocationAdmin(VersionAdmin):
+    """Versioning of OperationalLocation"""
