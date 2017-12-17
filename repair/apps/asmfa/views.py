@@ -2,6 +2,7 @@
 from abc import ABC
 
 from rest_framework.viewsets import ModelViewSet
+from reversion.views import RevisionMixin
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -53,17 +54,17 @@ from repair.apps.asmfa.serializers import (
 from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
 
 
-class ActivityGroupViewSet(ViewSetMixin, ModelViewSet):
+class ActivityGroupViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
     queryset = ActivityGroup.objects.all()
 
 
-class ActivityViewSet(ViewSetMixin, ModelViewSet):
+class ActivityViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
 
 
-class ActorViewSet(ViewSetMixin, ModelViewSet):
+class ActorViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     serializer_class = ActorSerializer
     queryset = Actor.objects.all()
 
@@ -92,23 +93,23 @@ class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
                    'update': KeyflowInCasestudyPostSerializer,}
 
 
-class GroupStockViewSet(OnlySubsetMixin, ModelViewSet):
+class GroupStockViewSet(RevisionMixin, OnlySubsetMixin, ModelViewSet):
     queryset = GroupStock.objects.all()
     serializer_class = GroupStockSerializer
 
 
-class ActivityStockViewSet(OnlySubsetMixin, ModelViewSet):
+class ActivityStockViewSet(RevisionMixin, OnlySubsetMixin, ModelViewSet):
     queryset = ActivityStock.objects.all()
     serializer_class = ActivityStockSerializer
 
 
-class ActorStockViewSet(OnlySubsetMixin, ModelViewSet):
+class ActorStockViewSet(RevisionMixin, OnlySubsetMixin, ModelViewSet):
     queryset = ActorStock.objects.all()
     serializer_class = ActorStockSerializer
     additional_filters = {'origin__included': True}
 
 
-class FlowViewSet(OnlySubsetMixin, ModelViewSet, ABC):
+class FlowViewSet(RevisionMixin, OnlySubsetMixin, ModelViewSet, ABC):
     """
     Abstract BaseClass for a FlowViewSet
     The Subclass has to provide a model inheriting from Flow
@@ -135,32 +136,34 @@ class Actor2ActorViewSet(FlowViewSet):
                           'destination__included': True}
 
 
-class AdministrativeLocationViewSet(ViewSetMixin, ModelViewSet):
+class AdministrativeLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
     serializers = {'create': AdministrativeLocationOfActorPostSerializer}
 
 
-class OperationalLocationViewSet(ViewSetMixin, ModelViewSet):
+class OperationalLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationSerializer
 
 
-class AdministrativeLocationOfActorViewSet(ViewSetMixin, ModelViewSet):
+class AdministrativeLocationOfActorViewSet(RevisionMixin, ViewSetMixin,
+                                           ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationOfActorSerializer
 
 
-class OperationalLocationsOfActorViewSet(ViewSetMixin, ModelViewSet):
+class OperationalLocationsOfActorViewSet(RevisionMixin, ViewSetMixin,
+                                         ModelViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
 
 
-class ProductViewSet(ViewSetMixin, ModelViewSet):
+class ProductViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 
-class MaterialViewSet(ViewSetMixin, ModelViewSet):
+class MaterialViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
