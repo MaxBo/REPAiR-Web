@@ -4,11 +4,12 @@ define(["backbone", "app/models/activitygroup", "app-config"],
   
     var ActivityGroups = Backbone.Collection.extend({
       url: function(){
-        return config.api.activitygroups.format(this.caseStudyId);
+        return config.api.activitygroups.format(this.caseStudyId, this.keyflowId);
       },
       
-      initialize: function (options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
+        this.keyflowId = options.keyflowId;
       },
       model: ActivityGroup
     });

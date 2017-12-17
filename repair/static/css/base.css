@@ -7,6 +7,12 @@ body {
   color: #000;
 }
 
+.row{
+    margin-left:0px;
+    margin-right:0px;
+    padding: 4px;
+}
+
 h1, h2, h3, h4 {
   font-family: 'Lato', sans-serif;
 }
@@ -22,7 +28,7 @@ div.fullscreen{
 }
 
 #content {
-  padding-top: 110px;
+  padding-top: 90px;
 }
 
 #map {
@@ -90,16 +96,6 @@ div.fullscreen{
   color: #fff;
   background-color: #333;
 }
-.btn {
-  color: #fff;
-  height: 60px;
-  font-size: 1.6em;
-  width: 100%;
-  white-space: normal;
-  -webkit-appearance: none;
-  border-radius: 10px;
-  margin-bottom: 4px;
-}
 .btn-panel {
   background-color: #5688d8;
   line-height: 50px;
@@ -147,7 +143,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 
-tr:nth-child(even){background-color: #f2f2f2}
+/*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
   background-color:  #aad400;
@@ -237,3 +233,34 @@ td.tablesorter-pager {
   cursor: default;
 }
 
+.sub-table {
+  margin: 0px 0px 0px 0px;
+  width: auto;
+}
+
+.sub-table td{
+  background: none !important;
+  border-bottom: none !important;
+}
+
+tr.popunder > td{
+  border-top: none !important;
+  padding-top: 0px !important;
+}
+
+.bordered {
+  border: 1px solid #e6e6e6;
+  padding: 10px;
+}
+
+button.refresh{
+  padding: 1px 5px 1px 5px;
+  border-radius: 20px;
+  outline: none !important;
+  background-color: #aad400 !important;
+  border: none;
+}
+
+button.refresh:hover{
+  background-color: #8fb300 !important;
+}

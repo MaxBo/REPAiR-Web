@@ -5,12 +5,13 @@ define(["backbone", "app/models/geolocation", "app-config"],
     var Locations = Backbone.Collection.extend({
       url: function(){
           var url = (this.type == 'operational') ? config.api.opLocations: config.api.adminLocations
-          return url.format(this.caseStudyId);
+          return url.format(this.caseStudyId, this.keyflowId);
       },
       
-      initialize: function (options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
         this.type = options.type;
+        this.keyflowId = options.keyflowId;
       },
       model: Geolocation,
       

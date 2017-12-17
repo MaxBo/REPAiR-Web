@@ -1,8 +1,9 @@
 define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
-        'app/models/geolocation', 'app/visualizations/map', 
+        'app/models/geolocation', 'app/collections/activities', 
+        'app/collections/actors', 'app/visualizations/map', 
         'tablesorter-pager', 'app/loader'],
 
-function(Backbone, Actor, Locations, Geolocation, Map){
+function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -13,9 +14,14 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       _.bindAll(this, 'addMarker');
       
       this.template = options.template;
-      this.keyflowId = options.keyflowId;
-      this.activities = options.activities;
+      var keyflowId = this.model.id,
+          caseStudyId = this.model.get('casestudy');
+      
+      this.activities = new Activities([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      this.actors = new Actors([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
       this.showAll = true;
+      this.caseStudy = options.caseStudy;
+      this.caseStudyId = this.model.get('casestudy');
       this.onUpload = options.onUpload;
       
       this.pins = {
@@ -23,15 +29,25 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
         red: '/static/img/simpleicon-places/svg/map-marker-red.svg'
       }
+      
+      // TODO: get this from database or template
+      this.reasons = {
+        //0: "Included",
+        1: "Outside Region, inside country",
+        2: "Outside Region, inside EU",
+        3: "Outside Region, outside EU",
+        4: "Outside Material Scope",
+        5: "Does Not Produce Waste"
+      }
 
       var _this = this;
       
-      this.adminLocations = new Locations({
-        caseStudyId: this.model.id, type: 'administrative'
+      this.adminLocations = new Locations([], {
+        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'administrative'
       })
       
-      this.opLocations = new Locations({
-        caseStudyId: this.model.id, type: 'operational'
+      this.opLocations = new Locations([], {
+        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'operational'
       })
 
       var loader = new Loader(document.getElementById('actors-edit'),
@@ -39,8 +55,8 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         
       this.projection = 'EPSG:4326'; 
         
-      $.when(this.adminLocations.fetch(), this.opLocations.fetch(),
-             this.collection.fetch()).then(function() {
+      $.when(this.adminLocations.fetch(), this.opLocations.fetch(), this.activities.fetch(),
+             this.actors.fetch()).then(function() {
           loader.remove();
           _this.render();
       });
@@ -60,10 +76,10 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       */
     render: function(){
       var _this = this;
-
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.model.get('name')});
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+                                    keyflow: this.model.get('name')});
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');
@@ -71,7 +87,7 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
       //// render inFlows
-      this.collection.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+      this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
       
       this.setupTable();
       this.initMap();
@@ -148,8 +164,6 @@ function(Backbone, Actor, Locations, Geolocation, Map){
     changeFilter: function(event){
       this.showAll = event.target.value == '0';
       for (var i = 1, row; row = this.table.rows[i]; i++) {
-        //console.log(row.cells[0].getElementsByTagName("input")[0])
-        //console.log(row.cells[0].getElementsByTagName("input")[0].checked)
         if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
           row.style.display = "none";
         else
@@ -161,25 +175,84 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
+      
+      /* column INCLUDED with reason of exclusion*/
 
-      // checkbox for marking deletion
-
+      var inclusionWrapper = document.createElement("div");
+      inclusionWrapper.style = 'min-width: 200px;';
       var checkbox = document.createElement("input");
       checkbox.type = 'checkbox';
       var included = actor.get('included')
       checkbox.checked = included;
+      inclusionWrapper.appendChild(checkbox);
+      
+      var form = document.createElement("form");
+      var radios = [];
+      var targetReason = actor.get('reason');
+      
+      // add radio button with reason
+      function addRadio(reasonId, name){
+        var span = document.createElement("span");
+        span.style = 'white-space: nowrap;';
+        var radio = document.createElement("input");
+        radio.type = 'radio';
+        radio.style = 'margin-right: 2px;';
+        radio.name = 'actor' + actor.id;
+        radio.value = reasonId;
+        span.appendChild(radio);
+        form.appendChild(span);
+        form.appendChild(document.createElement("br"));
+        radios.push(radio);
+        // set reason to model on change by user
+        radio.addEventListener('change', function() {
+          actor.set('reason', radio.value);
+        });
+        // set reason as stored in model
+        if (reasonId == targetReason){
+          radio.checked = true;
+        }
+        var label = document.createElement("label");
+        label.innerHTML = name;
+        span.appendChild(label);
+      }
+      // iterate reasons and add radio buttons for each one
+      for (var reasonId in this.reasons){
+        addRadio(reasonId, this.reasons[reasonId]);
+      };
+      inclusionWrapper.appendChild(form);
+      
+      row.insertCell(-1).appendChild(inclusionWrapper);
+
       if (!included){
         row.classList.add('dsbld');
         if (!this.showAll)
           row.style.display = "block";
       }
-      row.insertCell(-1).appendChild(checkbox);
-
+      else
+        form.style.display = "none";
+      
+      // set inclusion/exclusion made by user to model, show/hide reason
       checkbox.addEventListener('change', function() {
         row.classList.toggle('dsbld');
         actor.set('included', checkbox.checked);
+        if(checkbox.checked){
+          form.style.display = "none";
+          // set reason to "included"
+          actor.set('reason', 0);
+        }
+        else {
+          form.style.display = "block";
+          // reason 0 is "included" - set it to first other reason available
+          if (actor.get('reason') == 0){
+            actor.set('reason', 1)
+            radios[0].checked = true; // radios-array starts with first reason other than "included"
+          }
+        }
       });
-
+      
+      /* add an input-field to the row, 
+       * tracking changes made by user to the attribute and automatically updating the model 
+       */
       var addInput = function(attribute, inputType){
         var input = document.createElement("input");
         if (inputType == 'number')
@@ -195,7 +268,8 @@ function(Backbone, Actor, Locations, Geolocation, Map){
 
       addInput('name');
 
-        // select input for activity
+     
+      /* column ACTIVITY (selection)*/
 
       var activitySelect = document.createElement("select");
       var ids = [];
@@ -216,6 +290,8 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         activitySelect.classList.add('changed');
       });
 
+      
+      /* other simple input-columns*/
       addInput('website');
       addInput('year', 'number');
       addInput('turnover', 'number');
@@ -232,18 +308,21 @@ function(Backbone, Actor, Locations, Geolocation, Map){
           row.classList.remove('selected');
         });
         row.classList.add('selected');
-        if (_this.activeActorId != actor.id){
+        if (_this.activeActorId != actor.id || actor.id == null){
           _this.activeActorId = actor.id;
           _this.renderMarkers(actor);
         }
       });
+      return row;
     },
 
-    // add row when button is clicked
+    /* 
+     * add row when button is clicked 
+     */
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({
+      var actor = new Actor({}, {
         "BvDid": "",
         "name": "",
         "consCode": "",
@@ -253,13 +332,19 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         "BvDii": "",
         "website": "",
         "activity": null,
-        "caseStudyId": this.model.id
+        "caseStudyId": this.model.get('casestudy')
       });
-      this.collection.add(actor);
-      this.addActorRow(actor);
-
+      this.actors.add(actor);
+      var row = this.addActorRow(actor);
+      // let tablesorter know, that there is a new row
+      $('table').trigger('addRows', [$(row)]);
+      // workaround for going to last page by emulating click
+      document.getElementById('goto-last-page').click();
     },
 
+    /* 
+     * check the models for changes and upload the changed/added ones 
+     */
     uploadChanges: function(){
 
       var _this = this;
@@ -267,11 +352,12 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       var modelsToSave = [];
 
       var update = function(model){
-        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0)
-          console.log(model)//modelsToSave.push(model);
+        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0){
+          modelsToSave.push(model);
+        }
       };
-      //this.collection.each(update);
-      this.adminLocations.each(update);
+      this.actors.each(update);
+      //this.adminLocations.each(update);
 
       // chain save and destroy operations
       var saveComplete = _.invoke(modelsToSave, 'save');
@@ -282,7 +368,6 @@ function(Backbone, Actor, Locations, Geolocation, Map){
         alert(response.responseText); 
         loader.remove();
       };
-
       $.when.apply($, saveComplete).done(function(){
         loader.remove();
         console.log('upload complete');
@@ -290,6 +375,9 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       }).fail(onError);
     },
     
+    /* 
+     * initial setup of the map-view
+     */
     initMap: function(){
       var _this = this;
       
@@ -329,18 +417,23 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       this.map.addContextMenu(items)
     },
     
-    addLocation: function(coord, collection, pin, table){
+    /* 
+     * add a location to the map
+     */
+    addLocation: function(coord, actors, pin, table){
       var properties = {actor: this.activeActorId}
-      var loc = new collection.model({caseStudyId: this.model.id,
-                                      type: collection.type,
+      var loc = new actors.model({}, {caseStudyId: this.model.get('casestudy'),
+                                      type: actors.type,
                                       properties: properties})
       loc.setGeometry(coord);
-      collection.add(loc);
-      console.log(collection)
+      actors.add(loc);
       this.addMarker(loc, pin, table);
     },
     
     
+    /* 
+     * add a marker with given location to the map and the table
+     */
     addMarker: function(loc, pin, table){ 
       if (loc == null)
         return;
@@ -382,6 +475,9 @@ function(Backbone, Actor, Locations, Geolocation, Map){
       });
     },
     
+    /* 
+     * render the locations of the given actor as markers inside the map and table
+     */
     renderMarkers: function(actor){
       
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];

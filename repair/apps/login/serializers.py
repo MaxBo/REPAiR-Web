@@ -400,13 +400,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
-    activitygroups = InCasestudyListField(view_name='activitygroup-list')
-    activities = InCasestudyListField(view_name='activity-list')
-    actors = InCasestudyListField(view_name='actor-list')
-    administrative_locations = InCasestudyListField(
-        view_name='administrativelocation-list')
-    operational_locations = InCasestudyListField(
-        view_name='operationallocation-list')
+
 
     class Meta:
         model = CaseStudy
@@ -414,11 +408,6 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
-                  'activitygroups',
-                  'activities',
-                  'actors',
-                  'administrative_locations',
-                  'operational_locations',
                   )
 
 

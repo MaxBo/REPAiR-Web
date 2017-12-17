@@ -1,122 +1,111 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
-  require(['app/models/casestudy', 'app/views/admin-data-entry',
-           'app/views/admin-data-view', 'app/views/admin-edit-actors', 
-           'app/collections/flows', 'app/collections/activities', 'app/collections/actors',
-           'app/collections/activitygroups', 'app/collections/keyflows',
-           'app/collections/stocks', 'app/collections/materials',
-           'app/collections/products', 'app-config', 'app/loader'],
-  function (CaseStudy, DataEntryView, DataView, EditActorsView, Flows, 
-            Activities, Actors, ActivityGroups, Keyflows, Stocks, Materials,
-            Products, appConfig) {
+  require(['app/models/casestudy', 'app/views/admin-flows',
+           'app/views/admin-actors', 'app/views/admin-products', 
+           'app/collections/flows', 'app/collections/actors',
+           'app/collections/keyflows', 'app/collections/materials',
+           'app-config', 'app/loader'],
+  function (CaseStudy, FlowsView, EditActorsView, EditProductsView, Flows, 
+            Actors, Keyflows, Materials,
+            appConfig) {
 
-    var caseStudyId,
-        caseStudy,
-        activityGroups,
+    var caseStudy,
         keyflows,
         activities,
         materials;
 
-    var dataView,
-        dataEntryView,
-        editActorsView;
+    var flowsView,
+        editActorsView,
+        editProductsView;
+        
+    var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
+        refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
+        refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
-    var renderDataView = function(keyflowId, caseStudyId){
-      var groupToGroup = new Flows([], {caseStudyId: caseStudyId,
-                                        keyflowId: keyflowId});
-      if (dataView != null)
-        dataView.close();
-
-      var stocks = new Stocks([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
-      var products = new Products({caseStudyId: caseStudyId, keyflowId: keyflowId});
-      dataView = new DataView({
-        el: document.getElementById('data-view'),
-        template: 'data-view-template',
-        collection: groupToGroup,
-        activityGroups: activityGroups,
-        stocks: stocks,
-        products: products
+    function renderFlows(keyflow){
+      if (keyflow == null) return;
+      if (flowsView != null)
+        flowsView.close();
+      flowsView = new FlowsView({
+        el: document.getElementById('flows-content'),
+        template: 'flows-edit-template',
+        model: keyflow,
+        materials: materials, 
+        caseStudy: caseStudy
       });
-    };
-
-    // render data entry for currently selected casestudy
-    var renderDataEntry = function(caseStudy){
-      if (dataEntryView != null)
-        dataEntryView.close();
-
-      // create casestudy-object and render view on it (data will be fetched in view)
-
-      dataEntryView = new DataEntryView({
-        el: document.getElementById('data-entry'),
-        template: 'data-entry-template',
-        model: caseStudy,
-        activityGroups: activityGroups,
-        activities: activities,
-        materials: materials
-      });
+      refreshFlowsBtn.style.display = 'block';
     };
     
-    var renderEditActors = function(caseStudy){
+    function renderEditActors(keyflow){
+      if (keyflow == null) return;
       if (editActorsView != null)
         editActorsView.close();
-
       // create casestudy-object and render view on it (data will be fetched in view)
 
       editActorsView = new EditActorsView({
-        el: document.getElementById('actors-edit'),
+        el: document.getElementById('actors-content'),
         template: 'actors-edit-template',
-        model: caseStudy,
-        collection: new Actors({caseStudyId: caseStudy.id}),
-        activities: activities,
-        onUpload: function(){renderEditActors(caseStudy)}
+        model: keyflow,
+        caseStudy: caseStudy,
+        onUpload: function(){renderEditActors(keyflow)}
       });
+      refreshActorsBtn.style.display = 'block';
+    };
+    
+    function renderEditProducts(keyflow){
+      if (keyflow == null) return;
+      if (editProductsView != null)
+        editProductsView.close();
+
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      editProductsView = new EditProductsView({
+        el: document.getElementById('products-content'),
+        template: 'products-edit-template',
+        model: keyflow,
+        caseStudy: caseStudy,
+        materials: materials, 
+        onUpload: function(){renderEditProducts(keyflow)}
+      });
+      refreshProductsBtn.style.display = 'block';
     };
 
-    var renderCaseStudy = function(caseStudy){
-      var caseStudyId = caseStudy.id;
-      var flowInner = _.template(document.getElementById('flows-edit-template').innerHTML);
-      var el = document.getElementById('flows-edit');
-      el.innerHTML = flowInner({casestudy: caseStudy.get('name'),
-                                keyflows: keyflows});
+    function render(caseStudy){
 
-      var keyflowSelect = document.getElementById('flows-select');
-      var refreshButton = document.getElementById('refresh-view-btn');
-      var onKeyflowChange = function(rerenderEntry){
-        var keyflowId = keyflowSelect.options[keyflowSelect.selectedIndex].value;
-        renderDataView(keyflowId, caseStudyId);
-        // can't safely add this inside view, because selector is not part of it's template
-        if (rerenderEntry == true)
-          dataEntryView.renderDataEntry();
+      var keyflowSelect = document.getElementById('keyflow-select');
+      function getKeyflow(){
+        return keyflows.get(keyflowSelect.value);
       }
-      keyflowSelect.addEventListener('change', function(){onKeyflowChange(true)});
-      refreshButton.addEventListener('click', onKeyflowChange);
-
-      renderDataEntry(caseStudy);
-      renderEditActors(caseStudy);
-
-      if (keyflows.length > 0){
-        renderDataView(keyflows.first().id, caseStudyId);
-      }
-      
+      document.getElementById('keyflow-warning').style.display = 'block';
+      keyflowSelect.addEventListener('change', function(){
+        var keyflow = getKeyflow();
+        document.getElementById('keyflow-warning').style.display = 'none';
+        renderFlows(keyflow);
+        renderEditActors(keyflow);
+        renderEditProducts(keyflow);
+      });
+      refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
+      refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
+      refreshActorsBtn.addEventListener('click', function(){renderEditActors(getKeyflow())});
+      document.getElementById('keyflow-select').disabled = false;
     }
 
     var session = appConfig.getSession(
       function(session){
         var caseStudyId = session['casestudy'];
         if (caseStudyId == null){
-          document.getElementById('warning').style.display = 'block';
+          document.getElementById('casestudy-warning').style.display = 'block';
+          document.getElementById('keyflow-warning').style.display = 'none';
           return;
         }
         caseStudy = new CaseStudy({id: caseStudyId});
-        activityGroups = new ActivityGroups({caseStudyId: caseStudyId});
         materials = new Materials();
-        activities = new Activities({caseStudyId: caseStudyId});
-        keyflows = new Keyflows({caseStudyId: caseStudyId});
+        keyflows = new Keyflows([], {caseStudyId: caseStudyId});
         var loader = new Loader(document.getElementById('content'),
                                 {disable: true});
-        $.when(caseStudy.fetch(), activityGroups.fetch(), materials.fetch(), 
-               keyflows.fetch(), activities.fetch()).then(function() {
+        $.when(caseStudy.fetch(), materials.fetch(), 
+               keyflows.fetch()).then(function() {
           loader.remove();
-          renderCaseStudy(caseStudy);
+          render(caseStudy);
         });
     });
   });

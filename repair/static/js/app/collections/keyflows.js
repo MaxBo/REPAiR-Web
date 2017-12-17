@@ -9,7 +9,7 @@ define(["backbone", "app-config"],
           else config.api.keyflows
       },
       
-      initialize: function (options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
       }
     });

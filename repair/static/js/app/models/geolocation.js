@@ -14,11 +14,12 @@ define(["backbone", "app-config"],
       tag: "activity",
       urlRoot: function(){
           var url = (this.type == 'operational') ? config.api.opLocations: config.api.adminLocations
-          return url.format(this.caseStudyId);
+          return url.format(this.caseStudyId, this.keyflowId);
       },
 
-      initialize: function (options) {
+      initialize: function (attributes, options) {
         this.caseStudyId = options.caseStudyId;
+        this.keyflowId = options.keyflowId;
         this.type = options.type;
         var geom = this.get("geometry");
         if (geom != null)

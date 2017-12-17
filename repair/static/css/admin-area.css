@@ -20,30 +20,45 @@
 }
 
 #upload-flows-button, #upload-actors-button{
-    float: right;
+    
+/*    float: right;
     width: auto;
     margin-top: 10px;
     background-color: #aad400;
-    border-width: 0px;
+    border-width: 0px;*/
+}
+
+.nav-tabs li button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    border: none;
+}
+
+.nav-tabs li.active button {
+    display: block;
 }
 
 #fullscreen-toggle{
     position: absolute;
-    top: 20px;
+    top: 60px;
     right: 20px;
-    font-size: 2em;
+    font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
 }
 
 input.changed, select.changed {
     background-color: #e6f2ff;
 }
 
-#actors-table tr.dsbld td{
+tr.dsbld td{
     background-color: #ffe6e6 !IMPORTANT;
     opacity: 0.8;
 }
 
-#actors-table th{
+#actors-table th, #products-table th{
     color: white !IMPORTANT;
     background-color:  #aad400 !IMPORTANT;
 }
@@ -54,13 +69,13 @@ input.changed, select.changed {
     position: relative !IMPORTANT;
 }
 
-#warning {
+#casestudy-warning, #keyflow-warning {
     display: none;
 }
 
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
-    border: 2px solid rgba(170, 212, 0, 0.6);
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.3);
 }
 .map:-moz-full-screen {
   width: 100%;
@@ -80,4 +95,10 @@ tr.selected td{
 }
 .ol-rotate {
   top: 3em;
+}
+
+td button {
+    padding: 0px 5px 0px 5px;
+    margin-left: 3px;
+    margin-right: 3px;
 }

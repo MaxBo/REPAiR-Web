@@ -7,8 +7,18 @@
     document.getElementById("admin-area-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon glyphicon glyphicon-user"></span></a></li>
-    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon glyphicon glyphicon-retweet"></span></a></li>
+    <div>
+      <select disabled id="keyflow-select" name="keyflow" style="width: 60%;">
+        <option selected disabled>{% trans "Select type of flow" %} </option>
+      {% for keyflow in keyflows %}
+        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+      {% endfor %}
+      </select>
+      <span class="sub-icon fa fa-cogs"></span>
+    </div>
+    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
+    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-group"></span></a></li>
+    <li><a href="#products-edit" data-toggle="pill"> {% trans "Edit Products" %} <span class="sub-icon fa fa-shopping-bag"></span></a></li>
   </ul>
 {% endblock %}
 
@@ -20,13 +30,29 @@
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol-contextmenu.css">
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
-  <h3 id="warning">{% trans "Please Select a Casestudy first!" %}</h3>
+  <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
+  <h3 id="keyflow-warning">{% trans "Please select a type of flow in the side-menu." %}</h3>
   <div class="tab-content">
-    <!-- Actor editor-->
-    <div class="tab-pane fade in" id="actors-edit">
-    </div>
     <!-- Flow editor -->
     <div class="tab-pane fade in active" id="flows-edit">
+      <button title="{% trans "Refresh Flows" %}" type="button" id="refresh-flowview-btn" class="btn btn-primary refresh" style="display: none; float: right;">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button> 
+      <div id="flows-content"></div>
+    </div>
+    <!-- Actor editor-->
+    <div class="tab-pane fade in" id="actors-edit">
+      <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-actorsview-btn" class="btn btn-primary refresh" style="display: none; float: right;">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button> 
+      <div id="actors-content"></div>
+    </div>
+    <!-- Product editor-->
+    <div class="tab-pane fade in" id="products-edit">
+      <button title="{% trans "Refresh Products" %}" type="button" id="refresh-productsview-btn" class="btn btn-primary refresh" style="display: none; float: right;">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button> 
+      <div id="products-content"></div>
     </div>
   </div>
 {% include "admin/backbone-templates.html" %}

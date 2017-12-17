@@ -93,11 +93,16 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template();
-
-      // render a view on the attributes depending on type of node
-      var attrDiv = this.el.querySelector('#attributes');
-      attrDiv.innerHTML = this.attrTableInner;
+      this.el.innerHTML = template({name: this.model.get('name')});
+      
+      var popOverSettings = {
+          placement: 'right',
+          container: 'body',
+          trigger: 'manual',
+          html: true,
+          content: this.attrTableInner
+      }
+      this.setupPopover($('#node-info').popover(popOverSettings));
 
       // render inFlows
       this.inFlows.each(function(flow){
@@ -108,6 +113,24 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       this.stocks.each(function(stock){
         _this.addFlowRow('stock-table', stock, 'origin', true);
+      });
+    },
+    
+    /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
+    setupPopover: function(el){
+      el.on("mouseenter", function () {
+        var _this = this;
+        $(this).popover("show");
+        $(".popover").on("mouseleave", function () {
+          $(_this).popover('hide');
+        });
+      }).on("mouseleave", function () {
+        var _this = this;
+        setTimeout(function () {
+          if (!$(".popover:hover").length) {
+            $(_this).popover("hide");
+          }
+        }, 300);
       });
     },
 
@@ -125,20 +148,30 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
 
       checkbox.addEventListener('change', function() {
         row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
         flow.markedForDeletion = checkbox.checked;
       });
+      
+      /* add an input-field to the row, 
+       * tracking changes made by user to the attribute and automatically updating the model 
+       */
+      var addInput = function(attribute, inputType){
+        var input = document.createElement("input");
+        if (inputType != null)
+          input.type = inputType;
+        input.value = flow.get(attribute);
+        row.insertCell(-1).appendChild(input);
 
-      // amount of flow
+        input.addEventListener('change', function() {
+          flow.set(attribute, input.value);
+        });
+        return input;
+      };
 
-      var amount = document.createElement("input");
-      amount.value = flow.get('amount');
-      amount.type = 'number';
+      var amount = addInput('amount', 'number');
       amount.min = 0;
-      row.insertCell(-1).appendChild(amount);
-
-      amount.addEventListener('change', function() {
-        flow.set('amount', amount.value);
-      });
+      
+      // origin respectively destination (skipped at stocks)
 
       if (!skipTarget){
         // select input for target (origin resp. destination of flow)
@@ -165,6 +198,11 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         });
       };
       
+      var productWrapper = document.createElement("span");
+      // prevent breaking 
+      productWrapper.setAttribute("style", "white-space: nowrap");
+      row.insertCell(-1).appendChild(productWrapper); 
+      
       // input for product
       var productSelect = document.createElement("select");
       var ids = [];
@@ -178,8 +216,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       });
       var idx = ids.indexOf(p);
       productSelect.selectedIndex = idx.toString();
-      cell = row.insertCell(-1); 
-      cell.appendChild(productSelect);
+      productWrapper.appendChild(productSelect);
 
       productSelect.addEventListener('change', function() {
         flow.set('product', productSelect.value);
@@ -194,12 +231,12 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       info.classList.add('glyphicon');
       info.classList.add('glyphicon-info-sign');
       info.title = 'Composition';
-      cell.appendChild(info);
+      productWrapper.appendChild(info);
       
       var popOverSettings = {
           placement: 'right',
           container: 'body',
-          trigger: 'hover',
+          trigger: 'manual',
           html: true,
           content: function () {
               var product = _this.products.get(productSelect.value);
@@ -212,10 +249,25 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
               return content;
           }
       }
-      $(info).popover(popOverSettings);
       
+      this.setupPopover($(info).popover(popOverSettings));
+      
+      // raw checkbox
+      
+      var rawCheckbox = document.createElement("input");
+      rawCheckbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(rawCheckbox);
 
-      // THERE IS NO FIELD FOR THIS! (but represented in Rusnes layout)
+      rawCheckbox.addEventListener('change', function() {
+        flow.set('raw', rawCheckbox.checked);
+      });
+      
+      var year = addInput('year', 'number');
+      year.min = 0;
+      year.max = 3000;
+      
+      // description field
+      
       var description = document.createElement("textarea");
       description.rows = "1";
       description.value = flow.get('description');
@@ -225,8 +277,13 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       description.addEventListener('change', function() {
         flow.set('description', description.value);
       });
-
+      
       // general datasource
+      
+      var sourceWrapper = document.createElement("span");
+      row.insertCell(-1).appendChild(sourceWrapper);
+      // prevent breaking 
+      sourceWrapper.setAttribute("style", "white-space: nowrap");
       var options = ['dummy-source', 'another dummy-source']
       var datasource = document.createElement("select");
       _.each(options, function(opt){
@@ -235,8 +292,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         option.value = opt;
         datasource.add(option);
       });
-      cell = row.insertCell(-1);
-      cell.appendChild(datasource);
+      sourceWrapper.appendChild(datasource);
       var collapse = document.createElement('div');
       collapse.style.cursor = 'pointer';
       var dsRow = table.insertRow(-1);
@@ -252,20 +308,23 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         collapse.classList.toggle('glyphicon-chevron-down');
         collapse.classList.toggle('glyphicon-chevron-up');
       });
-      cell.appendChild(collapse);
+      sourceWrapper.appendChild(collapse);
       
       // own row for individual Datasources
       
+      dsRow.classList.add('popunder');
       dsRow.insertCell(-1);
       var datasourcableAttributes = ['amount', targetIdentifier, 'product'];
       _.each(datasourcableAttributes, function(attr){
         var sel = document.createElement("select");
-        var cell = dsRow.insertCell(-1).appendChild(sel);
+        var cell = dsRow.insertCell(-1);
+        cell.appendChild(sel);
         _.each(options, function(opt){
           var option = document.createElement("option");
           option.text = opt;
           option.value = opt;
-          cell.add(option);
+          sel.add(option);
+          
         });
         // general datasource overrides all sub datasources
         datasource.addEventListener('change', function(){
