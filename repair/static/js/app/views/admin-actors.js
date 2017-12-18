@@ -27,7 +27,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.pins = {
         blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
         orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
-        red: '/static/img/simpleicon-places/svg/map-marker-red.svg'
+        red: '/static/img/simpleicon-places/svg/map-marker-red.svg',
+        black: '/static/img/simpleicon-places/svg/map-marker-1.svg'
       }
       
       // TODO: get this from database or template
@@ -68,7 +69,10 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     events: {
       'click #add-actor-button': 'addActorEvent', 
       'change #included-filter-select': 'changeFilter',
-      'click #upload-actors-button': 'uploadChanges'
+      'click #upload-actors-button': 'uploadChanges',
+      'click #confirm-location': 'locationConfirmed',
+      'click #add-operational-button': 'addOperationalLocation',
+      'click #add-administrative-button': 'addAdministrativeLocation'
     },
 
     /*
@@ -310,7 +314,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         row.classList.add('selected');
         if (_this.activeActorId != actor.id || actor.id == null){
           _this.activeActorId = actor.id;
-          _this.renderMarkers(actor);
+          _this.renderLocations(actor);
         }
       });
       return row;
@@ -385,48 +389,62 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         divid: 'actors-map', 
       });
       
-      var onAddAdminLoc = function(obj){
-        if (_this.activeActorId == null) return; 
-        var adminLoc = _this.adminLocations.filterActor(_this.activeActorId)[0];
-        if (adminLoc != null) return;
-        var coord = _this.map.toProjection(obj.coordinate, _this.projection);
-        _this.addLocation(coord, _this.adminLocations, _this.pins.blue, _this.adminTable);
-      };
-    
-    
-      var onAddOpLoc = function(obj){
-        if (_this.activeActorId == null) return; 
-        var coord = _this.map.toProjection(obj.coordinate, _this.projection);
-        _this.addLocation(coord, _this.opLocations, _this.pins.red, _this.opTable);
-      };
-    
-      var items = [
-        {
-          text: 'Add/Move Administr. Loc.',
-          icon: this.pins.blue,
-          callback: onAddAdminLoc
-        },
-        {
-          text: 'Add Operational Loc.',
-          icon: this.pins.red,
-          callback: onAddOpLoc
-        },
-        '-' // this is a separator
-      ];
       
-      this.map.addContextMenu(items)
+      
+     this.localMap = new Map({
+        divid: 'edit-location-map', 
+      });
+
+      
+      // event triggered when modal dialog is ready -> trigger rerender to match size
+      $('#location-modal').on('shown.bs.modal', function () {
+        _this.localMap.map.updateSize();
+     });
+      //this.localMap.map.updateSize();
+      //this.localMap.map.render();
+      
+      //var onAddAdminLoc = function(obj){
+        //if (_this.activeActorId == null) return; 
+        //var adminLoc = _this.adminLocations.filterActor(_this.activeActorId)[0];
+        //if (adminLoc != null) return;
+        //var coord = _this.map.toProjection(obj.coordinate, _this.projection);
+        //_this.addLocation(coord, _this.adminLocations, _this.pins.blue, _this.adminTable);
+      //};
+    
+    
+      //var onAddOpLoc = function(obj){
+        //if (_this.activeActorId == null) return; 
+        //var coord = _this.map.toProjection(obj.coordinate, _this.projection);
+        //_this.addLocation(coord, _this.opLocations, _this.pins.red, _this.opTable);
+      //};
+    
+      //var items = [
+        //{
+          //text: 'Add/Move Administr. Loc.',
+          //icon: this.pins.blue,
+          //callback: onAddAdminLoc
+        //},
+        //{
+          //text: 'Add Operational Loc.',
+          //icon: this.pins.red,
+          //callback: onAddOpLoc
+        //},
+        //'-' // this is a separator
+      //];
+      
+      //this.map.addContextMenu(items)
     },
     
     /* 
      * add a location to the map
      */
-    addLocation: function(coord, actors, pin, table){
+    addLocation: function(coord, locations, pin, table){
       var properties = {actor: this.activeActorId}
-      var loc = new actors.model({}, {caseStudyId: this.model.get('casestudy'),
-                                      type: actors.type,
-                                      properties: properties})
+      var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
+                                          type: locations.type,
+                                          properties: properties})
       loc.setGeometry(coord);
-      actors.add(loc);
+      locations.add(loc);
       this.addMarker(loc, pin, table);
     },
     
@@ -455,12 +473,21 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var coords = loc.get('geometry').get('coordinates');
       cell.appendChild(centerDiv);
       cell.addEventListener('click', function(){ 
-        _this.map.center(coords, {projection: _this.projection})
+        _this.map.center(loc.get('geometry').get('coordinates'), 
+                        {projection: _this.projection})
       });
       cell.style.cursor = 'pointer';
-      var coordCell = row.insertCell(-1);
-      coordCell.innerHTML = formatCoords(coords);
-      row.insertCell(-1).innerHTML = loc.get('properties').note;
+      row.insertCell(-1).innerHTML = loc.get('properties').name;
+      var edit = document.createElement('span');
+      edit.classList.add('glyphicon');
+      edit.classList.add('glyphicon-pencil');
+      edit.style.cursor = 'pointer';
+      
+      edit.addEventListener('click', function(){
+        _this.editLocation(loc);
+      });
+      
+      row.insertCell(-1).appendChild(edit);
       
       /* add markers */
       
@@ -468,17 +495,84 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         icon: pin, 
         //dragIcon: this.pins.orange, 
         projection: this.projection,
+        name: loc.get('name'),
         onDrag: function(coords){
-          coordCell.innerHTML = formatCoords(coords);
           loc.get('geometry').set("coordinates", coords);
         }
       });
     },
     
+    editLocation: function(location){
+      this.editedLocation = location;
+      var type = location.collection.type;
+      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
+      var inner = document.getElementById('location-modal-template').innerHTML;
+      var template = _.template(inner);
+      var html = template({properties: location.get('properties')});
+      document.getElementById('location-modal-content').innerHTML = html;
+      $('#location-modal').modal('show'); 
+      this.localMap.removeMarkers();
+      var items = [
+        {
+          text: 'Set Location',
+          icon: pin,
+          callback: function(){}
+        },
+        '-'
+      ];
+      
+      this.localMap.addContextMenu(items);
+      var geometry = location.get('geometry');
+      if (geometry != null){
+        var coords = geometry.get("coordinates");
+        this.localMap.addmarker(coords, { 
+          icon: pin, 
+          //dragIcon: this.pins.orange, 
+          projection: this.projection,
+          name: location.get('name'),
+          onDrag: function(coords){
+            geometry.set("coordinates", coords);
+          }
+        });
+        this.localMap.center(coords, {projection: this.projection});
+      };
+      
+      
+      //this.localMap.map.updateSize();
+      //this.localMap.center((0, 0), {projection: this.projection});
+    },
+    
+    createAdministrativeLocation(){
+    },
+    
+    createOperationalLocation(){
+    },
+    
+    createLocation(){
+      
+      return location;
+    },
+    
+    
+    locationConfirmed: function(){
+      var location = this.editedLocation;
+      if(location == null) return;
+      var table = document.getElementById('location-edit-table');
+      var inputs = table.querySelectorAll('input');
+      var properties = location.get('properties');
+      _.each(inputs, function(input){
+        //properties.set(input.name) = input.value;
+        properties[input.name] = input.value;
+      });
+      // rerender actor and markers
+      var actor = this.actors.get(this.activeActorId);
+      this.renderLocations(actor);
+    },
+    
     /* 
      * render the locations of the given actor as markers inside the map and table
      */
-    renderMarkers: function(actor){
+    renderLocations: function(actor){
       
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];
           opLocList = this.opLocations.filterActor(actor.id);
