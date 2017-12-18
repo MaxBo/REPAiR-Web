@@ -50,7 +50,6 @@ define([
             geometry: new ol.geom.Point(
               this.toMapProjection(coordinate, proj))
           });
-      console.log(options.name)
       if (options.icon){
          var iconStyle = new ol.style.Style({
           image: new ol.style.Icon({ scale: .08, src: options.icon }),
