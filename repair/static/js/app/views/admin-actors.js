@@ -495,7 +495,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         icon: pin, 
         //dragIcon: this.pins.orange, 
         projection: this.projection,
-        name: loc.get('name'),
+        name: loc.get('properties').name,
         onDrag: function(coords){
           loc.get('geometry').set("coordinates", coords);
         }
@@ -529,7 +529,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           icon: pin, 
           //dragIcon: this.pins.orange, 
           projection: this.projection,
-          name: location.get('name'),
+          name: location.get('properties').name,
           onDrag: function(coords){
             geometry.set("coordinates", coords);
           }
