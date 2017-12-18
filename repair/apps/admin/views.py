@@ -21,7 +21,7 @@ class AdminView(BaseView):
         # get the current casestudy
         url_pks = request.session.get('url_pks', {})
         
-        casestudy = request.session['casestudy']
+        casestudy = request.session.get('casestudy')
         keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
 
         context = {'casestudies': self.casestudies(),
