@@ -164,7 +164,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       stocks.each(function(stock){
         var id = 'stock-' + stock.id;
         var source = nodeIdxDict[stock.get('origin')];
-        nodes.push({id: id, name: 'Stock', alignToSource: {x: 50, y: 0}});
+        nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
         links.push({
           value: stock.get('amount'),
           source: source,

@@ -90,7 +90,7 @@ function(Backbone, Products){
         var targetId = fraction.material;
         _this.materials.each(function(material){
           var option = document.createElement("option");
-          option.text = material.get('name');
+          option.text = '[' + material.get('code') + '] ' + material.get('name');
           option.value = material.id;
           matSelect.add(option);
           ids.push(material.id);
