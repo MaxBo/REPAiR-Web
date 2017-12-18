@@ -99,7 +99,9 @@ INSTALLED_APPS = [
     'repair.apps.studyarea',
     'repair.apps.changes',
     'repair.apps.statusquo',
-    'require'
+    'repair.apps.reversions',
+    'require',
+    'reversion',
 ]
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -124,6 +126,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'reversion.middleware.RevisionMiddleware',
 ]
 
 ROOT_URLCONF = 'repair.urls'
