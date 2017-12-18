@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.utils import OperationalError, IntegrityError
+from django.contrib.gis.db import models as geomodels
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,8 @@ def get_default(model):
 
 class CaseStudy(GDSEModel):
     name = models.TextField()
+    geom = geomodels.MultiPolygonField(null=True)
+    focusarea = geomodels.MultiPolygonField(null=True)
 
     @property
     def solution_categories(self):

@@ -1,9 +1,11 @@
 from abc import ABC
 from django.contrib.auth.models import User, Group
+from django.contrib.gis import geos
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 
@@ -391,7 +393,8 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         return user
 
 
-class CaseStudySerializer(NestedHyperlinkedModelSerializer):
+class CaseStudySerializer(GeoFeatureModelSerializer,
+                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
@@ -401,14 +404,30 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
 
-
     class Meta:
         model = CaseStudy
+        geo_field = 'geom'
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
+                  'focusarea',
                   )
+
+    def update(self, instance, validated_data):
+        """cast geomfield to multipolygon"""
+        geo_field = self.Meta.geo_field
+        self.convert2multi(validated_data, geo_field, instance)
+        self.convert2multi(validated_data, 'focusarea', instance)
+
+        return super().update(instance, validated_data)
+
+    def convert2multi(self, validated_data, geo_field, instance):
+        geom = validated_data.pop(geo_field, None)
+        if geom:
+            if isinstance(geom, geos.Polygon):
+                geom = geos.MultiPolygon(geom)
+            setattr(instance, geo_field, geom)
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):
