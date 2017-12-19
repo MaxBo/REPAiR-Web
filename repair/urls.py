@@ -37,4 +37,5 @@ urlpatterns = [
     # API urls
     url('^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
+    url(r'^publications/', include('publications_bootstrap.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
