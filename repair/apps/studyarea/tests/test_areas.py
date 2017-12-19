@@ -34,5 +34,3 @@ class AreaModels(TestCase):
         self.assertSetEqual(set(spain.nuts1_areas.all()), {castilia})
 
         self.assertEqual(models.Area.objects.get(name='ES').country, spain)
-
-        print(areas)
