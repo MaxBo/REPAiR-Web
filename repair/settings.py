@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     'repair.apps.reversions',
     'require',
     'reversion',
+    'publications_bootstrap',
 ]
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
