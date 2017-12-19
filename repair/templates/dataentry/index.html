@@ -4,7 +4,7 @@
 
 {% block sidebar %}
   <script>
-    document.getElementById("admin-area-link").classList.add('active');
+    document.getElementById("data-entry-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <div>
@@ -28,7 +28,7 @@
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/leaflet.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol-contextmenu.css">
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/admin-area.css" />
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/data-entry.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
   <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
   <h3 id="keyflow-warning">{% trans "Please select a type of flow in the side-menu." %}</h3>
@@ -55,8 +55,8 @@
       <div id="products-content"></div>
     </div>
   </div>
-{% include "admin/backbone-templates.html" %}
-{% require_module 'admin-area.js' %}
+{% include "dataentry/backbone-templates.html" %}
+{% require_module 'data-entry.js' %}
 {% endblock %}
 
 <!--<div>Icons made by <a href="https://www.flaticon.com/authors/simpleicon" title="SimpleIcon">SimpleIcon</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div-->>

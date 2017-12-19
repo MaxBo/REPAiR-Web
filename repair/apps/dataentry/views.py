@@ -12,9 +12,9 @@ from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 from repair.views import BaseView
 
 
-class AdminView(BaseView): 
-    template_name = "admin/index.html"
-    title = 'Admin Area'
+class DataEntryView(BaseView): 
+    template_name = "dataentry/index.html"
+    title = 'Data Entry'
     
     def get(self, request):
 

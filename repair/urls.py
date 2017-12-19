@@ -28,7 +28,7 @@ from repair.views import HomeView
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^admin/', include('repair.apps.admin.urls')),
+    url(r'^data-entry/', include('repair.apps.dataentry.urls')),
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),

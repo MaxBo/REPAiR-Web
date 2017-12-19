@@ -1,6 +1,6 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
-  require(['app/models/casestudy', 'app/views/admin-flows',
-           'app/views/admin-actors', 'app/views/admin-products', 
+  require(['app/models/casestudy', 'app/views/data-entry-flows',
+           'app/views/data-entry-actors', 'app/views/data-entry-products', 
            'app/collections/flows', 'app/collections/actors',
            'app/collections/keyflows', 'app/collections/materials',
            'app-config', 'app/loader'],
