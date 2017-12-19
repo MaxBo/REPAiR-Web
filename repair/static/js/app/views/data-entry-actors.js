@@ -482,7 +482,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var pencil = document.createElement('span');
       editBtn.classList.add('btn');
       editBtn.classList.add('btn-primary');
-      editBtn.classList.add('round');
+      editBtn.classList.add('square');
       editBtn.style.float = 'right';
       editBtn.appendChild(pencil);
       pencil.classList.add('glyphicon');

@@ -263,14 +263,20 @@ tr.popunder > td{
   padding: 10px;
 }
 
-button.round{
+button.square, button.round{
   padding: 1px 5px 1px 5px;
-  border-radius: 20px;
   outline: none !important;
-  background-color: #aad400 !important;
-  border: none;
+  background-color: white !important;
+  border: solid 1px #aad400;
+  color: #aad400;
 }
 
-button.round:hover{
-  background-color: #8fb300 !important;
+button.round{
+  border-radius: 20px;
+}
+
+button.square:hover, button.round:hover, button.square:focus, button.round:focus{
+  background-color: #aad400 !important;
+  border: none;
+  color: white;
 }

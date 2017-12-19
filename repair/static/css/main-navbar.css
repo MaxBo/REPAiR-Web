@@ -149,15 +149,16 @@
     cursor: pointer;
 }
 
+.dropdown a:hover{
+    /*background-color: #f1f1f1; */
+    color: #aad400;
+}
+
 .dropdown a.active {
     background-color: #aad400; 
     color: white;
 }
 
-.dropdown a:hover{
-    /*background-color: #f1f1f1; */
-    color: #aad400;
-}
 
 .show {display:block;}
 /*.navbar-top select option:checked, .navbar-top select option:hover{
