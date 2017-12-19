@@ -478,16 +478,21 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       });
       cell.style.cursor = 'pointer';
       row.insertCell(-1).innerHTML = loc.get('properties').name;
-      var edit = document.createElement('span');
-      edit.classList.add('glyphicon');
-      edit.classList.add('glyphicon-pencil');
-      edit.style.cursor = 'pointer';
+      var editBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editBtn.classList.add('btn');
+      editBtn.classList.add('btn-primary');
+      editBtn.classList.add('square');
+      editBtn.style.float = 'right';
+      editBtn.appendChild(pencil);
+      pencil.classList.add('glyphicon');
+      pencil.classList.add('glyphicon-pencil');
       
-      edit.addEventListener('click', function(){
+      editBtn.addEventListener('click', function(){
         _this.editLocation(loc);
       });
       
-      row.insertCell(-1).appendChild(edit);
+      row.insertCell(-1).appendChild(editBtn);
       
       /* add markers */
       
@@ -573,7 +578,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
      * render the locations of the given actor as markers inside the map and table
      */
     renderLocations: function(actor){
-      
+    document.getElementById('location-wrapper').style.display = 'block';
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];
           opLocList = this.opLocations.filterActor(actor.id);
       

@@ -16,7 +16,9 @@ import django
 
 from django.utils.translation import ugettext_lazy as _
 
-DEBUG = False
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,9 +74,6 @@ REQUIRE_EXCLUDE = (
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '$f#=dn^_6xu1e7py@$(8_8yu2(%*a&b@6uxr*_zyi3c*%5@u1^'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['geodesignhub.h2020repair.bk.tudelft.nl',
                  'gdse.h2020repair.bk.tudelft.nl',
@@ -186,6 +185,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/login'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

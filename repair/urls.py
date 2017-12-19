@@ -19,8 +19,9 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
+from django.contrib import admin
 from repair.views import HomeView
+from django.contrib.auth.views import logout
 
 
 # Wire up our API using automatic URL routing.
@@ -28,7 +29,8 @@ from repair.views import HomeView
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='index'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^admin/', include('repair.apps.admin.urls')),
+    url(r'^admin/', admin.site.urls),
+    url(r'^data-entry/', include('repair.apps.dataentry.urls')),
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
@@ -38,4 +40,5 @@ urlpatterns = [
     url('^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
+    url(r'^logout', logout, {'next_page': '/'}, name='logout')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
