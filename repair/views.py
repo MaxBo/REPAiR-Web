@@ -9,6 +9,10 @@ class BaseView(TemplateView):
         if 'casestudy' not in request.session:
             request.session['casestudy'] = None
         return super().get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        kwargs['casestudies'] = self.casestudies()
+        return kwargs
 
     def casestudies(self):
         return CaseStudy.objects.all()

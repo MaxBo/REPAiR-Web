@@ -47,40 +47,39 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
+            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
-                  {% csrf_token %}
-                  <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="casestudy" onchange="$('#casestudy-select').submit()"">
-                    <option selected disabled>{% trans "Select Casestudy" %}</option>
-                    {% if view.casestudies|length > 0 %}
-                      {% for casestudy in view.casestudies %}
-                        <option value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected" {% endif %}>
-                          {{ casestudy.name }}
-                        </option>
-                      {% endfor %}
-                    {% else %}
-                      {% for casestudy in casestudies %}
-                        <option  value="{{ casestudy.id }}" {% if casestudy.id|stringformat:"i" == request.session.casestudy %} selected="selected" {% endif %}>
-                           {{ casestudy.name }}
-                        </option>
-                      {% endfor %}
-                    {% endif %}
-                  </select>
-              </form>
-            </li>
-            <li id="data-entry-link"><a href="/data-entry">{% trans "Data Entry" %}</a></li>
-            <li id="login-link">
-              {% if request.user.is_authenticated %}
-              <div class="dropdown">
-                <div class="btn-group">
-                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                    {{ request.user.username }}
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <input name="casestudy" id="casestudy" type="hidden">
+                <div class="dropdown">
+                  <button class="drop-button" onclick="show('casestudy-dropdown')" type="button">
+                    {% trans "Casestudy" %}
                     <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="/login/logout">{% trans "Logout" %}</a></li>
-                  </ul>
+                  <div id="casestudy-dropdown" class="dropdown-content">
+                    {% for casestudy in casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                  </div>
+                </div>
+                <span class="caret drop-arrow"></span>
+              </form>
+            </li>
+            {% endif %}
+            <li id="login-link" >
+              {% if request.user.is_authenticated %}
+              <div class="dropdown">
+                <button class="drop-button" onclick="show('login-dropdown')" type="button">
+                  {% trans "User Area" %} ({{ request.user.username }})
+                  <span class="caret"></span>
+                </button>
+                <div id="login-dropdown" class="dropdown-content">
+                  <a id="data-entry-link" "href="/data-entry">{% trans "Data Entry" %}</a>
+                  <a href="/admin">{% trans "Admin Area" %}</a>
+                  <a href="/logout">{% trans "Logout" %}</a>
                 </div>
               </div>
               {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
@@ -99,6 +98,7 @@
                       </option>
                     {% endfor %}
                   </select>
+                  <span class="caret drop-arrow"></span>
                 </div>
               </form>
             </li>
@@ -132,7 +132,30 @@
   <script>
     <!-- hide sidebar if there is no content in it -->
     if (document.getElementById('sidebar-content').childElementCount == 0){
+      document.getElementById('wrapper').style.paddingLeft = '0px';
       document.getElementById('sidebar-wrapper').style.display = 'none';
+      <!--console.log(document.getElementById('sidebar-wrapper'))-->
+    };
+    
+    function show(elementId){
+      closeDropdowns(); 
+      document.getElementById(elementId).classList.toggle('show');
+    }
+    
+    function closeDropdowns(){
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+    
+    // Close the dropdowns if the user clicks outside of it
+    window.onclick = function(event) {
+      if (!event.target.matches('.drop-button')) closeDropdowns();
     }
   </script>
 </body>

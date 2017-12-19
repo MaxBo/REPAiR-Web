@@ -27,8 +27,18 @@ div.fullscreen{
   background-color: white;
 }
 
-#content {
-  padding-top: 90px;
+#wrapper {
+    /*transition: all .4s ease 0s;*/
+    height: 100%;
+    padding-left: 60px;
+}
+
+#page-content-wrapper {
+    padding: 5px;
+    margin-left: 0px;
+    width: 100%;
+    height: auto;
+    padding-top: 100px;
 }
 
 #map {
