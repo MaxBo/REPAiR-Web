@@ -1,5 +1,5 @@
 define(['backbone',
-        'app/views/admin-edit-node',
+        'app/views/data-entry-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/products', 'app/collections/flows', 
         'app/collections/stocks', 'app/collections/activitygroups', 

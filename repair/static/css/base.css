@@ -27,8 +27,18 @@ div.fullscreen{
   background-color: white;
 }
 
-#content {
-  padding-top: 90px;
+#wrapper {
+    /*transition: all .4s ease 0s;*/
+    height: 100%;
+    padding-left: 60px;
+}
+
+#page-content-wrapper {
+    padding: 5px;
+    margin-left: 0px;
+    width: 100%;
+    height: auto;
+    padding-top: 100px;
 }
 
 #map {
@@ -253,14 +263,20 @@ tr.popunder > td{
   padding: 10px;
 }
 
-button.refresh{
+button.square, button.round{
   padding: 1px 5px 1px 5px;
-  border-radius: 20px;
   outline: none !important;
-  background-color: #aad400 !important;
-  border: none;
+  background-color: white !important;
+  border: solid 1px #aad400;
+  color: #aad400;
 }
 
-button.refresh:hover{
-  background-color: #8fb300 !important;
+button.round{
+  border-radius: 20px;
+}
+
+button.square:hover, button.round:hover, button.square:focus, button.round:focus{
+  background-color: #aad400 !important;
+  border: none;
+  color: white;
 }

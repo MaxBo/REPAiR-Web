@@ -10,14 +10,13 @@ from plotly.graph_objs import Figure, Data, Layout
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 from repair.views import BaseView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class AdminView(BaseView): 
-    template_name = "admin/index.html"
-    title = 'Admin Area'
+class DataEntryView(LoginRequiredMixin, BaseView): 
+    template_name = "dataentry/index.html"
     
     def get(self, request):
-
         # get the current casestudy
         url_pks = request.session.get('url_pks', {})
         
