@@ -109,16 +109,12 @@
   </nav>
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
-      <a class="sidebar-toggle">
-        <!--<span id="slide-icon" >-->
-          <!--<span class="glyphicon glyphicon-chevron-left"></span>-->
-          <!--<span class="glyphicon glyphicon-chevron-right"></span>-->
-        <!--</span>-->
-      </a>
       </br>
       </br>
-      {% block sidebar %}
-      {% endblock %}
+      <div id="sidebar-content">
+        {% block sidebar %}
+        {% endblock %}
+      </div>
     </div>
     <!-- Page content -->
     <div id="page-content-wrapper">
@@ -134,7 +130,10 @@
     </div>
   </div>
   <script>
-    
+    <!-- hide sidebar if there is no content in it -->
+    if (document.getElementById('sidebar-content').childElementCount == 0){
+      document.getElementById('sidebar-wrapper').style.display = 'none';
+    }
   </script>
 </body>
 </html>
