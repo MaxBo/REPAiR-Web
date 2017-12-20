@@ -27,7 +27,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
-      _.bindAll(this, 'addMarker');
+      _.bindAll(this, 'renderLocation');
       
       this.template = options.template;
       var keyflowId = this.model.id,
@@ -351,6 +351,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         "BvDii": "",
         "website": "",
         "activity": null,
+        "included": true
+         }, 
          {"caseStudyId": this.model.get('casestudy')}
       );
       this.actors.add(actor);
@@ -368,6 +370,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
 
       var _this = this;
 
+      var deferreds = [],
+          errors = {},
           success = {};
 
       var update = function(model){
@@ -383,11 +387,19 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       var loader = new Loader(document.getElementById('flows-edit'),
         {disable: true});
+        
       var onError = function(response){
-        alert(response.responseText); 
+        var errText = '';
+        for (var modelId in errors)
+          errText = errors[modelId] + '</br>';
+        //console.log(response.getAllResponseHeaders())
+        document.getElementById('alert-message').innerHTML = errText; 
         loader.remove();
+        $('#alert-modal').modal('show'); 
       };
-      $.when.apply($, saveComplete).done(function(){
+      
+      $.when.apply($, deferreds).done(function(response){
+        console.log(response)
         loader.remove();
         console.log('upload complete');
         _this.onUpload();
@@ -447,19 +459,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       //this.map.addContextMenu(items)
     },
     
-    /* 
-     * add a location to the map
-     */
-    addLocation: function(coord, locations, pin, table){
-      var properties = {actor: this.activeActorId}
-      var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
-                                          type: locations.type,
-                                          properties: properties})
-      loc.setGeometry(coord);
-      locations.add(loc);
-      this.addMarker(loc, pin, table);
-    },
-    
     
     /* 
      * add a marker with given location to the map and the table
@@ -467,28 +466,42 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     renderLocation: function(loc, pin, table){ 
       if (loc == null)
         return;
-      function formatCoords(c){
-        return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
-      }
       /* add table rows */
       
       var row = table.insertRow(-1);
       var _this = this;
       // add a crosshair icon to center on coordinate on click
       var centerDiv = document.createElement('div');
-      //centerDiv.className = "fa fa-crosshairs";
-      var img = document.createElement("img");
-      img.src = pin;
-      img.setAttribute('height', '30px');
-      centerDiv.appendChild(img);
-      var cell = row.insertCell(-1);
-      var coords = loc.get('geometry').get('coordinates');
-      cell.appendChild(centerDiv);
-      cell.addEventListener('click', function(){ 
-        _this.map.center(loc.get('geometry').get('coordinates'), 
-                        {projection: _this.projection})
-      });
-      cell.style.cursor = 'pointer';
+      var markerCell = row.insertCell(-1);
+      var geom = loc.get('geometry');
+      // add a marker to the table and the map, if there is a geometry attached to the location
+      if (geom != null){
+        //centerDiv.className = "fa fa-crosshairs";
+        var img = document.createElement("img");
+        img.src = pin;
+        img.setAttribute('height', '30px');
+        centerDiv.appendChild(img);
+        var coords = geom.get('coordinates');
+        markerCell.appendChild(centerDiv);
+        // zoom to location if marker in table is clicked 
+        markerCell.addEventListener('click', function(){ 
+          _this.map.center(loc.get('geometry').get('coordinates'), 
+                          {projection: _this.projection})
+        });
+        markerCell.style.cursor = 'pointer';
+        
+      /* add marker */
+      
+        this.map.addmarker(coords, { 
+          icon: pin, 
+          //dragIcon: this.pins.orange, 
+          projection: this.projection,
+          name: loc.get('properties').name,
+          onDrag: function(coords){
+            loc.get('geometry').set("coordinates", coords);
+          }
+        });
+      };
       row.insertCell(-1).innerHTML = loc.get('properties').name;
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
@@ -506,17 +519,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       row.insertCell(-1).appendChild(editBtn);
       
-      /* add markers */
-      
-      this.map.addmarker(coords, { 
-        icon: pin, 
-        //dragIcon: this.pins.orange, 
-        projection: this.projection,
-        name: loc.get('properties').name,
-        onDrag: function(coords){
-          loc.get('geometry').set("coordinates", coords);
-        }
-      });
     },
     
     editLocation: function(location){
@@ -529,7 +531,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
-      var html = template({properties: location.get('properties')});
+      var html = template({properties: location.get('properties'), 
+                           coordinates: (coordinates != null)? formatCoords(coordinates): '-'});
       document.getElementById('location-modal-content').innerHTML = html;
       $('#location-modal').modal('show'); 
       this.localMap.removeMarkers();
@@ -541,6 +544,11 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           name: location.get('properties').name,
           onDrag: function(coords){
             geometry.set("coordinates", coords);
+            elGeom.innerHTML = formatCoords(coords);
+          },
+          onRemove: function(){
+            location.set('geometry', null);
+            elGeom.innerHTML = '-';
           }
         });
         _this.localMap.center(coords, {projection: _this.projection});
@@ -572,20 +580,16 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       this.localMap.addContextMenu(items);
       
-      
-      //this.localMap.map.updateSize();
-      //this.localMap.center((0, 0), {projection: this.projection});
     },
     
-    createAdministrativeLocation(){
-    },
-    
-    createOperationalLocation(){
-    },
-    
-    createLocation(){
-      
-      return location;
+    createLocationEvent(event){
+      var buttonId = event.currentTarget.id;
+      var properties = {actor: this.activeActorId}
+      var type = (buttonId == 'add-administrative-button') ? 'administrative': 'operational';
+      var location = new Geolocation({properties: properties}, 
+                                     {caseStudyId: this.model.get('casestudy'),
+                                      type: type});
+      this.editLocation(location);
     },
     
     
@@ -599,6 +603,11 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         //properties.set(input.name) = input.value;
         properties[input.name] = input.value;
       });
+      // location is not in a collection (added by clicking add-button) -> add it to the proper one
+      if (location.collection == null){
+        var collection = (location.type == 'administrative') ? this.adminLocations : this.opLocations;
+        collection.add(location);
+      }
       // rerender actor and markers
       var actor = this.actors.get(this.activeActorId);
       this.renderLocations(actor);
@@ -608,7 +617,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
      * render the locations of the given actor as markers inside the map and table
      */
     renderLocations: function(actor){
-    document.getElementById('location-wrapper').style.display = 'block';
+      document.getElementById('location-wrapper').style.display = 'block';
       var adminLoc = this.adminLocations.filterActor(actor.id)[0];
           opLocList = this.opLocations.filterActor(actor.id);
       
@@ -617,12 +626,17 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.opTable.innerHTML = '';
       
       this.map.removeMarkers();
-      this.addMarker(adminLoc, this.pins.blue, this.adminTable);
-      _.each(opLocList, function(loc){_this.addMarker(loc, _this.pins.red, _this.opTable);});
+      this.renderLocation(adminLoc, this.pins.blue, this.adminTable);
+      _.each(opLocList, function(loc){_this.renderLocation(loc, _this.pins.red, _this.opTable);});
       
-      if (adminLoc != null)
+      var addAdminBtn = document.getElementById('add-administrative-button');
+      if (adminLoc != null){
+        // you may not have more than one admin. location (hide button, if there already is one)
+        addAdminBtn.style.display = 'none';
         this.map.center(adminLoc.get('geometry').get('coordinates'),
                         {projection: this.projection});
+      }
+      else addAdminBtn.style.display = 'block';
     },
     
     /*
@@ -635,6 +649,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     },
 
   });
+  
   return EditActorsView;
 }
 );
