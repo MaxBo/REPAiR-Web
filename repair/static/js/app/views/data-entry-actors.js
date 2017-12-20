@@ -4,6 +4,22 @@ define(['backbone', 'app/models/actor', 'app/collections/geolocations',
         'tablesorter-pager', 'app/loader'],
 
 function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
+  if (typeof jQuery.when.all === 'undefined') {
+      jQuery.when.all = function (deferreds) {
+          return $.Deferred(function (def) {
+              $.when.apply(jQuery, deferreds).then(
+                  function () {
+                      def.resolveWith(this, [Array.prototype.slice.call(arguments)]);
+                  },
+                  function () {
+                      def.rejectWith(this, [Array.prototype.slice.call(arguments)]);
+                  });
+          });
+      }
+  }
+  function formatCoords(c){
+    return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
+  }
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -71,8 +87,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       'change #included-filter-select': 'changeFilter',
       'click #upload-actors-button': 'uploadChanges',
       'click #confirm-location': 'locationConfirmed',
-      'click #add-operational-button': 'addOperationalLocation',
-      'click #add-administrative-button': 'addAdministrativeLocation'
+      'click #add-operational-button,  #add-administrative-button': 'createLocationEvent'
     },
 
     /*
@@ -326,9 +341,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     addActorEvent: function(event){
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({}, {
+      var actor = new Actor({
         "BvDid": "",
-        "name": "",
+        "name": "---------",
         "consCode": "",
         "year": 0,
         "turnover": 0,
@@ -336,8 +351,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         "BvDii": "",
         "website": "",
         "activity": null,
-        "caseStudyId": this.model.get('casestudy')
-      });
+         {"caseStudyId": this.model.get('casestudy')}
+      );
       this.actors.add(actor);
       var row = this.addActorRow(actor);
       // let tablesorter know, that there is a new row
@@ -353,19 +368,19 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
 
       var _this = this;
 
-      var modelsToSave = [];
+          success = {};
 
       var update = function(model){
         if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0){
-          modelsToSave.push(model);
+          deferreds.push(
+            model.save({}, {
+              success: function(model, response){console.log(model)},
+              error: function(model, response){errors[model.id] = model.get('name') + ': ' + response.responseText}
+            }));
         }
       };
       this.actors.each(update);
-      //this.adminLocations.each(update);
-
-      // chain save and destroy operations
-      var saveComplete = _.invoke(modelsToSave, 'save');
-
+      
       var loader = new Loader(document.getElementById('flows-edit'),
         {disable: true});
       var onError = function(response){
@@ -389,12 +404,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         divid: 'actors-map', 
       });
       
-      
-      
      this.localMap = new Map({
         divid: 'edit-location-map', 
       });
-
       
       // event triggered when modal dialog is ready -> trigger rerender to match size
       $('#location-modal').on('shown.bs.modal', function () {
@@ -452,7 +464,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     /* 
      * add a marker with given location to the map and the table
      */
-    addMarker: function(loc, pin, table){ 
+    renderLocation: function(loc, pin, table){ 
       if (loc == null)
         return;
       function formatCoords(c){
@@ -508,8 +520,12 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     },
     
     editLocation: function(location){
+      var _this = this;
       this.editedLocation = location;
-      var type = location.collection.type;
+      var geometry = location.get('geometry');
+      var markerId;
+      var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
+      var type = location.type || location.collection.type;
       var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
@@ -517,30 +533,44 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       document.getElementById('location-modal-content').innerHTML = html;
       $('#location-modal').modal('show'); 
       this.localMap.removeMarkers();
-      var items = [
-        {
-          text: 'Set Location',
-          icon: pin,
-          callback: function(){}
-        },
-        '-'
-      ];
-      
-      this.localMap.addContextMenu(items);
-      var geometry = location.get('geometry');
-      if (geometry != null){
-        var coords = geometry.get("coordinates");
-        this.localMap.addmarker(coords, { 
+      function addMarker(coords){
+        markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
           //dragIcon: this.pins.orange, 
-          projection: this.projection,
+          projection: _this.projection,
           name: location.get('properties').name,
           onDrag: function(coords){
             geometry.set("coordinates", coords);
           }
         });
-        this.localMap.center(coords, {projection: this.projection});
+        _this.localMap.center(coords, {projection: _this.projection});
+      }
+      if (coordinates != null){
+        var elGeom = document.getElementById('coordinates');
+        addMarker(coordinates)
       };
+
+      var items = [
+        {
+          text: 'Set Location',
+          icon: pin,
+          callback: function(event){
+            var coords = _this.localMap.toProjection(event.coordinate, _this.projection)
+            if (geometry != null){
+              _this.localMap.moveMarker(markerId, event.coordinate);
+              geometry.set("coordinates", coords);
+              elGeom.innerHTML = formatCoords(coords);
+            }
+            else{
+              location.setGeometry(coords);
+              addMarker(coords);
+            }
+          }
+        },
+        '-'
+      ];
+      
+      this.localMap.addContextMenu(items);
       
       
       //this.localMap.map.updateSize();
