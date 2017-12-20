@@ -273,7 +273,7 @@
       </div>
     </div>
     <div class='col-md-3 bordered'>
-      <h4 id="actor-name" class="row">{% trans "Show Locations by clicking an actor." %}</h4>
+      <h4 id="actor-name" class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Show Locations by clicking an actor." %}</h4>
       <div id="actors-map" style="min-height: 300px" class="map row"></div>
       </br>
       <div id='location-wrapper' style="display: None;">
@@ -353,6 +353,10 @@
     <tr>
       <td>{% trans "Street" %}</td>
       <td><input type="text" name="address" value="<%= properties.address %>"></td>
+    </tr>
+    <tr>
+      <td>{% trans "Point" %}</td>
+      <td id="coordinates"></td>
     </tr>
   </table>
 </script>
