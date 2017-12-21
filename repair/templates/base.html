@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery.touchSwipe.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
     <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
     <title>{% block title %}REPAiR{% endblock %}</title>
@@ -46,48 +47,39 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
+            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
-                  {% csrf_token %}
-                  <input name="next" type="hidden" value="{{ request.path }}" />
-                  <input name="casestudy" id="casestudy" type="hidden">
-                  <div class="dropdown">
-                    <div class="btn-group">
-                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                        {% trans "Casestudy" %}
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        {% if view.casestudies|length > 0 %}
-                          {% for casestudy in view.casestudies %}
-                            <li {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}>
-                              <a href="#" onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()">{{ casestudy.name }}
-                            </a></li>
-                          {% endfor %}
-                        {% else %}
-                          {% for casestudy in casestudies %}
-                            <li {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}>
-                              <a href="#" onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()">{{ casestudy.name }}
-                            </a></li>
-                          {% endfor %}
-                        {% endif %}
-                      </ul>
-                    </div>
-                  </div>
-              </form>
-            </li>
-            <li id="admin-area-link"><a href="/admin">{% trans "Admin Area" %}</a></li>
-            <li id="login-link">
-              {% if request.user.is_authenticated %}
-              <div class="dropdown">
-                <div class="btn-group">
-                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                    {{ request.user.username }}
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <input name="casestudy" id="casestudy" type="hidden">
+                <div class="dropdown">
+                  <button class="drop-button" onclick="show('casestudy-dropdown')" type="button">
+                    {% trans "Casestudy" %}
                     <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="/login/logout">{% trans "Logout" %}</a></li>
-                  </ul>
+                  <div id="casestudy-dropdown" class="dropdown-content">
+                    {% for casestudy in casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                  </div>
+                </div>
+                <span class="caret drop-arrow"></span>
+              </form>
+            </li>
+            {% endif %}
+            <li id="login-link" >
+              {% if request.user.is_authenticated %}
+              <div class="dropdown">
+                <button class="drop-button" onclick="show('login-dropdown')" type="button">
+                  {% trans "User Area" %} ({{ request.user.username }})
+                  <span class="caret"></span>
+                </button>
+                <div id="login-dropdown" class="dropdown-content">
+                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                  <a href="/admin">{% trans "Admin Area" %}</a>
+                  <a href="/logout">{% trans "Logout" %}</a>
                 </div>
               </div>
               {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
@@ -97,23 +89,16 @@
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <input name="language" id="language" type="hidden">
-                  <div class="dropdown">
-                    <div class="btn-group">
-                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                        {% trans "Language" %}
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        {% get_current_language as LANGUAGE_CODE %}
-                        {% get_available_languages as LANGUAGES %}
-                        {% for lang in LANGUAGES %}
-                          <li {% if lang.0 == LANGUAGE_CODE %} class="active" {% endif %}>
-                            <a href="#" onclick="$('#language').val('{{ lang.0 }}'); $('#language-select').submit()">{{ lang.1 }} ({{ lang.0 }})
-                          </a></li>
-                        {% endfor %}
-                      </ul>
-                    </div>
+                  <select name="language" onchange="$('#language-select').submit()"">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% for lang in LANGUAGES %}
+                      <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected" {% endif %}>
+                        {{ lang.1 }} ({{ lang.0 }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <span class="caret drop-arrow"></span>
                 </div>
               </form>
             </li>
@@ -124,14 +109,12 @@
   </nav>
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper">
-      <a class="sidebar-toggle">
-        <span id="slide-icon" >
-          <span class="glyphicon glyphicon-chevron-left"></span>
-          <span class="glyphicon glyphicon-chevron-right"></span>
-        </span>
-      </a>
-      {% block sidebar %}
-      {% endblock %}
+      </br>
+      </br>
+      <div id="sidebar-content">
+        {% block sidebar %}
+        {% endblock %}
+      </div>
     </div>
     <!-- Page content -->
     <div id="page-content-wrapper">
@@ -147,7 +130,33 @@
     </div>
   </div>
   <script>
-    $("a").one( "click", function(){$(document).resize()});//document.resize()
+    <!-- hide sidebar if there is no content in it -->
+    if (document.getElementById('sidebar-content').childElementCount == 0){
+      document.getElementById('wrapper').style.paddingLeft = '0px';
+      document.getElementById('sidebar-wrapper').style.display = 'none';
+      <!--console.log(document.getElementById('sidebar-wrapper'))-->
+    };
+    
+    function show(elementId){
+      closeDropdowns(); 
+      document.getElementById(elementId).classList.toggle('show');
+    }
+    
+    function closeDropdowns(){
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+    
+    // Close the dropdowns if the user clicks outside of it
+    window.onclick = function(event) {
+      if (!event.target.matches('.drop-button')) closeDropdowns();
+    }
   </script>
 </body>
 </html>

@@ -29,7 +29,6 @@ from repair.apps.asmfa.views import (
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
-    QualityViewSet,
     KeyflowViewSet,
     KeyflowInCasestudyViewSet,
     GroupStockViewSet,
@@ -41,6 +40,8 @@ from repair.apps.asmfa.views import (
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
     OperationalLocationViewSet,
+    ProductViewSet,
+    MaterialViewSet,
 )
 
 ## base routes ##
@@ -51,24 +52,18 @@ router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'qualities', QualityViewSet)
+router.register(r'materials', MaterialViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
-cs_router.register(r'activitygroups', ActivityGroupViewSet)
-cs_router.register(r'activities', AllActivityViewSet)
-cs_router.register(r'actors', AllActorViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
-#cs_router.register(r'qualities', QualityViewSet, base_name='qualities')
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
-cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
-cs_router.register(r'operationallocations', OperationalLocationViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 user_router = NestedSimpleRouter(cs_router, r'users',
@@ -104,26 +99,32 @@ sii_router.register(r'note', SolutionInImplementationNoteViewSet)
 sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
 sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
 
-# /casestudies/*/activitygroups/...
-ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
+# /casestudies/*/keyflows/...
+kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
+kf_router.register(r'groupstock', GroupStockViewSet)
+kf_router.register(r'activitystock', ActivityStockViewSet)
+kf_router.register(r'actorstock', ActorStockViewSet)
+kf_router.register(r'group2group', Group2GroupViewSet)
+kf_router.register(r'activity2activity', Activity2ActivityViewSet)
+kf_router.register(r'actor2actor', Actor2ActorViewSet)
+kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'activitygroups', ActivityGroupViewSet)
+kf_router.register(r'activities', AllActivityViewSet)
+kf_router.register(r'actors', AllActorViewSet)
+kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
+kf_router.register(r'operationallocations', OperationalLocationViewSet)
+
+# /casestudies/*/keyflows/*/activitygroups/...
+ag_router = NestedSimpleRouter(kf_router, r'activitygroups',
                                lookup='activitygroup')
 ag_router.register(r'activities', ActivityViewSet)
 
-# /casestudies/*/activitygroups/*/activities/...
+# /casestudies/*/keyflows/*/activitygroups/*/activities/...
 ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
 ac_router.register(r'actors', ActorViewSet)
 
-# /casestudies/*/Keyflows/...
-mat_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
-mat_router.register(r'groupstock', GroupStockViewSet)
-mat_router.register(r'activitystock', ActivityStockViewSet)
-mat_router.register(r'actorstock', ActorStockViewSet)
-mat_router.register(r'group2group', Group2GroupViewSet)
-mat_router.register(r'activity2activity', Activity2ActivityViewSet)
-mat_router.register(r'actor2actor', Actor2ActorViewSet)
-
-# /casestudies/*/activitygroups/*/activities/*/actors/...
-actors_router = NestedSimpleRouter(cs_router, r'actors',
+# /casestudies/*/keyflows/*/actors/...
+actors_router = NestedSimpleRouter(kf_router, r'actors',
                                    lookup='actor')
 actors_router.register(r'administrativelocation',
                    AdministrativeLocationOfActorViewSet)
@@ -147,7 +148,7 @@ urlpatterns = [
     url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
-    url(r'^', include(mat_router.urls)),
+    url(r'^', include(kf_router.urls)),
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
 ]

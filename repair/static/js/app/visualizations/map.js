@@ -1,115 +1,162 @@
 define([
-  'd3',
-  'spatialsankey',
-  'leaflet'
-], function(d3, spatialsankey)
+  'openlayers', 'ol-contextmenu'
+], function(ol, ContextMenu)
 {
   var Map = function(options){
+    var interactions = [];
+    var map_projection = 'EPSG:3857';
+
+    var view = new ol.View({
+      projection: map_projection,
+      center: ol.proj.transform([13.4, 52.5], 'EPSG:4326', map_projection),
+      zoom: 10
+    });
+    var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+  
+    var map = new ol.Map({
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM({crossOrigin: 'anonymous'}),
+        }),
+        vectorLayer
+      ],
+      target: options.divid,
+      controls: ol.control.defaults({
+        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+          collapsible: false
+        })
+      }).extend([
+        new ol.control.FullScreen({source: options.divid})
+      ]),
+      view: view
+    });    
     
-    this.nodes = options.nodes;
-    this.links = options.links;
-    this.handler = options.nodeHandler;
-    var _this = this;
+    this.toMapProjection = function(coordinate, projection) {
+      return ol.proj.transform(coordinate, projection, map_projection);
+    }
     
-    // Set leaflet map
-    var map = new L.map(options.divid, {
-              center: new L.LatLng(50,15),
-              zoom: 4,
-              layers: [
-                new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-                  subdomains: ['','a.','b.','c.','d.'],
-                  attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-                })
-              ]
-            });
-     
-    // Initialize the SVG layer
-    map._initPathRoot()
+    this.toProjection = function(coordinate, projection) {
+      return ol.proj.transform(coordinate, map_projection, projection);
+    }
     
-    // Setup svg element to work with
-    var svg = d3.select('#' + options.divid).select("svg"),
-        linklayer = svg.append("g"),
-        nodelayer = svg.append("g");
-    
-    // Load data asynchronosuly
-    d3.json(_this.nodes, function(nodes) {
-      d3.csv(_this.links, function(links) {
+    this.addmarker = function(coordinate, options) {
+      var proj = options.projection || map_projection;
       
-        // Setup spatialsankey object
-        var sankey = d3.spatialsankey()
-                              .lmap(map)
-                              .nodes(nodes.features)
-                              .links(links);
-        var mouseover = function(d){
-          // Get link data for this node
-          var nodelinks = sankey.links().filter(function(link){
-            return link.source == d.id;
-          });
+      var template = '({x}, {y})';
           
-          console.log(_this);
-          _this.handler.changeActive(d.id);
-    
-          // Add data to link layer
-          var beziers = linklayer.selectAll("path").data(nodelinks);
-          link = sankey.link(options);
-    
-          // Draw new links
-          beziers.enter()
-            .append("path")
-            .attr("d", link)
-            .attr('id', function(d){return d.id})
-            .style("stroke-width", sankey.link().width());
-          
-          // Remove old links
-          beziers.exit().remove();
-    
-          // Hide inactive nodes
-          var circleUnderMouse = this;
-          circs.transition().style('opacity',function () {
-              return (this === circleUnderMouse) ? 0.7 : 0;
+      var feature = new ol.Feature({
+            type: 'removable',
+            // transform to map projection
+            geometry: new ol.geom.Point(
+              this.toMapProjection(coordinate, proj))
           });
-        };
-    
-        var mouseout = function(d) {
-          // Remove links
-          linklayer.selectAll("path").remove();
-          // Show all nodes
-          circs.transition().style('opacity', 0.7);
-        };
-    
-        // Draw nodes
-        var node = sankey.node()
-        var circs = nodelayer.selectAll("circle")
-          .data(sankey.nodes())
-          .enter()
-          .append("circle")
-          .attr("cx", node.cx)
-          .attr("cy", node.cy)
-          .attr("r", node.r)
-          .style("fill", node.fill)
-          .attr("opacity", 0.7)
-          .on('mouseover', mouseover)
-          .on('mouseout', mouseout);
-        
-        // Adopt size of drawn objects after leaflet zoom reset
-        var zoomend = function(){
-            linklayer.selectAll("path").attr("d", sankey.link());
-    
-            circs.attr("cx", node.cx)
-                 .attr("cy", node.cy);
-        };
-     
-        map.on("zoomend", zoomend);
+      if (options.icon){
+         var iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({ scale: .08, src: options.icon }),
+          text: new ol.style.Text({
+            offsetY: 25,
+            text: options.name, //ol.coordinate.format(coordinate, template, 2),
+            font: '15px Open Sans,sans-serif',
+            fill: new ol.style.Fill({ color: '#111' }),
+            stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
+          })
+        });
+        feature.setStyle(iconStyle); 
+      }
+      var dragStyle;
+      if (options.dragIcon){
+         dragStyle = new ol.style.Style({
+          image: new ol.style.Icon({ scale: .08, src: options.dragIcon })
+        })
+      }
+      
+      // Drag and drop feature
+      var dragInteraction = new ol.interaction.Modify({
+          features: new ol.Collection([feature]),
+          style: dragStyle,
+          pixelTolerance: 20
       });
-    });
-    var options = {'use_arcs': false, 'flip': false};
-    d3.selectAll("input").forEach(function(x){
-      options[x.name] = parseFloat(x.value);
-    })
+      
+      // Add the event to the drag and drop feature
+      dragInteraction.on('modifyend', function(){
+        var coordinate = feature.getGeometry().getCoordinates();
+        var transformed = ol.proj.transform(coordinate, map_projection, proj);
+        //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+        vectorLayer.changed();
+        if(options.onDrag){
+          options.onDrag(transformed);
+        }        
+      }, feature);
+      
+      interactions.push(dragInteraction);
+      map.addInteraction(dragInteraction);
+      vectorLayer.getSource().addFeature(feature);
+  
+    }
     
-    d3.selectAll("input").on("click", function(){
-      options[this.name] = parseFloat(this.value);
+    this.removeMarkers = function(){
+      map.getInteractions().forEach(function (interaction) {
+          if (interaction instanceof ol.interaction.Modify) 
+             map.removeInteraction(interaction);
+      });
+      vectorLayer.getSource().clear();
+    };
+    
+    function removeMarker(obj) {
+      vectorLayer.getSource().removeFeature(obj.data.marker);
+    }
+    
+    this.addContextMenu = function (contextmenu_items){
+      if (this.contextmenu != null)
+        this.map.removeControl(this.contextmenu);
+      var contextmenu = new ContextMenu({
+        width: 180,
+        items: contextmenu_items
+      });
+      this.contextmenu = contextmenu;
+      map.addControl(contextmenu);
+      
+      var removeMarkerItem = {
+        text: 'Remove this Marker',
+        classname: 'marker',
+        callback: removeMarker
+      };
+      
+      contextmenu.on('open', function (evt) {
+        var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+        
+        if (feature && feature.get('type') === 'removable') {
+          contextmenu.clear();
+          removeMarkerItem.data = { marker: feature };
+          contextmenu.push(removeMarkerItem);
+        } else {
+          contextmenu.clear();
+          contextmenu.extend(contextmenu_items);
+          contextmenu.extend(contextmenu.getDefaultItems());
+        }
+      });
+    }
+    
+    map.on('pointermove', function (e) {
+      if (e.dragging) return;
+    
+      var pixel = map.getEventPixel(e.originalEvent);
+      var hit = map.hasFeatureAtPixel(pixel);
+    
+      map.getTargetElement().style.cursor = hit ? 'pointer' : '';
     });
+    
+    this.center = function(coordinate, options) {
+      if (options.projection)
+        coordinate = this.toMapProjection(coordinate, options.projection)
+      
+      view.animate({center: coordinate});//, {zoom: 10});
+    }
+    
+    this.map = map;
+
   };
-  return Map
+  
+  
+  return Map;
 });

@@ -2,38 +2,38 @@ requirejs.config({
   baseUrl: '/static/js',
   paths: {
     'almond': 'libs/almond',
-    'map': 'app/visualizations/map',
     'flowmap': 'app/visualizations/flowmap',
     'mapviewer': 'app/visualizations/mapviewer',
     'd3': 'libs/d3.v3.min',
     'leaflet': 'libs/leaflet',
     'esri-leaflet': 'libs/esri-leaflet',
     'leaflet-fullscreen': 'libs/leaflet.fullscreen.min',
+    'openlayers': 'libs/ol',
+    'ol-contextmenu': 'libs/ol-contextmenu',
     'spatialsankey': 'libs/spatialsankey',
     'cyclesankey': 'libs/cycle-sankey',
     'jquery': 'libs/jquery-3.2.1.min',
+    'bootstrap': 'libs/bootstrap',
     'treeview': 'libs/bootstrap-treeview.min',
     'backbone': 'libs/backbone-min',
     'underscore': 'libs/underscore-min',
     'cookies': 'libs/js.cookie',
     'tablesorter': 'libs/jquery.tablesorter.widgets',
-    'tablesorter-pager': 'libs/jquery.tablesorter.pager',
+    'tablesorter-pager': 'libs/jquery.tablesorter.pager'
   },
   shim: {
     'almond': { exports: 'almond' },
-    'tablesorter': {
-      deps: ['libs/jquery.tablesorter.min']
-    },
-    'tablesorter-pager': {
-      deps: ['tablesorter']
-    },
-    'backbone': {
-      deps: ['underscore', 'jquery']
-    },
+    'tablesorter': { deps: ['libs/jquery.tablesorter.min'] },
+    'tablesorter-pager': { deps: ['tablesorter'] },
+    'leaflet-fullscreen': { deps: ['leaflet'] },
+    'backbone': { deps: ['jquery', 'underscore']},
     'spatialsankey': { deps: ['d3'] },
     'cyclesankey': { deps: ['d3'] },
+    'bootstrap': { deps: ['jquery'], exports: '$.fn.popover' }
   }
 });
+
+/* OVERRIDE FUNCTIONS */
 
 /* String formatter taken from https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 example: "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET")

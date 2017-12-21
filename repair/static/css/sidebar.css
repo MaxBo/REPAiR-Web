@@ -1,19 +1,7 @@
-.row{
-    margin-left:0px;
-    margin-right:0px;
-    padding: 4px;
-}
-
-#wrapper {
-    padding-left: 60px;
-    transition: all .4s ease 0s;
-    height: 100%;
-}
-
 
 #sidebar-wrapper {
     color: #fff;
-    left: -190px;
+    left: -185px;
     top: 0px;
     padding-top: 95px;
     width: 250px;
@@ -22,19 +10,12 @@
     position: fixed;
     height: 100%;
     transition: all .4s ease 0s;
-    z-index: 10;
+    z-index: 9998; /* 1 below navbar-default */
 }
 
-#sidebar-wrapper:hover {
+#sidebar-wrapper:hover, #sidebar-wrapper.active{
     background #999;
     left: 0px;
-}
-
-#page-content-wrapper {
-    padding: 5px;
-    margin-left: 0px;
-    width: 100%;
-    height: auto;
 }
 
 #sidebar {
@@ -50,7 +31,24 @@
     text-indent: 20px;
 }
 
-#sidebar li a {
+/* this one is for icons out of li-elements */
+#sidebar > div > .sub-icon{
+    color: #aad400;
+    margin-right: 15px;
+}
+#sidebar > div{
+    border-bottom: solid 1px #e6e6e6;
+}
+
+#sidebar li a{
+    color: #999;
+    display: block;
+    border: 2px solid #fff;
+    /*border-radius: 10px;*/
+    margin-top: 20px;
+}
+
+#sidebar li a{
     color: #999;
     display: block;
     border: 2px solid #fff;
@@ -76,6 +74,19 @@
     float: right;
     padding: 50px 5px 30px 0px;
     font-size: 1.5em;
+}
+
+#sidebar label{
+    /*float: right;*/
+    color: black;
+}
+
+#sidebar select{
+    /*float: right;
+    width: 100%;*/
+    color: black;
+    margin-bottom: 30px;
+    font-size: 0.9em;
 }
 
 .sub-icon

@@ -7,12 +7,12 @@ define(["backbone", "app-config"],
         var url = (this.type == 'activity') ? config.api.activityStock:
                   (this.type == 'actor') ? config.api.actorStock:
                   config.api.groupStock;
-        return url.format(this.caseStudyId, this.materialId);
+        return url.format(this.caseStudyId, this.keyflowId);
       },
       
-      initialize: function (models, options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
-        this.materialId = options.materialId;
+        this.keyflowId = options.keyflowId;
         this.type = options.type;
       },
     });

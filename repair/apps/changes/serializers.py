@@ -91,6 +91,14 @@ class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
         read_only_fields = ('url', 'id')
 
 
+class SolutionCategoryPostSerializer(SolutionCategorySerializer):
+    class Meta:
+        model = SolutionCategory
+        fields = ('url', 'id', 'name', 'user', 'solution_set', 'solution_list')
+        read_only_fields = ('url', 'id')
+
+
+
 class SolutionDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""

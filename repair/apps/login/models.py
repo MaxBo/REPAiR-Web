@@ -19,7 +19,7 @@ class GDSEModel(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.name
+        return self.name or ''
 
 
 class GDSEUniqueNameModel(GDSEModel):
@@ -104,7 +104,7 @@ class CaseStudy(GDSEModel):
             for implementation in uic.implementation_set.all():
                 implementations.add(implementation)
         return implementations
-    
+
 
 class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -114,23 +114,6 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
-    
-    #def save(self, **kwargs):
-        #"""look if a user exists and create it otherwise"""
-        #user = kwargs.pop('user', None)
-        #if user is None:
-            #user_id = kwargs.pop('id', None)
-            #user = User.objects.get_or_create(id=user_id)
-            ## the user creates the profile automatically
-        #else:
-            #self.user = user
-
-        #for attr, value in kwargs:
-            #setattr(self, attr, value)
-        #super().save()
-            
-    
-    
 
 
 @receiver(post_save, sender=User)
@@ -143,7 +126,6 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
             profile.save()
         else:
             print(instance.profile)
-
 
 
 class UserInCasestudy(GDSEModel):

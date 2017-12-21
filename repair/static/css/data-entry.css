@@ -1,0 +1,112 @@
+#balance-verify-data-btn, 
+#balance-data-btn, 
+#verify-data-btn, 
+#enter-data-btn,
+#view-data-btn {
+    width: 100%;
+}
+
+.admin-tab {
+    border: 2px solid #e6e6e6;
+}
+
+.tab-pane{
+    padding-top: 20px;
+    min-height: 300px;
+}
+
+#edit-node{
+    min-height: 300px;
+}
+
+#upload-flows-button, #upload-actors-button{
+    
+/*    float: right;
+    width: auto;
+    margin-top: 10px;
+    background-color: #aad400;
+    border-width: 0px;*/
+}
+
+.nav-tabs li button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    border: none;
+}
+
+.nav-tabs li.active button {
+    display: block;
+}
+
+#fullscreen-toggle{
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
+}
+
+input.changed, select.changed {
+    background-color: #e6f2ff;
+}
+
+tr.dsbld td{
+    background-color: #ffe6e6 !IMPORTANT;
+    opacity: 0.8;
+}
+
+#actors-table th, #products-table th{
+    color: white !IMPORTANT;
+    background-color:  #aad400 !IMPORTANT;
+}
+
+/*tablesorter does a bad job with placing pager by default*/
+#pager {
+    top: 0px !IMPORTANT;
+    position: relative !IMPORTANT;
+}
+
+#casestudy-warning, #keyflow-warning {
+    display: none;
+}
+
+tr.selected td{
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border: 2px solid rgba(170, 212, 0, 0.3);
+}
+.map:-moz-full-screen {
+  width: 100%;
+  height: 100%;
+}
+.map:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+}
+.map:-ms-fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.map:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+.ol-rotate {
+  top: 3em;
+}
+
+td button {
+    padding: 0px 5px 0px 5px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.modal{
+    top: 80px;
+}
+
+table{
+    /*font-size: 0.9em;*/
+}
