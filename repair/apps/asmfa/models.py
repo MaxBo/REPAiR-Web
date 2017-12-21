@@ -33,7 +33,7 @@ class Keyflow(GDSEModel):
                                          through='KeyflowInCasestudy')
 
 
-class KeyflowInCasestudy(models.Model):
+class KeyflowInCasestudy(GDSEModel):
     keyflow = models.ForeignKey(Keyflow, on_delete=models.CASCADE,
                                 related_name='products')
     casestudy = models.ForeignKey(CaseStudy)
@@ -44,40 +44,46 @@ class KeyflowInCasestudy(models.Model):
             pk=self.pk, k=self.keyflow, c=self.casestudy)
 
 
-class Product(GDSEModel):
-
-    # not sure about the max length, leaving everywhere 255 for now
-    name = models.CharField(max_length=255, null=True)
-    default = models.BooleanField(default=True)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
-                                related_name='products')
-
-
 class Material(GDSEModel):
 
-    # not the same as the former Material class that has been renamed to Keyflow
-    code = models.CharField(max_length=10)
     name = models.CharField(max_length=255)
-    flowType = models.CharField(max_length=255, null=True)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                related_name='materials')
 
 
-class ProductFraction(models.Model):
+class Fraction(GDSEModel):
 
-    fraction = models.FloatField(default=1)
+    fraction = models.FloatField()
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='fractions')
+    # item = models.ForeignKey(Item, on_delete=models.CASCADE,
+    #                             related_name='fractions')
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
-                                 related_name='products')
+                                 related_name='items')
 
 
-class Quality(GDSEModel):
-    # not used anymore
+class Item(GDSEModel):
 
-    # material = models.ForeignKey(Material,
-                                # on_delete=models.CASCADE)
-    # name = models.TextField()
-    pass
+    nace = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        abstract = True
+
+
+class Product(Item):
+
+    cpa = models.CharField(max_length=255)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                related_name='products')
+    fractions = models.ManyToManyField(Fraction, related_name='products')
+
+
+class Waste(Item):
+
+    ewc = models.CharField(max_length=255)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                related_name='wastes')
+    fractions = models.ManyToManyField(Fraction, related_name='wastes')
 
 
 class Node(GDSEModel):
