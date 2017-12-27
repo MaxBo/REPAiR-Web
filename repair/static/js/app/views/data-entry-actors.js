@@ -11,7 +11,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       */
     initialize: function(options){
       _.bindAll(this, 'render');
-      _.bindAll(this, 'addMarker');
       
       this.template = options.template;
       var keyflowId = this.model.id,
@@ -67,12 +66,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       * dom events (managed by jquery)
       */
     events: {
-      'click #add-actor-button': 'addActorEvent', 
-      'change #included-filter-select': 'changeFilter',
-      'click #upload-actors-button': 'uploadChanges',
-      'click #confirm-location': 'locationConfirmed',
-      'click #add-operational-button': 'addOperationalLocation',
-      'click #add-administrative-button': 'addAdministrativeLocation'
+      'click #add-actor-button': 'addActorEvent'
     },
 
     /*
@@ -87,71 +81,29 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');
-      this.adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
-      this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
-      //// render inFlows
+      // render inFlows
       this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
       
       this.setupTable();
-      this.initMap();
     },
     
     setupTable: function(){
     
-      // ToDo: modularize this 
-      $.tablesorter.addParser({
-          id: 'inputs',
-          is: function(s) {
-              return false;
-          },
-          format: function(s, table, cell, cellIndex) {
-              var $c = $(cell);
-              // return 1 for true, 2 for false, so true sorts before false
-              if (!$c.hasClass('updateInput')) {
-                  $c
-                  .addClass('updateInput')
-                  .bind('keyup', function() {
-                      $(table).trigger('updateCell', [cell, false]); // false to prevent resort
-                  });
-              }
-              return $c.find('input').val();
-          },
-          type: 'text'
-      });
-      $.tablesorter.addParser({
-          id: 'select',
-          is: function(s) {
-              return false;
-          },
-          format: function(s, table, cell, cellIndex) {
-              var $c = $(cell);
-              // return 1 for true, 2 for false, so true sorts before false
-              if (!$c.hasClass('updateInput')) {
-                  $c
-                  .addClass('updateInput')
-                  .bind('keyup', function() {
-                      $(table).trigger('updateCell', [cell, false]); // false to prevent resort
-                  });
-              }
-              return $c.find('select option:selected').text();
-          },
-          type: 'text'
-      });
       $(this.table).tablesorter({
-        headers:{
-          0: {sorter: false},
-          1: {sorter: 'inputs'},
-          2: {sorter: 'select'},
-          3: {sorter: 'inputs'},
-          4: {sorter: 'inputs'},
-          5: {sorter: 'inputs'},
-          6: {sorter: 'inputs'},
-          7: {sorter: 'inputs'},
-          8: {sorter: 'inputs'},
-          9: {sorter: 'inputs'}
-        },
-        //widgets: ['zebra']
+        //headers:{
+          //0: {sorter: false},
+          //1: {sorter: 'inputs'},
+          //2: {sorter: 'select'},
+          //3: {sorter: 'inputs'},
+          //4: {sorter: 'inputs'},
+          //5: {sorter: 'inputs'},
+          //6: {sorter: 'inputs'},
+          //7: {sorter: 'inputs'},
+          //8: {sorter: 'inputs'},
+          //9: {sorter: 'inputs'}
+        //},
+        ////widgets: ['zebra']
       })
       
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
@@ -180,143 +132,31 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
       
-      /* column INCLUDED with reason of exclusion*/
-
-      var inclusionWrapper = document.createElement("div");
-      inclusionWrapper.style = 'min-width: 200px;';
-      var checkbox = document.createElement("input");
-      checkbox.type = 'checkbox';
       var included = actor.get('included')
-      checkbox.checked = included;
-      inclusionWrapper.appendChild(checkbox);
-      
-      var form = document.createElement("form");
-      var radios = [];
-      var targetReason = actor.get('reason');
-      
-      // add radio button with reason
-      function addRadio(reasonId, name){
-        var span = document.createElement("span");
-        span.style = 'white-space: nowrap;';
-        var radio = document.createElement("input");
-        radio.type = 'radio';
-        radio.style = 'margin-right: 2px;';
-        radio.name = 'actor' + actor.id;
-        radio.value = reasonId;
-        span.appendChild(radio);
-        form.appendChild(span);
-        form.appendChild(document.createElement("br"));
-        radios.push(radio);
-        // set reason to model on change by user
-        radio.addEventListener('change', function() {
-          actor.set('reason', radio.value);
-        });
-        // set reason as stored in model
-        if (reasonId == targetReason){
-          radio.checked = true;
-        }
-        var label = document.createElement("label");
-        label.innerHTML = name;
-        span.appendChild(label);
-      }
-      // iterate reasons and add radio buttons for each one
-      for (var reasonId in this.reasons){
-        addRadio(reasonId, this.reasons[reasonId]);
-      };
-      inclusionWrapper.appendChild(form);
-      
-      row.insertCell(-1).appendChild(inclusionWrapper);
 
       if (!included){
         row.classList.add('dsbld');
         if (!this.showAll)
           row.style.display = "block";
       }
-      else
-        form.style.display = "none";
+      row.insertCell(-1).innerHTML = actor.get('name');
+      var activity = this.activities.get(actor.get('activity'));
+      row.insertCell(-1).innerHTML = activity.get('name');
       
-      // set inclusion/exclusion made by user to model, show/hide reason
-      checkbox.addEventListener('change', function() {
-        row.classList.toggle('dsbld');
-        actor.set('included', checkbox.checked);
-        if(checkbox.checked){
-          form.style.display = "none";
-          // set reason to "included"
-          actor.set('reason', 0);
-        }
-        else {
-          form.style.display = "block";
-          // reason 0 is "included" - set it to first other reason available
-          if (actor.get('reason') == 0){
-            actor.set('reason', 1)
-            radios[0].checked = true; // radios-array starts with first reason other than "included"
-          }
-        }
-      });
-      
-      /* add an input-field to the row, 
-       * tracking changes made by user to the attribute and automatically updating the model 
-       */
-      var addInput = function(attribute, inputType){
-        var input = document.createElement("input");
-        if (inputType == 'number')
-          input.type = 'number'
-        input.value = actor.get(attribute);
-        row.insertCell(-1).appendChild(input);
-
-        input.addEventListener('change', function() {
-          actor.set(attribute, input.value);
-          input.classList.add('changed');
-        });
-      };
-
-      addInput('name');
-
-     
-      /* column ACTIVITY (selection)*/
-
-      var activitySelect = document.createElement("select");
-      var ids = [];
-      var targetId = actor.get('activity');
-      this.activities.each(function(activity){
-        var option = document.createElement("option");
-        option.text = activity.get('name');
-        option.value = activity.id;
-        activitySelect.add(option);
-        ids.push(activity.id);
-      });
-      var idx = ids.indexOf(targetId);
-      activitySelect.selectedIndex = idx.toString();
-      row.insertCell(-1).appendChild(activitySelect);
-
-      activitySelect.addEventListener('change', function() {
-        actor.set('activity', activitySelect.value);
-        activitySelect.classList.add('changed');
-      });
-
-      
-      /* other simple input-columns*/
-      addInput('website');
-      addInput('year', 'number');
-      addInput('turnover', 'number');
-      addInput('employees', 'number');
-      addInput('BvDid');
-      addInput('BvDii');
-      addInput('consCode');
-      
-      // row is clicked -> highlight and render locations on map      
+      row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
-        _this.el.querySelector('#actor-name').innerHTML = actor.get('name');
-        var selected = _this.table.getElementsByClassName("selected");
-        _.each(selected, function(row){
-          row.classList.remove('selected');
-        });
-        row.classList.add('selected');
-        if (_this.activeActorId != actor.id || actor.id == null){
-          _this.activeActorId = actor.id;
-          _this.renderLocations(actor);
-        }
+        //_this.el.querySelector('#actor-name').innerHTML = actor.get('name');
+        //var selected = _this.table.getElementsByClassName("selected");
+        //_.each(selected, function(row){
+          //row.classList.remove('selected');
+        //});
+        //row.classList.add('selected');
+        //if (_this.activeActorId != actor.id || actor.id == null){
+          //_this.activeActorId = actor.id;
+          //_this.renderLocations(actor);
+        //}
       });
+
       return row;
     },
 
@@ -346,255 +186,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       document.getElementById('goto-last-page').click();
     },
 
-    /* 
-     * check the models for changes and upload the changed/added ones 
-     */
-    uploadChanges: function(){
-
-      var _this = this;
-
-      var modelsToSave = [];
-
-      var update = function(model){
-        if (model.changedAttributes() != false && Object.keys(model.attributes).length > 0){
-          modelsToSave.push(model);
-        }
-      };
-      this.actors.each(update);
-      //this.adminLocations.each(update);
-
-      // chain save and destroy operations
-      var saveComplete = _.invoke(modelsToSave, 'save');
-
-      var loader = new Loader(document.getElementById('flows-edit'),
-        {disable: true});
-      var onError = function(response){
-        alert(response.responseText); 
-        loader.remove();
-      };
-      $.when.apply($, saveComplete).done(function(){
-        loader.remove();
-        console.log('upload complete');
-        _this.onUpload();
-      }).fail(onError);
-    },
-    
-    /* 
-     * initial setup of the map-view
-     */
-    initMap: function(){
-      var _this = this;
-      
-      this.map = new Map({
-        divid: 'actors-map', 
-      });
-      
-      
-      
-     this.localMap = new Map({
-        divid: 'edit-location-map', 
-      });
-
-      
-      // event triggered when modal dialog is ready -> trigger rerender to match size
-      $('#location-modal').on('shown.bs.modal', function () {
-        _this.localMap.map.updateSize();
-     });
-      //this.localMap.map.updateSize();
-      //this.localMap.map.render();
-      
-      //var onAddAdminLoc = function(obj){
-        //if (_this.activeActorId == null) return; 
-        //var adminLoc = _this.adminLocations.filterActor(_this.activeActorId)[0];
-        //if (adminLoc != null) return;
-        //var coord = _this.map.toProjection(obj.coordinate, _this.projection);
-        //_this.addLocation(coord, _this.adminLocations, _this.pins.blue, _this.adminTable);
-      //};
-    
-    
-      //var onAddOpLoc = function(obj){
-        //if (_this.activeActorId == null) return; 
-        //var coord = _this.map.toProjection(obj.coordinate, _this.projection);
-        //_this.addLocation(coord, _this.opLocations, _this.pins.red, _this.opTable);
-      //};
-    
-      //var items = [
-        //{
-          //text: 'Add/Move Administr. Loc.',
-          //icon: this.pins.blue,
-          //callback: onAddAdminLoc
-        //},
-        //{
-          //text: 'Add Operational Loc.',
-          //icon: this.pins.red,
-          //callback: onAddOpLoc
-        //},
-        //'-' // this is a separator
-      //];
-      
-      //this.map.addContextMenu(items)
-    },
-    
-    /* 
-     * add a location to the map
-     */
-    addLocation: function(coord, locations, pin, table){
-      var properties = {actor: this.activeActorId}
-      var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
-                                          type: locations.type,
-                                          properties: properties})
-      loc.setGeometry(coord);
-      locations.add(loc);
-      this.addMarker(loc, pin, table);
-    },
-    
-    
-    /* 
-     * add a marker with given location to the map and the table
-     */
-    addMarker: function(loc, pin, table){ 
-      if (loc == null)
-        return;
-      function formatCoords(c){
-        return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
-      }
-      /* add table rows */
-      
-      var row = table.insertRow(-1);
-      var _this = this;
-      // add a crosshair icon to center on coordinate on click
-      var centerDiv = document.createElement('div');
-      //centerDiv.className = "fa fa-crosshairs";
-      var img = document.createElement("img");
-      img.src = pin;
-      img.setAttribute('height', '30px');
-      centerDiv.appendChild(img);
-      var cell = row.insertCell(-1);
-      var coords = loc.get('geometry').get('coordinates');
-      cell.appendChild(centerDiv);
-      cell.addEventListener('click', function(){ 
-        _this.map.center(loc.get('geometry').get('coordinates'), 
-                        {projection: _this.projection})
-      });
-      cell.style.cursor = 'pointer';
-      row.insertCell(-1).innerHTML = loc.get('properties').name;
-      var editBtn = document.createElement('button');
-      var pencil = document.createElement('span');
-      editBtn.classList.add('btn');
-      editBtn.classList.add('btn-primary');
-      editBtn.classList.add('square');
-      editBtn.style.float = 'right';
-      editBtn.appendChild(pencil);
-      pencil.classList.add('glyphicon');
-      pencil.classList.add('glyphicon-pencil');
-      
-      editBtn.addEventListener('click', function(){
-        _this.editLocation(loc);
-      });
-      
-      row.insertCell(-1).appendChild(editBtn);
-      
-      /* add markers */
-      
-      this.map.addmarker(coords, { 
-        icon: pin, 
-        //dragIcon: this.pins.orange, 
-        projection: this.projection,
-        name: loc.get('properties').name,
-        onDrag: function(coords){
-          loc.get('geometry').set("coordinates", coords);
-        }
-      });
-    },
-    
-    editLocation: function(location){
-      this.editedLocation = location;
-      var type = location.collection.type;
-      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
-      var inner = document.getElementById('location-modal-template').innerHTML;
-      var template = _.template(inner);
-      var html = template({properties: location.get('properties')});
-      document.getElementById('location-modal-content').innerHTML = html;
-      $('#location-modal').modal('show'); 
-      this.localMap.removeMarkers();
-      var items = [
-        {
-          text: 'Set Location',
-          icon: pin,
-          callback: function(){}
-        },
-        '-'
-      ];
-      
-      this.localMap.addContextMenu(items);
-      var geometry = location.get('geometry');
-      if (geometry != null){
-        var coords = geometry.get("coordinates");
-        this.localMap.addmarker(coords, { 
-          icon: pin, 
-          //dragIcon: this.pins.orange, 
-          projection: this.projection,
-          name: location.get('properties').name,
-          onDrag: function(coords){
-            geometry.set("coordinates", coords);
-          }
-        });
-        this.localMap.center(coords, {projection: this.projection});
-      };
-      
-      
-      //this.localMap.map.updateSize();
-      //this.localMap.center((0, 0), {projection: this.projection});
-    },
-    
-    createAdministrativeLocation(){
-    },
-    
-    createOperationalLocation(){
-    },
-    
-    createLocation(){
-      
-      return location;
-    },
-    
-    
-    locationConfirmed: function(){
-      var location = this.editedLocation;
-      if(location == null) return;
-      var table = document.getElementById('location-edit-table');
-      var inputs = table.querySelectorAll('input');
-      var properties = location.get('properties');
-      _.each(inputs, function(input){
-        //properties.set(input.name) = input.value;
-        properties[input.name] = input.value;
-      });
-      // rerender actor and markers
-      var actor = this.actors.get(this.activeActorId);
-      this.renderLocations(actor);
-    },
-    
-    /* 
-     * render the locations of the given actor as markers inside the map and table
-     */
-    renderLocations: function(actor){
-    document.getElementById('location-wrapper').style.display = 'block';
-      var adminLoc = this.adminLocations.filterActor(actor.id)[0];
-          opLocList = this.opLocations.filterActor(actor.id);
-      
-      var _this = this;
-      this.adminTable.innerHTML = '';
-      this.opTable.innerHTML = '';
-      
-      this.map.removeMarkers();
-      this.addMarker(adminLoc, this.pins.blue, this.adminTable);
-      _.each(opLocList, function(loc){_this.addMarker(loc, _this.pins.red, _this.opTable);});
-      
-      if (adminLoc != null)
-        this.map.center(adminLoc.get('geometry').get('coordinates'),
-                        {projection: this.projection});
-    },
-    
     /*
      * remove this view from the DOM
      */
