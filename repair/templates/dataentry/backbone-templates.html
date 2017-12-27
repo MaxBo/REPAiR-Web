@@ -272,15 +272,14 @@
         </div>
       </div>
     </div>
-    <div class='col-md-3' style="border: 1px solid #e6e6e6;">
-      
-      <h4 id="actor-name" class="row">{% trans "Please choose an actor by clicking a row." %}</h4>
-      <div id="actors-map" style="min-height: 400px" class="map row"></div>
+    <div class='col-md-3 bordered'>
+      <h4 id="actor-name" class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Show Locations by clicking an actor." %}</h4>
+      <div id="actors-map" style="min-height: 300px" class="map row"></div>
       </br>
       <div id='location-wrapper' style="display: None;">
         <div class="bordered" class="row">
           <table id="adminloc-table">
-            <h4>Administrative Location</h4>
+            <b>Administrative Location</b>
             <thead>
                 <tr>
                   <th></th>
@@ -296,7 +295,7 @@
         </br>
         <div class="bordered" class="row">
           <table id="oploc-table">
-            <h4>Operational Locations</h4>
+            <b>Operational Locations</b>
             <thead>
               <tr>
                 <th></th>
@@ -334,6 +333,22 @@
       </div>
     </div>
   </div>
+  <div id="alert-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Error"%}</h4>
+        </div>
+        <div class="modal-body">
+          <p id="alert-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </script>
 
 <!-- edit location -->
@@ -354,6 +369,10 @@
     <tr>
       <td>{% trans "Street" %}</td>
       <td><input type="text" name="address" value="<%= properties.address %>"></td>
+    </tr>
+    <tr>
+      <td>{% trans "Point" %}</td>
+      <td id="coordinates"></td>
     </tr>
   </table>
 </script>

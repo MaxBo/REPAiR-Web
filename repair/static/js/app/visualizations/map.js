@@ -3,6 +3,7 @@ define([
 ], function(ol, ContextMenu)
 {
   var Map = function(options){
+    var idCounter = 0;
     var interactions = [];
     var map_projection = 'EPSG:3857';
 
@@ -39,7 +40,7 @@ define([
       return ol.proj.transform(coordinate, map_projection, projection);
     }
     
-    this.addmarker = function(coordinate, options) {
+    this.addmarker = function(coordinates, options) {
       var proj = options.projection || map_projection;
       
       var template = '({x}, {y})';
@@ -48,7 +49,7 @@ define([
             type: 'removable',
             // transform to map projection
             geometry: new ol.geom.Point(
-              this.toMapProjection(coordinate, proj))
+              this.toMapProjection(coordinates, proj))
           });
       if (options.icon){
          var iconStyle = new ol.style.Style({
@@ -90,8 +91,19 @@ define([
       
       interactions.push(dragInteraction);
       map.addInteraction(dragInteraction);
+      var id = idCounter;
+      feature.setId(id);
+      idCounter++;
       vectorLayer.getSource().addFeature(feature);
-  
+      console.log(feature);
+      return id;
+    }
+    
+    this.moveMarker = function(markerId, coordinates, options) {
+      var feature = vectorLayer.getSource().getFeatureById(markerId);
+      var options = options || {};
+      var proj = options.projection || map_projection;
+      feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
     }
     
     this.removeMarkers = function(){
