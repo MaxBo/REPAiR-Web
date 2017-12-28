@@ -106,8 +106,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var selects = Array.prototype.slice.call(table.querySelectorAll('select'));
       _.each(inputs.concat(selects), function(input){
         if (input.name == 'reason' || input.name == 'included') return; // continue, handled seperately (btw 'return' in _.each(...) is equivalent to continue)
-        //properties.set(input.name) = input.value;
-        console.log(input.name + ' ' + input.value)
         actor.set(input.name, input.value);
       });
       var included = this.el.querySelector('input[name = "included"]').checked;
@@ -119,19 +117,26 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var loader = new Loader(document.getElementById('flows-edit'),
         {disable: true});
         
-      var onError = function(model, response){
+      var deferreds = [],
+          errors = {};
+      
+      this.opLocations.each(function(loc){deferreds.push(loc.save())});
+      var adminLoc = this.adminLocations.first()
+      if (adminLoc != null)
+        deferreds.push(adminLoc.save());
+      deferreds.push(actor.save());
+      
+      var onError = function(response){
         document.getElementById('alert-message').innerHTML = response.responseText; 
         loader.remove();
         $('#alert-modal').modal('show'); 
       };
       
-      var onSuccess = function(model, response){
+      $.when.apply($, deferreds).done(function(response){
         loader.remove();
+        console.log('upload complete');
         _this.onUpload(actor);
-      };
-      
-      actor.save(null, {success: onSuccess,
-                        error: onError})
+      }).fail(onError);
     },
     
     /* 

@@ -101,7 +101,6 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       
       function setRowValues(actor){
         var included = actor.get('included');
-        console.log(included)
         if (!included){
           row.classList.add('dsbld');
           if (!_this.showAll)
@@ -159,10 +158,8 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
         "website": "www.website.org",
         "activity": this.activities.first().id,
         }, {"caseStudyId": this.model.get('casestudy')});
-      console.log(actor);
       actor.save({}, {success: function(){
         _this.actors.add(actor);
-        console.log(actor)
         var row = _this.addActorRow(actor);
         // let tablesorter know, that there is a new row
         $('table').trigger('addRows', [$(row)]);
