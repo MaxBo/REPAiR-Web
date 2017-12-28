@@ -296,13 +296,13 @@
       <tr>
         <td>{% trans "Included" %}</td>
         <td>
-          <input id="included-check" type="checkbox" name="included" checked="<%= actor.get('included') %>"></input>
+          <input id="included-check" type="checkbox" name="included" <% if(actor.get('included')) { %> checked <% } %>"></input>
           <form id="reasons" style="display: <%= actor.get('included') == true ? 'none' : 'block' %>;" >
             {% trans "Reason for exclusion" %}
             </br>
             <% _.each(reasons, function(reason) { %>
               <span style="white-space: nowrap;">
-                <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>"></input>
+                <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>" <% if(actor.get('reason') == reason.id) { %> checked <% } %>></input>
                 <%= reason.name %>
               </span>
               </br>
@@ -319,7 +319,7 @@
         <td>
           <select name="activity">
             <% activities.each(function(activity) { %>
-              <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
+              <option value="<%= activity.id %>" <% if(actor.get('activity') == activity.id) { %> selected="selected" <% } %>> <%= activity.get('name') %></option>
             <% });  %>
            </select>
         </td>
