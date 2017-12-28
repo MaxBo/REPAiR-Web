@@ -102,8 +102,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var _this = this;
       
       var table = document.getElementById('actor-edit-table');
-      var inputs = table.querySelectorAll('input');
-      _.each(inputs, function(input){
+      var inputs = Array.prototype.slice.call(table.querySelectorAll('input'));
+      var selects = Array.prototype.slice.call(table.querySelectorAll('select'));
+      _.each(inputs.concat(selects), function(input){
         if (input.name == 'reason' || input.name == 'included') return; // continue, handled seperately (btw 'return' in _.each(...) is equivalent to continue)
         //properties.set(input.name) = input.value;
         console.log(input.name + ' ' + input.value)
@@ -118,23 +119,19 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var loader = new Loader(document.getElementById('flows-edit'),
         {disable: true});
         
-      var onError = function(response){
-        var errText = '';
-        for (var modelId in errors)
-          errText = errors[modelId] + '</br>';
-        //console.log(response.getAllResponseHeaders())
-        document.getElementById('alert-message').innerHTML = errText; 
+      var onError = function(model, response){
+        document.getElementById('alert-message').innerHTML = response.responseText; 
         loader.remove();
         $('#alert-modal').modal('show'); 
       };
       
-      var onSuccess = function(response){
+      var onSuccess = function(model, response){
         loader.remove();
         _this.onUpload(actor);
       };
       
       actor.save(null, {success: onSuccess,
-                  fail: onError})
+                        error: onError})
     },
     
     /* 

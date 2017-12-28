@@ -40,7 +40,8 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       * dom events (managed by jquery)
       */
     events: {
-      'click #add-actor-button': 'addActorEvent'
+      'click #add-actor-button': 'addActorEvent',
+      'change #included-filter-select': 'changeFilter'
     },
 
     /*
@@ -81,8 +82,8 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
 
     changeFilter: function(event){
       this.showAll = event.target.value == '0';
-      for (var i = 1, row; row = this.table.rows[i]; i++) {
-        if (!this.showAll && !row.cells[0].getElementsByTagName("input")[0].checked)
+      for (var i = 1, row; row = this.actorRows[i]; i++) {
+        if (!this.showAll && row.classList.contains('dsbld'))
           row.style.display = "none";
         else
           row.style.display = "table-row";
@@ -95,20 +96,27 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
       this.actorRows.push(row);
       
-      var included = actor.get('included')
-
-      if (!included){
-        row.classList.add('dsbld');
-        if (!this.showAll)
-          row.style.display = "block";
-      }
-      row.insertCell(-1).innerHTML = actor.get('name');
-      var activity = this.activities.get(actor.get('activity'));
-      row.insertCell(-1).innerHTML = (activity != null)? activity.get('name'): '-';
+      var nameCell = row.insertCell(-1);
+      var activityCell = row.insertCell(-1);
       
-      function onUpload(actor){
-        console.log(actor);
+      function setRowValues(actor){
+        var included = actor.get('included');
+        console.log(included)
+        if (!included){
+          row.classList.add('dsbld');
+          if (!_this.showAll)
+            row.style.display = "none";
+        } else {
+          row.classList.remove('dsbld')
+          row.style.display = "table-row";
+        }
+        
+        nameCell.innerHTML = actor.get('name');
+        var activity = _this.activities.get(actor.get('activity'));
+        activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
       };
+      
+      setRowValues(actor);
       
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
@@ -125,7 +133,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
             model: actor,
             activities: _this.activities,
             keyflow: _this.model,
-            onUpload: onUpload
+            onUpload: setRowValues
           })
         }
       });
