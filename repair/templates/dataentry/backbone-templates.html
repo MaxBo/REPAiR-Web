@@ -212,14 +212,8 @@
 
 <!-- Actors -->
 
-<script type="text/template" id="actors-edit-template">
+<script type="text/template" id="actors-template">
   <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Actors" %}</h3>
-  </br>
-  <div class="row">
-    <button id='upload-actors-button' title="{% trans "upload changes made to actors and their locations" %}" class="btn btn-danger">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-    </button>
-  </div>
   </br>
   <div class="row">
     {% trans "Filter table" %}
@@ -265,46 +259,136 @@
       </div>
     </div>
     <div class='col-md-9 bordered'>
-      
-      <h4 id="actor-name" class="row">{% trans "Please choose an actor by clicking a row." %}</h4>
-      <div id="actors-map" style="min-height: 400px" class="map row"></div>
-      </br>
-      <div id='location-wrapper' style="display: None;">
-        <div class="bordered" class="row">
-          <table id="adminloc-table">
-            <h4>Administrative Location</h4>
-            <thead>
-                <tr>
-                  <th></th>
-                  <th>{% trans "Name" %}</th>
-                <th style="text-align: right;">{% trans "Edit Loc." %}</th>
-                </tr>
-              </thead> 
-              <tbody> 
-              </tbody> 
-          </table>
-          <button id='add-administrative-button' title="{% trans "add administrative location" %}"><span class="glyphicon glyphicon-plus"></span></button>
-        </div>
-        </br>
-        <div class="bordered" class="row">
-          <table id="oploc-table">
-            <h4>Operational Locations</h4>
-            <thead>
-              <tr>
-                <th></th>
-                <th>{% trans "Name" %}</th>
-                <th style="text-align: right;">{% trans "Edit Loc." %}</th>
-              </tr>
-            </thead> 
-            <tbody> 
-            </tbody> 
-          </table>
-          <button id='add-operational-button' title="{% trans "add operational location" %}"><span class="glyphicon glyphicon-plus"></span></button>
-        </div>
+      <div id="edit-actor"> 
+        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select an actor by clicking its row." %}</h3>
       </div>
     </div>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+  <div id="alert-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Error"%}</h4>
+        </div>
+        <div class="modal-body">
+          <p id="alert-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- edit actor -->
+<script type="text/template" id="edit-actor-template">
+  <div class='col-md-6'>
+    <h3 class="row"> <%= actor.get('name') %> </h3>
+    <div class="row">
+      <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger">
+        <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+      </button>
+    </div>
+    <table id="actor-edit-table">
+      <tr>
+        <td>{% trans "Included" %}</td>
+        <td>
+          <input id="included-check" type="checkbox" name="included" checked="<%= actor.get('included') %>"></input>
+          <form id="reasons" style="display: <%= actor.get('included') == true ? 'none' : 'block' %>;" >
+            {% trans "Reason for exclusion" %}
+            </br>
+            <% _.each(reasons, function(reason) { %>
+              <span style="white-space: nowrap;">
+                <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>"></input>
+                <%= reason.name %>
+              </span>
+              </br>
+            <% });  %>
+          </form>
+        <td>
+      </tr>
+      <tr>
+        <td>{% trans "Name" %}</td>
+        <td><input type="text" name="name" value="<%= actor.get('name') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "Activity" %}</td>
+        <td>
+          <select name="activity">
+            <% activities.each(function(activity) { %>
+              <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
+            <% });  %>
+           </select>
+        </td>
+      </tr>
+      <tr>
+        <td>{% trans "Website" %}</td>
+        <td><input type="text" name="website" value="<%= actor.get('website') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "Year" %}</td>
+        <td><input type="number" min="1900" max="3000" name="year" value="<%= actor.get('year') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "Turnover" %}</td>
+        <td><input type="number" name="turnover" value="<%= actor.get('turnover') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "Employees" %}</td>
+        <td><input type="number" min="0" name="employees" value="<%= actor.get('employees') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "BvDid" %}</td>
+        <td><input type="text" name="BvDid" value="<%= actor.get('BvDid') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "BvDii" %}</td>
+        <td><input type="text" name="BvDii" value="<%= actor.get('BvDii') %>"></td>
+      </tr>
+      <tr>
+        <td>{% trans "ConsCode" %}</td>
+        <td><input type="text" name="consCode" value="<%= actor.get('consCode') %>"></td>
+      </tr>
+    </table>
+  </div>
+  <div class='col-md-6'>
+    <div id="actors-map" style="min-height: 300px" class="map row"></div>
+    </br>
+    <div class="bordered" class="row">
+      <table id="adminloc-table">
+        <b>Administrative Location</b>
+        <thead>
+            <tr>
+              <th></th>
+              <th>{% trans "Name" %}</th>
+            <th style="text-align: right;">{% trans "Edit Loc." %}</th>
+            </tr>
+          </thead> 
+          <tbody> 
+          </tbody> 
+      </table>
+      <button id='add-administrative-button' title="{% trans "add administrative location" %}"><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+    </br>
+    <div class="bordered" class="row">
+      <table id="oploc-table">
+        <b>Operational Locations</b>
+        <thead>
+          <tr>
+            <th></th>
+            <th>{% trans "Name" %}</th>
+            <th style="text-align: right;">{% trans "Edit Loc." %}</th>
+          </tr>
+        </thead> 
+        <tbody> 
+        </tbody> 
+      </table>
+      <button id='add-operational-button' title="{% trans "add operational location" %}"><span class="glyphicon glyphicon-plus"></span></button>
+    </div>
+  </div>
   <div id="location-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -346,6 +430,10 @@
     <tr>
       <td>{% trans "Street" %}</td>
       <td><input type="text" name="address" value="<%= properties.address %>"></td>
+    </tr>
+    <tr>
+      <td>{% trans "Point" %}</td>
+      <td id="coordinates"></td>
     </tr>
   </table>
 </script>

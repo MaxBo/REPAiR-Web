@@ -1,16 +1,16 @@
-define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
-        'app/models/geolocation', 'app/collections/activities', 
-        'app/collections/actors', 'app/visualizations/map', 
+define(['backbone', 'app/models/actor', 'app/collections/activities', 
+        'app/collections/actors', 'app/views/data-entry-edit-actor',
         'tablesorter-pager', 'app/loader'],
 
-function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
-  var EditActorsView = Backbone.View.extend({
+function(Backbone, Actor, Activities, Actors, EditActorView){
+  var ActorsView = Backbone.View.extend({
 
     /*
       * view-constructor
       */
     initialize: function(options){
       _.bindAll(this, 'render');
+      var _this = this;
       
       this.template = options.template;
       var keyflowId = this.model.id,
@@ -23,40 +23,14 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.caseStudyId = this.model.get('casestudy');
       this.onUpload = options.onUpload;
       
-      this.pins = {
-        blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
-        orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
-        red: '/static/img/simpleicon-places/svg/map-marker-red.svg',
-        black: '/static/img/simpleicon-places/svg/map-marker-1.svg'
-      }
+      this.actorRows = [];
       
-      // TODO: get this from database or template
-      this.reasons = {
-        //0: "Included",
-        1: "Outside Region, inside country",
-        2: "Outside Region, inside EU",
-        3: "Outside Region, outside EU",
-        4: "Outside Material Scope",
-        5: "Does Not Produce Waste"
-      }
-
-      var _this = this;
-      
-      this.adminLocations = new Locations([], {
-        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'administrative'
-      })
-      
-      this.opLocations = new Locations([], {
-        caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'operational'
-      })
-
       var loader = new Loader(document.getElementById('actors-edit'),
         {disable: true});
         
       this.projection = 'EPSG:4326'; 
         
-      $.when(this.adminLocations.fetch(), this.opLocations.fetch(), this.activities.fetch(),
-             this.actors.fetch()).then(function() {
+      $.when(this.activities.fetch(), this.actors.fetch()).then(function() {
           loader.remove();
           _this.render();
       });
@@ -91,20 +65,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     setupTable: function(){
     
       $(this.table).tablesorter({
-        //headers:{
-          //0: {sorter: false},
-          //1: {sorter: 'inputs'},
-          //2: {sorter: 'select'},
-          //3: {sorter: 'inputs'},
-          //4: {sorter: 'inputs'},
-          //5: {sorter: 'inputs'},
-          //6: {sorter: 'inputs'},
-          //7: {sorter: 'inputs'},
-          //8: {sorter: 'inputs'},
-          //9: {sorter: 'inputs'}
-        //},
-        ////widgets: ['zebra']
-      })
+        //widgets: ['zebra']
+      });
       
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
       if ($(this.table).find('tr').length > 1)
@@ -131,6 +93,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var _this = this;
 
       var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
+      this.actorRows.push(row);
       
       var included = actor.get('included')
 
@@ -141,20 +104,30 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       }
       row.insertCell(-1).innerHTML = actor.get('name');
       var activity = this.activities.get(actor.get('activity'));
-      row.insertCell(-1).innerHTML = activity.get('name');
+      row.insertCell(-1).innerHTML = (activity != null)? activity.get('name'): '-';
+      
+      function onUpload(actor){
+        console.log(actor);
+      };
       
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
-        //_this.el.querySelector('#actor-name').innerHTML = actor.get('name');
-        //var selected = _this.table.getElementsByClassName("selected");
-        //_.each(selected, function(row){
-          //row.classList.remove('selected');
-        //});
-        //row.classList.add('selected');
-        //if (_this.activeActorId != actor.id || actor.id == null){
-          //_this.activeActorId = actor.id;
-          //_this.renderLocations(actor);
-        //}
+        _.each(_this.actorRows, function(row){
+          row.classList.remove('selected');
+        });
+        row.classList.add('selected');
+        if (_this.activeActorId != actor.id || actor.id == null){
+          _this.activeActorId = actor.id;
+          if (_this.actorView != null) _this.actorView.close();
+          _this.actorView = new EditActorView({
+            el: document.getElementById('edit-actor'),
+            template: 'edit-actor-template',
+            model: actor,
+            activities: _this.activities,
+            keyflow: _this.model,
+            onUpload: onUpload
+          })
+        }
       });
 
       return row;
@@ -164,28 +137,34 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
      * add row when button is clicked 
      */
     addActorEvent: function(event){
+      var _this = this;
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({}, {
-        "BvDid": "",
-        "name": "",
-        "consCode": "",
+      var actor = new Actor({
+        "BvDid": "-",
+        "name": "-----",
+        "consCode": "-",
         "year": 0,
         "turnover": 0,
         "employees": 0,
-        "BvDii": "",
-        "website": "",
-        "activity": null,
-        "caseStudyId": this.model.get('casestudy')
-      });
-      this.actors.add(actor);
-      var row = this.addActorRow(actor);
-      // let tablesorter know, that there is a new row
-      $('table').trigger('addRows', [$(row)]);
-      // workaround for going to last page by emulating click
-      document.getElementById('goto-last-page').click();
+        "BvDii": "-",
+        "website": "www.website.org",
+        "activity": this.activities.first().id,
+        }, {"caseStudyId": this.model.get('casestudy')});
+      console.log(actor);
+      actor.save({}, {success: function(){
+        _this.actors.add(actor);
+        console.log(actor)
+        var row = _this.addActorRow(actor);
+        // let tablesorter know, that there is a new row
+        $('table').trigger('addRows', [$(row)]);
+        // workaround for going to last page by emulating click (thats where new row is added)
+        document.getElementById('goto-last-page').click();
+        // click row to show details of new actor in edit view
+        row.click();
+      }});
     },
-
+        
     /*
      * remove this view from the DOM
      */
@@ -196,6 +175,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     },
 
   });
-  return EditActorsView;
+  return ActorsView;
 }
 );

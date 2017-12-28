@@ -25,8 +25,7 @@ define(["backbone", "app/models/geolocation", "app-config"],
           var filtered = this.filter(function (loc) {
               return loc.get("properties").actor === actorId;
           });
-          //return new Locations(filtered);
-          return filtered
+          return filtered;
       }
     });
 

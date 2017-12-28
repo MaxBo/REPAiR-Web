@@ -406,7 +406,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         many=True,
         required=False,
     )
-    website = URLFieldWithoutProtocol(required=False)
+    website = URLFieldWithoutProtocol(required=False, default="")
 
     class Meta:
         model = Actor
