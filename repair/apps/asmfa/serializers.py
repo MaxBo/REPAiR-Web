@@ -396,17 +396,17 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                                  source='activity',
                                  read_only=True)
 
-    administrative_location_geojson = AdminLocationGeojsonField(
-        source='administrative_location',
-        required=False,
-    )
+    #administrative_location_geojson = AdminLocationGeojsonField(
+        #source='administrative_location',
+        #required=False,
+    #)
 
-    operational_locations_geojson = OperationsLocationsGeojsonField(
-        source='operational_locations',
-        many=True,
-        required=False,
-    )
-    website = URLFieldWithoutProtocol(required=False, default="")
+    #operational_locations_geojson = OperationsLocationsGeojsonField(
+        #source='operational_locations',
+        #many=True,
+        #required=False,
+    #)
+    website = URLFieldWithoutProtocol(required=False, default="", allow_blank=True)
 
     class Meta:
         model = Actor
@@ -414,57 +414,57 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
                   'reason', 
-                  'administrative_location_geojson',
-                  'operational_locations_geojson',
+                  #'administrative_location_geojson',
+                  #'operational_locations_geojson',
                  )
 
 
-    def update(self, obj, validated_data):
-        """update the user-attributes, including profile information"""
-        actor = obj
+    #def update(self, obj, validated_data):
+        #"""update the user-attributes, including profile information"""
+        #actor = obj
 
-        # handle administrative location
-        administrative_location = validated_data.pop('administrative_location',
-                                                     None)
-        if administrative_location is not None:
-            ## get the actor from the request or take the obj
-            #actor = administrative_location.pop('actor', obj)
-            # look if actor has already an administrative location
-            aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
-            for attr, value in administrative_location.items():
-                if attr == 'actor':
-                    continue
-                setattr(aloc, attr, value)
-            aloc.save()
-            #obj.administrativelocation = aloc
+        ## handle administrative location
+        #administrative_location = validated_data.pop('administrative_location',
+                                                     #None)
+        #if administrative_location is not None:
+            ### get the actor from the request or take the obj
+            ##actor = administrative_location.pop('actor', obj)
+            ## look if actor has already an administrative location
+            #aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+            #for attr, value in administrative_location.items():
+                #if attr == 'actor':
+                    #continue
+                #setattr(aloc, attr, value)
+            #aloc.save()
+            ##obj.administrativelocation = aloc
 
-        # handle operational locations
-        operational_locations = validated_data.pop('operational_locations',
-                                                   None)
-        if operational_locations is not None:
-            olocs = OperationalLocation.objects.filter(actor=actor)
-            # delete existing rows not needed any more
-            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
-                                              in operational_locations
-                                              if ol.get('id') is not None))
-            to_delete.delete()
-            # add or update new operational locations
-            for operational_location in operational_locations:
-                oloc = OperationalLocation.objects.update_or_create(
-                    actor=actor, id=operational_location.get('id'))[0]
+        ## handle operational locations
+        #operational_locations = validated_data.pop('operational_locations',
+                                                   #None)
+        #if operational_locations is not None:
+            #olocs = OperationalLocation.objects.filter(actor=actor)
+            ## delete existing rows not needed any more
+            #to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              #in operational_locations
+                                              #if ol.get('id') is not None))
+            #to_delete.delete()
+            ## add or update new operational locations
+            #for operational_location in operational_locations:
+                #oloc = OperationalLocation.objects.update_or_create(
+                    #actor=actor, id=operational_location.get('id'))[0]
 
 
-                for attr, value in operational_location.items():
-                    if attr == 'actor':
-                        continue
-                    setattr(oloc, attr, value)
-                oloc.save()
+                #for attr, value in operational_location.items():
+                    #if attr == 'actor':
+                        #continue
+                    #setattr(oloc, attr, value)
+                #oloc.save()
 
-        # update other attributes
-        for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-        obj.save()
-        return obj
+        ## update other attributes
+        #for attr, value in validated_data.items():
+            #setattr(obj, attr, value)
+        #obj.save()
+        #return obj
 
 
 class AllActorSerializer(ActorSerializer):
@@ -621,6 +621,10 @@ class ActorIDField(serializers.RelatedField):
     """"""
     def to_representation(self, value):
         return value.id
+    
+    def get_queryset(self):
+        qs = Actor.objects.all()
+        return qs
 
 
 class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
@@ -629,7 +633,7 @@ class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
                             'actor__activity__activitygroup__keyflow__casestudy__id',
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
-    actor = ActorIDField(read_only=True)
+    actor = ActorIDField()
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
