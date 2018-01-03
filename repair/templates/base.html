@@ -47,7 +47,6 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
-            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
                 {% csrf_token %}
@@ -68,7 +67,6 @@
                 <span class="caret drop-arrow"></span>
               </form>
             </li>
-            {% endif %}
             <li id="login-link" >
               {% if request.user.is_authenticated %}
               <div class="dropdown">
