@@ -154,6 +154,16 @@ class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
+    def list(self, request, **kwargs):
+        user_id = request.user.id or -1
+        casestudies = set()
+        for casestudy in self.queryset:
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
+                casestudies.add(casestudy)
+        serializer = self.serializer_class(casestudies, many=True,
+                                           context={'request': request, })
+        return Response(serializer.data)
+
 
 class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
     """

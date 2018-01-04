@@ -15,7 +15,12 @@ class BaseView(TemplateView):
         return kwargs
 
     def casestudies(self):
-        return CaseStudy.objects.all()
+        user_id = self.request.user.id or -1
+        casestudies = set()
+        for casestudy in CaseStudy.objects.all():
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
+                casestudies.add(casestudy)
+        return casestudies
 
 
 class HomeView(BaseView):
