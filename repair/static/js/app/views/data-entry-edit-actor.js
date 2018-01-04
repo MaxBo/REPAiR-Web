@@ -114,17 +114,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var reason = (checked != null) ? checked.value: this.reasons[0].id;
       actor.set('reason', reason);
       
-      var loader = new Loader(document.getElementById('flows-edit'),
-        {disable: true});
-        
-      var deferreds = [],
-          errors = {};
-      
-      this.opLocations.each(function(loc){deferreds.push(loc.save())});
-      var adminLoc = this.adminLocations.first()
-      if (adminLoc != null)
-        deferreds.push(adminLoc.save());
-      deferreds.push(actor.save());
+      var loader = new Loader(this.el, {disable: true});
       
       var onError = function(response){
         document.getElementById('alert-message').innerHTML = response.responseText; 
@@ -132,11 +122,28 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         $('#alert-modal').modal('show'); 
       };
       
-      $.when.apply($, deferreds).done(function(response){
-        loader.remove();
-        console.log('upload complete');
-        _this.onUpload(actor);
-      }).fail(onError);
+      //actor.save(null, {success: uploadLocations, error: function(model, response){onError(response)}});
+      var models = [];
+      models.push(actor);
+      models.push(this.adminLocations.first());
+      this.opLocations.each(function(model){models.push(model)});
+      
+      function uploadModel(models, it){
+        // end recursion if no elements are left and call the passed success method
+        if (it >= models.length) {
+          loader.remove();
+          _this.onUpload(actor);
+          return;
+        };
+        // upload current model and upload next model recursively on success
+        models[it].save(null, {
+          success: function(){ uploadModel(models, it+1) },
+          error: function(model, response){ onError(response) }
+        });
+      };
+      
+      // recursively queue the operational locations to save only when previous one is done (sqlite is bitchy with concurrent uploads)
+      uploadModel(models, 0);
     },
     
     /* 
@@ -250,7 +257,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var geometry = location.get('geometry');
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
-      var type = location.type || location.collection.type;
+      var type = location.loc_type || location.collection.type;
       var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
@@ -342,8 +349,10 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       if (adminLoc != null){
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
-        this.map.center(adminLoc.get('geometry').get('coordinates'),
-                        {projection: this.projection});
+        var geom = adminLoc.get('geometry');
+        if (geom != null)
+          this.map.center(adminLoc.get('geometry').get('coordinates'),
+                          {projection: this.projection});
       }
       else addAdminBtn.style.display = 'block';
     },

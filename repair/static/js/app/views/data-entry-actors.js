@@ -99,6 +99,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       var nameCell = row.insertCell(-1);
       var activityCell = row.insertCell(-1);
       
+      
       function setRowValues(actor){
         var included = actor.get('included');
         if (!included){
@@ -114,8 +115,20 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
         var activity = _this.activities.get(actor.get('activity'));
         activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
       };
-      
       setRowValues(actor);
+      
+      function showActor(actor){
+        if (_this.actorView != null) _this.actorView.close();
+        _this.actorView = new EditActorView({
+          el: document.getElementById('edit-actor'),
+          template: 'edit-actor-template',
+          model: actor,
+          activities: _this.activities,
+          keyflow: _this.model,
+          onUpload: function(a) { setRowValues(a); showActor(a); }
+        });
+      }
+      
       
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
@@ -125,15 +138,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
         row.classList.add('selected');
         if (_this.activeActorId != actor.id || actor.id == null){
           _this.activeActorId = actor.id;
-          if (_this.actorView != null) _this.actorView.close();
-          _this.actorView = new EditActorView({
-            el: document.getElementById('edit-actor'),
-            template: 'edit-actor-template',
-            model: actor,
-            activities: _this.activities,
-            keyflow: _this.model,
-            onUpload: setRowValues
-          })
+          showActor(actor);
         }
       });
 
