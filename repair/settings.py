@@ -159,6 +159,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+             'timeout': 20,
+         }
     },
 
 }

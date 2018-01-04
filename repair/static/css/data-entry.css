@@ -75,7 +75,8 @@ tr.dsbld td{
 
 tr.selected td{
     background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
-    border: 2px solid rgba(170, 212, 0, 0.3);
+    border-bottom: 2px solid #aad400;
+    border-top: 2px solid #aad400;
 }
 .map:-moz-full-screen {
   width: 100%;

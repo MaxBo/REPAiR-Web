@@ -1,7 +1,9 @@
 from abc import ABC
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
@@ -61,8 +63,15 @@ class CreateWithUserInCasestudyMixin:
             user_id = request.user.id or -1  # for the anonymus user
             url_pks = request.session.get('url_pks', {})
             casestudy_id = url_pks.get('casestudy_pk')
-            user = UserInCasestudy.objects.get(user_id=user_id,
-                                               casestudy_id=casestudy_id)
+            try:
+                user = UserInCasestudy.objects.get(user_id=user_id,
+                                                   casestudy_id=casestudy_id)
+            except (ObjectDoesNotExist, TypeError, ValueError):
+                user = Profile.objects.get(id=user_id)
+                casestudy = CaseStudy.objects.get(id=casestudy_id)
+                msg = _('User {} has no permission to access casestudy {}'
+                        .format(user, casestudy))
+                raise PermissionDenied(detail=msg)
 
         Model = self.get_model()
         obj = self.create_instance(Model, user, validated_data)

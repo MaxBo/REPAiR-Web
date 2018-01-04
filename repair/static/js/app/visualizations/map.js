@@ -95,7 +95,6 @@ define([
       feature.setId(id);
       idCounter++;
       vectorLayer.getSource().addFeature(feature);
-      console.log(feature);
       return id;
     }
     
