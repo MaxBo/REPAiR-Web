@@ -264,6 +264,11 @@ tr.popunder > td{
   padding: 10px;
 }
 
+.dashed {
+  border: 2px dashed #aad400;
+  padding: 10px;
+}
+
 button.square, button.round{
   padding: 1px 5px 1px 5px;
   outline: none !important;
