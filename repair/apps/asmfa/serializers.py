@@ -694,7 +694,8 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',
                             'actor_pk': 'actor__id',}
-
+    actor = ActorIDField(required=False)
+    
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
         actor = validated_data.pop('actor', None)
@@ -742,6 +743,7 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
                             'actor__activity__activitygroup__keyflow__id',
                             'actor_pk': 'actor__id',}
     id = serializers.IntegerField(label='ID', required=False)
+    actor = ActorIDField(required=False)
 
     def create(self, validated_data):
         """Handle Post on OperationalLocations"""
