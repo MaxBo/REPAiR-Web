@@ -139,7 +139,7 @@ class Actor2ActorViewSet(FlowViewSet):
 class AdministrativeLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
-    serializers = {'create': AdministrativeLocationOfActorPostSerializer}
+    #serializers = {'create': AdministrativeLocationOfActorPostSerializer}
 
 
 class OperationalLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):

@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import ValidationError
+
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer)
 
 from repair.apps.login.models import CaseStudy
@@ -619,15 +622,49 @@ class AllActorField(InCasestudyField):
 
 class ActorIDField(serializers.RelatedField):
     """"""
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': _('Invalid Actor ID - Object does not exist.'),
+        'null': _('This field may not be null.')
+    } 
+
+
     def to_representation(self, value):
         return value.id
+
+    def to_internal_value(self, data):
+        try:
+            return Actor.objects.get(id=data)
+        except (ObjectDoesNotExist, TypeError, ValueError):
+            self.fail('does_not_exist')        
     
     def get_queryset(self):
         qs = Actor.objects.all()
         return qs
 
 
-class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
+class PatchFields:
+    
+    @property
+    def fields(self):
+        fields = super().fields
+        for fn in ['type', 'geometry', 'properties']:
+            if not fn in fields:
+                fields[fn] = serializers.CharField(write_only=True,
+                                                   required=False)
+        return fields
+
+    #def create(self, validated_data, **kwargs):
+        #"""
+        #"""
+        #obj = self.Meta.model(**kwargs)
+        #self._for_write = True
+        #obj.save(force_insert=True, using=self.db)
+        #return obj
+    
+    
+class AdministrativeLocationSerializer(PatchFields,
+                                       GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__keyflow__casestudy__id',
@@ -641,6 +678,14 @@ class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
                   'city', 'geom', 'name',
                   'actor',
                   ]
+    
+    def create(self, validated_data):
+        """Create a new AdministrativeLocation"""
+        if self.Meta.model.objects.all().filter(actor = validated_data['actor']):
+            msg = _('Actor <{}> already has an administrative location (has to be unique).'
+                    .format(validated_data['actor']))
+            raise ValidationError(detail=msg)
+        return super().create(validated_data)
 
 
 class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
@@ -674,13 +719,14 @@ class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorS
                   ]
 
 
-class OperationalLocationSerializer(GeoFeatureModelSerializer,
+class OperationalLocationSerializer(PatchFields,
+                                    GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__keyflow__casestudy__id',
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
-    actor = ActorIDField(read_only=True)
+    actor = ActorIDField()
 
     class Meta:
         model = OperationalLocation
