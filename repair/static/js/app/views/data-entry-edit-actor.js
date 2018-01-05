@@ -125,9 +125,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       //actor.save(null, {success: uploadLocations, error: function(model, response){onError(response)}});
       var models = [];
       models.push(actor);
-      models.push(this.adminLocations.first());
+      if (this.adminLocations.length > 0)
+        models.push(this.adminLocations.first());
       this.opLocations.each(function(model){models.push(model)});
-      
       function uploadModel(models, it){
         // end recursion if no elements are left and call the passed success method
         if (it >= models.length) {
@@ -173,7 +173,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     addLocation: function(coord, locations, pin, table){
       var properties = {actor: this.activeActorId}
       var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
-                                          type: locations.type,
+                                          type: locations.loc_type,
                                           properties: properties})
       loc.setGeometry(coord);
       locations.add(loc);
@@ -257,7 +257,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var geometry = location.get('geometry');
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
-      var type = location.loc_type || location.collection.type;
+      var type = location.loc_type || location.collection.loc_type;
       var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
@@ -324,7 +324,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       });
       // location is not in a collection yet (added by clicking add-button) -> add it to the proper one
       if (location.collection == null){
-        var collection = (location.type == 'administrative') ? this.adminLocations : this.opLocations;
+        var collection = (location.loc_type == 'administrative') ? this.adminLocations : this.opLocations;
         collection.add(location);
       }
       // rerender all markers (too lazy to add single one)

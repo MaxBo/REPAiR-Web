@@ -376,7 +376,7 @@ class URLWithoutProtocolValidator(URLValidator):
 
 
 class URLFieldWithoutProtocol(serializers.CharField):
-    default_error_messages = {'invalid': _('Enter a valid URL.')}
+    default_error_messages = {'invalid': _('Enter a valid URL (or leave it blank).')}
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

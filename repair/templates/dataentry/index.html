@@ -55,6 +55,22 @@
       <div id="products-content"></div>
     </div>
   </div>
+  <div id="alert-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"><span class="glyphicon glyphicon-warning-sign"></span></h4>
+        </div>
+        <div class="modal-body">
+          <p id="alert-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% include "dataentry/backbone-templates.html" %}
 {% require_module 'data-entry.js' %}
 {% endblock %}
