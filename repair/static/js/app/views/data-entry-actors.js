@@ -40,19 +40,27 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       * dom events (managed by jquery)
       */
     events: {
+      'click #remove-actor-button': 'showRemoveModal',
+      'click #confirm-button': 'removeActorEvent',
       'click #add-actor-button': 'addActorEvent',
       'change #included-filter-select': 'changeFilter'
     },
 
     /*
-      * render the view
-      */
+     * render the view
+     */
     render: function(){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
                                     keyflow: this.model.get('name')});
+      
+      // confirmation modal for deletion of actor
+      html = document.getElementById('confirmation-template').innerHTML
+      template = _.template(html);
+      this.elConfirmation = document.getElementById('confirmation-modal');
+      this.elConfirmation.innerHTML = template({message: ''});
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
       this.table = this.el.querySelector('#actors-table');
@@ -136,8 +144,9 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
           row.classList.remove('selected');
         });
         row.classList.add('selected');
-        if (_this.activeActorId != actor.id || actor.id == null){
-          _this.activeActorId = actor.id;
+        if (_this.activeActor != actor || actor.id == null){
+          _this.activeActor = actor;
+          _this.activeRow = row;
           showActor(actor);
         }
       });
@@ -146,7 +155,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
     },
 
     /* 
-     * add row when button is clicked 
+     * add row on button click
      */
     addActorEvent: function(event){
       var _this = this;
@@ -172,6 +181,35 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
         document.getElementById('goto-last-page').click();
         // click row to show details of new actor in edit view
         row.click();
+      }});
+    },
+    
+    /* 
+     * show modal for removal on button click
+     */
+    showRemoveModal: function(){
+      if (this.activeActor == null) return;
+      var modal = this.elConfirmation.querySelector('.modal');
+      // ToDo: translation
+      var message = 'Do you want to remove the actor &#60;' + this.activeActor.get('name') + '&#62; from the database?'
+      document.getElementById('confirmation-message').innerHTML = message; 
+      $(modal).modal('show'); 
+    },
+    
+    /* 
+     * remove selected actor on button click in modal
+     */
+    removeActorEvent: function(){
+      var _this = this;
+      this.activeActor.destroy({success: function(){
+        _this.actorView.close();
+        _this.activeRow.style.display = 'none';
+        //_this.activeRow.parentNode.removeChild(_this.activeRow);
+        //document.getElementById('goto-first-page').click();
+        //$(_this.table).trigger('update');
+        //$(_this.table).trigger("appendCache");
+        _this.activeActor = null;
+        _this.activeRow = null;
       }});
     },
         
