@@ -6,11 +6,12 @@ define(["backbone", "app-config"],
       idAttribute: "id",
       tag: "activitygroup",
       urlRoot: function(){
-        return config.api.activitygroups.format(this.caseStudyId);
+        return config.api.activitygroups.format(this.caseStudyId, this.keyflowId);
       },
 
-      initialize: function (options) {
+      initialize: function (attributes, options) {
         this.caseStudyId = options.caseStudyId;
+        this.keyflowId = options.keyflowId;
       },
 
     });

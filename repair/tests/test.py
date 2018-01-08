@@ -24,7 +24,9 @@ class BasicModelTest(object):
     put_data = dict()
     patch_data = dict()
     casestudy = None
+    keyflow = None
     userincasestudy = 26
+
     user = -1
     do_not_check = []
 
@@ -35,6 +37,8 @@ class BasicModelTest(object):
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
+        cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
+                                            casestudy=cls.uic.casestudy)
 
     @classmethod
     def tearDownClass(cls):

@@ -1,7 +1,9 @@
 from abc import ABC
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
@@ -58,11 +60,18 @@ class CreateWithUserInCasestudyMixin:
         user = validated_data.pop('user', None)
         if not user:
             request = self.context['request']
-            user_id = request.user.id or -1  # for the anonymus user
+            user_id = -1 if request.user.id is None else request.user.id  # for the anonymus user
             url_pks = request.session.get('url_pks', {})
             casestudy_id = url_pks.get('casestudy_pk')
-            user = UserInCasestudy.objects.get(user_id=user_id,
-                                               casestudy_id=casestudy_id)
+            try:
+                user = UserInCasestudy.objects.get(user_id=user_id,
+                                                   casestudy_id=casestudy_id)
+            except (ObjectDoesNotExist, TypeError, ValueError):
+                user = Profile.objects.get(id=user_id)
+                casestudy = CaseStudy.objects.get(id=casestudy_id)
+                msg = _('User {} has no permission to access casestudy {}'
+                        .format(user, casestudy))
+                raise PermissionDenied(detail=msg)
 
         Model = self.get_model()
         obj = self.create_instance(Model, user, validated_data)
@@ -400,13 +409,7 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
-    activitygroups = InCasestudyListField(view_name='activitygroup-list')
-    activities = InCasestudyListField(view_name='activity-list')
-    actors = InCasestudyListField(view_name='actor-list')
-    administrative_locations = InCasestudyListField(
-        view_name='administrativelocation-list')
-    operational_locations = InCasestudyListField(
-        view_name='operationallocation-list')
+
 
     class Meta:
         model = CaseStudy
@@ -414,11 +417,6 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
-                  'activitygroups',
-                  'activities',
-                  'actors',
-                  'administrative_locations',
-                  'operational_locations',
                   )
 
 

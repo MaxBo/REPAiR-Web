@@ -2,17 +2,17 @@ define([
   'openlayers', 'ol-contextmenu'
 ], function(ol, ContextMenu)
 {
-  var map_projection = 'EPSG:3857'
-
-  var view = new ol.View({
-    projection: map_projection,
-    center: ol.proj.transform([13.4, 52.5], 'EPSG:4326', map_projection),
-    zoom: 10
-  });
-  var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
-  
   var Map = function(options){
+    var idCounter = 0;
     var interactions = [];
+    var map_projection = 'EPSG:3857';
+
+    var view = new ol.View({
+      projection: map_projection,
+      center: ol.proj.transform([13.4, 52.5], 'EPSG:4326', map_projection),
+      zoom: 10
+    });
+    var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
   
     var map = new ol.Map({
       layers: [
@@ -40,7 +40,7 @@ define([
       return ol.proj.transform(coordinate, map_projection, projection);
     }
     
-    this.addmarker = function(coordinate, options) {
+    this.addmarker = function(coordinates, options) {
       var proj = options.projection || map_projection;
       
       var template = '({x}, {y})';
@@ -49,15 +49,14 @@ define([
             type: 'removable',
             // transform to map projection
             geometry: new ol.geom.Point(
-              this.toMapProjection(coordinate, proj))
+              this.toMapProjection(coordinates, proj))
           });
-      
       if (options.icon){
          var iconStyle = new ol.style.Style({
           image: new ol.style.Icon({ scale: .08, src: options.icon }),
           text: new ol.style.Text({
             offsetY: 25,
-            text: ol.coordinate.format(coordinate, template, 2),
+            text: options.name, //ol.coordinate.format(coordinate, template, 2),
             font: '15px Open Sans,sans-serif',
             fill: new ol.style.Fill({ color: '#111' }),
             stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
@@ -83,7 +82,7 @@ define([
       dragInteraction.on('modifyend', function(){
         var coordinate = feature.getGeometry().getCoordinates();
         var transformed = ol.proj.transform(coordinate, map_projection, proj);
-        iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+        //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
         vectorLayer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
@@ -92,8 +91,18 @@ define([
       
       interactions.push(dragInteraction);
       map.addInteraction(dragInteraction);
+      var id = idCounter;
+      feature.setId(id);
+      idCounter++;
       vectorLayer.getSource().addFeature(feature);
-  
+      return id;
+    }
+    
+    this.moveMarker = function(markerId, coordinates, options) {
+      var feature = vectorLayer.getSource().getFeatureById(markerId);
+      var options = options || {};
+      var proj = options.projection || map_projection;
+      feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
     }
     
     this.removeMarkers = function(){
@@ -109,10 +118,13 @@ define([
     }
     
     this.addContextMenu = function (contextmenu_items){
+      if (this.contextmenu != null)
+        this.map.removeControl(this.contextmenu);
       var contextmenu = new ContextMenu({
         width: 180,
         items: contextmenu_items
       });
+      this.contextmenu = contextmenu;
       map.addControl(contextmenu);
       
       var removeMarkerItem = {
@@ -151,9 +163,11 @@ define([
       
       view.animate({center: coordinate});//, {zoom: 10});
     }
+    
+    this.map = map;
 
   };
   
   
-  return Map
+  return Map;
 });

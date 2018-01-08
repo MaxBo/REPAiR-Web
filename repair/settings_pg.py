@@ -32,3 +32,5 @@ DATABASES = {
     },
 }
 
+DEBUG = True
+

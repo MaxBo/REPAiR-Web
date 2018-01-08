@@ -1,12 +1,17 @@
 from abc import ABC
+
 from django.shortcuts import render
 from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
+
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
+
+from reversion.views import RevisionMixin
+
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
@@ -142,12 +147,22 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
+class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
+
+    def list(self, request, **kwargs):
+        user_id = -1 if request.user.id is None else request.user.id
+        casestudies = set()
+        for casestudy in self.queryset:
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
+                casestudies.add(casestudy)
+        serializer = self.serializer_class(casestudies, many=True,
+                                           context={'request': request, })
+        return Response(serializer.data)
 
 
 class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
