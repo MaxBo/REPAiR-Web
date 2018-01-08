@@ -135,11 +135,16 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           _this.onUpload(actor);
           return;
         };
-        // upload current model and upload next model recursively on success
-        models[it].save(null, {
-          success: function(){ uploadModel(models, it+1) },
-          error: function(model, response){ onError(response) }
-        });
+        var model = models[it];
+        // upload or destroy current model and upload next model recursively on success
+        var params = {
+            success: function(){ uploadModel(models, it+1) },
+            error: function(model, response){ onError(response) }
+          }
+        if (model.markedForDeletion)
+          model.destroy(params);
+        else 
+          model.save(null, params);
       };
       
       // recursively queue the operational locations to save only when previous one is done (sqlite is bitchy with concurrent uploads)
@@ -190,7 +195,9 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       var row = table.insertRow(-1);
       var _this = this;
-      // add a crosshair icon to center on coordinate on click
+      
+      // add an icon to center on coordinate on click
+      
       var centerDiv = document.createElement('div');
       var markerCell = row.insertCell(-1);
       var geom = loc.get('geometry');
@@ -222,6 +229,19 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           }
         });
       };
+      
+      // checkbox for marking deletion
+
+      var checkbox = document.createElement("input");
+      checkbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(checkbox);
+
+      checkbox.addEventListener('change', function() {
+        row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
+        loc.markedForDeletion = checkbox.checked;
+      });
+      
       row.insertCell(-1).innerHTML = loc.get('properties').name;
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
