@@ -195,7 +195,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var markerCell = row.insertCell(-1);
       var geom = loc.get('geometry');
       // add a marker to the table and the map, if there is a geometry attached to the location
-      if (geom != null){
+      if (geom != null && geom.get('coordinates') != null){
         //centerDiv.className = "fa fa-crosshairs";
         var img = document.createElement("img");
         img.src = pin;
@@ -266,6 +266,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       document.getElementById('location-modal-content').innerHTML = html;
       $('#location-modal').modal('show'); 
       this.localMap.removeMarkers();
+      // don't set coordinates directly to location, only on confirmation
+      this.tempCoords = coordinates;
       function addMarker(coords){
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
@@ -273,11 +275,11 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           projection: _this.projection,
           name: location.get('properties').name,
           onDrag: function(coords){
-            geometry.set("coordinates", coords);
+            _this.tempCoords = coords;
             elGeom.innerHTML = formatCoords(coords);
           },
           onRemove: function(){
-            location.set('geometry', null);
+            _this.tempCoords = null;
             elGeom.innerHTML = '-';
           }
         });
@@ -285,7 +287,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       }
       if (coordinates != null){
         var elGeom = document.getElementById('coordinates');
-        addMarker(coordinates)
+        elGeom.innerHTML = formatCoords(coordinates);
+        addMarker(coordinates);
       };
 
       var items = [
@@ -293,14 +296,13 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           text: 'Set Location',
           icon: pin,
           callback: function(event){
-            var coords = _this.localMap.toProjection(event.coordinate, _this.projection)
-            if (geometry != null){
+            var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
+            _this.tempCoords = coords;
+            if (geometry != null && geometry.get('coordinates') != null){
               _this.localMap.moveMarker(markerId, event.coordinate);
-              geometry.set("coordinates", coords);
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
-              location.setGeometry(coords);
               addMarker(coords);
             }
           }
@@ -315,6 +317,10 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     locationConfirmed: function(){
       var location = this.editedLocation;
       if(location == null) return;
+      
+      var geometry = location.get('geometry');
+      if (geometry != null) geometry.set("coordinates", this.tempCoords);
+      else location.setGeometry(this.tempCoords)
       var table = document.getElementById('location-edit-table');
       var inputs = table.querySelectorAll('input');
       var properties = location.get('properties');
@@ -350,7 +356,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        if (geom != null)
+        if (geom != null && geom.get('coordinates') != null)
           this.map.center(adminLoc.get('geometry').get('coordinates'),
                           {projection: this.projection});
       }
