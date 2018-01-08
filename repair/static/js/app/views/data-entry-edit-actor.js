@@ -198,24 +198,33 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       // add an icon to center on coordinate on click
       
-      var centerDiv = document.createElement('div');
       var markerCell = row.insertCell(-1);
       var geom = loc.get('geometry');
       // add a marker to the table and the map, if there is a geometry attached to the location
       if (geom != null && geom.get('coordinates') != null){
-        //centerDiv.className = "fa fa-crosshairs";
-        var img = document.createElement("img");
+        var wrapper = document.createElement('span'),
+            centerDiv = document.createElement('div'),
+            coordDiv = document.createElement('div'),
+            img = document.createElement("img");
+        var coords = geom.get('coordinates');
+        coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
+        coordDiv.style.paddingTop = '5px';
+        coordDiv.style.fontSize = '80%';
         img.src = pin;
         img.setAttribute('height', '30px');
+        img.style.float = 'left';
         centerDiv.appendChild(img);
-        var coords = geom.get('coordinates');
-        markerCell.appendChild(centerDiv);
+        markerCell.appendChild(wrapper);
+        wrapper.style.whiteSpace = 'nowrap';
+        wrapper.style.cursor = 'pointer';
+        wrapper.appendChild(centerDiv);
+        wrapper.appendChild(coordDiv);
+        
         // zoom to location if marker in table is clicked 
         markerCell.addEventListener('click', function(){ 
           _this.map.center(loc.get('geometry').get('coordinates'), 
                           {projection: _this.projection})
         });
-        markerCell.style.cursor = 'pointer';
         
       /* add marker */
       
@@ -226,6 +235,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           name: loc.get('properties').name,
           onDrag: function(coords){
             loc.get('geometry').set("coordinates", coords);
+            coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
           }
         });
       };
