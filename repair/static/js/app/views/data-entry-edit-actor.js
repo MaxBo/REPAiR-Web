@@ -135,11 +135,16 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           _this.onUpload(actor);
           return;
         };
-        // upload current model and upload next model recursively on success
-        models[it].save(null, {
-          success: function(){ uploadModel(models, it+1) },
-          error: function(model, response){ onError(response) }
-        });
+        var model = models[it];
+        // upload or destroy current model and upload next model recursively on success
+        var params = {
+            success: function(){ uploadModel(models, it+1) },
+            error: function(model, response){ onError(response) }
+          }
+        if (model.markedForDeletion)
+          model.destroy(params);
+        else 
+          model.save(null, params);
       };
       
       // recursively queue the operational locations to save only when previous one is done (sqlite is bitchy with concurrent uploads)
@@ -190,12 +195,14 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       
       var row = table.insertRow(-1);
       var _this = this;
-      // add a crosshair icon to center on coordinate on click
+      
+      // add an icon to center on coordinate on click
+      
       var centerDiv = document.createElement('div');
       var markerCell = row.insertCell(-1);
       var geom = loc.get('geometry');
       // add a marker to the table and the map, if there is a geometry attached to the location
-      if (geom != null){
+      if (geom != null && geom.get('coordinates') != null){
         //centerDiv.className = "fa fa-crosshairs";
         var img = document.createElement("img");
         img.src = pin;
@@ -222,6 +229,19 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           }
         });
       };
+      
+      // checkbox for marking deletion
+
+      var checkbox = document.createElement("input");
+      checkbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(checkbox);
+
+      checkbox.addEventListener('change', function() {
+        row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
+        loc.markedForDeletion = checkbox.checked;
+      });
+      
       row.insertCell(-1).innerHTML = loc.get('properties').name;
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
@@ -266,6 +286,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       document.getElementById('location-modal-content').innerHTML = html;
       $('#location-modal').modal('show'); 
       this.localMap.removeMarkers();
+      // don't set coordinates directly to location, only on confirmation
+      this.tempCoords = coordinates;
       function addMarker(coords){
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
@@ -273,11 +295,11 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           projection: _this.projection,
           name: location.get('properties').name,
           onDrag: function(coords){
-            geometry.set("coordinates", coords);
+            _this.tempCoords = coords;
             elGeom.innerHTML = formatCoords(coords);
           },
           onRemove: function(){
-            location.set('geometry', null);
+            _this.tempCoords = null;
             elGeom.innerHTML = '-';
           }
         });
@@ -285,7 +307,8 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       }
       if (coordinates != null){
         var elGeom = document.getElementById('coordinates');
-        addMarker(coordinates)
+        elGeom.innerHTML = formatCoords(coordinates);
+        addMarker(coordinates);
       };
 
       var items = [
@@ -293,14 +316,13 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           text: 'Set Location',
           icon: pin,
           callback: function(event){
-            var coords = _this.localMap.toProjection(event.coordinate, _this.projection)
-            if (geometry != null){
+            var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
+            _this.tempCoords = coords;
+            if (geometry != null && geometry.get('coordinates') != null){
               _this.localMap.moveMarker(markerId, event.coordinate);
-              geometry.set("coordinates", coords);
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
-              location.setGeometry(coords);
               addMarker(coords);
             }
           }
@@ -315,6 +337,10 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     locationConfirmed: function(){
       var location = this.editedLocation;
       if(location == null) return;
+      
+      var geometry = location.get('geometry');
+      if (geometry != null) geometry.set("coordinates", this.tempCoords);
+      else location.setGeometry(this.tempCoords)
       var table = document.getElementById('location-edit-table');
       var inputs = table.querySelectorAll('input');
       var properties = location.get('properties');
@@ -350,7 +376,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        if (geom != null)
+        if (geom != null && geom.get('coordinates') != null)
           this.map.center(adminLoc.get('geometry').get('coordinates'),
                           {projection: this.projection});
       }

@@ -60,7 +60,7 @@ class CreateWithUserInCasestudyMixin:
         user = validated_data.pop('user', None)
         if not user:
             request = self.context['request']
-            user_id = request.user.id or -1  # for the anonymus user
+            user_id = -1 if request.user.id is None else request.user.id  # for the anonymus user
             url_pks = request.session.get('url_pks', {})
             casestudy_id = url_pks.get('casestudy_pk')
             try:
