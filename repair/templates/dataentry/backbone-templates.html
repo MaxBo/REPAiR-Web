@@ -64,7 +64,7 @@
         <%= name %> 
         <div id='node-info' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
       </h3>
-      <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger">
+      <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger btn-upload">
         <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
       </button>
     </div>
@@ -287,7 +287,7 @@
     <div class='col-md-6'>
       <h3 class="row"> <%= actor.get('name') %> </h3>
       <div class="row">
-        <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger">
+        <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
           <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
         </button>
       </div>
@@ -446,7 +446,7 @@
 <script type="text/template" id="products-edit-template">
   <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Products" %}</h3>
   <div class="row">
-    <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger">
+    <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger btn-upload">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
     </button>
   </div>

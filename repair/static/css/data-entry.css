@@ -98,6 +98,10 @@ tr.selected td{
   top: 3em;
 }
 
+.btn-upload{
+    font-size: 18px
+}
+
 td button {
     padding: 0px 5px 0px 5px;
     margin-left: 3px;
