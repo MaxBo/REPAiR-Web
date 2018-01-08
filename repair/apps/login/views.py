@@ -155,7 +155,7 @@ class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
     serializer_class = CaseStudySerializer
 
     def list(self, request, **kwargs):
-        user_id = request.user.id or -1
+        user_id = -1 if request.user.id is None else request.user.id
         casestudies = set()
         for casestudy in self.queryset:
             if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
