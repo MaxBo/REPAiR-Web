@@ -143,8 +143,12 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           }
         if (model.markedForDeletion)
           model.destroy(params);
-        else 
+        else {
+          var geom = model.get('geometry');
+          // workaround: backend doesn't except empty geometries but null as a geometry
+          if (geom != null && geom.get('coordinates') == null) model.set('geometry', null);
           model.save(null, params);
+        }
       };
       
       // recursively queue the operational locations to save only when previous one is done (sqlite is bitchy with concurrent uploads)

@@ -272,9 +272,9 @@ tr.popunder > td{
 button.square, button.round{
   padding: 1px 5px 1px 5px;
   outline: none !important;
-  background-color: white !important;
-  border: solid 1px #aad400;
-  color: #aad400;
+  /*background-color: white !important;*/
+  /*border: solid 1px #aad400;*/
+  /*color: #aad400;*/
 }
 
 button.round{
@@ -282,7 +282,7 @@ button.round{
 }
 
 button.square:hover, button.round:hover, button.square:focus, button.round:focus{
-  background-color: #aad400 !important;
+  /*background-color: #aad400 !important;*/
   border: none;
-  color: white;
+  /*color: white;*/
 }
