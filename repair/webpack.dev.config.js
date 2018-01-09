@@ -7,12 +7,14 @@ var ip = 'localhost';
 var port = '8001';
 
 config.entry = {
-    DataEntry: ['./repair/static/js/data-entry', 'webpack/hot/only-dev-server'],
+    DataEntry: ['./static/js/data-entry', 'webpack/hot/only-dev-server'],
+    StudyArea: ['./static/js/study-area', 'webpack/hot/only-dev-server'],
+    StatusQuo: ['./static/js/status-quo', 'webpack/hot/only-dev-server'],
     devServerClient: 'webpack-dev-server/client?http://0.0.0.0:' + port
-    //vendors: './repair/static/bundles/local/vendors.js'
+    //vendors: './static/bundles/local/vendors.js'
 }
 
-config.output.publicPath = 'http://' + ip + ':' + port + '/assets/bundles/'
+config.output.publicPath = 'http://' + ip + ':' + port + '/static/bundles/local';
 
 config.devtool = "#eval-source-map";
 

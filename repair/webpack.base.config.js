@@ -5,12 +5,13 @@ var BundleTracker = require('webpack-bundle-tracker');
 module.exports = {
   context: __dirname,
   entry: {
-    DataEntry: './repair/static/js/data-entry',
-    //vendors: './repair/static/bundles/local/vendors.js'
+    DataEntry: './static/js/data-entry',
+    StudyArea: './static/js/study-area',
+    StatusQuo: './static/js/status-quo',
   },
   
   output: {
-    path: path.resolve('./repair/static/bundles/local/'),
+    path: path.resolve('./static/bundles/local/'),
     publicPath: '/static/bundles/local/',
     filename: "[name]-[hash].js"
   },
@@ -27,15 +28,15 @@ module.exports = {
   module: {
     //exprContextRegExp: /^\.\/.*$/,
     //unknownContextRegExp: /^\.\/.*$/,
-    rules: [] // add all common loaders here
+    rules: [{ test: require.resolve("jquery"), loader: "expose?$!expose?jQuery" }] // add all common loaders here
   },
 
   resolve: {
     modules : ['static/js', 'node_modules', 'bower_components'],
       alias: {
         //"treeview": "libs/bootstrap-treeview.min",
-        'ol-contextmenu': 'libs/ol-contextmenu',
         'spatialsankey': 'libs/spatialsankey',
+        jquery: "jquery/src/jquery"
         //'tablesorter-widgets': 'libs/jquery.tablesorter.widgets',
         //'tablesorter-pager': 'libs/jquery.tablesorter.pager',
       },
