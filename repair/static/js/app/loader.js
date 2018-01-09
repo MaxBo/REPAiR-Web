@@ -1,4 +1,4 @@
-function Loader (div, options) {
+var Loader = function(div, options) {
   if (options != null && options.disable)
     div.classList.toggle('disabled');
   var loaderDiv = document.createElement('div');
@@ -16,3 +16,4 @@ function Loader (div, options) {
     }
   }
 };
+module.exports = Loader;
