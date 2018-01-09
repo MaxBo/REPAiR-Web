@@ -15,6 +15,7 @@ from repair.settings import *
 DB_NAME = os.environ['DB_NAME']
 DB_USER = os.environ['DB_USER']
 DB_PASS = os.environ['DB_PASS']
+SECRET_KEY = os.environ['SECRET_KEY']
 
 DATABASES = {
     'default': {
@@ -32,5 +33,23 @@ DATABASES = {
     },
 }
 
-DEBUG = True
+DEBUG = False
 
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG, 
+        'BUNDLE_DIR_NAME': 'bundles/local/', 
+        'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-prod.json'),
+    }
+}
+
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SECURE = True
+
+# enables persistant db connections (if > 0) ToDo: choose a reasonable value
+CONN_MAX_AGE = 0
+
+# ToDo: Logging
+
+# ToDo: email notifications on error?

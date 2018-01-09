@@ -16,10 +16,6 @@ import django
 
 from django.utils.translation import ugettext_lazy as _
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
@@ -117,22 +113,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'repair.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
-        'OPTIONS': {
-             'timeout': 20,
-         }
-    },
-
-}
-
-SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -217,11 +197,3 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 )
-
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG, 
-        'BUNDLE_DIR_NAME': 'bundles/local/', 
-        'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-dev.json'),
-    }
-}
