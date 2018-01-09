@@ -1,11 +1,11 @@
-define(['backbone',
+define(['backbone', 'underscore',
         'app/views/data-entry-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/products', 'app/collections/flows', 
         'app/collections/stocks', 'app/collections/activitygroups', 
         'app/visualizations/sankey', 'treeview', 'app/loader'],
-function(Backbone, EditNodeView, Activities, Actors, Products, Flows, 
-         Stocks, ActivityGroups, Sankey, treeview){
+function(Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
+         Stocks, ActivityGroups, Sankey, treeview, Loader){
 
   /**
    *
