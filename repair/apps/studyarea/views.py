@@ -16,10 +16,14 @@ from repair.apps.login.views import ViewSetMixin
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
+                                          AdminLevels,
+                                          Area,
                                           )
 
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
+                                               AdminLevelSerializer,
+                                               AreaSerializer,
                                                )
 
 from repair.views import BaseView
@@ -47,6 +51,20 @@ class StakeholderCategoryViewSet(ViewSetMixin, viewsets.ModelViewSet):
 class StakeholderViewSet(ViewSetMixin, viewsets.ModelViewSet):
     queryset = Stakeholder.objects.all()
     serializer_class = StakeholderSerializer
+
+
+class AdminLevelViewSet(ViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = AdminLevels.objects.all()
+    serializer_class = AdminLevelSerializer
+
+
+class AreaViewSet(ViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+
+    search_fields = ['name__startswith']
+
+
 
 
 class StudyAreaIndexView(BaseView):
