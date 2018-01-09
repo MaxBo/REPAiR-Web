@@ -1,9 +1,8 @@
 define([
-  'leaflet',
-  'esri-leaflet',
-  'leaflet-fullscreen'
+  'leaflet'
 ], function()
 {
+  require('esri-leaflet');
   var Map = function(options){
     var map = L.map(options.divid, {
         crs: L.CRS.EPSG4326,
