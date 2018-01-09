@@ -629,14 +629,12 @@ class GeolocationViewTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert location.pk in (row['id'] for row in response.data['features'])
 
-        # update existing administrative location with a patch for actor
+        # patch existing administrative location
         new_streetname = 'Hauptstraße 13'
-        data = {'administrative_location_geojson':
-                {'address': new_streetname,
-                 'geom': location.geom.geojson,
-                 }
+        data = {'properties': {'address': new_streetname}, 
+                'geometry': location.geom.geojson
                 }
-        response = self.client.patch(url_actor, data, format='json')
+        response = self.client.patch(url_locations_detail, data, format='json')
         print(response.status_text)
         assert response.status_code == status.HTTP_200_OK
 
@@ -663,14 +661,16 @@ class GeolocationViewTest(APITestCase):
         # post new administrative location
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
-        data = {'administrative_location_geojson':
-                {'address': new_streetname,
-                     'geom': new_geom.geojson,
-                    }
+        data = {'properties': {'address': new_streetname, 'actor': actor.id}, 
+                'geometry': new_geom.geojson
                 }
-        response = self.client.patch(url_actor, data, format='json')
-        assert response.status_code == status.HTTP_200_OK
-        new_aloc_id = response.data['administrative_location_geojson']['id']
+        response = self.client.post(url_locations, data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+        new_aloc_id = response.data['id']
+        
+        # deny uploading a second administrative location
+        response = self.client.post(url_locations, data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         url_locations_detail = reverse(
             'administrativelocation-detail',
@@ -691,9 +691,8 @@ class GeolocationViewTest(APITestCase):
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
-        # test if new coordinates appear at the actor locations
-        response = self.client.get(url_actor)
-        geom = response.data['administrative_location_geojson']['geometry']
+        response = self.client.get(url_locations_detail)
+        geom = response.data['geometry']
         assert geom['coordinates'] == [100, -11]
 
     def get_url_actor(self, cs, keyflow, actor):
@@ -737,87 +736,51 @@ class GeolocationViewTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert location1.pk in (row['id'] for row in response.data['features'])
         assert location2.pk in (row['id'] for row in response.data['features'])
-
-
-        response = self.client.get(url_actor)
-        print(response.data['operational_locations_geojson'])
-
-
-        # update existing operational location with a put for actor
-        new_streetname2 = 'Hauptstraße 13'
-        new_streetname3 = 'Dorfstraße 15'
-        new_geom2 = Point(x=2, y=3, srid=4326)
-        new_geom3 = Point(x=4, y=5, srid=4326)
-        data = {'operational_locations_geojson': [
-            # update the first location
-                {'address': new_streetname2,
-                 'geom': new_geom2.geojson,
-                 'id': location2.id,
-                 'turnover': 99987.12,
-                 },
-                # create a new location (no id provided)
-                {'address': new_streetname3,
-                 'geom': new_geom3.geojson,
-                 'employees': 123,
-                 },
-                # delete the second location (not in the new list any more)
-        ]
+        
+        # patch location1
+        url_locations_detail = self.get_location_url(cs, keyflow,
+                                                     location=location1.id)
+        new_location = Point(x=2, y=3, srid=4326)
+        new_streetname = 'Hauptstraße 13'
+        data = {'properties': {'address': new_streetname}, 
+                'geometry': new_location.geojson
                 }
-        response = self.client.patch(url_actor, data, format='json')
+        response = self.client.patch(url_locations_detail, data, format='json')
         print(response.status_text)
         assert response.status_code == status.HTTP_200_OK
-        new_location_ids = [feature['id'] for feature in
-            response.data['operational_locations_geojson']['features']]
-
-        # check the new adress of the location2
-        url = self.get_location_url(cs, keyflow, location=new_location_ids[0])
-        response = self.client.get(url)
+        
+        # check the new adress of the location1
+        response = self.client.get(url_locations_detail)
         properties = response.data['properties']
-        assert properties['address'] == new_streetname2
+        assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
-        assert coordinates == [new_geom2.x, new_geom2.y]
-
-        # check the new adress of the location3
-        url = self.get_location_url(cs, keyflow, location=new_location_ids[1])
-        response = self.client.get(url)
-        properties = response.data['properties']
-        assert properties['address'] == new_streetname3
-        coordinates = response.data['geometry']['coordinates']
-        assert coordinates == [new_geom3.x, new_geom3.y]
-
+        assert coordinates == [new_location.x, new_location.y]
+        
         # delete location 2
-        url = self.get_location_url(cs, keyflow, location=new_location_ids[0])
-        response = self.client.delete(url)
+        url_locations_detail = self.get_location_url(cs, keyflow,
+                                                     location=location2.id)
+        response = self.client.delete(url_locations_detail)
         assert response.status_code == status.HTTP_204_NO_CONTENT
-
+    
         # should not exist any more in the database
-        #actor.refresh_from_db(fields=['administrative_location'])
-        actor = Actor.objects.get(pk=actor.pk)
-        olocs = actor.operational_locations
-        assert olocs.count() == 1
+        response = self.client.get(url_locations_detail)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
-        # existing locations
-        response = self.client.get(url_actor)
-        features = response.data['operational_locations_geojson']['features']
-
-        # post new administrative location
+        # post new operational location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        features.append({'address': new_streetname,
-                         'geom': new_geom.geojson,
-                         })
+        data = {'properties': {'address': new_streetname, 'actor': actor.id}, 
+                'geometry': new_geom.geojson}
 
-        data = {'operational_locations_geojson': features}
-        response = self.client.patch(url_actor, data, format='json')
-        assert response.status_code == status.HTTP_200_OK
-        new_features = response.data['operational_locations_geojson']['features']
-        new_ids = [feature['id'] for feature in new_features]
+        response = self.client.post(url_locations, data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+        new_oloc_id = response.data['id']
 
         url_locations_detail = reverse(
             'operationallocation-detail',
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
-                    'pk': new_ids[1],})
+                    'pk': new_oloc_id,})
 
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
@@ -826,18 +789,15 @@ class GeolocationViewTest(APITestCase):
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
-
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4326;POINT(6 5)'
         data = {'geom' : new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
-        # test if new coordinates appear at the actor locations
-        response = self.client.get(url_actor)
-        features = response.data['operational_locations_geojson']['features']
-        feature5_geom = features[1]['geometry']
-        assert feature5_geom['coordinates'] == [6, 5]
+        response = self.client.get(url_locations_detail)
+        geom = response.data['geometry']
+        assert geom['coordinates'] == [6, 5]
 
 
 class TestLocationsOfActor(APITestCase):
@@ -878,6 +838,7 @@ class TestLocationsOfActor(APITestCase):
         new_streetname = 'Hauptstraße 13'
         data = {'address': new_streetname,
                  'geom': location.geom.geojson,
+                 'actor': actor.id,
                  }
         response = self.client.post(url_locations, data, format='json')
         print(response.status_text)
@@ -899,8 +860,8 @@ class TestLocationsOfActor(APITestCase):
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
         data = {'address': new_streetname,
-                     'geom': new_geom.geojson,
-                    }
+                'geom': new_geom.geojson
+               }
         response = self.client.post(url_locations, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         new_aloc_id = response.data['id']
@@ -922,11 +883,6 @@ class TestLocationsOfActor(APITestCase):
         data = {'geom' : new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
-
-        # test if new coordinates appear at the actor locations
-        response = self.client.get(url_actor)
-        geom = response.data['administrative_location_geojson']['geometry']
-        assert geom['coordinates'] == [100, -11]
 
     def get_url_actor(self, cs, keyflow, actor):
         url_actor = reverse('actor-detail', kwargs={'casestudy_pk': cs,
@@ -971,10 +927,6 @@ class TestLocationsOfActor(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert location1.pk in (row['id'] for row in response.data['features'])
         assert location2.pk in (row['id'] for row in response.data['features'])
-
-
-        response = self.client.get(url_actor)
-        print(response.data['operational_locations_geojson'])
 
         response = self.client.get(url_locations)
 
@@ -1073,12 +1025,6 @@ class TestLocationsOfActor(APITestCase):
         data = {'geom' : new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
-
-        # test if new coordinates appear at the actor locations
-        response = self.client.get(url_actor)
-        features = response.data['operational_locations_geojson']['features']
-        feature5_geom = features[1]['geometry']
-        assert feature5_geom['coordinates'] == [6, 5]
 
         # add a single location
 

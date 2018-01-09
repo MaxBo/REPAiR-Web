@@ -4,13 +4,13 @@ define(["backbone", "app/models/geolocation", "app-config"],
 
     var Locations = Backbone.Collection.extend({
       url: function(){
-          var url = (this.type == 'operational') ? config.api.opLocations: config.api.adminLocations
+          var url = (this.loc_type == 'operational') ? config.api.opLocations: config.api.adminLocations
           return url.format(this.caseStudyId, this.keyflowId);
       },
       
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
-        this.type = options.type;
+        this.loc_type = options.type;
         this.keyflowId = options.keyflowId;
       },
       model: Geolocation,
@@ -25,8 +25,7 @@ define(["backbone", "app/models/geolocation", "app-config"],
           var filtered = this.filter(function (loc) {
               return loc.get("properties").actor === actorId;
           });
-          //return new Locations(filtered);
-          return filtered
+          return filtered;
       }
     });
 

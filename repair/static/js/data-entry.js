@@ -1,10 +1,10 @@
 require(['./libs/domReady!', './require-config'], function (doc, config) {
-  require(['app/models/casestudy', 'app/views/admin-flows',
-           'app/views/admin-actors', 'app/views/admin-products', 
+  require(['app/models/casestudy', 'app/views/data-entry-flows',
+           'app/views/data-entry-actors', 'app/views/data-entry-products', 
            'app/collections/flows', 'app/collections/actors',
            'app/collections/keyflows', 'app/collections/materials',
            'app-config', 'app/loader'],
-  function (CaseStudy, FlowsView, EditActorsView, EditProductsView, Flows, 
+  function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
             Actors, Keyflows, Materials,
             appConfig) {
 
@@ -14,7 +14,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         materials;
 
     var flowsView,
-        editActorsView,
+        actorsView,
         editProductsView;
         
     var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
@@ -37,13 +37,13 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
     
     function renderEditActors(keyflow){
       if (keyflow == null) return;
-      if (editActorsView != null)
-        editActorsView.close();
+      if (actorsView != null)
+        actorsView.close();
       // create casestudy-object and render view on it (data will be fetched in view)
 
-      editActorsView = new EditActorsView({
+      actorsView = new ActorsView({
         el: document.getElementById('actors-content'),
-        template: 'actors-edit-template',
+        template: 'actors-template',
         model: keyflow,
         caseStudy: caseStudy,
         onUpload: function(){renderEditActors(keyflow)}

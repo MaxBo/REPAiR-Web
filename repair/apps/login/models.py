@@ -117,6 +117,9 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
+    
+    def get_casestudies(self):
+        return "\n".join([c.name for c in self.casestudies.all()])    
 
 
 @receiver(post_save, sender=User)

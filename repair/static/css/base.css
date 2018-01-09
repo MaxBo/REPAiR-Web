@@ -27,8 +27,18 @@ div.fullscreen{
   background-color: white;
 }
 
-#content {
-  padding-top: 90px;
+#wrapper {
+    /*transition: all .4s ease 0s;*/
+    height: 100%;
+    padding-left: 60px;
+}
+
+#page-content-wrapper {
+    padding: 5px;
+    margin-left: 0px;
+    width: 100%;
+    height: auto;
+    padding-top: 100px;
 }
 
 #map {
@@ -109,7 +119,7 @@ div.fullscreen{
   width: 96%;
 }
 
-/* workaround for visualizations not rendering correctly hidden tabs */
+/* workaround for visualizations not rendering correctly in hidden tabs */
 .tab-pane {
   display: block !important;
   position: fixed;
@@ -130,8 +140,9 @@ table {
 
 th, td {
   text-align: left;
-  padding: 8px;
+  padding: 6px;
   position: relative;
+  /*font-weight: normal;*/
 }
 
 tr.strikeout td:before {
@@ -253,14 +264,25 @@ tr.popunder > td{
   padding: 10px;
 }
 
-button.refresh{
-  padding: 1px 5px 1px 5px;
-  border-radius: 20px;
-  outline: none !important;
-  background-color: #aad400 !important;
-  border: none;
+.dashed {
+  border: 2px dashed #aad400;
+  padding: 10px;
 }
 
-button.refresh:hover{
-  background-color: #8fb300 !important;
+button.square, button.round{
+  padding: 1px 5px 1px 5px;
+  outline: none !important;
+  /*background-color: white !important;*/
+  /*border: solid 1px #aad400;*/
+  /*color: #aad400;*/
+}
+
+button.round{
+  border-radius: 20px;
+}
+
+button.square:hover, button.round:hover, button.square:focus, button.round:focus{
+  /*background-color: #aad400 !important;*/
+  border: none;
+  /*color: white;*/
 }
