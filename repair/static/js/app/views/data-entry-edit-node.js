@@ -1,4 +1,4 @@
-define(['backbone', 'app/models/activitygroup', 'app/models/activity',
+define(['backbone', 'underscore', 'app/models/activitygroup', 'app/models/activity',
         'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
         'app/loader', 'bootstrap'],
 /**
@@ -13,7 +13,7 @@ define(['backbone', 'app/models/activitygroup', 'app/models/activity',
   * @return  the EditNodeView class (for chaining)
   * @see     table for attributes and flows in and out of this node
   */
-function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   var EditNodeView = Backbone.View.extend({
 
     /*

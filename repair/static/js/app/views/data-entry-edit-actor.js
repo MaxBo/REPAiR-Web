@@ -1,9 +1,8 @@
-define(['backbone', 'app/models/actor', 'app/collections/geolocations', 
+define(['backbone', 'underscore', 'app/models/actor', 'app/collections/geolocations', 
         'app/models/geolocation', 'app/collections/activities', 
-        'app/collections/actors', 'app/visualizations/map', 
-        'tablesorter-pager', 'app/loader'],
+        'app/collections/actors', 'app/visualizations/map', 'app/loader'],
 
-function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
+function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Loader){
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }

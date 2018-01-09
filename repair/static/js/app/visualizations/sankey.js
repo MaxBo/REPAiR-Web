@@ -1,4 +1,4 @@
-require([
+define([
   'd3',
   //'libs/cycle-sankey'
 ], function(d3)
@@ -20,7 +20,7 @@ require([
     this.width = options.width;
     var height = options.height - margin.top - margin.bottom;
     var title = options.title;
-    require('libs/cycle-sankey')(d3);
+    require('libs/cycle-sankey');
     var formatNumber = d3.format(",.0f"),
       format = function(d) { return formatNumber(d);},
       color = d3.scale.category20();

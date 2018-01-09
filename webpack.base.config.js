@@ -33,15 +33,18 @@ module.exports = {
   resolve: {
     modules : ['static/js', 'node_modules', 'bower_components'],
       alias: {
-        "treeview": "libs/bootstrap-treeview.min",
-        "tablesorter-pager": "libs/jquery.tablesorter.pager",
+        //"treeview": "libs/bootstrap-treeview.min",
         'ol-contextmenu': 'libs/ol-contextmenu',
-        'spatialsankey': 'libs/spatialsankey'
+        'spatialsankey': 'libs/spatialsankey',
+        //'tablesorter-widgets': 'libs/jquery.tablesorter.widgets',
+        //'tablesorter-pager': 'libs/jquery.tablesorter.pager',
       },
     plugins: [
       new webpack.ProvidePlugin({
         _: 'loadash',
-        d3: 'd3'
+        d3: 'd3',
+        $: "jquery",
+        jQuery: "jquery"
       })
     ]
     //extensions: ['.js', '.jsx']

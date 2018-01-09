@@ -1,7 +1,7 @@
-define(['backbone', 'app/collections/products', 
-        'tablesorter-pager', 'app/loader'],
+define(['jquery', 'backbone', 'underscore', 'app/collections/products', 'app/loader', 
+        'tablesorter', 'libs/jquery.tablesorter.widgets', 'libs/jquery.tablesorter.pager'],
 
-function(Backbone, Products){
+function($, Backbone, _, Products, Loader){
   var EditActorsView = Backbone.View.extend({
 
     /*
@@ -45,7 +45,6 @@ function(Backbone, Products){
                                     keyflow: this.model.get('name')});
 
       this.table = this.el.querySelector('#products-table');
-
       this.products.each(function(product){_this.addProductRow(product)}); 
       $(this.table).tablesorter({
         headers:{

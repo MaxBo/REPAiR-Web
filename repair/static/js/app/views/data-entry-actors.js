@@ -1,8 +1,8 @@
-define(['backbone', 'app/models/actor', 'app/collections/activities', 
-        'app/collections/actors', 'app/views/data-entry-edit-actor',
-        'tablesorter-pager', 'app/loader'],
+define(['jquery', 'backbone', 'underscore', 'app/models/actor', 'app/collections/activities', 
+        'app/collections/actors', 'app/views/data-entry-edit-actor', 'app/loader', 
+        'tablesorter'],
 
-function(Backbone, Actor, Activities, Actors, EditActorView){
+function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
   var ActorsView = Backbone.View.extend({
 
     /*
@@ -72,7 +72,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
     },
     
     setupTable: function(){
-    
+    require('libs/jquery.tablesorter.pager');
       $(this.table).tablesorter({
         //widgets: ['zebra']
       });
