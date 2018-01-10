@@ -1,9 +1,9 @@
 
-define(['app/models/casestudy', 'app/views/data-entry-flows',
-        'app/views/data-entry-actors', 'app/views/data-entry-products', 
-        'app/collections/flows', 'app/collections/actors',
-        'app/collections/keyflows', 'app/collections/materials',
-        'app-config', 'app/loader'],
+define(['models/casestudy', 'views/data-entry-flows',
+        'views/data-entry-actors', 'views/data-entry-products', 
+        'collections/flows', 'collections/actors',
+        'collections/keyflows', 'collections/materials',
+        'app-config', 'loader'],
 function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
           Actors, Keyflows, Materials,
           appConfig, Loader) {

@@ -1,9 +1,9 @@
 define(['jquery', 'backbone', 'underscore',
-        'app/views/data-entry-edit-node',
-        'app/collections/activities', 'app/collections/actors',
-        'app/collections/products', 'app/collections/flows', 
-        'app/collections/stocks', 'app/collections/activitygroups', 
-        'app/visualizations/sankey', 'app/loader', 'libs/bootstrap-treeview.min'],
+        'views/data-entry-edit-node',
+        'collections/activities', 'collections/actors',
+        'collections/products', 'collections/flows', 
+        'collections/stocks', 'collections/activitygroups', 
+        'visualizations/sankey', 'loader', 'libs/bootstrap-treeview.min'],
 function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
          Stocks, ActivityGroups, Sankey, Loader){
 

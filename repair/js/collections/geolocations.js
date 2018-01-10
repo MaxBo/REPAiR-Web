@@ -1,4 +1,4 @@
-define(["backbone", "app/models/geolocation", "app-config"],
+define(["backbone", "models/geolocation", "app-config"],
 
   function(Backbone, Geolocation, config) {
 

@@ -1,6 +1,6 @@
 require([
   'd3',
-  'app/visualizations/mapviewer',
+  'visualizations/mapviewer',
 ], function (d3, MapViewer) {
   var evaluationmap = new MapViewer({
     divid: 'evaluationmap', 

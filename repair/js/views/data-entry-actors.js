@@ -1,5 +1,5 @@
-define(['jquery', 'backbone', 'underscore', 'app/models/actor', 'app/collections/activities', 
-        'app/collections/actors', 'app/views/data-entry-edit-actor', 'app/loader', 
+define(['jquery', 'backbone', 'underscore', 'models/actor', 'collections/activities', 
+        'collections/actors', 'views/data-entry-edit-actor', 'loader', 
         'tablesorter'],
 
 function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){

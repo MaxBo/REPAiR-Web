@@ -1,6 +1,6 @@
-define(['backbone', 'underscore', 'app/models/activitygroup', 'app/models/activity',
-        'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
-        'app/loader', 'bootstrap'],
+define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
+        'models/actor', 'collections/flows', 'collections/stocks',
+        'loader', 'bootstrap'],
 /**
   *
   * @desc    view on edit a specific node

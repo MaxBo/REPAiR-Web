@@ -1,4 +1,4 @@
-define(["backbone", "app/models/actor", "app-config"],
+define(["backbone", "models/actor", "app-config"],
 
   function(Backbone, Actor, config) {
   

@@ -1,6 +1,6 @@
 define([
   'd3',
-  'app/visualizations/sankey-map',
+  'visualizations/sankey-map',
 ], function(d3, MapView) {
   NodeHandler = function(){
     this.id = 0;

@@ -125,12 +125,14 @@
     </div>
   </div>
   <script>
-    <!-- hide sidebar if there is no content in it -->
+    // hide sidebar if there is no content in it
     if (document.getElementById('sidebar-content').childElementCount == 0){
       document.getElementById('wrapper').style.paddingLeft = '0px';
       document.getElementById('sidebar-wrapper').style.display = 'none';
-      <!--console.log(document.getElementById('sidebar-wrapper'))-->
+      //console.log(document.getElementById('sidebar-wrapper'))
     };
+    
+    <!-- show/hide dropdown-menus in main menu on click -->
     
     function show(elementId){
       closeDropdowns(); 

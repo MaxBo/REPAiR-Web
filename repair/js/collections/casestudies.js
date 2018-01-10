@@ -1,4 +1,4 @@
-define(["backbone", "app/models/casestudy", "app-config"],
+define(["backbone", "models/casestudy", "app-config"],
 
   function(Backbone, CaseStudy, config) {
 

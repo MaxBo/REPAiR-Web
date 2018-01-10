@@ -1,4 +1,4 @@
-define(["backbone","app/models/stakeholder", "app-config"],
+define(["backbone","models/stakeholder", "app-config"],
 
   function(Backbone, Stakeholder, config) {
 

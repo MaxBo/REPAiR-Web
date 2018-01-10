@@ -1,4 +1,4 @@
-define(["backbone", "app/models/activitygroup", "app-config"],
+define(["backbone", "models/activitygroup", "app-config"],
 
   function(Backbone, ActivityGroup, config) {
   

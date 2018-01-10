@@ -5,13 +5,13 @@ var BundleTracker = require('webpack-bundle-tracker');
 module.exports = {
   context: __dirname,
   entry: {
-    DataEntry: './static/js/data-entry',
-    StudyArea: './static/js/study-area',
-    StatusQuo: './static/js/status-quo',
+    DataEntry: './js/data-entry',
+    StudyArea: './js/study-area',
+    StatusQuo: './js/status-quo',
   },
   
   output: {
-    path: path.resolve('./static/bundles/local/'),
+    path: path.resolve('./repair/static/bundles/local/'),
     publicPath: '/static/bundles/local/',
     filename: "[name]-[hash].js"
   },
@@ -23,22 +23,16 @@ module.exports = {
   node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true }, 
   
   externals: [ 'ws' ],
-  //target: 'node',
   
   module: {
-    //exprContextRegExp: /^\.\/.*$/,
-    //unknownContextRegExp: /^\.\/.*$/,
     rules: [{ test: require.resolve("jquery"), loader: "expose?$!expose?jQuery" }] // add all common loaders here
   },
 
   resolve: {
-    modules : ['static/js', 'node_modules', 'bower_components'],
+    modules : ['js', 'node_modules', 'bower_components'],
       alias: {
-        //"treeview": "libs/bootstrap-treeview.min",
         'spatialsankey': 'libs/spatialsankey',
         jquery: "jquery/src/jquery"
-        //'tablesorter-widgets': 'libs/jquery.tablesorter.widgets',
-        //'tablesorter-pager': 'libs/jquery.tablesorter.pager',
       },
     plugins: [
       new webpack.ProvidePlugin({
@@ -48,7 +42,6 @@ module.exports = {
         jQuery: "jquery"
       })
     ]
-    //extensions: ['.js', '.jsx']
   },
 }
 

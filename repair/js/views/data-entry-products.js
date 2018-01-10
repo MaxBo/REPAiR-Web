@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'underscore', 'app/collections/products', 'app/loader', 
+define(['jquery', 'backbone', 'underscore', 'collections/products', 'loader', 
         'tablesorter'],
 
 function($, Backbone, _, Products, Loader){

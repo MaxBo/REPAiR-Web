@@ -1,6 +1,6 @@
-define(['backbone', 'underscore', 'app/models/actor', 'app/collections/geolocations', 
-        'app/models/geolocation', 'app/collections/activities', 
-        'app/collections/actors', 'app/visualizations/map', 'app/loader'],
+define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
+        'models/geolocation', 'collections/activities', 
+        'collections/actors', 'visualizations/map', 'loader'],
 
 function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Loader){
   function formatCoords(c){
@@ -274,9 +274,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
     },
     
-    createLocationEvent(event){
+    createLocationEvent: function(event){
       var buttonId = event.currentTarget.id;
-      var properties = {actor: this.model.id}
+      var properties = {actor: this.model.id};
       var type = (buttonId == 'add-administrative-button') ? 'administrative': 'operational';
       var location = new Geolocation({properties: properties}, 
                                      {caseStudyId: this.keyflow.get('casestudy'),
@@ -396,7 +396,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       else addAdminBtn.style.display = 'block';
     },
     
-    toggleIncluded(event){
+    toggleIncluded: function(event){
       var display = (event.target.checked) ? 'none': 'block';
       document.getElementById('reasons').style.display = display;
     },
