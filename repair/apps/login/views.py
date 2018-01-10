@@ -45,7 +45,10 @@ class CasestudyViewSetMixin(ABC):
         user_id = -1 if request.user.id is None else request.user.id
         # pk if route is /api/casestudies/ else casestudy_pk
         casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
-        casestudy = CaseStudy.objects.get(id=casestudy_id)
+        try:
+            casestudy = CaseStudy.objects.get(id=casestudy_id)
+        except:
+            raise exceptions.NotFound()
         # check if user is in casestudy, raise exception, if not
         if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
             raise exceptions.PermissionDenied()
