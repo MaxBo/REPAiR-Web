@@ -40,6 +40,15 @@ class BasicModelTest(object):
         cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
                                             casestudy=cls.uic.casestudy)
 
+    def setUp(self):
+        self.client.force_login(user=self.uic.user.user)
+        super().setUp()
+
+    def tearDown(self):
+        self.client.logout()
+        super().tearDown()
+
+
     @classmethod
     def tearDownClass(cls):
         user = cls.uic.user.user

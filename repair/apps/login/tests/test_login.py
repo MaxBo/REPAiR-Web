@@ -114,6 +114,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
+        super().setUp()
         self.obj = self.kic.casestudy
 
 
@@ -139,6 +140,7 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
                                            user=self.uic,
                                            )
@@ -177,6 +179,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionFactory(id=self.solution,
                                    solution_category__id=self.solutioncategory,
                                    solution_category__user=self.uic,
@@ -214,6 +217,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionQuantityFactory(id=self.solutionquantity,
                                            solution__id=self.solution,
                                            unit__id=self.unit,
@@ -256,6 +260,7 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModel
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionRatioOneUnitFactory(id=self.solutionratiooneunit,
                                                solution__id=self.solution,
                                                unit__id=self.unit,
@@ -283,6 +288,7 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = self.uic
 
     def test_post(self):
@@ -320,6 +326,7 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ImplementationFactory(id=self.implementation,
                                          user=self.uic)
 
@@ -367,6 +374,7 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationFactory(
             solution__user=self.uic,
             solution__solution_category__user=self.uic,
@@ -406,6 +414,7 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationGeometryFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,
@@ -441,6 +450,7 @@ class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationNoteFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,
@@ -486,6 +496,7 @@ class QuantityInSolutionInImplementationInCasestudyTest(BasicModelTest):  #,APIT
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationQuantityFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,

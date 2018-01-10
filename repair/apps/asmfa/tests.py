@@ -98,6 +98,7 @@ class KeyflowTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
+        super().setUp()
         self.obj = KeyflowFactory()
 
 
@@ -136,6 +137,7 @@ class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(note='patchtestnote')
 
     def setUp(self):
+        super().setUp()
         self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
                                               keyflow__id=self.keyflow)
 
@@ -185,6 +187,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -229,6 +232,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -273,6 +277,7 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -307,6 +312,7 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic)
 
 
@@ -337,6 +343,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ActivityFactory(
             activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__keyflow=self.kic,
@@ -361,6 +368,7 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ActivityGroupFactory(keyflow=self.kic)
 
     def test_post(self):
@@ -398,6 +406,7 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ActivityFactory(
             activitygroup__keyflow=self.kic,
             activitygroup__keyflow__casestudy=self.uic.casestudy,
@@ -414,6 +423,7 @@ class QualityTest(BasicModelTest):  #, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def setUp(self):
+        super().setUp()
         self.obj = QualityFactory()
 
 
@@ -450,6 +460,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -502,6 +513,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -554,6 +566,7 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -595,6 +608,7 @@ class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         cls.sub_urls = ['keyflow']
 
     def setUp(self):
+        super().setUp()
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
@@ -603,7 +617,7 @@ class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                   )
 
 
-class GeolocationViewTest(APITestCase):
+class GeolocationViewTest(BasicModelTest, APITestCase):
 
     def test_administrative_location(self):
         """Test creating, updating and deleting of administrative locations"""
@@ -802,7 +816,7 @@ class GeolocationViewTest(APITestCase):
         assert geom['coordinates'] == [6, 5]
 
 
-class TestLocationsOfActor(APITestCase):
+class TestLocationsOfActor(BasicModelTest, APITestCase):
 
     @staticmethod
     def get_adminlocation_url(cs, keyflow, location, actor):
@@ -1050,7 +1064,7 @@ class TestLocationsOfActor(APITestCase):
         assert response.data['properties']['address'] == new_streetname
 
 
-class TestActor(APITestCase):
+class TestActor(BasicModelTest, APITestCase):
     def test_actor_website(self):
         """Test updating a website for an actor"""
         # create actor and casestudy
