@@ -2,6 +2,7 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
+{% load webpack_static from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -11,9 +12,6 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
-    <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
