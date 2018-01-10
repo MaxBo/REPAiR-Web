@@ -7,7 +7,7 @@ from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models.sql.constants import QUERY_TERMS
 
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 
@@ -67,6 +67,17 @@ class ViewSetMixin(ABC):
         if self.casestudy_only:
             self.set_casestudy(kwargs, request)
         return super().create(request, **kwargs)
+
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+
 
     def retrieve(self, request, **kwargs):
         """
@@ -128,7 +139,7 @@ class ViewSetMixin(ABC):
         and by additional filters
         """
         # filter any query parameters matching fields of the model
-        filter_args = self.additional_filters
+        filter_args = {k: v for k, v in self.additional_filters.items()}
         for k, v in query_params.items():
             key_cmp = k.split('__')
             key = key_cmp[0]
@@ -182,7 +193,11 @@ class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
+class UserInCasestudyViewSet(ViewSetMixin,
+                             mixins.RetrieveModelMixin,
+                             mixins.UpdateModelMixin,
+                             mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """

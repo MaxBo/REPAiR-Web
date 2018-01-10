@@ -1,3 +1,4 @@
+import unittest
 from django.test import TestCase
 from django.core.validators import ValidationError
 
@@ -285,13 +286,13 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
     def setUp(self):
         self.obj = self.uic
 
+    @unittest.skip('no Post possible')
     def test_post(self):
-        """
-        MAX:
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
+        """no Post"""
+
+    @unittest.skip('no Delete possible')
+    def test_delete(self):
+        """no Delete"""
 
 
 class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):

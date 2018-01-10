@@ -58,6 +58,10 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
                                               casestudy=self.uic.casestudy,
                                               )
 
+    def tearDown(self):
+        del self.obj
+        super().tearDown()
+
 
 class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
 

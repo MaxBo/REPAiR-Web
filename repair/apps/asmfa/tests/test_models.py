@@ -361,11 +361,11 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
     def setUp(self):
         self.obj = ActivityGroupFactory(keyflow=self.kic)
 
-    def test_post(self):
-        """
-        not sure: Matching query does not exist
-        """
-        pass
+    #def test_post(self):
+        #"""
+        #not sure: Matching query does not exist
+        #"""
+        #pass
 
 
 class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
@@ -460,11 +460,11 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                         keyflow=kic_obj,
                                         )
 
-    def test_post(self):
-        """
-        not working: produvt id required
-        """
-        pass
+    #def test_post(self):
+        #"""
+        #not working: produvt id required
+        #"""
+        #pass
 
 
 class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
@@ -512,11 +512,11 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                      keyflow=kic_obj,
                                      )
 
-    def test_post(self):
-        """
-        not working: produvt id required
-        """
-        pass
+    #def test_post(self):
+        #"""
+        #not working: produvt id required
+        #"""
+        #pass
 
 
 class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
@@ -563,11 +563,6 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                      keyflow=kic_obj,
                                      )
 
-    def test_post(self):
-        """
-        not working: produvt id required
-        """
-        pass
 
 
 class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
@@ -631,7 +626,7 @@ class GeolocationViewTest(APITestCase):
 
         # patch existing administrative location
         new_streetname = 'Hauptstraße 13'
-        data = {'properties': {'address': new_streetname}, 
+        data = {'properties': {'address': new_streetname},
                 'geometry': location.geom.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
@@ -661,13 +656,13 @@ class GeolocationViewTest(APITestCase):
         # post new administrative location
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
-        data = {'properties': {'address': new_streetname, 'actor': actor.id}, 
+        data = {'properties': {'address': new_streetname, 'actor': actor.id},
                 'geometry': new_geom.geojson
                 }
         response = self.client.post(url_locations, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         new_aloc_id = response.data['id']
-        
+
         # deny uploading a second administrative location
         response = self.client.post(url_locations, data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -736,32 +731,32 @@ class GeolocationViewTest(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert location1.pk in (row['id'] for row in response.data['features'])
         assert location2.pk in (row['id'] for row in response.data['features'])
-        
+
         # patch location1
         url_locations_detail = self.get_location_url(cs, keyflow,
                                                      location=location1.id)
         new_location = Point(x=2, y=3, srid=4326)
         new_streetname = 'Hauptstraße 13'
-        data = {'properties': {'address': new_streetname}, 
+        data = {'properties': {'address': new_streetname},
                 'geometry': new_location.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
         print(response.status_text)
         assert response.status_code == status.HTTP_200_OK
-        
+
         # check the new adress of the location1
         response = self.client.get(url_locations_detail)
         properties = response.data['properties']
         assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_location.x, new_location.y]
-        
+
         # delete location 2
         url_locations_detail = self.get_location_url(cs, keyflow,
                                                      location=location2.id)
         response = self.client.delete(url_locations_detail)
         assert response.status_code == status.HTTP_204_NO_CONTENT
-    
+
         # should not exist any more in the database
         response = self.client.get(url_locations_detail)
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -769,7 +764,7 @@ class GeolocationViewTest(APITestCase):
         # post new operational location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        data = {'properties': {'address': new_streetname, 'actor': actor.id}, 
+        data = {'properties': {'address': new_streetname, 'actor': actor.id},
                 'geometry': new_geom.geojson}
 
         response = self.client.post(url_locations, data, format='json')

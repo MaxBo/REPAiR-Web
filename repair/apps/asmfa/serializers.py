@@ -257,10 +257,11 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    keyflow = IDRelatedField(required=False)
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
-                  'inputs', 'outputs', 'stocks')
+                  'inputs', 'outputs', 'stocks', 'keyflow')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -493,10 +494,19 @@ class KeyflowInCasestudyField(InCasestudyField):
                             }
 
 
+class ProductInKeyflowInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
 class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
-                           NestedHyperlinkedModelSerializer):
+                      NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                        read_only=True)
+                                      read_only=True)
+    product = IDRelatedField()
+
+    #product = ProductInKeyflowInCasestudyField(view_name='product-detail')
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
@@ -504,7 +514,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
-                  'keyflow', 'year',
+                  'keyflow', 'year', 'product',
                   )
 
 

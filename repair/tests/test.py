@@ -42,8 +42,8 @@ class BasicModelTest(object):
                                             casestudy=cls.uic.casestudy)
 
     def setUp(self):
-        self.client.force_login(user=self.uic.user.user)
         super().setUp()
+        self.client.force_login(user=self.uic.user.user)
 
     def tearDown(self):
         self.client.logout()
@@ -65,6 +65,7 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_200_OK
 
     def test_detail(self):
+        print("detail")
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         # test get
@@ -93,6 +94,7 @@ class BasicModelTest(object):
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
+        print("delete")
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
@@ -102,13 +104,15 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_post(self):
+        print("post")
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
         # post
         response = self.client.post(url, self.post_data)
         for key in self.post_data:
             if key not in response.data.keys() or key in self.do_not_check:
                 continue
-            assert response.data[key] == self.post_data[key]
+            self.assertEqual(str(response.data[key]),
+                             str(self.post_data[key]))
         # get
         new_id = response.data['id']
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
@@ -117,6 +121,7 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_200_OK
 
     def test_get_urls(self):
+        print("get_urls")
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                             'pk': self.obj.pk,})
         response = self.client.get(url)
@@ -125,6 +130,7 @@ class BasicModelTest(object):
             assert key_response.status_code == status.HTTP_200_OK
 
     def test_post_url_exist(self):
+        print("post_urls")
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)

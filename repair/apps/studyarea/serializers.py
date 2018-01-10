@@ -70,7 +70,7 @@ class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'name', 'stakeholder_set', 'stakeholder_list',
                   )
 
-    def get_required_fields(self, user):
+    def get_required_fields(self, user, kic=None):
         required_fields = {'casestudy': user.casestudy,}
         return required_fields
 
