@@ -57,7 +57,7 @@
                   <div id="casestudy-dropdown" class="dropdown-content">
                     {% for casestudy in casestudies %}
                     <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
-                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
                   </div>
                 </div>
@@ -84,7 +84,7 @@
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="language" onchange="$('#language-select').submit()"">
+                  <select name="language" onchange="document.getElementById('language-select').submit()"">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% for lang in LANGUAGES %}
