@@ -15,7 +15,7 @@ define(['browser-cookies'],
             'X-Requested-With': 'XMLHttpRequest'
           },
           credentials: 'include'
-        }).then(function(response){response.json().then(function(json){callback(json);})});
+        }).then(response => response.json()).then(json => callback(json));
     }
     
     config.api = {

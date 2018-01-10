@@ -134,6 +134,7 @@ define([
       };
       
       contextmenu.on('open', function (evt) {
+        console.log(evt.pixel)
         var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
         if (feature && feature.get('type') === 'removable') {
