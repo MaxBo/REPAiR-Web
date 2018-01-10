@@ -38,7 +38,7 @@ DEBUG = False
 WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': not DEBUG, 
-        'BUNDLE_DIR_NAME': 'bundles/local/', 
+        'BUNDLE_DIR_NAME': 'bundles/prod/', 
         'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-prod.json'),
     }
 }
