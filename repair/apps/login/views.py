@@ -47,11 +47,12 @@ class CasestudyViewSetMixin(ABC):
         casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
         try:
             casestudy = CaseStudy.objects.get(id=casestudy_id)
-        except:
-            raise exceptions.NotFound()
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
+                raise exceptions.PermissionDenied()
+        except CaseStudy.DoesNotExist:
+            # maybe casestudy is about to be posted-> go on
+            pass
         # check if user is in casestudy, raise exception, if not
-        if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
-            raise exceptions.PermissionDenied()
         request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
