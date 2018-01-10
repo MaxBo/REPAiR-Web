@@ -53,10 +53,10 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = StakeholderCategoryFactory(id=self.stakeholdercategory,
                                               casestudy=self.uic.casestudy,
                                               )
-        print('created SHC {}'.format(self.obj))
 
 
 class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
@@ -90,7 +90,5 @@ class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
                                       stakeholder_category__casestudy=\
                                       self.uic.casestudy,
                                       )
-        print('created SH {}'.format(self.obj))
-
 
 

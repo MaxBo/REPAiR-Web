@@ -37,8 +37,18 @@ class BasicModelTest(object):
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
+
         cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
                                             casestudy=cls.uic.casestudy)
+
+    def setUp(self):
+        self.client.force_login(user=self.uic.user.user)
+        super().setUp()
+
+    def tearDown(self):
+        self.client.logout()
+        super().tearDown()
+
 
     @classmethod
     def tearDownClass(cls):
@@ -49,12 +59,12 @@ class BasicModelTest(object):
         del cls.uic
         super().tearDownClass()
 
-    def test_01_list(self):
+    def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
-    def test_02_detail(self):
+    def test_detail(self):
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         # test get
@@ -82,7 +92,7 @@ class BasicModelTest(object):
                 continue
             assert response.data[key] == self.patch_data[key]
 
-    def test_03_delete(self):
+    def test_delete(self):
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
@@ -91,7 +101,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_04_post(self):
+    def test_post(self):
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
         # post
         response = self.client.post(url, self.post_data)
@@ -106,7 +116,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
-    def test_05_get_urls(self):
+    def test_get_urls(self):
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                             'pk': self.obj.pk,})
         response = self.client.get(url)
@@ -114,7 +124,7 @@ class BasicModelTest(object):
             key_response = self.client.get(response.data[key])
             assert key_response.status_code == status.HTTP_200_OK
 
-    def test_06_post_url_exist(self):
+    def test_post_url_exist(self):
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
