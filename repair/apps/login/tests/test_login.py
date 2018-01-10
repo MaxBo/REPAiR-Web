@@ -113,6 +113,27 @@ class CasestudyTest(BasicModelTest, APITestCase):
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
 
+    def test_post(self):
+        url = reverse(self.url_key +'-list', kwargs=self.url_pks)
+        # post
+        response = self.client.post(url, self.post_data)
+        for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
+            assert response.data[key] == self.post_data[key]
+        # get
+        new_id = response.data['id']
+        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
+                                                        'pk': new_id})
+        
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        
+        casestudy = CaseStudy.objects.get(id=new_id)
+        casestudy.userincasestudy_set.add(self.uic)
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+
     def setUp(self):
         super().setUp()
         self.obj = self.kic.casestudy
@@ -290,6 +311,16 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.obj = self.uic
+        
+    def test_delete(self):
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+        response = self.client.delete(url)
+        response = self.client.get(url)
+        # after removing user the casestudy is permitted to access for this user
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_post(self):
         """
