@@ -193,10 +193,12 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Activity2ActivityFactory(id=self.activity2activity,
                                             origin__id=self.origin,
+                                            origin__activitygroup__keyflow=kic_obj, 
                                             destination__id=self.destination,
+                                            destination__activitygroup__keyflow=kic_obj, 
                                             product__id=self.product,
                                             product__keyflow=kic_obj,
-                                            keyflow=kic_obj,
+                                            keyflow=kic_obj
                                             )
 
 
@@ -238,7 +240,9 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Actor2ActorFactory(id=self.actor2actor,
                                       origin__id=self.origin,
+                                      origin__activity__activitygroup__keyflow=kic_obj, 
                                       destination__id=self.destination,
+                                      destination__activity__activitygroup__keyflow=kic_obj, 
                                       product__id=self.product,
                                       product__keyflow=kic_obj,
                                       keyflow=kic_obj,
@@ -283,7 +287,9 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Group2GroupFactory(id=self.group2group,
                                       origin__id=self.origin,
+                                      origin__keyflow=kic_obj, 
                                       destination__id=self.destination,
+                                      destination__keyflow=kic_obj, 
                                       product__id=self.product,
                                       product__keyflow=kic_obj,
                                       keyflow=kic_obj,

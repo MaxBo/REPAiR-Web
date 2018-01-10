@@ -126,9 +126,11 @@ class CasestudyTest(BasicModelTest, APITestCase):
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                         'pk': new_id})
         
+        # casestudy is new -> noone may access it
         response = self.client.get(url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
         
+        # grant access to new casestudy
         casestudy = CaseStudy.objects.get(id=new_id)
         casestudy.userincasestudy_set.add(self.uic)
         response = self.client.get(url)
