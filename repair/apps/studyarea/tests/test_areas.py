@@ -77,6 +77,7 @@ class AdminLevels(APITestCase):
         cls.casestudy = casestudy
         cls.kreis = kreis
         cls.gemeinde = gemeinde
+        cls.ortsteil = ortsteil
 
         world = models.World.objects.create(name='Earth', casestudy=casestudy)
         hh = models.NUTS1.objects.create(name='Hamburg', casestudy=casestudy,
@@ -116,6 +117,8 @@ class AdminLevels(APITestCase):
             name='Elmshorn-Mitte', casestudy=casestudy,
             parent_area=elmshorn)
 
+        cls.kreis_pi = kreis_pi
+
 
     def test_get_levels(self):
         """Test the list of all levels of a casestudy"""
@@ -154,3 +157,39 @@ class AdminLevels(APITestCase):
         data = response.data
         self.assertSetEqual({a['name'] for a in data},
                             {'Pinneberg', 'Elmshorn', 'Ellerbek'})
+
+    def test_get_ortsteile_of_kreis(self):
+        """
+        Test the list of all ortsteile of a kreis with
+        an additional filter
+        """
+        casestudy = self.casestudy
+        # get the admin levels
+        url = reverse('adminlevels-list',
+                          kwargs={'casestudy_pk': casestudy.pk,})
+        data = self.client.get(url).data
+
+        # define the urls
+        kwargs = {'casestudy_pk': casestudy.pk,
+                  'level_pk': self.ortsteil.level,}
+        url = reverse('area-list', kwargs=kwargs, )
+        response = self.client.get(url, {'parent_level': models.NUTS3._level,
+                                         'parent_id': self.kreis_pi.pk,})
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.data
+
+        self.assertSetEqual({a['name'] for a in data},
+                            {'Egenbüttel', 'Langenmoor', 'Elmshorn-Mitte'})
+
+        # test if we can use lookups like name__istartswith
+        response = self.client.get(url, {'parent_level': models.NUTS3._level,
+                                         'parent_id': self.kreis_pi.pk,
+                                         'name__istartswith': 'e',})
+
+        assert response.status_code == status.HTTP_200_OK
+        # this should return all ortsteile starting with an 'E'
+        self.assertSetEqual({a['name'] for a in response.data},
+                            {'Egenbüttel', 'Elmshorn-Mitte'})
+
+

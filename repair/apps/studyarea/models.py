@@ -33,6 +33,7 @@ class AdminLevels(GDSEUniqueNameModel):
 
 class Area(GDSEUniqueNameModel):
     level = models.IntegerField()
+    content_type = models.ForeignKey(ContentType)
     name = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
     casestudy = models.ForeignKey(CaseStudy)
@@ -41,6 +42,7 @@ class Area(GDSEUniqueNameModel):
         if not self.level:
             content_type = ContentType.objects.get_for_model(self.__class__)
             self.level = content_type.model_class()._level
+            self.content_type = content_type
         super().save(*args, **kwargs)
 
 
@@ -152,3 +154,4 @@ class Links(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+

@@ -49,17 +49,18 @@ class BasicModelTest(object):
         del cls.uic
         super().tearDownClass()
 
-    def test_list(self):
+    def test_01_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
-    def test_detail(self):
+    def test_02_detail(self):
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         # test get
         response = self.client.get(url)
         assert response.data['id'] == self.obj.pk
+
         # check status code for put
         response = self.client.put(url, data=self.put_data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -70,6 +71,7 @@ class BasicModelTest(object):
                 continue
             assert response.data[key] == self.put_data[key]
             #self.assertJSONEqual(response.data[key], self.put_data[key])
+
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -80,7 +82,7 @@ class BasicModelTest(object):
                 continue
             assert response.data[key] == self.patch_data[key]
 
-    def test_delete(self):
+    def test_03_delete(self):
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
@@ -89,7 +91,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_post(self):
+    def test_04_post(self):
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
         # post
         response = self.client.post(url, self.post_data)
@@ -104,7 +106,7 @@ class BasicModelTest(object):
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
-    def test_get_urls(self):
+    def test_05_get_urls(self):
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                             'pk': self.obj.pk,})
         response = self.client.get(url)
@@ -112,7 +114,7 @@ class BasicModelTest(object):
             key_response = self.client.get(response.data[key])
             assert key_response.status_code == status.HTTP_200_OK
 
-    def test_post_url_exist(self):
+    def test_06_post_url_exist(self):
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)

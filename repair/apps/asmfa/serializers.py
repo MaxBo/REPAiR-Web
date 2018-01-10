@@ -416,7 +416,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
-                  'reason', 
+                  'reason',
                   #'administrative_location_geojson',
                   #'operational_locations_geojson',
                  )
@@ -504,7 +504,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
-                  'keyflow', 'year', 
+                  'keyflow', 'year',
                   )
 
 
@@ -626,7 +626,7 @@ class ActorIDField(serializers.RelatedField):
         'required': _('This field is required.'),
         'does_not_exist': _('Invalid Actor ID - Object does not exist.'),
         'null': _('This field may not be null.')
-    } 
+    }
 
 
     def to_representation(self, value):
@@ -636,15 +636,15 @@ class ActorIDField(serializers.RelatedField):
         try:
             return Actor.objects.get(id=data)
         except (ObjectDoesNotExist, TypeError, ValueError):
-            self.fail('does_not_exist')        
-    
+            self.fail('does_not_exist')
+
     def get_queryset(self):
         qs = Actor.objects.all()
         return qs
 
 
 class PatchFields:
-    
+
     @property
     def fields(self):
         fields = super().fields
@@ -661,8 +661,8 @@ class PatchFields:
         #self._for_write = True
         #obj.save(force_insert=True, using=self.db)
         #return obj
-    
-    
+
+
 class AdministrativeLocationSerializer(PatchFields,
                                        GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
@@ -678,7 +678,7 @@ class AdministrativeLocationSerializer(PatchFields,
                   'city', 'geom', 'name',
                   'actor',
                   ]
-    
+
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
         if self.Meta.model.objects.all().filter(actor = validated_data['actor']):
@@ -695,7 +695,7 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
                             'actor__activity__activitygroup__keyflow__id',
                             'actor_pk': 'actor__id',}
     actor = ActorIDField(required=False)
-    
+
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
         actor = validated_data.pop('actor', None)

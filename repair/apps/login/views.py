@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
+from django.db.models.sql.constants import QUERY_TERMS
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -108,20 +109,36 @@ class ViewSetMixin(ABC):
         # filter the lookup arguments
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
-        # filter any query parameters matching fields of the model
-        for k, v in query_params.items():
-            if hasattr(self.queryset.model, k):
-                filter_args[k] = v
+
+        # filter additional expressions
+        filter_args.update(self.get_filter_args(queryset=self.queryset,
+                                                query_params=query_params)
+                           )
         try:
             queryset = self.queryset.model.objects.filter(**filter_args)
         except Exception as e:
+            # ToDo: ExceptionHandling is very broad. Pleas narrow down!
             print(e)
             return None
-
-        if len(self.additional_filters):
-            queryset = queryset.filter(**self.additional_filters)
         return queryset
 
+    def get_filter_args(self, queryset, query_params):
+        """
+        get filter arguments defined by the query_params
+        and by additional filters
+        """
+        # filter any query parameters matching fields of the model
+        filter_args = self.additional_filters
+        for k, v in query_params.items():
+            key_cmp = k.split('__')
+            key = key_cmp[0]
+            if hasattr(queryset.model, key):
+                if len(key_cmp) > 1:
+                    cmp = key_cmp[-1]
+                    if cmp not in QUERY_TERMS:
+                        continue
+                filter_args[k] = v
+        return filter_args
 
 
 class OnlySubsetMixin(ViewSetMixin):

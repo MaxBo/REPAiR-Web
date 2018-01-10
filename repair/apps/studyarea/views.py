@@ -2,8 +2,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.views.generic import TemplateView
 from django.shortcuts import render
-from rest_framework.filters import BaseFilterBackend
 from django.utils.translation import ugettext as _
+
+from rest_framework.filters import BaseFilterBackend
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -19,6 +20,13 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           AdminLevels,
                                           Area,
                                           )
+
+import repair.apps.studyarea.models as smodels
+
+AreaSubModels = {m._level: m for m in smodels.__dict__.values()
+                 if isinstance(m, type) and issubclass(m, Area)
+                 and not m == Area
+                 }
 
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
@@ -62,7 +70,34 @@ class AreaViewSet(ViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
 
-    search_fields = ['name__startswith']
+    def _filter(self, lookup_args, query_params={}, SerializerClass=None):
+        params = {k: v for k, v in query_params.items()}
+        parent_level = int(params.pop('parent_level', 0))
+
+        if not parent_level:
+            return super()._filter(lookup_args,
+                                   query_params=query_params,
+                                   SerializerClass=SerializerClass)
+
+        parent_id = params.pop('parent_id', None)
+        casestudy = lookup_args['casestudy_pk']
+        level_pk = int(lookup_args['level_pk'])
+        levels = AdminLevels.objects.filter(casestudy__id=casestudy)
+        level_ids = sorted([a.level for a in levels
+                            if a.level > parent_level
+                            and a.level <= level_pk])
+
+        parents = [AreaSubModels[parent_level].objects.get(pk=parent_id)]
+        for level_id in level_ids:
+            model = AreaSubModels[level_id]
+            areas = model.objects.filter(parent_area__in=parents)
+            parents.extend(areas)
+        filter_args = self.get_filter_args(queryset=areas,
+                                           query_params=params)
+        queryset = areas.filter(**filter_args)
+        return queryset
+
+
 
 
 

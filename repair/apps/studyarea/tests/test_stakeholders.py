@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
-from rest_framework.test import APITestCase
 from django.urls import reverse
+
+from rest_framework.test import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest
 
@@ -39,13 +40,8 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
-    #solutioncategory = 21
-    #solution = 36
-    #solutionquantity = 28
     userincasestudy = 67
     user = 99
-    #unit = 75
-    #solutionratiooneunit = 84
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -60,25 +56,16 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
         self.obj = StakeholderCategoryFactory(id=self.stakeholdercategory,
                                               casestudy=self.uic.casestudy,
                                               )
-
-    def test_post(self):
-        """
-        MAX
-        """
-        pass
+        print('created SHC {}'.format(self.obj))
 
 
-class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
+class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
     stakeholder = 21
-    #solution = 36
-    #solutionquantity = 28
     userincasestudy = 67
     user = 99
-    #unit = 75
-    #solutionratiooneunit = 84
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -96,12 +83,14 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = StakeholderFactory(id=self.stakeholder,
                                       stakeholder_category__id=\
                                       self.stakeholdercategory,
                                       stakeholder_category__casestudy=\
                                       self.uic.casestudy,
                                       )
+        print('created SH {}'.format(self.obj))
 
 
 
