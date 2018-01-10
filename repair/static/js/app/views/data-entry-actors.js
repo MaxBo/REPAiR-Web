@@ -72,7 +72,7 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
     },
     
     setupTable: function(){
-    require('libs/jquery.tablesorter.pager');
+      require('libs/jquery.tablesorter.pager');
       $(this.table).tablesorter({
         //widgets: ['zebra']
       });

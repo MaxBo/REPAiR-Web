@@ -1,5 +1,5 @@
 define(['jquery', 'backbone', 'underscore', 'app/collections/products', 'app/loader', 
-        'tablesorter', 'libs/jquery.tablesorter.widgets', 'libs/jquery.tablesorter.pager'],
+        'tablesorter'],
 
 function($, Backbone, _, Products, Loader){
   var EditActorsView = Backbone.View.extend({
