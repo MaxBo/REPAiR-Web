@@ -9,14 +9,16 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
 
   /**
    *
+   * @author  Christoph Franke
+   *
    * @desc    view on edit flows of a single casestudy
    *
    * @param   options.el     html-element the view will be rendered in
    * @param   options.model  backbone-model of the casestudy
    *
    * @return  the EditFlowsView class (for chaining)
-   * @see     tabs for data-entry (incl. a tree with available nodes to edit),
-   *          sankey-diagram visualising the data and verification of nodes
+   * @see     tabs for editing the flows (incl. a tree with available nodes to edit),
+   *          a sankey-diagram visualising the data and the verification of nodes
    */
   var FlowsView = Backbone.View.extend({
     // the id of the script containing the template for this view
@@ -54,6 +56,9 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       });
     },
     
+    /*
+     * dom events (managed by jquery)
+     */
     events: {
       'click #fullscreen-toggle': 'toggleFullscreen',
       'click #refresh-dataview-btn': 'renderSankey',
@@ -81,9 +86,11 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       this.renderSankey({skipFetch: true});
     },
 
-    /*
-      * render a sankey diagram
-      */
+    /**
+     * render a sankey diagram
+     *
+     * @param options.skipFetch   if True, don't fetch the models to render again, but use the already fetched ones
+     */
     renderSankey: function(options){
       var options = options || {};
       var el = document.getElementById('sankey-wrapper');
@@ -134,7 +141,11 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
         );
       }
     },
-
+    
+    /**
+     * transform the models, their links and the stocks to a json-representation
+     * readable by the sankey-diagram
+     */
     transformData: function(models, modelLinks, stocks){
       var products = this.products;
       var nodes = [];
@@ -242,8 +253,6 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
 
     /**
     * render the edit-view on a node
-    *
-    * @param model  backbone-model of the node
     */
     renderDataEntry: function(){
       var model = this.selectedModel;
