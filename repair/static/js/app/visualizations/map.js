@@ -1,7 +1,18 @@
+/**
+ * @fileOverview
+ * @author  Christoph Franke
+*/
+
 define([
   'openlayers', 'ol-contextmenu'
 ], function(ol, ContextMenu)
 {
+  /**
+   *
+   * Render an OpenLayers map
+   *
+   * @namespace visualizations
+   */
   var Map = function(options){
     var idCounter = 0;
     var interactions = [];

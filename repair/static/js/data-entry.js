@@ -7,6 +7,14 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
   function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
             Actors, Keyflows, Materials,
             appConfig) {
+  /**
+   * @author Christoph Franke
+   *
+   * @desc    js entry point for rendering the data-entry
+   *
+   * @see     tabs for data-entry (incl. a tree with available nodes to edit),
+   *          sankey-diagram visualising the data and verification of nodes
+   */
 
     var caseStudy,
         keyflows,
@@ -21,6 +29,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
         refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
+    // render the view on 'Edit Flows'
     function renderFlows(keyflow){
       if (keyflow == null) return;
       if (flowsView != null)
@@ -35,6 +44,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       refreshFlowsBtn.style.display = 'block';
     };
     
+    // render the view on 'Edit Actors'
     function renderEditActors(keyflow){
       if (keyflow == null) return;
       if (actorsView != null)
@@ -51,6 +61,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       refreshActorsBtn.style.display = 'block';
     };
     
+    // render the view on 'Edit Products'
     function renderEditProducts(keyflow){
       if (keyflow == null) return;
       if (editProductsView != null)
@@ -69,6 +80,7 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
       refreshProductsBtn.style.display = 'block';
     };
 
+    // render the views of each tab
     function render(caseStudy){
 
       var keyflowSelect = document.getElementById('keyflow-select');
@@ -83,12 +95,16 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
         renderEditActors(keyflow);
         renderEditProducts(keyflow);
       });
+      
+      // each tab has a button to reload the corresponding view
       refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
       refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
       refreshActorsBtn.addEventListener('click', function(){renderEditActors(getKeyflow())});
       document.getElementById('keyflow-select').disabled = false;
     }
-
+    
+    // get the current state of the session (incl. the active casestudy)
+    // fetch the models and render the views afterwards
     var session = appConfig.getSession(
       function(session){
         var caseStudyId = session['casestudy'];

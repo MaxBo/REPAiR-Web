@@ -11,7 +11,6 @@ define([
    * @param   options.title  optional, title of the diagram (displayed on top)
    * @param   options.width  optional, width of the diagram (default: bounding box of div)
    *
-   * @see     nothing until render() is called
    */
   var Sankey = function(options){
 
