@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 from django.test import TestCase
 
-class UntitledTestCase(TestCase):
+class UntitledTestCase(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
@@ -18,17 +18,15 @@ class UntitledTestCase(TestCase):
 
     def test_untitled_test_case(self):
         driver = self.driver
-        driver.get('http://testserver')
+        driver.get('http://localhost:4444')
         driver.find_element_by_link_text("Study Area").click()
         time.sleep(5)
-        print("***************************************************")
         driver.find_element_by_link_text("Status Quo").click()
         time.sleep(5)
         driver.find_element_by_link_text("Decisions").click()
         time.sleep(5)
         driver.find_element_by_link_text("Changes").click()
-        print("***************************************************")
-
+        print("clicked***")
 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
