@@ -20,7 +20,7 @@ jobs:
             java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
           background: true
           command: |
-            python repair/tests/webtest.py
+            python repair/tests/seleniumtest.py
       - run:
           name: run py.test
           command: |
