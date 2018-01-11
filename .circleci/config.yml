@@ -16,11 +16,6 @@ jobs:
             pip install -r requirements-dev.txt
             python manage.py migrate
       - run:
-          name: Start Selenium
-          command: |
-            java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
-          background: true
-      - run:
           name: start Testserver
           command: |
             python manage.py runserver 4444
