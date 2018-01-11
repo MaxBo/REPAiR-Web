@@ -32,5 +32,8 @@ DATABASES = {
     },
 }
 
+# access to api only available when logged in
+REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated', )
+
 DEBUG = True
 

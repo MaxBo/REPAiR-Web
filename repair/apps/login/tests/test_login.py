@@ -114,7 +114,31 @@ class CasestudyTest(BasicModelTest, APITestCase):
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
 
+    def test_post(self):
+        url = reverse(self.url_key +'-list', kwargs=self.url_pks)
+        # post
+        response = self.client.post(url, self.post_data)
+        for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
+            assert response.data[key] == self.post_data[key]
+        # get
+        new_id = response.data['id']
+        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
+                                                        'pk': new_id})
+        
+        # casestudy is new -> noone may access it
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        
+        # grant access to new casestudy
+        casestudy = CaseStudy.objects.get(id=new_id)
+        casestudy.userincasestudy_set.add(self.uic)
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+
     def setUp(self):
+        super().setUp()
         self.obj = self.kic.casestudy
 
 
@@ -140,6 +164,7 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
                                            user=self.uic,
                                            )
@@ -178,6 +203,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionFactory(id=self.solution,
                                    solution_category__id=self.solutioncategory,
                                    solution_category__user=self.uic,
@@ -215,6 +241,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionQuantityFactory(id=self.solutionquantity,
                                            solution__id=self.solution,
                                            unit__id=self.unit,
@@ -257,6 +284,7 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModel
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionRatioOneUnitFactory(id=self.solutionratiooneunit,
                                                solution__id=self.solution,
                                                unit__id=self.unit,
@@ -284,7 +312,18 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = self.uic
+        
+    def test_delete(self):
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = reverse(self.url_key + '-detail', kwargs=kwargs)
+        response = self.client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+        response = self.client.delete(url)
+        response = self.client.get(url)
+        # after removing user the casestudy is permitted to access for this user
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @unittest.skip('no Post possible')
     def test_post(self):
@@ -321,6 +360,7 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = ImplementationFactory(id=self.implementation,
                                          user=self.uic)
 
@@ -368,6 +408,7 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationFactory(
             solution__user=self.uic,
             solution__solution_category__user=self.uic,
@@ -407,6 +448,7 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationGeometryFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,
@@ -442,6 +484,7 @@ class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationNoteFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,
@@ -487,6 +530,7 @@ class QuantityInSolutionInImplementationInCasestudyTest(BasicModelTest):  #,APIT
 
 
     def setUp(self):
+        super().setUp()
         self.obj = SolutionInImplementationQuantityFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
             sii__implementation__user=self.uic,

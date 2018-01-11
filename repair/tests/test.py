@@ -42,8 +42,8 @@ class BasicModelTest(object):
                                             casestudy=cls.uic.casestudy)
 
     def setUp(self):
-        super().setUp()
         self.client.force_login(user=self.uic.user.user)
+        super().setUp()
 
     def tearDown(self):
         self.client.logout()
@@ -65,7 +65,6 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_200_OK
 
     def test_detail(self):
-        print("detail")
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         # test get
@@ -94,7 +93,6 @@ class BasicModelTest(object):
             assert response.data[key] == self.patch_data[key]
 
     def test_delete(self):
-        print("delete")
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
@@ -121,7 +119,6 @@ class BasicModelTest(object):
         assert response.status_code == status.HTTP_200_OK
 
     def test_get_urls(self):
-        print("get_urls")
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                             'pk': self.obj.pk,})
         response = self.client.get(url)
@@ -130,7 +127,6 @@ class BasicModelTest(object):
             assert key_response.status_code == status.HTTP_200_OK
 
     def test_post_url_exist(self):
-        print("post_urls")
         kwargs={**self.url_pks, 'pk': self.obj.pk,}
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
         response = self.client.get(url)
