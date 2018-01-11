@@ -6,7 +6,12 @@ from django.conf.urls import url, include
 
 from repair.apps.login import views as login_views
 from repair.apps.studyarea.views import (
-    StakeholderCategoryViewSet, StakeholderViewSet)
+    StakeholderCategoryViewSet,
+    StakeholderViewSet,
+    AdminLevelViewSet,
+    AreaViewSet,
+)
+
 from repair.apps.changes.views import (
     UnitViewSet,
     SolutionCategoryViewSet,
@@ -64,6 +69,13 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
+cs_router.register(r'levels', AdminLevelViewSet)
+
+# /casestudies/*/levels/...
+levels_router = NestedSimpleRouter(cs_router, r'levels',
+                                 lookup='level')
+levels_router.register(r'areas', AreaViewSet)
+
 
 # /casestudies/*/stakeholdercategories/...
 user_router = NestedSimpleRouter(cs_router, r'users',
@@ -151,4 +163,5 @@ urlpatterns = [
     url(r'^', include(kf_router.urls)),
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
+    url(r'^', include(levels_router.urls)),
 ]

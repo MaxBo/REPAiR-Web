@@ -1,14 +1,16 @@
 from abc import ABC
 from django.contrib.auth.models import User, Group
+from django.contrib.gis import geos
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
-
+from repair.apps.asmfa.models import KeyflowInCasestudy
 
 ###############################################################################
 #### Base Classes                                                          ####
@@ -73,14 +75,27 @@ class CreateWithUserInCasestudyMixin:
                         .format(user, casestudy))
                 raise PermissionDenied(detail=msg)
 
+        # get the keyfloy in casestudy if exists
+        request = self.context['request']
+        url_pks = request.session.get('url_pks', {})
+        keyflow_id = url_pks.get('keyflow_pk')
+        keyflow_in_casestudy = None
+        if keyflow_id is not None:
+            try:
+                keyflow_in_casestudy = KeyflowInCasestudy.objects.get(
+                    pk=keyflow_id)
+            except (ObjectDoesNotExist, TypeError, ValueError):
+                pass
+
         Model = self.get_model()
-        obj = self.create_instance(Model, user, validated_data)
+        obj = self.create_instance(Model, user, validated_data,
+                                   kic=keyflow_in_casestudy)
         self.update(obj=obj, validated_data=validated_data)
         return obj
 
-    def create_instance(self, Model, user, validated_data):
+    def create_instance(self, Model, user, validated_data, kic=None):
         """Create the Instance"""
-        required_fields = self.get_required_fields(user)
+        required_fields = self.get_required_fields(user, kic)
         for field in Model._meta.fields:
             if hasattr(field, 'blank') and field.blank == False:
                 if field.name in validated_data:
@@ -88,10 +103,13 @@ class CreateWithUserInCasestudyMixin:
         obj = Model.objects.create(**required_fields)
         return obj
 
-    def get_required_fields(self, user):
+    def get_required_fields(self, user, kic):
         required_fields = {}
         if 'user' in self.fields:
             required_fields['user'] = user
+        if kic:
+            if 'keyflow' in self.fields:
+                required_fields['keyflow'] = kic
         return required_fields
 
     def get_model(self):
@@ -400,7 +418,8 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         return user
 
 
-class CaseStudySerializer(NestedHyperlinkedModelSerializer):
+class CaseStudySerializer(GeoFeatureModelSerializer,
+                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
@@ -410,14 +429,30 @@ class CaseStudySerializer(NestedHyperlinkedModelSerializer):
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
 
-
     class Meta:
         model = CaseStudy
+        geo_field = 'geom'
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
+                  'focusarea',
                   )
+
+    def update(self, instance, validated_data):
+        """cast geomfield to multipolygon"""
+        geo_field = self.Meta.geo_field
+        self.convert2multi(validated_data, geo_field, instance)
+        self.convert2multi(validated_data, 'focusarea', instance)
+
+        return super().update(instance, validated_data)
+
+    def convert2multi(self, validated_data, geo_field, instance):
+        geom = validated_data.pop(geo_field, None)
+        if geom:
+            if isinstance(geom, geos.Polygon):
+                geom = geos.MultiPolygon(geom)
+            setattr(instance, geo_field, geom)
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):

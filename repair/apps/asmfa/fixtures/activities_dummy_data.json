@@ -4290,7 +4290,7 @@
   "model": "asmfa.administrativelocation",
   "pk": 73,
   "fields": {
-    "name": null,
+    "name": "x",
     "postcode": "200130",
     "address": "SAND STREET 30",
     "country": "SB",
@@ -5551,7 +5551,7 @@
   "model": "asmfa.operationallocation",
   "pk": 73,
   "fields": {
-    "name": null,
+    "name": "z",
     "postcode": "200130",
     "address": "SAND STREET 30",
     "country": "SB",
@@ -5870,6 +5870,32 @@
     "city": "REPAIR CITY",
     "geom": "SRID=4326;POINT (0.065857 0.303969)",
     "actor": 97
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 98,
+  "fields": {
+    "name": "y",
+    "postcode": "",
+    "address": "",
+    "country": "-1",
+    "city": "",
+    "geom": null,
+    "actor": 73
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 99,
+  "fields": {
+    "name": "w",
+    "postcode": "",
+    "address": "",
+    "country": "-1",
+    "city": "",
+    "geom": null,
+    "actor": 73
   }
 },
 {
