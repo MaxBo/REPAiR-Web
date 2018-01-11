@@ -51,20 +51,20 @@ from repair.apps.asmfa.serializers import (
     MaterialSerializer,
 )
 
-from repair.apps.login.views import ViewSetMixin, OnlySubsetMixin
+from repair.apps.login.views import CasestudyViewSetMixin, OnlySubsetMixin
 
 
-class ActivityGroupViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     serializer_class = ActivityGroupSerializer
     queryset = ActivityGroup.objects.all()
 
 
-class ActivityViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
 
 
-class ActorViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class ActorViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     serializer_class = ActorSerializer
     queryset = Actor.objects.all()
 
@@ -83,7 +83,7 @@ class KeyflowViewSet(ModelViewSet):
     serializer_class = KeyflowSerializer
 
 
-class KeyflowInCasestudyViewSet(ViewSetMixin, ModelViewSet):
+class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelViewSet):
     """
     API endpoint that allows Keyflowincasestudy to be viewed or edited.
     """
@@ -136,34 +136,34 @@ class Actor2ActorViewSet(FlowViewSet):
                           'destination__included': True}
 
 
-class AdministrativeLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class AdministrativeLocationViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
     #serializers = {'create': AdministrativeLocationOfActorPostSerializer}
 
 
-class OperationalLocationViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class OperationalLocationViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationSerializer
 
 
-class AdministrativeLocationOfActorViewSet(RevisionMixin, ViewSetMixin,
+class AdministrativeLocationOfActorViewSet(RevisionMixin, CasestudyViewSetMixin,
                                            ModelViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationOfActorSerializer
 
 
-class OperationalLocationsOfActorViewSet(RevisionMixin, ViewSetMixin,
+class OperationalLocationsOfActorViewSet(RevisionMixin, CasestudyViewSetMixin,
                                          ModelViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
 
 
-class ProductViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class ProductViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 
-class MaterialViewSet(RevisionMixin, ViewSetMixin, ModelViewSet):
+class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer

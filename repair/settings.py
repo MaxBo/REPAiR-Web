@@ -107,8 +107,6 @@ INSTALLED_APPS = [
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 REST_FRAMEWORK = {
-    # ENABLE THIS TO LOCK THE API
-    #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated', ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',

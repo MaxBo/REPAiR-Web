@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 
-from rest_framework import viewsets
+from rest_framework import viewsets, exceptions
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 
@@ -19,7 +19,7 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer)
 
 
-class ViewSetMixin(ABC):
+class CasestudyViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
@@ -38,8 +38,21 @@ class ViewSetMixin(ABC):
         return self.serializers.get(self.action,
                                     self.serializer_class)
 
-    def set_casestudy(self, kwargs, request):
-        """set the casestudy as a session attribute if its in the kwargs"""
+    def check_casestudy(self, kwargs, request):
+        """check if user has permission to access the casestudy and
+        set the casestudy as a session attribute if its in the kwargs"""
+        # anonymous if not logged in
+        user_id = -1 if request.user.id is None else request.user.id
+        # pk if route is /api/casestudies/ else casestudy_pk
+        casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
+        try:
+            casestudy = CaseStudy.objects.get(id=casestudy_id)
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
+                raise exceptions.PermissionDenied()
+        except CaseStudy.DoesNotExist:
+            # maybe casestudy is about to be posted-> go on
+            pass
+        # check if user is in casestudy, raise exception, if not
         request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
@@ -51,7 +64,7 @@ class ViewSetMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
@@ -64,7 +77,7 @@ class ViewSetMixin(ABC):
     def create(self, request, **kwargs):
         """set the """
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         return super().create(request, **kwargs)
 
     def retrieve(self, request, **kwargs):
@@ -76,7 +89,7 @@ class ViewSetMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         pk = kwargs.pop('pk')
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
@@ -124,7 +137,7 @@ class ViewSetMixin(ABC):
 
 
 
-class OnlySubsetMixin(ViewSetMixin):
+class OnlySubsetMixin(CasestudyViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -147,7 +160,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
+class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
@@ -165,7 +178,7 @@ class CaseStudyViewSet(RevisionMixin, ViewSetMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
+class UserInCasestudyViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
@@ -187,36 +200,3 @@ class SessionView(View):
         response =  {'casestudy': request.session.get('casestudy')}
         return JsonResponse(response)
 
-
-def casestudy(request, casestudy_id):
-    """casestudy view"""
-    casestudy = CaseStudy.objects.get(pk=casestudy_id)
-    stakeholdercategories = casestudy.stakeholdercategory_set.all()
-    users = casestudy.user_set.all()
-    solution_categories = casestudy.solution_categories
-
-    context = {
-        'casestudy': casestudy,
-        'stakeholdercategories': stakeholdercategories,
-        'users': users,
-        'solution_categories': solution_categories,
-    }
-    return render(request, 'changes/casestudy.html', context)
-
-
-def user(request, user_id):
-    """user view"""
-    user = User.objects.get(pk=user_id)
-    context = {'user': user, }
-    return render(request, 'changes/user.html', context)
-
-
-def userincasestudy(request, user_id, casestudy_id):
-    """userincasestudy view"""
-    user = UserInCasestudy.objects.get(user_id=user_id,
-                                       casestudy_id=casestudy_id)
-    other_casestudies = user.user.casestudies.exclude(pk=casestudy_id).all
-    context = {'user': user,
-               'other_casestudies': other_casestudies,
-               }
-    return render(request, 'changes/user_in_casestudy.html', context)

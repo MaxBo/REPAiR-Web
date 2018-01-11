@@ -52,6 +52,7 @@ class StrategyInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         iic = ImplementationFactory(id=self.implementation,
                                     user=self.uic)
         self.obj = StrategyFactory(id=self.strategy,
