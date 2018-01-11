@@ -191,7 +191,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       if (this.activeActor == null) return;
       var modal = this.elConfirmation.querySelector('.modal');
       // ToDo: translation
-      var message = 'Do you want to remove the actor &#60;' + this.activeActor.get('name') + '&#62; from the database?'
+      var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
       document.getElementById('confirmation-message').innerHTML = message; 
       $(modal).modal('show'); 
     },
