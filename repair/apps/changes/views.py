@@ -19,6 +19,7 @@ from rest_framework import status, generics, mixins
 from repair.apps.login.views import (CasestudyViewSetMixin,
                                      OnlySubsetMixin)
 from repair.apps.login.models import (CaseStudy, Profile, UserInCasestudy)
+from repair.views import BaseView
 from repair.apps.changes.models import (
     Unit,
     SolutionCategory,
@@ -53,12 +54,14 @@ from repair.apps.changes.serializers import (
 from repair.apps.changes.forms import NameForm
 
 
-def index(request):
-    casestudy_list = CaseStudy.objects.order_by('id')[:20]
-    users = Profile.objects.order_by('id')[:20]
-    context = {'casestudy_list': casestudy_list,
-               'users': users, }
-    return render(request, 'changes/index.html', context)
+class ChangesIndexView(BaseView):
+    def get(self, request):
+        #casestudy_list = CaseStudy.objects.order_by('id')[:20]
+        casestudy_list = self.casestudies()
+        users = Profile.objects.order_by('id')[:20]
+        context = {'casestudies': casestudy_list,
+                   'users': users, }
+        return render(request, 'changes/index.html', context)
 
 
 def solutioncategories(request, solutioncategory_id):

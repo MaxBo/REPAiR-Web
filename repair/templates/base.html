@@ -15,6 +15,9 @@
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery.touchSwipe.min.js"></script>
     <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
     <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
+    
+    <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
+    
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
@@ -58,10 +61,20 @@
                     <span class="caret"></span>
                   </button>
                   <div id="casestudy-dropdown" class="dropdown-content">
-                    {% for casestudy in casestudies %}
+                    <!-- BaseView has property 'casestudies' -->
+                    {% if view.casestudies|length > 0 %}
+                    {% for casestudy in view.casestudies %} 
                     <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
                     onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
+                     <!-- if not this view is not inherited from BaseView or rendered with 'get', 
+                     casestudies have to be passed in the context, does actually the same thing -->
+                    {% else %}
+                    {% for casestudy in casestudies %} 
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                    {% endif %}
                   </div>
                 </div>
                 <span class="caret drop-arrow"></span>

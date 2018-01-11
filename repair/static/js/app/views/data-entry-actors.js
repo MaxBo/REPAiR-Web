@@ -71,6 +71,9 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       this.setupTable();
     },
     
+    /* 
+     * set up the actors table (tablesorter)
+     */
     setupTable: function(){
     
       $(this.table).tablesorter({
@@ -98,6 +101,9 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       }
     },
 
+    /* 
+     * add given actor to table
+     */
     addActorRow: function(actor){
       var _this = this;
 
@@ -107,7 +113,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       var nameCell = row.insertCell(-1);
       var activityCell = row.insertCell(-1);
       
-      
+      // fill the row with the attributes of the actor and change it's style depending on status of actor
       function setRowValues(actor){
         var included = actor.get('included');
         if (!included){
@@ -125,6 +131,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       };
       setRowValues(actor);
       
+      // open a view on the actor (showing attributes and locations)
       function showActor(actor){
         if (_this.actorView != null) _this.actorView.close();
         _this.actorView = new EditActorView({
@@ -137,7 +144,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
         });
       }
       
-      
+      // row is clicked -> open view and remember that this actor is "active"
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
         _.each(_this.actorRows, function(row){
@@ -191,7 +198,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       if (this.activeActor == null) return;
       var modal = this.elConfirmation.querySelector('.modal');
       // ToDo: translation
-      var message = 'Do you want to remove the actor &#60;' + this.activeActor.get('name') + '&#62; from the database?'
+      var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
       document.getElementById('confirmation-message').innerHTML = message; 
       $(modal).modal('show'); 
     },

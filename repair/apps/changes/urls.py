@@ -3,7 +3,7 @@ from django.conf.urls import url
 from repair.apps.changes import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.ChangesIndexView.as_view(), name='index'),
 
     # ex: /implementations/3
     url(r'^implementations/(?P<implementation_id>[0-9]+)/$',

@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from repair.views import HomeView
 from django.contrib.auth.views import logout
+from django.views.i18n import JavaScriptCatalog
 
 
 # Wire up our API using automatic URL routing.
@@ -40,5 +41,6 @@ urlpatterns = [
     url('^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
-    url(r'^logout', logout, {'next_page': '/'}, name='logout')
+    url(r'^logout', logout, {'next_page': '/'}, name='logout'),
+    url(r'^jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

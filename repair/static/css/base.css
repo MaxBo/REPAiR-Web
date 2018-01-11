@@ -283,6 +283,6 @@ button.round{
 
 button.square:hover, button.round:hover, button.square:focus, button.round:focus{
   /*background-color: #aad400 !important;*/
-  border: none;
+  /*border: none;*/
   /*color: white;*/
 }
