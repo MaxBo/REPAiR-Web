@@ -107,7 +107,6 @@ class BasicModelTest(LoginTestCase):
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_post(self):
-        print("post")
         url = reverse(self.url_key +'-list', kwargs=self.url_pks)
         # post
         response = self.client.post(url, self.post_data)
