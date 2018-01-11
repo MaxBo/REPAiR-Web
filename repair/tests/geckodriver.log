@@ -1,0 +1,25 @@
+1515597147210	geckodriver	INFO	Listening on 127.0.0.1:52196
+1515597149288	mozprofile::profile	INFO	Using profile path C:\Users\GGR\AppData\Local\Temp\rust_mozprofile.KIbYSQRrnu6Q
+1515597149293	geckodriver::marionette	INFO	Starting browser C:\Program Files (x86)\Mozilla Firefox\firefox.exe with args []
+1515597149300	geckodriver::marionette	INFO	Connecting to Marionette on localhost:52204
+thread '<unnamed>' panicked at 'called `Result::unwrap()` on an `Err` value: Error { repr: Os { code: 10054, message: "Eine vorhandene Verbindung wurde vom Remotehost geschlossen." } }', C:\bot\slave\stable-dist-rustc-win-gnu-64\build\src\libcore\result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+4387	geckodriver::marionette	INFO	Connecting to Marionette on localhost:52278
+Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpaths.vrpath
+[Child 2992, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 2992, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpaths.vrpath
+[Child 9164, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9164, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpaths.vrpath
+[Child 8412, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 8412, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpaths.vrpath
+[GPU 3208, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+
+Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpaths.vrpath
+thread '<unnamed>' panicked at 'called `Result::unwrap()` on an `Err` value: Error { repr: Os { code: 10054, message: "Eine vorhandene Verbindung wurde vom Remotehost geschlossen." } }', C:\bot\slave\stable-dist-rustc-win-gnu-64\build\src\libcore\result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.

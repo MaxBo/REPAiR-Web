@@ -5,8 +5,11 @@ from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
+from django.db.models.sql.constants import QUERY_TERMS
 
-from rest_framework import viewsets, exceptions
+
+from rest_framework import viewsets, mixins, exceptions
+
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 
@@ -80,6 +83,17 @@ class CasestudyViewSetMixin(ABC):
             self.check_casestudy(kwargs, request)
         return super().create(request, **kwargs)
 
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+
+
     def retrieve(self, request, **kwargs):
         """
         filter the queryset with the lookup-arguments
@@ -121,20 +135,36 @@ class CasestudyViewSetMixin(ABC):
         # filter the lookup arguments
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
-        # filter any query parameters matching fields of the model
-        for k, v in query_params.items():
-            if hasattr(self.queryset.model, k):
-                filter_args[k] = v
+
+        # filter additional expressions
+        filter_args.update(self.get_filter_args(queryset=self.queryset,
+                                                query_params=query_params)
+                           )
         try:
             queryset = self.queryset.model.objects.filter(**filter_args)
         except Exception as e:
+            # ToDo: ExceptionHandling is very broad. Pleas narrow down!
             print(e)
             return None
-
-        if len(self.additional_filters):
-            queryset = queryset.filter(**self.additional_filters)
         return queryset
 
+    def get_filter_args(self, queryset, query_params):
+        """
+        get filter arguments defined by the query_params
+        and by additional filters
+        """
+        # filter any query parameters matching fields of the model
+        filter_args = {k: v for k, v in self.additional_filters.items()}
+        for k, v in query_params.items():
+            key_cmp = k.split('__')
+            key = key_cmp[0]
+            if hasattr(queryset.model, key):
+                if len(key_cmp) > 1:
+                    cmp = key_cmp[-1]
+                    if cmp not in QUERY_TERMS:
+                        continue
+                filter_args[k] = v
+        return filter_args
 
 
 class OnlySubsetMixin(CasestudyViewSetMixin):
@@ -178,7 +208,11 @@ class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, viewsets.ModelViewS
         return Response(serializer.data)
 
 
-class UserInCasestudyViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class UserInCasestudyViewSet(CasestudyViewSetMixin,
+                             mixins.RetrieveModelMixin,
+                             mixins.UpdateModelMixin,
+                             mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """

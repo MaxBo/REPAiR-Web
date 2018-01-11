@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.core.validators import ValidationError
-from rest_framework.test import APITestCase
 from django.urls import reverse
+
+from rest_framework.test import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelTest, LoginTestCase
 
 from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              StakeholderCategoryFactory,
@@ -39,13 +40,8 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
-    #solutioncategory = 21
-    #solution = 36
-    #solutionquantity = 28
     userincasestudy = 67
     user = 99
-    #unit = 75
-    #solutionratiooneunit = 84
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -62,24 +58,18 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
                                               casestudy=self.uic.casestudy,
                                               )
 
-    def test_post(self):
-        """
-        MAX
-        """
-        pass
+    def tearDown(self):
+        del self.obj
+        super().tearDown()
 
 
-class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
+class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
     stakeholder = 21
-    #solution = 36
-    #solutionquantity = 28
     userincasestudy = 67
     user = 99
-    #unit = 75
-    #solutionratiooneunit = 84
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -105,8 +95,4 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
                                       self.uic.casestudy,
                                       )
 
-    #def test_post(self):
-        #"""
-        #MAX
-        #"""
-        #pass
+

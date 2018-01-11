@@ -1,3 +1,4 @@
+import unittest
 from django.test import TestCase
 from django.core.validators import ValidationError
 
@@ -8,7 +9,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelTest, LoginTestCase
 
 
 class ModelTest(TestCase):
@@ -125,11 +126,11 @@ class CasestudyTest(BasicModelTest, APITestCase):
         new_id = response.data['id']
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
                                                         'pk': new_id})
-        
+
         # casestudy is new -> noone may access it
         response = self.client.get(url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        
+
         # grant access to new casestudy
         casestudy = CaseStudy.objects.get(id=new_id)
         casestudy.userincasestudy_set.add(self.uic)
@@ -313,7 +314,7 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.obj = self.uic
-        
+
     def test_delete(self):
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = reverse(self.url_key + '-detail', kwargs=kwargs)
@@ -324,13 +325,13 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
         # after removing user the casestudy is permitted to access for this user
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    @unittest.skip('no Post possible')
     def test_post(self):
-        """
-        MAX:
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
+        """no Post"""
+
+    @unittest.skip('no Delete possible')
+    def test_delete(self):
+        """no Delete"""
 
 
 class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
