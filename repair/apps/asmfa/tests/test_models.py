@@ -5,7 +5,7 @@ from django.contrib.gis.geos.point import Point
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelTest, LoginTestCase
 from rest_framework import status
 from repair.apps.login.models import CaseStudy
 
@@ -193,9 +193,9 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Activity2ActivityFactory(id=self.activity2activity,
                                             origin__id=self.origin,
-                                            origin__activitygroup__keyflow=kic_obj, 
+                                            origin__activitygroup__keyflow=kic_obj,
                                             destination__id=self.destination,
-                                            destination__activitygroup__keyflow=kic_obj, 
+                                            destination__activitygroup__keyflow=kic_obj,
                                             product__id=self.product,
                                             product__keyflow=kic_obj,
                                             keyflow=kic_obj
@@ -240,9 +240,9 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Actor2ActorFactory(id=self.actor2actor,
                                       origin__id=self.origin,
-                                      origin__activity__activitygroup__keyflow=kic_obj, 
+                                      origin__activity__activitygroup__keyflow=kic_obj,
                                       destination__id=self.destination,
-                                      destination__activity__activitygroup__keyflow=kic_obj, 
+                                      destination__activity__activitygroup__keyflow=kic_obj,
                                       product__id=self.product,
                                       product__keyflow=kic_obj,
                                       keyflow=kic_obj,
@@ -287,9 +287,9 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
                                             keyflow__id=self.keyflow)
         self.obj = Group2GroupFactory(id=self.group2group,
                                       origin__id=self.origin,
-                                      origin__keyflow=kic_obj, 
+                                      origin__keyflow=kic_obj,
                                       destination__id=self.destination,
-                                      destination__keyflow=kic_obj, 
+                                      destination__keyflow=kic_obj,
                                       product__id=self.product,
                                       product__keyflow=kic_obj,
                                       keyflow=kic_obj,
@@ -618,15 +618,8 @@ class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                   )
 
 
-class GeolocationViewTest(BasicModelTest, APITestCase):
-    
-    def test_delete(self): pass
-    def test_detail(self): pass
-    def test_get_urls(self): pass
-    def test_list(self): pass
-    def test_post(self): pass
-    def test_post_url_exist(self): pass
-    
+class GeolocationViewTest(LoginTestCase, APITestCase):
+
 
     def test_administrative_location(self):
         """Test creating, updating and deleting of administrative locations"""
@@ -635,11 +628,11 @@ class GeolocationViewTest(BasicModelTest, APITestCase):
         cs = location.casestudy.pk
         keyflow = location.keyflow.pk
         actor = location.actor
-    
+
         # add access to casestudy
         casestudy = CaseStudy.objects.get(id=cs)
         casestudy.userincasestudy_set.add(self.uic)
-        
+
         # define the urls
         url_locations = reverse('administrativelocation-list',
                                 kwargs={'casestudy_pk': cs,
@@ -748,7 +741,7 @@ class GeolocationViewTest(BasicModelTest, APITestCase):
         keyflow = location1.keyflow.pk
         actor = location1.actor
         location2 = OperationalLocationFactory(actor=actor)
-        
+
         # add access to casestudy
         casestudy = CaseStudy.objects.get(id=cs)
         casestudy.userincasestudy_set.add(self.uic)
@@ -833,14 +826,7 @@ class GeolocationViewTest(BasicModelTest, APITestCase):
         assert geom['coordinates'] == [6, 5]
 
 
-class TestLocationsOfActor(BasicModelTest, APITestCase):
-    
-    def test_delete(self): pass
-    def test_detail(self): pass
-    def test_get_urls(self): pass
-    def test_list(self): pass
-    def test_post(self): pass
-    def test_post_url_exist(self): pass
+class TestLocationsOfActor(LoginTestCase, APITestCase):
 
     @staticmethod
     def get_adminlocation_url(cs, keyflow, location, actor):
@@ -859,11 +845,11 @@ class TestLocationsOfActor(BasicModelTest, APITestCase):
         cs = location.casestudy.pk
         keyflow = location.keyflow.pk
         actor = location.actor
-    
+
         # add access to casestudy
         casestudy = CaseStudy.objects.get(id=cs)
         casestudy.userincasestudy_set.add(self.uic)
-        
+
         # define the urls
         url_locations = reverse('administrativelocation-list',
                                 kwargs={'casestudy_pk': cs,
@@ -953,11 +939,11 @@ class TestLocationsOfActor(BasicModelTest, APITestCase):
         keyflow = location1.keyflow.pk
         actor = location1.actor
         location2 = OperationalLocationFactory(actor=actor)
-    
+
         # add access to casestudy
         casestudy = CaseStudy.objects.get(id=cs)
         casestudy.userincasestudy_set.add(self.uic)
-        
+
         # define the urls
         url_locations = reverse('operationallocation-list',
                                 kwargs={'casestudy_pk': cs,
@@ -1096,15 +1082,8 @@ class TestLocationsOfActor(BasicModelTest, APITestCase):
         assert response.data['properties']['address'] == new_streetname
 
 
-class TestActor(BasicModelTest, APITestCase):
-    
-    def test_delete(self): pass
-    def test_detail(self): pass
-    def test_get_urls(self): pass
-    def test_list(self): pass
-    def test_post(self): pass
-    def test_post_url_exist(self): pass
-    
+class TestActor(LoginTestCase, APITestCase):
+
     def test_actor_website(self):
         """Test updating a website for an actor"""
         # create actor and casestudy

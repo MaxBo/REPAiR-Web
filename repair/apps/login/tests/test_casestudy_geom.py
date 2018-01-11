@@ -6,14 +6,18 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from repair.apps.login.factories import CaseStudyFactory
+from repair.tests.test import LoginTestCase
+from repair.apps.login.factories import (CaseStudyFactory,
+                                         UserInCasestudyFactory,
+                                         )
 
 
-class TestCasestudyGeom(APITestCase):
+class TestCasestudyGeom(LoginTestCase):
+
     def test_set_get_polygon(self):
         """Test setting and getting geometries from a casestudy"""
         # create a casestudy
-        casestudy = CaseStudyFactory()
+        casestudy = self.uic.casestudy
 
         # define the urls
         url = reverse('casestudy-detail',

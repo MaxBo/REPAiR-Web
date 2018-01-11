@@ -208,7 +208,7 @@ class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, viewsets.ModelViewS
         return Response(serializer.data)
 
 
-class UserInCasestudyViewSet(ViewSetMixin,
+class UserInCasestudyViewSet(CasestudyViewSetMixin,
                              mixins.RetrieveModelMixin,
                              mixins.UpdateModelMixin,
                              mixins.ListModelMixin,

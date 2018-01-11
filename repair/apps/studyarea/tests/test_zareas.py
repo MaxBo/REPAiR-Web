@@ -9,10 +9,11 @@ from rest_framework import status
 
 import repair.apps.studyarea.models as models
 from repair.apps.login.factories import CaseStudyFactory
+from repair.tests.test import LoginTestCase
 
-class AreaModels(TestCase):
+class AreaModels(LoginTestCase):
     def test_01_dynamic_models(self):
-        cs = CaseStudyFactory()
+        cs = self.uic.casestudy
 
         world = models.World.objects.create(name='Earth', casestudy=cs)
         eu = models.Continent.objects.create(name='EU', casestudy=cs)
@@ -46,13 +47,13 @@ class AreaModels(TestCase):
         self.assertEqual(models.Area.objects.get(name='ES').country, spain)
 
 
-class AdminLevels(APITestCase):
+class AdminLevels(LoginTestCase):
 
     @classmethod
     def setUpClass(cls):
         super(AdminLevels, cls).setUpClass()
         # create a casestudy
-        casestudy = CaseStudyFactory()
+        casestudy = self.uic.casestudy
 
         planet = models.AdminLevels.objects.create(name='Planet',
                                                    level=models.World._level,

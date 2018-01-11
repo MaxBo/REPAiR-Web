@@ -13,22 +13,13 @@ from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
 
-class BasicModelTest(object):
-    baseurl = 'http://testserver'
-    url_key = ""
-    sub_urls = []
-    url_pks = dict()
-    url_pk = dict()
-    post_urls = []
-    post_data = dict()
-    put_data = dict()
-    patch_data = dict()
+
+class LoginTestCase(object):
+
     casestudy = None
     keyflow = None
     userincasestudy = 26
-
     user = -1
-    do_not_check = []
 
     @classmethod
     def setUpClass(cls):
@@ -58,6 +49,20 @@ class BasicModelTest(object):
         cs.delete()
         del cls.uic
         super().tearDownClass()
+
+
+class BasicModelTest(LoginTestCase):
+    baseurl = 'http://testserver'
+    url_key = ""
+    sub_urls = []
+    url_pks = dict()
+    url_pk = dict()
+    post_urls = []
+    post_data = dict()
+    put_data = dict()
+    patch_data = dict()
+    do_not_check = []
+
 
     def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
@@ -133,4 +138,3 @@ class BasicModelTest(object):
         for url in self.post_urls:
             response = self.client.get(url)
             assert response.status_code == status.HTTP_200_OK
-

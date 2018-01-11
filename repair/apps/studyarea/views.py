@@ -61,12 +61,12 @@ class StakeholderViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     serializer_class = StakeholderSerializer
 
 
-class AdminLevelViewSet(ViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
 
 
-class AreaViewSet(ViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AreaViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
 

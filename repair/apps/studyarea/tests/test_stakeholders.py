@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from rest_framework.test import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelTest, LoginTestCase
 
 from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              StakeholderCategoryFactory,
