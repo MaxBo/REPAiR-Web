@@ -15,6 +15,8 @@ jobs:
           command: |
             java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
           background: true
+          command: |
+            python tests.webtest.py
       - run:
           name: Install Python deps in a venv
           command: |
