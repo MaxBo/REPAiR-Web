@@ -19,12 +19,8 @@ jobs:
           command: |
             java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
           background: true
-          command: |
-            python manage.py migrate
-            python manage.py runserver 4444
-            python repair/tests/webtest.py
       - run:
-          name: run py.test
+          name: run TestCases
           command: |
             DJANGO_SETTINGS_MODULE=repair.settings4tests
             python manage.py test
