@@ -10,7 +10,7 @@ define(['cookies'],
     };
     
     /**
-     * callback for dragging markers
+     * callback for session
      *
      * @callback module:config~onSuccess
      * @param {Object} json -  fetched session object
