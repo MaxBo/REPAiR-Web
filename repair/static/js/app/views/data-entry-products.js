@@ -2,21 +2,46 @@ define(['backbone', 'app/collections/products',
         'tablesorter-pager', 'app/loader'],
 
 function(Backbone, Products){
-  var EditActorsView = Backbone.View.extend({
+  /**
+   *
+   * @author Christoph Franke
+   * @name module:views/EditProductsView
+   * @augments Backbone.View
+   */
+  var EditProductsView = Backbone.View.extend(
+    /** @lends module:views/EditProductsView.prototype */
+    {
 
-    /*
-      * view-constructor
-      */
+
+    /**
+     * callback for uploading the flows
+     *
+     * @callback module:views/EditProductsView~onUpload
+     */
+   
+    /**
+     * render view to edit products of a single keyflow
+     *
+     * @param {Object} options
+     * @param {HTMLElement} options.el                                    element the view will be rendered in
+     * @param {module:collections/Keyflows.Model} options.model           the keyflow the products belong to
+     * @param {module:models/CaseStudy} options.caseStudy                 the casestudy of the keyflow
+     * @param {module:collections/Materials} options.materials            the available materials
+     * @param {module:views/EditProductsView~onUpload=} options.onUpload  called after successfully uploading the products
+     *
+     * @constructs
+     * @see http://backbonejs.org/#View
+     */
     initialize: function(options){
       _.bindAll(this, 'render');
       var _this = this;
       
       this.template = options.template;
+      this.caseStudy = options.caseStudy;
       var keyflowId = this.model.id,
-          caseStudyId = this.model.get('casestudy');
+          caseStudyId = this.caseStudy.id;
       
       this.products = new Products([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
-      this.caseStudy = options.caseStudy;
       this.materials = options.materials;
       this.onUpload = options.onUpload;
       
@@ -159,7 +184,7 @@ function(Backbone, Products){
       }).fail(onError);
     },
     
-    /*
+    /**
      * remove this view from the DOM
      */
     close: function(){
@@ -169,6 +194,6 @@ function(Backbone, Products){
     },
 
   });
-  return EditActorsView;
+  return EditProductsView;
 }
 );

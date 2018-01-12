@@ -9,8 +9,6 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
 
   /**
    *
-   * view on edit flows of a single casestudy
-   *
    * @author Christoph Franke
    * @name module:views/FlowsView
    * @augments Backbone.View
@@ -20,14 +18,16 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
     {
 
     /**
+     * render view to edit flows of a single keyflow
      *
      * @param {Object} options
-     * @param {HTMLElement} options.el                 element the view will be rendered in
-     * @param {Backbone.Model} options.model           the keyflow (defining the type of flows that will be rendered)
-     * @param {Backbone.Model} options.caseStudy       the casestudy
-     * @param {Backbone.Collection} options.materials  the available materials
+     * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
+     * @param {module:models/CaseStudy} options.caseStudy       the casestudy
+     * @param {module:collections/Materials} options.materials  the available materials
      *
      * @constructs
+     * @see http://backbonejs.org/#View
      */
     initialize: function(options){
       _.bindAll(this, 'render');

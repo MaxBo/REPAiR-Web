@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span><span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span><span class="signature">(attributes, options)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,12 +41,16 @@
     
 
     
-    <h4 class="name" id=""><span class="type-signature"></span>new <span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=""><span class="type-signature"></span>new <span class="signature">(attributes, options)</span><span class="type-signature"></span></h4>
     
 
     
 
 
+
+<div class="description">
+    render view to edit flows of a single casestudy
+</div>
 
 
 
@@ -71,6 +75,8 @@
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -81,13 +87,13 @@
 
         <tr>
             
-                <td class="name"><code>options.el</code></td>
+                <td class="name"><code>attributes</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
+<span class="param-type">Object</span>
 
 
             
@@ -96,21 +102,73 @@
             
 
             
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
 
-            <td class="description last">element the view will be rendered in</td>
+            <td class="description last">fields of the model and their values, will be set if passed</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>options.model</code></td>
+                <td class="name"><code>options</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Backbone.Model</span>
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>caseStudyId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
 
 
             
@@ -120,20 +178,20 @@
 
             
 
-            <td class="description last">the keyflow (defining the type of flows that will be rendered)</td>
+            <td class="description last">id of the casestudy the activity belongs to</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>options.caseStudy</code></td>
+                <td class="name"><code>activityGroupCode</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Backbone.Model</span>
+<span class="param-type">string</span>
 
 
             
@@ -143,20 +201,20 @@
 
             
 
-            <td class="description last">the casestudy</td>
+            <td class="description last">id of the activitygroup the activity belongs to</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>options.materials</code></td>
+                <td class="name"><code>keyflowId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Backbone.Collection</span>
+<span class="param-type">string</span>
 
 
             
@@ -166,7 +224,14 @@
 
             
 
-            <td class="description last">the available materials</td>
+            <td class="description last">id of the casestudy the activity belongs to</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -207,7 +272,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="views_data-entry-flows.js.html">views/data-entry-flows.js</a>, <a href="views_data-entry-flows.js.html#line30">line 30</a>
+        <a href="models_activity.js.html">models/activity.js</a>, <a href="models_activity.js.html#line38">line 38</a>
     </li></ul></dd>
     
 
@@ -267,13 +332,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_.html"></a></li></ul><h3>Namespaces</h3><ul><li><a href="visualizations.html">visualizations</a></li></ul><h3>Global</h3><ul><li><a href="global.html#renderDataEntry">renderDataEntry</a></li><li><a href="global.html#renderSankey">renderSankey</a></li><li><a href="global.html#transformData">transformData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_.html"></a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 11 2018 17:07:13 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 11:41:57 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
