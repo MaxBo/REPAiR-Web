@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: visualizations/sankey.js</title>
+    <title>JSDoc: Source: app/visualizations/sankey.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: visualizations/sankey.js</h1>
+    <h1 class="page-title">Source: app/visualizations/sankey.js</h1>
 
     
 
@@ -33,12 +33,16 @@
 {
   /**
    *
-   * @desc    sankey diagram of nodes and links between those nodes
+   * sankey diagram of nodes and links between those nodes, supports cycles
    *
-   * @param   options.divid  id of element to render the sankey diagram in
-   * @param   options.title  optional, title of the diagram (displayed on top)
-   * @param   options.width  optional, width of the diagram (default: bounding box of div)
+   * @param {Object} options
+   * @param {string} options.divid     id of the HTMLElement to render the sankey diagram in
+   * @param {string=} options.title    title of the diagram (displayed on top)
+   * @param {string=} options.width    width of the diagram, defaults to bounding box of div
    *
+   * @author Christoph Franke
+   * @name module:visualizations/Sankey
+   * @constructor
    */
   var Sankey = function(options){
 
@@ -51,23 +55,37 @@
     var formatNumber = d3.format(",.0f"),
       format = function(d) { return formatNumber(d);},
       color = d3.scale.category20();
+      
+    /**
+      * object describing a node
+      * 
+      * @typedef {Object} module:visualizations/Sankey~Nodes
+      * @property {string} id                    - unique id
+      * @property {string} name                  - name to be displayed
+      * @property {Object=} alignToSource        - align a node to the source of the first link going into this node
+      * @property {number} [alignToSource.x = 0] - x offset to position of source
+      * @property {number} [alignToSource.y = 0] - y offset to position of source
+      */
+      
+    /**
+      * object describing a link between two nodes
+      * 
+      * @typedef {Object} module:visualizations/Sankey~Links
+      * @property {number} source - index of source-node
+      * @property {string} target - index of target-node
+      * @property {number} value  - determines thickness of visualized link, also shown on mouseover/click
+      * @property {string} text   - an additional text to be displayed on mouseover/click
+      */
 
     /**
-     * @desc  render the data as a sankey diagram
+     * render the data
      *
-     * @param data.nodes  array of node-objects
-     *                    id - unique id
-     *                    name - name to be displayed
-     *                    alignToSource - optional, align a node to the source of the first link going into this node
-     *                    alignToSource.x, alignToSource.y - offsets to position of source (default: 0)
+     * @param {Array.&lt;module:visualizations/Sankey~Nodes>} nodes - array of nodes
+     * @param {Array.&lt;module:visualizations/Sankey~Links>} links - array of links, origin and target indices refer to order of nodes
      *
-     * @param data.links  array of link-objects
-     *                    source - index of source-node (as in data.nodes)
-     *                    target - index of target-node (as in data.nodes)
-     *                    value - thickness of visualized link
-     *                    text - a text to be displayed on mouseover
-     *
-     * @see   sankey diagram
+     * @method render
+     * @memberof module:visualizations/Sankey
+     * @instance
      */
     this.render = function ( data ) {
       div = d3.select(divid);
@@ -232,13 +250,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EditProductsView.html">views/EditProductsView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EditProductsView.html">views/EditProductsView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 13:48:53 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 17:03:57 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

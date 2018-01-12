@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: app/collections/keyflows.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,58 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: app/collections/keyflows.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(["backbone", "app-config"],
 
+  function(Backbone, config) {
 
-    <h3> </h3>
+   /**
+    * @author Christoph Franke
+    * @name module:collections/Keyflows
+    * @augments Backbone.Collection
+    */
+    var Keyflows = Backbone.Collection.extend(
+      /** @lends module:collections/Keyflows.prototype */
+      {
+      /**
+       * generates an url to the api resource list based on the ids given in constructor
+       *
+       * @returns {string} the url string
+       */
+      url: function(){
+          if (this.caseStudyId != null)
+            return config.api.keyflowsInCaseStudy.format(this.caseStudyId);
+          else config.api.keyflows
+      },
+      
+    /**
+     * collection for fetching/putting keyflows
+     *
+     * @param {Array.&lt;Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
+     * @param {Object} options
+     * @param {string} options.caseStudyId  id of the casestudy the keyflows belong to
+     *
+     * @constructs
+     * @see http://backbonejs.org/#Collection
+     */
+      initialize: function (attrs, options) {
+        this.caseStudyId = options.caseStudyId;
+      }
+    });
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    return Keyflows;
+  }
+);</code></pre>
+        </article>
+    </section>
 
 
 
