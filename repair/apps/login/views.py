@@ -1,12 +1,20 @@
 from abc import ABC
+
 from django.shortcuts import render
 from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
+from django.db.models.sql.constants import QUERY_TERMS
+
+
+from rest_framework import viewsets, mixins, exceptions
+
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
+
+from reversion.views import RevisionMixin
+
 from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
@@ -14,7 +22,7 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer)
 
 
-class ViewSetMixin(ABC):
+class CasestudyViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
@@ -33,8 +41,21 @@ class ViewSetMixin(ABC):
         return self.serializers.get(self.action,
                                     self.serializer_class)
 
-    def set_casestudy(self, kwargs, request):
-        """set the casestudy as a session attribute if its in the kwargs"""
+    def check_casestudy(self, kwargs, request):
+        """check if user has permission to access the casestudy and
+        set the casestudy as a session attribute if its in the kwargs"""
+        # anonymous if not logged in
+        user_id = -1 if request.user.id is None else request.user.id
+        # pk if route is /api/casestudies/ else casestudy_pk
+        casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
+        try:
+            casestudy = CaseStudy.objects.get(id=casestudy_id)
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
+                raise exceptions.PermissionDenied()
+        except CaseStudy.DoesNotExist:
+            # maybe casestudy is about to be posted-> go on
+            pass
+        # check if user is in casestudy, raise exception, if not
         request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
@@ -46,7 +67,7 @@ class ViewSetMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
@@ -59,8 +80,19 @@ class ViewSetMixin(ABC):
     def create(self, request, **kwargs):
         """set the """
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         return super().create(request, **kwargs)
+
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+
 
     def retrieve(self, request, **kwargs):
         """
@@ -71,7 +103,7 @@ class ViewSetMixin(ABC):
         """
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
-            self.set_casestudy(kwargs, request)
+            self.check_casestudy(kwargs, request)
         pk = kwargs.pop('pk')
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
@@ -103,23 +135,39 @@ class ViewSetMixin(ABC):
         # filter the lookup arguments
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
-        # filter any query parameters matching fields of the model
-        for k, v in query_params.items():
-            if hasattr(self.queryset.model, k):
-                filter_args[k] = v
+
+        # filter additional expressions
+        filter_args.update(self.get_filter_args(queryset=self.queryset,
+                                                query_params=query_params)
+                           )
         try:
             queryset = self.queryset.model.objects.filter(**filter_args)
         except Exception as e:
+            # ToDo: ExceptionHandling is very broad. Pleas narrow down!
             print(e)
             return None
-
-        if len(self.additional_filters):
-            queryset = queryset.filter(**self.additional_filters)
         return queryset
 
+    def get_filter_args(self, queryset, query_params):
+        """
+        get filter arguments defined by the query_params
+        and by additional filters
+        """
+        # filter any query parameters matching fields of the model
+        filter_args = {k: v for k, v in self.additional_filters.items()}
+        for k, v in query_params.items():
+            key_cmp = k.split('__')
+            key = key_cmp[0]
+            if hasattr(queryset.model, key):
+                if len(key_cmp) > 1:
+                    cmp = key_cmp[-1]
+                    if cmp not in QUERY_TERMS:
+                        continue
+                filter_args[k] = v
+        return filter_args
 
 
-class OnlySubsetMixin(ViewSetMixin):
+class OnlySubsetMixin(CasestudyViewSetMixin):
     """"""
     def set_casestudy(self, kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
@@ -142,15 +190,29 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
+class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
+    def list(self, request, **kwargs):
+        user_id = -1 if request.user.id is None else request.user.id
+        casestudies = set()
+        for casestudy in self.queryset:
+            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
+                casestudies.add(casestudy)
+        serializer = self.serializer_class(casestudies, many=True,
+                                           context={'request': request, })
+        return Response(serializer.data)
 
-class UserInCasestudyViewSet(ViewSetMixin, viewsets.ModelViewSet):
+
+class UserInCasestudyViewSet(CasestudyViewSetMixin,
+                             mixins.RetrieveModelMixin,
+                             mixins.UpdateModelMixin,
+                             mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
@@ -172,36 +234,3 @@ class SessionView(View):
         response =  {'casestudy': request.session.get('casestudy')}
         return JsonResponse(response)
 
-
-def casestudy(request, casestudy_id):
-    """casestudy view"""
-    casestudy = CaseStudy.objects.get(pk=casestudy_id)
-    stakeholdercategories = casestudy.stakeholdercategory_set.all()
-    users = casestudy.user_set.all()
-    solution_categories = casestudy.solution_categories
-
-    context = {
-        'casestudy': casestudy,
-        'stakeholdercategories': stakeholdercategories,
-        'users': users,
-        'solution_categories': solution_categories,
-    }
-    return render(request, 'changes/casestudy.html', context)
-
-
-def user(request, user_id):
-    """user view"""
-    user = User.objects.get(pk=user_id)
-    context = {'user': user, }
-    return render(request, 'changes/user.html', context)
-
-
-def userincasestudy(request, user_id, casestudy_id):
-    """userincasestudy view"""
-    user = UserInCasestudy.objects.get(user_id=user_id,
-                                       casestudy_id=casestudy_id)
-    other_casestudies = user.user.casestudies.exclude(pk=casestudy_id).all
-    context = {'user': user,
-               'other_casestudies': other_casestudies,
-               }
-    return render(request, 'changes/user_in_casestudy.html', context)

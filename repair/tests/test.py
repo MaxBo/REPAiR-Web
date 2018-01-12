@@ -13,20 +13,13 @@ from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
 
-class BasicModelTest(object):
-    baseurl = 'http://testserver'
-    url_key = ""
-    sub_urls = []
-    url_pks = dict()
-    url_pk = dict()
-    post_urls = []
-    post_data = dict()
-    put_data = dict()
-    patch_data = dict()
+
+class LoginTestCase(object):
+
     casestudy = None
+    keyflow = None
     userincasestudy = 26
     user = -1
-    do_not_check = []
 
     @classmethod
     def setUpClass(cls):
@@ -36,6 +29,18 @@ class BasicModelTest(object):
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
 
+        cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
+                                            casestudy=cls.uic.casestudy)
+
+    def setUp(self):
+        self.client.force_login(user=self.uic.user.user)
+        super().setUp()
+
+    def tearDown(self):
+        self.client.logout()
+        super().tearDown()
+
+
     @classmethod
     def tearDownClass(cls):
         user = cls.uic.user.user
@@ -44,6 +49,20 @@ class BasicModelTest(object):
         cs.delete()
         del cls.uic
         super().tearDownClass()
+
+
+class BasicModelTest(LoginTestCase):
+    baseurl = 'http://testserver'
+    url_key = ""
+    sub_urls = []
+    url_pks = dict()
+    url_pk = dict()
+    post_urls = []
+    post_data = dict()
+    put_data = dict()
+    patch_data = dict()
+    do_not_check = []
+
 
     def test_list(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
@@ -56,6 +75,7 @@ class BasicModelTest(object):
         # test get
         response = self.client.get(url)
         assert response.data['id'] == self.obj.pk
+
         # check status code for put
         response = self.client.put(url, data=self.put_data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -66,6 +86,7 @@ class BasicModelTest(object):
                 continue
             assert response.data[key] == self.put_data[key]
             #self.assertJSONEqual(response.data[key], self.put_data[key])
+
         # check status code for patch
         response = self.client.patch(url, data=self.patch_data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -92,7 +113,8 @@ class BasicModelTest(object):
         for key in self.post_data:
             if key not in response.data.keys() or key in self.do_not_check:
                 continue
-            assert response.data[key] == self.post_data[key]
+            self.assertEqual(str(response.data[key]),
+                             str(self.post_data[key]))
         # get
         new_id = response.data['id']
         url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
@@ -115,4 +137,3 @@ class BasicModelTest(object):
         for url in self.post_urls:
             response = self.client.get(url)
             assert response.status_code == status.HTTP_200_OK
-

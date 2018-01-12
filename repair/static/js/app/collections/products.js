@@ -7,7 +7,7 @@ define(["backbone", "app-config"],
         return config.api.products.format(this.caseStudyId, this.keyflowId);
       },
       
-      initialize: function (options) {
+      initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
         this.keyflowId = options.keyflowId;
       }

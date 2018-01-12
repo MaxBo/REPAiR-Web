@@ -23,7 +23,7 @@ DATABASES = {
 
 MIGRATION_MODULES = {
     'auth': None,
-    'contenttypes': None,
+    #'contenttypes': None,
     'default': None,
     'sessions': None,
 

@@ -15,9 +15,9 @@
     min-height: 300px;
 }
 
-#edit-node{
+/*#edit-node{
     min-height: 300px;
-}
+}*/
 
 #upload-flows-button, #upload-actors-button{
     
@@ -32,11 +32,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    padding: 1px 5px 1px 5px;
     border: none;
-    background-color: #aad400;
-    display: none;
-    border-radius: 20px;
     border: none;
 }
 
@@ -46,21 +42,23 @@
 
 #fullscreen-toggle{
     position: absolute;
-    top: 20px;
+    top: 60px;
     right: 20px;
     font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
 }
 
 input.changed, select.changed {
     background-color: #e6f2ff;
 }
 
-#actors-table tr.dsbld td{
+tr.dsbld td{
     background-color: #ffe6e6 !IMPORTANT;
     opacity: 0.8;
 }
 
-#actors-table th{
+#actors-table th, #products-table th{
     color: white !IMPORTANT;
     background-color:  #aad400 !IMPORTANT;
 }
@@ -71,13 +69,14 @@ input.changed, select.changed {
     position: relative !IMPORTANT;
 }
 
-#warning {
+#casestudy-warning, #keyflow-warning {
     display: none;
 }
 
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.6) !IMPORTANT;
-    border: 2px solid rgba(170, 212, 0, 0.6);
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border-bottom: 2px solid #aad400;
+    border-top: 2px solid #aad400;
 }
 .map:-moz-full-screen {
   width: 100%;
@@ -99,8 +98,20 @@ tr.selected td{
   top: 3em;
 }
 
+.btn-upload{
+    font-size: 18px
+}
+
 td button {
     padding: 0px 5px 0px 5px;
     margin-left: 3px;
     margin-right: 3px;
+}
+
+.modal{
+    top: 80px;
+}
+
+table{
+    /*font-size: 0.9em;*/
 }

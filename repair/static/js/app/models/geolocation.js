@@ -13,13 +13,15 @@ define(["backbone", "app-config"],
       idAttribute: "id",
       tag: "activity",
       urlRoot: function(){
-          var url = (this.type == 'operational') ? config.api.opLocations: config.api.adminLocations
-          return url.format(this.caseStudyId);
+          var loc_type = (this.collection != null) ? this.collection.loc_type: this.loc_type;
+          var url = (loc_type == 'operational') ? config.api.opLocations: config.api.adminLocations
+          return url.format(this.caseStudyId, this.keyflowId);
       },
 
-      initialize: function (options) {
+      initialize: function (attributes, options) {
         this.caseStudyId = options.caseStudyId;
-        this.type = options.type;
+        this.keyflowId = options.keyflowId;
+        this.loc_type = options.type;
         var geom = this.get("geometry");
         if (geom != null)
           this.setGeometry(geom.coordinates, geom.type);
@@ -27,7 +29,7 @@ define(["backbone", "app-config"],
           //geomObj._previousAttributes = geomObj.attributes;
         
       },
-      
+  
       defaults: {
         properties:  {}
       },

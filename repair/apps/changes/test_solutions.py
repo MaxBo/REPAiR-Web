@@ -3,7 +3,7 @@ from django.core.validators import ValidationError
 
 from repair.apps.login.models import (CaseStudy, UserInCasestudy)
 from repair.apps.studyarea.models import (Stakeholder, StakeholderCategory)
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelTest, LoginTestCase
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
@@ -52,6 +52,7 @@ class StrategyInCasestudyTest(BasicModelTest, APITestCase):
         cls.patch_data = dict(name="test name")
 
     def setUp(self):
+        super().setUp()
         iic = ImplementationFactory(id=self.implementation,
                                     user=self.uic)
         self.obj = StrategyFactory(id=self.strategy,

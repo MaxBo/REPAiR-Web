@@ -37,11 +37,11 @@ class KeyflowFactory(DjangoModelFactory):
 
 
 class KeyflowInCasestudyFactory(DjangoModelFactory):
-    class Meta:
-        model = models.KeyflowInCasestudy
     note = 'A Keyflow in a Casestudy'
     keyflow = factory.SubFactory(KeyflowFactory)
     casestudy = factory.SubFactory(CaseStudyFactory)
+    class Meta:
+        model = models.KeyflowInCasestudy
 
 
 #class QualityFactory(DjangoModelFactory):

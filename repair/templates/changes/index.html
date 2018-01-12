@@ -31,10 +31,10 @@
 
 
       <div class="row">
-        {% if casestudy_list %}
+        {% if casestudies %}
         <p>{% trans "Casestudies" %}.</p>
             <ul>
-            {% for casestudy in casestudy_list %}
+            {% for casestudy in casestudies %}
                 <li><a href="/changes/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
             {% endfor %}
             </ul>

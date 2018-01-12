@@ -5,6 +5,8 @@ django-require
 djangorestframework
 djangorestframework-gis
 django-money
+django-reversion
+django-publications-bootstrap
 drf-nested-routers
 numpy
 matplotlib

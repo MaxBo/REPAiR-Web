@@ -7,6 +7,12 @@ body {
   color: #000;
 }
 
+.row{
+    margin-left:0px;
+    margin-right:0px;
+    padding: 4px;
+}
+
 h1, h2, h3, h4 {
   font-family: 'Lato', sans-serif;
 }
@@ -21,8 +27,18 @@ div.fullscreen{
   background-color: white;
 }
 
-#content {
-  padding-top: 110px;
+#wrapper {
+    /*transition: all .4s ease 0s;*/
+    height: 100%;
+    padding-left: 60px;
+}
+
+#page-content-wrapper {
+    padding: 5px;
+    margin-left: 0px;
+    width: 100%;
+    height: auto;
+    padding-top: 100px;
 }
 
 #map {
@@ -103,7 +119,7 @@ div.fullscreen{
   width: 96%;
 }
 
-/* workaround for visualizations not rendering correctly hidden tabs */
+/* workaround for visualizations not rendering correctly in hidden tabs */
 .tab-pane {
   display: block !important;
   position: fixed;
@@ -124,8 +140,9 @@ table {
 
 th, td {
   text-align: left;
-  padding: 8px;
+  padding: 6px;
   position: relative;
+  /*font-weight: normal;*/
 }
 
 tr.strikeout td:before {
@@ -137,7 +154,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 
-tr:nth-child(even){background-color: #f2f2f2}
+/*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
   background-color:  #aad400;
@@ -227,3 +244,45 @@ td.tablesorter-pager {
   cursor: default;
 }
 
+.sub-table {
+  margin: 0px 0px 0px 0px;
+  width: auto;
+}
+
+.sub-table td{
+  background: none !important;
+  border-bottom: none !important;
+}
+
+tr.popunder > td{
+  border-top: none !important;
+  padding-top: 0px !important;
+}
+
+.bordered {
+  border: 1px solid #e6e6e6;
+  padding: 10px;
+}
+
+.dashed {
+  border: 2px dashed #aad400;
+  padding: 10px;
+}
+
+button.square, button.round{
+  padding: 1px 5px 1px 5px;
+  outline: none !important;
+  /*background-color: white !important;*/
+  /*border: solid 1px #aad400;*/
+  /*color: #aad400;*/
+}
+
+button.round{
+  border-radius: 20px;
+}
+
+button.square:hover, button.round:hover, button.square:focus, button.round:focus{
+  /*background-color: #aad400 !important;*/
+  /*border: none;*/
+  /*color: white;*/
+}

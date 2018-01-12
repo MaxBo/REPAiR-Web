@@ -6,7 +6,12 @@ from django.conf.urls import url, include
 
 from repair.apps.login import views as login_views
 from repair.apps.studyarea.views import (
-    StakeholderCategoryViewSet, StakeholderViewSet)
+    StakeholderCategoryViewSet,
+    StakeholderViewSet,
+    AdminLevelViewSet,
+    AreaViewSet,
+)
+
 from repair.apps.changes.views import (
     UnitViewSet,
     SolutionCategoryViewSet,
@@ -41,7 +46,7 @@ from repair.apps.asmfa.views import (
     AdministrativeLocationViewSet,
     OperationalLocationViewSet,
     ProductViewSet,
-    MaterialViewSet, 
+    MaterialViewSet,
 )
 
 ## base routes ##
@@ -59,16 +64,18 @@ router.register(r'materials', MaterialViewSet)
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
-cs_router.register(r'activitygroups', ActivityGroupViewSet)
-cs_router.register(r'activities', AllActivityViewSet)
-cs_router.register(r'actors', AllActorViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
-cs_router.register(r'administrativelocations', AdministrativeLocationViewSet)
-cs_router.register(r'operationallocations', OperationalLocationViewSet)
+cs_router.register(r'levels', AdminLevelViewSet)
+
+# /casestudies/*/levels/...
+levels_router = NestedSimpleRouter(cs_router, r'levels',
+                                 lookup='level')
+levels_router.register(r'areas', AreaViewSet)
+
 
 # /casestudies/*/stakeholdercategories/...
 user_router = NestedSimpleRouter(cs_router, r'users',
@@ -104,15 +111,6 @@ sii_router.register(r'note', SolutionInImplementationNoteViewSet)
 sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
 sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
 
-# /casestudies/*/activitygroups/...
-ag_router = NestedSimpleRouter(cs_router, r'activitygroups',
-                               lookup='activitygroup')
-ag_router.register(r'activities', ActivityViewSet)
-
-# /casestudies/*/activitygroups/*/activities/...
-ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
-ac_router.register(r'actors', ActorViewSet)
-
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 kf_router.register(r'groupstock', GroupStockViewSet)
@@ -122,10 +120,23 @@ kf_router.register(r'group2group', Group2GroupViewSet)
 kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
 kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'activitygroups', ActivityGroupViewSet)
+kf_router.register(r'activities', AllActivityViewSet)
+kf_router.register(r'actors', AllActorViewSet)
+kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
+kf_router.register(r'operationallocations', OperationalLocationViewSet)
 
+# /casestudies/*/keyflows/*/activitygroups/...
+ag_router = NestedSimpleRouter(kf_router, r'activitygroups',
+                               lookup='activitygroup')
+ag_router.register(r'activities', ActivityViewSet)
 
-# /casestudies/*/activitygroups/*/activities/*/actors/...
-actors_router = NestedSimpleRouter(cs_router, r'actors',
+# /casestudies/*/keyflows/*/activitygroups/*/activities/...
+ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
+ac_router.register(r'actors', ActorViewSet)
+
+# /casestudies/*/keyflows/*/actors/...
+actors_router = NestedSimpleRouter(kf_router, r'actors',
                                    lookup='actor')
 actors_router.register(r'administrativelocation',
                    AdministrativeLocationOfActorViewSet)
@@ -152,4 +163,5 @@ urlpatterns = [
     url(r'^', include(kf_router.urls)),
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
+    url(r'^', include(levels_router.urls)),
 ]

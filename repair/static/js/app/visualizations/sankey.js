@@ -3,6 +3,15 @@ define([
   'cyclesankey'
 ], function(d3)
 {
+  /**
+   *
+   * @desc    sankey diagram of nodes and links between those nodes
+   *
+   * @param   options.divid  id of element to render the sankey diagram in
+   * @param   options.title  optional, title of the diagram (displayed on top)
+   * @param   options.width  optional, width of the diagram (default: bounding box of div)
+   *
+   */
   var Sankey = function(options){
 
     var divid = options.divid;
@@ -15,6 +24,23 @@ define([
       format = function(d) { return formatNumber(d);},
       color = d3.scale.category20();
 
+    /**
+     * @desc  render the data as a sankey diagram
+     *
+     * @param data.nodes  array of node-objects
+     *                    id - unique id
+     *                    name - name to be displayed
+     *                    alignToSource - optional, align a node to the source of the first link going into this node
+     *                    alignToSource.x, alignToSource.y - offsets to position of source (default: 0)
+     *
+     * @param data.links  array of link-objects
+     *                    source - index of source-node (as in data.nodes)
+     *                    target - index of target-node (as in data.nodes)
+     *                    value - thickness of visualized link
+     *                    text - a text to be displayed on mouseover
+     *
+     * @see   sankey diagram
+     */
     this.render = function ( data ) {
       div = d3.select(divid);
       var bbox = div.node().getBoundingClientRect();
@@ -41,8 +67,8 @@ define([
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       sankey.nodes(data.nodes)
-        .links(data.links)
-        .layout(32);
+            .links(data.links)
+            .layout(32);
 
       var allgraphics = svg.append("g").attr("id", "node-and-link-container" );
 
@@ -66,11 +92,14 @@ define([
         .data(data.nodes)
       .enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("transform", function(d) { 
+          return "translate(" + d.x + "," + d.y + ")"; 
+        })
       .call(d3.behavior.drag()
         .origin(function(d) { return d; })
         .on("dragstart", function() { this.parentNode.appendChild(this); })
-        .on("drag", dragmove));
+        .on("drag", dragmove))
+      .call(alignToSource);
 
       node.append("rect")
         .attr("height", function(d) { return d.dy; })
@@ -110,6 +139,28 @@ define([
           ) + "," + (
             d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
           ) + ")");
+        sankey.relayout();
+        link.attr("d", path);
+      }
+      
+      // align the node to it's source if requested
+      function alignToSource() {
+        var gNodes = d3.selectAll("g.node");
+    
+        for (j=0; j < data.nodes.length; j++) {
+          var node = data.nodes[j];
+          if (node.alignToSource != null){
+            var targetLink = node.targetLinks[0];
+            var source = targetLink.source;
+            var offsetX = node.alignToSource.x || 0;
+                offsetY = node.alignToSource.y || 0;
+            node.x = source.x + offsetX;
+            node.y = source.y + targetLink.sy + offsetY;
+            var gNode = gNodes[0][j];
+            d3.select(gNode).attr("transform", 
+                  "translate(" + node.x + "," + node.y + ")");
+          }
+        }
         sankey.relayout();
         link.attr("d", path);
       }
