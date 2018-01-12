@@ -1,24 +1,42 @@
 define(['backbone', 'app/models/activitygroup', 'app/models/activity',
         'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
         'app/loader', 'bootstrap'],
-/**
-  *
-  * @desc    view on edit a specific node
-  *
-  * @param   options.el        html-element the view will be rendered in
-  * @param   options.model     backbone-model of the node
-  * @param   options.template  the id of the script containing the template for this view
-  * @param   options.keyflow   the keyflow of the flows
-  *
-  * @return  the EditNodeView class (for chaining)
-  * @see     table for attributes and flows in and out of this node
-  */
-function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
-  var EditNodeView = Backbone.View.extend({
 
-    /*
-      * view-constructor
-      */
+function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
+  /**
+   *
+   * @author Christoph Franke
+   * @name module:views/EditNodeView
+   * @augments Backbone.View
+   */
+  var EditNodeView = Backbone.View.extend(
+    /** @lends module:views/EditNodeView.prototype */
+    {
+
+
+  /**
+   * callback for uploading the flows
+   *
+   * @callback module:views/EditNodeView~onUpload
+   */
+     
+  /**
+    * render view to edit the flows of a single node (actor, activity or activitygroup)
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                                element the view will be rendered in
+    * @param {string} options.template                               id of the script element containing the underscore template to render this view
+    * @param {module:models/Actor|module:models/Activity|module:models/ActivityGroup} options.model the node to edit
+    * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
+    * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
+    * @param {string} options.keyflowName                            the name of the keyflow
+    * @param {module:collections/Products} options.products          the available materials
+    * @param {module:collections/Materials} options.materials        the available materials
+    * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
     initialize: function(options){
       _.bindAll(this, 'render');
       this.template = options.template;
@@ -485,7 +503,7 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       }).fail(onError);
     },
 
-    /*
+    /**
       * remove this view from the DOM
       */
     close: function(){

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: data-entry.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: data-entry.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require(['./libs/domReady!', './require-config'], function (doc, config) {
+  require(['app/models/casestudy', 'app/views/data-entry-flows',
+           'app/views/data-entry-actors', 'app/views/data-entry-products', 
+           'app/collections/flows', 'app/collections/actors',
+           'app/collections/keyflows', 'app/collections/materials',
+           'app-config', 'app/loader'],
+  function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
+            Actors, Keyflows, Materials,
+            appConfig) {
+  /**
+   *
+   * entry point for data-entry, 
+   * render tabs for entering data (edit actors, flows and products)
+   *
+   * @author Christoph Franke
+   * @module DataEntry
+   */
+
+    var caseStudy,
+        keyflows,
+        activities,
+        materials;
+
+    var flowsView,
+        actorsView,
+        editProductsView;
+        
+    var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
+        refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
+        refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
+
+    // render the view on 'Edit Flows'
+    function renderFlows(keyflow){
+      if (keyflow == null) return;
+      if (flowsView != null)
+        flowsView.close();
+      flowsView = new FlowsView({
+        el: document.getElementById('flows-content'),
+        template: 'flows-edit-template',
+        model: keyflow,
+        materials: materials, 
+        caseStudy: caseStudy
+      });
+      refreshFlowsBtn.style.display = 'block';
+    };
+    
+    // render the view on 'Edit Actors'
+    function renderEditActors(keyflow){
+      if (keyflow == null) return;
+      if (actorsView != null)
+        actorsView.close();
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      actorsView = new ActorsView({
+        el: document.getElementById('actors-content'),
+        template: 'actors-template',
+        model: keyflow,
+        caseStudy: caseStudy,
+        onUpload: function(){renderEditActors(keyflow)}
+      });
+      refreshActorsBtn.style.display = 'block';
+    };
+    
+    // render the view on 'Edit Products'
+    function renderEditProducts(keyflow){
+      if (keyflow == null) return;
+      if (editProductsView != null)
+        editProductsView.close();
+
+      // create casestudy-object and render view on it (data will be fetched in view)
+
+      editProductsView = new EditProductsView({
+        el: document.getElementById('products-content'),
+        template: 'products-edit-template',
+        model: keyflow,
+        caseStudy: caseStudy,
+        materials: materials, 
+        onUpload: function(){renderEditProducts(keyflow)}
+      });
+      refreshProductsBtn.style.display = 'block';
+    };
+
+    // render the views of each tab
+    function render(caseStudy){
+
+      var keyflowSelect = document.getElementById('keyflow-select');
+      function getKeyflow(){
+        return keyflows.get(keyflowSelect.value);
+      }
+      document.getElementById('keyflow-warning').style.display = 'block';
+      keyflowSelect.addEventListener('change', function(){
+        var keyflow = getKeyflow();
+        document.getElementById('keyflow-warning').style.display = 'none';
+        renderFlows(keyflow);
+        renderEditActors(keyflow);
+        renderEditProducts(keyflow);
+      });
+      
+      // each tab has a button to reload the corresponding view
+      refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
+      refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
+      refreshActorsBtn.addEventListener('click', function(){renderEditActors(getKeyflow())});
+      document.getElementById('keyflow-select').disabled = false;
+    }
+    
+    // get the current state of the session (incl. the active casestudy)
+    // fetch the models and render the views afterwards
+    var session = appConfig.getSession(
+      function(session){
+        var caseStudyId = session['casestudy'];
+        if (caseStudyId == null){
+          document.getElementById('casestudy-warning').style.display = 'block';
+          document.getElementById('keyflow-warning').style.display = 'none';
+          return;
+        }
+        caseStudy = new CaseStudy({id: caseStudyId});
+        materials = new Materials();
+        keyflows = new Keyflows([], {caseStudyId: caseStudyId});
+        var loader = new Loader(document.getElementById('content'),
+                                {disable: true});
+        $.when(caseStudy.fetch(), materials.fetch(), 
+               keyflows.fetch()).then(function() {
+          loader.remove();
+          render(caseStudy);
+        });
+    });
+  });
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EditProductsView.html">views/EditProductsView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 17:03:57 GMT+0100 (Mitteleuropäische Zeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
