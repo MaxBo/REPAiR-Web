@@ -28,3 +28,4 @@ pytest-splinter
 pytest-xdist
 codecov
 gitpython
+selenium
