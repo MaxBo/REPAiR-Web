@@ -24,7 +24,7 @@ define(["backbone", "app-config"],
     /**
      * collection for fetching/putting keyflows
      *
-     * @param {Array.Object} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
+     * @param {Array.<Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
      * @param {string} options.caseStudyId  id of the casestudy the keyflows belong to
      *

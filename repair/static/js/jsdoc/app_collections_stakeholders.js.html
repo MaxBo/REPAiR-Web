@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: app/collections/stakeholders.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,40 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: app/collections/stakeholders.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(["backbone","app/models/stakeholder", "app-config"],
 
+  function(Backbone, Stakeholder, config) {
 
-    <h3> </h3>
+   /**
+    * collection for fetching/putting stakeholders
+    *
+    * @param {Object} [attributes=null]  fields of the model and their values, will be set if passed
+    *
+    * @author Christoph Franke
+    * @name module:collections/Stakeholders
+    * @augments Backbone.Collection
+    * @constructor
+    * @see http://backbonejs.org/#Collection
+    */
+    var Stakeholders = Backbone.Collection.extend({
+      url: config.api.stakeholders,
+      model: Stakeholder
+    });
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    return Stakeholders;
+  }
+);</code></pre>
+        </article>
+    </section>
 
 
 

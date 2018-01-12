@@ -5,12 +5,16 @@ define([
 {
   /**
    *
-   * @desc    sankey diagram of nodes and links between those nodes
+   * sankey diagram of nodes and links between those nodes, supports cycles
    *
-   * @param   options.divid  id of element to render the sankey diagram in
-   * @param   options.title  optional, title of the diagram (displayed on top)
-   * @param   options.width  optional, width of the diagram (default: bounding box of div)
+   * @param {Object} options
+   * @param {string} options.divid     id of the HTMLElement to render the sankey diagram in
+   * @param {string=} options.title    title of the diagram (displayed on top)
+   * @param {string=} options.width    width of the diagram, defaults to bounding box of div
    *
+   * @author Christoph Franke
+   * @name module:visualizations/Sankey
+   * @constructor
    */
   var Sankey = function(options){
 
@@ -23,23 +27,37 @@ define([
     var formatNumber = d3.format(",.0f"),
       format = function(d) { return formatNumber(d);},
       color = d3.scale.category20();
+      
+    /**
+      * object describing a node
+      * 
+      * @typedef {Object} module:visualizations/Sankey~Nodes
+      * @property {string} id                    - unique id
+      * @property {string} name                  - name to be displayed
+      * @property {Object=} alignToSource        - align a node to the source of the first link going into this node
+      * @property {number} [alignToSource.x = 0] - x offset to position of source
+      * @property {number} [alignToSource.y = 0] - y offset to position of source
+      */
+      
+    /**
+      * object describing a link between two nodes
+      * 
+      * @typedef {Object} module:visualizations/Sankey~Links
+      * @property {number} source - index of source-node
+      * @property {string} target - index of target-node
+      * @property {number} value  - determines thickness of visualized link, also shown on mouseover/click
+      * @property {string} text   - an additional text to be displayed on mouseover/click
+      */
 
     /**
-     * @desc  render the data as a sankey diagram
+     * render the data
      *
-     * @param data.nodes  array of node-objects
-     *                    id - unique id
-     *                    name - name to be displayed
-     *                    alignToSource - optional, align a node to the source of the first link going into this node
-     *                    alignToSource.x, alignToSource.y - offsets to position of source (default: 0)
+     * @param {Array.<module:visualizations/Sankey~Nodes>} nodes - array of nodes
+     * @param {Array.<module:visualizations/Sankey~Links>} links - array of links, origin and target indices refer to order of nodes
      *
-     * @param data.links  array of link-objects
-     *                    source - index of source-node (as in data.nodes)
-     *                    target - index of target-node (as in data.nodes)
-     *                    value - thickness of visualized link
-     *                    text - a text to be displayed on mouseover
-     *
-     * @see   sankey diagram
+     * @method render
+     * @memberof module:visualizations/Sankey
+     * @instance
      */
     this.render = function ( data ) {
       div = d3.select(divid);

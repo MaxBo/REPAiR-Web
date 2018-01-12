@@ -19,7 +19,7 @@ define(["backbone", "app/models/geolocation", "app-config"],
     /**
      * collection of module:models/Location
      *
-     * @param {Array.Object} [attrs=null]               list objects representing the fields of each model and their values, will be set if passed
+     * @param {Array.<Object>} [attrs=null]               list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
      * @param {string} options.caseStudyId              id of the casestudy the location belongs to
      * @param {string} options.keyflowId                id of the keyflow the location belongs to
@@ -46,7 +46,7 @@ define(["backbone", "app/models/geolocation", "app-config"],
      *
      * @param {string} actorId id of the actor
      *
-     * @returns {Array.module:models/Location} list of all locations belonging to the actor
+     * @returns {Array.<module:models/Location>} list of all locations belonging to the actor
      */
       filterActor: function (actorId) {
           var filtered = this.filter(function (loc) {

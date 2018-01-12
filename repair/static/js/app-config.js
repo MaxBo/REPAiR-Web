@@ -1,10 +1,29 @@
 define(['cookies'],
   function (Cookies) {
   
+    /**
+     * global configuration file
+     * @module config
+     */
     var config = {
       URL: '/' // base application URL
     };
     
+    /**
+     * callback for dragging markers
+     *
+     * @callback module:config~onSuccess
+     * @param {Object} json -  fetched session object
+     */
+    
+    /** 
+     * fetch the current session object from the server 
+     *
+     * @param {module:config~onSuccess} callback - called when session object is successfully fetched
+     * 
+     * @method getSession
+     * @memberof module:config
+     */
     config.getSession = function(callback){
     
       //var sessionid = Cookies.get('sessionid');
@@ -18,6 +37,10 @@ define(['cookies'],
         }).then(response => response.json()).then(json => callback(json));
     }
     
+    /** urls to resources in api
+     * @name api
+     * @memberof module:config
+     */
     config.api = {
       base:                 '/api', // base Rest-API URL
       stakeholders:         '/api/stakeholders/',
