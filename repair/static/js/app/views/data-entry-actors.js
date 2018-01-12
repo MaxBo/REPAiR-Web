@@ -3,11 +3,28 @@ define(['backbone', 'app/models/actor', 'app/collections/activities',
         'tablesorter-pager', 'app/loader'],
 
 function(Backbone, Actor, Activities, Actors, EditActorView){
-  var ActorsView = Backbone.View.extend({
+  /**
+   *
+   * @author Christoph Franke
+   * @name module:views/ActorsView
+   * @augments Backbone.View
+   */
+  var ActorsView = Backbone.View.extend(
+    /** @lends module:views/ActorsView.prototype */
+    {
 
-    /*
-      * view-constructor
-      */
+    /**
+     * render view to edit the actors of a keyflow
+     *
+     * @param {Object} options
+     * @param {HTMLElement} options.el                     element the view will be rendered in
+     * @param {string} options.template                    id of the script element containing the underscore template to render this view
+     * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
+     * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
+     *
+     * @constructs
+     * @see http://backbonejs.org/#View
+     */
     initialize: function(options){
       _.bindAll(this, 'render');
       var _this = this;
@@ -21,7 +38,6 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       this.showAll = true;
       this.caseStudy = options.caseStudy;
       this.caseStudyId = this.model.get('casestudy');
-      this.onUpload = options.onUpload;
       
       this.actorRows = [];
       
@@ -220,7 +236,7 @@ function(Backbone, Actor, Activities, Actors, EditActorView){
       }});
     },
         
-    /*
+    /**
      * remove this view from the DOM
      */
     close: function(){
