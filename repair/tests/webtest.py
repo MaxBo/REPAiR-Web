@@ -18,7 +18,7 @@ class UntitledTestCase(unittest.TestCase):
     def test_untitled_test_case(self):
         driver = self.driver
         driver.get("http://localhost:8000/")
-        driver.find_element_by_link_text("Study Area").click()
+        driver.find_element_by_link_text("Study Ardasea").click()
         time.sleep(5)
         driver.find_element_by_link_text("Status Quo").click()
         time.sleep(5)
