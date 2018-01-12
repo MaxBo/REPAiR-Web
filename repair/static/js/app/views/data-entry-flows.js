@@ -9,22 +9,25 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
 
   /**
    *
-   * @author  Christoph Franke
-   *
-   * @desc    view on edit flows of a single casestudy
-   *
-   * @param   options.el     html-element the view will be rendered in
-   * @param   options.model  backbone-model of the casestudy
-   *
-   * @return  the EditFlowsView class (for chaining)
-   * @see     tabs for editing the flows (incl. a tree with available nodes to edit),
-   *          a sankey-diagram visualising the data and the verification of nodes
+   * @author Christoph Franke
+   * @name module:views/FlowsView
+   * @augments Backbone.View
    */
-  var FlowsView = Backbone.View.extend({
-    // the id of the script containing the template for this view
+  var FlowsView = Backbone.View.extend( 
+    /** @lends module:views/FlowsView.prototype */
+    {
 
-    /*
-     * view-constructor
+    /**
+     * render view to edit flows of a single keyflow
+     *
+     * @param {Object} options
+     * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
+     * @param {module:models/CaseStudy} options.caseStudy       the casestudy
+     * @param {module:collections/Materials} options.materials  the available materials
+     *
+     * @constructs
+     * @see http://backbonejs.org/#View
      */
     initialize: function(options){
       _.bindAll(this, 'render');
@@ -81,15 +84,18 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
     },
     
     
+    /*
+     * render sankey-diagram in fullscreen
+     */
     toggleFullscreen: function(){
       document.getElementById('sankey-wrapper').classList.toggle('fullscreen');
       this.renderSankey({skipFetch: true});
     },
 
-    /**
-     * render a sankey diagram
+    /*
+     * render the sankey diagram
      *
-     * @param options.skipFetch   if True, don't fetch the models to render again, but use the already fetched ones
+     * @param {boolean} options.skipFetch   if True, don't fetch the models to render again, but use the already fetched ones
      */
     renderSankey: function(options){
       var options = options || {};
@@ -142,7 +148,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       }
     },
     
-    /**
+    /*
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
      */
@@ -251,7 +257,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       $(divid).treeview('collapseAll', {silent: true});
     },
 
-    /**
+    /*
     * render the edit-view on a node
     */
     renderDataEntry: function(){
@@ -280,7 +286,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       renderNode();
     },
 
-    /*
+    /**
      * remove this view from the DOM
      */
     close: function(){

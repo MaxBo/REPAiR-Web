@@ -7,11 +7,37 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }
-  var EditActorView = Backbone.View.extend({
+  /**
+   *
+   * @author Christoph Franke
+   * @name module:views/EditActorView
+   * @augments Backbone.View
+   */
+  var EditActorView = Backbone.View.extend(
+    /** @lends module:views/EditActorView.prototype */
+    {
 
-    /*
-      * view-constructor
-      */
+    /**
+     * callback for uploading the actor
+     *
+     * @callback module:views/EditActorView~onUpload
+     * @param {module:models/Actor} actor the uploaded actor
+     */
+     
+    /**
+     * render view to edit single actor and its locations
+     *
+     * @param {Object} options
+     * @param {HTMLElement} options.el                                 element the view will be rendered in
+     * @param {string} options.template                                id of the script element containing the underscore template to render this view
+     * @param {module:models/Actor} options.model                      the actor to edit
+     * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
+     * @param {Backbone.Collection} options.activities                 the activities belonging to the keyflow
+     * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
+     *
+     * @constructs
+     * @see http://backbonejs.org/#View
+     */
     initialize: function(options){
       _.bindAll(this, 'render');
       _.bindAll(this, 'renderLocation');
