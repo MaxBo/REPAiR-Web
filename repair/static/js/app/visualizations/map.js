@@ -154,6 +154,8 @@ define([
       map.addInteraction(dragInteraction);
       var id = idCounter;
       feature.setId(id);
+      feature.onRemove = options.onRemove;
+      console.log(feature)
       idCounter++;
       vectorLayer.getSource().addFeature(feature);
       return id;
@@ -178,6 +180,7 @@ define([
      */
     this.removeMarkers = function(){
       map.getInteractions().forEach(function (interaction) {
+          console.log(interaction)
           if (interaction instanceof ol.interaction.Modify) 
              map.removeInteraction(interaction);
       });
@@ -186,7 +189,9 @@ define([
     
     // remove marker of given feature
     function removeMarker(obj) {
-      vectorLayer.getSource().removeFeature(obj.data.marker);
+      var feature = obj.data.marker;
+      if (feature.onRemove != null) feature.onRemove();
+      vectorLayer.getSource().removeFeature(feature);
     }
     
     /**
