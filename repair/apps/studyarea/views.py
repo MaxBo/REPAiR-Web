@@ -61,12 +61,12 @@ class StakeholderViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     serializer_class = StakeholderSerializer
 
 
-class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
 
 
-class AreaViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
 
@@ -96,6 +96,14 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
                                            query_params=params)
         queryset = areas.filter(**filter_args)
         return queryset
+
+    def create(self, **kwargs):
+        level = kwargs.pop('level', None)
+        if level is not None:
+            adminlevel = AdminLevels.get(pk=level)
+            kwargs['level'] = adminlevel
+        super().create(**kwargs)
+
 
 
 

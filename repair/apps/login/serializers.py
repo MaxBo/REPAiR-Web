@@ -428,6 +428,7 @@ class CaseStudySerializer(GeoFeatureModelSerializer,
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
+    levels = InCasestudyListField(view_name='adminlevels-list')
 
     class Meta:
         model = CaseStudy
@@ -436,6 +437,7 @@ class CaseStudySerializer(GeoFeatureModelSerializer,
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
+                  'levels',
                   'focusarea',
                   )
 

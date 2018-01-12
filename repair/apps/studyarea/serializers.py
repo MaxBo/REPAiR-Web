@@ -75,14 +75,27 @@ class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
         return required_fields
 
 
+class AreaSetSerializer(InCasestudyField):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'level__casestudy__id',
+        'level_pk': 'level__id',
+    }
+    class Meta:
+        model = Stakeholder
+        fields = ('url', 'id', 'name')
+
+
 class AdminLevelSerializer(CreateWithUserInCasestudyMixin,
                            NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    #level = serializers.IntegerField(source='_level')
+    area_set = AreaSetSerializer(many=True,
+                                 view_name='area-detail',
+                                 read_only=True)
 
     class Meta:
         model = AdminLevels
         fields = ('url', 'id', 'casestudy', 'name', 'level',
+                  'area_set',
                   )
 
 
@@ -93,5 +106,6 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = Area
-        fields = ('url', 'id', 'casestudy', 'name', 'level',
+        fields = ('url', 'id', 'casestudy', 'name',
+                  #'level',
                   )

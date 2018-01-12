@@ -32,7 +32,7 @@ class AdminLevels(GDSEUniqueNameModel):
 
 
 class Area(GDSEUniqueNameModel):
-    level = models.IntegerField()
+    level = models.ForeignKey(AdminLevels)
     content_type = models.ForeignKey(ContentType)
     name = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
