@@ -97,12 +97,12 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
         queryset = areas.filter(**filter_args)
         return queryset
 
-    def create(self, **kwargs):
-        level = kwargs.pop('level', None)
+    def create(self, request, **kwargs):
+        level = kwargs.pop('level_pk', None)
         if level is not None:
-            adminlevel = AdminLevels.get(pk=level)
-            kwargs['level'] = adminlevel
-        super().create(**kwargs)
+            adminlevel = AdminLevels.objects.get(pk=level)
+            kwargs['level_pk'] = adminlevel
+        super().create(request, **kwargs)
 
 
 

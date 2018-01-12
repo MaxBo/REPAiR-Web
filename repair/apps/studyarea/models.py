@@ -39,7 +39,7 @@ class Area(GDSEUniqueNameModel):
     casestudy = models.ForeignKey(CaseStudy)
 
     def save(self, *args, **kwargs):
-        if not self.level:
+        if self.content_type_id is None:
             content_type = ContentType.objects.get_for_model(self.__class__)
             self.level = content_type.model_class()._level
             self.content_type = content_type

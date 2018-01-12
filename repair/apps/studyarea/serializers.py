@@ -98,14 +98,20 @@ class AdminLevelSerializer(CreateWithUserInCasestudyMixin,
                   'area_set',
                   )
 
+class AdminLevelField(InCasestudyField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
 
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
                             'level_pk': 'level',}
 
+    level = AdminLevelField(
+        view_name='adminlevels-detail'
+    )
     class Meta:
         model = Area
         fields = ('url', 'id', 'casestudy', 'name',
-                  #'level',
+                  'level',
                   )
