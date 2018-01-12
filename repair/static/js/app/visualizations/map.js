@@ -9,7 +9,7 @@ define([
    * @param {Object} options
    * @param {string} options.divid                        id of the HTMLElement to render the map into
    * @param {string} [options.projection='EPSG:3857']     projection of the map
-   * @param {Array.number} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
+   * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
    *
    * @author Christoph Franke
    * @name module:visualizations/Map
@@ -49,10 +49,10 @@ define([
     /**
      * transforms given coordinates into projection of map
      *
-     * @param {Array.number} coordinates  (x,y) coordinates to transform
+     * @param {Array.<number>} coordinates  (x,y) coordinates to transform
      * @param {string} projection         projection of the coordinate
      *
-     * @returns {Array.number} (x,y)      coordinates in map projection
+     * @returns {Array.<number>} (x,y)      coordinates in map projection
      *
      * @method toMapProjection
      * @memberof module:visualizations/Map
@@ -65,10 +65,10 @@ define([
     /**
      * transforms given coordinates in map projection into given projection
      *
-     * @param {Array.number} coordinates  (x,y) coordinates in map projection to transform
+     * @param {Array.<number>} coordinates  (x,y) coordinates in map projection to transform
      * @param {string} projection         projection to transform into
      *
-     * @returns {Array.number} (x,y)      coordinates in given projection
+     * @returns {Array.<number>} (x,y)      coordinates in given projection
      *
      * @method toProjection
      * @memberof module:visualizations/Map
@@ -83,13 +83,13 @@ define([
      * callback for dragging markers
      *
      * @callback module:visualizations/Map~onDrag
-     * @param {Array.number} coordinates  (x, y) coordinates in original projection
+     * @param {Array.<number>} coordinates  (x, y) coordinates in original projection
      */
     
     /**
      * add a marker to map at given position
      *
-     * @param {Array.number} coordinates    (x,y) coordinates where marker will be added at
+     * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
      * @param {Object} options
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
@@ -194,7 +194,7 @@ define([
      *
      * @callback module:visualizations/Map~itemClicked
      * @param {Object} event event
-     * @param {Array.number} event.coordinate coordinates in map projection
+     * @param {Array.<number>} event.coordinate coordinates in map projection
      * @see https://github.com/jonataswalker/ol-contextmenu
      */
     
@@ -207,6 +207,7 @@ define([
      * @method addContextMenu
      * @memberof module:visualizations/Map
      * @instance
+     * @see https://github.com/jonataswalker/ol-contextmenu
      */
     this.addContextMenu = function (contextmenuItems){
       console.log(contextmenuItems)
@@ -252,7 +253,7 @@ define([
     /**
      * center map on given coordinates
      * 
-     * @param {Array.number} coordinates  (x,y) coordinates 
+     * @param {Array.<number>} coordinates  (x,y) coordinates 
      * @param {Object} options
      * @param {string=} options.projection  projection of the coordinates, defaults to map projection
      */

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: app/models/casestudy.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,47 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: app/models/casestudy.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(["backbone", "app-config"],
 
+  function(Backbone, config) {
 
-    <h3> </h3>
+   /**
+    *
+    * model for fetching/putting a casestudy
+    *
+    * @param {Object} [attributes=null]  fields of the model and their values, will be set if passed
+    *
+    * @author Christoph Franke
+    * @name module:models/CaseStudy
+    * @augments Backbone.Model
+    * @constructor
+    * @see http://backbonejs.org/#Model
+    */
+    var CaseStudy = Backbone.Model.extend({
 
+      urlRoot: config.api.casestudies,
+      idAttribute: "id",
 
+      defaults: {
+        id: '',
+        name: ''
+      },
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    });
+    return CaseStudy;
+  }
+);</code></pre>
+        </article>
+    </section>
 
 
 

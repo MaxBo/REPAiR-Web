@@ -62,7 +62,7 @@ define(["backbone", "app-config"],
     /**
      * set the geometry of the location
      *
-     * @param {Array.number} coordinates  (x, y) coordinates
+     * @param {Array.<number>} coordinates  (x, y) coordinates
      * @param {string} [type='Point']     type of geometry
      *
      * @see http://backbonejs.org/#Model

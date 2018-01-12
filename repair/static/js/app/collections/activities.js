@@ -31,7 +31,7 @@ define(["backbone", "app/models/activity", "app-config"],
     /**
      * collection of module:models/Activity
      *
-     * @param {Array.Object} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
+     * @param {Array.<Object>} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
      * @param {string} options.caseStudyId        id of the casestudy the activities belong to
      * @param {string} options.activityGroupCode  id of the activitygroup the activities belong to

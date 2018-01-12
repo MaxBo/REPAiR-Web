@@ -30,7 +30,7 @@ define(["backbone", "app/models/actor", "app-config"],
     /**
      * collection of module:models/Actor
      *
-     * @param {Array.Object} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
+     * @param {Array.<Object>} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
      * @param {string} options.caseStudyId        id of the casestudy the actors belong to
      * @param {string} options.activityId         id of the activity the actors belong to

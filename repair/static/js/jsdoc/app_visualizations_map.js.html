@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: visualizations/map.js</title>
+    <title>JSDoc: Source: app/visualizations/map.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: visualizations/map.js</h1>
+    <h1 class="page-title">Source: app/visualizations/map.js</h1>
 
     
 
@@ -37,7 +37,7 @@
    * @param {Object} options
    * @param {string} options.divid                        id of the HTMLElement to render the map into
    * @param {string} [options.projection='EPSG:3857']     projection of the map
-   * @param {Array.number} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
+   * @param {Array.&lt;number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
    *
    * @author Christoph Franke
    * @name module:visualizations/Map
@@ -77,10 +77,10 @@
     /**
      * transforms given coordinates into projection of map
      *
-     * @param {Array.number} coordinates  (x,y) coordinates to transform
+     * @param {Array.&lt;number>} coordinates  (x,y) coordinates to transform
      * @param {string} projection         projection of the coordinate
      *
-     * @returns {Array.number} (x,y)      coordinates in map projection
+     * @returns {Array.&lt;number>} (x,y)      coordinates in map projection
      *
      * @method toMapProjection
      * @memberof module:visualizations/Map
@@ -93,10 +93,10 @@
     /**
      * transforms given coordinates in map projection into given projection
      *
-     * @param {Array.number} coordinates  (x,y) coordinates in map projection to transform
+     * @param {Array.&lt;number>} coordinates  (x,y) coordinates in map projection to transform
      * @param {string} projection         projection to transform into
      *
-     * @returns {Array.number} (x,y)      coordinates in given projection
+     * @returns {Array.&lt;number>} (x,y)      coordinates in given projection
      *
      * @method toProjection
      * @memberof module:visualizations/Map
@@ -111,13 +111,13 @@
      * callback for dragging markers
      *
      * @callback module:visualizations/Map~onDrag
-     * @param {Array.number} coordinates  (x, y) coordinates in original projection
+     * @param {Array.&lt;number>} coordinates  (x, y) coordinates in original projection
      */
     
     /**
      * add a marker to map at given position
      *
-     * @param {Array.number} coordinates    (x,y) coordinates where marker will be added at
+     * @param {Array.&lt;number>} coordinates    (x,y) coordinates where marker will be added at
      * @param {Object} options
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
@@ -222,7 +222,7 @@
      *
      * @callback module:visualizations/Map~itemClicked
      * @param {Object} event event
-     * @param {Array.number} event.coordinate coordinates in map projection
+     * @param {Array.&lt;number>} event.coordinate coordinates in map projection
      * @see https://github.com/jonataswalker/ol-contextmenu
      */
     
@@ -235,6 +235,7 @@
      * @method addContextMenu
      * @memberof module:visualizations/Map
      * @instance
+     * @see https://github.com/jonataswalker/ol-contextmenu
      */
     this.addContextMenu = function (contextmenuItems){
       console.log(contextmenuItems)
@@ -280,7 +281,7 @@
     /**
      * center map on given coordinates
      * 
-     * @param {Array.number} coordinates  (x,y) coordinates 
+     * @param {Array.&lt;number>} coordinates  (x,y) coordinates 
      * @param {Object} options
      * @param {string=} options.projection  projection of the coordinates, defaults to map projection
      */
@@ -307,13 +308,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EditProductsView.html">views/EditProductsView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EditProductsView.html">views/EditProductsView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 13:48:53 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 12 2018 17:03:57 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

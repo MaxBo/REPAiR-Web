@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: module:models/ActivityGroup</title>
+    <title>JSDoc: Module: config</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: module:models/ActivityGroup</h1>
+    <h1 class="page-title">Module: config</h1>
 
     
 
@@ -28,7 +28,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:models/ActivityGroup<span class="signature">(attributes<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h2>
+        
+            
         
     
 </header>
@@ -37,11 +38,177 @@
     <div class="container-overview">
     
         
+            <div class="description">global configuration file</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
 
     
 
     
-    <h4 class="name" id="module:models/ActivityGroup"><span class="type-signature"></span>new module:models/ActivityGroup<span class="signature">(attributes<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h4>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="app-config.js.html">app-config.js</a>, <a href="app-config.js.html#line4">line 4</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".api"><span class="type-signature">(static) </span>api<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    urls to resources in api
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="app-config.js.html">app-config.js</a>, <a href="app-config.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getSession"><span class="type-signature">(static) </span>getSession<span class="signature">(callback)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +216,7 @@
 
 
 <div class="description">
-    model for fetching/putting an activitygroup
+    fetch the current session object from the server
 </div>
 
 
@@ -73,11 +240,7 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -89,76 +252,124 @@
 
         <tr>
             
-                <td class="name"><code>attributes</code></td>
+                <td class="name"><code>callback</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type"><a href="module-config.html#~onSuccess">module:config~onSuccess</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
 
-            <td class="description last">fields of the model and their values, will be set if passed</td>
+            <td class="description last">called when session object is successfully fetched</td>
         </tr>
 
     
+    </tbody>
+</table>
 
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
 
-            <td class="type">
-            
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="app-config.js.html">app-config.js</a>, <a href="app-config.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        
                 
-<span class="param-type">Object</span>
+
+    
+
+    
+    <h4 class="name" id="~onSuccess"><span class="type-signature"></span>onSuccess<span class="signature">(json)</span><span class="type-signature"></span></h4>
+    
+
+    
 
 
-            
-            </td>
 
-            
-                <td class="attributes">
-                
+<div class="description">
+    callback for dragging markers
+</div>
 
-                
 
-                
-                </td>
-            
 
-            
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">
-                <h6>Properties</h6>
-                
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
 
 <table class="params">
     <thead>
@@ -182,13 +393,13 @@
 
         <tr>
             
-                <td class="name"><code>caseStudyId</code></td>
+                <td class="name"><code>json</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
             
@@ -198,37 +409,7 @@
 
             
 
-            <td class="description last">id of the casestudy the activitygroup belongs to</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>keyflowId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">id of the keyflow the activitygroup belongs to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last">fetched session object</td>
         </tr>
 
     
@@ -269,19 +450,12 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="app_models_activitygroup.js.html">app/models/activitygroup.js</a>, <a href="app_models_activitygroup.js.html#line36">line 36</a>
+        <a href="app-config.js.html">app-config.js</a>, <a href="app-config.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
     
 
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="http://backbonejs.org/#Model">http://backbonejs.org/#Model</a></li>
-        </ul>
-    </dd>
     
 
     
@@ -304,137 +478,7 @@
 
 
 
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
             
-
-    
-
-    
-    <h4 class="name" id="urlRoot"><span class="type-signature"></span>urlRoot<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    generates an url to the api resource based on the ids given in constructor
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="app_models_activitygroup.js.html">app/models/activitygroup.js</a>, <a href="app_models_activitygroup.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the url string
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-    
-
     
 
     
