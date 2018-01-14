@@ -8,12 +8,12 @@ require(['./libs/domReady!', './require-config'], function (doc, config) {
             Actors, Keyflows, Materials,
             appConfig) {
   /**
+   *
+   * entry point for data-entry, 
+   * render tabs for entering data (edit actors, flows and products)
+   *
    * @author Christoph Franke
-   *
-   * @desc    js entry point for rendering the data-entry
-   *
-   * @see     tabs for data-entry (incl. a tree with available nodes to edit),
-   *          sankey-diagram visualising the data and verification of nodes
+   * @module DataEntry
    */
 
     var caseStudy,
