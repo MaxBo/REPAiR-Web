@@ -7,6 +7,8 @@ djangorestframework-gis
 django-test-plus
 django-money
 django-reversion
+django-reversion-compare
+diff-match-patch
 django-publications-bootstrap
 drf-nested-routers
 numpy

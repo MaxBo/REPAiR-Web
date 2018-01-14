@@ -10,7 +10,7 @@ from repair.apps.login.factories import CaseStudyFactory
 from repair.tests.test import LoginTestCase
 
 
-class AreaModels(LoginTestCase):
+class AreaModels(LoginTestCase, APITestCase):
     def test_01_dynamic_models(self):
         cs = self.uic.casestudy
 

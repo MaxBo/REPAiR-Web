@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.validators import ValidationError
 from django.urls import reverse
 
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest, LoginTestCase
 
@@ -33,7 +33,6 @@ class UniqueStakeholderNames(TestCase):
             ) as err:
             stakeholdercat3 = StakeholderCategoryFactory(
                 casestudy=city2, name='Cat1')
-        print(err.exception.messages)
 
 
 class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):

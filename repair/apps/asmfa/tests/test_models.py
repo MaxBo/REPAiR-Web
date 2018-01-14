@@ -3,7 +3,7 @@
 from django.test import TestCase
 from django.contrib.gis.geos.point import Point
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest, LoginTestCase
 from rest_framework import status
@@ -398,20 +398,6 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__keyflow=self.kic,
             activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
-
-
-class QualityTest(BasicModelTest):  #, APITestCase):
-
-    url_key = "quality"
-    url_pks = dict()
-    url_pk = dict(pk=1)
-    post_data = dict(name='posttestname')
-    put_data = dict(name='puttestname')
-    patch_data = dict(name='patchtestname')
-
-    def setUp(self):
-        super().setUp()
-        self.obj = QualityFactory()
 
 
 class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):

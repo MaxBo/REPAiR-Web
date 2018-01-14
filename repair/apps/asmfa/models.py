@@ -82,9 +82,6 @@ class Quality(GDSEModel):
 
 class Node(GDSEModel):
 
-    # source = models.BooleanField(default=False) # not used anymore
-    # sink = models.BooleanField(default=False) # not used anymore
-
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
     class Meta:
@@ -219,10 +216,8 @@ class OperationalLocation(Establishment):
 class Flow(models.Model):
 
     amount = models.PositiveIntegerField(blank=True, default=0)
-    # called this "keyflow" instead of "material", not to confuse with Material class
+
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
-    # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-    #                             default=1)
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
 
@@ -274,9 +269,6 @@ class Stock(models.Model):
     amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
-
-    # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-                                    # default=13)
     year = models.IntegerField(default=2016)
 
     class Meta:

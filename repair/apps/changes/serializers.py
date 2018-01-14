@@ -381,10 +381,13 @@ class SolutionQuantityField(InSolutionField):
 class SolutionInImplementationQuantitySerializer(SolutionInImplementationNoteSerializer):
     quantity = SolutionQuantityField(view_name='solutionquantity-detail',
                                      help_text=_('the quantity to define'),
-                                     label=_('Solution Quantity'))
+                                     label=_('Solution Quantity'),
+                                     read_only=True)
     class Meta:
         model = SolutionInImplementationQuantity
         fields = ('url', 'id', 'quantity', 'value', 'sii')
+        read_only_fields = ('quantity', 'sii')
+
 
 
 class SolutionInImplementationGeometrySerializer(SolutionInImplementationNoteSerializer):

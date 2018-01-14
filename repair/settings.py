@@ -101,9 +101,11 @@ INSTALLED_APPS = [
     'repair.apps.reversions',
     'require',
     'reversion',
+    'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
 ]
 
+ADD_REVERSION_ADMIN=True
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 REST_FRAMEWORK = {
