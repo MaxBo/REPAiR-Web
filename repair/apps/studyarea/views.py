@@ -82,10 +82,11 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
         parent_id = params.pop('parent_id', None)
         casestudy = lookup_args['casestudy_pk']
         level_pk = int(lookup_args['level_pk'])
-        levels = AdminLevels.objects.filter(casestudy__id=casestudy)
-        level_ids = sorted([a.level for a in levels
-                            if a.level > parent_level
-                            and a.level <= level_pk])
+        own_level = AdminLevels.objects.get(pk=level_pk)
+        levels = AdminLevels.objects.filter(casestudy__id=casestudy,
+                                               level__gt=parent_level,
+                                               level__lte=own_level.level)
+        level_ids = [l.level for l in levels]
 
         parents = [AreaSubModels[parent_level].objects.get(pk=parent_id)]
         for level_id in level_ids:

@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
 from rest_framework import status
 
 import repair.apps.studyarea.models as models
@@ -11,6 +11,27 @@ from repair.tests.test import LoginTestCase
 
 
 class AreaModels(LoginTestCase, APITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(AreaModels, cls).setUpClass()
+        # create a casestudy
+        casestudy = cls.uic.casestudy
+
+        adminlevels = models.AdminLevels.objects
+        planet = adminlevels.create(name='Planet',
+                                    level=models.World._level,
+                                    casestudy=casestudy)
+        continent = adminlevels.create(name='Continent',
+                                       level=models.Continent._level,
+                                       casestudy=casestudy)
+        country = adminlevels.create(name='Country',
+                                     level=models.Country._level,
+                                     casestudy=casestudy)
+        land = adminlevels.create(name='Province',
+                                 level=models.NUTS1._level,
+                                 casestudy=casestudy)
+
+
     def test_01_dynamic_models(self):
         cs = self.uic.casestudy
 
@@ -46,13 +67,13 @@ class AreaModels(LoginTestCase, APITestCase):
         self.assertEqual(models.Area.objects.get(name='ES').country, spain)
 
 
-class AdminLevels(LoginTestCase):
+class AdminLevels(LoginTestCase, APITestCase):
 
     @classmethod
     def setUpClass(cls):
         super(AdminLevels, cls).setUpClass()
         # create a casestudy
-        casestudy = self.uic.casestudy
+        casestudy = cls.uic.casestudy
 
         planet = models.AdminLevels.objects.create(name='Planet',
                                                    level=models.World._level,
@@ -119,7 +140,6 @@ class AdminLevels(LoginTestCase):
 
         cls.kreis_pi = kreis_pi
 
-
     @classmethod
     def tearDownClass(cls):
         del cls.casestudy
@@ -129,7 +149,6 @@ class AdminLevels(LoginTestCase):
         del cls.kreis_pi
         super().tearDownClass()
 
-
     def test_get_levels(self):
         """Test the list of all levels of a casestudy"""
 
@@ -137,33 +156,30 @@ class AdminLevels(LoginTestCase):
         kreis = self.kreis
 
         # define the urls
-        url = reverse('adminlevels-list',
-                      kwargs={'casestudy_pk': casestudy.pk,})
-
-        response = self.client.get(url)
-        assert response.status_code == status.HTTP_200_OK
+        response = self.get_check_200('adminlevels-list',
+                                      casestudy_pk=casestudy.pk)
         data = response.data
         assert data[2]['name'] == kreis.name
         assert data[2]['level'] == kreis.level
 
     def test_get_gemeinden_of_casestudy(self):
-        """Test the list of all areas of a casestudy"""
+        """Test the list of all areas of a certain level of a casestudy"""
 
         casestudy = self.casestudy
 
         url = reverse('adminlevels-detail',
                       kwargs={'casestudy_pk': casestudy.pk,
                               'pk': self.gemeinde.pk,})
-        response = self.client.get(url)
+        response = self.get_check_200('adminlevels-detail',
+                                      casestudy_pk=casestudy.pk,
+                                      pk=self.gemeinde.pk)
         assert response.data['name'] == 'Gemeinde'
-
+        level_area = response.data['level']
 
         # define the urls
-        kwargs = {'casestudy_pk': casestudy.pk,
-                  'level_pk': self.gemeinde.level,}
-        url = reverse('area-list', kwargs=kwargs, )
-        response = self.client.get(url)
-        assert response.status_code == status.HTTP_200_OK
+        response = self.get_check_200('area-list',
+                                      casestudy_pk=casestudy.pk,
+                                      level_pk=self.gemeinde.pk)
         data = response.data
         self.assertSetEqual({a['name'] for a in data},
                             {'Pinneberg', 'Elmshorn', 'Ellerbek'})
@@ -175,16 +191,16 @@ class AdminLevels(LoginTestCase):
         """
         casestudy = self.casestudy
         # get the admin levels
-        url = reverse('adminlevels-list',
-                          kwargs={'casestudy_pk': casestudy.pk,})
-        data = self.client.get(url).data
+        response = self.get_check_200('adminlevels-list',
+                                      casestudy_pk=casestudy.pk)
+        data = response.data
 
         # define the urls
-        kwargs = {'casestudy_pk': casestudy.pk,
-                  'level_pk': self.ortsteil.level,}
-        url = reverse('area-list', kwargs=kwargs, )
-        response = self.client.get(url, {'parent_level': models.NUTS3._level,
-                                         'parent_id': self.kreis_pi.pk,})
+        response = self.get_check_200('area-list',
+                                      casestudy_pk=casestudy.pk,
+                                      level_pk=self.ortsteil.pk,
+                                      data={'parent_level': models.NUTS3._level,
+                                            'parent_id': self.kreis_pi.pk,})
 
         assert response.status_code == status.HTTP_200_OK
         data = response.data
@@ -193,13 +209,15 @@ class AdminLevels(LoginTestCase):
                             {'Egenbüttel', 'Langenmoor', 'Elmshorn-Mitte'})
 
         # test if we can use lookups like name__istartswith
-        response = self.client.get(url, {'parent_level': models.NUTS3._level,
-                                         'parent_id': self.kreis_pi.pk,
-                                         'name__istartswith': 'e',})
+        response = self.get_check_200('area-list',
+                                      casestudy_pk=casestudy.pk,
+                                      level_pk=self.ortsteil.pk,
+                                      data={'parent_level': models.NUTS3._level,
+                                            'parent_id': self.kreis_pi.pk,
+                                            'name__istartswith': 'e',})
 
-        #assert response.status_code == status.HTTP_200_OK
-        # this should return all ortsteile starting with an 'E'
-        #self.assertSetEqual({a['name'] for a in response.data},
-        #                    {'Egenbüttel', 'Elmshorn-Mitte'})
+        #this should return all ortsteile starting with an 'E'
+        self.assertSetEqual({a['name'] for a in response.data},
+                           {'Egenbüttel', 'Elmshorn-Mitte'})
 
 

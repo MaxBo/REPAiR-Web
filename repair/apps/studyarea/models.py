@@ -41,7 +41,8 @@ class Area(GDSEUniqueNameModel):
     def save(self, *args, **kwargs):
         if self.content_type_id is None:
             content_type = ContentType.objects.get_for_model(self.__class__)
-            self.level = content_type.model_class()._level
+            level = content_type.model_class()._level
+            self.level = AdminLevels.objects.get(level=level)
             self.content_type = content_type
         super().save(*args, **kwargs)
 
