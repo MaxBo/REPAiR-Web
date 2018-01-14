@@ -1,14 +1,14 @@
 import unittest
 from django.test import TestCase
 from django.core.validators import ValidationError
+from django.urls import reverse
+from test_plus import APITestCase
+#from rest_framework.test import APITestCase
+from rest_framework import status
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.changes.factories import *
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
 from repair.tests.test import BasicModelTest, LoginTestCase
 
 
@@ -66,37 +66,54 @@ class ViewTest(APITestCase):
 
     fixtures = ['auth_fixture', 'user_fixture.json']
 
-
     def test_get_group(self):
         url = reverse('group-list')
         data = {'name': 'MyGroup'}
         response = self.client.post(url, data, format='json')
-        print(response)
+        assert response.status_code == status.HTTP_201_CREATED
         response = self.client.get(url)
-        print(response.data)
+        results = response.data['results']
+        last_entry = results[-1]
+        assert last_entry['name'] == 'MyGroup'
 
     def test_get_user(self):
         lodz = reverse('casestudy-detail', kwargs=dict(pk=3))
 
         url = reverse('user-list')
+        response = self.get_check_200('user-list')
+        # users before adding a new one
+        no_of_users = response.data['count']
+
+        initial_mail = 'a.b@c.de'
         data = {'username': 'MyUser',
                 'casestudies': [lodz],
                 'password': 'PW',
                 'organization': 'GGR',
                 'groups': [],
-                'email': 'a.b@c.de',}
+                'email': initial_mail,}
         response = self.client.post(url, data, format='json')
-        print(response)
+        assert response.status_code == status.HTTP_201_CREATED
+        new_id = response.data['id']
+
         response = self.client.get(url)
-        print(response.data)
-        url = reverse('user-detail', kwargs=dict(pk=4))
+        # should be one more now
+        assert response.data['count'] == no_of_users + 1
+
+        url = reverse('user-detail', kwargs=dict(pk=new_id))
         response = self.client.get(url)
-        print(response.data)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['email'] == initial_mail
+        # password should not be returned
+        assert 'password' not in response.data
+        assert response.data['groups'] == []
+        self.assertListEqual(response.data['casestudies'], [lodz])
+
         new_mail = 'new@mail.de'
         data = {'email': new_mail,}
         self.client.patch(url, data)
         response = self.client.get(url)
         assert response.data['email'] == new_mail
+        response.data['groups'] == 'PW'
 
 
 class CasestudyTest(BasicModelTest, APITestCase):

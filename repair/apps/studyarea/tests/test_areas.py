@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -10,6 +8,7 @@ from rest_framework import status
 import repair.apps.studyarea.models as models
 from repair.apps.login.factories import CaseStudyFactory
 from repair.tests.test import LoginTestCase
+
 
 class AreaModels(LoginTestCase):
     def test_01_dynamic_models(self):

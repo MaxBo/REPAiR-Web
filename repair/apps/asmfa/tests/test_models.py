@@ -37,25 +37,6 @@ class ASMFAModelTest(TestCase):
                 'user_fixture.json',
                 'activities_dummy_data.json',]
 
-    def test_string_representation(self):
-        for Model in (
-            Activity,
-            Activity2Activity,
-            ActivityGroup,
-            ActivityStock,
-            Actor,
-            Actor2Actor,
-            ActorStock,
-            DataEntry,
-            Group2Group,
-            GroupStock,
-            AdministrativeLocation,
-            OperationalLocation,
-            ):
-
-            print('{} has {} test data entries'.format(
-                Model, Model.objects.count()))
-
     def test_geolocation(self):
         """Test a geolocation"""
         point = Point(x=9.2, y=52.6, srid=4326)

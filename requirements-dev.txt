@@ -4,6 +4,7 @@ django==1.11.5
 django-require
 djangorestframework
 djangorestframework-gis
+django-test-plus
 django-money
 django-reversion
 django-publications-bootstrap
