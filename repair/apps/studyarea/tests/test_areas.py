@@ -274,9 +274,11 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         polygon1 = geos.Polygon(((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)))
         polygon2 = geos.Polygon(((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
         kreis1 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
-                                 properties={'name': 'Kreis1',})
+                                 properties={'name': 'Kreis1',
+                                             'code': '01001',})
         kreis2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
-                                 properties={'name': 'Kreis2',})
+                                 properties={'name': 'Kreis2',
+                                             'code': '01002',})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
         self.post('area-list',
                   casestudy_pk=self.casestudy.pk,
@@ -290,6 +292,52 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                       casestudy_pk=self.casestudy.pk,
                                       level_pk=self.kreis.pk)
         assert len(response.data) == num_kreise + 2
+
+
+    def test_add_geometry_with_parent_area(self):
+        """Test adding/updating features with parent levels"""
+        polygon1 = geos.Polygon(((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)))
+        polygon2 = geos.Polygon(((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
+        kreis1 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
+                                     properties={'name': 'Kreis1',
+                                                 'code': '01001',})
+        kreis2 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
+                                     properties={'name': 'Kreis2',
+                                                     'code': '01002',})
+        gem1 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
+                               properties={'name': 'Gemeinde1',
+                                           'code': '01002001',
+                                           'parent_area': '01002',})
+        gem2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
+                               properties={'name': 'Gemeinde2',
+                                           'code': '01001002',
+                                           'parent_area': '01001',})
+        kreise = geojson.FeatureCollection([kreis1, kreis2])
+        self.post('area-list',
+                      casestudy_pk=self.casestudy.pk,
+                      level_pk=self.kreis.pk,
+                      data=kreise,
+                      extra=dict(content_type='application/json'),
+                      )
+        self.response_201()
+
+        gemeinden = geojson.FeatureCollection([gem1, gem2])
+        gemeinden['parent_level'] = models.NUTS3._level
+        self.post('area-list',
+                      casestudy_pk=self.casestudy.pk,
+                          level_pk=self.gemeinde.pk,
+                          data=gemeinden,
+                          extra=dict(content_type='application/json',),
+                          )
+        self.response_201()
+
+        gem1 = models.LAU2.objects.get(code='01002001')
+        assert gem1.parent_area.code == '01002'
+        gem2 = models.LAU2.objects.get(code='01001002')
+        assert gem2.parent_area.code == '01001'
+
+
+
 
 
 

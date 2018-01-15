@@ -32,9 +32,12 @@ class AdminLevels(GDSEUniqueNameModel):
 
 
 class Area(GDSEUniqueNameModel):
+    _unique_field = 'code'
+
     level = models.ForeignKey(AdminLevels)
     content_type = models.ForeignKey(ContentType)
-    name = models.TextField()
+    name = models.TextField(null=True, blank=True)
+    code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
     casestudy = models.ForeignKey(CaseStudy)
 
@@ -44,6 +47,9 @@ class Area(GDSEUniqueNameModel):
             level = content_type.model_class()._level
             self.level = AdminLevels.objects.get(level=level)
             self.content_type = content_type
+        # use name as code, if code not provided
+        if not self.code:
+            self.code = self.name
         super().save(*args, **kwargs)
 
 

@@ -61,16 +61,18 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         params = {k: v for k, v in query_params.items()}
         parent_level = int(params.pop('parent_level', 0))
+        parent_id = params.pop('parent_id', None)
 
-        if not parent_level:
+        if not parent_level and parent_id is None:
             return super()._filter(lookup_args,
                                    query_params=query_params,
                                    SerializerClass=SerializerClass)
 
-        parent_id = params.pop('parent_id', None)
         casestudy = lookup_args['casestudy_pk']
         level_pk = int(lookup_args['level_pk'])
         own_level = AdminLevels.objects.get(pk=level_pk)
+        if not parent_level:
+            parent_level = Area.objects.get(pk=parent_id).level.level
         levels = AdminLevels.objects.filter(casestudy__id=casestudy,
                                                level__gt=parent_level,
                                                level__lte=own_level.level)
@@ -85,13 +87,6 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
                                            query_params=params)
         queryset = areas.filter(**filter_args)
         return queryset
-
-    def create(self, request, **kwargs):
-        #level = kwargs.pop('level_pk', None)
-        #if level is not None:
-            #adminlevel = AdminLevels.objects.get(pk=level)
-            #kwargs['level_pk'] = adminlevel
-        return super().create(request, **kwargs)
 
 
 class StudyAreaIndexView(BaseView):

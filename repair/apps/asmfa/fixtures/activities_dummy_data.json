@@ -427,6 +427,15 @@
   }
 },
 {
+  "model": "asmfa.material",
+  "pk": 14,
+  "fields": {
+    "code": "YYYy",
+    "name": "SSSSSS",
+    "flowType": "WWW"
+  }
+},
+{
   "model": "asmfa.productfraction",
   "pk": 1,
   "fields": {
@@ -2895,7 +2904,7 @@
     "done": false,
     "BvDid": "ii00000001",
     "name": "Import Inside Country",
-    "reason": 0,
+    "reason": 1,
     "included": true,
     "consCode": "",
     "year": 0,
@@ -3351,6 +3360,27 @@
   }
 },
 {
+  "model": "asmfa.actor",
+  "pk": 98,
+  "fields": {
+    "done": false,
+    "BvDid": "-",
+    "name": "hbhjbii",
+    "reason": 1,
+    "included": false,
+    "consCode": "-",
+    "year": 0,
+    "description_eng": null,
+    "description": null,
+    "BvDii": "-",
+    "website": "www.website.org",
+    "employees": 0,
+    "turnover_currency": "EUR",
+    "turnover": "0.00",
+    "activity": 32
+  }
+},
+{
   "model": "asmfa.administrativelocation",
   "pk": 1,
   "fields": {
@@ -3892,7 +3922,7 @@
     "address": "WASTE STREET 73",
     "country": "SB",
     "city": "REPAIR CITY",
-    "geom": "SRID=4326;POINT (0.457082 0.546224)",
+    "geom": "SRID=4326;POINT (7.443490727497269 15.88992828301483)",
     "actor": 42
   }
 },
@@ -4329,12 +4359,12 @@
   "model": "asmfa.administrativelocation",
   "pk": 76,
   "fields": {
-    "name": null,
+    "name": "",
     "postcode": "100939",
     "address": "NAPLES STREET 39",
     "country": "SB",
     "city": "SANDBOX CITY",
-    "geom": "SRID=4326;POINT (0.678209 0.06554)",
+    "geom": "SRID=4326;POINT (8.990021328260541 12.14714433530403)",
     "actor": 76
   }
 },
@@ -5153,7 +5183,7 @@
     "address": "WASTE STREET 73",
     "country": "SB",
     "city": "REPAIR CITY",
-    "geom": "SRID=4326;POINT (0.457082 0.546224)",
+    "geom": "SRID=4326;POINT (8.659775880018037 15.05805431150233)",
     "actor": 42
   }
 },
@@ -5590,12 +5620,12 @@
   "model": "asmfa.operationallocation",
   "pk": 76,
   "fields": {
-    "name": null,
+    "name": "",
     "postcode": "100939",
     "address": "NAPLES STREET 39",
     "country": "SB",
     "city": "SANDBOX CITY",
-    "geom": "SRID=4326;POINT (0.678209 0.06554)",
+    "geom": "SRID=4326;POINT (-3.342273223371048 41.0926031540597)",
     "actor": 76
   }
 },
@@ -5896,6 +5926,19 @@
     "city": "",
     "geom": null,
     "actor": 73
+  }
+},
+{
+  "model": "asmfa.operationallocation",
+  "pk": 100,
+  "fields": {
+    "name": "uzgzh",
+    "postcode": "",
+    "address": "",
+    "country": "-1",
+    "city": "",
+    "geom": null,
+    "actor": 76
   }
 },
 {
