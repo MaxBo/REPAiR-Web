@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models.sql.constants import QUERY_TERMS
-
+from publications_bootstrap.models import Publication
 
 from rest_framework import viewsets, mixins, exceptions
 
@@ -19,7 +19,8 @@ from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer,
-                                           UserInCasestudySerializer)
+                                           UserInCasestudySerializer,
+                                           PublicationSerializer)
 
 
 class CasestudyViewSetMixin(ABC):
@@ -234,3 +235,7 @@ class SessionView(View):
         response =  {'casestudy': request.session.get('casestudy')}
         return JsonResponse(response)
 
+
+class PublicationView(viewsets.ModelViewSet):
+    queryset = Publication.objects.all()
+    serializer_class = PublicationSerializer
