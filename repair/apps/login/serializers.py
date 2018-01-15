@@ -484,8 +484,7 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
         read_only_fields = ['name']
 
 
-class PublicationSerializer(serializers.ModelSerializer):
-    parent_lookup_kwargs = {}
+class PublicationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Publication
         fields = ('id', 'title', 'authors', 'doi', 'url')

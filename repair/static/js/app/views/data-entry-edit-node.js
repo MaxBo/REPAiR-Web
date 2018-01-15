@@ -1,8 +1,8 @@
-define(['backbone', 'app/models/activitygroup', 'app/models/activity',
+define(['jquery', 'backbone', 'app/models/activitygroup', 'app/models/activity',
         'app/models/actor', 'app/collections/flows', 'app/collections/stocks',
         'app/loader', 'bootstrap'],
 
-function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
+function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
   /**
    *
    * @author Christoph Franke
@@ -298,35 +298,42 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       
       // general datasource
       
-      var sourceWrapper = document.createElement("span");
-      row.insertCell(-1).appendChild(sourceWrapper);
+      var sourceWrapper = document.createElement("div");
+      sourceWrapper.style.float = 'left';
+      var sourceCell = row.insertCell(-1);
       // prevent breaking 
-      sourceWrapper.setAttribute("style", "white-space: nowrap");
-      var options = ['dummy-source', 'another dummy-source']
-      var datasource = document.createElement("select");
-      _.each(options, function(opt){
-        var option = document.createElement("option");
-        option.text = opt;
-        option.value = opt;
-        datasource.add(option);
+      sourceCell.setAttribute("style", "white-space: nowrap");
+      var genSource = document.createElement('input');
+      genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
+      genSource.disabled = true;
+      genSource.style.cursor = 'pointer';
+      var setDsBtn = document.createElement('button');
+      setDsBtn.innerHTML = gettext('Set');
+      setDsBtn.classList.add('btn');
+      setDsBtn.classList.add('btn-primary');
+      setDsBtn.classList.add('square');
+      setDsBtn.addEventListener('click', function(){
+        _this.editDatasource();
       });
-      sourceWrapper.appendChild(datasource);
       var collapse = document.createElement('div');
-      collapse.style.cursor = 'pointer';
       var dsRow = table.insertRow(-1);
       
       // collapse icon to show/hide individual datasources
       dsRow.classList.add('hidden');
       collapse.style.marginLeft = "4px";
+      collapse.style.cursor = 'pointer';
       collapse.classList.add('glyphicon');
       collapse.title = 'show individual datasources';
       collapse.classList.add('glyphicon-chevron-down');
-      collapse.addEventListener('click', function(){
+      sourceWrapper.addEventListener('click', function(){
         dsRow.classList.toggle('hidden');
         collapse.classList.toggle('glyphicon-chevron-down');
         collapse.classList.toggle('glyphicon-chevron-up');
       });
+      sourceWrapper.appendChild(genSource);
       sourceWrapper.appendChild(collapse);
+      sourceCell.appendChild(sourceWrapper);
+      sourceCell.appendChild(setDsBtn);
       
       // own row for individual Datasources
       
@@ -334,24 +341,37 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       dsRow.insertCell(-1);
       var datasourcableAttributes = ['amount', targetIdentifier, 'product'];
       _.each(datasourcableAttributes, function(attr){
-        var sel = document.createElement("select");
+        var source = document.createElement('input');
+        source.value = 'test';
+        source.disabled = true;
+        var button = document.createElement('button');
+        button.innerHTML = gettext('Set');
+        button.classList.add('btn');
+        button.classList.add('btn-primary');
+        button.classList.add('square');
+        button.addEventListener('click', function(){
+          _this.editDatasource();
+        });
+        //var sel = document.createElement("select");
         var cell = dsRow.insertCell(-1);
-        cell.appendChild(sel);
-        _.each(options, function(opt){
-          var option = document.createElement("option");
-          option.text = opt;
-          option.value = opt;
-          sel.add(option);
+        cell.setAttribute("style", "white-space: nowrap");
+        cell.appendChild(source);
+        cell.appendChild(button);
+        //_.each(options, function(opt){
+          //var option = document.createElement("option");
+          //option.text = opt;
+          //option.value = opt;
+          //sel.add(option);
           
-        });
-        // general datasource overrides all sub datasources
-        datasource.addEventListener('change', function(){
-          sel.selectedIndex = datasource.selectedIndex;
-        });
-        // sub datasources changes -> show that general datasource is custom by leaving it blank
-        sel.addEventListener('change', function(){
-          datasource.selectedIndex = -1;
-        });
+        //});
+        //// general datasource overrides all sub datasources
+        //datasource.addEventListener('change', function(){
+          //sel.selectedIndex = datasource.selectedIndex;
+        //});
+        //// sub datasources changes -> show that general datasource is custom by leaving it blank
+        //sel.addEventListener('change', function(){
+          //datasource.selectedIndex = -1;
+        //});
       });
       
       return row;
@@ -456,6 +476,10 @@ function(Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
         employees: this.model.get('employees'),
         turnover: this.model.get('turnover')
       });
+    },
+    
+    editDatasource(onChange){
+      $('#datasource-modal').modal('show'); 
     },
 
     uploadChanges: function(){

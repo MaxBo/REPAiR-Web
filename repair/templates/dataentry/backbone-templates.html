@@ -127,8 +127,29 @@
       </button>
     </div>
   </div>
+  <div id="datasource-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Edit Datasource" %}</h4>
+        </div>
+        <div class="modal-body">
+          <div class='row'>
+            <div id='datasource-modal-content' class="col-md-6"> </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary" id="confirm-datasource" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </script>
 
+<!--- popover template -->
 <script type="text/template" id="popover-product-template">
   <!--<b><%= productName %></b>-->
   <% _.each(fractions, function(fraction){ %>
@@ -485,6 +506,7 @@
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
+<!-- general modal for confirmations -->
 <script type="text/template" id="confirmation-template">
   <div class="modal fade" role="dialog">
     <div class="modal-dialog">
