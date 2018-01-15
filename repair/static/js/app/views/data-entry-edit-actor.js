@@ -328,6 +328,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       this.localMap.removeMarkers();
       // don't set coordinates directly to location, only on confirmation
       this.tempCoords = coordinates;
+      var elGeom = document.getElementById('coordinates');
       function addMarker(coords){
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
@@ -346,7 +347,6 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
         _this.localMap.center(coords, {projection: _this.projection});
       }
       if (coordinates != null){
-        var elGeom = document.getElementById('coordinates');
         elGeom.innerHTML = formatCoords(coordinates);
         addMarker(coordinates);
       };
@@ -357,14 +357,14 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
           icon: pin,
           callback: function(event){
             var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
-            _this.tempCoords = coords;
-            if (geometry != null && geometry.get('coordinates') != null){
+            if (_this.tempCoords != null){
               _this.localMap.moveMarker(markerId, event.coordinate);
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
               addMarker(coords);
             }
+            _this.tempCoords = coords;
           }
         },
         '-'
