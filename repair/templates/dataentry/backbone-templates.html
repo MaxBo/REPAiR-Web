@@ -439,8 +439,18 @@
       <td><input type="text" name="address" value="<%= properties.address %>"></td>
     </tr>
     <tr>
-      <td>{% trans "Point" %}</td>
-      <td id="coordinates"></td>
+      <td>{% trans "Marker" %}</td>
+      <td>
+        <span style="white-space: nowrap;">
+          <div id="coordinates" style="float:left; margin-right: 5px;"></div>
+          <button id='add-point' class="btn btn-primary square" title="{% trans "add marker" %}">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+          <button id='remove-point' class="btn btn-warning square" title="{% trans "remove marker" %}">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+        </span>
+      </td>
     </tr>
   </table>
 </script>

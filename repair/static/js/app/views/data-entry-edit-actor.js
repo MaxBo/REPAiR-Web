@@ -314,6 +314,7 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
     editLocation: function(location){
       var _this = this;
       this.editedLocation = location;
+      var locationModal = document.getElementById('location-modal');
       var geometry = location.get('geometry');
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
@@ -324,12 +325,38 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
       var html = template({properties: location.get('properties'), 
                            coordinates: (coordinates != null)? formatCoords(coordinates): '-'});
       document.getElementById('location-modal-content').innerHTML = html;
-      $('#location-modal').modal('show'); 
+      $(locationModal).modal('show'); 
+          
       this.localMap.removeMarkers();
       // don't set coordinates directly to location, only on confirmation
       this.tempCoords = coordinates;
       var elGeom = document.getElementById('coordinates');
+      
+      
+      var addPointBtn = locationModal.querySelector('#add-point'),
+          removePointBtn = locationModal.querySelector('#remove-point');
+      
+      // show/hide add/remove point buttons
+      function setPointButtons(state){
+        if (state == 'add') {
+            addPointBtn.style.display = 'block';
+            removePointBtn.style.display = 'none';
+        }
+        else {
+            addPointBtn.style.display = 'none';
+            removePointBtn.style.display = 'block';
+        }
+      }
+      
+      function removeMarkerCallback(){
+          _this.tempCoords = null;
+          elGeom.innerHTML = '-';
+          setPointButtons('add');
+      }
+      
+      // add a marker to map
       function addMarker(coords){
+        elGeom.innerHTML = formatCoords(coords);
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
           //dragIcon: this.pins.orange, 
@@ -339,18 +366,32 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
             _this.tempCoords = coords;
             elGeom.innerHTML = formatCoords(coords);
           },
-          onRemove: function(){
-            _this.tempCoords = null;
-            elGeom.innerHTML = '-';
-          }
+          onRemove: removeMarkerCallback
         });
         _this.localMap.center(coords, {projection: _this.projection});
       }
+      
+      // connect add/remove point buttons
+      var center = [13.4, 52.5];
+      addPointBtn.addEventListener('click', function(){ 
+        _this.tempCoords = center;
+        addMarker(center);
+        setPointButtons('remove');
+      });
+      removePointBtn.addEventListener('click', function(){
+        _this.localMap.removeMarkers();
+        removeMarkerCallback();
+      });
+      
+      // initially set marker depending on existing geometry
       if (coordinates != null){
-        elGeom.innerHTML = formatCoords(coordinates);
         addMarker(coordinates);
-      };
-
+        setPointButtons('remove');
+      }
+      else 
+        setPointButtons('add');
+        
+      // context menu with add/remove
       var items = [
         {
           text: 'Set Location',
@@ -363,13 +404,13 @@ function(Backbone, Actor, Locations, Geolocation, Activities, Actors, Map){
             }
             else{
               addMarker(coords);
+              setPointButtons('remove');
             }
             _this.tempCoords = coords;
           }
         },
         '-'
       ];
-      
       this.localMap.addContextMenu(items);
       
     },
