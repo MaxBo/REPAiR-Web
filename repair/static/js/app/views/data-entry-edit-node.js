@@ -30,8 +30,9 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
     * @param {string} options.keyflowName                            the name of the keyflow
-    * @param {module:collections/Products} options.products          the available materials
+    * @param {module:collections/Products} options.products          the available products
     * @param {module:collections/Materials} options.materials        the available materials
+    * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
     *
     * @constructs
@@ -45,6 +46,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       this.caseStudyId = options.caseStudyId;
       this.products = options.products;
       this.materials = options.materials;
+      this.publications = options.publications;
       
       this.onUpload = options.onUpload;
 
@@ -338,8 +340,12 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
       // own row for individual Datasources
       
       dsRow.classList.add('popunder');
-      dsRow.insertCell(-1);
-      var datasourcableAttributes = ['amount', targetIdentifier, 'product'];
+      dsRow.insertCell(-1).innerHTML = gettext('Sources:');
+      
+      var datasourcableAttributes = ['amount', 'product'];
+      // all except stocks have datasource for target
+      if (!skipTarget)
+        datasourcableAttributes.splice(1, 0, targetIdentifier)
       _.each(datasourcableAttributes, function(attr){
         var source = document.createElement('input');
         source.value = 'test';
@@ -479,6 +485,7 @@ function($, Backbone, ActivityGroup, Activity, Actor, Flows, Stocks){
     },
     
     editDatasource(onChange){
+      console.log(this.publications);
       $('#datasource-modal').modal('show'); 
     },
 

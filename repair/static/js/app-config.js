@@ -44,6 +44,7 @@ define(['cookies'],
     config.api = {
       base:                 '/api', // base Rest-API URL
       stakeholders:         '/api/stakeholders/',
+      publications:         '/api/publications/',
       casestudies:          '/api/casestudies/',
       materials:            '/api/materials/',
       keyflows:             '/api/keyflows/',

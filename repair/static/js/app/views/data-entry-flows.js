@@ -2,10 +2,11 @@ define(['backbone',
         'app/views/data-entry-edit-node',
         'app/collections/activities', 'app/collections/actors',
         'app/collections/products', 'app/collections/flows', 
-        'app/collections/stocks', 'app/collections/activitygroups', 
-        'app/visualizations/sankey', 'treeview', 'app/loader'],
+        'app/collections/stocks', 'app/collections/activitygroups',
+        'app/collections/publications', 'app/visualizations/sankey', 'treeview', 
+        'app/loader'],
 function(Backbone, EditNodeView, Activities, Actors, Products, Flows, 
-         Stocks, ActivityGroups, Sankey, treeview){
+         Stocks, ActivityGroups, Publications, Sankey, treeview){
 
   /**
    *
@@ -47,13 +48,14 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
       this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+      this.publications = new Publications();
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
 
       $.when(this.actors.fetch({data: 'included=True'}, this.products.fetch(), 
-             this.activityGroups.fetch(), this.activities.fetch(),
-             )).then(function(){
+             this.activityGroups.fetch(), this.activities.fetch(), 
+             this.publications.fetch())).then(function(){
         _this.render();
         loader.remove();
       });
@@ -280,6 +282,7 @@ function(Backbone, EditNodeView, Activities, Actors, Products, Flows,
           keyflowId: _this.keyflowId,
           keyflowName: _this.model.get('name'),
           caseStudyId: _this.caseStudyId,
+          publications: _this.publications,
           onUpload: _this.renderDataEntry // rerender after upload
         });
       }
