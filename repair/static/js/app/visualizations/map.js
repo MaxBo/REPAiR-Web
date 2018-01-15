@@ -154,6 +154,9 @@ define([
       map.addInteraction(dragInteraction);
       var id = idCounter;
       feature.setId(id);
+      // remember the interactions to access them on remove by setting them as attributes
+      feature.onRemove = options.onRemove;
+      feature.interaction = dragInteraction;
       idCounter++;
       vectorLayer.getSource().addFeature(feature);
       return id;
@@ -186,7 +189,11 @@ define([
     
     // remove marker of given feature
     function removeMarker(obj) {
-      vectorLayer.getSource().removeFeature(obj.data.marker);
+      var feature = obj.data.marker;
+      if (feature.interaction != null) map.removeInteraction(feature.interaction);
+      if (feature.onRemove != null) feature.onRemove();
+      
+      vectorLayer.getSource().removeFeature(feature);
     }
     
     /**
@@ -210,7 +217,6 @@ define([
      * @see https://github.com/jonataswalker/ol-contextmenu
      */
     this.addContextMenu = function (contextmenuItems){
-      console.log(contextmenuItems)
       if (this.contextmenu != null)
         this.map.removeControl(this.contextmenu);
       var contextmenu = new ContextMenu({
