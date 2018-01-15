@@ -4,6 +4,7 @@ from unittest import skipIf
 from django.core.validators import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.http import HttpRequest
 
 from rest_framework import status
 from test_plus import APITestCase
@@ -18,15 +19,12 @@ class CompareAbsURIMixin:
     Mixin thats provide a method
     to compare lists of relative with absolute url
     """
-
-    def setUp(self):
-        super().setUp()
-        dummy_request = self.client.request()
-        self.build_absolute_uri = dummy_request._request.build_absolute_uri
-
-    def tearDown(self):
-        del self.build_absolute_uri
-        super().tearDown()
+    @property
+    def build_absolute_uri(self):
+        """return the absolute_uri-method"""
+        request = HttpRequest()
+        request.META = self.client._base_environ()
+        return request.build_absolute_uri
 
     def assertURLEqual(self, url1, url2, msg=None):
         """Assert that two urls are equal, if they were absolute urls"""

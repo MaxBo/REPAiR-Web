@@ -21,32 +21,16 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Area,
                                           )
 
-import repair.apps.studyarea.models as smodels
-
-AreaSubModels = {m._level: m for m in smodels.__dict__.values()
-                 if isinstance(m, type) and issubclass(m, Area)
-                 and not m == Area
-                 }
-
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
+                                               AreaSubModels,
                                                AdminLevelSerializer,
                                                AreaSerializer,
+                                               AreaGeoJsonSerializer,
+                                               AreaGeoJsonPostSerializer,
                                                )
 
 from repair.views import BaseView
-
-#class IsCasestudyFilterBackend(BaseFilterBackend):
-    #"""
-    #Filter that shows only objects related to to the casestudy
-    #"""
-    #def filter_queryset(self, request, queryset, view):
-        #casestudy = request.session.get('casestudy')
-        #if casestudy:
-            #queryset = queryset.filter(casestudy=casestudy)
-        #else:
-            #queryset = queryset.all()
-        #return queryset.filter(casestudy=casestudy)
 
 
 class StakeholderCategoryViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
@@ -69,6 +53,10 @@ class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
 class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+    serializers = {'retrieve': AreaGeoJsonSerializer,
+                   'update': AreaGeoJsonSerializer,
+                   'partial_update': AreaGeoJsonSerializer,
+                   'create': AreaGeoJsonPostSerializer,}
 
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         params = {k: v for k, v in query_params.items()}
@@ -99,16 +87,11 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, **kwargs):
-        level = kwargs.pop('level_pk', None)
-        if level is not None:
-            adminlevel = AdminLevels.objects.get(pk=level)
-            kwargs['level_pk'] = adminlevel
-        super().create(request, **kwargs)
-
-
-
-
-
+        #level = kwargs.pop('level_pk', None)
+        #if level is not None:
+            #adminlevel = AdminLevels.objects.get(pk=level)
+            #kwargs['level_pk'] = adminlevel
+        return super().create(request, **kwargs)
 
 
 class StudyAreaIndexView(BaseView):

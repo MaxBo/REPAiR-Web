@@ -68,9 +68,11 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
     def test_get_group(self):
         url = reverse('group-list')
         data = {'name': 'MyGroup'}
-        response = self.client.post(url, data, format='json')
-        assert response.status_code == status.HTTP_201_CREATED
-        response = self.client.get(url)
+        response = self.post('group-list', data=data,
+                             extra=dict(format='json'))
+        self.response_201()
+
+        response = self.get_check_200('group-list')
         results = response.data['results']
         last_entry = results[-1]
         assert last_entry['name'] == 'MyGroup'
@@ -123,27 +125,26 @@ class CasestudyTest(BasicModelTest, APITestCase):
     patch_data = dict(name='patchtestname')
 
     def test_post(self):
-        url = reverse(self.url_key +'-list', kwargs=self.url_pks)
+        url = self.url_key +'-list'
         # post
-        response = self.client.post(url, self.post_data)
+        response = self.post(url, **self.url_pks, data=self.post_data)
         for key in self.post_data:
             if key not in response.data.keys() or key in self.do_not_check:
                 continue
             assert response.data[key] == self.post_data[key]
+
         # get
         new_id = response.data['id']
-        url = reverse(self.url_key + '-detail', kwargs={**self.url_pks,
-                                                        'pk': new_id})
+        url = self.url_key + '-detail'
 
         # casestudy is new -> noone may access it
-        response = self.client.get(url)
+        response = self.get(url, pk=new_id, **self.url_pks)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
         # grant access to new casestudy
         casestudy = CaseStudy.objects.get(id=new_id)
         casestudy.userincasestudy_set.add(self.uic)
-        response = self.client.get(url)
-        assert response.status_code == status.HTTP_200_OK
+        response = self.get_check_200(url, pk=new_id, **self.url_pks)
 
     def setUp(self):
         super().setUp()
@@ -171,13 +172,14 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
     def test_delete(self):
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
-        url = reverse(self.url_key + '-detail', kwargs=kwargs)
-        response = self.client.get(url)
-        assert response.status_code == status.HTTP_200_OK
-        response = self.client.delete(url)
-        response = self.client.get(url)
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, **kwargs)
+
+        response = self.delete(url, **kwargs)
+        response = self.get(ur, **kwargs)
         # after removing user the casestudy is permitted to access for this user
         assert response.status_code == status.HTTP_403_FORBIDDEN
+        self.response_403()
 
     @unittest.skip('no Post possible')
     def test_post(self):

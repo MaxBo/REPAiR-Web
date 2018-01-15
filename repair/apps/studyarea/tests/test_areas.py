@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
+import json
+import geojson
 from django.urls import reverse
+from django.contrib.gis import geos
 from test_plus import APITestCase
 from rest_framework import status
 
 import repair.apps.studyarea.models as models
 from repair.apps.login.factories import CaseStudyFactory
-from repair.tests.test import LoginTestCase
+from repair.tests.test import LoginTestCase, CompareAbsURIMixin
 
 
 class AreaModels(LoginTestCase, APITestCase):
@@ -67,7 +69,7 @@ class AreaModels(LoginTestCase, APITestCase):
         self.assertEqual(models.Area.objects.get(name='ES').country, spain)
 
 
-class AdminLevels(LoginTestCase, APITestCase):
+class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -167,9 +169,6 @@ class AdminLevels(LoginTestCase, APITestCase):
 
         casestudy = self.casestudy
 
-        url = reverse('adminlevels-detail',
-                      kwargs={'casestudy_pk': casestudy.pk,
-                              'pk': self.gemeinde.pk,})
         response = self.get_check_200('adminlevels-detail',
                                       casestudy_pk=casestudy.pk,
                                       pk=self.gemeinde.pk)
@@ -219,5 +218,78 @@ class AdminLevels(LoginTestCase, APITestCase):
         #this should return all ortsteile starting with an 'E'
         self.assertSetEqual({a['name'] for a in response.data},
                            {'Egenbüttel', 'Elmshorn-Mitte'})
+
+    def test_add_geometry(self):
+        """Test adding a geometry to an area"""
+        response = self.get_check_200('area-detail',
+                                      casestudy_pk=self.casestudy.pk,
+                                      level_pk=self.kreis_pi.level.pk,
+                                      pk=self.kreis_pi.pk)
+        data = response.data
+        self.assertEqual(data['type'], 'Feature')
+        properties = data['properties']
+        cs_uri = self.reverse('casestudy-detail', pk=self.casestudy.pk)
+        level_uri = self.reverse('adminlevels-detail',
+                                 casestudy_pk=self.casestudy.pk,
+                                 pk=self.kreis_pi.level.pk)
+        self.assertURLEqual(properties['casestudy'], cs_uri)
+        self.assertURLEqual(properties['level'], level_uri)
+        assert properties['name'] == self.kreis_pi.name
+
+        # geometry is None
+        assert data['geometry'] is None
+
+        # add new Polygon as geometry
+
+        polygon = geos.Polygon(((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)),
+                               ((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)),
+                               srid=4326)
+
+        # and change the name
+        new_name = 'Kreis Pinneberg-Elmshorn'
+        data = {'geometry': polygon.geojson,
+                'properties': {'name': new_name,},}
+        response = self.patch('area-detail',
+                              casestudy_pk=self.casestudy.pk,
+                              level_pk=self.kreis_pi.level.pk,
+                              pk=self.kreis_pi.pk,
+                              data=json.dumps(data),
+                              extra=dict(content_type='application/json'),
+                              )
+        self.response_200()
+        # test if the new geometry is a multipolygon
+        multipolygon = geos.MultiPolygon(polygon)
+        self.assertJSONEqual(str(response.data['geometry']),
+                                multipolygon.geojson)
+        # and that the name has changed
+        self.assertEqual(response.data['properties']['name'], new_name)
+
+    def test_add_geometries(self):
+        """Test adding features as feature collection"""
+        response = self.get_check_200('area-list',
+                                      casestudy_pk=self.casestudy.pk,
+                                      level_pk=self.kreis.pk)
+        num_kreise = len(response.data)
+
+        polygon1 = geos.Polygon(((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)))
+        polygon2 = geos.Polygon(((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
+        kreis1 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
+                                 properties={'name': 'Kreis1',})
+        kreis2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
+                                 properties={'name': 'Kreis2',})
+        kreise = geojson.FeatureCollection([kreis1, kreis2])
+        self.post('area-list',
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.kreis.pk,
+                  data=kreise,
+                  extra=dict(content_type='application/json'),
+                  )
+        self.response_201()
+
+        response = self.get_check_200('area-list',
+                                      casestudy_pk=self.casestudy.pk,
+                                      level_pk=self.kreis.pk)
+        assert len(response.data) == num_kreise + 2
+
 
 
