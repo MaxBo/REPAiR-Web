@@ -29,11 +29,11 @@ jobs:
           name: Migrate Test Database
           command: |
 
-            python manage.py migrate
+            python manage.py migrate --settings=repair.settings4tests
       - run:
           name: start Testserver
           command: |
-            python manage.py runserver 4444
+            python manage.py runserver 4444 --settings=repair.settings4tests
           background: true
       - run:
           name: run py.test
