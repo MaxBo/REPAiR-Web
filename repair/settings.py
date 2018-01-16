@@ -16,10 +16,6 @@ import django
 
 from django.utils.translation import ugettext_lazy as _
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
@@ -33,41 +29,6 @@ if os.name == 'nt':
                                  'spatialite'),
                                   os.path.join(sys.prefix, 'Library', 'bin')])
 
-
-# The baseUrl to pass to the r.js optimizer.
-REQUIRE_BASE_URL = 'js'
-
-# The name of the build profile for the site, relative to REQUIRE_BASE_URL.
-# Leave blank to use the built-in default build profile.
-REQUIRE_BUILD_PROFILE = 'app.build.js'
-
-# The name of the require.js script used by your project, relative to
-# REQUIRE_BASE_URL.
-REQUIRE_JS = os.path.join('libs', 'require.js')
-
-# Whether to run django-require in debug mode.
-REQUIRE_DEBUG = DEBUG
-
-## A dictionary of standalone modules to build with almond.js.
-#REQUIRE_STANDALONE_MODULES = {
-    #'app': {
-        ## Where to output the built module, relative to REQUIRE_BASE_URL.
-        #'out': 'app.min.js',
-
-        ## A build profile used to build this standalone module.
-        #'build_profile': REQUIRE_BUILD_PROFILE,
-    #}
-#}
-
-# A tuple of files to exclude from the compilation result of r.js.
-REQUIRE_EXCLUDE = (
-    'build.txt',
-    os.path.join(REQUIRE_BASE_URL, REQUIRE_BUILD_PROFILE),
-)
-
-# The file storage engine to use when collecting static files with the
-# `collectstatic` management command.
-#STATICFILES_STORAGE = 'require.storage.OptimizedStaticFilesStorage'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -99,9 +60,9 @@ INSTALLED_APPS = [
     'repair.apps.changes',
     'repair.apps.statusquo',
     'repair.apps.reversions',
-    'require',
     'reversion',
     'publications_bootstrap',
+    'webpack_loader',
 ]
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -149,22 +110,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'repair.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
-        'OPTIONS': {
-             'timeout': 20,
-         }
-    },
-
-}
-
-SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 
 # Password validation
@@ -243,10 +188,10 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_DIR, "static")
+    os.path.join(PROJECT_DIR, "static"),
 ]
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 )

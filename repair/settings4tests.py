@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 from repair.settings import *
 
+DEBUG = True
 
 DATABASES = {
     'default': {
@@ -20,6 +21,8 @@ DATABASES = {
     },
 
 }
+
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 MIGRATION_MODULES = {
     'auth': None,

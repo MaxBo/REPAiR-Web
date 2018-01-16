@@ -2,6 +2,7 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
+{% load webpack_static from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -11,10 +12,6 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery.touchSwipe.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
-    <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
     
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
     
@@ -72,7 +69,7 @@
                     {% else %}
                     {% for casestudy in casestudies %} 
                     <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
-                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
                     {% endif %}
                   </div>
@@ -100,7 +97,7 @@
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="language" onchange="$('#language-select').submit()"">
+                  <select name="language" onchange="document.getElementById('language-select').submit()"">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% for lang in LANGUAGES %}
@@ -141,12 +138,14 @@
     </div>
   </div>
   <script>
-    <!-- hide sidebar if there is no content in it -->
+    // hide sidebar if there is no content in it
     if (document.getElementById('sidebar-content').childElementCount == 0){
       document.getElementById('wrapper').style.paddingLeft = '0px';
       document.getElementById('sidebar-wrapper').style.display = 'none';
-      <!--console.log(document.getElementById('sidebar-wrapper'))-->
+      //console.log(document.getElementById('sidebar-wrapper'))
     };
+    
+    <!-- show/hide dropdown-menus in main menu on click -->
     
     function show(elementId){
       closeDropdowns(); 
