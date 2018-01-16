@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: maxboh/circleci-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run: mkdir test-reports
