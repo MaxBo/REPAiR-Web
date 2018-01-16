@@ -14,11 +14,11 @@ jobs:
           command: |
             pip install -r requirements-dev.txt
       - run:
-          name: Install Javascript packages
+          name: Install Node Modules
           command: |
             yarn install
       - run:
-          name: Install Javascript packages
+          name: Configure Javascript packages
           command: |
             node_modules/.bin/webpack --config repair/webpack.dev.config.js
       - run:
@@ -38,7 +38,7 @@ jobs:
       - run:
           name: run py.test
           command: |
-            python manage.py test
+            python manage.py test --settings=repair.settings4tests
       - store_artifacts:
           path: test-reports/
           destination: tr1
@@ -47,5 +47,5 @@ jobs:
       - run:
           name: codecov
           command: |
-            coverage run manage.py test
+            coverage run manage.py test --settings=repair.settings4tests
             codecov
