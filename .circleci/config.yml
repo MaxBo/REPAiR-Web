@@ -1,34 +1,44 @@
 version: 2
+machine:
+  environment:
+    DJANGO_SETTINGS_MODULE: repair.settings4tests
 jobs:
   build:
     docker:
-      - image: maxboh/circleci-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run: mkdir test-reports
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
+          name: Install Node Modules
+          command: |
+            yarn install
+      - run:
+          name: Configure Javascript packages
+          command: |
+            node_modules/.bin/webpack --config repair/webpack.dev.config.js
       - run:
           name: Download Selenium
           command: |
             curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
       - run:
-          name: Install Python deps in a venv
+          name: Migrate Test Database
           command: |
-            pip install -r requirements-dev.txt
-            python manage.py migrate
+
+            python manage.py migrate --settings=repair.settings4tests
       - run:
           name: start Testserver
           command: |
-            python manage.py runserver 4444
+            python manage.py runserver 4444 --settings=repair.settings4tests
           background: true
-      - run:
-          name: start Selenium Webtest
-          command: |
-            python repair/tests/webtest.py
       - run:
           name: run py.test
           command: |
-            DJANGO_SETTINGS_MODULE=repair.settings4tests
-            python manage.py test
+            python manage.py test --settings=repair.settings4tests
       - store_artifacts:
           path: test-reports/
           destination: tr1
@@ -37,6 +47,5 @@ jobs:
       - run:
           name: codecov
           command: |
-            DJANGO_SETTINGS_MODULE=repair.settings4tests
-            coverage run manage.py test
+            coverage run manage.py test --settings=repair.settings4tests
             codecov

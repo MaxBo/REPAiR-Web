@@ -58,6 +58,7 @@ router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'materials', MaterialViewSet)
+router.register(r'publications', login_views.PublicationView)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 

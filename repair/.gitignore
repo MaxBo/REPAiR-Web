@@ -1,1 +1,4 @@
 *.sqlite3-journal
+public
+static/bundles
+*.json

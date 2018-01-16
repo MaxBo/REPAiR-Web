@@ -8,6 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from publications_bootstrap.models import Publication
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 from repair.apps.asmfa.models import KeyflowInCasestudy
@@ -483,3 +484,7 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
         read_only_fields = ['name']
 
 
+class PublicationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Publication
+        fields = ('id', 'title', 'authors', 'doi', 'url')

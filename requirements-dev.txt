@@ -1,7 +1,7 @@
 -e .
 
 django==1.11.5
-django-require
+django-webpack-loader
 djangorestframework
 djangorestframework-gis
 django-money
