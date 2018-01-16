@@ -25,12 +25,12 @@ DATABASES = {
 SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 MIGRATION_MODULES = {
-    'auth': None,
+    #'auth': None,
     #'contenttypes': None,
-    'default': None,
-    'sessions': None,
+    #'default': None,
+    #'sessions': None,
 
-    'login': None,
+    #'login': None,
     'asmfa': None,
     'studyarea': None,
     'changes': None,
