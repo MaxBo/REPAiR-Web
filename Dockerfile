@@ -1,4 +1,4 @@
-FROM circleci/python:3.6.2-stretch-browsers
+FROM circleci/python:3.6-stretch-node-browsers
 
 ENV CIRCLECIPATH $PATH
 

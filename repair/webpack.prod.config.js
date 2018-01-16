@@ -10,11 +10,11 @@ config.output.publicPath = '/static/bundles/prod/';
 config.output.filename = '[name].js';
 
 config.plugins = config.plugins.concat([
-  new BundleTracker({filename: './webpack-stats-prod.json'}),
+  new BundleTracker({filename: path.resolve('./repair/webpack-stats-prod.json')}),
 
-  // minify the code 
+  // minify the code
   // WARNING: beta version is used here, because normal version (see below) does not support ES6
-  
+
   new Uglify({
     compressor: {
       warnings: false
