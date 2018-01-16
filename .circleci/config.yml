@@ -1,4 +1,7 @@
 version: 2
+machine:
+  environment:
+    DJANGO_SETTINGS_MODULE: repair.settings4tests
 jobs:
   build:
     docker:
@@ -25,7 +28,7 @@ jobs:
       - run:
           name: Migrate Test Database
           command: |
-            DJANGO_SETTINGS_MODULE=repair.settings4tests
+
             python manage.py migrate
       - run:
           name: start Testserver
@@ -44,6 +47,5 @@ jobs:
       - run:
           name: codecov
           command: |
-            DJANGO_SETTINGS_MODULE=repair.settings4tests
             coverage run manage.py test
             codecov

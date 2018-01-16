@@ -21,7 +21,6 @@ DATABASES = {
     'default': {
 
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
@@ -37,8 +36,8 @@ DEBUG = False
 
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'CACHE': not DEBUG, 
-        'BUNDLE_DIR_NAME': 'bundles/prod/', 
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'bundles/prod/',
         'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-prod.json'),
     }
 }
