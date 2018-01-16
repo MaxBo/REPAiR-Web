@@ -2,7 +2,6 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
-{% load webpack_static from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -11,7 +10,9 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" /> 
+    <script type="text/javascript" src="{{STATIC_URL}}libs/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}libs/bootstrap.min.js"></script>
     
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
     
