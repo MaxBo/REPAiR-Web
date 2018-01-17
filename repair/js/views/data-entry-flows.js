@@ -73,7 +73,6 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
      * render the view
      */
     render: function(){
-      console.log(this.publications)
       if (this.activityGroups.length == 0)
         return;
       var _this = this;

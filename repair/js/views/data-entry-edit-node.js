@@ -323,9 +323,11 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       setDsBtn.classList.add('btn-primary');
       setDsBtn.classList.add('square');
       function onChange(publication){
-        genSource.value = publication.get('title');
-        genSource.dispatchEvent(new Event('change'));
-        // ToDo set it to model
+        if (publication != null){
+          genSource.value = publication.get('title');
+          genSource.dispatchEvent(new Event('change'));
+          // ToDo set it to model
+        }
       };
       setDsBtn.addEventListener('click', function(){
         _this.editDatasource(onChange);
@@ -369,8 +371,10 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         button.classList.add('btn-primary');
         button.classList.add('square');
         function onChange(publication){
-          source.value = publication.get('title');
-          source.dispatchEvent(new Event('change'));
+          if (publication != null){
+            source.value = publication.get('title');
+            source.dispatchEvent(new Event('change'));
+          }
           // ToDo set it to model
         };
         button.addEventListener('click', function(){
@@ -497,6 +501,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     // open modal for setting the datasource
     editDatasource: function(onChange){
       var _this = this;
+      this.activeDs = null;
       _.each(this.dsRows, function(row){ row.classList.remove('selected'); });
       this.onDsChange = onChange;
       $('#datasource-modal').modal('show'); 
