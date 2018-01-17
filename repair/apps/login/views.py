@@ -239,3 +239,4 @@ class SessionView(View):
 class PublicationView(viewsets.ModelViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
+    pagination_class = None

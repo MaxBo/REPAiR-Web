@@ -1,6 +1,6 @@
 define(['jquery', 'backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'bootstrap'],
+        'loader', 'bootstrap', 'tablesorter'],
 function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *
@@ -101,7 +101,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       */
     events: {
       'click #upload-flows-button': 'uploadChanges',
-      'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent'
+      'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
+      'click #confirm-datasource': 'confirmDatasource'
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
@@ -113,6 +114,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
       this.el.innerHTML = template({name: this.model.get('name')});
+      
+      this.dsTable = document.getElementById('publications-table');
       
       var popOverSettings = {
           placement: 'right',
@@ -133,6 +136,9 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.stocks.each(function(stock){
         _this.addFlowRow('stock-table', stock, 'origin', true);
       });
+      
+      this.setupDsTable();
+      this.renderDatasources(this.publications);
     },
     
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -153,6 +159,9 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       });
     },
 
+    // add a flow to table (which one is depending on type of flow)
+    // targetIdentifier is the attribute of the flow with the id of the node connected with this node 
+    // set skipTarget to True for stocks
     addFlowRow: function(tableId, flow, targetIdentifier, skipTarget){
       var _this = this;
 
@@ -313,8 +322,13 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       setDsBtn.classList.add('btn');
       setDsBtn.classList.add('btn-primary');
       setDsBtn.classList.add('square');
+      function onChange(publication){
+        genSource.value = publication.get('title');
+        genSource.dispatchEvent(new Event('change'));
+        // ToDo set it to model
+      };
       setDsBtn.addEventListener('click', function(){
-        _this.editDatasource();
+        _this.editDatasource(onChange);
       });
       var collapse = document.createElement('div');
       var dsRow = table.insertRow(-1);
@@ -354,29 +368,27 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         button.classList.add('btn');
         button.classList.add('btn-primary');
         button.classList.add('square');
+        function onChange(publication){
+          source.value = publication.get('title');
+          source.dispatchEvent(new Event('change'));
+          // ToDo set it to model
+        };
         button.addEventListener('click', function(){
-          _this.editDatasource();
+          _this.editDatasource(onChange);
         });
         //var sel = document.createElement("select");
         var cell = dsRow.insertCell(-1);
         cell.setAttribute("style", "white-space: nowrap");
         cell.appendChild(source);
         cell.appendChild(button);
-        //_.each(options, function(opt){
-          //var option = document.createElement("option");
-          //option.text = opt;
-          //option.value = opt;
-          //sel.add(option);
-          
-        //});
-        //// general datasource overrides all sub datasources
-        //datasource.addEventListener('change', function(){
-          //sel.selectedIndex = datasource.selectedIndex;
-        //});
-        //// sub datasources changes -> show that general datasource is custom by leaving it blank
-        //sel.addEventListener('change', function(){
-          //datasource.selectedIndex = -1;
-        //});
+        // general datasource overrides all sub datasources
+        genSource.addEventListener('change', function(){
+          source.value = genSource.value;
+        });
+        // sub datasources changes -> show that general datasource is custom by leaving it blank
+        source.addEventListener('change', function(){
+          genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
+        });
       });
       
       return row;
@@ -423,7 +435,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.addFlowRow(tableId, flow, targetIdentifier, skipTarget);
 
     },
-
 
     deleteRowEvent: function(event){
       var buttonId = event.currentTarget.id;
@@ -483,9 +494,59 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       });
     },
     
-    editDatasource(onChange){
-      console.log(this.publications);
+    // open modal for setting the datasource
+    editDatasource: function(onChange){
+      var _this = this;
+      _.each(this.dsRows, function(row){ row.classList.remove('selected'); });
+      this.onDsChange = onChange;
       $('#datasource-modal').modal('show'); 
+    },
+    
+    confirmDatasource: function(){
+      this.onDsChange(this.activeDs);
+    },
+    
+    setupDsTable: function(){
+      require('libs/jquery.tablesorter.pager');
+      $(this.dsTable).tablesorter({});
+      // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
+      if ($(this.dsTable).find('tr').length > 1)
+        $(this.dsTable).tablesorterPager({container: $("#dspager")});
+      
+      ////workaround for a bug in tablesorter-pager by triggering
+      ////event that pager-selection changed to redraw number of visible rows
+      //var sel = document.getElementById('dspagesize');
+      //sel.selectedIndex = 0;
+      //sel.dispatchEvent(new Event('change'));
+    
+    },
+    
+    renderDatasources: function(publications){
+      var _this = this;
+      var table = this.dsTable;
+      $.tablesorter.clearTableBody($(table)[0]);
+      this.dsRows = [];
+      publications.each(function(publication){
+        var row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        _this.dsRows.push(row);
+        row.insertCell(-1).innerHTML = publication.get('title');
+        row.insertCell(-1).innerHTML = publication.get('authors');
+        row.insertCell(-1).innerHTML = publication.get('doi');
+        var anchor = document.createElement('a');
+        var url = publication.get('url');
+        anchor.href = url;
+        anchor.innerHTML = url;
+        anchor.target = '_blank';
+        row.insertCell(-1).appendChild(anchor);
+        $(table).find('tbody').append($(row)).trigger('addRows', [$(row), true]);
+        
+        row.addEventListener('click', function() {
+          _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
+          row.classList.add('selected');
+          _this.activeDs = publication;
+        });
+      });
     },
 
     uploadChanges: function(){

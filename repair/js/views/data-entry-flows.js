@@ -47,7 +47,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
       this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.publications = new Publications();
+      this.publications = new Publications([]);
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
@@ -73,6 +73,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
      * render the view
      */
     render: function(){
+      console.log(this.publications)
       if (this.activityGroups.length == 0)
         return;
       var _this = this;
