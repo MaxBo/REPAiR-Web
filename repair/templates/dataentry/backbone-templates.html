@@ -58,7 +58,7 @@
 
 <!-- template for view on editing a node -->
 <script type="text/template" id="edit-node-template">
-  <div class="col-md-12 dashed">
+  <div class="col-md-12 dashed" style="font-size: 12px;">
     <div class="row">
       <h3>
         <%= name %> 
@@ -84,7 +84,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-input-button' class="btn btn-primary" title="{% trans "add input" %}">
+      <button id='add-input-button' class="btn btn-primary square" title="{% trans "add input" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
@@ -104,7 +104,7 @@
         </tr>
         <tr>
       </table>
-      <button id='add-output-button' class="btn btn-primary" title="{% trans "add output" %}">
+      <button id='add-output-button' class="btn btn-primary square" title="{% trans "add output" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
@@ -122,7 +122,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-stock-button' class="btn btn-primary" title="{% trans "add stock" %}">
+      <button id='add-stock-button' class="btn btn-primary square" title="{% trans "add stock" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
@@ -137,7 +137,18 @@
         </div>
         <div class="modal-body">
           <div class='row'>
-            <div id='datasource-modal-content' class="col-md-6"> </div>
+            <table id='publications-table' class='tablesorter'>
+              <thead>
+                <tr>
+                  <th>{% trans "Title" %}</th>
+                  <th>{% trans "Authors" %}</th>
+                  <th>{% trans "DOI" %}</th>
+                  <th>{% trans "URL" %}</th>
+                </tr>
+              </thead> 
+              <tbody> 
+              </tbody> 
+            </table>
           </div>
         </div>
         <div class="modal-footer">
