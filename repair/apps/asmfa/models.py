@@ -70,6 +70,9 @@ class ProductFraction(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='products')
 
+    def __str__(self):
+        return '{}: {}'.format(self.product, self.material)
+
 
 class Quality(GDSEModel):
     # not used anymore
