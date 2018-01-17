@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
+    'fixture_magic',
     'repair.apps.login',
     'repair.apps.asmfa',
     'repair.apps.studyarea',
@@ -194,4 +195,8 @@ STATICFILES_DIRS = [
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
+)
+
+FIXTURE_DIRS = (
+    os.path.join(PROJECT_DIR, "fixtures"),
 )

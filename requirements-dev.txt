@@ -16,6 +16,9 @@ psycopg2
 django-debug-toolbar
 
 django-dynamic-fixture
+future
+-e git+https://github.com/davedash/django-fixture-magic.git#egg=django-fixture-magic
+
 fake-factory
 factory_boy
 coreapi
