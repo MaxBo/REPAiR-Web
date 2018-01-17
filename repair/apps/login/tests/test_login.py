@@ -14,7 +14,7 @@ from repair.tests.test import BasicModelTest, LoginTestCase
 
 class ModelTest(TestCase):
 
-    fixtures = ['auth_fixture', 'user_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
 
     def test_profile_creation(self):
@@ -64,7 +64,7 @@ class ModelTest(TestCase):
 
 class ViewTest(APITestCase):
 
-    fixtures = ['auth_fixture', 'user_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
 
     def test_get_group(self):

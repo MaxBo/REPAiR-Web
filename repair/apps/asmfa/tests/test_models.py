@@ -33,9 +33,7 @@ from repair.apps.asmfa.factories import *
 
 class ASMFAModelTest(TestCase):
 
-    fixtures = ['auth_fixture',
-                'user_fixture.json',
-                'activities_dummy_data.json',]
+    fixtures = ['auth', 'sandbox']
 
     def test_string_representation(self):
         for Model in (

@@ -12,7 +12,7 @@ import reversion
 
 class ViewTest(APITestCase):
 
-    fixtures = ['auth_fixture', 'user_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
 
     def test_get_group(self):
