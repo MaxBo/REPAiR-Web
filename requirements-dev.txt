@@ -4,8 +4,11 @@ django==1.11.5
 django-webpack-loader
 djangorestframework
 djangorestframework-gis
+django-test-plus
 django-money
 django-reversion
+django-reversion-compare
+diff-match-patch
 bibtexparser>=0.5.5
 #django-publications-bootstrap
 git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap
@@ -14,6 +17,7 @@ numpy
 matplotlib
 plotly
 psycopg2
+geojson
 
 django-debug-toolbar
 

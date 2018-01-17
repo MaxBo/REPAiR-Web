@@ -84,7 +84,6 @@ def implementations(request, implementation_id):
 def solutions(request, solution_id):
     solution = Solution.objects.get(pk=solution_id)
     implementations = solution.implementation_set.all()
-    print(implementations)
     context = {'solution': solution,
                }
     return render(request, 'changes/solution.html', context)

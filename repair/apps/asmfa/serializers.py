@@ -16,7 +16,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity2Activity,
                                       Group2Group,
                                       Keyflow,
-                                      Quality,
                                       KeyflowInCasestudy,
                                       GroupStock,
                                       ActivityStock,
@@ -92,13 +91,6 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
         self.update(instance=keyflow, validated_data=validated_data)
         return keyflow
 
-
-class QualitySerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-
-    class Meta:
-        model = Quality
-        fields = ('url', 'id', 'name')
 
 class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {

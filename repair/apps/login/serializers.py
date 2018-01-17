@@ -294,6 +294,14 @@ class InUICField(InCasestudyField):
         self.url_pks_lookup['user_pk'] = \
             self.parent_lookup_kwargs['user_pk']
 
+class ForceMultiMixin:
+    """Convert Polygon to Multipolygon, if required"""
+    def convert2multi(self, validated_data, geo_field):
+        geom = validated_data.get(geo_field, None)
+        if geom and isinstance(geom, geos.Polygon):
+            geom = geos.MultiPolygon(geom)
+            validated_data[geo_field] = geom
+
 
 class IdentityFieldMixin:
     """Mixin to make a field that can be used with the ...-list view"""
@@ -419,7 +427,8 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         return user
 
 
-class CaseStudySerializer(GeoFeatureModelSerializer,
+class CaseStudySerializer(ForceMultiMixin,
+                          GeoFeatureModelSerializer,
                           NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
@@ -429,6 +438,7 @@ class CaseStudySerializer(GeoFeatureModelSerializer,
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
+    levels = InCasestudyListField(view_name='adminlevels-list')
 
     class Meta:
         model = CaseStudy
@@ -437,23 +447,16 @@ class CaseStudySerializer(GeoFeatureModelSerializer,
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
+                  'levels',
                   'focusarea',
                   )
 
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
         geo_field = self.Meta.geo_field
-        self.convert2multi(validated_data, geo_field, instance)
-        self.convert2multi(validated_data, 'focusarea', instance)
-
+        self.convert2multi(validated_data, geo_field)
+        self.convert2multi(validated_data, 'focusarea')
         return super().update(instance, validated_data)
-
-    def convert2multi(self, validated_data, geo_field, instance):
-        geom = validated_data.pop(geo_field, None)
-        if geom:
-            if isinstance(geom, geos.Polygon):
-                geom = geos.MultiPolygon(geom)
-            setattr(instance, geo_field, geom)
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):
