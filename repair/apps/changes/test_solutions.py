@@ -63,7 +63,7 @@ class StrategyInCasestudyTest(BasicModelTest, APITestCase):
 
 class ModelTest(TestCase):
 
-    #fixtures = ['changes_fixture.json', 'stakeholder_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
     def test_string_representation(self):
         for Model in (CaseStudy,
