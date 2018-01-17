@@ -21,6 +21,9 @@ from repair.apps.asmfa.models import (Actor,
                                       OperationalLocation,
                                     )
 
+from publications_bootstrap.models import Publication
+
+
 @admin.register(CaseStudy)
 class CaseStudyAdmin(VersionAdmin):
     """Versioning of casestudy"""
@@ -103,3 +106,9 @@ class AdministrativeLocationAdmin(VersionAdmin):
 @admin.register(OperationalLocation)
 class OperationalLocationAdmin(VersionAdmin):
     """Versioning of OperationalLocation"""
+
+#from publications_bootstrap.admin.publicationadmin import PublicationAdmin
+#@admin.site.unregister(Publication)
+#@admin.register(Publication)
+#class PublicationAdmin(VersionAdmin, PublicationAdmin):
+    #"""Versioning of Publication"""

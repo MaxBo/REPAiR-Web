@@ -1,11 +1,22 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 from . import models
 
 
+@admin.register(models.Unit)
+class SolutionCategoryAdmin(VersionAdmin):
+    """Unit Admin"""
+
+
 @admin.register(models.SolutionCategory)
-class SolutionCategoryAdmin(admin.ModelAdmin):
+class SolutionCategoryAdmin(VersionAdmin):
     """SolutionCategory Admin"""
+
+
+@admin.register(models.SolutionRatioOneUnit)
+class SolutionRatioOneUnitAdmin(VersionAdmin):
+    """"""
 
 
 class SolutionRatioOneUnitInline(admin.StackedInline):
@@ -13,7 +24,7 @@ class SolutionRatioOneUnitInline(admin.StackedInline):
 
 
 @admin.register(models.Solution)
-class SolutionAdmin(admin.ModelAdmin):
+class SolutionAdmin(VersionAdmin):
     """Solution Admin"""
     inlines = [
         SolutionRatioOneUnitInline,
@@ -25,14 +36,29 @@ class SolutionsInline(admin.StackedInline):
 
 
 @admin.register(models.Implementation)
-class ImplementationAdmin(admin.ModelAdmin):
+class ImplementationAdmin(VersionAdmin):
     """Implementation Admin"""
     inlines = (SolutionsInline, )
 
 
 @admin.register(models.Strategy)
-class StrategyAdmin(admin.ModelAdmin):
+class StrategyAdmin(VersionAdmin):
     """Strategy Admin"""
+
+
+@admin.register(models.SolutionInImplementationQuantity)
+class SolutionInImplementationQuantityAdmin(VersionAdmin):
+    """"""
+
+
+@admin.register(models.SolutionInImplementationGeometry)
+class SolutionInImplementationGeometryAdmin(VersionAdmin):
+    """"""
+
+
+@admin.register(models.SolutionInImplementationNote)
+class SolutionInImplementationNoteAdmin(VersionAdmin):
+    """"""
 
 
 class SolutionInImplementationQuantityInline(admin.StackedInline):
@@ -48,7 +74,7 @@ class SolutionInImplementationNoteInline(admin.StackedInline):
 
 
 @admin.register(models.SolutionInImplementation)
-class SolutionInImplementationAdmin(admin.ModelAdmin):
+class SolutionInImplementationAdmin(VersionAdmin):
     """SolutionInImplementation Admin"""
     inlines = (SolutionInImplementationQuantityInline,
                SolutionInImplementationGeometryInline,
