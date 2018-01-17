@@ -56,7 +56,6 @@ from repair.apps.changes.forms import NameForm
 
 class ChangesIndexView(BaseView):
     def get(self, request):
-        #casestudy_list = CaseStudy.objects.order_by('id')[:20]
         casestudy_list = self.casestudies()
         users = Profile.objects.order_by('id')[:20]
         context = {'casestudies': casestudy_list,

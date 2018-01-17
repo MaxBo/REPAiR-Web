@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block sidebar %}
-  <script> 
+  <script>
     document.getElementById("changes-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
@@ -23,7 +23,7 @@
         <p>{% trans "Users" %}.</p>
         <ul>
         {% for user in users %}
-            <li><a href="/changes/users/{{ user.id }}">{{ user }}</a></li>
+            <li><a href="/api/users/{{ user.id }}">{{ user }}</a></li>
         {% endfor %}
         </ul>
       </div>
@@ -34,7 +34,7 @@
         <p>{% trans "Casestudies" %}.</p>
             <ul>
             {% for casestudy in casestudies %}
-                <li><a href="/changes/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
+                <li><a href="/api/casestudies/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
