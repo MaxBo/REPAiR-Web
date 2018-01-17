@@ -92,15 +92,17 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
     setupTable: function(){
       require('libs/jquery.tablesorter.pager');
       $(this.table).tablesorter({
-        //widgets: ['zebra']
+        widgets: ['filter'], //, 'zebra']
+        widgetOptions : {
+          filter_placeholder: { search : gettext('Search') + '...' }
+        }
       });
-      
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
       if ($(this.table).find('tr').length > 1)
         $(this.table).tablesorterPager({container: $("#pager")});
       
-      // workaround for a bug in tablesorter-pager by triggering
-      // event that pager-selection changed to redraw number of visible rows
+      //workaround for a bug in tablesorter-pager by triggering
+      //event that pager-selection changed to redraw number of visible rows
       var sel = document.getElementById('pagesize');
       sel.selectedIndex = 0;
       sel.dispatchEvent(new Event('change'));
