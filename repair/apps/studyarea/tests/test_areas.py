@@ -141,6 +141,7 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
             parent_area=elmshorn)
 
         cls.kreis_pi = kreis_pi
+        cls.sh = sh
 
     @classmethod
     def tearDownClass(cls):
@@ -278,8 +279,10 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                              'code': '01001',})
         kreis2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                  properties={'name': 'Kreis2',
-                                             'code': '01002',})
+                                             'code': '01002',
+                                             'parent_area': self.sh.code,})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
+        kreise['parent_level'] = str(models.NUTS1._level)
         self.post('area-list',
                   casestudy_pk=self.casestudy.pk,
                   level_pk=self.kreis.pk,
@@ -287,6 +290,14 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                   extra=dict(content_type='application/json'),
                   )
         self.response_201()
+        k2 = models.Area.objects.get(code='01002')
+        k1 = models.Area.objects.get(code='01001')
+        assert k2.name == 'Kreis2'
+        assert k1.name == 'Kreis1'
+
+        k2 = models.NUTS3.objects.get(code='01002')
+        assert k2.name == 'Kreis2'
+        assert k2.parent_area == self.sh.area_ptr
 
         response = self.get_check_200('area-list',
                                       casestudy_pk=self.casestudy.pk,

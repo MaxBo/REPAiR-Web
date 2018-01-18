@@ -1,4 +1,6 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.fields import SkipField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometryField
 
@@ -122,10 +124,22 @@ class ParentAreaField(serializers.IntegerField):
         concrete_area = area_class.objects.get(pk=obj.pk)
         return concrete_area
 
+    def get_attribute(self, instance):
+        """get the attribute"""
+        return super().get_attribute(self.get_concrete_area())
+
 class ParentAreaLevel(ParentAreaField):
     def to_representation(self, value):
         concrete_area = self.get_concrete_area()
         return str(concrete_area.parent_area.level_id)
+
+    def get_attribute(self, instance):
+        """get the level attribute"""
+        concreate_area = super().get_attribute(self.get_concrete_area())
+        if concreate_area is None:
+            return None
+        else:
+            return concreate_area.level
 
 
 class AreaSerializer(CreateWithUserInCasestudyMixin,
@@ -133,12 +147,12 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
                             'level_pk': 'level__id',}
 
-    level = AdminLevelField(view_name='adminlevels-detail')
+    #level = AdminLevelField(view_name='adminlevels-detail')
 
     class Meta:
         model = Area
         fields = ('url', 'id', 'casestudy', 'name', 'code',
-                  'level',
+                  #'level',
                   )
 
 
@@ -149,9 +163,11 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
     Detail serializer for Areas adding the geom field
     and returning a geojson
     """
+    level = AdminLevelField(view_name='adminlevels-detail')
+
     geometry = GeometryField(source='geom')
     parent_area = ParentAreaField(read_only=True, allow_null=True)
-    parent_level = ParentAreaLevel(read_only=True, allow_null=True)
+    parent_level = ParentAreaLevel(read_only=True, allow_null=True, source='parent_area')
 
     class Meta(AreaSerializer.Meta):
         geo_field = 'geometry'
@@ -194,10 +210,13 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
                 casestudy=casestudy,
                 **feature)
             if parent_area_class is not None:
-                parent_area = parent_area_class.objects.get(casestudy=casestudy,
-                                                            code=parent_area_code)
-                obj.parent_area=parent_area
-                obj.save()
+                try:
+                    parent_area = parent_area_class.objects.get(
+                        casestudy=casestudy, code=parent_area_code)
+                    obj.parent_area=parent_area
+                except ObjectDoesNotExist:
+                    pass
+            obj.save()
 
         return obj
 
