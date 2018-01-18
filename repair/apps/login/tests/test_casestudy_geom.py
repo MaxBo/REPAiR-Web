@@ -3,7 +3,7 @@
 from django.test import TestCase
 from django.contrib.gis import geos
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
 from rest_framework import status
 
 from repair.tests.test import LoginTestCase
@@ -12,7 +12,7 @@ from repair.apps.login.factories import (CaseStudyFactory,
                                          )
 
 
-class TestCasestudyGeom(LoginTestCase):
+class TestCasestudyGeom(LoginTestCase, APITestCase):
 
     def test_set_get_polygon(self):
         """Test setting and getting geometries from a casestudy"""
@@ -29,8 +29,9 @@ class TestCasestudyGeom(LoginTestCase):
             [(-5.21, 23.51), (15.21, -10.81), (-20.51, 1.51), (-5.21, 23.51)])
         data = {'geom': polygon.geojson,}
 
-        response = self.client.patch(url, data)
-        assert response.status_code == status.HTTP_200_OK
+        response = self.patch('casestudy-detail', pk=casestudy.pk, data=data)
+        self.response_200()
+
         casestudy.refresh_from_db()
         # polygon should have been converted to a multipolygon
         self.assertJSONEqual(casestudy.geom.json,
@@ -43,7 +44,7 @@ class TestCasestudyGeom(LoginTestCase):
 
         data = {'geom': multipolygon.geojson, 'focusarea': polygon.geojson,}
 
-        response = self.client.patch(url, data)
+        response = self.patch('casestudy-detail', pk=casestudy.pk, data=data)
         assert response.status_code == status.HTTP_200_OK
         casestudy.refresh_from_db()
 
@@ -56,8 +57,8 @@ class TestCasestudyGeom(LoginTestCase):
 
 
         # get the response
-        response = self.client.get(url)
-        assert response.status_code == status.HTTP_200_OK
+        response = self.get_check_200('casestudy-detail', pk=casestudy.pk)
+
         assert response.data['id'] == casestudy.id
         assert response.data['type'] == 'Feature'
         self.assertJSONEqual(str(response.data['geometry']),

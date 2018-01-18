@@ -1,5 +1,5 @@
 from django.contrib import admin
-from reversion.admin import VersionAdmin
+from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 from repair.apps.login.models import (CaseStudy, )
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
@@ -20,6 +20,9 @@ from repair.apps.asmfa.models import (Actor,
                                       AdministrativeLocation,
                                       OperationalLocation,
                                     )
+
+from publications_bootstrap.models import Publication
+
 
 @admin.register(CaseStudy)
 class CaseStudyAdmin(VersionAdmin):
@@ -103,3 +106,9 @@ class AdministrativeLocationAdmin(VersionAdmin):
 @admin.register(OperationalLocation)
 class OperationalLocationAdmin(VersionAdmin):
     """Versioning of OperationalLocation"""
+
+#from publications_bootstrap.admin.publicationadmin import PublicationAdmin
+#@admin.site.unregister(Publication)
+#@admin.register(Publication)
+#class PublicationAdmin(VersionAdmin, PublicationAdmin):
+    #"""Versioning of Publication"""

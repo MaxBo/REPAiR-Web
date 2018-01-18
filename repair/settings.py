@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
+    'fixture_magic',
     'repair.apps.login',
     'repair.apps.asmfa',
     'repair.apps.studyarea',
@@ -61,10 +62,12 @@ INSTALLED_APPS = [
     'repair.apps.statusquo',
     'repair.apps.reversions',
     'reversion',
+    'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
 ]
 
+ADD_REVERSION_ADMIN=True
 #SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 REST_FRAMEWORK = {
@@ -194,4 +197,8 @@ STATICFILES_DIRS = [
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
+)
+
+FIXTURE_DIRS = (
+    os.path.join(PROJECT_DIR, "fixtures"),
 )
