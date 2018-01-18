@@ -60,6 +60,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      * @param {module:models/Actor} options.model                      the actor to edit
      * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
      * @param {Backbone.Collection} options.activities                 the activities belonging to the keyflow
+     * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
      * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
      *
      * @constructs
@@ -76,6 +77,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
       this.activities = options.activities;
       this.onUpload = options.onUpload;
+      this.focusarea = options.focusarea;
       
       this.pins = {
         blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
@@ -221,7 +223,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      this.localMap = new Map({
         divid: 'edit-location-map', 
       });
-
       
       // event triggered when modal dialog is ready -> trigger rerender to match size
       $('#location-modal').on('shown.bs.modal', function () {
@@ -399,7 +400,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       }
       
       // connect add/remove point buttons
-      var center = [13.4, 52.5];
+      var center = this.centroid || [13.4, 52.5];
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
@@ -484,11 +485,18 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        if (geom != null &amp;&amp; geom.get('coordinates') != null)
-          this.map.center(adminLoc.get('geometry').get('coordinates'),
-                          {projection: this.projection});
       }
       else addAdminBtn.style.display = 'block';
+      
+      // add polygon of focusarea to both maps and center on their centroid
+      if (this.focusarea != null){
+        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
+        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
+        this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
+        var extent = poly.getExtent();
+        this.map.center(this.centroid, {projection: this.projection, extent: extent});
+        this.localMap.center(this.centroid, {projection: this.projection});
+      };
     },
     
     toggleIncluded: function(event){
@@ -518,13 +526,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 16 2018 13:09:20 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
