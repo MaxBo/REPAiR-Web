@@ -9,8 +9,6 @@ from repair.apps.login.models import (CaseStudy, Profile,
                                       GDSEModel, get_default)
 
 from django.utils.timezone import now
-from publications_bootstrap.models import (Publication,
-                                           Type as PublicationType)
 
 
 class DataEntry(GDSEModel):
@@ -308,11 +306,3 @@ class ActorStock(Stock):
                                 related_name='ActorStocks')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='ActorStockData', default=1)
-
-
-class PublicationInCasestudy(models.Model):
-    publication = models.OneToOneField(Publication, on_delete=models.CASCADE)
-    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return '{} ({})'.format(self.publication, self.casestudy)

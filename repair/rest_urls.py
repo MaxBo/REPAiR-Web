@@ -47,8 +47,9 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
-    PublicationInCasestudyViewSet,
 )
+
+from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 
 ## base routes ##
 

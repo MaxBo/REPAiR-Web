@@ -26,9 +26,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Product,
                                       ProductFraction,
                                       Material,
-                                      PublicationInCasestudy,
-                                      Publication,
-                                      PublicationType,
                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -38,8 +35,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            NestedHyperlinkedRelatedField,
-                                           IDRelatedField,
-                                           CasestudyField)
+                                           IDRelatedField)
 
 
 class InCasestudyKeyflowListField(InCasestudyListField):
@@ -864,73 +860,3 @@ class MaterialSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = Material
         fields = ('url', 'id', 'name', 'code', 'flowType')
-
-
-class PublicationInCasestudySerializer(InCasestudySerializerMixin,
-                                       NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-
-    type = serializers.CharField(source='publication.type', required=False,
-                                 default='Article')
-    citekey = serializers.CharField(source='publication.citekey',
-                                 allow_blank=True, required=False)
-    title = serializers.CharField(source='publication.title',
-                                 allow_blank=True, required=False)
-    authors = serializers.CharField(source='publication.authors',
-                                 allow_blank=True, required=False)
-    year = serializers.IntegerField(source='publication.year', required=False,
-                                    default=datetime.datetime.now().year)
-    doi = serializers.CharField(source='publication.doi',
-                                 allow_blank=True, required=False)
-    casestudy = serializers.HyperlinkedRelatedField(read_only=True,
-        view_name='casestudy-detail')
-
-    class Meta:
-        model = PublicationInCasestudy
-        fields = ('url',
-                  'id',
-                  'casestudy',
-                  'type',
-                  'citekey',
-                  'title',
-                  'authors',
-                  'year',
-                  'doi',
-                  )
-
-    def create(self, validated_data):
-        """Create a new keyflow in casestury"""
-        casestudy_id = validated_data.pop('casestudy_id', None)
-        if casestudy_id:
-            casestudy = CaseStudy.objects.get(pk=casestudy_id)
-        else:
-            casestudy = self.get_casestudy()
-        publication_data = validated_data.pop('publication', {})
-        publication_type = self.get_publication_type(publication_data)
-        year = publication_data.pop('year', self.fields['year'].default)
-        publication = Publication.objects.create(type=publication_type,
-                                                 year=year,
-                                                 **publication_data)
-        obj = self.Meta.model.objects.create(
-            casestudy=casestudy,
-            publication=publication,
-            **validated_data)
-        return obj
-
-    def get_publication_type(self, publication_data):
-        publication_type = publication_data.pop('type',
-                                                self.fields['type'].default)
-        publication_type, created = PublicationType.objects.get_or_create(
-            title=publication_type)
-        return publication_type
-
-    def update(self, obj, validated_data):
-        publication = Publication.objects.get(publicationincasestudy=obj.pk)
-        publication_data = validated_data.pop('publication', {})
-        publication_type = self.get_publication_type(publication_data)
-        if publication_type:
-            publication.type = publication_type
-        for attr, value in publication_data.items():
-            setattr(publication, attr, value)
-        publication.save()
-        return super().update(obj, validated_data)
