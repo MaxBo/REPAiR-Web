@@ -434,6 +434,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         var collection = (location.loc_type == 'administrative') ? this.adminLocations : this.opLocations;
         collection.add(location);
       }
+      console.log(location)
       // rerender all markers (too lazy to add single one)
       this.renderLocations();
     },
@@ -470,7 +471,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         //})
         var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
         this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
-        this.centroid = poly.getInteriorPoint().getCoordinates();
+        this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
         var extent = poly.getExtent();
         this.map.center(this.centroid, {projection: this.projection, extent: extent});
         this.localMap.center(this.centroid, {projection: this.projection});
