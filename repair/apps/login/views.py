@@ -21,6 +21,27 @@ from repair.apps.login.serializers import (UserSerializer,
                                            CaseStudySerializer,
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
+class ModelPermissionViewSet(viewsets.ModelViewSet):
+    """
+    check permissions
+    """
+    add_perm = None
+    change_perm = None
+    delete_perm = None
+
+    def create(self, request, **kwargs):
+        if self.add_perm:
+            if not request.user.has_perm(self.add_perm):
+                raise exceptions.PermissionDenied()
+        return super().create(request, **kwargs)
+
+    def destroy(self, request, **kwargs):
+        if self.add_perm:
+            if not request.user.has_perm(self.delete_perm):
+                raise exceptions.PermissionDenied()
+        return super().destroy(request, **kwargs)
 
 
 class CasestudyViewSetMixin(ABC):
@@ -175,7 +196,7 @@ class OnlySubsetMixin(CasestudyViewSetMixin):
         request.session['url_pks'] = kwargs
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(ModelPermissionViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -183,7 +204,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(ModelPermissionViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
     """
@@ -191,10 +212,12 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, viewsets.ModelViewSet):
+class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, ModelPermissionViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
+    add_perm = "login.add_casestudy"
+    delete_perm = "login.delete_casestudy"
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
@@ -236,7 +259,9 @@ class SessionView(View):
         return JsonResponse(response)
 
 
-class PublicationView(viewsets.ModelViewSet):
+class PublicationView(ModelPermissionViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
     pagination_class = None
+
+

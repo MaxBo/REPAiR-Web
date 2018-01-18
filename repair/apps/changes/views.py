@@ -52,6 +52,7 @@ from repair.apps.changes.serializers import (
 
 
 from repair.apps.changes.forms import NameForm
+from repair.apps.login.views import ModelPermissionViewSet
 
 
 class ChangesIndexView(BaseView):
@@ -116,33 +117,33 @@ def strategies(request, strategy_id):
 # API Views
 
 
-class UnitViewSet(viewsets.ModelViewSet):
+class UnitViewSet(ModelPermissionViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
 
 
-class SolutionCategoryViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class SolutionCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = SolutionCategory.objects.all()
     serializer_class = SolutionCategorySerializer
 
 
-class SolutionViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class SolutionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
 
 
-class SolutionQuantityViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class SolutionQuantityViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionQuantitySerializer
     queryset = SolutionQuantity.objects.all()
 
 
-class SolutionRatioOneUnitViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class SolutionRatioOneUnitViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionRatioOneUnitSerializer
     queryset = SolutionRatioOneUnit.objects.all()
 
 
 class ImplementationViewSet(CasestudyViewSetMixin,
-                            viewsets.ModelViewSet):
+                            ModelPermissionViewSet):
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
 
@@ -150,19 +151,19 @@ class ImplementationOfUserViewSet(ImplementationViewSet):
     serializer_class = ImplementationOfUserSerializer
 
 
-class StrategyViewset(CasestudyViewSetMixin, viewsets.ModelViewSet):
+class StrategyViewset(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = StrategySerializer
     queryset = Strategy.objects.all()
 
 
 class SolutionInImplementationViewSet(CasestudyViewSetMixin,
-                                      viewsets.ModelViewSet):
+                                      ModelPermissionViewSet):
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
 
 
 class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
-                                      viewsets.ModelViewSet):
+                                      ModelPermissionViewSet):
     serializer_class = SolutionInImplementationNoteSerializer
     queryset = SolutionInImplementationNote.objects.all()
 
@@ -188,7 +189,7 @@ class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
 
 
 class SolutionInImplementationGeometryViewSet(CasestudyViewSetMixin,
-                                      viewsets.ModelViewSet):
+                                      ModelPermissionViewSet):
     serializer_class = SolutionInImplementationGeometrySerializer
     queryset = SolutionInImplementationGeometry.objects.all()
 
