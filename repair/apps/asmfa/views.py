@@ -21,6 +21,7 @@ from repair.apps.asmfa.models import (
     AdministrativeLocation,
     Product,
     Material,
+    PublicationInCasestudy,
 )
 
 from repair.apps.asmfa.serializers import (
@@ -47,6 +48,7 @@ from repair.apps.asmfa.serializers import (
     AllActorListSerializer,
     ProductSerializer,
     MaterialSerializer,
+    PublicationInCasestudySerializer,
 )
 
 from repair.apps.login.views import CasestudyViewSetMixin, OnlySubsetMixin
@@ -165,3 +167,10 @@ class ProductViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin, ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
+
+
+class PublicationInCasestudyViewSet(RevisionMixin,
+                                    CasestudyViewSetMixin,
+                                    ModelViewSet):
+    queryset = PublicationInCasestudy.objects.all()
+    serializer_class = PublicationInCasestudySerializer
