@@ -32,6 +32,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      * @param {module:models/Actor} options.model                      the actor to edit
      * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
      * @param {Backbone.Collection} options.activities                 the activities belonging to the keyflow
+     * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
      * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
      *
      * @constructs
@@ -48,6 +49,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
       this.activities = options.activities;
       this.onUpload = options.onUpload;
+      this.focusarea = options.focusarea;
       
       this.pins = {
         blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
@@ -193,7 +195,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      this.localMap = new Map({
         divid: 'edit-location-map', 
       });
-
       
       // event triggered when modal dialog is ready -> trigger rerender to match size
       $('#location-modal').on('shown.bs.modal', function () {
@@ -371,7 +372,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       }
       
       // connect add/remove point buttons
-      var center = [13.4, 52.5];
+      var center = this.centroid || [13.4, 52.5];
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
@@ -456,11 +457,24 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        if (geom != null && geom.get('coordinates') != null)
-          this.map.center(adminLoc.get('geometry').get('coordinates'),
-                          {projection: this.projection});
+        //if (geom != null && geom.get('coordinates') != null)
+          //this.map.center(adminLoc.get('geometry').get('coordinates'),
+                          //{projection: this.projection});
       }
       else addAdminBtn.style.display = 'block';
+      
+      // add polygon of focusarea to both maps and center on their centroid
+      if (this.focusarea != null){
+      
+        //_.each([this.map, this.localMap], function(map){
+        //})
+        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
+        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
+        this.centroid = poly.getInteriorPoint().getCoordinates();
+        var extent = poly.getExtent();
+        this.map.center(this.centroid, {projection: this.projection, extent: extent});
+        this.localMap.center(this.centroid, {projection: this.projection});
+      };
     },
     
     toggleIncluded: function(event){

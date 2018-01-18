@@ -157,7 +157,8 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
           model: actor,
           activities: _this.activities,
           keyflow: _this.model,
-          onUpload: function(a) { setRowValues(a); showActor(a); }
+          onUpload: function(a) { setRowValues(a); showActor(a); },
+          focusarea: _this.caseStudy.get('properties').focusarea
         });
       }
       
