@@ -212,36 +212,20 @@
     },
     {
         "fields": {
-            "app_label": "studyarea",
-            "model": "lau2"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 41
-    },
-    {
-        "fields": {
-            "app_label": "studyarea",
-            "model": "nuts3"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 44
-    },
-    {
-        "fields": {
-            "app_label": "studyarea",
-            "model": "nuts1"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 42
-    },
-    {
-        "fields": {
             "casestudy": 7,
             "level": 10,
             "name": "Wijk"
         },
         "model": "studyarea.adminlevels",
         "pk": 4
+    },
+    {
+        "fields": {
+            "app_label": "studyarea",
+            "model": "lau2"
+        },
+        "model": "contenttypes.contenttype",
+        "pk": 41
     },
     {
         "fields": {
@@ -254,12 +238,28 @@
     },
     {
         "fields": {
+            "app_label": "studyarea",
+            "model": "nuts3"
+        },
+        "model": "contenttypes.contenttype",
+        "pk": 44
+    },
+    {
+        "fields": {
             "casestudy": 7,
             "level": 6,
             "name": "Metropoolregion"
         },
         "model": "studyarea.adminlevels",
         "pk": 2
+    },
+    {
+        "fields": {
+            "app_label": "studyarea",
+            "model": "nuts1"
+        },
+        "model": "contenttypes.contenttype",
+        "pk": 42
     },
     {
         "fields": {
@@ -5092,6 +5092,2820 @@
             "name": "Groningen"
         },
         "model": "studyarea.area",
+        "pk": 406
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 778
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 776
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 774
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 772
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 770
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 768
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 767
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 766
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 764
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 762
+    },
+    {
+        "fields": {
+            "parent_area": 451
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 760
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 781
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 779
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 777
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 775
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 773
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 771
+    },
+    {
+        "fields": {
+            "parent_area": 450
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 769
+    },
+    {
+        "fields": {
+            "parent_area": 449
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 756
+    },
+    {
+        "fields": {
+            "parent_area": 449
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 755
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 754
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 753
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 752
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 751
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 750
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 749
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 748
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 747
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 746
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 745
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 744
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 743
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 742
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 741
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 740
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 739
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 738
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 737
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 736
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 735
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 734
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 733
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 732
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 730
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 728
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 726
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 724
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 722
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 720
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 719
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 718
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 717
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 716
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 715
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 714
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 713
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 712
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 711
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 710
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 709
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 708
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 707
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 706
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 705
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 704
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 703
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 702
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 701
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 700
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 699
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 698
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 697
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 696
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 695
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 694
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 693
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 692
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 691
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 690
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 689
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 688
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 687
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 686
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 685
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 684
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 683
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 682
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 681
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 680
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 679
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 678
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 677
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 676
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 675
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 674
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 673
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 672
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 671
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 670
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 669
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 668
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 667
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 666
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 665
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 664
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 663
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 662
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 661
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 660
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 659
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 658
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 657
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 656
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 655
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 654
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 653
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 652
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 651
+    },
+    {
+        "fields": {
+            "parent_area": 448
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 650
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 649
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 648
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 647
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 646
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 645
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 644
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 643
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 642
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 641
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 640
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 639
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 638
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 637
+    },
+    {
+        "fields": {
+            "parent_area": 447
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 636
+    },
+    {
+        "fields": {
+            "parent_area": 446
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 635
+    },
+    {
+        "fields": {
+            "parent_area": 446
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 634
+    },
+    {
+        "fields": {
+            "parent_area": 446
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 633
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 731
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 729
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 727
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 725
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 723
+    },
+    {
+        "fields": {
+            "parent_area": 445
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 721
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 632
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 631
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 630
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 629
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 628
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 627
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 626
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 625
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 624
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 623
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 622
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 621
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 620
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 619
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 618
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 617
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 616
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 615
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 614
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 613
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 612
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 611
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 610
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 609
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 608
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 607
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 606
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 605
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 604
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 603
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 602
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 601
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 600
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 599
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 598
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 597
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 596
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 595
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 594
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 593
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 592
+    },
+    {
+        "fields": {
+            "parent_area": 444
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 591
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 590
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 589
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 588
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 587
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 586
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 585
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 584
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 583
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 582
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 581
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 580
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 579
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 578
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 577
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 576
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 575
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 574
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 573
+    },
+    {
+        "fields": {
+            "parent_area": 443
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 572
+    },
+    {
+        "fields": {
+            "parent_area": 442
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 571
+    },
+    {
+        "fields": {
+            "parent_area": 442
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 570
+    },
+    {
+        "fields": {
+            "parent_area": 442
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 569
+    },
+    {
+        "fields": {
+            "parent_area": 442
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 568
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 567
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 566
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 565
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 564
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 563
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 562
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 561
+    },
+    {
+        "fields": {
+            "parent_area": 441
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 560
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 559
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 558
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 557
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 556
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 555
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 554
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 553
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 552
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 551
+    },
+    {
+        "fields": {
+            "parent_area": 440
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 550
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 549
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 548
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 547
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 546
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 545
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 544
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 543
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 542
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 541
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 540
+    },
+    {
+        "fields": {
+            "parent_area": 439
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 539
+    },
+    {
+        "fields": {
+            "parent_area": 438
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 538
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 537
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 536
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 535
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 534
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 533
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 532
+    },
+    {
+        "fields": {
+            "parent_area": 437
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 531
+    },
+    {
+        "fields": {
+            "parent_area": 436
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 530
+    },
+    {
+        "fields": {
+            "parent_area": 435
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 529
+    },
+    {
+        "fields": {
+            "parent_area": 434
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 528
+    },
+    {
+        "fields": {
+            "parent_area": 433
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 527
+    },
+    {
+        "fields": {
+            "parent_area": 433
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 526
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 525
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 524
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 523
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 522
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 521
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 520
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 519
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 518
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 517
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 516
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 515
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 514
+    },
+    {
+        "fields": {
+            "parent_area": 432
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 513
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 512
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 511
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 510
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 509
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 508
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 507
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 506
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 505
+    },
+    {
+        "fields": {
+            "parent_area": 431
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 504
+    },
+    {
+        "fields": {
+            "parent_area": 430
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 497
+    },
+    {
+        "fields": {
+            "parent_area": 430
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 496
+    },
+    {
+        "fields": {
+            "parent_area": 430
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 495
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 503
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 502
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 501
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 500
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 499
+    },
+    {
+        "fields": {
+            "parent_area": 429
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 498
+    },
+    {
+        "fields": {
+            "parent_area": 428
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 494
+    },
+    {
+        "fields": {
+            "parent_area": 428
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 493
+    },
+    {
+        "fields": {
+            "parent_area": 428
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 492
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 491
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 490
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 489
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 488
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 487
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 486
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 485
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 484
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 483
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 482
+    },
+    {
+        "fields": {
+            "parent_area": 427
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 481
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 480
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 479
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 478
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 477
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 476
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 475
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 474
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 473
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 472
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 471
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 470
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 469
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 468
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 467
+    },
+    {
+        "fields": {
+            "parent_area": 426
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 466
+    },
+    {
+        "fields": {
+            "parent_area": 425
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 465
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 807
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 806
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 805
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 804
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 803
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 802
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 801
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 800
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 464
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 463
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 462
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 461
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 460
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 459
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 458
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 457
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 456
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 455
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 454
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 453
+    },
+    {
+        "fields": {
+            "parent_area": 424
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 452
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 799
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 798
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 797
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 796
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 795
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 794
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 793
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 792
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 791
+    },
+    {
+        "fields": {
+            "parent_area": 423
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 790
+    },
+    {
+        "fields": {
+            "parent_area": 422
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 789
+    },
+    {
+        "fields": {
+            "parent_area": 422
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 788
+    },
+    {
+        "fields": {
+            "parent_area": 422
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 787
+    },
+    {
+        "fields": {
+            "parent_area": 421
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 786
+    },
+    {
+        "fields": {
+            "parent_area": 421
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 785
+    },
+    {
+        "fields": {
+            "parent_area": 421
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 784
+    },
+    {
+        "fields": {
+            "parent_area": 421
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 783
+    },
+    {
+        "fields": {
+            "parent_area": 421
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 782
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 765
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 763
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 761
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 759
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 758
+    },
+    {
+        "fields": {
+            "parent_area": 420
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 757
+    },
+    {
+        "fields": {
+            "parent_area": 419
+        },
+        "model": "studyarea.cityneighbourhood",
+        "pk": 780
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 451
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 450
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 449
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 448
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 447
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 446
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 445
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 444
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 443
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 442
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 441
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 440
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 439
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 438
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 437
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 436
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 435
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 434
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 433
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 432
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 431
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 430
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 429
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 428
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 427
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 426
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 425
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 424
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 423
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 422
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 421
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 420
+    },
+    {
+        "fields": {
+            "parent_area": 418
+        },
+        "model": "studyarea.lau2",
+        "pk": 419
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 417
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 416
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 415
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 414
+    },
+    {
+        "fields": {
+            "parent_area": 413
+        },
+        "model": "studyarea.nuts3",
+        "pk": 418
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 413
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 412
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 411
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 410
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 409
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 408
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
+        "pk": 407
+    },
+    {
+        "fields": {
+            "parent_area": null
+        },
+        "model": "studyarea.nuts1",
         "pk": 406
     },
     {

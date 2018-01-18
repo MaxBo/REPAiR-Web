@@ -6,7 +6,7 @@ REM python manage.py dump_object -k changes.solutioninimplementation --query "{\
 REM python manage.py dump_object -k changes.solutionratiooneunit --query "{\"solution__user__casestudy__id\": 5}"  > repair\fixtures\sandbox_solutionsratio.json
 REM python manage.py dump_object -k changes.strategy --query "{\"user__casestudy__id\": 5}"  > repair\fixtures\sandbox_strategy.json
 REM python manage.py dump_object -k publications_bootstrap.publication * > repair\fixtures\sandbox_publications.json
-python manage.py dump_object -k studyarea.adminlevels --query "{\"casestudy__id\": 7}"  > repair\fixtures\sandbox_areas.json
+python manage.py dump_object -k studyarea.area --query "{\"casestudy__id\": 7}"  > repair\fixtures\sandbox_areas.json
 python manage.py merge_fixtures^
  repair\fixtures\sandbox_casestudy.json^
  repair\fixtures\sandbox_areas.json^
