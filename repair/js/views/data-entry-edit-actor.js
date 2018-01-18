@@ -434,7 +434,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         var collection = (location.loc_type == 'administrative') ? this.adminLocations : this.opLocations;
         collection.add(location);
       }
-      console.log(location)
       // rerender all markers (too lazy to add single one)
       this.renderLocations();
     },
@@ -458,17 +457,11 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        //if (geom != null && geom.get('coordinates') != null)
-          //this.map.center(adminLoc.get('geometry').get('coordinates'),
-                          //{projection: this.projection});
       }
       else addAdminBtn.style.display = 'block';
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-      
-        //_.each([this.map, this.localMap], function(map){
-        //})
         var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
         this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
         this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
