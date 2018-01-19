@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: collections/activities.js</title>
+    <title>JSDoc: Source: collections/arealevels.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: collections/activities.js</h1>
+    <h1 class="page-title">Source: collections/arealevels.js</h1>
 
     
 
@@ -26,18 +26,17 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(["backbone", "models/activity", "app-config"],
+            <pre class="prettyprint source linenums"><code>define(["backbone", "app-config"],
 
-  function(Backbone, Activity, config) {
-  
+  function(Backbone, config) {
+
    /**
-    *
     * @author Christoph Franke
-    * @name module:collections/Activities
+    * @name module:collections/AreaLevels
     * @augments Backbone.Collection
     */
-    var Activities = Backbone.Collection.extend(
-      /** @lends module:collections/Activities.prototype */
+    var AreaLevels = Backbone.Collection.extend(
+      /** @lends module:collections/AreaLevels.prototype */
       {
       /**
        * generates an url to the api resource list based on the ids given in constructor
@@ -45,39 +44,27 @@
        * @returns {string} the url string
        */
       url: function(){
-        // if a group is given, take the route that retrieves all activities 
-        // of the group
-        if (this.activityGroupCode != null)
-          return config.api.activitiesInGroup.format(this.caseStudyId, 
-                                                     this.keyflowId,
-                                                     this.activityGroupCode);
-        // if no group is given, get all activities in the casestudy
-        else
-          return config.api.activities.format(this.caseStudyId, this.keyflowId);
+          if (this.caseStudyId != null)
+            return config.api.arealevels.format(this.caseStudyId);
+          else config.api.keyflows
       },
       
     /**
-     * collection of module:models/Activity
+     * collection for fetching/putting levels of areas
      *
-     * @param {Array.&lt;Object>} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
+     * @param {Array.&lt;Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
-     * @param {string} options.caseStudyId        id of the casestudy the activities belong to
-     * @param {string} options.activityGroupCode  id of the activitygroup the activities belong to
-     * @param {string} options.keyflowId          id of the keyflow the activities belong to
+     * @param {string} options.caseStudyId    id of the casestudy the levels belong to
      *
      * @constructs
      * @see http://backbonejs.org/#Collection
      */
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
-        this.activityGroupCode = options.activityGroupCode;
-        this.keyflowId = options.keyflowId;
-      },
-      
-      model: Activity
+      }
     });
-    
-    return Activities;
+
+    return AreaLevels;
   }
 );</code></pre>
         </article>

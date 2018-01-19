@@ -334,7 +334,7 @@
 <!-- edit actor -->
 <script type="text/template" id="edit-actor-template">
   <div class="col-md-12 dashed">
-    <div class='col-md-6'>
+    <div class='col-md-5'>
       <h3 class="row"> <%= actor.get('name') %> </h3>
       <div class="row">
         <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
@@ -403,7 +403,7 @@
         </tr>
       </table>
     </div>
-    <div class='col-md-6'>
+    <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>
       <h4 class="row"> {% trans "Locations" %} </h4>
       <div id="actors-map" style="min-height: 300px" class="map row"></div>
       </br>
@@ -421,7 +421,7 @@
             <tbody> 
             </tbody> 
         </table>
-        <button id='add-administrative-button' class="btn btn-primary" title="{% trans "add administrative location" %}">
+        <button id='add-administrative-button' class="btn btn-primary square" title="{% trans "add administrative location" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
         </button>
       </div>
@@ -440,7 +440,7 @@
           <tbody> 
           </tbody> 
         </table>
-        <button id='add-operational-button' class="btn btn-primary" title="{% trans "add operational location" %}">
+        <button id='add-operational-button' class="btn btn-primary square" title="{% trans "add operational location" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
         </button>
       </div>
@@ -456,7 +456,12 @@
           <div class="modal-body">
             <div class='row'>
               <div id='edit-location-map'  class="col-md-6" style="min-height: 400px; min-width: 400px"></div>
-              <div id='location-modal-content' class="col-md-6"> </div>
+              <div  class="col-md-6"> 
+                <table id="location-area-table"></table>
+                </br>
+                <!-- this is the only part we rerender everytime an actor is clicked -->
+                <div id='location-modal-content'> </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
