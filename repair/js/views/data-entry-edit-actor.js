@@ -352,7 +352,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
       
       function setChildSelects(idx){
         // last level has no children itself -> return
-        var select = _this.areaSelects[0];
+        var select = _this.areaSelects[idx];
         if (idx >= _this.areaSelects.length -1 ) return;
         var childSelects = _this.areaSelects.slice(idx + 1);
         // clear all selects hierarchally below this level
@@ -364,7 +364,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
           caseStudyId: _this.keyflow.get('casestudy'), levelId: directChild.levelId 
         });
         childAreas.fetch({ 
-          data: { parent_id: select.value },
+          data: { parent_id: select.value, parent_level: select.level },
           success: function(){ addAreaOptions(childAreas, directChild); } 
         });
       }
@@ -374,6 +374,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
         var row = table.insertRow(-1);
         row.insertCell(-1).innerHTML = level.get('name');
         var select = document.createElement('select');
+        select.level = level.get('level');
         select.levelId = level.id;
         _this.areaSelects.push(select);
         row.insertCell(-1).appendChild(select);
