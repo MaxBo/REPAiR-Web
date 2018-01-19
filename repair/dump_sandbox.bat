@@ -1,5 +1,5 @@
 SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
-python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
+REM python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
 
 REM python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow.json
 REM python manage.py dump_object -k asmfa.productfraction --query "{\"product__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_products.json
