@@ -34,7 +34,11 @@ from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
 from repair.views import BaseView
 
 
-class StakeholderCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+class StakeholderCategoryViewSet(CasestudyViewSetMixin,
+                                 ModelPermissionViewSet):
+    add_perm = 'studyarea.add_stakeholdercategory'
+    change_perm = 'studyarea.change_stakeholdercategory'
+    delete_perm = 'studyarea.delete_stakeholdercategory'
     queryset = StakeholderCategory.objects.all()
     serializer_class = StakeholderCategorySerializer
 
@@ -42,16 +46,25 @@ class StakeholderCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
 
 
 class StakeholderViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'studyarea.add_stakeholder'
+    change_perm = 'studyarea.change_stakeholder'
+    delete_perm = 'studyarea.delete_stakeholder'
     queryset = Stakeholder.objects.all()
     serializer_class = StakeholderSerializer
 
 
 class AdminLevelViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'studyarea.add_adminlevels'
+    change_perm = 'studyarea.change_adminlevels'
+    delete_perm = 'studyarea.delete_adminlevels'
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
 
 
 class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'studyarea.add_area'
+    change_perm = 'studyarea.change_area'
+    delete_perm = 'studyarea.delete_area'
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
     serializers = {'retrieve': AreaGeoJsonSerializer,

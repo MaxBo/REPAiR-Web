@@ -5,7 +5,7 @@ from rest_framework import status
 
 from repair.apps.login.models import (CaseStudy, UserInCasestudy)
 from repair.apps.studyarea.models import (Stakeholder, StakeholderCategory)
-from repair.tests.test import BasicModelTest, BasicModelReadTest
+from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 from django.urls import reverse
 from repair.apps.changes.models import (
     Implementation,
@@ -24,7 +24,7 @@ from repair.apps.changes.models import (
 from repair.apps.changes.factories import *
 
 
-class StrategyInCasestudyTest(BasicModelTest, APITestCase):
+class StrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     strategy = 48
@@ -205,7 +205,7 @@ class UniqueNames(TestCase):
                                                name='FirstStrategy')
 
 
-class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -231,7 +231,7 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
                                            )
 
 
-class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -270,7 +270,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
                                    )
 
 
-class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -310,7 +310,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest
                                            )
 
 
-class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -349,7 +349,7 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModel
                                                )
 
 
-class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
+class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
@@ -380,7 +380,7 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
                                          user=self.uic)
 
 
-class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
@@ -427,7 +427,7 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
             id=self.solution_implementation)
 
 
-class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
+class GeometryInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
                                                         APITestCase):
 
     casestudy = 17
@@ -466,7 +466,7 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
             id=self.geometry)
 
 
-class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
+class NoteInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
                                                     APITestCase):
 
     casestudy = 17

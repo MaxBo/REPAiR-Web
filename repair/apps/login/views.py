@@ -22,26 +22,7 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-
-class ModelPermissionViewSet(viewsets.ModelViewSet):
-    """
-    check permissions
-    """
-    add_perm = None
-    change_perm = None
-    delete_perm = None
-
-    def create(self, request, **kwargs):
-        if self.add_perm:
-            if not request.user.has_perm(self.add_perm):
-                raise exceptions.PermissionDenied()
-        return super().create(request, **kwargs)
-
-    def destroy(self, request, **kwargs):
-        if self.add_perm:
-            if not request.user.has_perm(self.delete_perm):
-                raise exceptions.PermissionDenied()
-        return super().destroy(request, **kwargs)
+from repair.apps.utils.views import ModelPermissionViewSet
 
 
 class CasestudyViewSetMixin(ABC):
@@ -212,12 +193,14 @@ class GroupViewSet(ModelPermissionViewSet):
     serializer_class = GroupSerializer
 
 
-class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin, ModelPermissionViewSet):
+class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin,
+                       ModelPermissionViewSet):
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
-    add_perm = "login.add_casestudy"
-    delete_perm = "login.delete_casestudy"
+    add_perm = 'login.add_casestudy'
+    change_perm = 'login.change_casestudy'
+    delete_perm = 'login.delete_casestudy'
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
 
@@ -240,28 +223,8 @@ class UserInCasestudyViewSet(CasestudyViewSetMixin,
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
+    add_perm = 'login.add_userincasestudy'
+    change_perm = 'login.change_userincasestudy'
+    delete_perm = 'login.delete_userincasestudy'
     queryset = UserInCasestudy.objects.all()
     serializer_class = UserInCasestudySerializer
-
-
-###############################################################################
-###   views for the templates
-
-class SessionView(View):
-    def post(self, request):
-        if request.POST['casestudy']:
-            request.session['casestudy'] = request.POST['casestudy']
-            next = request.POST.get('next', '/')
-            return HttpResponseRedirect(next)
-
-    def get(self, request):
-        response =  {'casestudy': request.session.get('casestudy')}
-        return JsonResponse(response)
-
-
-class PublicationView(ModelPermissionViewSet):
-    queryset = Publication.objects.all()
-    serializer_class = PublicationSerializer
-    pagination_class = None
-
-

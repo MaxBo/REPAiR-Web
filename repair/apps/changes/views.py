@@ -52,7 +52,7 @@ from repair.apps.changes.serializers import (
 
 
 from repair.apps.changes.forms import NameForm
-from repair.apps.login.views import ModelPermissionViewSet
+from repair.apps.utils.views import ModelPermissionViewSet
 
 
 class ChangesIndexView(BaseView):
@@ -118,52 +118,81 @@ def strategies(request, strategy_id):
 
 
 class UnitViewSet(ModelPermissionViewSet):
+    add_perm = 'changes.add_unit'
+    change_perm = 'changes.change_unit'
+    delete_perm = 'changes.delete_unit'
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
 
 
 class SolutionCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'changes.add_solutioncategory'
+    change_perm = 'changes.change_solutioncategory'
+    delete_perm = 'changes.delete_solutioncategory'
     queryset = SolutionCategory.objects.all()
     serializer_class = SolutionCategorySerializer
 
 
 class SolutionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'changes.add_solution'
+    change_perm = 'changes.change_solution'
+    delete_perm = 'changes.delete_solution'
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
 
 
 class SolutionQuantityViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'changes.add_solutionquantity'
+    change_perm = 'changes.change_solutionquantity'
+    delete_perm = 'changes.delete_solutionquantity'
     serializer_class = SolutionQuantitySerializer
     queryset = SolutionQuantity.objects.all()
 
 
-class SolutionRatioOneUnitViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+class SolutionRatioOneUnitViewSet(CasestudyViewSetMixin,
+                                  ModelPermissionViewSet):
+    add_perm = 'changes.add_solutionratiooneunit'
+    change_perm = 'changes.change_solutionratiooneunit'
+    delete_perm = 'changes.delete_solutionratiooneunit'
     serializer_class = SolutionRatioOneUnitSerializer
     queryset = SolutionRatioOneUnit.objects.all()
 
 
 class ImplementationViewSet(CasestudyViewSetMixin,
                             ModelPermissionViewSet):
+    add_perm = 'changes.add_implementation'
+    change_perm = 'changes.change_implementation'
+    delete_perm = 'changes.delete_implementation'
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
 
 class ImplementationOfUserViewSet(ImplementationViewSet):
+    # TODO: find th permissions
     serializer_class = ImplementationOfUserSerializer
 
 
 class StrategyViewset(CasestudyViewSetMixin, ModelPermissionViewSet):
+    add_perm = 'changes.add_strategy'
+    change_perm = 'changes.change_strategy'
+    delete_perm = 'changes.delete_strategy'
     serializer_class = StrategySerializer
     queryset = Strategy.objects.all()
 
 
 class SolutionInImplementationViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
+    add_perm = 'changes.add_solutioninimplementation'
+    change_perm = 'changes.change_solutioninimplementation'
+    delete_perm = 'changes.delete_solutioninimplementation'
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
 
 
 class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
+    add_perm = 'changes.add_solutioninimplementationnote'
+    change_perm = 'changes.change_solutioninimplementationnote'
+    delete_perm = 'changes.delete_solutioninimplementationnote'
     serializer_class = SolutionInImplementationNoteSerializer
     queryset = SolutionInImplementationNote.objects.all()
 
@@ -190,6 +219,9 @@ class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
 
 class SolutionInImplementationGeometryViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
+    add_perm = 'changes.add_solutioninimplementationgeometry'
+    change_perm = 'changes.change_solutioninimplementationgeometry'
+    delete_perm = 'changes.delete_solutioninimplementationgeometry'
     serializer_class = SolutionInImplementationGeometrySerializer
     queryset = SolutionInImplementationGeometry.objects.all()
 
