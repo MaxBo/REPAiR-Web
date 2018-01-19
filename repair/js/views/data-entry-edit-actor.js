@@ -1,9 +1,9 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
-        'models/geolocation', 'collections/activities', 'collections/areas',
-        'collections/actors', 'visualizations/map', 'loader'],
+        'models/geolocation', 'collections/activities', 'collections/actors', 
+        'collections/areas', 'models/area','visualizations/map', 'loader'],
 
-function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors, 
-         Map, Loader){
+function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
+         Areas, Area, Map, Loader){
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }
@@ -334,6 +334,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
       var _this = this;
       var table = document.getElementById('location-area-table');
       this.areaSelects = [];
+      var caseStudyId = _this.keyflow.get('casestudy');
       
       function addAreaOptions(areas, select){
         var uop = document.createElement('option');
@@ -361,7 +362,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
         })
         var directChild = childSelects[0];
         var childAreas = new Areas([], { 
-          caseStudyId: _this.keyflow.get('casestudy'), levelId: directChild.levelId 
+          caseStudyId: caseStudyId, levelId: directChild.levelId 
         });
         childAreas.fetch({ 
           data: { parent_id: select.value, parent_level: select.level },
@@ -379,7 +380,18 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
         _this.areaSelects.push(select);
         row.insertCell(-1).appendChild(select);
         var cur = idx;
-        select.addEventListener('change', function(bla){
+        select.addEventListener('change', function(){
+          var areaId = select.value;
+          var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+          // fetch geometry of area and draw it on map
+          area.fetch({ success: function(){
+            var polyCoords = area.get('geometry').coordinates[0];
+            _this.localMap.removePolygons();
+            var poly = _this.localMap.addPolygon(polyCoords, {projection: _this.projection});
+            var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
+            var extent = poly.getExtent();
+            _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
+          }});
           setChildSelects(cur);
         });
         
@@ -404,7 +416,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
       var type = location.loc_type || location.collection.loc_type;
-      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
+      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red;
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
       var html = template({properties: location.get('properties'), 
@@ -497,7 +509,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
         '-'
       ];
       this.localMap.addContextMenu(items);
-      
+      var stroke = (type == 'administrative') ? 'rgb(51, 153, 255)' : 'rgb(255, 51, 0)';
+      var fill = (type == 'administrative') ? 'rgba(51, 153, 255, 0.1)' : 'rgba(255, 51, 0, 0.1)';
+      this.localMap.setPolygonStyle(stroke, fill);
     },
     
     /*
@@ -551,8 +565,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
-        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection});
+        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
+        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
         this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
         var extent = poly.getExtent();
         this.map.center(this.centroid, {projection: this.projection, extent: extent});
