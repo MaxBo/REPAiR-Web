@@ -338,9 +338,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       function addAreaOptions(areas, select){
         var uop = document.createElement('option');
-        uop.disabled = true;
         uop.selected = true;
         uop.text = gettext('select an area');
+        uop.value = -1;
         select.appendChild(uop);
         select.style.maxWidth = '200px';
         areas.each(function(area){
@@ -359,7 +359,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         // clear all selects hierarchally below this level
         _.each(childSelects, function(sel){
           clearSelect(sel);
-        })
+        });
+        if (select.value == -1) return;
         var directChild = childSelects[0];
         var childAreas = new Areas([], { 
           caseStudyId: caseStudyId, levelId: directChild.levelId 
@@ -382,16 +383,19 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var cur = idx;
         select.addEventListener('change', function(){
           var areaId = select.value;
-          var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
-          // fetch geometry of area and draw it on map
-          area.fetch({ success: function(){
-            var polyCoords = area.get('geometry').coordinates[0];
-            _this.localMap.removePolygons();
-            var poly = _this.localMap.addPolygon(polyCoords, {projection: _this.projection});
-            var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
-            var extent = poly.getExtent();
-            _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
-          }});
+          _this.localMap.removePolygons();
+          if (areaId >= 0){
+            console.log(areaId)
+            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+            // fetch geometry of area and draw it on map
+            area.fetch({ success: function(){
+              var polyCoords = area.get('geometry').coordinates[0];
+              var poly = _this.localMap.addPolygon(polyCoords, {projection: _this.projection});
+              var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
+              var extent = poly.getExtent();
+              _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
+            }});
+          }
           setChildSelects(cur);
         });
         

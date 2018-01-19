@@ -331,6 +331,7 @@ define([
      */
     this.center = function(coordinate, options) {
       var options = options || {};
+      var zoom;
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
       if (options.extent){
@@ -340,9 +341,10 @@ define([
           var max = this.toMapProjection(extent.slice(2, 4), options.projection);
           extent = min.concat(max);
         }
-        view.fit(extent, { size: map.getSize(), padding: [5, 0, 0, 0] });
+        var resolution = view.getResolutionForExtent(extent);
+        zoom = view.getZoomForResolution(resolution);
       }
-      view.animate({center: coordinate});//, {zoom: 10});
+      view.animate({ center: coordinate, zoom: zoom });//, {zoom: 10});
     }
     
     this.map = map;
