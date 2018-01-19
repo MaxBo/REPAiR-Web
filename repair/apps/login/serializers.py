@@ -162,6 +162,28 @@ class NestedHyperlinkedRelatedField2(NestedHyperlinkedRelatedField):
             return self.get_queryset().get(**kwargs)
 
 
+class InCasestudySerializerMixin:
+    """get casestudy from session.url_pks and use this in update and create"""
+    def get_casestudy(self):
+        url_pks = self.context['request'].session['url_pks']
+        casestudy_pk = url_pks['casestudy_pk']
+        casestudy = CaseStudy.objects.get(id=casestudy_pk)
+        return casestudy
+
+    def create(self, validated_data):
+        """Create a new keyflow in casestury"""
+        casestudy = self.get_casestudy()
+        obj = self.Meta.model.objects.create(
+            casestudy=casestudy,
+            **validated_data)
+        return obj
+
+    def update(self, obj, validated_data):
+        casestudy = self.get_casestudy()
+        validated_data['casestudy'] = casestudy
+        return super().update(obj, validated_data)
+
+
 class InCasestudyField(NestedHyperlinkedRelatedField2):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     filter_field = 'casestudy_pk'
@@ -431,7 +453,8 @@ class CaseStudySerializer(ForceMultiMixin,
                           GeoFeatureModelSerializer,
                           NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
-    userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
+    userincasestudy_set = InCasestudyListField(
+        view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
         view_name='stakeholdercategory-list')
     solution_categories = InCasestudyListField(
@@ -439,6 +462,8 @@ class CaseStudySerializer(ForceMultiMixin,
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     levels = InCasestudyListField(view_name='adminlevels-list')
+    publications = InCasestudyListField(source='publicationincasestury_set',
+        view_name='publicationincasestudy-list')
 
     class Meta:
         model = CaseStudy
@@ -449,6 +474,7 @@ class CaseStudySerializer(ForceMultiMixin,
                   'keyflows',
                   'levels',
                   'focusarea',
+                  'publications',
                   )
 
     def update(self, instance, validated_data):

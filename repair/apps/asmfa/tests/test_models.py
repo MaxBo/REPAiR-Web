@@ -30,7 +30,6 @@ from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
 
 
-
 class ASMFAModelTest(TestCase):
 
     fixtures = ['auth', 'sandbox']

@@ -10,8 +10,7 @@ django-reversion
 django-reversion-compare
 diff-match-patch
 bibtexparser>=0.5.5
-#django-publications-bootstrap
-git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap
+git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.3.2
 drf-nested-routers
 numpy
 matplotlib

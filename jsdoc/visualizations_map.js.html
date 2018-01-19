@@ -54,14 +54,16 @@
       center: center,
       zoom: 10
     });
-    var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var markerLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var backgroundLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
   
     var map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.OSM({crossOrigin: 'anonymous'}),
         }),
-        vectorLayer
+        backgroundLayer,
+        markerLayer
       ],
       target: options.divid,
       controls: ol.control.defaults({
@@ -104,7 +106,30 @@
      */
     this.toProjection = function(coordinate, projection) {
       return ol.proj.transform(coordinate, mapProjection, projection);
-    }
+    };
+    
+    /**
+     * add a polygon to the map
+     *
+     * @param {Array.&lt;Array.&lt;number>>} coordinates  coordinates of the polygon
+     * @param {Object} options
+     * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     *
+     * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
+     *
+     * @method addPolygon
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.addPolygon = function(coordinates, options){
+      var options = options || {};
+      var proj = options.projection || mapProjection;
+      var poly = new ol.geom.Polygon(coordinates);
+      var ret = poly.clone();
+      var feature = new ol.Feature({ geometry: poly.transform(proj, mapProjection) });
+      backgroundLayer.getSource().addFeature(feature);
+      return ret;
+    };
     
     
     /**
@@ -130,6 +155,7 @@
      * @instance
      */
     this.addmarker = function(coordinates, options) {
+      var options = options || {};
       var proj = options.projection || mapProjection;
       
       var template = '({x}, {y})';
@@ -172,7 +198,7 @@
         var coordinate = feature.getGeometry().getCoordinates();
         var transformed = ol.proj.transform(coordinate, mapProjection, proj);
         //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-        vectorLayer.changed();
+        markerLayer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
         }        
@@ -186,7 +212,7 @@
       feature.onRemove = options.onRemove;
       feature.interaction = dragInteraction;
       idCounter++;
-      vectorLayer.getSource().addFeature(feature);
+      markerLayer.getSource().addFeature(feature);
       return id;
     }
     
@@ -194,7 +220,7 @@
     * move marker with given id to given coordinates, not tested yet
     */
     this.moveMarker = function(markerId, coordinates, options) {
-      var feature = vectorLayer.getSource().getFeatureById(markerId);
+      var feature = markerLayer.getSource().getFeatureById(markerId);
       var options = options || {};
       var proj = options.projection || mapProjection;
       feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
@@ -212,7 +238,7 @@
           if (interaction instanceof ol.interaction.Modify) 
              map.removeInteraction(interaction);
       });
-      vectorLayer.getSource().clear();
+      markerLayer.getSource().clear();
     };
     
     // remove marker of given feature
@@ -221,7 +247,7 @@
       if (feature.interaction != null) map.removeInteraction(feature.interaction);
       if (feature.onRemove != null) feature.onRemove();
       
-      vectorLayer.getSource().removeFeature(feature);
+      markerLayer.getSource().removeFeature(feature);
     }
     
     /**
@@ -261,7 +287,6 @@
       };
       
       contextmenu.on('open', function (evt) {
-        console.log(evt.pixel)
         var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
         if (feature &amp;&amp; feature.get('type') === 'removable') {
@@ -288,13 +313,22 @@
     /**
      * center map on given coordinates
      * 
-     * @param {Array.&lt;number>} coordinates  (x,y) coordinates 
+     * @param {Array.&lt;number>} coordinates     (x,y) coordinates 
      * @param {Object} options
-     * @param {string=} options.projection  projection of the coordinates, defaults to map projection
+     * @param {string=} options.projection      projection of the coordinates and extent, defaults to map projection
+     * @param {Array.&lt;number>=} options.extent  an array of numbers representing an extent: [minx, miny, maxx, maxy], map will be zoomed to fit the extent
      */
     this.center = function(coordinate, options) {
+      var options = options || {};
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
+      if (options.extent){
+        var extent = options.extent;
+        if (options.projection){
+          extent = this.toMapProjection(extent, options.projection);
+        }
+        view.fit(extent, {size: map.getSize(), padding: [50, 50, 50, 50]});
+      }
       
       view.animate({center: coordinate});//, {zoom: 10});
     }
@@ -315,13 +349,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 16 2018 13:09:20 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

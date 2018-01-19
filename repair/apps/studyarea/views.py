@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from rest_framework.filters import BaseFilterBackend
-from rest_framework import viewsets
+from rest_framework import viewsets, exceptions
 from rest_framework.response import Response
 
 from plotly.offline import plot
@@ -86,13 +86,19 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         level_pk = int(lookup_args['level_pk'])
         own_level = AdminLevels.objects.get(pk=level_pk)
         if not parent_level:
-            parent_level = Area.objects.get(pk=parent_id).level.level
+            try:
+                parent_level = Area.objects.get(pk=parent_id).level.level
+            except Area.DoesNotExist:
+                raise exceptions.NotFound()
         levels = AdminLevels.objects.filter(casestudy__id=casestudy,
                                                level__gt=parent_level,
                                                level__lte=own_level.level)
         level_ids = [l.level for l in levels]
 
-        parents = [AreaSubModels[parent_level].objects.get(pk=parent_id)]
+        try:
+            parents = [AreaSubModels[parent_level].objects.get(id=parent_id)]
+        except:
+            raise exceptions.NotFound()
         for level_id in level_ids:
             model = AreaSubModels[level_id]
             areas = model.objects.filter(parent_area__in=parents)

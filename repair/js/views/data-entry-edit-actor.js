@@ -1,11 +1,16 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
-        'models/geolocation', 'collections/activities', 
-        'collections/actors', 'visualizations/map', 'loader'],
+        'models/geolocation', 'collections/activities', 'collections/actors', 
+        'collections/areas', 'models/area','visualizations/map', 'loader'],
 
-function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Loader){
+function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
+         Areas, Area, Map, Loader){
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }
+  function clearSelect(select){
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) { select.remove(i); }
+}
+  
   /**
    *
    * @author Christoph Franke
@@ -31,7 +36,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      * @param {string} options.template                                id of the script element containing the underscore template to render this view
      * @param {module:models/Actor} options.model                      the actor to edit
      * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
-     * @param {Backbone.Collection} options.activities                 the activities belonging to the keyflow
+     * @param {module:collections/Activities} options.activities       the activities belonging to the keyflow
+     * @param {module:collections/AreaLevels} options.areaLevels       the levels of areas belonging to the casestudy of the keyflow (sorted ascending by level, starting with top-level)
+     * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
      * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
      *
      * @constructs
@@ -48,6 +55,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
       this.activities = options.activities;
       this.onUpload = options.onUpload;
+      this.focusarea = options.focusarea;
+      this.areaLevels = options.areaLevels;
       
       this.pins = {
         blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
@@ -80,9 +89,14 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         {disable: true});
         
       this.projection = 'EPSG:4326'; 
+      
+      var topLevel = this.areaLevels.first();
+      this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id })
         
       $.when(this.adminLocations.fetch({ data: { actor: this.model.id } }), 
-             this.opLocations.fetch({ data: { actor: this.model.id } })).then(function() {
+             this.opLocations.fetch({ data: { actor: this.model.id } }),
+             this.topLevelAreas.fetch()).then(function() {
+          _this.topLevelAreas.sort();
           loader.remove();
           _this.render();
       });
@@ -116,6 +130,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
 
       this.initMap();
       this.renderLocations();
+      this.renderAreaInput();
     },
 
 
@@ -193,7 +208,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      this.localMap = new Map({
         divid: 'edit-location-map', 
       });
-
       
       // event triggered when modal dialog is ready -> trigger rerender to match size
       $('#location-modal').on('shown.bs.modal', function () {
@@ -300,6 +314,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
     },
     
+    /*
+     * create location (administrative or operational) on button click
+     */
     createLocationEvent: function(event){
       var buttonId = event.currentTarget.id;
       var properties = {actor: this.model.id};
@@ -310,15 +327,100 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       this.editLocation(location);
     },
     
+    /*
+     * render the select boxes for areas in the location modal
+     */
+    renderAreaInput: function(){
+      var _this = this;
+      var table = document.getElementById('location-area-table');
+      this.areaSelects = [];
+      var caseStudyId = _this.keyflow.get('casestudy');
+      
+      function addAreaOptions(areas, select){
+        var uop = document.createElement('option');
+        uop.selected = true;
+        uop.text = gettext('select an area');
+        uop.value = -1;
+        select.appendChild(uop);
+        select.style.maxWidth = '200px';
+        areas.each(function(area){
+          var option = document.createElement('option');
+          option.value = area.id;
+          option.text = area.get('name');
+          select.appendChild(option);
+        });
+      };
+      
+      function setChildSelects(idx){
+        // last level has no children itself -> return
+        var select = _this.areaSelects[idx];
+        if (idx >= _this.areaSelects.length -1 ) return;
+        var childSelects = _this.areaSelects.slice(idx + 1);
+        // clear all selects hierarchally below this level
+        _.each(childSelects, function(sel){
+          clearSelect(sel);
+        });
+        if (select.value == -1) return;
+        var directChild = childSelects[0];
+        var childAreas = new Areas([], { 
+          caseStudyId: caseStudyId, levelId: directChild.levelId 
+        });
+        childAreas.fetch({ 
+          data: { parent_id: select.value, parent_level: select.level },
+          success: function(){ addAreaOptions(childAreas, directChild); } 
+        });
+      }
+      
+      var idx = 0;
+      this.areaLevels.each(function(level){
+        var row = table.insertRow(-1);
+        row.insertCell(-1).innerHTML = level.get('name');
+        var select = document.createElement('select');
+        select.level = level.get('level');
+        select.levelId = level.id;
+        _this.areaSelects.push(select);
+        row.insertCell(-1).appendChild(select);
+        var cur = idx;
+        select.addEventListener('change', function(){
+          var areaId = select.value;
+          _this.localMap.removePolygons();
+          if (areaId >= 0){
+            console.log(areaId)
+            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+            // fetch geometry of area and draw it on map
+            area.fetch({ success: function(){
+              var polyCoords = area.get('geometry').coordinates[0];
+              var poly = _this.localMap.addPolygon(polyCoords, {projection: _this.projection});
+              var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
+              var extent = poly.getExtent();
+              _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
+            }});
+          }
+          setChildSelects(cur);
+        });
+        
+        idx++;
+      });
+      if (this.areaSelects.length == 0) return;
+      // prefill select of toplevel
+      var topLevelSelect = this.areaSelects[0];
+      addAreaOptions(this.topLevelAreas, topLevelSelect);
+    },
+    
+    /*
+     * initialize the modal for location editing by filling the forms and map with the values of given location
+     * open the modal
+     */
     editLocation: function(location){
       var _this = this;
+      var topLevelSelect = this.areaSelects[0];
       this.editedLocation = location;
       var locationModal = document.getElementById('location-modal');
       var geometry = location.get('geometry');
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
       var type = location.loc_type || location.collection.loc_type;
-      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red
+      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red;
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
       var html = template({properties: location.get('properties'), 
@@ -371,7 +473,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       }
       
       // connect add/remove point buttons
-      var center = [13.4, 52.5];
+      var center = this.centroid || [13.4, 52.5];
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
@@ -411,9 +513,15 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         '-'
       ];
       this.localMap.addContextMenu(items);
-      
+      var stroke = (type == 'administrative') ? 'rgb(51, 153, 255)' : 'rgb(255, 51, 0)';
+      var fill = (type == 'administrative') ? 'rgba(51, 153, 255, 0.1)' : 'rgba(255, 51, 0, 0.1)';
+      this.localMap.setPolygonStyle(stroke, fill);
     },
     
+    /*
+     * called when the location modal is confirmed by the user
+     * set the changes made to the edited location
+     */
     locationConfirmed: function(){
       var location = this.editedLocation;
       if(location == null) return;
@@ -456,11 +564,18 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         // you may not have more than one admin. location (hide button, if there already is one)
         addAdminBtn.style.display = 'none';
         var geom = adminLoc.get('geometry');
-        if (geom != null && geom.get('coordinates') != null)
-          this.map.center(adminLoc.get('geometry').get('coordinates'),
-                          {projection: this.projection});
       }
       else addAdminBtn.style.display = 'block';
+      
+      // add polygon of focusarea to both maps and center on their centroid
+      if (this.focusarea != null){
+        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
+        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
+        this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
+        var extent = poly.getExtent();
+        this.map.center(this.centroid, {projection: this.projection, extent: extent});
+        this.localMap.center(this.centroid, {projection: this.projection});
+      };
     },
     
     toggleIncluded: function(event){

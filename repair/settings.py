@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'repair.apps.studyarea',
     'repair.apps.changes',
     'repair.apps.statusquo',
+    'repair.apps.publications',
     'repair.apps.reversions',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
