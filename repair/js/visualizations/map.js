@@ -26,14 +26,16 @@ define([
       center: center,
       zoom: 10
     });
-    var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var markerLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var backgroundLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
   
     var map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.OSM({crossOrigin: 'anonymous'}),
         }),
-        vectorLayer
+        backgroundLayer,
+        markerLayer
       ],
       target: options.divid,
       controls: ol.control.defaults({
@@ -76,7 +78,30 @@ define([
      */
     this.toProjection = function(coordinate, projection) {
       return ol.proj.transform(coordinate, mapProjection, projection);
-    }
+    };
+    
+    /**
+     * add a polygon to the map
+     *
+     * @param {Array.<Array.<number>>} coordinates  coordinates of the polygon
+     * @param {Object} options
+     * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     *
+     * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
+     *
+     * @method addPolygon
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.addPolygon = function(coordinates, options){
+      var options = options || {};
+      var proj = options.projection || mapProjection;
+      var poly = new ol.geom.Polygon(coordinates);
+      var ret = poly.clone();
+      var feature = new ol.Feature({ geometry: poly.transform(proj, mapProjection) });
+      backgroundLayer.getSource().addFeature(feature);
+      return ret;
+    };
     
     
     /**
@@ -102,6 +127,7 @@ define([
      * @instance
      */
     this.addmarker = function(coordinates, options) {
+      var options = options || {};
       var proj = options.projection || mapProjection;
       
       var template = '({x}, {y})';
@@ -144,7 +170,7 @@ define([
         var coordinate = feature.getGeometry().getCoordinates();
         var transformed = ol.proj.transform(coordinate, mapProjection, proj);
         //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-        vectorLayer.changed();
+        markerLayer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
         }        
@@ -158,7 +184,7 @@ define([
       feature.onRemove = options.onRemove;
       feature.interaction = dragInteraction;
       idCounter++;
-      vectorLayer.getSource().addFeature(feature);
+      markerLayer.getSource().addFeature(feature);
       return id;
     }
     
@@ -166,7 +192,7 @@ define([
     * move marker with given id to given coordinates, not tested yet
     */
     this.moveMarker = function(markerId, coordinates, options) {
-      var feature = vectorLayer.getSource().getFeatureById(markerId);
+      var feature = markerLayer.getSource().getFeatureById(markerId);
       var options = options || {};
       var proj = options.projection || mapProjection;
       feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
@@ -184,7 +210,7 @@ define([
           if (interaction instanceof ol.interaction.Modify) 
              map.removeInteraction(interaction);
       });
-      vectorLayer.getSource().clear();
+      markerLayer.getSource().clear();
     };
     
     // remove marker of given feature
@@ -193,7 +219,7 @@ define([
       if (feature.interaction != null) map.removeInteraction(feature.interaction);
       if (feature.onRemove != null) feature.onRemove();
       
-      vectorLayer.getSource().removeFeature(feature);
+      markerLayer.getSource().removeFeature(feature);
     }
     
     /**
@@ -233,7 +259,6 @@ define([
       };
       
       contextmenu.on('open', function (evt) {
-        console.log(evt.pixel)
         var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
         if (feature && feature.get('type') === 'removable') {
@@ -260,13 +285,22 @@ define([
     /**
      * center map on given coordinates
      * 
-     * @param {Array.<number>} coordinates  (x,y) coordinates 
+     * @param {Array.<number>} coordinates     (x,y) coordinates 
      * @param {Object} options
-     * @param {string=} options.projection  projection of the coordinates, defaults to map projection
+     * @param {string=} options.projection      projection of the coordinates and extent, defaults to map projection
+     * @param {Array.<number>=} options.extent  an array of numbers representing an extent: [minx, miny, maxx, maxy], map will be zoomed to fit the extent
      */
     this.center = function(coordinate, options) {
+      var options = options || {};
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
+      if (options.extent){
+        var extent = options.extent;
+        if (options.projection){
+          extent = this.toMapProjection(extent, options.projection);
+        }
+        view.fit(extent, {size: map.getSize(), padding: [50, 50, 50, 50]});
+      }
       
       view.animate({center: coordinate});//, {zoom: 10});
     }

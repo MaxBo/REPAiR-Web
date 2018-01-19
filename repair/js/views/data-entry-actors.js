@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'underscore', 'models/actor', 'collections/activities', 
-        'collections/actors', 'views/data-entry-edit-actor', 'loader', 
-        'tablesorter'],
-function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
+define(['jquery', 'backbone', 'underscore', 'models/actor', 'collections/activities',
+        'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
+        'loader', 'tablesorter'],
+function($, Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Loader){
   /**
    *
    * @author Christoph Franke
@@ -32,8 +32,9 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
       var keyflowId = this.model.id,
           caseStudyId = this.model.get('casestudy');
       
-      this.activities = new Activities([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
-      this.actors = new Actors([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+      this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+      this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
       this.showAll = true;
       this.caseStudy = options.caseStudy;
       this.caseStudyId = this.model.get('casestudy');
@@ -45,7 +46,9 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
         
       this.projection = 'EPSG:4326'; 
         
-      $.when(this.activities.fetch(), this.actors.fetch()).then(function() {
+      $.when(this.activities.fetch(), this.actors.fetch(), 
+             this.areaLevels.fetch()).then(function() {
+          _this.areaLevels.sort();
           loader.remove();
           _this.render();
       });
@@ -157,7 +160,9 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
           model: actor,
           activities: _this.activities,
           keyflow: _this.model,
-          onUpload: function(a) { setRowValues(a); showActor(a); }
+          onUpload: function(a) { setRowValues(a); showActor(a); },
+          focusarea: _this.caseStudy.get('properties').focusarea,
+          areaLevels: _this.areaLevels
         });
       }
       
