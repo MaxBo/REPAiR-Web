@@ -12,6 +12,9 @@ from test_plus import APITestCase
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
+from django.contrib.auth.models import Permission
+
+
 
 
 class CompareAbsURIMixin:
@@ -56,7 +59,6 @@ class LoginTestCase:
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id = cls.casestudy)
-
         cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
                                             casestudy=cls.uic.casestudy)
 
@@ -177,3 +179,32 @@ class BasicModelTest(BasicModelReadTest):
         response = self.get_check_200(url, pk=self.obj.pk, **self.url_pks)
         for url in self.post_urls:
             response = self.get_check_200(url)
+
+
+class BasicModelPermissionTest(BasicModelTest):
+    permissions = Permission.objects.all()
+
+    def tearDown(self):
+        self.uic.user.user.user_permissions.set(list(self.permissions))
+        super().tearDown()
+
+    def test_post_permission(self):
+        """
+        Test if user can post without permission
+        """
+        self.uic.user.user.user_permissions.clear()
+        url = self.url_key +'-list'
+        # post
+        response = self.post(url, **self.url_pks, data=self.post_data)
+        self.response_403()
+
+    def test_delete_permission(self):
+        """
+        Test if user can delete without permission
+        """
+        self.uic.user.user.user_permissions.clear()
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, **kwargs)
+        response = self.delete(url, **kwargs)
+        self.response_403()

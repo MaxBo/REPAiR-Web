@@ -7,7 +7,7 @@ from rest_framework import status
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
-from repair.tests.test import (BasicModelTest,
+from repair.tests.test import (BasicModelPermissionTest,
                                BasicModelReadTest,
                                CompareAbsURIMixin)
 
@@ -117,7 +117,7 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         assert response.data['email'] == new_mail
 
 
-class CasestudyTest(BasicModelTest, APITestCase):
+class CasestudyTest(BasicModelPermissionTest, APITestCase):
 
     url_key = "casestudy"
     url_pks = dict()
@@ -125,6 +125,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
     post_data = dict(name='posttestname')
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
+    add_perm = "login.add_casestudy"
 
     def test_post(self):
         url = self.url_key +'-list'
@@ -153,7 +154,7 @@ class CasestudyTest(BasicModelTest, APITestCase):
         self.obj = self.kic.casestudy
 
 
-class UserInCasestudyTest(BasicModelTest, APITestCase):
+class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
@@ -189,5 +190,13 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
     @unittest.skip('no Delete possible')
     def test_delete(self):
+        """no Delete"""
+
+    @unittest.skip('no Post possible')
+    def test_post_permission(self):
+        """no Post"""
+
+    @unittest.skip('no Delete possible')
+    def test_delete_permission(self):
         """no Delete"""
 

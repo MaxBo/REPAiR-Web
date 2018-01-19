@@ -5,7 +5,8 @@ from django.contrib.gis.geos.point import Point
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest, LoginTestCase
+from rest_framework import status
 from repair.apps.login.models import CaseStudy
 
 
@@ -53,7 +54,7 @@ class ASMFAModelTest(TestCase):
         assert excluded_actors.first().included is False
 
 
-class KeyflowTest(BasicModelTest, APITestCase):
+class KeyflowTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
 
@@ -79,7 +80,7 @@ class KeyflowTest(BasicModelTest, APITestCase):
         self.obj = KeyflowFactory()
 
 
-class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
+class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     keyflow = 3
@@ -127,7 +128,7 @@ class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
 
 
-class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. origin/destination can be in other casestudies than activity2activity
@@ -179,7 +180,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -226,7 +227,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                       )
 
 
-class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
+class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -274,7 +275,7 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
 
 
 
-class ActorInCaseStudyTest(BasicModelTest, APITestCase):
+class ActorInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     keyflow = 23
@@ -299,7 +300,7 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
         self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic)
 
 
-class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5
@@ -333,7 +334,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__id=self.activitygroup)
 
 
-class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activitygroup = 90
@@ -361,7 +362,7 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         #pass
 
 
-class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5
@@ -396,7 +397,7 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__id=self.activitygroup)
 
 
-class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -449,7 +450,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         #pass
 
 
-class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -502,7 +503,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         #pass
 
 
-class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -549,7 +550,7 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
 
 
 
-class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ProductsInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
         1. Products is not in casestudy/xx/keyflows/xx/

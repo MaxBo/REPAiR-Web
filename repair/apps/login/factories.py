@@ -2,6 +2,8 @@ from django.db.models.signals import post_save
 import factory
 from factory.django import DjangoModelFactory
 from . import models
+from django.contrib.auth.models import Permission
+
 
 
 class CaseStudyFactory(DjangoModelFactory):
@@ -40,6 +42,8 @@ class UserFactory(DjangoModelFactory):
         post_save.disconnect(models.create_profile_for_new_user, models.User)
         user = super(UserFactory, cls)._create(model_class, *args, **kwargs)
         user.set_password(password)
+        perms = Permission.objects.all()
+        user.user_permissions.set(perms)
         post_save.connect(models.create_profile_for_new_user, models.User)
         return user
 
