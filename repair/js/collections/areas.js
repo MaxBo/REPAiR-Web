@@ -16,13 +16,12 @@ define(["backbone", "app-config"],
        * @returns {string} the url string
        */
       url: function(){
-          if (this.caseStudyId != null)
-            return config.api.areas.format(this.caseStudyId, this.levelId);
-          else config.api.keyflows
+          return config.api.areas.format(this.caseStudyId, this.levelId);
       },
       
     /**
      * collection for fetching/putting areas
+     * sort() sorts by name 
      *
      * @param {Array.<Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
@@ -35,6 +34,10 @@ define(["backbone", "app-config"],
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
         this.levelId = options.levelId;
+      },
+      
+      comparator: function(model) {
+        return model.get('name');
       }
     });
 

@@ -16,13 +16,12 @@ define(["backbone", "app-config"],
        * @returns {string} the url string
        */
       url: function(){
-          if (this.caseStudyId != null)
-            return config.api.arealevels.format(this.caseStudyId);
-          else config.api.keyflows
+          return config.api.arealevels.format(this.caseStudyId);
       },
       
     /**
      * collection for fetching/putting levels of areas
+     * sort() sorts by level 
      *
      * @param {Array.<Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
      * @param {Object} options
@@ -33,6 +32,10 @@ define(["backbone", "app-config"],
      */
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
+      },
+      
+      comparator: function(model) {
+        return model.get('level');
       }
     });
 

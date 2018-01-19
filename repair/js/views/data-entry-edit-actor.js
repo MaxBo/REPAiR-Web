@@ -1,11 +1,16 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
-        'models/geolocation', 'collections/activities', 
+        'models/geolocation', 'collections/activities', 'collections/areas',
         'collections/actors', 'visualizations/map', 'loader'],
 
-function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Loader){
+function(Backbone, _, Actor, Locations, Geolocation, Activities, Areas, Actors, 
+         Map, Loader){
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }
+  function clearSelect(select){
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) { select.remove(i); }
+}
+  
   /**
    *
    * @author Christoph Franke
@@ -31,7 +36,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
      * @param {string} options.template                                id of the script element containing the underscore template to render this view
      * @param {module:models/Actor} options.model                      the actor to edit
      * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
-     * @param {Backbone.Collection} options.activities                 the activities belonging to the keyflow
+     * @param {module:collections/Activities} options.activities       the activities belonging to the keyflow
+     * @param {module:collections/AreaLevels} options.areaLevels       the levels of areas belonging to the casestudy of the keyflow (sorted ascending by level, starting with top-level)
      * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
      * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
      *
@@ -50,6 +56,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       this.activities = options.activities;
       this.onUpload = options.onUpload;
       this.focusarea = options.focusarea;
+      this.areaLevels = options.areaLevels;
       
       this.pins = {
         blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
@@ -82,9 +89,14 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
         {disable: true});
         
       this.projection = 'EPSG:4326'; 
+      
+      var topLevel = this.areaLevels.first();
+      this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id })
         
       $.when(this.adminLocations.fetch({ data: { actor: this.model.id } }), 
-             this.opLocations.fetch({ data: { actor: this.model.id } })).then(function() {
+             this.opLocations.fetch({ data: { actor: this.model.id } }),
+             this.topLevelAreas.fetch()).then(function() {
+          _this.topLevelAreas.sort();
           loader.remove();
           _this.render();
       });
@@ -118,6 +130,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
 
       this.initMap();
       this.renderLocations();
+      this.renderAreaInput();
     },
 
 
@@ -301,6 +314,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
     },
     
+    /*
+     * create location (administrative or operational) on button click
+     */
     createLocationEvent: function(event){
       var buttonId = event.currentTarget.id;
       var properties = {actor: this.model.id};
@@ -311,8 +327,76 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       this.editLocation(location);
     },
     
+    /*
+     * render the select boxes for areas in the location modal
+     */
+    renderAreaInput: function(){
+      var _this = this;
+      var table = document.getElementById('location-area-table');
+      this.areaSelects = [];
+      
+      function addAreaOptions(areas, select){
+        var uop = document.createElement('option');
+        uop.disabled = true;
+        uop.selected = true;
+        uop.text = gettext('select an area');
+        select.appendChild(uop);
+        select.style.maxWidth = '200px';
+        areas.each(function(area){
+          var option = document.createElement('option');
+          option.value = area.id;
+          option.text = area.get('name');
+          select.appendChild(option);
+        });
+      };
+      
+      function setChildSelects(idx){
+        // last level has no children itself -> return
+        var select = _this.areaSelects[0];
+        if (idx >= _this.areaSelects.length -1 ) return;
+        var childSelects = _this.areaSelects.slice(idx + 1);
+        // clear all selects hierarchally below this level
+        _.each(childSelects, function(sel){
+          clearSelect(sel);
+        })
+        var directChild = childSelects[0];
+        var childAreas = new Areas([], { 
+          caseStudyId: _this.keyflow.get('casestudy'), levelId: directChild.levelId 
+        });
+        childAreas.fetch({ 
+          data: { parent_id: select.value },
+          success: function(){ addAreaOptions(childAreas, directChild); } 
+        });
+      }
+      
+      var idx = 0;
+      this.areaLevels.each(function(level){
+        var row = table.insertRow(-1);
+        row.insertCell(-1).innerHTML = level.get('name');
+        var select = document.createElement('select');
+        select.levelId = level.id;
+        _this.areaSelects.push(select);
+        row.insertCell(-1).appendChild(select);
+        var cur = idx;
+        select.addEventListener('change', function(bla){
+          setChildSelects(cur);
+        });
+        
+        idx++;
+      });
+      if (this.areaSelects.length == 0) return;
+      // prefill select of toplevel
+      var topLevelSelect = this.areaSelects[0];
+      addAreaOptions(this.topLevelAreas, topLevelSelect);
+    },
+    
+    /*
+     * initialize the modal for location editing by filling the forms and map with the values of given location
+     * open the modal
+     */
     editLocation: function(location){
       var _this = this;
+      var topLevelSelect = this.areaSelects[0];
       this.editedLocation = location;
       var locationModal = document.getElementById('location-modal');
       var geometry = location.get('geometry');
@@ -415,6 +499,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, Map, Lo
       
     },
     
+    /*
+     * called when the location modal is confirmed by the user
+     * set the changes made to the edited location
+     */
     locationConfirmed: function(){
       var location = this.editedLocation;
       if(location == null) return;
