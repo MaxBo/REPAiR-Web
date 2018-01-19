@@ -656,12 +656,15 @@ class AdministrativeLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
+    area = serializers.IntegerField(required=False, allow_null=True)
+
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name',
                   'actor',
+                  'area',
                   ]
 
     def create(self, validated_data):
@@ -702,6 +705,7 @@ class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorS
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name',
+                  'area',
                   ]
 
 
@@ -713,12 +717,14 @@ class OperationalLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
+    area = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = OperationalLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor']
+                  'city', 'geom', 'name', 'actor',
+                  'area']
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):

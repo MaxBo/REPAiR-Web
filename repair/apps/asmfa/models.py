@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.gis.db import models as gis
 from djmoney.models.fields import MoneyField
 
+from repair.apps.studyarea.models import Area
+
 from repair.apps.login.models import (CaseStudy, Profile,
                                       GDSEModel, get_default)
 
@@ -180,6 +182,7 @@ class Geolocation(gis.Model):
                                default="-1")
     city = models.CharField(max_length=255, blank=True, null=True)
     geom = gis.PointField(blank=True, null=True)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         ret = '{s}@({g})'.format(s=self.address, g=self.geom)

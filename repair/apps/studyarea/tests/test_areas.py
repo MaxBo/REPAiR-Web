@@ -20,30 +20,29 @@ class AreaModels(LoginTestCase, APITestCase):
         casestudy = cls.uic.casestudy
 
         adminlevels = models.AdminLevels.objects
-        planet = adminlevels.create(name='Planet',
-                                    level=models.World._level,
-                                    casestudy=casestudy)
-        continent = adminlevels.create(name='Continent',
-                                       level=models.Continent._level,
-                                       casestudy=casestudy)
-        country = adminlevels.create(name='Country',
-                                     level=models.Country._level,
-                                     casestudy=casestudy)
-        land = adminlevels.create(name='Province',
-                                 level=models.NUTS1._level,
-                                 casestudy=casestudy)
+        cls.planet = adminlevels.create(name='Planet',
+                                        level=models.World._level,
+                                        casestudy=casestudy)
+        cls.continent = adminlevels.create(name='Continent',
+                                           level=models.Continent._level,
+                                           casestudy=casestudy)
+        cls.country = adminlevels.create(name='Country',
+                                         level=models.Country._level,
+                                         casestudy=casestudy)
+        cls.land = adminlevels.create(name='Province',
+                                      level=models.NUTS1._level,
+                                      casestudy=casestudy)
 
 
     def test_01_dynamic_models(self):
-        cs = self.uic.casestudy
 
-        world = models.World.objects.create(name='Earth', casestudy=cs)
-        eu = models.Continent.objects.create(name='EU', casestudy=cs)
-        spain = models.Country.objects.create(name='ES', casestudy=cs)
-        de = models.Country.objects.create(name='DE', casestudy=cs)
-        hh = models.NUTS1.objects.create(name='Hamburg', casestudy=cs)
-        catalunia = models.NUTS1.objects.create(name='Catalunia', casestudy=cs)
-        castilia = models.NUTS1.objects.create(name='Castilia', casestudy=cs)
+        world = self.planet.create_area(name='Earth')
+        eu = self.continent.create_area(name='EU')
+        spain = self.country.create_area(name='ES')
+        de = self.country.create_area(name='DE')
+        hh = self.land.create_area(name='Hamburg')
+        catalunia = self.land.create_area(name='Catalunia')
+        castilia = self.land.create_area(name='Castilia')
 
         eu.parent_area = world
         spain.parent_area = eu
@@ -102,42 +101,44 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         cls.gemeinde = gemeinde
         cls.ortsteil = ortsteil
 
-        world = models.World.objects.create(name='Earth', casestudy=casestudy)
-        hh = models.NUTS1.objects.create(name='Hamburg', casestudy=casestudy,
+        world = planet.create_area(name='Earth')
+
+        saturn = planet.create_area(code='SATURN')
+
+        hh = models.NUTS1.objects.create(name='Hamburg',
                                          parent_area=world)
         sh = models.NUTS1.objects.create(name='Schleswig-Holstein',
-                                         casestudy=casestudy,
                                          parent_area=world)
         kreis_pi = models.NUTS3.objects.create(
-            name='Kreis PI', casestudy=casestudy,
+            name='Kreis PI',
             parent_area=sh)
         elmshorn = models.LAU2.objects.create(
-            name='Elmshorn', casestudy=casestudy,
+            name='Elmshorn',
             parent_area=kreis_pi)
         pinneberg = models.LAU2.objects.create(
-            name='Pinneberg', casestudy=casestudy,
+            name='Pinneberg',
             parent_area=kreis_pi)
         amt_pinnau = models.LAU1.objects.create(
-            name='Amt Pinnau', casestudy=casestudy,
+            name='Amt Pinnau',
             parent_area=kreis_pi)
         ellerbek = models.LAU2.objects.create(
-            name='Ellerbek', casestudy=casestudy,
+            name='Ellerbek',
             parent_area=amt_pinnau)
 
         schnelsen = models.CityNeighbourhood.objects.create(
-            name='Schnelsen', casestudy=casestudy,
+            name='Schnelsen',
             parent_area=hh)
         burgwedel = models.CityNeighbourhood.objects.create(
-            name='Burgwedel', casestudy=casestudy,
+            name='Burgwedel',
             parent_area=hh)
         egenbuettel = models.CityNeighbourhood.objects.create(
-            name='Egenbüttel', casestudy=casestudy,
+            name='Egenbüttel',
             parent_area=ellerbek)
         langenmoor = models.CityNeighbourhood.objects.create(
-            name='Langenmoor', casestudy=casestudy,
+            name='Langenmoor',
             parent_area=elmshorn)
         elmshorn_mitte = models.CityNeighbourhood.objects.create(
-            name='Elmshorn-Mitte', casestudy=casestudy,
+            name='Elmshorn-Mitte',
             parent_area=elmshorn)
 
         cls.kreis_pi = kreis_pi
@@ -224,7 +225,7 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         """Test adding a geometry to an area"""
         response = self.get_check_200('area-detail',
                                       casestudy_pk=self.casestudy.pk,
-                                      level_pk=self.kreis_pi.level.pk,
+                                      level_pk=self.kreis_pi.adminlevel.pk,
                                       pk=self.kreis_pi.pk)
         data = response.data
         self.assertEqual(data['type'], 'Feature')
@@ -232,9 +233,9 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         cs_uri = self.reverse('casestudy-detail', pk=self.casestudy.pk)
         level_uri = self.reverse('adminlevels-detail',
                                  casestudy_pk=self.casestudy.pk,
-                                 pk=self.kreis_pi.level.pk)
+                                 pk=self.kreis_pi.adminlevel.pk)
         self.assertURLEqual(properties['casestudy'], cs_uri)
-        self.assertURLEqual(properties['level'], level_uri)
+        self.assertURLEqual(properties['adminlevel'], level_uri)
         assert properties['name'] == self.kreis_pi.name
 
         # geometry is None
@@ -252,7 +253,7 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                 'properties': {'name': new_name,},}
         response = self.patch('area-detail',
                               casestudy_pk=self.casestudy.pk,
-                              level_pk=self.kreis_pi.level.pk,
+                              level_pk=self.kreis_pi.adminlevel.pk,
                               pk=self.kreis_pi.pk,
                               data=json.dumps(data),
                               extra=dict(content_type='application/json'),

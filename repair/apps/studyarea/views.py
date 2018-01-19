@@ -19,11 +19,11 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           AdminLevels,
                                           Area,
+                                          Areas,
                                           )
 
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
-                                               AreaSubModels,
                                                AdminLevelSerializer,
                                                AreaSerializer,
                                                AreaGeoJsonSerializer,
@@ -78,9 +78,9 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
                                                level__lte=own_level.level)
         level_ids = [l.level for l in levels]
 
-        parents = [AreaSubModels[parent_level].objects.get(pk=parent_id)]
+        parents = [Areas.by_level[parent_level].objects.get(pk=parent_id)]
         for level_id in level_ids:
-            model = AreaSubModels[level_id]
+            model = Areas.by_level[level_id]
             areas = model.objects.filter(parent_area__in=parents)
             parents.extend(areas)
         filter_args = self.get_filter_args(queryset=areas,

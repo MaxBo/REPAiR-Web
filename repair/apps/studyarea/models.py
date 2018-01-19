@@ -1,8 +1,10 @@
+import six
 from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.contenttypes.models import ContentType
 
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy
+
 
 
 class StakeholderCategory(GDSEUniqueNameModel):
@@ -30,26 +32,44 @@ class AdminLevels(GDSEUniqueNameModel):
                            ('casestudy', 'name',),
                            )
 
+    def create_area(self, **kwargs):
+        """Create an area of the according level"""
+        area_model = Areas.by_level[self.level]
+        area = area_model.objects.create(adminlevel=self, **kwargs)
+        return area
+
 
 class Area(GDSEUniqueNameModel):
     _unique_field = 'code'
+    _submodels = {}
 
-    level = models.ForeignKey(AdminLevels)
+    adminlevel = models.ForeignKey(AdminLevels)
     content_type = models.ForeignKey(ContentType)
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
-    casestudy = models.ForeignKey(CaseStudy)
 
     def save(self, *args, **kwargs):
-        if self.content_type_id is None:
-            content_type = ContentType.objects.get_for_model(self.__class__)
-            level = content_type.model_class()._level
-            self.level = AdminLevels.objects.get(level=level)
-            self.content_type = content_type
         # use name as code, if code not provided
         if not self.code:
             self.code = self.name
+
+        if self.content_type_id is None:
+            content_type = ContentType.objects.get_for_model(self.__class__)
+            level = content_type.model_class()._level
+            try:
+                adminlevel = self.adminlevel
+            except AdminLevels.DoesNotExist:
+                adminlevel = ''
+
+            if not adminlevel:
+                # casestudy from the parent_area
+                casestudy = self.parent_area.adminlevel.casestudy
+                self.adminlevel = AdminLevels.objects.get(level=level,
+                                                          casestudy=casestudy,
+                                                          )
+            self.content_type = content_type
+
         super().save(*args, **kwargs)
 
 
@@ -161,4 +181,18 @@ class Links(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+
+
+class AreaTypesMeta(type):
+    def __init__(cls, name, bases, nmspc):
+        """"""
+        super(AreaTypesMeta, cls).__init__(name, bases, nmspc)
+        for k, v in globals().items():
+            if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
+                cls.by_level[v._level] = v
+
+
+class Areas(metaclass=AreaTypesMeta):
+    """"""
+    by_level = {}
 
