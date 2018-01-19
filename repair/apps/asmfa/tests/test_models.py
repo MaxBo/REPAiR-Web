@@ -27,6 +27,7 @@ from repair.apps.asmfa.models import (
 
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
+from repair.apps.studyarea.factories import AreaFactory
 
 
 class ASMFAModelTest(TestCase):
@@ -588,6 +589,9 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         """Test creating, updating and deleting of administrative locations"""
         # create administrative location with actor and casestudy
         location = AdministrativeLocationFactory()
+
+        delft, rotterdam = self.define_areas(location)
+
         cs = location.casestudy.pk
         keyflow = location.keyflow.pk
         actor = location.actor
@@ -616,7 +620,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
 
         # patch existing administrative location
         new_streetname = 'Hauptstraße 13'
-        data = {'properties': {'address': new_streetname},
+        data = {'properties': {'address': new_streetname,
+                               'area': delft.pk,},
                 'geometry': location.geom.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
@@ -629,6 +634,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [location.geom.x, location.geom.y]
+        assert properties['area'] == delft.pk
 
         # delete location
         response = self.client.delete(url_locations_detail)
@@ -646,7 +652,10 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # post new administrative location
         new_streetname = 'Dorfstraße 2'
         new_geom = Point(x=14, y=15, srid=4326)
-        data = {'properties': {'address': new_streetname, 'actor': actor.id},
+        data = {'properties':
+                {'address': new_streetname,
+                 'actor': actor.id,
+                 'area': rotterdam.pk,},
                 'geometry': new_geom.geojson
                 }
         response = self.client.post(url_locations, data, format='json')
@@ -669,6 +678,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
+        assert properties['area'] == rotterdam.pk
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4269;POINT(100 -11)'
@@ -679,6 +689,21 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         response = self.client.get(url_locations_detail)
         geom = response.data['geometry']
         assert geom['coordinates'] == [100, -11]
+
+    def define_areas(self, location):
+        # create areas
+        zuidholland = AreaFactory(adminlevel__level=4,
+                                  adminlevel__name='Province',
+                                  adminlevel__casestudy_id=location.casestudy.pk,
+                                  name='Zuid-Holland')
+        delft = AreaFactory(adminlevel__level=6,
+                            adminlevel__name='Gemeende',
+                            name='Delft',
+                            parent_area=zuidholland)
+        rotterdam = AreaFactory(adminlevel__level=6,
+                                name='Rotterdam',
+                                parent_area=zuidholland)
+        return delft, rotterdam
 
     def get_url_actor(self, cs, keyflow, actor):
         url_actor = reverse('actor-detail', kwargs={'casestudy_pk': cs,
@@ -704,6 +729,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         keyflow = location1.keyflow.pk
         actor = location1.actor
         location2 = OperationalLocationFactory(actor=actor)
+
+        delft, rotterdam = self.define_areas(location1)
 
         # add access to casestudy
         casestudy = CaseStudy.objects.get(id=cs)
@@ -731,7 +758,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
                                                      location=location1.id)
         new_location = Point(x=2, y=3, srid=4326)
         new_streetname = 'Hauptstraße 13'
-        data = {'properties': {'address': new_streetname},
+        data = {'properties': {'address': new_streetname,
+                               'area': rotterdam.pk,},
                 'geometry': new_location.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
@@ -744,6 +772,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_location.x, new_location.y]
+        assert properties['area'] == rotterdam.pk
 
         # delete location 2
         url_locations_detail = self.get_location_url(cs, keyflow,
@@ -758,7 +787,11 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # post new operational location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        data = {'properties': {'address': new_streetname, 'actor': actor.id},
+        zuid_holland = rotterdam.parent_area
+        data = {'properties':
+                {'address': new_streetname,
+                 'actor': actor.id,
+                 'area': zuid_holland.pk,},
                 'geometry': new_geom.geojson}
 
         response = self.client.post(url_locations, data, format='json')
@@ -777,16 +810,20 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         assert properties['address'] == new_streetname
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
+        assert properties['area'] == zuid_holland.pk
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4326;POINT(6 5)'
-        data = {'geom' : new_geom_ewkt}
+        data = {'geom' : new_geom_ewkt,
+                'area': delft.pk,}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
         response = self.client.get(url_locations_detail)
         geom = response.data['geometry']
         assert geom['coordinates'] == [6, 5]
+        properties = response.data['properties']
+        assert properties['area'] == delft.pk
 
 
 class TestLocationsOfActor(LoginTestCase, APITestCase):

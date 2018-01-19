@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.contenttypes.models import ContentType
 
-from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy
+from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
 
 
 
@@ -39,7 +39,7 @@ class AdminLevels(GDSEUniqueNameModel):
         return area
 
 
-class Area(GDSEUniqueNameModel):
+class Area(GDSEModel):
     _unique_field = 'code'
     _submodels = {}
 
@@ -55,12 +55,15 @@ class Area(GDSEUniqueNameModel):
             self.code = self.name
 
         if self.content_type_id is None:
-            content_type = ContentType.objects.get_for_model(self.__class__)
-            level = content_type.model_class()._level
+            adminlevel = None
             try:
                 adminlevel = self.adminlevel
+                level = adminlevel.level
+                area_class = Areas.by_level[level]
+                content_type = ContentType.objects.get_for_model(area_class)
             except AdminLevels.DoesNotExist:
-                adminlevel = ''
+                content_type = ContentType.objects.get_for_model(self.__class__)
+                level = content_type.model_class()._level
 
             if not adminlevel:
                 # casestudy from the parent_area

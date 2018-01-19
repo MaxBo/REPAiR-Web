@@ -34,3 +34,12 @@ class AreaFactory(DjangoModelFactory):
     name = 'Lummerland'
     adminlevel = factory.SubFactory(AdminLevelsFactory)
 
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        """Override the default _create() to create a subclass or area"""
+        attr = 'adminlevel'
+        adminlevel = kwargs.get(attr, None)
+        if adminlevel is not None:
+            model_class = models.Areas.by_level[adminlevel.level]
+        area = super(cls, AreaFactory)._create(model_class, *args, **kwargs)
+        return area

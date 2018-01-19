@@ -37,6 +37,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            NestedHyperlinkedRelatedField,
                                            IDRelatedField)
 
+from repair.apps.studyarea.models import Area
+
 
 class InCasestudyKeyflowListField(InCasestudyListField):
     """Field that returns a list of all items in the keyflow in the casestudy"""
@@ -656,7 +658,8 @@ class AdministrativeLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
-    area = serializers.IntegerField(required=False, allow_null=True)
+    area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
+                                              queryset=Area.objects.all())
 
     class Meta:
         model = AdministrativeLocation
@@ -717,7 +720,8 @@ class OperationalLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
-    area = serializers.IntegerField(required=False, allow_null=True)
+    area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
+                                              queryset=Area.objects.all())
 
     class Meta:
         model = OperationalLocation
