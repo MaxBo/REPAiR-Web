@@ -5,12 +5,15 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
 
+from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
+
 from publications_bootstrap.models import Publication
 from publications_bootstrap.admin import PublicationAdmin
 from publications_bootstrap.admin_views.import_bibtex import (
     parse_upload_bibtex, get_response)
 
 from .models import PublicationInCasestudy, CaseStudy
+
 
 def import_bibtex(request):
     if request.method == 'POST':
@@ -39,8 +42,8 @@ class PublicationInCasestudyInline(admin.StackedInline):
     verbose_name_plural = 'PublicationInCasestudies'
     fk_name = 'publication'
 
-class CustomPublicationAdmin(PublicationAdmin):
-    inlines = (PublicationInCasestudyInline, )
+class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
+    inlines = PublicationAdmin.inlines + [PublicationInCasestudyInline]
 
     def get_urls(self):
         return [url(r'^import_bibtex/$',

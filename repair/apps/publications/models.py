@@ -8,7 +8,7 @@ from publications_bootstrap.models import (Publication,
 
 
 class PublicationInCasestudy(models.Model):
-    publication = models.OneToOneField(Publication, on_delete=models.CASCADE)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
 
     def __str__(self):

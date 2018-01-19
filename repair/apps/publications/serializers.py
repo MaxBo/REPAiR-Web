@@ -20,6 +20,8 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
+    publication_id = serializers.CharField(source='publication.id',
+                                           required=False)
     type = serializers.CharField(source='publication.type', required=False,
                                  default='Article')
     citekey = serializers.CharField(source='publication.citekey',
@@ -32,13 +34,13 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                                     default=datetime.datetime.now().year)
     doi = serializers.CharField(source='publication.doi',
                                  allow_blank=True, required=False)
-    casestudy = serializers.HyperlinkedRelatedField(read_only=True,
-        view_name='casestudy-detail')
+    casestudy = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model = PublicationInCasestudy
         fields = ('url',
                   'id',
+                  'publication_id',
                   'casestudy',
                   'type',
                   'citekey',
@@ -46,6 +48,7 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                   'authors',
                   'year',
                   'doi',
+                  'casestudy',
                   )
 
     def create(self, validated_data):
@@ -58,9 +61,8 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
         publication_data = validated_data.pop('publication', {})
         publication_type = self.get_publication_type(publication_data)
         year = publication_data.pop('year', self.fields['year'].default)
-        publication = Publication.objects.create(type=publication_type,
-                                                 year=year,
-                                                 **publication_data)
+        publication, created = Publication.objects.get_or_create(
+            type=publication_type, year=year, **publication_data)
         obj = self.Meta.model.objects.create(
             casestudy=casestudy,
             publication=publication,
