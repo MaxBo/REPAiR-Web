@@ -28,6 +28,7 @@ define([
     });
     var markerLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
     var backgroundLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var polyLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
   
     var map = new ol.Map({
       layers: [
@@ -35,6 +36,7 @@ define([
           source: new ol.source.OSM({crossOrigin: 'anonymous'}),
         }),
         backgroundLayer,
+        polyLayer,
         markerLayer
       ],
       target: options.divid,
@@ -86,6 +88,7 @@ define([
      * @param {Array.<Array.<number>>} coordinates  coordinates of the polygon
      * @param {Object} options
      * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     * @param {boolean=} options.background         if true it is added as background, will not be removed when removePolygons() is called
      *
      * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
      *
@@ -98,9 +101,34 @@ define([
       var proj = options.projection || mapProjection;
       var poly = new ol.geom.Polygon(coordinates);
       var ret = poly.clone();
+      var layer = (options.background) ? backgroundLayer: polyLayer;
+      
       var feature = new ol.Feature({ geometry: poly.transform(proj, mapProjection) });
-      backgroundLayer.getSource().addFeature(feature);
+      layer.getSource().addFeature(feature);
       return ret;
+    };
+    
+    /**
+     * set the style the polygons are drawn
+     *
+     * @param {string} stroke  color of outline
+     * @param {string} fill    color of filling
+     *
+     * @method setPolygonStyle
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.setPolygonStyle = function(stroke, fill){
+      var style = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+              color: stroke,
+              width: 3
+            }),
+            fill: new ol.style.Fill({
+              color:  fill
+            })
+          });
+      polyLayer.setStyle(style);
     };
     
     
@@ -199,6 +227,17 @@ define([
     }
     
     /**
+     * remove all polygons from map
+     *
+     * @method removeMarkers
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.removePolygons = function(){
+      polyLayer.getSource().clear();
+    };
+    
+    /**
      * remove all markers from map
      *
      * @method removeMarkers
@@ -292,17 +331,20 @@ define([
      */
     this.center = function(coordinate, options) {
       var options = options || {};
+      var zoom;
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
       if (options.extent){
         var extent = options.extent;
         if (options.projection){
-          extent = this.toMapProjection(extent, options.projection);
+          var min = this.toMapProjection(extent.slice(0, 2), options.projection);
+          var max = this.toMapProjection(extent.slice(2, 4), options.projection);
+          extent = min.concat(max);
         }
-        view.fit(extent, {size: map.getSize(), padding: [50, 50, 50, 50]});
+        var resolution = view.getResolutionForExtent(extent);
+        zoom = view.getZoomForResolution(resolution);
       }
-      
-      view.animate({center: coordinate});//, {zoom: 10});
+      view.animate({ center: coordinate, zoom: zoom });//, {zoom: 10});
     }
     
     this.map = map;

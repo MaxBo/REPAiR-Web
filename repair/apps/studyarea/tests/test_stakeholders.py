@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest, LoginTestCase
 
 from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              StakeholderCategoryFactory,
@@ -35,7 +35,7 @@ class UniqueStakeholderNames(TestCase):
                 casestudy=city2, name='Cat1')
 
 
-class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
+class StakeholdercategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
@@ -62,7 +62,7 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
         super().tearDown()
 
 
-class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
+class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
