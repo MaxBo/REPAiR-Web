@@ -21,32 +21,16 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Area,
                                           )
 
-import repair.apps.studyarea.models as smodels
-
-AreaSubModels = {m._level: m for m in smodels.__dict__.values()
-                 if isinstance(m, type) and issubclass(m, Area)
-                 and not m == Area
-                 }
-
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
+                                               AreaSubModels,
                                                AdminLevelSerializer,
                                                AreaSerializer,
+                                               AreaGeoJsonSerializer,
+                                               AreaGeoJsonPostSerializer,
                                                )
 
 from repair.views import BaseView
-
-#class IsCasestudyFilterBackend(BaseFilterBackend):
-    #"""
-    #Filter that shows only objects related to to the casestudy
-    #"""
-    #def filter_queryset(self, request, queryset, view):
-        #casestudy = request.session.get('casestudy')
-        #if casestudy:
-            #queryset = queryset.filter(casestudy=casestudy)
-        #else:
-            #queryset = queryset.all()
-        #return queryset.filter(casestudy=casestudy)
 
 
 class StakeholderCategoryViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
@@ -61,31 +45,38 @@ class StakeholderViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     serializer_class = StakeholderSerializer
 
 
-class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AdminLevelViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
 
 
-class AreaViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+    serializers = {'retrieve': AreaGeoJsonSerializer,
+                   'update': AreaGeoJsonSerializer,
+                   'partial_update': AreaGeoJsonSerializer,
+                   'create': AreaGeoJsonPostSerializer,}
 
     def _filter(self, lookup_args, query_params={}, SerializerClass=None):
         params = {k: v for k, v in query_params.items()}
         parent_level = int(params.pop('parent_level', 0))
+        parent_id = params.pop('parent_id', None)
 
-        if not parent_level:
+        if not parent_level and parent_id is None:
             return super()._filter(lookup_args,
                                    query_params=query_params,
                                    SerializerClass=SerializerClass)
 
-        parent_id = params.pop('parent_id', None)
         casestudy = lookup_args['casestudy_pk']
         level_pk = int(lookup_args['level_pk'])
-        levels = AdminLevels.objects.filter(casestudy__id=casestudy)
-        level_ids = sorted([a.level for a in levels
-                            if a.level > parent_level
-                            and a.level <= level_pk])
+        own_level = AdminLevels.objects.get(pk=level_pk)
+        if not parent_level:
+            parent_level = Area.objects.get(pk=parent_id).level.level
+        levels = AdminLevels.objects.filter(casestudy__id=casestudy,
+                                               level__gt=parent_level,
+                                               level__lte=own_level.level)
+        level_ids = [l.level for l in levels]
 
         parents = [AreaSubModels[parent_level].objects.get(pk=parent_id)]
         for level_id in level_ids:
@@ -96,10 +87,6 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ReadOnlyModelViewSet):
                                            query_params=params)
         queryset = areas.filter(**filter_args)
         return queryset
-
-
-
-
 
 
 class StudyAreaIndexView(BaseView):

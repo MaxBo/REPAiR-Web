@@ -3,48 +3,11 @@ import json
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
+import reversion
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.login.factories import *
-import reversion
-
-
-class ViewTest(APITestCase):
-
-    fixtures = ['auth_fixture', 'user_fixture.json']
-
-
-    def test_get_group(self):
-        url = reverse('group-list')
-        data = {'name': 'MyGroup'}
-        response = self.client.post(url, data, format='json')
-        print(response)
-        response = self.client.get(url)
-        print(response.data)
-
-    def test_get_user(self):
-        lodz = reverse('casestudy-detail', kwargs=dict(pk=3))
-
-        url = reverse('user-list')
-        data = {'username': 'MyUser',
-                'casestudies': [lodz],
-                'password': 'PW',
-                'organization': 'GGR',
-                'groups': [],
-                'email': 'a.b@c.de',}
-        response = self.client.post(url, data, format='json')
-        print(response)
-        response = self.client.get(url)
-        print(response.data)
-        url = reverse('user-detail', kwargs=dict(pk=4))
-        response = self.client.get(url)
-        print(response.data)
-        new_mail = 'new@mail.de'
-        data = {'email': new_mail,}
-        self.client.patch(url, data)
-        response = self.client.get(url)
-        assert response.data['email'] == new_mail
 
 
 class TestReversionOfCasestudy(APITestCase):
@@ -98,26 +61,27 @@ class TestReversionOfCasestudy(APITestCase):
     def test02_casestudy_reversion_view(self):
         """Test the view for versioning of casestudies"""
         # user1 logs in
-        client = Client()
-        user = client.login(username=self.user1.user.username,
+        #client = Client()
+        user = self.client.login(username=self.user1.user.username,
                             password=self.pw1)
 
         # ..and posts a new Casestudy
-        url = reverse('casestudy-list')
+        #url = reverse('casestudy-list')
         data = {'name': 'CS Version 1'}
-        response = client.post(url, data)
+        response = self.post('casestudy-list', data=data)
         cs_id = response.data['id']
-        client.logout()
+        self.client.logout()
 
         # user2 logs in
-        user = client.login(username=self.user2.user.username,
-                            password=self.pw2)
+        user = self.client.login(username=self.user2.user.username,
+                                 password=self.pw2)
 
-        url = reverse('casestudy-detail', kwargs={'pk': cs_id,})
+        #url = reverse('casestudy-detail', kwargs={'pk': cs_id,})
         data = {'name': 'CS Version 2'}
-        response = client.patch(url, json.dumps(data),
-                                content_type='application/json')
-        client.logout()
+        response = self.patch('casestudy-detail', pk=cs_id,
+                              data=json.dumps(data),
+                              extra=dict(content_type='application/json'))
+        self.client.logout()
 
         obj = CaseStudy.objects.get(pk=cs_id)
         # Load a queryset of versions for a specific model instance.

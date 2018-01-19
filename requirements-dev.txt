@@ -1,21 +1,29 @@
 -e .
 
 django==1.11.5
-django-require
+django-webpack-loader
 djangorestframework
 djangorestframework-gis
+django-test-plus
 django-money
 django-reversion
-django-publications-bootstrap
+django-reversion-compare
+diff-match-patch
+bibtexparser>=0.5.5
+
+git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap
 drf-nested-routers
 numpy
 matplotlib
 plotly
 psycopg2
+geojson
 
 django-debug-toolbar
 
 django-dynamic-fixture
+git+https://github.com/davedash/django-fixture-magic.git#egg=django-fixture-magic
+
 fake-factory
 factory_boy
 coreapi

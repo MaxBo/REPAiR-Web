@@ -3,10 +3,9 @@
 from django.test import TestCase
 from django.contrib.gis.geos.point import Point
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest, LoginTestCase
-from rest_framework import status
 from repair.apps.login.models import CaseStudy
 
 
@@ -30,31 +29,9 @@ from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
 
 
-
 class ASMFAModelTest(TestCase):
 
-    fixtures = ['auth_fixture',
-                'user_fixture.json',
-                'activities_dummy_data.json',]
-
-    def test_string_representation(self):
-        for Model in (
-            Activity,
-            Activity2Activity,
-            ActivityGroup,
-            ActivityStock,
-            Actor,
-            Actor2Actor,
-            ActorStock,
-            DataEntry,
-            Group2Group,
-            GroupStock,
-            AdministrativeLocation,
-            OperationalLocation,
-            ):
-
-            print('{} has {} test data entries'.format(
-                Model, Model.objects.count()))
+    fixtures = ['auth', 'sandbox']
 
     def test_geolocation(self):
         """Test a geolocation"""
@@ -417,20 +394,6 @@ class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__keyflow=self.kic,
             activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__id=self.activitygroup)
-
-
-class QualityTest(BasicModelTest):  #, APITestCase):
-
-    url_key = "quality"
-    url_pks = dict()
-    url_pk = dict(pk=1)
-    post_data = dict(name='posttestname')
-    put_data = dict(name='puttestname')
-    patch_data = dict(name='patchtestname')
-
-    def setUp(self):
-        super().setUp()
-        self.obj = QualityFactory()
 
 
 class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):

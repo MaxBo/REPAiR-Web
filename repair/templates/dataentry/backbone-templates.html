@@ -58,7 +58,7 @@
 
 <!-- template for view on editing a node -->
 <script type="text/template" id="edit-node-template">
-  <div class="col-md-12 dashed">
+  <div class="col-md-12 dashed" style="font-size: 12px;">
     <div class="row">
       <h3>
         <%= name %> 
@@ -84,7 +84,7 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-input-button' class="btn btn-primary" title="{% trans "add input" %}">
+      <button id='add-input-button' class="btn btn-primary square" title="{% trans "add input" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
@@ -104,7 +104,7 @@
         </tr>
         <tr>
       </table>
-      <button id='add-output-button' class="btn btn-primary" title="{% trans "add output" %}">
+      <button id='add-output-button' class="btn btn-primary square" title="{% trans "add output" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
@@ -122,13 +122,63 @@
           <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
-      <button id='add-stock-button' class="btn btn-primary" title="{% trans "add stock" %}">
+      <button id='add-stock-button' class="btn btn-primary square" title="{% trans "add stock" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
       </button>
     </div>
   </div>
+  <div id="datasource-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Edit Datasource" %}</h4>
+        </div>
+        <div class="modal-body">
+          <div class='row'>
+            <table id='publications-table' class='tablesorter'>
+              <thead>
+                <tr>
+                  <th>{% trans "Title" %}</th>
+                  <th>{% trans "Authors" %}</th>
+                  <th>{% trans "DOI" %}</th>
+                  <th>{% trans "URL" %}</th>
+                </tr>
+              </thead> 
+              <tbody> 
+              </tbody> 
+            </table>
+            <!-- pager -->
+            <div id="pager" class="dspager">
+              <form>
+                <img src="{{STATIC_URL}}img/first.png" class="first"/>
+                <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
+                <!-- the "pagedisplay" can be any element, including an input -->
+                <input type="text" class="pagedisplay"/>
+                <img src="{{STATIC_URL}}img/next.png" class="next"/>
+                <img src="{{STATIC_URL}}img/last.png" class="last"/>
+                <select class="pagesize">
+                  <option value="20">20</option>
+                  <option value="40">40</option>
+                  <option value="60">60</option>
+                  <option value="100">100</option>
+                  <option value="1000">1000</option>
+                </select>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary" id="confirm-datasource" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </script>
 
+<!--- popover template -->
 <script type="text/template" id="popover-product-template">
   <!--<b><%= productName %></b>-->
   <% _.each(fractions, function(fraction){ %>
@@ -439,8 +489,18 @@
       <td><input type="text" name="address" value="<%= properties.address %>"></td>
     </tr>
     <tr>
-      <td>{% trans "Point" %}</td>
-      <td id="coordinates"></td>
+      <td>{% trans "Marker" %}</td>
+      <td>
+        <span style="white-space: nowrap;">
+          <div id="coordinates" style="float:left; margin-right: 5px;"></div>
+          <button id='add-point' class="btn btn-primary square" title="{% trans "add marker" %}">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+          <button id='remove-point' class="btn btn-warning square" title="{% trans "remove marker" %}">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+        </span>
+      </td>
     </tr>
   </table>
 </script>
@@ -475,6 +535,7 @@
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
+<!-- general modal for confirmations -->
 <script type="text/template" id="confirmation-template">
   <div class="modal fade" role="dialog">
     <div class="modal-dialog">

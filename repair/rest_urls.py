@@ -49,6 +49,8 @@ from repair.apps.asmfa.views import (
     MaterialViewSet,
 )
 
+from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
+
 ## base routes ##
 
 router = DefaultRouter()
@@ -58,6 +60,7 @@ router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'materials', MaterialViewSet)
+router.register(r'publications', login_views.PublicationView)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -70,6 +73,7 @@ cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
+cs_router.register(r'publications', PublicationInCasestudyViewSet)
 
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',

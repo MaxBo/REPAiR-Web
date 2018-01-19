@@ -8,6 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from publications_bootstrap.models import Publication
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 from repair.apps.asmfa.models import KeyflowInCasestudy
@@ -161,6 +162,28 @@ class NestedHyperlinkedRelatedField2(NestedHyperlinkedRelatedField):
             return self.get_queryset().get(**kwargs)
 
 
+class InCasestudySerializerMixin:
+    """get casestudy from session.url_pks and use this in update and create"""
+    def get_casestudy(self):
+        url_pks = self.context['request'].session['url_pks']
+        casestudy_pk = url_pks['casestudy_pk']
+        casestudy = CaseStudy.objects.get(id=casestudy_pk)
+        return casestudy
+
+    def create(self, validated_data):
+        """Create a new keyflow in casestury"""
+        casestudy = self.get_casestudy()
+        obj = self.Meta.model.objects.create(
+            casestudy=casestudy,
+            **validated_data)
+        return obj
+
+    def update(self, obj, validated_data):
+        casestudy = self.get_casestudy()
+        validated_data['casestudy'] = casestudy
+        return super().update(obj, validated_data)
+
+
 class InCasestudyField(NestedHyperlinkedRelatedField2):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     filter_field = 'casestudy_pk'
@@ -293,6 +316,14 @@ class InUICField(InCasestudyField):
         self.url_pks_lookup['user_pk'] = \
             self.parent_lookup_kwargs['user_pk']
 
+class ForceMultiMixin:
+    """Convert Polygon to Multipolygon, if required"""
+    def convert2multi(self, validated_data, geo_field):
+        geom = validated_data.get(geo_field, None)
+        if geom and isinstance(geom, geos.Polygon):
+            geom = geos.MultiPolygon(geom)
+            validated_data[geo_field] = geom
+
 
 class IdentityFieldMixin:
     """Mixin to make a field that can be used with the ...-list view"""
@@ -418,16 +449,21 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
         return user
 
 
-class CaseStudySerializer(GeoFeatureModelSerializer,
+class CaseStudySerializer(ForceMultiMixin,
+                          GeoFeatureModelSerializer,
                           NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
-    userincasestudy_set = InCasestudyListField(view_name='userincasestudy-list')
+    userincasestudy_set = InCasestudyListField(
+        view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
         view_name='stakeholdercategory-list')
     solution_categories = InCasestudyListField(
         view_name='solutioncategory-list')
     implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
+    levels = InCasestudyListField(view_name='adminlevels-list')
+    publications = InCasestudyListField(source='publicationincasestury_set',
+        view_name='publicationincasestudy-list')
 
     class Meta:
         model = CaseStudy
@@ -436,23 +472,17 @@ class CaseStudySerializer(GeoFeatureModelSerializer,
                   'solution_categories', 'stakeholder_categories',
                   'implementations',
                   'keyflows',
+                  'levels',
                   'focusarea',
+                  'publications',
                   )
 
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
         geo_field = self.Meta.geo_field
-        self.convert2multi(validated_data, geo_field, instance)
-        self.convert2multi(validated_data, 'focusarea', instance)
-
+        self.convert2multi(validated_data, geo_field)
+        self.convert2multi(validated_data, 'focusarea')
         return super().update(instance, validated_data)
-
-    def convert2multi(self, validated_data, geo_field, instance):
-        geom = validated_data.pop(geo_field, None)
-        if geom:
-            if isinstance(geom, geos.Polygon):
-                geom = geos.MultiPolygon(geom)
-            setattr(instance, geo_field, geom)
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):
@@ -483,3 +513,8 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
         read_only_fields = ['name']
 
 
+class PublicationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
+    class Meta:
+        model = Publication
+        fields = ('id', 'title', 'authors', 'doi', 'url')

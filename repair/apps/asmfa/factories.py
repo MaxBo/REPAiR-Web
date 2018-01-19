@@ -21,8 +21,6 @@ class KeyflowFactory(DjangoModelFactory):
     name = 'PET Plastic'
     code = 'PET'
 
-    #casestudy = factory.SubFactory(CaseStudyFactory)
-
     @factory.post_generation
     def casestudies(self, create, extracted, **kwargs):
         if not create:
@@ -42,12 +40,6 @@ class KeyflowInCasestudyFactory(DjangoModelFactory):
     casestudy = factory.SubFactory(CaseStudyFactory)
     class Meta:
         model = models.KeyflowInCasestudy
-
-
-#class QualityFactory(DjangoModelFactory):
-    #class Meta:
-        #model = models.Quality
-    #name = 'Best Quality'
 
 
 class NodeFactory(DjangoModelFactory):
@@ -90,7 +82,6 @@ class FlowFactory(DjangoModelFactory):
         model = models.Flow
     amount = 1234
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
-    #quality = factory.SubFactory(QualityFactory)
 
 
 class ProductFactory(DjangoModelFactory):
@@ -171,4 +162,3 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
-

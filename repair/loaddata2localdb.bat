@@ -1,3 +1,4 @@
-SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings
+SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
 python manage.py migrate --run-syncdb
-python manage.py loaddata auth_fixture.json user_fixture.json activities_dummy_data.json stakeholder_fixture.json changes_fixture.json reversions_fixture.json
+python manage.py loaddata sandbox_data"
+REM python manage.py loaddata auth sandbox

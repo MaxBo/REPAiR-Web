@@ -25,6 +25,7 @@ class GDSEModel(models.Model):
 
 class GDSEUniqueNameModel(GDSEModel):
     """Base class for the GDSE Models"""
+    _unique_field = 'name'
 
     class Meta:
         abstract = True
@@ -33,14 +34,16 @@ class GDSEUniqueNameModel(GDSEModel):
         super(GDSEUniqueNameModel, self).validate_unique(*args, **kwargs)
 
         qs = self.__class__._default_manager.filter(
-            name=self.name
+            **{self._unique_field: getattr(self, self._unique_field)}
         )
 
         if qs.exists():
             for row in qs:
                 if row.casestudy == self.casestudy:
                     raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
-                            cl=self.__class__.__name__, n=self.name, c=self.casestudy,))
+                            cl=self.__class__.__name__,
+                            n=getattr(self, self._unique_field),
+                            c=self.casestudy,))
 
     def save(self, *args, **kwargs):
         """Call :meth:`full_clean` before saving."""
@@ -117,9 +120,9 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
-    
+
     def get_casestudies(self):
-        return "\n".join([c.name for c in self.casestudies.all()])    
+        return "\n".join([c.name for c in self.casestudies.all()])
 
 
 @receiver(post_save, sender=User)

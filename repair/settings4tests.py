@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 from repair.settings import *
 
+DEBUG = True
 
 DATABASES = {
     'default': {
@@ -21,17 +22,28 @@ DATABASES = {
 
 }
 
-MIGRATION_MODULES = {
-    'auth': None,
-    #'contenttypes': None,
-    'default': None,
-    'sessions': None,
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
-    'login': None,
+MIGRATION_MODULES = {
+    #'auth': None,
+    #'contenttypes': None,
+    #'default': None,
+    #'sessions': None,
+
+    #'login': None,
     'asmfa': None,
     'studyarea': None,
     'changes': None,
     'profiles': None,
     'snippets': None,
     'scaffold_templates': None,
+}
+
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'bundles/dev/',
+        'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-dev.json'),
+    }
 }

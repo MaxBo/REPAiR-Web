@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
@@ -16,7 +17,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity2Activity,
                                       Group2Group,
                                       Keyflow,
-                                      Quality,
                                       KeyflowInCasestudy,
                                       GroupStock,
                                       ActivityStock,
@@ -29,13 +29,13 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
+                                           InCasestudySerializerMixin,
                                            InCasestudyField,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            NestedHyperlinkedRelatedField,
-                                           IDRelatedField,
-                                           CasestudyField)
+                                           IDRelatedField)
 
 
 class InCasestudyKeyflowListField(InCasestudyListField):
@@ -92,13 +92,6 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
         self.update(instance=keyflow, validated_data=validated_data)
         return keyflow
 
-
-class QualitySerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-
-    class Meta:
-        model = Quality
-        fields = ('url', 'id', 'name')
 
 class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {
@@ -181,7 +174,8 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   )
 
 
-class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
+class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
+                                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
     keyflow = KeyflowField(view_name='keyflow-detail')
@@ -192,25 +186,6 @@ class KeyflowInCasestudyPostSerializer(NestedHyperlinkedModelSerializer):
         fields = ('keyflow',
                   'note',
                   )
-
-    def get_casestudy(self):
-        url_pks = self.context['request'].session['url_pks']
-        casestudy_pk = url_pks['casestudy_pk']
-        casestudy = CaseStudy.objects.get(id=casestudy_pk)
-        return casestudy
-
-    def create(self, validated_data):
-        """Create a new keyflow in casestury"""
-        casestudy = self.get_casestudy()
-        obj = self.Meta.model.objects.create(
-            casestudy=casestudy,
-            **validated_data)
-        return obj
-
-    def update(self, obj, validated_data):
-        casestudy = self.get_casestudy()
-        validated_data['casestudy'] = casestudy
-        return super().update(obj, validated_data)
 
 
 class KeyflowInCasestudyDetailCreateMixin:

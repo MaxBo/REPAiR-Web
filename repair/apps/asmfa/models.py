@@ -70,6 +70,9 @@ class ProductFraction(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='products')
 
+    def __str__(self):
+        return '{}: {}'.format(self.product, self.material)
+
 
 class Quality(GDSEModel):
     # not used anymore
@@ -81,9 +84,6 @@ class Quality(GDSEModel):
 
 
 class Node(GDSEModel):
-
-    # source = models.BooleanField(default=False) # not used anymore
-    # sink = models.BooleanField(default=False) # not used anymore
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
@@ -219,10 +219,8 @@ class OperationalLocation(Establishment):
 class Flow(models.Model):
 
     amount = models.PositiveIntegerField(blank=True, default=0)
-    # called this "keyflow" instead of "material", not to confuse with Material class
+
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
-    # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-    #                             default=1)
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
 
@@ -274,9 +272,6 @@ class Stock(models.Model):
     amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
-
-    # quality = models.ForeignKey(Quality, on_delete=models.CASCADE,
-                                    # default=13)
     year = models.IntegerField(default=2016)
 
     class Meta:
@@ -285,29 +280,29 @@ class Stock(models.Model):
 
 class GroupStock(Stock):
 
-        origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                                   related_name='stocks')
-        product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                    related_name='GroupStocks')
-        entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                                  related_name='GroupStockData', default=1)
+    origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
+                               related_name='stocks')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='GroupStocks')
+    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
+                              related_name='GroupStockData', default=1)
 
 
 class ActivityStock(Stock):
 
-        origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                                   related_name='stocks')
-        product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                    related_name='ActivityStocks')
-        entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                                  related_name='ActivityStockData', default=1)
+    origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
+                               related_name='stocks')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='ActivityStocks')
+    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
+                              related_name='ActivityStockData', default=1)
 
 
 class ActorStock(Stock):
 
-        origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                                   related_name='stocks')
-        product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                    related_name='ActorStocks')
-        entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                                  related_name='ActorStockData', default=1)
+    origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
+                               related_name='stocks')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='ActorStocks')
+    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
+                              related_name='ActorStockData', default=1)
