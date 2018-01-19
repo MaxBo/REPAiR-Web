@@ -20,11 +20,11 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           AdminLevels,
                                           Area,
+                                          Areas,
                                           )
 
 from repair.apps.studyarea.serializers import (StakeholderCategorySerializer,
                                                StakeholderSerializer,
-                                               AreaSubModels,
                                                AdminLevelSerializer,
                                                AreaSerializer,
                                                AreaGeoJsonSerializer,
@@ -87,7 +87,7 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         own_level = AdminLevels.objects.get(pk=level_pk)
         if not parent_level:
             try:
-                parent_level = Area.objects.get(pk=parent_id).level.level
+                parent_level = Area.objects.get(pk=parent_id).adminlevel.level
             except Area.DoesNotExist:
                 raise exceptions.NotFound()
         levels = AdminLevels.objects.filter(casestudy__id=casestudy,
@@ -95,12 +95,15 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
                                                level__lte=own_level.level)
         level_ids = [l.level for l in levels]
 
+
+
         try:
-            parents = [AreaSubModels[parent_level].objects.get(id=parent_id)]
+            parents = [Areas.by_level[parent_level].objects.get(pk=parent_id)]
         except:
             raise exceptions.NotFound()
+
         for level_id in level_ids:
-            model = AreaSubModels[level_id]
+            model = Areas.by_level[level_id]
             areas = model.objects.filter(parent_area__in=parents)
             parents.extend(areas)
         filter_args = self.get_filter_args(queryset=areas,

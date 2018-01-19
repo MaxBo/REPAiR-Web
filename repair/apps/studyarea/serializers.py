@@ -8,6 +8,7 @@ from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           AdminLevels,
                                           Area,
+                                          Areas
                                           )
 from repair.apps.login.models import CaseStudy
 from repair.apps.login.serializers import (CaseStudySerializer,
@@ -17,14 +18,10 @@ from repair.apps.login.serializers import (CaseStudySerializer,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            ForceMultiMixin,
+                                           CasestudyField,
                                            )
 
 import repair.apps.studyarea.models as smodels
-
-AreaSubModels = {m._level: m for m in smodels.__dict__.values()
-                 if isinstance(m, type) and issubclass(m, Area)
-                 and not m == Area
-                 }
 
 
 class StakeholderCategoryField(InCasestudyField):
@@ -92,9 +89,6 @@ class AreaListField(InCasestudyListField):
         'casestudy_pk': 'casestudy__id',
         'level_pk': 'id',
     }
-    #class Meta:
-        #model = Stakeholder
-        #fields = ('url', 'id', 'name')
 
 
 class AdminLevelSerializer(CreateWithUserInCasestudyMixin,
@@ -104,7 +98,8 @@ class AdminLevelSerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = AdminLevels
-        fields = ('url', 'id', 'casestudy', 'name', 'level',
+        fields = ('url', 'id', 'casestudy', 'name',
+                  'level',
                   'area_set',
                   )
 
@@ -119,8 +114,8 @@ class ParentAreaField(serializers.IntegerField):
 
     def get_concrete_area(self):
         obj = self.root.instance
-        level = obj.level.level
-        area_class = AreaSubModels[level]
+        level = obj.adminlevel.level
+        area_class = Areas.by_level[level]
         concrete_area = area_class.objects.get(pk=obj.pk)
         return concrete_area
 
@@ -131,28 +126,29 @@ class ParentAreaField(serializers.IntegerField):
 class ParentAreaLevel(ParentAreaField):
     def to_representation(self, value):
         concrete_area = self.get_concrete_area()
-        return str(concrete_area.parent_area.level_id)
+        return str(concrete_area.parent_area.adminlevel_id)
 
     def get_attribute(self, instance):
         """get the level attribute"""
-        concreate_area = super().get_attribute(self.get_concrete_area())
-        if concreate_area is None:
+        concrete_area = super().get_attribute(self.get_concrete_area())
+        if concrete_area is None:
             return None
         else:
-            return concreate_area.level
+            return concrete_area.adminlevel
 
 
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
-                            'level_pk': 'level__id',}
-
-    #level = AdminLevelField(view_name='adminlevels-detail')
+    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
+                            'level_pk': 'adminlevel__id',}
+    casestudy = CasestudyField(source='adminlevel.casestudy',
+                               view_name='casestudy-detail')
 
     class Meta:
         model = Area
-        fields = ('url', 'id', 'casestudy', 'name', 'code',
-                  #'level',
+        fields = ('url', 'id',
+                  'casestudy',
+                  'name', 'code',
                   )
 
 
@@ -163,7 +159,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
     Detail serializer for Areas adding the geom field
     and returning a geojson
     """
-    level = AdminLevelField(view_name='adminlevels-detail')
+    adminlevel = AdminLevelField(view_name='adminlevels-detail')
 
     geometry = GeometryField(source='geom')
     parent_area = ParentAreaField(read_only=True, allow_null=True)
@@ -172,7 +168,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
     class Meta(AreaSerializer.Meta):
         geo_field = 'geometry'
         fields = ('url', 'id', 'casestudy', 'name', 'code',
-                      'level',
+                      'adminlevel',
                       'parent_area',
                       'parent_level',
                       )
@@ -184,35 +180,34 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
 
     def create(self, validated_data):
         """Create a new user and its profile"""
-        casestudy, level = self.get_casestudy_level(
-            validated_data=validated_data)
+        adminlevel = self.get_level(validated_data=validated_data)
 
         if not 'features' in validated_data:
             obj = self.Meta.model.objects.create(
-                casestudy=casestudy,
-                level=level,
+                adminlevel=adminlevel,
                 **validated_data)
             return obj
 
         parent_level_pk = validated_data.pop('parent_level')
         if parent_level_pk is not None:
-            parent_level = AdminLevels.objects.get(level=parent_level_pk)
+            parent_adminlevel = AdminLevels.objects.get(level=parent_level_pk)
 
-            parent_area_class = AreaSubModels.get(parent_level.level)
+            parent_area_class = Areas.by_level.get(parent_adminlevel.level)
         else:
             parent_area_class = None
 
         for feature in validated_data['features']:
             parent_area_code = feature.pop('parent_area', None)
             self.convert2multi(feature, 'geom')
-            model = AreaSubModels[level.level]
+            model = Areas.by_level[adminlevel.level]
             obj = model.objects.create(
-                casestudy=casestudy,
+                adminlevel=adminlevel,
                 **feature)
             if parent_area_class is not None:
                 try:
                     parent_area = parent_area_class.objects.get(
-                        casestudy=casestudy, code=parent_area_code)
+                        adminlevel=parent_adminlevel,
+                        code=parent_area_code)
                     obj.parent_area=parent_area
                 except ObjectDoesNotExist:
                     pass
@@ -220,16 +215,13 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
 
         return obj
 
-    def get_casestudy_level(self, validated_data=None):
+    def get_level(self, validated_data=None):
         validated_data = validated_data or {}
         url_pks = self.context['request'].session['url_pks']
-        casestudy_pk = validated_data.pop('casestudy_id',
-                                          url_pks['casestudy_pk'])
         level_pk = validated_data.pop('level',
                                       url_pks['level_pk'])
-        casestudy = CaseStudy.objects.get(pk=casestudy_pk)
-        level = AdminLevels.objects.get(pk=level_pk)
-        return casestudy, level
+        adminlevel = AdminLevels.objects.get(pk=level_pk)
+        return adminlevel
 
 class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
     parent_level = serializers.IntegerField(write_only=True, required=False)
@@ -245,7 +237,7 @@ class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
         Override the parent method to parse all features and
         remove the GeoJSON formatting
         """
-        casestudy, level = self.get_casestudy_level()
+        adminlevel = self.get_level()
         parent_level = data.pop('parent_level', None)
 
         if data.get('type') == 'FeatureCollection':

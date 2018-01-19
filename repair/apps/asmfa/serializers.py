@@ -37,6 +37,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            NestedHyperlinkedRelatedField,
                                            IDRelatedField)
 
+from repair.apps.studyarea.models import Area
+
 
 class InCasestudyKeyflowListField(InCasestudyListField):
     """Field that returns a list of all items in the keyflow in the casestudy"""
@@ -656,12 +658,16 @@ class AdministrativeLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
+    area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
+                                              queryset=Area.objects.all())
+
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name',
                   'actor',
+                  'area',
                   ]
 
     def create(self, validated_data):
@@ -702,6 +708,7 @@ class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorS
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name',
+                  'area',
                   ]
 
 
@@ -713,12 +720,15 @@ class OperationalLocationSerializer(PatchFields,
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
     actor = ActorIDField()
+    area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
+                                              queryset=Area.objects.all())
 
     class Meta:
         model = OperationalLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor']
+                  'city', 'geom', 'name', 'actor',
+                  'area']
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
