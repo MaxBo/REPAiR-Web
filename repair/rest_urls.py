@@ -49,6 +49,8 @@ from repair.apps.asmfa.views import (
     MaterialViewSet,
 )
 
+from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
+
 ## base routes ##
 
 router = DefaultRouter()
@@ -71,6 +73,7 @@ cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
+cs_router.register(r'publications', PublicationInCasestudyViewSet)
 
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',

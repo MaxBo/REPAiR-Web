@@ -162,4 +162,3 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
-
