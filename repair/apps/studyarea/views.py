@@ -73,7 +73,7 @@ class AreaViewSet(CasestudyViewSetMixin, viewsets.ModelViewSet):
         own_level = AdminLevels.objects.get(pk=level_pk)
         if not parent_level:
             try:
-                parent_level = Area.objects.get(pk=parent_id).level.level
+                parent_level = Area.objects.get(pk=parent_id).adminlevel.level
             except Area.DoesNotExist:
                 raise exceptions.NotFound()
         levels = AdminLevels.objects.filter(casestudy__id=casestudy,
