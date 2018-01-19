@@ -6,7 +6,6 @@ from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelTest, LoginTestCase
-from rest_framework import status
 from repair.apps.login.models import CaseStudy
 
 
@@ -28,7 +27,6 @@ from repair.apps.asmfa.models import (
 
 from repair.apps.login.factories import *
 from repair.apps.asmfa.factories import *
-
 
 
 class ASMFAModelTest(TestCase):
