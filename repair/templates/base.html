@@ -10,11 +10,12 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/jquery.touchSwipe.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/libs/bootstrap.min.js"></script>
-    <!--<script type="text/javascript" src="{{STATIC_URL}}js/sidebar.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" /> 
+    <script type="text/javascript" src="{{STATIC_URL}}libs/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}libs/bootstrap.min.js"></script>
+    
+    <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
+    
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
@@ -47,7 +48,6 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
-            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
                 {% csrf_token %}
@@ -59,16 +59,25 @@
                     <span class="caret"></span>
                   </button>
                   <div id="casestudy-dropdown" class="dropdown-content">
-                    {% for casestudy in casestudies %}
+                    <!-- BaseView has property 'casestudies' -->
+                    {% if view.casestudies|length > 0 %}
+                    {% for casestudy in view.casestudies %} 
                     <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
                     onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
+                     <!-- if not this view is not inherited from BaseView or rendered with 'get', 
+                     casestudies have to be passed in the context, does actually the same thing -->
+                    {% else %}
+                    {% for casestudy in casestudies %} 
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                    {% endif %}
                   </div>
                 </div>
                 <span class="caret drop-arrow"></span>
               </form>
             </li>
-            {% endif %}
             <li id="login-link" >
               {% if request.user.is_authenticated %}
               <div class="dropdown">
@@ -89,7 +98,7 @@
               <form id="language-select" action="{% url 'set_language' %}" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="language" onchange="$('#language-select').submit()"">
+                  <select name="language" onchange="document.getElementById('language-select').submit()"">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% for lang in LANGUAGES %}
@@ -130,12 +139,14 @@
     </div>
   </div>
   <script>
-    <!-- hide sidebar if there is no content in it -->
+    // hide sidebar if there is no content in it
     if (document.getElementById('sidebar-content').childElementCount == 0){
       document.getElementById('wrapper').style.paddingLeft = '0px';
       document.getElementById('sidebar-wrapper').style.display = 'none';
-      <!--console.log(document.getElementById('sidebar-wrapper'))-->
+      //console.log(document.getElementById('sidebar-wrapper'))
     };
+    
+    <!-- show/hide dropdown-menus in main menu on click -->
     
     function show(elementId){
       closeDropdowns(); 

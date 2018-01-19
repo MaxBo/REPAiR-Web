@@ -1,19 +1,20 @@
+import unittest
 from django.test import TestCase
 from django.core.validators import ValidationError
+from django.urls import reverse
+from test_plus import APITestCase
+from rest_framework import status
 
 from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import *
-from repair.apps.changes.factories import *
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
-from repair.tests.test import BasicModelTest
+from repair.tests.test import (BasicModelTest,
+                               BasicModelReadTest,
+                               CompareAbsURIMixin)
 
 
 class ModelTest(TestCase):
 
-    fixtures = ['auth_fixture', 'user_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
 
     def test_profile_creation(self):
@@ -61,208 +62,95 @@ class ModelTest(TestCase):
                          [(cs.id, cs.name) for cs in casestudies])
 
 
-class ViewTest(APITestCase):
+class ViewTest(CompareAbsURIMixin, APITestCase):
 
-    fixtures = ['auth_fixture', 'user_fixture.json']
+    fixtures = ['auth', 'sandbox']
 
 
     def test_get_group(self):
         url = reverse('group-list')
         data = {'name': 'MyGroup'}
-        response = self.client.post(url, data, format='json')
-        print(response)
-        response = self.client.get(url)
-        print(response.data)
+        response = self.post('group-list', data=data,
+                             extra=dict(format='json'))
+        self.response_201()
+
+        response = self.get_check_200('group-list')
+        results = response.data['results']
+        last_entry = results[-1]
+        assert last_entry['name'] == 'MyGroup'
 
     def test_get_user(self):
-        lodz = reverse('casestudy-detail', kwargs=dict(pk=3))
 
-        url = reverse('user-list')
+        response = self.get_check_200('user-list')
+        # users before adding a new one
+        no_of_users = response.data['count']
+
+        # add new user
+        lodz = self.reverse('casestudy-detail', pk=3)
+        group = self.reverse('group-detail', pk=1)
+        initial_mail = 'a.b@c.de'
         data = {'username': 'MyUser',
                 'casestudies': [lodz],
                 'password': 'PW',
                 'organization': 'GGR',
-                'groups': [],
-                'email': 'a.b@c.de',}
-        response = self.client.post(url, data, format='json')
-        print(response)
-        response = self.client.get(url)
-        print(response.data)
-        url = reverse('user-detail', kwargs=dict(pk=4))
-        response = self.client.get(url)
-        print(response.data)
+                'groups': [group],
+                'email': initial_mail,}
+        response = self.post('user-list', data=data, extra={'format': 'json'},)
+        self.response_201()
+        new_id = response.data['id']
+
+        # should be one more now
+        response = self.get_check_200('user-list')
+        assert response.data['count'] == no_of_users + 1
+
+        response = self.get_check_200('user-detail', pk=new_id)
+        assert response.data['email'] == initial_mail
+        # password should not be returned
+        assert 'password' not in response.data
+        self.assertURLsEqual(response.data['groups'], [group])
+        self.assertURLsEqual(response.data['casestudies'], [lodz])
+
         new_mail = 'new@mail.de'
         data = {'email': new_mail,}
-        self.client.patch(url, data)
-        response = self.client.get(url)
+        response = self.patch('user-detail', pk=new_id, data=data)
+        self.response_200()
         assert response.data['email'] == new_mail
 
 
 class CasestudyTest(BasicModelTest, APITestCase):
 
     url_key = "casestudy"
-    #sub_urls = ["userincasestudy_set",
-                #"solution_categories",
-                #"stakeholder_categories",
-                #"implementations",
-                #"keyflows",
-                #]
     url_pks = dict()
     url_pk = dict(pk=1)
     post_data = dict(name='posttestname')
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
 
+    def test_post(self):
+        url = self.url_key +'-list'
+        # post
+        response = self.post(url, **self.url_pks, data=self.post_data)
+        for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
+            assert response.data[key] == self.post_data[key]
+
+        # get
+        new_id = response.data['id']
+        url = self.url_key + '-detail'
+
+        # casestudy is new -> noone may access it
+        response = self.get(url, pk=new_id, **self.url_pks)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # grant access to new casestudy
+        casestudy = CaseStudy.objects.get(id=new_id)
+        casestudy.userincasestudy_set.add(self.uic)
+        response = self.get_check_200(url, pk=new_id, **self.url_pks)
+
     def setUp(self):
+        super().setUp()
         self.obj = self.kic.casestudy
-
-
-class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    solutioncategory = 21
-    user = 99
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        #cls.cs_url = cls.baseurl + reverse('casestudy-detail',
-                                       #kwargs=dict(pk=cls.casestudy))
-        cls.url_key = "solutioncategory"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy)
-        cls.url_pk = dict(pk=cls.solutioncategory)
-        cls.post_data = dict(
-            name='posttestname',
-            user='http://testserver' + reverse('userincasestudy-detail',
-                                               kwargs=dict(pk=cls.uic.id,
-                                                           casestudy_pk=cls.casestudy)))
-        cls.put_data = cls.post_data
-
-
-    def setUp(self):
-        self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           user=self.uic,
-                                           )
-
-
-class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    solutioncategory = 21
-    solution = 36
-    userincasestudy = 67
-    user = 99
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        #cls.cs_url = cls.baseurl + reverse('casestudy-detail',
-                                       #kwargs=dict(pk=cls.casestudy))
-        cls.solutioncategory_url = cls.baseurl + \
-            reverse('solutioncategory-detail',
-                    kwargs=dict(pk=cls.solutioncategory,
-                                casestudy_pk=cls.casestudy))
-        cls.url_key = "solution"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory)
-        cls.url_pk = dict(pk=cls.solution)
-        cls.post_data = dict(name='posttestname',
-                             user='http://testserver' + \
-                             reverse('userincasestudy-detail',
-                                     kwargs=dict(pk=cls.uic.id,
-                                                 casestudy_pk=cls.casestudy)),
-                             description="This is a description",
-                             one_unit_equals='20',
-                             solution_category=cls.solutioncategory_url,
-                             )
-        cls.put_data = cls.post_data
-        cls.patch_data = dict(name="test name")
-
-    def setUp(self):
-        self.obj = SolutionFactory(id=self.solution,
-                                   solution_category__id=self.solutioncategory,
-                                   solution_category__user=self.uic,
-                                   user=self.uic,
-                                   )
-
-
-class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    solutioncategory = 21
-    solution = 36
-    solutionquantity = 28
-    userincasestudy = 67
-    user = 99
-    unit = 75
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.unit_url = cls.baseurl + reverse('unit-detail',
-                                             kwargs=dict(pk=cls.unit))
-        #cls.solutioncategory_url = cls.baseurl + \
-            #reverse('solutioncategory-detail',
-                    #kwargs=dict(pk=cls.solutioncategory,
-                                #casestudy_pk=cls.casestudy))
-        cls.url_key = "solutionquantity"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution)
-        cls.url_pk = dict(pk=cls.solutionquantity)
-        cls.post_data = dict(name='posttestname',
-                             unit=cls.unit_url,
-                             )
-        cls.put_data = cls.post_data
-        cls.patch_data = dict(name="test name")
-
-    def setUp(self):
-        self.obj = SolutionQuantityFactory(id=self.solutionquantity,
-                                           solution__id=self.solution,
-                                           unit__id=self.unit,
-                                           solution__solution_category__id=self.solutioncategory,
-                                           solution__solution_category__user=self.uic,
-                                           solution__user=self.uic,
-                                           )
-
-
-class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    solutioncategory = 21
-    solution = 36
-    solutionquantity = 28
-    userincasestudy = 67
-    user = 99
-    unit = 75
-    solutionratiooneunit = 84
-    do_not_check = ['value']
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.unit_url = cls.baseurl + reverse('unit-detail',
-                                             kwargs=dict(pk=cls.unit))
-        #cls.solutioncategory_url = cls.baseurl + \
-            #reverse('solutioncategory-detail',
-                    #kwargs=dict(pk=cls.solutioncategory,
-                                #casestudy_pk=cls.casestudy))
-        cls.url_key = "solutionratiooneunit"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution)
-        cls.url_pk = dict(pk=cls.solutionratiooneunit)
-        cls.post_data = dict(name='posttestname',
-                             value=345,
-                             unit=cls.unit_url,
-                             )
-        cls.put_data = cls.post_data
-        cls.patch_data = dict(name="test name")
-
-    def setUp(self):
-        self.obj = SolutionRatioOneUnitFactory(id=self.solutionratiooneunit,
-                                               solution__id=self.solution,
-                                               unit__id=self.unit,
-                                               solution__solution_category__id=self.solutioncategory,
-                                               solution__solution_category__user=self.uic,
-                                               solution__user=self.uic,
-                                               )
 
 
 class UserInCasestudyTest(BasicModelTest, APITestCase):
@@ -272,8 +160,6 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        #cls.cs_url = cls.baseurl + reverse('casestudy-detail',
-                                       #kwargs=dict(pk=cls.casestudy))
         cls.url_key = "userincasestudy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.user)
@@ -283,213 +169,25 @@ class UserInCasestudyTest(BasicModelTest, APITestCase):
 
 
     def setUp(self):
+        super().setUp()
         self.obj = self.uic
 
+    def test_delete(self):
+        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, **kwargs)
+
+        response = self.delete(url, **kwargs)
+        response = self.get(ur, **kwargs)
+        # after removing user the casestudy is permitted to access for this user
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        self.response_403()
+
+    @unittest.skip('no Post possible')
     def test_post(self):
-        """
-        MAX:
-        Error: NotNull constraint failed for casestudy_id, although it is
-        not needed in api/docs
-        """
-        pass
+        """no Post"""
 
+    @unittest.skip('no Delete possible')
+    def test_delete(self):
+        """no Delete"""
 
-class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    user = 20
-    userincasestudy = 21
-    implementation = 30
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.usr_url = cls.baseurl + reverse('userincasestudy-detail',
-                                       kwargs=dict(pk=cls.userincasestudy,
-                                                   casestudy_pk=cls.casestudy))
-        cls.sol_set = []
-        cls.url_key = "implementation"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy)
-        cls.url_pk = dict(pk=cls.implementation)
-        cls.post_data = dict(name="Test Implementation",
-                             user=cls.usr_url,
-                             solution_set=cls.sol_set)
-        cls.put_data = dict(name="Test Implementation",
-                            user=cls.usr_url,
-                            solution_set=cls.sol_set)
-        cls.patch_data = dict(name="Test Implementation")
-
-
-    def setUp(self):
-        self.obj = ImplementationFactory(id=self.implementation,
-                                         user=self.uic)
-
-    #def test_post(self):
-        #"""
-        #Error: NotNull constraint failed for casestudy_id, although it is
-        #not needed in api/docs
-        #"""
-        #pass
-
-
-class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.solution_url = cls.baseurl + \
-            reverse('solution-detail',
-                    kwargs=dict(casestudy_pk=cls.casestudy,
-                                solutioncategory_pk=cls.solutioncategory,
-                                pk=cls.solution))
-        cls.implementation_url = cls.baseurl + \
-            reverse('implementation-detail',
-                    kwargs=dict(casestudy_pk=cls.casestudy,
-                                pk=cls.implementation))
-        cls.post_urls = [cls.solution_url, cls.implementation_url]
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementation"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation)
-        cls.url_pk = dict(pk=cls.solution)
-        cls.post_data = dict(solution=cls.solution_url,
-                             implementation=cls.implementation_url)
-        cls.put_data = dict(solution=cls.solution_url,
-                             implementation=cls.implementation_url)
-        cls.patch_data = dict(solution=cls.solution_url,
-                             implementation=cls.implementation_url)
-
-
-    def setUp(self):
-        self.obj = SolutionInImplementationFactory(
-            solution__user=self.uic,
-            solution__solution_category__user=self.uic,
-            solution__id=self.solution,
-            implementation__user=self.uic,
-            implementation__id=self.implementation,
-            solution__solution_category__id=self.solutioncategory,
-            id=self.solution_implementation)
-
-
-class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
-                                                        APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    geometry = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationgeometry"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.geometry)
-        cls.post_data = dict(name="test name",
-                             geom="test geom")
-        cls.put_data = dict(name="test name",
-                             geom="test geom")
-        cls.patch_data = dict(name="test name",
-                             geom="test geom")
-
-
-    def setUp(self):
-        self.obj = SolutionInImplementationGeometryFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.geometry)
-
-
-class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
-                                                    APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    note = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationnote"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.note)
-        cls.post_data = dict(note="test note")
-        cls.put_data = dict(note="test note")
-        cls.patch_data = dict(note="test note")
-
-
-    def setUp(self):
-        self.obj = SolutionInImplementationNoteFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.note)
-
-
-class QuantityInSolutionInImplementationInCasestudyTest(BasicModelTest):  #,APITestCase):
-    """
-    Test is not working:
-    - delete is not allowed
-    - post is not possible via Browser api
-    """
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    quantity = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationquantity"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.quantity_url = cls.baseurl + \
-            reverse('solutionquantity-detail',
-                    kwargs=dict(casestudy_pk=cls.casestudy,
-                                solutioncategory_pk=cls.solutioncategory,
-                                solution_pk=cls.solution,
-                                pk=cls.quantity))
-        cls.post_urls = [cls.quantity_url]
-        cls.url_pk = dict(pk=cls.quantity)
-        cls.post_data = dict(value=1000.12, quantity=cls.quantity_url)
-        cls.put_data = dict(value=1000.12, quantity=cls.quantity_url)
-        cls.patch_data = dict(value=1000.12, quantity=cls.quantity_url)
-
-
-    def setUp(self):
-        self.obj = SolutionInImplementationQuantityFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.quantity)

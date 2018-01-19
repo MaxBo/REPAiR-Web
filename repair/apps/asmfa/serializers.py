@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import ValidationError
+
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer)
 
 from repair.apps.login.models import CaseStudy
@@ -13,7 +16,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity2Activity,
                                       Group2Group,
                                       Keyflow,
-                                      Quality,
                                       KeyflowInCasestudy,
                                       GroupStock,
                                       ActivityStock,
@@ -89,13 +91,6 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
         self.update(instance=keyflow, validated_data=validated_data)
         return keyflow
 
-
-class QualitySerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-
-    class Meta:
-        model = Quality
-        fields = ('url', 'id', 'name')
 
 class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {
@@ -254,10 +249,11 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    keyflow = IDRelatedField(required=False)
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
-                  'inputs', 'outputs', 'stocks')
+                  'inputs', 'outputs', 'stocks', 'keyflow')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -373,7 +369,7 @@ class URLWithoutProtocolValidator(URLValidator):
 
 
 class URLFieldWithoutProtocol(serializers.CharField):
-    default_error_messages = {'invalid': _('Enter a valid URL.')}
+    default_error_messages = {'invalid': _('Enter a valid URL (or leave it blank).')}
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -396,75 +392,75 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                                  source='activity',
                                  read_only=True)
 
-    administrative_location_geojson = AdminLocationGeojsonField(
-        source='administrative_location',
-        required=False,
-    )
+    #administrative_location_geojson = AdminLocationGeojsonField(
+        #source='administrative_location',
+        #required=False,
+    #)
 
-    operational_locations_geojson = OperationsLocationsGeojsonField(
-        source='operational_locations',
-        many=True,
-        required=False,
-    )
-    website = URLFieldWithoutProtocol(required=False)
+    #operational_locations_geojson = OperationsLocationsGeojsonField(
+        #source='operational_locations',
+        #many=True,
+        #required=False,
+    #)
+    website = URLFieldWithoutProtocol(required=False, default="", allow_blank=True)
 
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included',
-                  'reason', 
-                  'administrative_location_geojson',
-                  'operational_locations_geojson',
+                  'reason',
+                  #'administrative_location_geojson',
+                  #'operational_locations_geojson',
                  )
 
 
-    def update(self, obj, validated_data):
-        """update the user-attributes, including profile information"""
-        actor = obj
+    #def update(self, obj, validated_data):
+        #"""update the user-attributes, including profile information"""
+        #actor = obj
 
-        # handle administrative location
-        administrative_location = validated_data.pop('administrative_location',
-                                                     None)
-        if administrative_location is not None:
-            ## get the actor from the request or take the obj
-            #actor = administrative_location.pop('actor', obj)
-            # look if actor has already an administrative location
-            aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
-            for attr, value in administrative_location.items():
-                if attr == 'actor':
-                    continue
-                setattr(aloc, attr, value)
-            aloc.save()
-            #obj.administrativelocation = aloc
+        ## handle administrative location
+        #administrative_location = validated_data.pop('administrative_location',
+                                                     #None)
+        #if administrative_location is not None:
+            ### get the actor from the request or take the obj
+            ##actor = administrative_location.pop('actor', obj)
+            ## look if actor has already an administrative location
+            #aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+            #for attr, value in administrative_location.items():
+                #if attr == 'actor':
+                    #continue
+                #setattr(aloc, attr, value)
+            #aloc.save()
+            ##obj.administrativelocation = aloc
 
-        # handle operational locations
-        operational_locations = validated_data.pop('operational_locations',
-                                                   None)
-        if operational_locations is not None:
-            olocs = OperationalLocation.objects.filter(actor=actor)
-            # delete existing rows not needed any more
-            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
-                                              in operational_locations
-                                              if ol.get('id') is not None))
-            to_delete.delete()
-            # add or update new operational locations
-            for operational_location in operational_locations:
-                oloc = OperationalLocation.objects.update_or_create(
-                    actor=actor, id=operational_location.get('id'))[0]
+        ## handle operational locations
+        #operational_locations = validated_data.pop('operational_locations',
+                                                   #None)
+        #if operational_locations is not None:
+            #olocs = OperationalLocation.objects.filter(actor=actor)
+            ## delete existing rows not needed any more
+            #to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              #in operational_locations
+                                              #if ol.get('id') is not None))
+            #to_delete.delete()
+            ## add or update new operational locations
+            #for operational_location in operational_locations:
+                #oloc = OperationalLocation.objects.update_or_create(
+                    #actor=actor, id=operational_location.get('id'))[0]
 
 
-                for attr, value in operational_location.items():
-                    if attr == 'actor':
-                        continue
-                    setattr(oloc, attr, value)
-                oloc.save()
+                #for attr, value in operational_location.items():
+                    #if attr == 'actor':
+                        #continue
+                    #setattr(oloc, attr, value)
+                #oloc.save()
 
-        # update other attributes
-        for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-        obj.save()
-        return obj
+        ## update other attributes
+        #for attr, value in validated_data.items():
+            #setattr(obj, attr, value)
+        #obj.save()
+        #return obj
 
 
 class AllActorSerializer(ActorSerializer):
@@ -490,10 +486,19 @@ class KeyflowInCasestudyField(InCasestudyField):
                             }
 
 
+class ProductInKeyflowInCasestudyField(InCasestudyField):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
 class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
-                           NestedHyperlinkedModelSerializer):
+                      NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                        read_only=True)
+                                      read_only=True)
+    product = IDRelatedField()
+
+    #product = ProductInKeyflowInCasestudyField(view_name='product-detail')
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
@@ -501,7 +506,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
-                  'keyflow', 'year', 
+                  'keyflow', 'year', 'product',
                   )
 
 
@@ -619,17 +624,55 @@ class AllActorField(InCasestudyField):
 
 class ActorIDField(serializers.RelatedField):
     """"""
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': _('Invalid Actor ID - Object does not exist.'),
+        'null': _('This field may not be null.')
+    }
+
+
     def to_representation(self, value):
         return value.id
 
+    def to_internal_value(self, data):
+        try:
+            return Actor.objects.get(id=data)
+        except (ObjectDoesNotExist, TypeError, ValueError):
+            self.fail('does_not_exist')
 
-class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
+    def get_queryset(self):
+        qs = Actor.objects.all()
+        return qs
+
+
+class PatchFields:
+
+    @property
+    def fields(self):
+        fields = super().fields
+        for fn in ['type', 'geometry', 'properties']:
+            if not fn in fields:
+                fields[fn] = serializers.CharField(write_only=True,
+                                                   required=False)
+        return fields
+
+    #def create(self, validated_data, **kwargs):
+        #"""
+        #"""
+        #obj = self.Meta.model(**kwargs)
+        #self._for_write = True
+        #obj.save(force_insert=True, using=self.db)
+        #return obj
+
+
+class AdministrativeLocationSerializer(PatchFields,
+                                       GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__keyflow__casestudy__id',
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
-    actor = ActorIDField(read_only=True)
+    actor = ActorIDField()
     class Meta:
         model = AdministrativeLocation
         geo_field = 'geom'
@@ -638,6 +681,14 @@ class AdministrativeLocationSerializer(GeoFeatureModelSerializer,
                   'actor',
                   ]
 
+    def create(self, validated_data):
+        """Create a new AdministrativeLocation"""
+        if self.Meta.model.objects.all().filter(actor = validated_data['actor']):
+            msg = _('Actor <{}> already has an administrative location (has to be unique).'
+                    .format(validated_data['actor']))
+            raise ValidationError(detail=msg)
+        return super().create(validated_data)
+
 
 class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
@@ -645,6 +696,7 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',
                             'actor_pk': 'actor__id',}
+    actor = ActorIDField(required=False)
 
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
@@ -670,13 +722,14 @@ class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorS
                   ]
 
 
-class OperationalLocationSerializer(GeoFeatureModelSerializer,
+class OperationalLocationSerializer(PatchFields,
+                                    GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'actor__activity__activitygroup__keyflow__casestudy__id',
                             'keyflow_pk':
                             'actor__activity__activitygroup__keyflow__id',}
-    actor = ActorIDField(read_only=True)
+    actor = ActorIDField()
 
     class Meta:
         model = OperationalLocation
@@ -692,6 +745,7 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
                             'actor__activity__activitygroup__keyflow__id',
                             'actor_pk': 'actor__id',}
     id = serializers.IntegerField(label='ID', required=False)
+    actor = ActorIDField(required=False)
 
     def create(self, validated_data):
         """Handle Post on OperationalLocations"""

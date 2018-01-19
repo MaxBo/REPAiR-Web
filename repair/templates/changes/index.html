@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load require %}
 
 {% block sidebar %}
-  <script> 
+  <script>
     document.getElementById("changes-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
@@ -24,18 +23,18 @@
         <p>{% trans "Users" %}.</p>
         <ul>
         {% for user in users %}
-            <li><a href="/changes/users/{{ user.id }}">{{ user }}</a></li>
+            <li><a href="/api/users/{{ user.id }}">{{ user }}</a></li>
         {% endfor %}
         </ul>
       </div>
 
 
       <div class="row">
-        {% if casestudy_list %}
+        {% if casestudies %}
         <p>{% trans "Casestudies" %}.</p>
             <ul>
-            {% for casestudy in casestudy_list %}
-                <li><a href="/changes/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
+            {% for casestudy in casestudies %}
+                <li><a href="/api/casestudies/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
             {% endfor %}
             </ul>
         {% else %}

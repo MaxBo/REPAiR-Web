@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.utils import OperationalError, IntegrityError
+from django.contrib.gis.db import models as geomodels
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class GDSEModel(models.Model):
 
 class GDSEUniqueNameModel(GDSEModel):
     """Base class for the GDSE Models"""
+    _unique_field = 'name'
 
     class Meta:
         abstract = True
@@ -32,14 +34,16 @@ class GDSEUniqueNameModel(GDSEModel):
         super(GDSEUniqueNameModel, self).validate_unique(*args, **kwargs)
 
         qs = self.__class__._default_manager.filter(
-            name=self.name
+            **{self._unique_field: getattr(self, self._unique_field)}
         )
 
         if qs.exists():
             for row in qs:
                 if row.casestudy == self.casestudy:
                     raise ValidationError('{cl} {n} already exists in casestudy {c}'.format(
-                            cl=self.__class__.__name__, n=self.name, c=self.casestudy,))
+                            cl=self.__class__.__name__,
+                            n=getattr(self, self._unique_field),
+                            c=self.casestudy,))
 
     def save(self, *args, **kwargs):
         """Call :meth:`full_clean` before saving."""
@@ -71,6 +75,8 @@ def get_default(model):
 
 class CaseStudy(GDSEModel):
     name = models.TextField()
+    geom = geomodels.MultiPolygonField(null=True)
+    focusarea = geomodels.MultiPolygonField(null=True)
 
     @property
     def solution_categories(self):
@@ -114,6 +120,9 @@ class Profile(GDSEModel):
     @property
     def name(self):
         return self.user.username
+
+    def get_casestudies(self):
+        return "\n".join([c.name for c in self.casestudies.all()])
 
 
 @receiver(post_save, sender=User)
