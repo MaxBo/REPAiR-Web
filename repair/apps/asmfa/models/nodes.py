@@ -9,7 +9,6 @@ from repair.apps.login.models import GDSEModel
 from .keyflows import KeyflowInCasestudy
 
 
-
 class DataEntry(GDSEModel):
 
     user = models.CharField(max_length=255, default="tester")
@@ -49,7 +48,6 @@ class ActivityGroup(Node):
                                 on_delete=models.CASCADE)
 
 
-
 class Activity(Node):
 
     # NACE code, unique for each activity
@@ -62,7 +60,8 @@ class Activity(Node):
 
 class Actor(Node):
 
-    BvDid = models.CharField(max_length=255) #unique actor identifier in ORBIS database
+    # unique actor identifier in ORBIS database
+    BvDid = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
     reason_choice = ((0, "Included"),

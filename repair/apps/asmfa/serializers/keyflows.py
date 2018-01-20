@@ -8,7 +8,7 @@ from repair.apps.asmfa.models import (Keyflow,
                                       Product,
                                       ProductFraction,
                                       Material,
-                                     )
+                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudySerializerMixin,
@@ -41,7 +41,6 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
         model = Keyflow
         fields = ('url', 'id', 'code', 'name', 'casestudies',
                   )
-
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
@@ -80,7 +79,7 @@ class InKeyflowField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
         'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',}
+        'keyflow_pk': 'keyflow__id', }
     extra_lookup_kwargs = {}
     filter_field = 'keyflow_pk'
 
@@ -95,7 +94,7 @@ class InKeyflowSetField(IdentityFieldMixin, InKeyflowField, ):
     lookup_url_kwarg = 'keyflow_pk'
     parent_lookup_kwargs = {
         'casestudy_pk': 'casestudy__id',
-        'keyflow_pk': 'id',}
+        'keyflow_pk': 'id', }
 
 
 class KeyflowField(NestedHyperlinkedRelatedField):
@@ -125,8 +124,6 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
         view_name='administrativelocation-list')
     operational_locations = InCasestudyKeyflowListField(
         view_name='operationallocation-list')
-
-
 
     code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
@@ -162,7 +159,6 @@ class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
     keyflow = KeyflowField(view_name='keyflow-detail')
-    #casestudy = CasestudyField(view_name='casestudy-detail')
 
     class Meta:
         model = KeyflowInCasestudy
@@ -175,7 +171,6 @@ class KeyflowInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
         url_pks = self.context['request'].session['url_pks']
-        #casestudy_pk = url_pks['casestudy_pk']
         keyflow_pk = url_pks['keyflow_pk']
         # ToDo: raise some kind of exception or prevent creating object with
         # wrong keyflow/casestudy combination somewhere else (view.update?)
@@ -245,21 +240,20 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
         if new_fractions is not None:
             product_fractions = ProductFraction.objects.filter(product=product)
             # delete existing rows not needed any more
+            fraction_materials = (
+                getattr(fraction.get('material'), 'id')
+                for fraction in new_fractions
+                if getattr(fraction.get('material'), 'id') is not None)
             to_delete = product_fractions.exclude(
-                material__id__in=(getattr(fraction.get('material'), 'id') for fraction
-                        in new_fractions
-                        if getattr(fraction.get('material'), 'id') is not None))
+                material__id__in=fraction_materials)
             to_delete.delete()
             # add or update new fractions
             for new_fraction in new_fractions:
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
-                #fraction = ProductFraction.objects.get(product=product,
-                                                       #material__id=material_id)
                 fraction = ProductFraction.objects.update_or_create(
                     product=product,
                     material=material)[0]
-
 
                 for attr, value in new_fraction.items():
                     if attr in ('product', 'material'):

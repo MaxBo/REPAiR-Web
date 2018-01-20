@@ -6,12 +6,13 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from repair.apps.asmfa.models import (Actor,
                                       AdministrativeLocation,
                                       OperationalLocation,
-                                     )
+                                      )
 
 from repair.apps.login.serializers import NestedHyperlinkedModelSerializer
 from repair.apps.studyarea.models import Area
 
 from .nodes import ActorIDField
+
 
 class PatchFields:
 
@@ -19,7 +20,7 @@ class PatchFields:
     def fields(self):
         fields = super().fields
         for fn in ['type', 'geometry', 'properties']:
-            if not fn in fields:
+            if fn not in fields:
                 fields[fn] = serializers.CharField(write_only=True,
                                                    required=False)
         return fields
@@ -28,10 +29,11 @@ class PatchFields:
 class AdministrativeLocationSerializer(PatchFields,
                                        GeoFeatureModelSerializer,
                                        NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk':
-                            'actor__activity__activitygroup__keyflow__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id', }
     actor = ActorIDField()
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
@@ -43,7 +45,7 @@ class AdministrativeLocationSerializer(PatchFields,
                   'city', 'geom', 'name',
                   'actor',
                   'area',
-                ]
+                  ]
 
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
@@ -55,11 +57,12 @@ class AdministrativeLocationSerializer(PatchFields,
 
 
 class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk':
-                            'actor__activity__activitygroup__keyflow__id',
-                            'actor_pk': 'actor__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id',
+        'actor_pk': 'actor__id', }
     actor = ActorIDField(required=False)
 
     def create(self, validated_data):
@@ -84,16 +87,17 @@ class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorS
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name',
                   'area',
-                ]
+                  ]
 
 
 class OperationalLocationSerializer(PatchFields,
                                     GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk':
-                            'actor__activity__activitygroup__keyflow__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id', }
     actor = ActorIDField()
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
@@ -107,11 +111,13 @@ class OperationalLocationSerializer(PatchFields,
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'actor__activity__activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk':
-                            'actor__activity__activitygroup__keyflow__id',
-                            'actor_pk': 'actor__id',}
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id',
+        'actor_pk': 'actor__id', }
+
     id = serializers.IntegerField(label='ID', required=False)
     actor = ActorIDField(required=False)
 
@@ -139,7 +145,6 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
             for operational_location in operational_locations:
                 oloc = OperationalLocation.objects.update_or_create(
                     actor=actor, id=operational_location.get('id'))[0]
-
 
                 for attr, value in operational_location.items():
                     setattr(oloc, attr, value)

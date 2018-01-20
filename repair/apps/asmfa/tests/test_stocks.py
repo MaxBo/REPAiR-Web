@@ -23,6 +23,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     activitystock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -32,13 +33,13 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         cls.url_pk = dict(pk=cls.activitystock)
         cls.put_data = dict(origin=cls.origin,
                             product=cls.product,
-                             )
+                            )
         cls.post_data = dict(origin=cls.origin,
                              product=cls.product,
                              )
         cls.patch_data = dict(origin=cls.origin,
                               product=cls.product,
-                             )
+                              )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
@@ -70,6 +71,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     actorstock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -79,13 +81,13 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         cls.url_pk = dict(pk=cls.actorstock)
         cls.put_data = dict(origin=cls.origin,
                             product=cls.product,
-                             )
+                            )
         cls.post_data = dict(origin=cls.origin,
                              product=cls.product,
                              )
         cls.patch_data = dict(origin=cls.origin,
                               product=cls.product,
-                             )
+                              )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
@@ -93,14 +95,15 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
-        self.obj = ActorStockFactory(id=self.actorstock,
-                                     origin__id=self.origin,
-                                     origin__activity__activitygroup__id=self.activitygroup,
-                                     origin__activity__activitygroup__keyflow=kic_obj,
-                                     product__id=self.product,
-                                     product__keyflow=kic_obj,
-                                     keyflow=kic_obj,
-                                     )
+        self.obj = ActorStockFactory(
+            id=self.actorstock,
+            origin__id=self.origin,
+            origin__activity__activitygroup__id=self.activitygroup,
+            origin__activity__activitygroup__keyflow=kic_obj,
+            product__id=self.product,
+            product__keyflow=kic_obj,
+            keyflow=kic_obj,
+            )
 
 
 class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
@@ -117,6 +120,7 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     groupstock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -126,13 +130,13 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         cls.url_pk = dict(pk=cls.groupstock)
         cls.put_data = dict(origin=cls.origin,
                             product=cls.product,
-                             )
+                            )
         cls.post_data = dict(origin=cls.origin,
                              product=cls.product,
                              )
         cls.patch_data = dict(origin=cls.origin,
                               product=cls.product,
-                             )
+                              )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):

@@ -16,6 +16,7 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
     casestudy = 17
     solutioncategory = 21
     user = 99
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -28,7 +29,6 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
                 'userincasestudy-detail',
                 kwargs=dict(pk=cls.uic.id, casestudy_pk=cls.casestudy)))
         cls.put_data = cls.post_data
-
 
     def setUp(self):
         super().setUp()
@@ -44,6 +44,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
     solution = 36
     userincasestudy = 67
     user = 99
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -55,11 +56,11 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            solutioncategory_pk=cls.solutioncategory)
         cls.url_pk = dict(pk=cls.solution)
-        cls.post_data = dict(name='posttestname',
-                             user=cls.baseurl + \
-                             reverse('userincasestudy-detail',
+        user = cls.baseurl + reverse('userincasestudy-detail',
                                      kwargs=dict(pk=cls.uic.id,
-                                                 casestudy_pk=cls.casestudy)),
+                                                 casestudy_pk=cls.casestudy))
+        cls.post_data = dict(name='posttestname',
+                             user=user,
                              description="This is a description",
                              one_unit_equals='20',
                              solution_category=cls.solutioncategory_url,
@@ -87,6 +88,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
     userincasestudy = 67
     user = 99
     unit = 75
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -127,6 +129,7 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModel
     unit = 75
     solutionratiooneunit = 84
     do_not_check = ['value']
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

@@ -17,6 +17,7 @@ class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     keyflow = 3
     product = 16
     keyflowincasestudy = 45
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

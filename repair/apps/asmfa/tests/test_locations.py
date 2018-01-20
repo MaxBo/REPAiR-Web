@@ -33,13 +33,13 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # define the urls
         url_locations = reverse('administrativelocation-list',
                                 kwargs={'casestudy_pk': cs,
-                                        'keyflow_pk': keyflow,})
+                                        'keyflow_pk': keyflow, })
 
         url_locations_detail = reverse(
             'administrativelocation-detail',
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
-                    'pk': location.pk,})
+                    'pk': location.pk, })
 
         # list the activity locations and assert that it contains
         # the new one
@@ -50,7 +50,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # patch existing administrative location
         new_streetname = 'Hauptstraße 13'
         data = {'properties': {'address': new_streetname,
-                               'area': delft.pk,},
+                               'area': delft.pk, },
                 'geometry': location.geom.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
@@ -71,10 +71,11 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # should not exist any more in the database
         response = self.client.get(url_locations_detail)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        #actor.refresh_from_db(fields=['administrative_location'])
+
         actor = Actor.objects.get(pk=actor.pk)
-        with self.assertRaises(actor.__class__.administrative_location.\
-                               RelatedObjectDoesNotExist) as e:
+        with self.assertRaises(
+            actor.__class__.administrative_location.RelatedObjectDoesNotExist
+            ) as e:
             loc = actor.administrative_location
 
         # post new administrative location
@@ -83,7 +84,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         data = {'properties':
                 {'address': new_streetname,
                  'actor': actor.id,
-                 'area': rotterdam.pk,},
+                 'area': rotterdam.pk, },
                 'geometry': new_geom.geojson
                 }
         response = self.client.post(url_locations, data, format='json')
@@ -98,7 +99,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
             'administrativelocation-detail',
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
-                    'pk': new_aloc_id,})
+                    'pk': new_aloc_id, })
 
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
@@ -110,7 +111,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4269;POINT(100 -11)'
-        data = {'geom' : new_geom_ewkt}
+        data = {'geom': new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
@@ -121,10 +122,11 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
     @staticmethod
     def define_areas(location):
         # create areas
-        zuidholland = AreaFactory(adminlevel__level=4,
-                                  adminlevel__name='Province',
-                                  adminlevel__casestudy_id=location.casestudy.pk,
-                                  name='Zuid-Holland')
+        zuidholland = AreaFactory(
+            adminlevel__level=4,
+            adminlevel__name='Province',
+            adminlevel__casestudy_id=location.casestudy.pk,
+            name='Zuid-Holland')
         delft = AreaFactory(adminlevel__level=6,
                             adminlevel__name='Gemeende',
                             name='Delft',
@@ -140,7 +142,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
             'operationallocation-detail',
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
-                    'pk': location,})
+                    'pk': location, })
         return url_locations_detail
 
     def test_operational_locations(self):
@@ -162,7 +164,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # define the urls
         url_locations = reverse('operationallocation-list',
                                 kwargs={'casestudy_pk': cs,
-                                        'keyflow_pk': keyflow,})
+                                        'keyflow_pk': keyflow, })
 
         # list the activity locations and assert that it contains
         # the new one
@@ -177,7 +179,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         new_location = Point(x=2, y=3, srid=4326)
         new_streetname = 'Hauptstraße 13'
         data = {'properties': {'address': new_streetname,
-                               'area': rotterdam.pk,},
+                               'area': rotterdam.pk, },
                 'geometry': new_location.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
@@ -208,7 +210,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         data = {'properties':
                 {'address': new_streetname,
                  'actor': actor.id,
-                 'area': zuid_holland.pk,},
+                 'area': zuid_holland.pk, },
                 'geometry': new_geom.geojson}
 
         response = self.client.post(url_locations, data, format='json')
@@ -219,7 +221,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
             'operationallocation-detail',
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
-                    'pk': new_oloc_id,})
+                    'pk': new_oloc_id, })
 
         # get the new location and check the coordinates and the street
         response = self.client.get(url_locations_detail)
@@ -231,8 +233,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4326;POINT(6 5)'
-        data = {'geom' : new_geom_ewkt,
-                'area': delft.pk,}
+        data = {'geom': new_geom_ewkt,
+                'area': delft.pk, }
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
@@ -252,7 +254,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
                     'actor_pk': actor,
-                    'pk': location,})
+                    'pk': location, })
         return url_locations_detail
 
     def test_administrative_location(self):
@@ -271,7 +273,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         url_locations = reverse('administrativelocation-list',
                                 kwargs={'casestudy_pk': cs,
                                         'keyflow_pk': keyflow,
-                                        'actor_pk': actor.pk,})
+                                        'actor_pk': actor.pk, })
 
         # list the activity locations and assert that it contains
         # the new one
@@ -305,7 +307,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         new_geom = Point(x=14, y=15, srid=4326)
         data = {'address': new_streetname,
                 'geom': new_geom.geojson
-               }
+                }
         response = self.client.post(url_locations, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         new_aloc_id = response.data['id']
@@ -323,7 +325,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4269;POINT(100 -11)'
-        data = {'geom' : new_geom_ewkt}
+        data = {'geom': new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 
@@ -334,7 +336,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
             kwargs={'casestudy_pk': cs,
                     'keyflow_pk': keyflow,
                     'actor_pk': actor,
-                    'pk': location,})
+                    'pk': location, })
         return url_locations_detail
 
     def test_operational_locations(self):
@@ -355,7 +357,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         url_locations = reverse('operationallocation-list',
                                 kwargs={'casestudy_pk': cs,
                                         'keyflow_pk': keyflow,
-                                        'actor_pk': actor.pk,})
+                                        'actor_pk': actor.pk, })
 
         # list the activity locations and assert that it contains
         # the new one
@@ -377,7 +379,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
                     {'geom': new_geom2.geojson,
                      'id': location2.id,
                      'address': new_streetname2,
-                    },
+                     },
                     # create a new location (no id provided)
                     {'geom': new_geom3.geojson,
                      'employees': 123,
@@ -434,7 +436,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         new_geom = Point(x=8, y=10, srid=4326)
         features.append({'address': new_streetname,
                          'geom': new_geom.geojson,
-                        })
+                         })
 
         data = feature_collection
         response = self.client.post(url_locations, data, format='json')
@@ -454,10 +456,9 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
 
-
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4326;POINT(6 5)'
-        data = {'geom' : new_geom_ewkt}
+        data = {'geom': new_geom_ewkt}
         response = self.client.patch(url_locations_detail, data)
         assert response.status_code == status.HTTP_200_OK
 

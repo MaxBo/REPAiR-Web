@@ -61,7 +61,8 @@ class CreateWithUserInCasestudyMixin:
         user = validated_data.pop('user', None)
         if not user:
             request = self.context['request']
-            user_id = -1 if request.user.id is None else request.user.id  # for the anonymus user
+            # create as anonymus user if not user provided
+            user_id = -1 if request.user.id is None else request.user.id
             url_pks = request.session.get('url_pks', {})
             casestudy_id = url_pks.get('casestudy_pk')
             try:
@@ -88,7 +89,7 @@ class CreateWithUserInCasestudyMixin:
 
         Model = self.get_model()
         instance = self.create_instance(Model, user, validated_data,
-                                   kic=keyflow_in_casestudy)
+                                        kic=keyflow_in_casestudy)
         self.update(instance=instance, validated_data=validated_data)
         return instance
 
@@ -193,7 +194,6 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
 
         super().__init__(*args, **kwargs)
 
-
     def use_pk_only_optimization(self):
         """This is fixed in rest_framework_nested, but not yet available on pypi"""
         return False
@@ -247,7 +247,7 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
         else:
             for attr in pk_attr:
                 obj = getattr(obj, attr)
-            kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj,}
+            kwargs = {self.parent_lookup_kwargs[self.filter_field]: obj, }
         qs = Model.objects.filter(**kwargs)
         return qs
 
@@ -287,10 +287,10 @@ class InSolutionField(InCasestudyField):
         'casestudy_pk':
         'solution__solution_category__user__casestudy__id',
         'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id',}
+        'solution_pk': 'solution__id', }
     extra_lookup_kwargs = {
         'solutioncategory_pk': 'sii__solution__solution_category__id',
-        'solution_pk': 'sii__solution__id',}
+        'solution_pk': 'sii__solution__id', }
     filter_field = 'solution_pk'
 
     def __init__(self, *args, **kwargs):
@@ -304,7 +304,7 @@ class InSolutionField(InCasestudyField):
 class InUICField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk': 'casestudy__id',
-        'user_pk': 'user__id',}
+        'user_pk': 'user__id', }
     extra_lookup_kwargs = {}
     filter_field = 'user_pk'
     lookup_url_kwarg = 'user_pk'
@@ -313,6 +313,7 @@ class InUICField(InCasestudyField):
         super().__init__(*args, **kwargs)
         self.url_pks_lookup['user_pk'] = \
             self.parent_lookup_kwargs['user_pk']
+
 
 class ForceMultiMixin:
     """Convert Polygon to Multipolygon, if required"""
@@ -338,7 +339,6 @@ class IdentityFieldMixin:
     def get_model(view):
         Model = view.queryset.model
         return Model
-
 
 
 class InCaseStudyIdentityField(IdentityFieldMixin, InCasestudyField):

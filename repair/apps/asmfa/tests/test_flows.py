@@ -23,6 +23,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
     activity2activity = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -38,7 +39,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              product=cls.product,
-                            )
+                             )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               product=cls.product,
@@ -50,15 +51,16 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
-        self.obj = Activity2ActivityFactory(id=self.activity2activity,
-                                            origin__id=self.origin,
-                                            origin__activitygroup__keyflow=kic_obj,
-                                            destination__id=self.destination,
-                                            destination__activitygroup__keyflow=kic_obj,
-                                            product__id=self.product,
-                                            product__keyflow=kic_obj,
-                                            keyflow=kic_obj
-                                            )
+        self.obj = Activity2ActivityFactory(
+            id=self.activity2activity,
+            origin__id=self.origin,
+            origin__activitygroup__keyflow=kic_obj,
+            destination__id=self.destination,
+            destination__activitygroup__keyflow=kic_obj,
+            product__id=self.product,
+            product__keyflow=kic_obj,
+            keyflow=kic_obj
+            )
 
 
 class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
@@ -70,6 +72,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
     actor2actor = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -81,15 +84,15 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             product=cls.product,
-                             )
+                            )
         cls.post_data = dict(origin=cls.origin,
-                            destination=cls.destination,
-                            product=cls.product,
+                             destination=cls.destination,
+                             product=cls.product,
                              )
         cls.patch_data = dict(origin=cls.origin,
-                            destination=cls.destination,
-                            product=cls.product,
-                             )
+                              destination=cls.destination,
+                              product=cls.product,
+                              )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
@@ -117,6 +120,7 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
     group2group = 13
     keyflowincasestudy = 45
     activitygroup = 76
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -128,15 +132,15 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             product=cls.product,
-                             )
+                            )
         cls.post_data = dict(origin=cls.origin,
-                            destination=cls.destination,
-                            product=cls.product,
+                             destination=cls.destination,
+                             product=cls.product,
                              )
         cls.patch_data = dict(origin=cls.origin,
-                            destination=cls.destination,
-                            product=cls.product,
-                             )
+                              destination=cls.destination,
+                              product=cls.product,
+                              )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):

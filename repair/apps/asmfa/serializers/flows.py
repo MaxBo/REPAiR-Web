@@ -3,7 +3,7 @@ from repair.apps.asmfa.models import (Flow,
                                       Actor2Actor,
                                       Activity2Activity,
                                       Group2Group,
-                                     )
+                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
@@ -44,7 +44,6 @@ class Group2GroupSerializer(FlowSerializer):
     destination_url = ActivityGroupField(view_name='activitygroup-detail',
                                          source='destination',
                                          read_only=True)
-    #quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Group2Group
@@ -56,14 +55,13 @@ class Group2GroupSerializer(FlowSerializer):
 class Activity2ActivitySerializer(FlowSerializer):
     origin = IDRelatedField()
     origin_url = ActivityField(view_name='activity-detail',
-                                source='origin',
-                                read_only=True)
+                               source='origin',
+                               read_only=True)
     product = IDRelatedField()
     destination = IDRelatedField()
     destination_url = ActivityField(view_name='activity-detail',
                                     source='destination',
                                     read_only=True)
-    #quality = IDRelatedField()
 
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity

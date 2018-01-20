@@ -11,6 +11,7 @@ from .nodes import (
     Actor,
 )
 
+
 class Stock(models.Model):
 
     # stocks relate to only one node, also data will be entered by the users

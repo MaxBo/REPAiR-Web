@@ -3,7 +3,7 @@ from repair.apps.asmfa.models import (Stock,
                                       GroupStock,
                                       ActivityStock,
                                       ActorStock,
-                                     )
+                                      )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
@@ -19,11 +19,11 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
                                       read_only=True)
     product = IDRelatedField()
 
-    #product = ProductInKeyflowInCasestudyField(view_name='product-detail')
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
+
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
@@ -33,7 +33,6 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
 
 class GroupStockSerializer(StockSerializer):
     origin = IDRelatedField()
-    #origin_url = ActivityGroupField(view_name='activitygroup-detail')
 
     class Meta(StockSerializer.Meta):
         model = GroupStock
@@ -41,7 +40,7 @@ class GroupStockSerializer(StockSerializer):
 
 class ActivityStockSerializer(StockSerializer):
     origin = IDRelatedField()
-    #origin_url = ActivityField(view_name='activity-detail')
+
     class Meta(StockSerializer.Meta):
         model = ActivityStock
 

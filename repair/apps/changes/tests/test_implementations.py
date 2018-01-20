@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from test_plus import APITestCase
-from django.contrib.gis.geos import Point, Polygon, MultiPoint, LineString
+from django.contrib.gis.geos import Point, MultiPoint, LineString
 
 from repair.tests.test import BasicModelTest, BasicModelReadTest
 from repair.apps.changes.models import (
@@ -19,13 +19,13 @@ from repair.apps.changes.factories import (
     SolutionInImplementationQuantityFactory)
 
 
-
 class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
     casestudy = 17
     user = 20
     userincasestudy = 21
     implementation = 30
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -44,7 +44,6 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
                             user=cls.usr_url,
                             solution_set=cls.sol_set)
         cls.patch_data = dict(name="Test Implementation")
-
 
     def setUp(self):
         super().setUp()
@@ -150,10 +149,9 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
         cls.post_data = dict(solution=cls.solution_url,
                              implementation=cls.implementation_url)
         cls.put_data = dict(solution=cls.solution_url,
-                             implementation=cls.implementation_url)
+                            implementation=cls.implementation_url)
         cls.patch_data = dict(solution=cls.solution_url,
-                             implementation=cls.implementation_url)
-
+                              implementation=cls.implementation_url)
 
     def setUp(self):
         super().setUp()
@@ -190,11 +188,10 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
         cls.post_data = dict(name="test name",
                              geom=Point(5, 6, srid=4326).geojson)
         cls.put_data = dict(name="test name",
-                             geom=MultiPoint([Point(5, 6, srid=4326),
-                                              Point(7, 8, srid=4326)]).geojson)
+                            geom=MultiPoint([Point(5, 6, srid=4326),
+                                             Point(7, 8, srid=4326)]).geojson)
         cls.patch_data = dict(name="test name",
                               geom=LineString([(1, 1), (2, 2)]).geojson)
-
 
     def setUp(self):
         super().setUp()
@@ -230,7 +227,6 @@ class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
         cls.post_data = dict(note="test note")
         cls.put_data = dict(note="test note")
         cls.patch_data = dict(note="test note")
-
 
     def setUp(self):
         super().setUp()
@@ -276,7 +272,6 @@ class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,
         cls.url_pk = dict(pk=cls.quantity)
         cls.put_data = dict(value=1000.12)
         cls.patch_data = dict(value=222.333)
-
 
     def setUp(self):
         super().setUp()
