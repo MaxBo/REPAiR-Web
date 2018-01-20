@@ -1,4 +1,4 @@
-from rest_framework import viewsets, mixins, exceptions
+from rest_framework import viewsets, exceptions, mixins
 from django.views import View
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
@@ -43,3 +43,14 @@ class PublicationView(ModelPermissionViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
     pagination_class = None
+
+
+class ReadUpdateViewSet(mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    """
+    A viewset that provides default `retrieve()`, `update()`,
+    `partial_update()`,  and `list()` actions.
+    No `create()` or `destroy()`
+    """

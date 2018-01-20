@@ -2,8 +2,8 @@ from django.db.models.signals import post_save
 import factory
 from factory.django import DjangoModelFactory
 from . import models
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
-
 
 
 class CaseStudyFactory(DjangoModelFactory):
@@ -13,6 +13,10 @@ class CaseStudyFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n: "CaseStudy #%s" % n)
 
 
+class GroupFactory(DjangoModelFactory):
+    class Meta:
+        model = Group
+    name = 'Group1'
 
 class UserFactory(DjangoModelFactory):
     """

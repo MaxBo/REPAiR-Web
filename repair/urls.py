@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^decisions/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
-    url('^login/', include('repair.apps.login.urls')),
+    url(r'^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
