@@ -4,6 +4,7 @@ import json
 import geojson
 from django.urls import reverse
 from django.contrib.gis import geos
+from django.core.exceptions import FieldError
 from test_plus import APITestCase
 from rest_framework import status
 
@@ -152,6 +153,18 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         del cls.ortsteil
         del cls.kreis_pi
         super().tearDownClass()
+
+    def test_invalid_areas(self):
+        # try to instanciate the Area directly
+        planet = models.AdminLevels.objects.get(name='Planet')
+        with self.assertRaises(FieldError):
+            jupiter = models.Area.objects.create(name='juputer',
+                                                 adminlevel=planet)
+
+        with self.assertRaises(FieldError):
+            mars = models.World.objects.create(name='Mars')
+
+
 
     def test_get_levels(self):
         """Test the list of all levels of a casestudy"""
