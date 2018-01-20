@@ -1,4 +1,4 @@
-
+from django.core.exceptions import FieldError
 from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.contenttypes.models import ContentType
@@ -26,37 +26,40 @@ class AdminLevels(GDSEUniqueNameModel):
 
 class Area(GDSEModel):
     _unique_field = 'code'
-    _submodels = {}
 
     adminlevel = models.ForeignKey(AdminLevels)
-    content_type = models.ForeignKey(ContentType)
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
 
+    @property
+    def content_type(self):
+        level = self.adminlevel.level
+        area_class = Areas.by_level[level]
+        content_type = ContentType.objects.get_for_model(area_class)
+        return content_type
+
     def save(self, *args, **kwargs):
+        if not hasattr(self, '_level') and not self.pk:
+            raise FieldError('model {} cannot be created directly. '
+                             'Please create a submodel with a level attribute!')
         # use name as code, if code not provided
         if not self.code:
             self.code = self.name
-
-        if self.content_type_id is None:
-            adminlevel = None
-            try:
-                adminlevel = self.adminlevel
-                level = adminlevel.level
-                area_class = Areas.by_level[level]
-                content_type = ContentType.objects.get_for_model(area_class)
-            except AdminLevels.DoesNotExist:
-                content_type = ContentType.objects.get_for_model(self.__class__)
-                level = content_type.model_class()._level
-
-            if not adminlevel:
+        try:
+            adminlevel = self.adminlevel
+        except AdminLevels.DoesNotExist:
+                level = self._level
                 # casestudy from the parent_area
-                casestudy = self.parent_area.adminlevel.casestudy
+                try:
+
+                    casestudy = self.parent_area.adminlevel.casestudy
+                except AttributeError:
+                    raise FieldError('you have to provide the adminlevel'
+                                     ' or the parent_area')
                 self.adminlevel = AdminLevels.objects.get(level=level,
                                                           casestudy=casestudy,
                                                           )
-            self.content_type = content_type
 
         super().save(*args, **kwargs)
 
