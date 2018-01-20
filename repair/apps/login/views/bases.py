@@ -1,28 +1,20 @@
 from abc import ABC
 
-from django.shortcuts import render
-from django.contrib.auth.models import Group, User
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models.sql.constants import QUERY_TERMS
-from publications_bootstrap.models import Publication
 
-from rest_framework import viewsets, mixins, exceptions
+from rest_framework import exceptions
 
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from reversion.views import RevisionMixin
 
-from repair.apps.login.models import Profile, CaseStudy, UserInCasestudy
-from repair.apps.login.serializers import (UserSerializer,
-                                           GroupSerializer,
-                                           CaseStudySerializer,
-                                           UserInCasestudySerializer,
-                                           PublicationSerializer)
+from repair.apps.login.models import CaseStudy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from repair.apps.utils.views import ModelPermissionViewSet
+
 
 
 class CasestudyViewSetMixin(ABC):
@@ -53,7 +45,7 @@ class CasestudyViewSetMixin(ABC):
         casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
         try:
             casestudy = CaseStudy.objects.get(id=casestudy_id)
-            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)) == 0:
+            if not casestudy.userincasestudy_set.all().filter(user__id=user_id):
                 raise exceptions.PermissionDenied()
         except CaseStudy.DoesNotExist:
             # maybe casestudy is about to be posted-> go on
@@ -115,7 +107,8 @@ class CasestudyViewSetMixin(ABC):
         data = self.filter_fields(serializer, request)
         return Response(data)
 
-    def filter_fields(self, serializer, request):
+    @staticmethod
+    def filter_fields(serializer, request):
         """
         limit amount of fields of response by optional query parameter 'field'
         """
@@ -129,7 +122,7 @@ class CasestudyViewSetMixin(ABC):
                         for row in data]
         return data
 
-    def _filter(self, lookup_args, query_params={}, SerializerClass=None):
+    def _filter(self, lookup_args, query_params=None, SerializerClass=None):
         """
         return a queryset filtered by lookup arguments and query parameters
         return None if query parameters are malformed
@@ -148,16 +141,19 @@ class CasestudyViewSetMixin(ABC):
         except Exception as e:
             # ToDo: ExceptionHandling is very broad. Pleas narrow down!
             print(e)
+            raise e
             return None
         return queryset
 
-    def get_filter_args(self, queryset, query_params):
+    def get_filter_args(self, queryset, query_params=None):
         """
         get filter arguments defined by the query_params
         and by additional filters
         """
         # filter any query parameters matching fields of the model
         filter_args = {k: v for k, v in self.additional_filters.items()}
+        if not query_params:
+            return filter_args
         for k, v in query_params.items():
             key_cmp = k.split('__')
             key = key_cmp[0]
@@ -172,59 +168,22 @@ class CasestudyViewSetMixin(ABC):
 
 class OnlySubsetMixin(CasestudyViewSetMixin):
     """"""
-    def set_casestudy(self, kwargs, request):
+    @staticmethod
+    def set_casestudy(kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
         request.session['url_pks'] = kwargs
 
 
-class UserViewSet(ModelPermissionViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+###############################################################################
+###   views for the templates
 
+class SessionView(View):
+    def post(self, request):
+        if request.POST['casestudy']:
+            request.session['casestudy'] = request.POST['casestudy']
+            next_url = request.POST.get('next', '/')
+            return HttpResponseRedirect(next_url)
 
-class GroupViewSet(ModelPermissionViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
-
-class CaseStudyViewSet(RevisionMixin, CasestudyViewSetMixin,
-                       ModelPermissionViewSet):
-    """
-    API endpoint that allows casestudy to be viewed or edited.
-    """
-    add_perm = 'login.add_casestudy'
-    change_perm = 'login.change_casestudy'
-    delete_perm = 'login.delete_casestudy'
-    queryset = CaseStudy.objects.all()
-    serializer_class = CaseStudySerializer
-
-    def list(self, request, **kwargs):
-        user_id = -1 if request.user.id is None else request.user.id
-        casestudies = set()
-        for casestudy in self.queryset:
-            if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
-                casestudies.add(casestudy)
-        serializer = self.serializer_class(casestudies, many=True,
-                                           context={'request': request, })
-        return Response(serializer.data)
-
-
-class UserInCasestudyViewSet(CasestudyViewSetMixin,
-                             mixins.RetrieveModelMixin,
-                             mixins.UpdateModelMixin,
-                             mixins.ListModelMixin,
-                             viewsets.GenericViewSet):
-    """
-    API endpoint that allows userincasestudy to be viewed or edited.
-    """
-    add_perm = 'login.add_userincasestudy'
-    change_perm = 'login.change_userincasestudy'
-    delete_perm = 'login.delete_userincasestudy'
-    queryset = UserInCasestudy.objects.all()
-    serializer_class = UserInCasestudySerializer
+    def get(self, request):
+        response = {'casestudy': request.session.get('casestudy')}
+        return JsonResponse(response)
