@@ -20,25 +20,15 @@
       </div>
 
       <div class="row">
-        <p>{% trans "Users" %}.</p>
-        <ul>
-        {% for user in users %}
-            <li><a href="/api/users/{{ user.id }}">{{ user }}</a></li>
-        {% endfor %}
-        </ul>
-      </div>
-
-
-      <div class="row">
-        {% if casestudies %}
-        <p>{% trans "Casestudies" %}.</p>
+        {% if solution_list %}
+        <p>{% trans "Solutions" %}.</p>
             <ul>
-            {% for casestudy in casestudies %}
-                <li><a href="/api/casestudies/{{ casestudy.id }}/">{{ casestudy.name }}</a></li>
+            {% for solution in solution_list %}
+                <li><a href="/api/casestudies/{{ uic.casestudy.id }}/solutioncategories/{{ solution.solution_category.id}}/solutions/{{solution.id}}/">{{ solution.name }}</a></li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>{% trans "No casestudies are available." %}</p>
+            <p>{% trans "No solutions are available." %}</p>
         {% endif %}
 
       </div>

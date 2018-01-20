@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 
 
-from repair.apps.login.models import Profile
+from repair.apps.login.models import Profile, UserInCasestudy
 from repair.views import BaseView
 from repair.apps.changes.models import (
     SolutionCategory,
@@ -16,10 +16,19 @@ from repair.apps.changes.models import (
 
 class ChangesIndexView(BaseView):
     def get(self, request, *args, **kwargs):
-        casestudy_list = self.casestudies()
-        users = Profile.objects.order_by('id')[:20]
-        context = {'casestudies': casestudy_list,
-                   'users': users, }
+        casestudy_id = request.session.get('casestudy', 0)
+        user = request.user
+
+        try:
+            uic = UserInCasestudy.objects.get(user__user_id=user.pk,
+                                              casestudy_id=casestudy_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(_('Please select a casestudy'))
+        solution_list = Solution.objects.filter(
+            user__casestudy=uic.casestudy_id)
+        context = {'solution_list': solution_list,
+                   'uic': uic,
+                   }
         return render(request, 'changes/index.html', context)
 
 
