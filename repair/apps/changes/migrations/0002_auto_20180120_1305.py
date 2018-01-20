@@ -13,7 +13,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='solutioninimplementationgeometry',
+            name='geom',
+        ),
+        migrations.AddField(
             model_name='solutioninimplementationgeometry',
             name='geom',
             field=django.contrib.gis.db.models.fields.GeometryField(srid=4326, verbose_name='geom'),
