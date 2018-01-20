@@ -1,4 +1,4 @@
-from rest_framework import viewsets, mixins, exceptions
+from rest_framework import viewsets, exceptions
 from django.views import View
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer

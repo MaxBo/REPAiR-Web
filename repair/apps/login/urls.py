@@ -1,6 +1,5 @@
 from django.conf.urls import url, include
 
-from repair.apps.login import views
 from repair.apps.utils.views import SessionView
 
 urlpatterns = [

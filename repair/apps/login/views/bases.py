@@ -1,8 +1,6 @@
 from abc import ABC
 
 from django.shortcuts import get_object_or_404
-from django.views import View
-from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models.sql.constants import QUERY_TERMS
 
 from rest_framework import exceptions
@@ -12,9 +10,6 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 
 
 from repair.apps.login.models import CaseStudy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from repair.apps.utils.views import ModelPermissionViewSet
-
 
 
 class CasestudyViewSetMixin(ABC):
@@ -167,18 +162,3 @@ class OnlySubsetMixin(CasestudyViewSetMixin):
     def set_casestudy(kwargs, request):
         """set the casestudy as a session attribute if its in the kwargs"""
         request.session['url_pks'] = kwargs
-
-
-###############################################################################
-###   views for the templates
-
-class SessionView(View):
-    def post(self, request):
-        if request.POST['casestudy']:
-            request.session['casestudy'] = request.POST['casestudy']
-            next_url = request.POST.get('next', '/')
-            return HttpResponseRedirect(next_url)
-
-    def get(self, request):
-        response = {'casestudy': request.session.get('casestudy')}
-        return JsonResponse(response)

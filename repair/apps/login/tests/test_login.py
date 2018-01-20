@@ -10,7 +10,7 @@ from repair.apps.login.factories import (UserFactory,
                                          UserInCasestudyFactory,
                                          ProfileFactory,
                                          CaseStudyFactory)
-from repair.tests.test import BasicModelTest, CompareAbsURIMixin
+from repair.tests.test import BasicModelPermissionTest, CompareAbsURIMixin
 
 
 class ModelTest(TestCase):

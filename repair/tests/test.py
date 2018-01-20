@@ -1,3 +1,4 @@
+from abc import ABCMeta
 import json
 from unittest import skipIf
 
@@ -13,11 +14,9 @@ from rest_framework import status
 from test_plus import APITestCase
 
 from repair.apps.login.models import CaseStudy, User, Profile
-from repair.apps.login.factories import *
-from repair.apps.asmfa.factories import *
+from repair.apps.login.factories import UserInCasestudyFactory
+from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
-
-
 
 
 class CompareAbsURIMixin:
