@@ -1,21 +1,20 @@
 import unittest
 from django.test import TestCase
-from django.core.validators import ValidationError
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
 
 from repair.apps.login.models import CaseStudy, User, Profile
-from repair.apps.login.factories import *
-from repair.tests.test import (BasicModelPermissionTest,
-                               BasicModelReadTest,
+from repair.apps.login.factories import (UserFactory,
+                                         GroupFactory,
+                                         UserInCasestudyFactory,
+                                         ProfileFactory,
+                                         CaseStudyFactory)
+from repair.tests.test import (BasicModelTest,
                                CompareAbsURIMixin)
 
 
 class ModelTest(TestCase):
-
-    #fixtures = ['auth', 'sandbox']
-
 
     def test_profile_creation(self):
         # New user created
@@ -64,8 +63,18 @@ class ModelTest(TestCase):
 
 class ViewTest(CompareAbsURIMixin, APITestCase):
 
-    #fixtures = ['auth', 'sandbox']
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.password = 'Test'
+        cls.group1 = GroupFactory(name='Group1')
+        cls.group2 = GroupFactory(name='Group2')
+        cls.anonymus_user = ProfileFactory(user__username='Rabbit',
+                                           user__password='Test')
+        cls.user2 = ProfileFactory(user__username='User2',
+                                   user__password='Password')
 
+        cls.casestudy = CaseStudyFactory(name='lodz')
 
     def test_get_group(self):
         url = reverse('group-list')
@@ -86,8 +95,8 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         no_of_users = response.data['count']
 
         # add new user
-        lodz = self.reverse('casestudy-detail', pk=3)
-        group = self.reverse('group-detail', pk=1)
+        lodz = self.reverse('casestudy-detail', pk=self.casestudy.pk)
+        group = self.reverse('group-detail', pk=self.group1.pk)
         initial_mail = 'a.b@c.de'
         data = {'username': 'MyUser',
                 'casestudies': [lodz],
