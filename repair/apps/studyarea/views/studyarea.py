@@ -1,5 +1,5 @@
-from django.http import HttpResponseRedirect
-
+from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 
 from repair.apps.studyarea.models import (StakeholderCategory,
@@ -15,21 +15,19 @@ from repair.views import BaseView
 class StudyAreaIndexView(BaseView):
 
     def get(self, request):
-        casestudy_list = CaseStudy.objects.order_by('id')[:20]
-        users = Profile.objects.order_by('id')[:20]
-
         # get the current casestudy
-        url_pks = request.session.get('url_pks', {})
-        casestudy = url_pks.get('casestudy_pk')
-        if casestudy:
-            stakeholder_category_list = \
-                StakeholderCategory.objects.filter(casestudy=casestudy)
-        else:
-            stakeholder_category_list = StakeholderCategory.objects.all()
-
-        context = {'casestudy_list': casestudy_list,
-                   'users': users,
+        casestudy_id = request.session.get('casestudy', 0)
+        try:
+            casestudy = CaseStudy.objects.get(pk=casestudy_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(_('Please select a casestudy'))
+        stakeholder_category_list = \
+            StakeholderCategory.objects.filter(casestudy=casestudy_id)
+        stakeholder_list = Stakeholder.objects.filter(
+            stakeholder_category__casestudy=casestudy_id)
+        context = {'casestudy': casestudy,
                    'stakeholder_category_list': stakeholder_category_list,
+                   'stakeholder_list': stakeholder_list,
                    }
 
         context['graph1'] = Testgraph1().get_context_data()
@@ -41,11 +39,13 @@ class StudyAreaIndexView(BaseView):
 class StakeholderCategoriesView(BaseView):
 
     def get(self, request, stakeholdercategory_id):
+        casestudy = CaseStudy.objects.get(pk=casestudy_id)
         stakeholder_category = StakeholderCategory.objects.get(
             pk=stakeholdercategory_id)
         stakeholders = stakeholder_category.stakeholder_set.all()
         context = {'stakeholder_category': stakeholder_category,
                    'stakeholders': stakeholders,
+                   'casestudy': casestudy,
                    }
         context['casestudies'] = self.casestudies()
         return render(request, 'changes/stakeholder_category.html', context)
