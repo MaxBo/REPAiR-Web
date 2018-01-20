@@ -1,14 +1,11 @@
-from abc import ABC
-from django.contrib.auth.models import User, Group
+
 from django.contrib.gis import geos
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from publications_bootstrap.models import Publication
+
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 from repair.apps.asmfa.models import KeyflowInCasestudy
@@ -46,7 +43,8 @@ class CreateWithUserInCasestudyMixin:
     Abstrace Base Class for Creating an object
     with the UserInCasestudy defined if not given
     """
-    def update(self, obj, validated_data):
+
+    def update(self, instance, validated_data):
         """
         update the implementation-attributes,
         including selected solutions
@@ -54,9 +52,9 @@ class CreateWithUserInCasestudyMixin:
 
         # update other attributes
         for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-        obj.save()
-        return obj
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         """Create a new user and its profile"""
@@ -89,16 +87,16 @@ class CreateWithUserInCasestudyMixin:
                 pass
 
         Model = self.get_model()
-        obj = self.create_instance(Model, user, validated_data,
+        instance = self.create_instance(Model, user, validated_data,
                                    kic=keyflow_in_casestudy)
-        self.update(obj=obj, validated_data=validated_data)
-        return obj
+        self.update(instance=instance, validated_data=validated_data)
+        return instance
 
     def create_instance(self, Model, user, validated_data, kic=None):
         """Create the Instance"""
         required_fields = self.get_required_fields(user, kic)
         for field in Model._meta.fields:
-            if hasattr(field, 'blank') and field.blank == False:
+            if hasattr(field, 'blank') and not field.blank:
                 if field.name in validated_data:
                     required_fields[field.name] = validated_data.pop(field.name)
         obj = Model.objects.create(**required_fields)
@@ -178,10 +176,10 @@ class InCasestudySerializerMixin:
             **validated_data)
         return obj
 
-    def update(self, obj, validated_data):
+    def update(self, instance, validated_data):
         casestudy = self.get_casestudy()
         validated_data['casestudy'] = casestudy
-        return super().update(obj, validated_data)
+        return super().update(instance, validated_data)
 
 
 class InCasestudyField(NestedHyperlinkedRelatedField2):
@@ -196,8 +194,8 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
         super().__init__(*args, **kwargs)
 
 
-    """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
+        """This is fixed in rest_framework_nested, but not yet available on pypi"""
         return False
 
     def get_queryset(self):
@@ -318,7 +316,8 @@ class InUICField(InCasestudyField):
 
 class ForceMultiMixin:
     """Convert Polygon to Multipolygon, if required"""
-    def convert2multi(self, validated_data, geo_field):
+    @staticmethod
+    def convert2multi(validated_data, geo_field):
         geom = validated_data.get(geo_field, None)
         if geom and isinstance(geom, geos.Polygon):
             geom = geos.MultiPolygon(geom)
@@ -335,7 +334,8 @@ class IdentityFieldMixin:
             kwargs['lookup_url_kwarg'] = self.lookup_url_kwarg
         super().__init__(view_name=view_name, **kwargs)
 
-    def get_model(self, view):
+    @staticmethod
+    def get_model(view):
         Model = view.queryset.model
         return Model
 
@@ -356,165 +356,3 @@ class InCasestudyListField(InCaseStudyIdentityField):
 
 class InUICSetField(IdentityFieldMixin, InUICField):
     """Field that returns a list of all items of the user in the casestudy"""
-
-
-###############################################################################
-#### Serializers for the Whole Project                                     ####
-###############################################################################
-
-class GroupSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-    class Meta:
-        model = Group
-        fields = ('url', 'id', 'name')
-
-
-class UserSerializer(NestedHyperlinkedModelSerializer):
-    """Serializer for put and post requests"""
-    parent_lookup_kwargs = {}
-    casestudies = serializers.HyperlinkedRelatedField(
-        queryset = CaseStudy.objects,
-        source='profile.casestudies',
-        many=True,
-        view_name='casestudy-detail',
-        help_text=_('Select the Casestudies the user works on')
-    )
-    organization = serializers.CharField(source='profile.organization',
-                                         allow_blank=True, required=False)
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        organization = serializers.CharField(required=False, allow_null=True)
-        fields = ('url', 'id', 'username', 'email', 'groups', 'password',
-                  'organization', 'casestudies',
-                  )
-
-    def update(self, obj, validated_data):
-        """update the user-attributes, including profile information"""
-        user = obj
-        user_id = user.id
-
-        # handle groups
-        new_groups = validated_data.pop('groups', None)
-        if new_groups is not None:
-            UserInGroups = User.groups.through
-            group_qs = UserInGroups.objects.filter(user=user)
-            # delete existing groups
-            group_qs.exclude(group_id__in=(gr.id for gr in new_groups)).delete()
-            # add or update new groups
-            for gr in new_groups:
-                UserInGroups.objects.update_or_create(user=user,
-                                                      group=gr)
-
-        # handle profile
-        profile_data = validated_data.pop('profile', None)
-        if profile_data is not None:
-            profile = Profile.objects.get(id=user_id)
-            new_casestudies = profile_data.pop('casestudies', None)
-            if new_casestudies is not None:
-                casestudy_qs = UserInCasestudy.objects.filter(user=user_id)
-                # delete existing
-                casestudy_qs.exclude(id__in=(cs.id for cs in new_casestudies))\
-                    .delete()
-                # add or update new casestudies
-                for cs in new_casestudies:
-                    UserInCasestudy.objects.update_or_create(user=profile,
-                                                             casestudy=cs)
-
-            # update other profile attributes
-            for attr, value in profile_data.items():
-                setattr(profile, attr, value)
-            #profile.__dict__.update(**profile_data)
-            profile.save()
-
-        # update other attributes
-        for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-
-        if 'password' in validated_data:
-            obj.set_password(validated_data['password'])
-
-        obj.save()
-        return obj
-
-    def create(self, validated_data):
-        """Create a new user and its profile"""
-        username = validated_data.pop('username')
-        email = validated_data.pop('email')
-        password = validated_data.pop('password')
-
-        user = User.objects.create_user(username, email, password)
-        self.update(obj=user, validated_data=validated_data)
-        return user
-
-
-class CaseStudySerializer(ForceMultiMixin,
-                          GeoFeatureModelSerializer,
-                          NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-    userincasestudy_set = InCasestudyListField(
-        view_name='userincasestudy-list')
-    stakeholder_categories = InCasestudyListField(
-        view_name='stakeholdercategory-list')
-    solution_categories = InCasestudyListField(
-        view_name='solutioncategory-list')
-    implementations = InCasestudyListField(view_name='implementation-list')
-    keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
-    levels = InCasestudyListField(view_name='adminlevels-list')
-    publications = InCasestudyListField(source='publicationincasestury_set',
-        view_name='publicationincasestudy-list')
-
-    class Meta:
-        model = CaseStudy
-        geo_field = 'geom'
-        fields = ('url', 'id', 'name', 'userincasestudy_set',
-                  'solution_categories', 'stakeholder_categories',
-                  'implementations',
-                  'keyflows',
-                  'levels',
-                  'focusarea',
-                  'publications',
-                  )
-
-    def update(self, instance, validated_data):
-        """cast geomfield to multipolygon"""
-        geo_field = self.Meta.geo_field
-        self.convert2multi(validated_data, geo_field)
-        self.convert2multi(validated_data, 'focusarea')
-        return super().update(instance, validated_data)
-
-
-class CasestudyField(NestedHyperlinkedRelatedField):
-    parent_lookup_kwargs = {'pk': 'id'}
-    queryset = CaseStudy.objects
-    """This is fixed in rest_framework_nested, but not yet available on pypi"""
-    def use_pk_only_optimization(self):
-        return False
-
-
-class UserInCasestudyField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    extra_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
-
-
-class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    role = serializers.CharField(required=False, allow_blank=True)
-    user = serializers.HyperlinkedIdentityField(
-        source='user.user',
-        view_name='user-detail',
-    )
-    implementations = InUICSetField(view_name='implementation-list')
-
-    class Meta:
-        model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name', 'role', 'implementations')
-        read_only_fields = ['name']
-
-
-class PublicationSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-    class Meta:
-        model = Publication
-        fields = ('id', 'title', 'authors', 'doi', 'url')

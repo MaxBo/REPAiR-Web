@@ -54,7 +54,6 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
                 'geometry': location.geom.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
-        print(response.status_text)
         assert response.status_code == status.HTTP_200_OK
 
         # get the new adress
@@ -182,7 +181,6 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
                 'geometry': new_location.geojson
                 }
         response = self.client.patch(url_locations_detail, data, format='json')
-        print(response.status_text)
         assert response.status_code == status.HTTP_200_OK
 
         # check the new adress of the location1
@@ -288,7 +286,6 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
                  'actor': actor.id,
                 }
         response = self.client.post(url_locations, data, format='json')
-        print(response.status_text)
         assert response.status_code == status.HTTP_201_CREATED
         new_aloc_id = response.data['id']
 
@@ -389,7 +386,6 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
                     # delete the second location (not in the new list any more)
                 ]}
         response = self.client.post(url_locations, data, format='json')
-        print(response.status_text)
         assert response.status_code == status.HTTP_201_CREATED
         response = self.client.get(url_locations)
         new_location_ids = [feature['id'] for feature in

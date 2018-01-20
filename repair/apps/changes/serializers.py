@@ -260,12 +260,12 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
                   'sii_set',
                   )
 
-    def update(self, obj, validated_data):
+    def update(self, instance, validated_data):
         """
         update the implementation-attributes,
         including selected solutions
         """
-        implementation = obj
+        implementation = instance
 
         # handle solutions
         new_solutions = validated_data.pop('solutions', None)
@@ -284,9 +284,9 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
 
         # update other attributes
         for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-        obj.save()
-        return obj
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class ImplementationOfUserSerializer(ImplementationSerializer):
@@ -419,12 +419,12 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
                   'implementation_list',
                   )
 
-    def update(self, obj, validated_data):
+    def update(self, instance, validated_data):
         """
         update the stratagy-attributes,
         including selected solutions
         """
-        strategy = obj
+        strategy = instance
 
         # handle implementations
         new_implementations = validated_data.pop('implementations', None)
@@ -443,6 +443,6 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
 
         # update other attributes
         for attr, value in validated_data.items():
-            setattr(obj, attr, value)
-        obj.save()
-        return obj
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

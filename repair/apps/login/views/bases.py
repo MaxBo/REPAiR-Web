@@ -136,13 +136,8 @@ class CasestudyViewSetMixin(ABC):
         filter_args.update(self.get_filter_args(queryset=self.queryset,
                                                 query_params=query_params)
                            )
-        try:
-            queryset = self.queryset.model.objects.filter(**filter_args)
-        except Exception as e:
-            # ToDo: ExceptionHandling is very broad. Pleas narrow down!
-            print(e)
-            raise e
-            return None
+        queryset = self.queryset.model.objects.filter(**filter_args)
+
         return queryset
 
     def get_filter_args(self, queryset, query_params=None):
