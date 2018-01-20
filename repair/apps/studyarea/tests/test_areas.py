@@ -164,8 +164,6 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         with self.assertRaises(FieldError):
             mars = models.World.objects.create(name='Mars')
 
-
-
     def test_get_levels(self):
         """Test the list of all levels of a casestudy"""
 
