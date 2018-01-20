@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
@@ -5,7 +6,7 @@ from django.shortcuts import render
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
                                           )
-from repair.apps.login.models import CaseStudy, Profile
+from repair.apps.login.models import CaseStudy
 from repair.apps.changes.forms import NameForm
 from .graphs import Testgraph1, Testgraph2
 
@@ -39,6 +40,7 @@ class StudyAreaIndexView(BaseView):
 class StakeholderCategoriesView(BaseView):
 
     def get(self, request, stakeholdercategory_id):
+        casestudy_id = request.session.get('casestudy', 0)
         casestudy = CaseStudy.objects.get(pk=casestudy_id)
         stakeholder_category = StakeholderCategory.objects.get(
             pk=stakeholdercategory_id)

@@ -1,9 +1,9 @@
-
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseForbidden
 
-
-
-from repair.apps.login.models import Profile, UserInCasestudy
+from repair.apps.login.models import UserInCasestudy
 from repair.views import BaseView
 from repair.apps.changes.models import (
     SolutionCategory,
