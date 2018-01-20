@@ -1,24 +1,9 @@
-import six
+
 from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.contenttypes.models import ContentType
 
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
-
-
-
-class StakeholderCategory(GDSEUniqueNameModel):
-    casestudy = models.ForeignKey(CaseStudy)
-    name = models.TextField()
-
-
-class Stakeholder(GDSEUniqueNameModel):
-    stakeholder_category = models.ForeignKey(StakeholderCategory)
-    name = models.TextField()
-
-    @property
-    def casestudy(self):
-        return self.stakeholder_category.casestudy
 
 
 class AdminLevels(GDSEUniqueNameModel):
@@ -165,37 +150,15 @@ class House(Area):
                                     related_name='houses')
 
 
-
-class Nodes(models.Model):
-    #node_id = models.IntegerField(primary_key=True)
-    location = models.CharField(max_length=255)
-    x_coord = models.FloatField()
-    y_coord = models.FloatField()
-
-
-class Links(models.Model):
-    #link_id = models.IntegerField(primary_key=True)
-    id_from = models.CharField(max_length=255)
-    id_to = models.CharField(max_length=255)
-    #link_description = models.CharField(max_length=100)
-    weight = models.FloatField()
-
-
-class Person(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-
-
-class AreaTypesMeta(type):
+class _AreaTypesMeta(type):
     def __init__(cls, name, bases, nmspc):
         """"""
-        super(AreaTypesMeta, cls).__init__(name, bases, nmspc)
+        super().__init__(name, bases, nmspc)
         for k, v in globals().items():
             if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
                 cls.by_level[v._level] = v
 
 
-class Areas(metaclass=AreaTypesMeta):
+class Areas(metaclass=_AreaTypesMeta):
     """"""
     by_level = {}
-

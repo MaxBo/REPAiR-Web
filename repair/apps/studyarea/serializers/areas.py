@@ -1,87 +1,21 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from rest_framework.fields import SkipField
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometryField
 
-from repair.apps.studyarea.models import (StakeholderCategory,
-                                          Stakeholder,
-                                          AdminLevels,
+from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
+                                            GeometryField)
+
+from repair.apps.studyarea.models import (AdminLevels,
                                           Area,
                                           Areas
                                           )
-from repair.apps.login.models import CaseStudy
-from repair.apps.login.serializers import (CaseStudySerializer,
-                                           InCasestudyField,
-                                           InCaseStudyIdentityField,
+
+from repair.apps.login.serializers import (InCasestudyField,
                                            InCasestudyListField,
-                                           IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            ForceMultiMixin,
                                            CasestudyField,
                                            )
-
-import repair.apps.studyarea.models as smodels
-
-
-class StakeholderCategoryField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-
-
-class StakeholderSetField(InCasestudyField):
-    lookup_url_kwarg = 'stakeholdercategory_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'stakeholder_category__casestudy__id',
-        'stakeholdercategory_pk': 'stakeholder_category__id', }
-
-
-class StakeholderListField(IdentityFieldMixin, StakeholderSetField):
-    """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
-                            'stakeholdercategory_pk': 'id', }
-
-
-class StakeholderSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'stakeholder_category__casestudy__id',
-        'stakeholdercategory_pk': 'stakeholder_category__id',
-    }
-    stakeholder_category = StakeholderCategoryField(
-        view_name='stakeholdercategory-detail'
-    )
-
-    class Meta:
-        model = Stakeholder
-        fields = ('url', 'id', 'name', 'stakeholder_category')
-
-
-class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'stakeholder_category__casestudy__id',
-        'stakeholdercategory_pk': 'stakeholder_category__id',
-    }
-    class Meta:
-        model = Stakeholder
-        fields = ('url', 'id', 'name')
-
-
-class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
-                                    NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    stakeholder_list = StakeholderListField(source='stakeholder_set',
-                                            view_name='stakeholder-list')
-    stakeholder_set = StakeholderSetField(many=True,
-                                          view_name='stakeholder-detail',
-                                          read_only=True)
-
-    class Meta:
-        model = StakeholderCategory
-        fields = ('url', 'id', 'name', 'stakeholder_set', 'stakeholder_list',
-                  )
-
-    def get_required_fields(self, user, kic=None):
-        required_fields = {'casestudy': user.casestudy,}
-        return required_fields
 
 
 class AreaListField(InCasestudyListField):
@@ -103,6 +37,7 @@ class AdminLevelSerializer(CreateWithUserInCasestudyMixin,
                   'area_set',
                   )
 
+
 class AdminLevelField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
@@ -123,6 +58,7 @@ class ParentAreaField(serializers.IntegerField):
         """get the attribute"""
         return super().get_attribute(self.get_concrete_area())
 
+
 class ParentAreaLevel(ParentAreaField):
     def to_representation(self, value):
         concrete_area = self.get_concrete_area()
@@ -140,7 +76,7 @@ class ParentAreaLevel(ParentAreaField):
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
-                            'level_pk': 'adminlevel__id',}
+                            'level_pk': 'adminlevel__id', }
     casestudy = CasestudyField(source='adminlevel.casestudy',
                                view_name='casestudy-detail')
 
@@ -163,15 +99,17 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
 
     geometry = GeometryField(source='geom')
     parent_area = ParentAreaField(read_only=True, allow_null=True)
-    parent_level = ParentAreaLevel(read_only=True, allow_null=True, source='parent_area')
+    parent_level = ParentAreaLevel(read_only=True,
+                                   allow_null=True,
+                                   source='parent_area')
 
     class Meta(AreaSerializer.Meta):
         geo_field = 'geometry'
         fields = ('url', 'id', 'casestudy', 'name', 'code',
-                      'adminlevel',
-                      'parent_area',
-                      'parent_level',
-                      )
+                  'adminlevel',
+                  'parent_area',
+                  'parent_level',
+                  )
 
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
@@ -182,7 +120,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
         """Create a new user and its profile"""
         adminlevel = self.get_level(validated_data=validated_data)
 
-        if not 'features' in validated_data:
+        if 'features' not in validated_data:
             obj = self.Meta.model.objects.create(
                 adminlevel=adminlevel,
                 **validated_data)
@@ -208,7 +146,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
                     parent_area = parent_area_class.objects.get(
                         adminlevel=parent_adminlevel,
                         code=parent_area_code)
-                    obj.parent_area=parent_area
+                    obj.parent_area = parent_area
                 except ObjectDoesNotExist:
                     pass
             obj.save()
@@ -223,6 +161,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
         adminlevel = AdminLevels.objects.get(pk=level_pk)
         return adminlevel
 
+
 class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
     parent_level = serializers.IntegerField(write_only=True, required=False)
     parent_area = serializers.CharField(write_only=True, required=False)
@@ -231,13 +170,11 @@ class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
         fields = ('url', 'id', 'name', 'code',
                   'parent_level', 'parent_area')
 
-
     def to_internal_value(self, data):
         """
         Override the parent method to parse all features and
         remove the GeoJSON formatting
         """
-        adminlevel = self.get_level()
         parent_level = data.pop('parent_level', None)
 
         if data.get('type') == 'FeatureCollection':
