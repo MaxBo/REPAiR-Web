@@ -10,7 +10,7 @@ class Unit(GDSEModel):
 
 
 class SolutionCategory(GDSEUniqueNameModel):
-    user = models.ForeignKey(UserInCasestudy)
+    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
 
     @property
@@ -19,8 +19,9 @@ class SolutionCategory(GDSEUniqueNameModel):
 
 
 class Solution(GDSEUniqueNameModel):
-    user = models.ForeignKey(UserInCasestudy)
-    solution_category = models.ForeignKey(SolutionCategory)
+    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
+    solution_category = models.ForeignKey(SolutionCategory,
+                                          on_delete=models.CASCADE)
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
@@ -31,8 +32,8 @@ class Solution(GDSEUniqueNameModel):
 
 
 class SolutionQuantity(GDSEModel):
-    solution = models.ForeignKey(Solution)
-    unit = models.ForeignKey(Unit)
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     name = models.TextField()
 
     def __str__(self):
@@ -41,7 +42,7 @@ class SolutionQuantity(GDSEModel):
 
 
 class SolutionRatioOneUnit(GDSEModel):
-    solution = models.ForeignKey(Solution)
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
     name = models.TextField()
     value = models.FloatField()
-    unit = models.ForeignKey(Unit)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)

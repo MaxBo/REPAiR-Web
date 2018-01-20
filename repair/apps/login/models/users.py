@@ -73,8 +73,8 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
 
 
 class UserInCasestudy(GDSEModel):
-    user = models.ForeignKey(Profile)
-    casestudy = models.ForeignKey(CaseStudy)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     role = models.TextField(default='', blank=True)
 
     @property

@@ -9,9 +9,10 @@ from .solutions import Solution, SolutionQuantity
 
 
 class Implementation(GDSEModel):
-    user = models.ForeignKey(UserInCasestudy)
+    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
-    coordinating_stakeholder = models.ForeignKey(Stakeholder, default=1)
+    coordinating_stakeholder = models.ForeignKey(Stakeholder, default=1,
+                                                 on_delete=models.CASCADE)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
 
@@ -29,8 +30,8 @@ class Implementation(GDSEModel):
 
 
 class SolutionInImplementation(GDSEModel):
-    solution = models.ForeignKey(Solution)
-    implementation = models.ForeignKey(Implementation)
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
+    implementation = models.ForeignKey(Implementation, on_delete=models.CASCADE)
     participants = models.ManyToManyField(Stakeholder)
 
     def __str__(self):
@@ -88,7 +89,8 @@ signals.post_save.connect(
 
 
 class SolutionInImplementationNote(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1)
+    sii = models.ForeignKey(SolutionInImplementation, default=1,
+                            on_delete=models.CASCADE)
     note = models.TextField()
 
     def __str__(self):
@@ -97,8 +99,10 @@ class SolutionInImplementationNote(GDSEModel):
 
 
 class SolutionInImplementationQuantity(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1)
-    quantity = models.ForeignKey(SolutionQuantity, default=1)
+    sii = models.ForeignKey(SolutionInImplementation, default=1,
+                            on_delete=models.CASCADE)
+    quantity = models.ForeignKey(SolutionQuantity, default=1,
+                                 on_delete=models.CASCADE)
     value = models.FloatField(default=0)
 
     def __str__(self):
@@ -107,7 +111,8 @@ class SolutionInImplementationQuantity(GDSEModel):
 
 
 class SolutionInImplementationGeometry(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1)
+    sii = models.ForeignKey(SolutionInImplementation, default=1,
+                            on_delete=models.CASCADE)
     name = models.TextField(blank=True)
     geom = models.GeometryField(verbose_name='geom', null=True)
 

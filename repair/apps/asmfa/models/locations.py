@@ -27,7 +27,7 @@ class Geolocation(gis.Model):
                                default="-1")
     city = models.CharField(max_length=255, blank=True, null=True)
     geom = gis.PointField(blank=True, null=True)
-    area = models.ForeignKey(Area, on_delete=models.CASCADE, null=True)
+    area = models.ForeignKey(Area, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         ret = '{s}@({g})'.format(s=self.address, g=self.geom)
@@ -55,10 +55,12 @@ class AdministrativeLocation(Establishment):
     """Administrative Location of Actor"""
     actor = models.OneToOneField(Actor,
                                  null=True,
-                                 related_name='administrative_location')
+                                 related_name='administrative_location',
+                                 on_delete=models.CASCADE)
 
 
 class OperationalLocation(Establishment):
     """Operational Location of Actor"""
     actor = models.ForeignKey(Actor,
-                              related_name='operational_locations')
+                              related_name='operational_locations',
+                              on_delete=models.CASCADE)
