@@ -109,7 +109,7 @@ class SolutionInImplementationQuantity(GDSEModel):
 class SolutionInImplementationGeometry(GDSEModel):
     sii = models.ForeignKey(SolutionInImplementation, default=1)
     name = models.TextField(blank=True)
-    geom = models.GeometryField(verbose_name='geom')
+    geom = models.GeometryField(verbose_name='geom', null=True)
 
     def __str__(self):
         text = 'location {n} ({gt})'
