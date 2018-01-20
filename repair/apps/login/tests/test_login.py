@@ -2,21 +2,20 @@ import unittest
 from django.test import TestCase
 from django.urls import reverse
 from test_plus import APITestCase
-from rest_framework import status
+from rest_framework import status, exceptions
 
-from repair.apps.login.models import CaseStudy, User, Profile
+from repair.apps.login.models import CaseStudy, User, Profile, UserInCasestudy
 from repair.apps.login.factories import (UserFactory,
                                          GroupFactory,
                                          UserInCasestudyFactory,
                                          ProfileFactory,
                                          CaseStudyFactory)
-from repair.tests.test import (BasicModelTest,
-                               CompareAbsURIMixin)
+from repair.tests.test import BasicModelTest, CompareAbsURIMixin
 
 
 class ModelTest(TestCase):
 
-    def test_profile_creation(self):
+    def test_user_creation(self):
         # New user created
         user = User.objects.create(
             username="horst",
@@ -125,6 +124,33 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         self.response_200()
         assert response.data['email'] == new_mail
 
+    def test_permission(self):
+        open_country = self.casestudy
+        forbidden_country = CaseStudyFactory(name='ForbiddenCountry')
+        # add anonymus user to casestudy1
+        UserInCasestudy.objects.create(user=self.anonymus_user,
+                                       casestudy=open_country)
+
+        # try access to casestudies with anonymus user
+        self.client.force_login(self.anonymus_user.user)
+        # first casestudy shoul work
+        url = self.reverse('casestudy-detail', pk=open_country.pk)
+        self.get_check_200(url)
+        # second should be denied
+        url = self.reverse('casestudy-detail', pk=forbidden_country.pk)
+        response = self.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # grant access
+        UserInCasestudy.objects.create(user=self.anonymus_user,
+                                       casestudy=forbidden_country)
+        # should work now
+        self.get_check_200(url)
+
+        self.client.logout()
+
+
+
 
 class CasestudyTest(BasicModelPermissionTest, APITestCase):
 
@@ -187,8 +213,18 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
         url = self.url_key + '-detail'
         response = self.get_check_200(url, **kwargs)
 
+        # list all users in the casestudy
+        response = self.get_check_200('userincasestudy-list', **self.url_pks)
+        n_users_before = len(response.data)
+
+        # delete is not allowed
         response = self.delete(url, **kwargs)
-        response = self.get(ur, **kwargs)
+        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+        # delete manually
+        uic = UserInCasestudy.objects.get(pk=self.obj.pk)
+        uic.delete()
+        response = self.get('userincasestudy-list', **self.url_pks)
         # after removing user the casestudy is permitted to access for this user
         assert response.status_code == status.HTTP_403_FORBIDDEN
         self.response_403()
@@ -197,9 +233,6 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def test_post(self):
         """no Post"""
 
-    @unittest.skip('no Delete possible')
-    def test_delete(self):
-        """no Delete"""
 
     @unittest.skip('no Post possible')
     def test_post_permission(self):
