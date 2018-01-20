@@ -1,6 +1,6 @@
-from django.db import models
+
 from django.db.models import signals
-# from django.contrib.gis.db import models
+from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       UserInCasestudy)
@@ -151,12 +151,11 @@ class SolutionInImplementationQuantity(GDSEModel):
 class SolutionInImplementationGeometry(GDSEModel):
     sii = models.ForeignKey(SolutionInImplementation, default=1)
     name = models.TextField(blank=True)
-    geom = models.TextField(blank=True)
-    #geom = models.GeometryField(verbose_name='geom')
+    geom = models.GeometryField(verbose_name='geom')
 
     def __str__(self):
-        text = 'location {n} at {g}'
-        return text.format(n=self.name, g=self.geom)
+        text = 'location {n} ({gt})'
+        return text.format(n=self.name, gt=self.geom.geom_type)
 
 
 class Strategy(GDSEUniqueNameModel):

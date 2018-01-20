@@ -1,3 +1,5 @@
+from django.contrib.gis.geos.point import Point
+
 import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
@@ -104,7 +106,7 @@ class SolutionInImplementationGeometryFactory(DjangoModelFactory):
         model = models.SolutionInImplementationGeometry
     sii = factory.SubFactory(SolutionInImplementationFactory)
     name = 'Hier'
-    geom = 'LatLon'
+    geom = Point(9.3, 10.4, srid=4326)
 
 
 class StrategyFactory(DjangoModelFactory):
