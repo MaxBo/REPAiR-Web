@@ -14,7 +14,7 @@ from repair.tests.test import (BasicModelPermissionTest,
 
 class ModelTest(TestCase):
 
-    fixtures = ['auth', 'sandbox']
+    #fixtures = ['auth', 'sandbox']
 
 
     def test_profile_creation(self):
@@ -64,7 +64,7 @@ class ModelTest(TestCase):
 
 class ViewTest(CompareAbsURIMixin, APITestCase):
 
-    fixtures = ['auth', 'sandbox']
+    #fixtures = ['auth', 'sandbox']
 
 
     def test_get_group(self):

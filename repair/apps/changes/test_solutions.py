@@ -64,7 +64,7 @@ class StrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
 class ModelTest(TestCase):
 
-    fixtures = ['auth', 'sandbox']
+    #fixtures = ['auth', 'sandbox']
 
     def test_string_representation(self):
         for Model in (CaseStudy,
