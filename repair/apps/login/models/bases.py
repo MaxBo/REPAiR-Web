@@ -46,24 +46,3 @@ class GDSEUniqueNameModel(GDSEModel):
         if self.pk is None:
             self.full_clean()
         super().save(*args, **kwargs)
-
-
-def get_default(model):
-    """get a default value for a foreign key"""
-    try:
-        value = model.objects.get_or_create(id=1)[0]
-    except (OperationalError, AppRegistryNotReady) as e:
-        """
-        Before running the migrations, the default value is queried from a
-        not yet existing database
-        """
-        logger.debug(e)
-        return 0
-    except IntegrityError as e:
-        """
-        Before running the migrations, the default value is queried from a
-        not yet existing database
-        """
-        logger.debug(e)
-        return 0
-    return value.pk

@@ -154,11 +154,3 @@ class CasestudyViewSetMixin(ABC):
                         continue
                 filter_args[k] = v
         return filter_args
-
-
-class OnlySubsetMixin(CasestudyViewSetMixin):
-    """"""
-    @staticmethod
-    def set_casestudy(kwargs, request):
-        """set the casestudy as a session attribute if its in the kwargs"""
-        request.session['url_pks'] = kwargs

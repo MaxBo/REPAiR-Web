@@ -30,9 +30,8 @@ class CaseStudy(GDSEModel):
         look for all stakeholder categories created by the users of the casestudy
         """
         stakeholder_categories = set()
-        for uic in self.userincasestudy_set.all():
-            for stakeholder_category in uic.stakeholdercategory_set.all():
-                stakeholder_categories.add(stakeholder_category)
+        for stakeholder_category in self.stakeholdercategory_set.all():
+            stakeholder_categories.add(stakeholder_category)
         return stakeholder_categories
 
     @property

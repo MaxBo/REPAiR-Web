@@ -1,8 +1,9 @@
+# -*- coding: UTF-8 -*-
 import unittest
 from django.test import TestCase
 from django.urls import reverse
 from test_plus import APITestCase
-from rest_framework import status, exceptions
+from rest_framework import status
 
 from repair.apps.login.models import CaseStudy, User, Profile, UserInCasestudy
 from repair.apps.login.factories import (UserFactory,
@@ -36,14 +37,17 @@ class ModelTest(TestCase):
 
         # should use the provided username
         profile = ProfileFactory(user__username='Adele')
-        self.assertEqual(str(profile),"Adele")
+        self.assertEqual(str(profile), "Adele")
 
     def test_string_representation(self):
-        casestudy = CaseStudy(name="MyName")
-        self.assertEqual(str(casestudy),"MyName")
+        casestudy = CaseStudy(name="Liège")
+        self.assertEqual(str(casestudy), "Liège")
 
         user = UserFactory(username="Markus")
-        self.assertEqual(str(user.profile),"Markus")
+        self.assertEqual(str(user.profile), "Markus")
+
+        uic = UserInCasestudy(user=user.profile, casestudy=casestudy)
+        self.assertEqual(str(uic), "Markus (Liège)")
 
     def test_casestudies_of_profile(self):
         casestudy_hh = CaseStudyFactory(name='Hamburg')
@@ -102,8 +106,10 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
                 'password': 'PW',
                 'organization': 'GGR',
                 'groups': [group],
-                'email': initial_mail,}
-        response = self.post('user-list', data=data, extra={'format': 'json'},)
+                'email': initial_mail, }
+        response = self.post('user-list',
+                             data=data,
+                             extra={'format': 'json'}, )
         self.response_201()
         new_id = response.data['id']
 
@@ -119,10 +125,15 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         self.assertURLsEqual(response.data['casestudies'], [lodz])
 
         new_mail = 'new@mail.de'
-        data = {'email': new_mail,}
+        data = {'email': new_mail, }
         response = self.patch('user-detail', pk=new_id, data=data)
         self.response_200()
         assert response.data['email'] == new_mail
+
+        new_password = 'MyNewPassword'
+        data = {'password': new_password, }
+        response = self.patch('user-detail', pk=new_id, data=data)
+        self.response_200()
 
     def test_permission(self):
         open_country = self.casestudy
@@ -150,8 +161,6 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         self.client.logout()
 
 
-
-
 class CasestudyTest(BasicModelPermissionTest, APITestCase):
 
     url_key = "casestudy"
@@ -163,7 +172,7 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
     add_perm = "login.add_casestudy"
 
     def test_post(self):
-        url = self.url_key +'-list'
+        url = self.url_key + '-list'
         # post
         response = self.post(url, **self.url_pks, data=self.post_data)
         for key in self.post_data:
@@ -193,6 +202,7 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -203,19 +213,17 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.put_data = dict(role="role for testing")
         cls.patch_data = dict(role="role for testing")
 
-
     def setUp(self):
         super().setUp()
         self.obj = self.uic
 
     def test_delete(self):
-        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
         url = self.url_key + '-detail'
         response = self.get_check_200(url, **kwargs)
 
         # list all users in the casestudy
         response = self.get_check_200('userincasestudy-list', **self.url_pks)
-        n_users_before = len(response.data)
 
         # delete is not allowed
         response = self.delete(url, **kwargs)
@@ -225,14 +233,15 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
         uic = UserInCasestudy.objects.get(pk=self.obj.pk)
         uic.delete()
         response = self.get('userincasestudy-list', **self.url_pks)
-        # after removing user the casestudy is permitted to access for this user
+
+        # after removing user
+        # the casestudy is not permitted to access for this user any more
         assert response.status_code == status.HTTP_403_FORBIDDEN
         self.response_403()
 
     @unittest.skip('no Post possible')
     def test_post(self):
         """no Post"""
-
 
     @unittest.skip('no Post possible')
     def test_post_permission(self):
@@ -242,3 +251,22 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def test_delete_permission(self):
         """no Delete"""
 
+    def test_filter_fields(self):
+        """Test the filter fields request parameters"""
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
+        url = self.url_key + '-detail'
+
+        fields = ['user', 'role']
+        data = {'field': fields}
+        response = self.get_check_200(url, data=data, **kwargs)
+        self.assertSetEqual(set(response.data.keys()), set(fields))
+
+        # test fields of a list
+        # create a second user
+        casestudy = CaseStudy.objects.get(pk=self.casestudy)
+        uic2 = UserInCasestudyFactory(casestudy=casestudy)
+        response = self.get_check_200('userincasestudy-list',
+                                      data=data,
+                                      casestudy_pk=self.casestudy)
+        for row in response.data:
+            self.assertSetEqual(set(row.keys()), set(fields))

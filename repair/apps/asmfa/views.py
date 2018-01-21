@@ -49,7 +49,7 @@ from repair.apps.asmfa.serializers import (
     MaterialSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin, OnlySubsetMixin
+from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
 
 class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -109,7 +109,8 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
                    'update': KeyflowInCasestudyPostSerializer,}
 
 
-class GroupStockViewSet(RevisionMixin, OnlySubsetMixin,
+class GroupStockViewSet(RevisionMixin,
+                        CasestudyViewSetMixin,
                         ModelPermissionViewSet):
     add_perm = 'asmfa.add_groupstock'
     change_perm = 'asmfa.change_groupstock'
@@ -118,7 +119,8 @@ class GroupStockViewSet(RevisionMixin, OnlySubsetMixin,
     serializer_class = GroupStockSerializer
 
 
-class ActivityStockViewSet(RevisionMixin, OnlySubsetMixin,
+class ActivityStockViewSet(RevisionMixin,
+                           CasestudyViewSetMixin,
                            ModelPermissionViewSet):
     add_perm = 'asmfa.add_activitystock'
     change_perm = 'asmfa.change_activitystock'
@@ -127,7 +129,8 @@ class ActivityStockViewSet(RevisionMixin, OnlySubsetMixin,
     serializer_class = ActivityStockSerializer
 
 
-class ActorStockViewSet(RevisionMixin, OnlySubsetMixin,
+class ActorStockViewSet(RevisionMixin,
+                        CasestudyViewSetMixin,
                         ModelPermissionViewSet):
     add_perm = 'asmfa.add_actorstock'
     change_perm = 'asmfa.change_actorstock'
@@ -137,7 +140,10 @@ class ActorStockViewSet(RevisionMixin, OnlySubsetMixin,
     additional_filters = {'origin__included': True}
 
 
-class FlowViewSet(RevisionMixin, OnlySubsetMixin, ModelPermissionViewSet, ABC):
+class FlowViewSet(RevisionMixin,
+                  CasestudyViewSetMixin,
+                  ModelPermissionViewSet,
+                  ABC):
     """
     Abstract BaseClass for a FlowViewSet
     The Subclass has to provide a model inheriting from Flow

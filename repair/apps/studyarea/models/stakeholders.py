@@ -9,7 +9,8 @@ class StakeholderCategory(GDSEUniqueNameModel):
 
 
 class Stakeholder(GDSEUniqueNameModel):
-    stakeholder_category = models.ForeignKey(StakeholderCategory, on_delete=models.CASCADE)
+    stakeholder_category = models.ForeignKey(StakeholderCategory,
+                                             on_delete=models.CASCADE)
     name = models.TextField()
 
     @property
