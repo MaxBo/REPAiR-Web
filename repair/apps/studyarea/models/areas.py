@@ -1,7 +1,6 @@
 from django.core.exceptions import FieldError
 from django.db import models
 from django.contrib.gis.db import models as geomodels
-from django.contrib.contenttypes.models import ContentType
 
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
 
@@ -31,13 +30,6 @@ class Area(GDSEModel):
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
-
-    @property
-    def content_type(self):
-        level = self.adminlevel.level
-        area_class = Areas.by_level[level]
-        content_type = ContentType.objects.get_for_model(area_class)
-        return content_type
 
     def save(self, *args, **kwargs):
         if not hasattr(self, '_level') and not self.pk:
