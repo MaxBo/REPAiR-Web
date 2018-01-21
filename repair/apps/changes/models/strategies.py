@@ -8,9 +8,10 @@ from .implementations import Implementation
 
 
 class Strategy(GDSEUniqueNameModel):
-    user = models.ForeignKey(UserInCasestudy)
+    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
-    coordinator = models.ForeignKey(Stakeholder, default=1)
+    coordinator = models.ForeignKey(Stakeholder,
+                                    on_delete=models.CASCADE)
     implementations = models.ManyToManyField(Implementation)
 
     @property

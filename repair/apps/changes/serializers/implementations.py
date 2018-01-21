@@ -41,13 +41,10 @@ class SolutionInImplementationsListField(IdentityFieldMixin,
                             'implementation_pk': 'id', }
 
 
-class StakeholderOfImplementationField(InCaseStudyIdentityField):
-    lookup_url_kwarg = 'pk'
+class StakeholderOfImplementationField(InCasestudyField):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'user__casestudy__id',
-        'pk': 'coordinating_stakeholder__id',
-        'stakeholdercategory_pk':
-        'coordinating_stakeholder__stakeholder_category__id', }
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id', }
 
 
 class ImplementationSerializer(CreateWithUserInCasestudyMixin,

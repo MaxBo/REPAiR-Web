@@ -33,8 +33,8 @@ class Group2Group(Flow):
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='GroupFlows')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='Group2GroupData', default=1)
+    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
+                              related_name='Group2GroupData')
 
 
 class Activity2Activity(Flow):
@@ -47,8 +47,8 @@ class Activity2Activity(Flow):
                                )
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActivityFlows')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='Activity2ActivityData', default=1)
+    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
+                              related_name='Activity2ActivityData')
 
 
 class Actor2Actor(Flow):
@@ -59,5 +59,5 @@ class Actor2Actor(Flow):
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActorFlows')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='Actor2ActorData', default=1)
+    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
+                              related_name='Actor2ActorData')

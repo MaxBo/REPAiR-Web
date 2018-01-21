@@ -18,6 +18,8 @@ from repair.apps.changes.factories import (
     SolutionInImplementationNoteFactory,
     SolutionInImplementationQuantityFactory)
 
+from repair.apps.studyarea.factories import StakeholderFactory
+
 
 class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
 
@@ -25,6 +27,8 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
     user = 20
     userincasestudy = 21
     implementation = 30
+    stakeholder = 77
+    stakeholdercategory = 88
 
     @classmethod
     def setUpClass(cls):
@@ -33,22 +37,34 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
             'userincasestudy-detail',
             kwargs=dict(pk=cls.userincasestudy,
                         casestudy_pk=cls.casestudy))
+        cls.stakeholder_url = cls.baseurl + reverse(
+            'stakeholder-detail',
+            kwargs=dict(pk=cls.stakeholder,
+                        casestudy_pk=cls.casestudy,
+                        stakeholdercategory_pk=cls.stakeholdercategory)
+        )
         cls.sol_set = []
         cls.url_key = "implementation"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.implementation)
         cls.post_data = dict(name="Test Implementation",
                              user=cls.usr_url,
-                             solution_set=cls.sol_set)
+                             solution_set=cls.sol_set,
+                             coordinating_stakeholder=cls.stakeholder_url)
         cls.put_data = dict(name="Test Implementation",
                             user=cls.usr_url,
-                            solution_set=cls.sol_set)
-        cls.patch_data = dict(name="Test Implementation")
+                            solution_set=cls.sol_set,
+                            coordinating_stakeholder=cls.stakeholder_url)
+        cls.patch_data = dict(name="Test New Implementation")
 
     def setUp(self):
         super().setUp()
         self.obj = ImplementationFactory(id=self.implementation,
                                          user=self.uic)
+        self.stakeholder = StakeholderFactory(
+            id=self.stakeholder,
+            stakeholder_category__id=self.stakeholdercategory,
+            stakeholder_category__casestudy=self.uic.casestudy)
 
 
 class ModelSolutionInImplementation(TestCase):
