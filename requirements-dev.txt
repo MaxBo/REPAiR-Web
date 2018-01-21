@@ -23,7 +23,7 @@ geojson
 django-debug-toolbar
 
 django-dynamic-fixture
-git+https://github.com/davedash/django-fixture-magic.git#egg=django-fixture-magic
+git+https://github.com/MaxBo/django-fixture-magic.git#egg=django-fixture-magic>=0.1.4
 
 fake-factory
 factory_boy
