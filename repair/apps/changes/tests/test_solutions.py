@@ -9,6 +9,7 @@ from repair.apps.changes.factories import (
     SolutionQuantityFactory,
     SolutionRatioOneUnitFactory,
 )
+from repair.apps.login.factories import UserInCasestudyFactory
 
 
 class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
@@ -35,6 +36,20 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
                                            user=self.uic,
                                            )
+
+    def test_casestudy_solutioncategories(self):
+        """Test the casestudy.solutioncategories property"""
+        solcat1 = self.obj
+        solcat2 = SolutionCategoryFactory(user=self.uic,
+                                          name='SolCat2')
+        user2 = UserInCasestudyFactory(casestudy=self.uic.casestudy)
+        solcat3 = SolutionCategoryFactory(user=user2,
+                                          name='SolCat3')
+
+        solution_categories = user2.casestudy.solution_categories
+        self.assertSetEqual(solution_categories, {solcat1,
+                                                  solcat2,
+                                                  solcat3})
 
 
 class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):

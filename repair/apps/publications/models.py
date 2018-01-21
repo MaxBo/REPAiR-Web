@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from repair.apps.login.models import (CaseStudy,
-                                      GDSEModel, get_default)
+from repair.apps.login.models import (CaseStudy, GDSEModel)
 
 from publications_bootstrap.models import (Publication,
                                            Type as PublicationType)

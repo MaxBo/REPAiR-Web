@@ -19,6 +19,7 @@ from repair.apps.changes.factories import (
     SolutionInImplementationQuantityFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
+from repair.apps.login.factories import UserInCasestudyFactory
 
 
 class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
@@ -66,6 +67,19 @@ class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
             stakeholder_category__id=self.stakeholdercategory,
             stakeholder_category__casestudy=self.uic.casestudy)
 
+    def test_casestudy_implementations(self):
+        """Test the casestudy.implementations property"""
+        implementation1 = self.obj
+        implementation2 = ImplementationFactory(user=self.uic,
+                                                name='Imp2')
+        user2 = UserInCasestudyFactory(casestudy=self.uic.casestudy)
+        implementation3 = ImplementationFactory(user=user2,
+                                                name='Imp3')
+
+        implementations = user2.casestudy.implementations
+        self.assertSetEqual(implementations, {implementation1,
+                                              implementation2,
+                                              implementation3})
 
 class ModelSolutionInImplementation(TestCase):
 

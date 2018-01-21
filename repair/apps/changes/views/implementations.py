@@ -1,6 +1,5 @@
 
-from repair.apps.login.views import (CasestudyViewSetMixin,
-                                     OnlySubsetMixin)
+from repair.apps.login.views import CasestudyViewSetMixin
 
 from repair.apps.utils.views import ReadUpdateViewSet
 from repair.apps.changes.models import (
@@ -56,7 +55,7 @@ class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
     queryset = SolutionInImplementationNote.objects.all()
 
 
-class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
+class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
                                               ReadUpdateViewSet):
     """
     Has to provide exactly one quantity value
@@ -68,7 +67,7 @@ class SolutionInImplementationQuantityViewSet(OnlySubsetMixin,
 
 
 class SolutionInImplementationGeometryViewSet(CasestudyViewSetMixin,
-                                      ModelPermissionViewSet):
+                                              ModelPermissionViewSet):
     add_perm = 'changes.add_solutioninimplementationgeometry'
     change_perm = 'changes.change_solutioninimplementationgeometry'
     delete_perm = 'changes.delete_solutioninimplementationgeometry'
