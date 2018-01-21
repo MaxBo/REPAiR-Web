@@ -10,13 +10,10 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            CreateWithUserInCasestudyMixin)
 
 
-class StakeholderOfStrategyField(InCaseStudyIdentityField):
-    lookup_url_kwarg = 'pk'
+class StakeholderOfStrategyField(InCasestudyField):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'user__casestudy__id',
-        'pk': 'coordinator__id',
-        'stakeholdercategory_pk':
-        'coordinator__stakeholder_category__id', }
+        'casestudy_pk': 'stakeholder_category__casestudy__id',
+        'stakeholdercategory_pk': 'stakeholder_category__id', }
 
 
 class ImplementationInStrategySetField(InCasestudyField):

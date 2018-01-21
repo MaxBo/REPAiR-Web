@@ -7,6 +7,7 @@ SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
  python manage.py dump_object -k changes.strategy --query "{\"user__casestudy__id\": 7}"  > repair\fixtures\sandbox_strategy.json
  python manage.py dump_object -k publications_bootstrap.publication * > repair\fixtures\sandbox_publications.json
  python manage.py dump_object -k studyarea.area --query "{\"adminlevel__casestudy__id\": 7}"  > repair\fixtures\sandbox_areas.json
+ python manage.py dump_object -k studyarea.stakeholdercategory --query "{\"casestudy__id\": 7}"  > repair\fixtures\sandbox_stakeholders.json
 
 python manage.py merge_fixtures^
  repair\fixtures\sandbox_casestudy.json^
@@ -19,4 +20,5 @@ python manage.py merge_fixtures^
  repair\fixtures\sandbox_publications.json^
  repair\fixtures\sandbox_areas.json^
  repair\fixtures\sandbox_actor.json^
+ repair\fixtures\sandbox_stakeholders.json^
  > repair\fixtures\sandbox_data.json

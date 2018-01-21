@@ -87,11 +87,10 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.obj = StakeholderFactory(id=self.stakeholder,
-                                      stakeholder_category__id=\
-                                      self.stakeholdercategory,
-                                      stakeholder_category__casestudy=\
-                                      self.uic.casestudy,
-                                      )
+        self.obj = StakeholderFactory(
+            id=self.stakeholder,
+            stakeholder_category__id=self.stakeholdercategory,
+            stakeholder_category__casestudy=self.uic.casestudy,
+            )
 
 

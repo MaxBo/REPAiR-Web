@@ -11,7 +11,7 @@ from .solutions import Solution, SolutionQuantity
 class Implementation(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
-    coordinating_stakeholder = models.ForeignKey(Stakeholder, default=1,
+    coordinating_stakeholder = models.ForeignKey(Stakeholder,
                                                  on_delete=models.CASCADE)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
@@ -89,7 +89,7 @@ signals.post_save.connect(
 
 
 class SolutionInImplementationNote(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1,
+    sii = models.ForeignKey(SolutionInImplementation,
                             on_delete=models.CASCADE)
     note = models.TextField()
 
@@ -99,9 +99,9 @@ class SolutionInImplementationNote(GDSEModel):
 
 
 class SolutionInImplementationQuantity(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1,
+    sii = models.ForeignKey(SolutionInImplementation,
                             on_delete=models.CASCADE)
-    quantity = models.ForeignKey(SolutionQuantity, default=1,
+    quantity = models.ForeignKey(SolutionQuantity,
                                  on_delete=models.CASCADE)
     value = models.FloatField(default=0)
 
@@ -111,7 +111,7 @@ class SolutionInImplementationQuantity(GDSEModel):
 
 
 class SolutionInImplementationGeometry(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation, default=1,
+    sii = models.ForeignKey(SolutionInImplementation,
                             on_delete=models.CASCADE)
     name = models.TextField(blank=True)
     geom = models.GeometryField(verbose_name='geom', null=True)
