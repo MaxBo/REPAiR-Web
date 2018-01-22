@@ -46,7 +46,7 @@ class PublicationInCaseStudyTest(BasicModelTest, APITestCase):
         self.user = ProfileFactory(user__id=self.user_id,
                                    user__username='User')
         self.uic1 = UserInCasestudyFactory(user=self.user,
-                                          casestudy__id=self.casestudy1)
+                                           casestudy__id=self.casestudy1)
         self.uic2 = UserInCasestudyFactory(user=self.user,
                                            casestudy__id=self.casestudy2)
 
@@ -153,7 +153,7 @@ title = {Test2}
         """
         self.client.session['casestudy'] = self.casestudy
         response = self.post(url_post, data={'bibliography': bibtex},
-                                 follow=True)
+                             follow=True)
         # the response is redirected
         self.response_200(response)
         content = str(response.content)
@@ -162,6 +162,5 @@ title = {Test2}
         assert success_index != -1
         msg = 'Successfully added 2 publications (0 skipped due to errors)'
         assert content[(success_index + len(success_tag)):].startswith(msg)
-
 
         self.client.logout()
