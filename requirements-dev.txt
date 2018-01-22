@@ -1,8 +1,8 @@
 -e .
 
 django==2
-django-webpack-loader
-djangorestframework
+django-webpack-loader>=0.5
+djangorestframework>=3.7
 djangorestframework-gis
 django-test-plus
 django-money
