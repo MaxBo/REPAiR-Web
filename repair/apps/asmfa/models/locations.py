@@ -35,6 +35,11 @@ class Geolocation(gis.Model):
 
     class Meta:
         abstract = True
+        
+    @property
+    def level(self):
+        """Return the adminlevel of the area, if exists, else None"""
+        return getattr(self.area, 'adminlevel_id', None)
 
 
 class Establishment(Geolocation):
