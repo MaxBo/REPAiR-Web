@@ -72,8 +72,11 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         cls.password = 'Test'
         cls.group1 = GroupFactory(name='Group1')
         cls.group2 = GroupFactory(name='Group2')
+        # create the anonymus user with user_id -1
         cls.anonymus_user = ProfileFactory(user__username='Rabbit',
-                                           user__password='Test')
+                                           user__password='Test',
+                                           user__id=-1)
+        # create a normal user
         cls.user2 = ProfileFactory(user__username='User2',
                                    user__password='Password')
 
@@ -142,9 +145,16 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         UserInCasestudy.objects.create(user=self.anonymus_user,
                                        casestudy=open_country)
 
-        # try access to casestudies with anonymus user
+        # try to access without login (anomymus user should be used by default)
+        url = self.reverse('casestudy-detail', pk=open_country.pk)
+        self.get_check_200(url)
+        # second should be denied
+        url = self.reverse('casestudy-detail', pk=forbidden_country.pk)
+        response = self.get(url)
+
+        # try access to casestudies with beeing logged in as anonymus user
         self.client.force_login(self.anonymus_user.user)
-        # first casestudy shoul work
+        # first casestudy should work
         url = self.reverse('casestudy-detail', pk=open_country.pk)
         self.get_check_200(url)
         # second should be denied
@@ -153,12 +163,23 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
         # grant access
-        UserInCasestudy.objects.create(user=self.anonymus_user,
-                                       casestudy=forbidden_country)
+        anonymus_in_forbidden_country = UserInCasestudy.objects.create(
+            user=self.anonymus_user,
+            casestudy=forbidden_country)
+
         # should work now
         self.get_check_200(url)
 
         self.client.logout()
+        # should still work
+        self.get_check_200(url)
+
+        # remove access
+        anonymus_in_forbidden_country.delete()
+        # should be denied now
+        url = self.reverse('casestudy-detail', pk=forbidden_country.pk)
+        response = self.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 class CasestudyTest(BasicModelPermissionTest, APITestCase):
@@ -196,6 +217,23 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.obj = self.kic.casestudy
+
+    def test_session(self):
+        casestudy_name = self.obj.name
+
+        # at the beginning, no casestudy is selected
+        casestudy = self.client.session.get('casestudy', None)
+        assert casestudy is None
+
+        # selecting a casestudy by posting to /login/session/
+        url = '/login/session/'
+        self.post(url, data={'casestudy': casestudy_name, })
+        casestudy = self.client.session.get('casestudy', None)
+        assert casestudy == casestudy_name
+
+        # getting the selected casestudy
+        response = self.get_check_200(url)
+        assert response.json().get('casestudy', None) == casestudy_name
 
 
 class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
