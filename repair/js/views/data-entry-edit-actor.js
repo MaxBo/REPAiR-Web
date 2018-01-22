@@ -58,12 +58,29 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.focusarea = options.focusarea;
       this.areaLevels = options.areaLevels;
       
-      this.pins = {
-        blue: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
-        orange: '/static/img/simpleicon-places/svg/map-marker-orange.svg',
-        red: '/static/img/simpleicon-places/svg/map-marker-red.svg',
-        black: '/static/img/simpleicon-places/svg/map-marker-1.svg'
-      }
+      this.layers = {
+        operational: {
+          pin: '/static/img/simpleicon-places/svg/map-marker-red.svg',
+          style: {
+            stroke: 'rgb(255, 51, 0)',
+            fill: 'rgba(255, 51, 0, 0.1)',
+            strokeWidth: 1
+          }
+        },
+        administrative: {
+          pin: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
+          style: {
+            stroke: 'rgb(51, 153, 255)',
+            fill: 'rgba(51, 153, 255, 0.1)'
+          }
+        },
+        background: {
+          style: {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)'
+          }
+        }
+      };
       
       // TODO: get this from database or template
       this.reasons = [
@@ -209,6 +226,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         divid: 'edit-location-map', 
       });
       
+      _.each(this.layers, function(attrs, layername){
+      console.log(layername)
+      console.log(attrs)
+        _this.map.addLayer(layername, attrs.style);
+        _this.localMap.addLayer(layername, attrs.style);
+      });
+      
       // event triggered when modal dialog is ready -> trigger rerender to match size
       $('#location-modal').on('shown.bs.modal', function () {
         _this.localMap.map.updateSize();
@@ -218,32 +242,45 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     /* 
      * add a location to the map
      */
-    addLocation: function(coord, locations, pin, table){
+    addLocation: function(coord, locations, layername, table){
       var properties = {actor: this.activeActorId}
       var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
                                           type: locations.loc_type,
                                           properties: properties})
       loc.setGeometry(coord);
       locations.add(loc);
-      this.renderLocation(loc, pin, table);
+      this.renderLocation(loc, layername, table);
     },
     
     /* 
      * add a marker with given location to the map and the table
      */
-    renderLocation: function(loc, pin, table){ 
+    renderLocation: function(loc, layername, table){ 
       if (loc == null)
         return;
       /* add table rows */
       
       var row = table.insertRow(-1);
       var _this = this;
+      var pin = this.layers[layername].pin;
       
-      // add an icon to center on coordinate on click
+      // checkbox for marking deletion
+
+      var checkbox = document.createElement("input");
+      checkbox.type = 'checkbox';
+      row.insertCell(-1).appendChild(checkbox);
+
+      checkbox.addEventListener('change', function() {
+        row.classList.toggle('strikeout');
+        row.classList.toggle('dsbld');
+        loc.markedForDeletion = checkbox.checked;
+      });
       
+      row.insertCell(-1).innerHTML = loc.get('properties').name;
+      
+      // add a marker to the table and the map, if there is a geometry attached to the location
       var markerCell = row.insertCell(-1);
       var geom = loc.get('geometry');
-      // add a marker to the table and the map, if there is a geometry attached to the location
       if (geom != null && geom.get('coordinates') != null){
         var wrapper = document.createElement('span'),
             centerDiv = document.createElement('div'),
@@ -269,7 +306,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
                           {projection: _this.projection})
         });
         
-      /* add marker */
+        /* add marker */
       
         this.map.addmarker(coords, { 
           icon: pin, 
@@ -279,23 +316,46 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           onDrag: function(coords){
             loc.get('geometry').set("coordinates", coords);
             coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
-          }
+          },
+          layername: layername
         });
       };
       
-      // checkbox for marking deletion
-
-      var checkbox = document.createElement("input");
-      checkbox.type = 'checkbox';
-      row.insertCell(-1).appendChild(checkbox);
-
-      checkbox.addEventListener('change', function() {
-        row.classList.toggle('strikeout');
-        row.classList.toggle('dsbld');
-        loc.markedForDeletion = checkbox.checked;
-      });
+      // add area to map
+      var areaCell = row.insertCell(-1);
+      var areaId = loc.get('properties').area,
+          levelId = loc.get('properties').level,
+          caseStudyId = _this.keyflow.get('casestudy');
       
-      row.insertCell(-1).innerHTML = loc.get('properties').name;
+      if(areaId != null){
+        var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
+        area.fetch({success: function(){
+          var wrapper = document.createElement('span'),
+              symbol = document.createElement('div'),
+              areanameDiv = document.createElement('div');
+          
+          symbol.style.float = 'left';
+          symbol.classList.add('fa');
+          symbol.classList.add('fa-map-o');
+          symbol.style.marginRight = '3px';
+          symbol.style.fontSize = '1.5em';
+          symbol.style.color = 'red';
+          wrapper.style.whiteSpace = 'nowrap';
+          wrapper.style.cursor = 'pointer';
+          
+          var name = area.get('properties').name;
+          if (name && name.length > 15) name = name.substring(0, 15) + '...';
+          areanameDiv.innerHTML = name;
+          areanameDiv.style.paddingTop = '5px';
+          
+          wrapper.appendChild(symbol);
+          wrapper.appendChild(areanameDiv);
+          areaCell.appendChild(wrapper);
+        }});
+      }
+      
+      // button for editing the location
+      
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
       editBtn.classList.add('btn');
@@ -383,14 +443,14 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var cur = idx;
         select.addEventListener('change', function(){
           var areaId = select.value;
-          _this.localMap.removePolygons();
+          _this.localMap.clearLayer('adminAreas');
+          _this.localMap.clearLayer('opAreas');
           if (areaId >= 0){
-            console.log(areaId)
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
             // fetch geometry of area and draw it on map
             area.fetch({ success: function(){
               var polyCoords = area.get('geometry').coordinates[0];
-              var poly = _this.localMap.addPolygon(polyCoords, {projection: _this.projection});
+              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: 'operational'});
               var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
               var extent = poly.getExtent();
               _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
@@ -420,15 +480,22 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
       var type = location.loc_type || location.collection.loc_type;
-      var pin = (type == 'administrative') ? this.pins.blue : this.pins.red;
+      
+      var pin = this.layers[type].pin;
+
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
       var html = template({properties: location.get('properties'), 
                            coordinates: (coordinates != null)? formatCoords(coordinates): '-'});
       document.getElementById('location-modal-content').innerHTML = html;
       $(locationModal).modal('show'); 
-          
-      this.localMap.removeMarkers();
+      
+      // reset the map
+      this.localMap.clearLayer('markers');
+      this.localMap.clearLayer('opAreas');
+      this.localMap.clearLayer('adminAreas');
+      this.localMap.removeInteractions();
+      
       // don't set coordinates directly to location, only on confirmation
       this.tempCoords = coordinates;
       var elGeom = document.getElementById('coordinates');
@@ -467,7 +534,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             _this.tempCoords = coords;
             elGeom.innerHTML = formatCoords(coords);
           },
-          onRemove: removeMarkerCallback
+          onRemove: removeMarkerCallback,
+          layername: type
         });
         _this.localMap.center(coords, {projection: _this.projection});
       }
@@ -480,7 +548,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         setPointButtons('remove');
       });
       removePointBtn.addEventListener('click', function(){
-        _this.localMap.removeMarkers();
+        _this.localMap.clearLayer(type);
+        _this.localMap.removeInteractions();
         removeMarkerCallback();
       });
       
@@ -500,7 +569,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           callback: function(event){
             var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
             if (_this.tempCoords != null){
-              _this.localMap.moveMarker(markerId, event.coordinate);
+              _this.localMap.moveMarker(markerId, event.coordinate, { layername: 'markers' });
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
@@ -513,9 +582,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         '-'
       ];
       this.localMap.addContextMenu(items);
-      var stroke = (type == 'administrative') ? 'rgb(51, 153, 255)' : 'rgb(255, 51, 0)';
-      var fill = (type == 'administrative') ? 'rgba(51, 153, 255, 0.1)' : 'rgba(255, 51, 0, 0.1)';
-      this.localMap.setPolygonStyle(stroke, fill);
     },
     
     /*
@@ -529,13 +595,29 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var geometry = location.get('geometry');
       if (geometry != null) geometry.set("coordinates", this.tempCoords);
       else location.setGeometry(this.tempCoords)
-      var table = document.getElementById('location-edit-table');
-      var inputs = table.querySelectorAll('input');
+      var form = document.getElementById('location-modal-content');
+      var inputs = form.querySelectorAll('input');
       var properties = location.get('properties');
       _.each(inputs, function(input){
         //properties.set(input.name) = input.value;
         properties[input.name] = input.value;
       });
+      
+      var areaTable = document.getElementById('location-area-table');
+      var selects = areaTable.querySelectorAll('select');
+      var areaId = null,
+          levelId = null;
+      // iterate area-selects (sorted hierarchally) and take last one that is filled
+      for(var i = 0; i < selects.length; i++){
+        var select = selects[i];
+        // -1 is "select an area", meaning it is not set
+        if (select.value < 0) break;
+        areaId = select.value;
+        levelId = select.levelId;
+      }
+      properties.area = areaId;
+      properties.level = levelId;
+      
       // location is not in a collection yet (added by clicking add-button) -> add it to the proper one
       if (location.collection == null){
         var collection = (location.loc_type == 'administrative') ? this.adminLocations : this.opLocations;
@@ -555,9 +637,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.adminTable.innerHTML = '';
       this.opTable.innerHTML = '';
       
-      this.map.removeMarkers();
-      this.renderLocation(adminLoc, this.pins.blue, this.adminTable);
-      this.opLocations.each(function(loc){_this.renderLocation(loc, _this.pins.red, _this.opTable);});
+      this.map.clearLayer('administrative');
+      this.map.clearLayer('operational');
+      this.renderLocation(adminLoc, 'administrative', this.adminTable);
+      this.opLocations.each(function(loc){_this.renderLocation(loc, 'operational', _this.opTable);});
       
       var addAdminBtn = document.getElementById('add-administrative-button');
       if (adminLoc != null){
@@ -569,8 +652,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.map.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
-        this.localMap.addPolygon(this.focusarea.coordinates[0], {projection: this.projection, background: true});
+        var poly = this.map.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
+        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
         this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
         var extent = poly.getExtent();
         this.map.center(this.centroid, {projection: this.projection, extent: extent});
