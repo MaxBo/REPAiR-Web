@@ -19,8 +19,8 @@ SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'CACHE': not DEBUG, 
-        'BUNDLE_DIR_NAME': 'bundles/dev/', 
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'bundles/dev/',
         'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-dev.json'),
     }
 }

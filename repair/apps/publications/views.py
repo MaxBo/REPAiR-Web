@@ -12,7 +12,7 @@ from repair.apps.publications.serializers import (
     PublicationInCasestudySerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin, OnlySubsetMixin
+from repair.apps.login.views import CasestudyViewSetMixin
 
 
 class PublicationInCasestudyViewSet(RevisionMixin,

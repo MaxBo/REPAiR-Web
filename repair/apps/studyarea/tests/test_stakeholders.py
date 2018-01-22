@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest, LoginTestCase
 
 from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              StakeholderCategoryFactory,
@@ -34,8 +34,12 @@ class UniqueStakeholderNames(TestCase):
             stakeholdercat3 = StakeholderCategoryFactory(
                 casestudy=city2, name='Cat1')
 
+        stakeholder_categories = city1.stakeholder_categories
+        self.assertSetEqual(stakeholder_categories, {stakeholdercat1,
+                                                     stakeholdercat2})
 
-class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
+
+class StakeholdercategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
@@ -62,7 +66,7 @@ class StakeholdercategoryInCasestudyTest(BasicModelTest, APITestCase):
         super().tearDown()
 
 
-class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
+class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
@@ -87,11 +91,10 @@ class StakeholderInCasestudyTest(BasicModelTest, APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.obj = StakeholderFactory(id=self.stakeholder,
-                                      stakeholder_category__id=\
-                                      self.stakeholdercategory,
-                                      stakeholder_category__casestudy=\
-                                      self.uic.casestudy,
-                                      )
+        self.obj = StakeholderFactory(
+            id=self.stakeholder,
+            stakeholder_category__id=self.stakeholdercategory,
+            stakeholder_category__casestudy=self.uic.casestudy,
+            )
 
 
