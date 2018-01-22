@@ -26,18 +26,16 @@ define([
       center: center,
       zoom: 10
     });
-    var markerLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
-    var backgroundLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
-    var polyLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var layers = {};
+    layers.basic = basicLayer;
   
     var map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.OSM({crossOrigin: 'anonymous'}),
         }),
-        backgroundLayer,
-        polyLayer,
-        markerLayer
+        basicLayer
       ],
       target: options.divid,
       controls: ol.control.defaults({
@@ -83,12 +81,42 @@ define([
     };
     
     /**
+     * add a new vector layer to map
+     *
+     * @param {string} name  name of the layer
+     * @param {Object=} options
+     * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
+     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     *
+     * @method addLayer
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.addLayer = function(name, options){
+      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      layers[name] = layer;
+      map.addLayer(layer);
+      var options = options || {};
+      var style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: options.stroke || 'rgb(255, 255, 255)',
+          width: options.strokeWidth || 3
+        }),
+        fill: new ol.style.Fill({
+          color: options.fill || 'rgba(255, 255, 255, 0.1)'
+        })
+      });
+      layer.setStyle(style);
+    };
+    
+    /**
      * add a polygon to the map
      *
      * @param {Array.<Array.<number>>} coordinates  coordinates of the polygon
-     * @param {Object} options
+     * @param {Object=} options
+     * @param {string} [options.layername='basic']  layer to which the polygon will be added
      * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
-     * @param {boolean=} options.background         if true it is added as background, will not be removed when removePolygons() is called
      *
      * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
      *
@@ -101,35 +129,14 @@ define([
       var proj = options.projection || mapProjection;
       var poly = new ol.geom.Polygon(coordinates);
       var ret = poly.clone();
-      var layer = (options.background) ? backgroundLayer: polyLayer;
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
       
       var feature = new ol.Feature({ geometry: poly.transform(proj, mapProjection) });
       layer.getSource().addFeature(feature);
       return ret;
     };
     
-    /**
-     * set the style the polygons are drawn
-     *
-     * @param {string} stroke  color of outline
-     * @param {string} fill    color of filling
-     *
-     * @method setPolygonStyle
-     * @memberof module:visualizations/Map
-     * @instance
-     */
-    this.setPolygonStyle = function(stroke, fill){
-      var style = new ol.style.Style({
-            stroke: new ol.style.Stroke({
-              color: stroke,
-              width: 3
-            }),
-            fill: new ol.style.Fill({
-              color:  fill
-            })
-          });
-      polyLayer.setStyle(style);
-    };
     
     
     /**
@@ -144,6 +151,7 @@ define([
      *
      * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
      * @param {Object} options
+     * @param {string} [options.layername='basic']  layer to which the marker will be added
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
      * @param {string=} options.icon        url to image the marker will be rendered with
@@ -157,6 +165,11 @@ define([
     this.addmarker = function(coordinates, options) {
       var options = options || {};
       var proj = options.projection || mapProjection;
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
+      
+      console.log(layername)
+      console.log(layers)
       
       var template = '({x}, {y})';
           
@@ -198,7 +211,7 @@ define([
         var coordinate = feature.getGeometry().getCoordinates();
         var transformed = ol.proj.transform(coordinate, mapProjection, proj);
         //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-        markerLayer.changed();
+        layer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
         }        
@@ -212,54 +225,70 @@ define([
       feature.onRemove = options.onRemove;
       feature.interaction = dragInteraction;
       idCounter++;
-      markerLayer.getSource().addFeature(feature);
+      layer.getSource().addFeature(feature);
       return id;
     }
     
-    /*
-    * move marker with given id to given coordinates, not tested yet
-    */
+    /**
+     * move marker with given id to given coordinates
+     *
+     * @param {Array.<number>} markerId       id of the marker
+     * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added atwhere marker will be added at
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the layer the marker is in
+     * @param {string=} options.projection          projection the given coordinates are in, uses map projection if not given
+     *
+     * @method moveMarker
+     * @memberof module:visualizations/Map
+     * @instance
+     */
     this.moveMarker = function(markerId, coordinates, options) {
-      var feature = markerLayer.getSource().getFeatureById(markerId);
       var options = options || {};
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
+      var feature = layer.getSource().getFeatureById(markerId);
       var proj = options.projection || mapProjection;
       feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
     }
     
     /**
-     * remove all polygons from map
+     * remove all features from a layer
      *
-     * @method removeMarkers
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the name of the layer
+     * @param {string=} options.type                type of the features to remove, defaults to all
+     *
+     * @method clearLayer
      * @memberof module:visualizations/Map
      * @instance
      */
-    this.removePolygons = function(){
-      polyLayer.getSource().clear();
+    this.clearLayer = function(layername, options){
+      var options = options || {};
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
+      if (options.featureType == null){
+        layer.getSource().clear();
+      }
+      else {
+        layer.getFeatures.forEach(function(feature){
+          console.log(feature.getProperties())
+        })
+      }
     };
     
     /**
-     * remove all markers from map
+     * remove all interactions from the map
      *
-     * @method removeMarkers
+     * @method removeInteractions
      * @memberof module:visualizations/Map
      * @instance
      */
-    this.removeMarkers = function(){
+    this.removeInteractions = function(){
       map.getInteractions().forEach(function (interaction) {
           if (interaction instanceof ol.interaction.Modify) 
              map.removeInteraction(interaction);
       });
-      markerLayer.getSource().clear();
     };
-    
-    // remove marker of given feature
-    function removeMarker(obj) {
-      var feature = obj.data.marker;
-      if (feature.interaction != null) map.removeInteraction(feature.interaction);
-      if (feature.onRemove != null) feature.onRemove();
-      
-      markerLayer.getSource().removeFeature(feature);
-    }
     
     /**
      * callback for clicking item in context menu
