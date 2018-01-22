@@ -5,7 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
+                                            GeoFeatureModelListSerializer)
 from publications_bootstrap.models import Publication
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
@@ -133,13 +134,18 @@ class CaseStudySerializer(ForceMultiMixin,
                   'focusarea',
                   'publications',
                   )
-
+        
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
         geo_field = self.Meta.geo_field
         self.convert2multi(validated_data, geo_field)
         self.convert2multi(validated_data, 'focusarea')
         return super().update(instance, validated_data)
+
+
+class CaseStudyListSerializer(GeoFeatureModelListSerializer,
+                              CaseStudySerializer):
+    """Coasestudies as FeatureCollection"""
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):

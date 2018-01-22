@@ -11,6 +11,7 @@ from repair.apps.login.models import CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer,
+                                           CaseStudyListSerializer, 
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
 
@@ -47,6 +48,7 @@ class CaseStudyViewSet(RevisionMixin,
 
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
+    serializers = {'list': CaseStudyListSerializer,}
 
     def list(self, request, **kwargs):
         user_id = -1 if request.user.id is None else request.user.id
