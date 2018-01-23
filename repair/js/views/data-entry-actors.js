@@ -45,6 +45,9 @@ function($, Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, L
         {disable: true});
         
       this.projection = 'EPSG:4326'; 
+      
+      //var Reasons = Backbone.Collection.extend({url: config.api.reasons}),
+          //reasons = new Reasons([]);
         
       $.when(this.activities.fetch(), this.actors.fetch(), 
              this.areaLevels.fetch()).then(function() {

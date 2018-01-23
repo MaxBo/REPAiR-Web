@@ -169,8 +169,6 @@ define([
       var layername = (options.layername) ? options.layername : 'basic',
           layer = layers[layername];
       
-      console.log(layername)
-      
       var template = '({x}, {y})';
           
       var feature = new ol.Feature({

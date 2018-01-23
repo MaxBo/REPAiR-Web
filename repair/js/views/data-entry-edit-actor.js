@@ -7,8 +7,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
   function formatCoords(c){
     return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
   }
-  function clearSelect(select){
-    for(var i = select.options.length - 1 ; i >= 0 ; i--) { select.remove(i); }
+  function clearSelect(select, stop){
+    var stop = stop || 0;
+    for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
 }
   
   /**
@@ -64,20 +65,22 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(255, 51, 0)',
             fill: 'rgba(255, 51, 0, 0.1)',
-            strokeWidth: 1
+            strokeWidth: 2
           }
         },
         administrative: {
           pin: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
           style: {
             stroke: 'rgb(51, 153, 255)',
-            fill: 'rgba(51, 153, 255, 0.1)'
+            fill: 'rgba(51, 153, 255, 0.1)',
+            strokeWidth: 2
           }
         },
         background: {
           style: {
             stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)'
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1
           }
         }
       };
@@ -147,7 +150,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
 
       this.initMap();
       this.renderLocations();
-      this.renderAreaInput();
+      this.setupAreaInput();
     },
 
 
@@ -286,7 +289,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             img = document.createElement("img");
         var coords = geom.get('coordinates');
         coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
-        coordDiv.style.paddingTop = '5px';
+        coordDiv.style.paddingTop = '8px';
         coordDiv.style.fontSize = '80%';
         img.src = pin;
         img.setAttribute('height', '30px');
@@ -336,7 +339,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           symbol.style.float = 'left';
           symbol.classList.add('fa');
           symbol.classList.add('fa-map-o');
-          symbol.style.marginRight = '3px';
+          symbol.style.marginRight = '5px';
           symbol.style.fontSize = '1.5em';
           symbol.style.color = _this.layers[layername].style.stroke;
           wrapper.style.whiteSpace = 'nowrap';
@@ -345,7 +348,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           var name = area.get('properties').name;
           if (name && name.length > 15) name = name.substring(0, 15) + '...';
           areanameDiv.innerHTML = name;
-          areanameDiv.style.paddingTop = '5px';
           
           wrapper.appendChild(symbol);
           wrapper.appendChild(areanameDiv);
@@ -394,48 +396,60 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     },
     
     /*
+     * set the select options of all selects with higher (=finer) level than
+     * the select with given index (as in this.areaSelects with ascending level)
+     */
+    setAreaChildSelects: function(idx){
+      var _this = this;
+      // last level has no children itself -> return
+      var select = this.areaSelects[idx];
+      if (idx >= this.areaSelects.length -1 ) return;
+      var childSelects = this.areaSelects.slice(idx + 1);
+        // clear all selects hierarchally below this level
+        _.each(childSelects, function(sel){
+          clearSelect(sel);
+      });
+      if (select.value == -1) return;
+      var directChild = childSelects[0];
+      var childAreas = new Areas([], { 
+        caseStudyId: this.keyflow.get('casestudy'), levelId: directChild.levelId 
+      });
+      childAreas.fetch({ 
+        data: { parent_id: select.value, parent_level: select.level },
+        success: function(){ _this.addAreaOptions(childAreas, directChild); } 
+      });
+    },
+    
+    setAreaParentSelect: function(idx){
+    
+    },
+    
+    /*
+     * fill given select with given areas, adds an additional option to deselect (with value -1)
+     */
+    addAreaOptions: function (areas, select){
+       var uop = document.createElement('option');
+       uop.selected = true;
+       uop.text = gettext('select an area');
+       uop.value = -1;
+       select.appendChild(uop);
+       select.style.maxWidth = '200px';
+       areas.each(function(area){
+         var option = document.createElement('option');
+         option.value = area.id;
+         option.text = area.get('name');
+         select.appendChild(option);
+       });
+     },
+    
+    /*
      * render the select boxes for areas in the location modal
      */
-    renderAreaInput: function(){
+    setupAreaInput: function(){
       var _this = this;
       var table = document.getElementById('location-area-table');
       this.areaSelects = [];
       var caseStudyId = _this.keyflow.get('casestudy');
-      
-      function addAreaOptions(areas, select){
-        var uop = document.createElement('option');
-        uop.selected = true;
-        uop.text = gettext('select an area');
-        uop.value = -1;
-        select.appendChild(uop);
-        select.style.maxWidth = '200px';
-        areas.each(function(area){
-          var option = document.createElement('option');
-          option.value = area.id;
-          option.text = area.get('name');
-          select.appendChild(option);
-        });
-      };
-      
-      function setChildSelects(idx){
-        // last level has no children itself -> return
-        var select = _this.areaSelects[idx];
-        if (idx >= _this.areaSelects.length -1 ) return;
-        var childSelects = _this.areaSelects.slice(idx + 1);
-        // clear all selects hierarchally below this level
-        _.each(childSelects, function(sel){
-          clearSelect(sel);
-        });
-        if (select.value == -1) return;
-        var directChild = childSelects[0];
-        var childAreas = new Areas([], { 
-          caseStudyId: caseStudyId, levelId: directChild.levelId 
-        });
-        childAreas.fetch({ 
-          data: { parent_id: select.value, parent_level: select.level },
-          success: function(){ addAreaOptions(childAreas, directChild); } 
-        });
-      }
       
       var idx = 0;
       this.areaLevels.each(function(level){
@@ -461,7 +475,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
               _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
             }});
           }
-          setChildSelects(cur);
+          _this.setAreaChildSelects(cur);
         });
         
         idx++;
@@ -469,7 +483,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       if (this.areaSelects.length == 0) return;
       // prefill select of toplevel
       var topLevelSelect = this.areaSelects[0];
-      addAreaOptions(this.topLevelAreas, topLevelSelect);
+      this.addAreaOptions(this.topLevelAreas, topLevelSelect);
     },
     
     /*
@@ -485,6 +499,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
       this.activeType = location.loc_type || location.collection.loc_type;
+      var caseStudyId = this.keyflow.get('casestudy');
       
       var pin = this.layers[this.activeType].pin;
 
@@ -500,10 +515,17 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.localMap.clearLayer('administrative');
       this.localMap.removeInteractions();
       
+      // clear the selects
+      var i = 0;
+      this.areaSelects.forEach(function(select){
+        // don't clear first select (top level areas don't change), keep first option as well
+        if (i > 0) clearSelect(select);
+        i++;
+      });
+      
       // don't set coordinates directly to location, only on confirmation
       this.tempCoords = coordinates;
       var elGeom = document.getElementById('coordinates');
-      
       
       var addPointBtn = locationModal.querySelector('#add-point'),
           removePointBtn = locationModal.querySelector('#remove-point');
@@ -567,6 +589,49 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       }
       else 
         setPointButtons('add');
+        
+      // render the area and set up the selects
+      
+      var areaId = location.get('properties').area,
+          levelId = location.get('properties').level;
+          
+      if(areaId != null){
+        // find select with level of the area
+        var selectIdx = 0;
+        for(var select of this.areaSelects){
+          if (select.levelId == levelId) break; 
+          selectIdx++;
+        };
+        if (selectIdx >= this.areaSelects.length) {
+          alert('no level with id ' + levelId + ' found');
+          return;
+        }
+        var select = this.areaSelects[selectIdx];
+        console.log(selectIdx)
+        
+        var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
+        area.fetch({success: function(){
+          var polyCoords = area.get('geometry').coordinates[0];
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType });
+          // fetch areas of level and fill select (not for top level, always stays the same)
+          if (selectIdx >= 0){
+            var parentId = area.get('properties').parent_area;
+            var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
+              console.log(areas.url())
+            areas.fetch({ data: { parent_id: parentId }, success: function(){
+              console.log(areas)
+              _this.addAreaOptions(areas, select);
+              select.value = areaId;
+              _this.setAreaChildSelects(selectIdx);
+            }});
+          }
+          else {
+            select.value = areaId;
+            _this.setAreaChildSelects(selectIdx);
+          }
+        }});
+        
+      };
         
       // context menu with add/remove
       var items = [
