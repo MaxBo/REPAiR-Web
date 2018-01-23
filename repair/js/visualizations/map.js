@@ -155,6 +155,7 @@ define([
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
      * @param {string=} options.icon        url to image the marker will be rendered with
+     * @param {Array.<number>} [options.anchor=[0.5, 0.5]] anchor of icon, defaults to icon center
      * @param {string=} options.dragIcon    url to image the marker will be rendered with while dragging
      * @param {module:visualizations/Map~onDrag=} options.onDrag      callback that will be called when the marker is dragged to new position
      *
@@ -168,6 +169,8 @@ define([
       var layername = (options.layername) ? options.layername : 'basic',
           layer = layers[layername];
       
+      console.log(layername)
+      
       var template = '({x}, {y})';
           
       var feature = new ol.Feature({
@@ -178,7 +181,7 @@ define([
           });
       if (options.icon){
          var iconStyle = new ol.style.Style({
-          image: new ol.style.Icon({ scale: .08, src: options.icon }),
+          image: new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor }),
           text: new ol.style.Text({
             offsetY: 25,
             text: options.name, //ol.coordinate.format(coordinate, template, 2),
@@ -254,7 +257,7 @@ define([
      *
      * @param {Object} options
      * @param {string} [options.layername='basic']  the name of the layer
-     * @param {string=} options.type                type of the features to remove, defaults to all
+     * @param {Array.<string>=} options.types               types of the features to remove, defaults to all
      *
      * @method clearLayer
      * @memberof module:visualizations/Map
@@ -262,14 +265,17 @@ define([
      */
     this.clearLayer = function(layername, options){
       var options = options || {};
-      var layername = (options.layername) ? options.layername : 'basic',
+      var layername = layername || 'basic',
           layer = layers[layername];
-      if (options.featureType == null){
+      if (options.types == null){
         layer.getSource().clear();
       }
       else {
-        layer.getFeatures.forEach(function(feature){
-          console.log(feature.getProperties())
+        var source = layer.getSource();
+        // iterate features of the layer and remove those that are in given types
+        source.getFeatures().forEach(function(feature){
+          if (options.types.includes(feature.getGeometry().getType()))
+            source.removeFeature(feature);
         })
       }
     };
@@ -292,8 +298,9 @@ define([
     // get the layers the given feature is in
     function getAssociatedLayers(feature){
       var associated = [];
-      layers.forEach(function(layer){
-        if (layer.getFeatureById(feature.getId()) != null)
+      Object.keys(layers).forEach(function(layername){ 
+        var layer = layers[layername];
+        if (layer.getSource().getFeatureById(feature.getId()) != null)
           associated.push(layer);
       })
       return associated;
@@ -307,7 +314,6 @@ define([
       
       layers = getAssociatedLayers(feature);
       layers.forEach(function(layer){ layer.getSource().removeFeature(feature); })
-      markerLayer.getSource().removeFeature(feature);
     }
     
     /**
@@ -417,9 +423,11 @@ define([
       var extent = polygon.getExtent();
       options.extent = extent;
       this.center(centroid, options);
+      return centroid;
     }
     
     this.map = map;
+    
 
   };
   

@@ -308,6 +308,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
         this.globalMap.addmarker(coords, { 
           icon: pin, 
+          anchor: [0.5, 1],
           //dragIcon: this.pins.orange, 
           projection: this.projection,
           name: loc.get('properties').name,
@@ -448,14 +449,15 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var cur = idx;
         select.addEventListener('change', function(){
           var areaId = select.value;
-          _this.localMap.clearLayer('administrative');
-          _this.localMap.clearLayer('operational');
+          // remove polygons, keep markers
+          _this.localMap.clearLayer('administrative', { types: ['Polygon'] });
+          _this.localMap.clearLayer('operational', { types: ['Polygon'] });
           if (areaId >= 0){
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
             // fetch geometry of area and draw it on map
             area.fetch({ success: function(){
               var polyCoords = area.get('geometry').coordinates[0];
-              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: 'operational'});
+              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
               _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
             }});
           }
@@ -482,9 +484,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var geometry = location.get('geometry');
       var markerId;
       var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
-      var type = location.loc_type || location.collection.loc_type;
+      this.activeType = location.loc_type || location.collection.loc_type;
       
-      var pin = this.layers[type].pin;
+      var pin = this.layers[this.activeType].pin;
 
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
@@ -529,6 +531,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         elGeom.innerHTML = formatCoords(coords);
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
+          anchor: [0.5, 1],
           //dragIcon: this.pins.orange, 
           projection: _this.projection,
           name: location.get('properties').name,
@@ -538,9 +541,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           },
           onRemove: removeMarkerCallback,
           removable: true,
-          layername: type
+          layername: _this.activeType
         });
-        _this.localMap.center(coords, {projection: _this.projection});
+        //_this.localMap.center(coords, {projection: _this.projection});
       }
       
       // connect add/remove point buttons
@@ -548,10 +551,11 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
+        _this.localMap.center(center, {projection: _this.projection});
         setPointButtons('remove');
       });
       removePointBtn.addEventListener('click', function(){
-        _this.localMap.clearLayer(type);
+        _this.localMap.clearLayer(_this.activeType, { types: ['Point'] });
         _this.localMap.removeInteractions();
         removeMarkerCallback();
       });
@@ -572,7 +576,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           callback: function(event){
             var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
             if (_this.tempCoords != null){
-              _this.localMap.moveMarker(markerId, event.coordinate, { layername: type });
+              _this.localMap.moveMarker(markerId, event.coordinate, { layername: _this.activeType });
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
@@ -657,7 +661,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       if (this.focusarea != null){
         var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
         this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+        this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
         this.localMap.centerOnPolygon(poly, { projection: _this.projection });
       };
     },
