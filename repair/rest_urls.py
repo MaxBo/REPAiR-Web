@@ -31,6 +31,7 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
+    ReasonViewSet, 
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
@@ -63,6 +64,7 @@ router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'materials', MaterialViewSet)
 router.register(r'publications', PublicationView)
+router.register(r'reasons', ReasonViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 

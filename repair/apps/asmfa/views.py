@@ -8,6 +8,7 @@ from repair.apps.asmfa.models import (
     ActivityGroup,
     Activity,
     Actor,
+    Reason, 
     Flow,
     Activity2Activity,
     Actor2Actor,
@@ -20,13 +21,14 @@ from repair.apps.asmfa.models import (
     OperationalLocation,
     AdministrativeLocation,
     Product,
-    Material,
+    Material, 
 )
 
 from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer,
     ActivitySerializer,
     ActorSerializer,
+    ReasonSerializer, 
     FlowSerializer,
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
@@ -51,6 +53,7 @@ from repair.apps.asmfa.serializers import (
 
 from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
+
 
 class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
                            ModelPermissionViewSet):
@@ -78,6 +81,11 @@ class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
     serializer_class = ActorSerializer
     queryset = Actor.objects.all()
 
+
+class ReasonViewSet(RevisionMixin, ModelViewSet):
+    serializer_class = ReasonSerializer
+    queryset = Reason.objects.all()
+    
 
 class AllActivityViewSet(ActivityViewSet):
     serializer_class = AllActivitySerializer
