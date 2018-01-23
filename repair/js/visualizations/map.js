@@ -168,9 +168,6 @@ define([
       var layername = (options.layername) ? options.layername : 'basic',
           layer = layers[layername];
       
-      console.log(layername)
-      console.log(layers)
-      
       var template = '({x}, {y})';
           
       var feature = new ol.Feature({
@@ -223,6 +220,7 @@ define([
       feature.setId(id);
       // remember the interactions to access them on remove by setting them as attributes
       feature.onRemove = options.onRemove;
+      feature.removable = options.removable;
       feature.interaction = dragInteraction;
       idCounter++;
       layer.getSource().addFeature(feature);
@@ -290,6 +288,28 @@ define([
       });
     };
     
+    
+    // get the layers the given feature is in
+    function getAssociatedLayers(feature){
+      var associated = [];
+      layers.forEach(function(layer){
+        if (layer.getFeatureById(feature.getId()) != null)
+          associated.push(layer);
+      })
+      return associated;
+    }
+    
+    // event to remove marker
+    function removeFeatureEvent(obj) {
+      var feature = obj.data.feature;
+      if (feature.interaction != null) map.removeInteraction(feature.interaction);
+      if (feature.onRemove != null) feature.onRemove();
+      
+      layers = getAssociatedLayers(feature);
+      layers.forEach(function(layer){ layer.getSource().removeFeature(feature); })
+      markerLayer.getSource().removeFeature(feature);
+    }
+    
     /**
      * callback for clicking item in context menu
      *
@@ -320,19 +340,19 @@ define([
       this.contextmenu = contextmenu;
       map.addControl(contextmenu);
       
-      var removeMarkerItem = {
-        text: 'Remove this Marker',
-        classname: 'marker',
-        callback: removeMarker
+      var removeFeatureItem = {
+        text: 'Remove',
+        classname: 'feature',
+        callback: removeFeatureEvent
       };
       
       contextmenu.on('open', function (evt) {
         var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
-        if (feature && feature.get('type') === 'removable') {
+        if (feature && feature.get('type') === 'removable' && feature.removable) {
           contextmenu.clear();
-          removeMarkerItem.data = { marker: feature };
-          contextmenu.push(removeMarkerItem);
+          removeFeatureItem.data = { feature: feature };
+          contextmenu.push(removeFeatureItem);
         } else {
           contextmenu.clear();
           contextmenu.extend(contextmenuItems);
@@ -357,6 +377,10 @@ define([
      * @param {Object} options
      * @param {string=} options.projection      projection of the coordinates and extent, defaults to map projection
      * @param {Array.<number>=} options.extent  an array of numbers representing an extent: [minx, miny, maxx, maxy], map will be zoomed to fit the extent
+     *
+     * @method center
+     * @memberof module:visualizations/Map
+     * @instance
      */
     this.center = function(coordinate, options) {
       var options = options || {};
@@ -374,6 +398,25 @@ define([
         zoom = view.getZoomForResolution(resolution);
       }
       view.animate({ center: coordinate, zoom: zoom });//, {zoom: 10});
+    }
+    
+    /**
+     * center map on polygon
+     * 
+     * @param {ol.geom.Polygon} polygon      the OpenLayers polygon
+     * @param {Object} options
+     * @param {string=} options.projection   projection of the coordinates of the polygon
+     *
+     * @method centerOnPolygon
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.centerOnPolygon = function(polygon, options) {
+      var options = options || {};
+      var centroid = polygon.getInteriorPoint().getCoordinates().slice(0, 2);
+      var extent = polygon.getExtent();
+      options.extent = extent;
+      this.center(centroid, options);
     }
     
     this.map = map;

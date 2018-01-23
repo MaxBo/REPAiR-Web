@@ -218,7 +218,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     initMap: function(){
       var _this = this;
       
-      this.map = new Map({
+      this.globalMap = new Map({
         divid: 'actors-map', 
       });
       
@@ -227,9 +227,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       });
       
       _.each(this.layers, function(attrs, layername){
-      console.log(layername)
-      console.log(attrs)
-        _this.map.addLayer(layername, attrs.style);
+        _this.globalMap.addLayer(layername, attrs.style);
         _this.localMap.addLayer(layername, attrs.style);
       });
       
@@ -302,13 +300,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         
         // zoom to location if marker in table is clicked 
         markerCell.addEventListener('click', function(){ 
-          _this.map.center(loc.get('geometry').get('coordinates'), 
+          _this.globalMap.center(loc.get('geometry').get('coordinates'), 
                           {projection: _this.projection})
         });
         
         /* add marker */
       
-        this.map.addmarker(coords, { 
+        this.globalMap.addmarker(coords, { 
           icon: pin, 
           //dragIcon: this.pins.orange, 
           projection: this.projection,
@@ -321,7 +319,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         });
       };
       
-      // add area to map
+      // add area to table and map
       var areaCell = row.insertCell(-1);
       var areaId = loc.get('properties').area,
           levelId = loc.get('properties').level,
@@ -339,7 +337,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           symbol.classList.add('fa-map-o');
           symbol.style.marginRight = '3px';
           symbol.style.fontSize = '1.5em';
-          symbol.style.color = 'red';
+          symbol.style.color = _this.layers[layername].style.stroke;
           wrapper.style.whiteSpace = 'nowrap';
           wrapper.style.cursor = 'pointer';
           
@@ -351,6 +349,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           wrapper.appendChild(symbol);
           wrapper.appendChild(areanameDiv);
           areaCell.appendChild(wrapper);
+          
+          var polyCoords = area.get('geometry').coordinates[0];
+          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername });
+          // zoom to location if marker in table is clicked 
+          areaCell.addEventListener('click', function(){ 
+            _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
+          });
         }});
       }
       
@@ -443,17 +448,15 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var cur = idx;
         select.addEventListener('change', function(){
           var areaId = select.value;
-          _this.localMap.clearLayer('adminAreas');
-          _this.localMap.clearLayer('opAreas');
+          _this.localMap.clearLayer('administrative');
+          _this.localMap.clearLayer('operational');
           if (areaId >= 0){
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
             // fetch geometry of area and draw it on map
             area.fetch({ success: function(){
               var polyCoords = area.get('geometry').coordinates[0];
               var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: 'operational'});
-              var centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
-              var extent = poly.getExtent();
-              _this.localMap.center(centroid, {projection: _this.projection, extent: extent});
+              _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
             }});
           }
           setChildSelects(cur);
@@ -491,9 +494,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       $(locationModal).modal('show'); 
       
       // reset the map
-      this.localMap.clearLayer('markers');
-      this.localMap.clearLayer('opAreas');
-      this.localMap.clearLayer('adminAreas');
+      this.localMap.clearLayer('operational');
+      this.localMap.clearLayer('administrative');
       this.localMap.removeInteractions();
       
       // don't set coordinates directly to location, only on confirmation
@@ -535,6 +537,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             elGeom.innerHTML = formatCoords(coords);
           },
           onRemove: removeMarkerCallback,
+          removable: true,
           layername: type
         });
         _this.localMap.center(coords, {projection: _this.projection});
@@ -569,7 +572,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           callback: function(event){
             var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
             if (_this.tempCoords != null){
-              _this.localMap.moveMarker(markerId, event.coordinate, { layername: 'markers' });
+              _this.localMap.moveMarker(markerId, event.coordinate, { layername: type });
               elGeom.innerHTML = formatCoords(coords);
             }
             else{
@@ -637,8 +640,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.adminTable.innerHTML = '';
       this.opTable.innerHTML = '';
       
-      this.map.clearLayer('administrative');
-      this.map.clearLayer('operational');
+      this.globalMap.clearLayer('administrative');
+      this.globalMap.clearLayer('operational');
       this.renderLocation(adminLoc, 'administrative', this.adminTable);
       this.opLocations.each(function(loc){_this.renderLocation(loc, 'operational', _this.opTable);});
       
@@ -652,12 +655,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.map.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
+        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
         this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.centroid = poly.getInteriorPoint().getCoordinates().slice(0, 2);
-        var extent = poly.getExtent();
-        this.map.center(this.centroid, {projection: this.projection, extent: extent});
-        this.localMap.center(this.centroid, {projection: this.projection});
+        this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+        this.localMap.centerOnPolygon(poly, { projection: _this.projection });
       };
     },
     
