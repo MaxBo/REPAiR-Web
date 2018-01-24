@@ -13,6 +13,8 @@ class GDSEModel(models.Model):
 
     class Meta:
         abstract = True
+        default_permissions = ('add', 'change', 'delete', 'view')
+
 
     def __str__(self):
         return self.name or ''
