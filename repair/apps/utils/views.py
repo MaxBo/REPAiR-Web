@@ -10,20 +10,29 @@ class ModelPermissionViewSet(viewsets.ModelViewSet):
     """
     check permissions
     """
-    add_perm = None
-    change_perm = None
-    delete_perm = None
+
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        return super().list(request, **kwargs)
+
+    def retrieve(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        return super().retrieve(request, **kwargs)
+
+    def check_permission(self, request, permission_name):
+        app_label = self.serializer_class.Meta.model._meta.app_label
+        view_name = self.serializer_class.Meta.model._meta.object_name
+        permission = '{}.{}_{}'.format(app_label.lower(),
+                                     permission_name, view_name.lower())
+        if not request.user.has_perm(permission):
+            raise exceptions.PermissionDenied()
 
     def create(self, request, **kwargs):
-        if self.add_perm:
-            if not request.user.has_perm(self.add_perm):
-                raise exceptions.PermissionDenied()
+        self.check_permission(request, 'add')
         return super().create(request, **kwargs)
 
     def destroy(self, request, **kwargs):
-        if self.add_perm:
-            if not request.user.has_perm(self.delete_perm):
-                raise exceptions.PermissionDenied()
+        self.check_permission(request, 'delete')
         return super().destroy(request, **kwargs)
 
 

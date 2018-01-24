@@ -11,7 +11,7 @@ from repair.apps.login.models import CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
                                            GroupSerializer,
                                            CaseStudySerializer,
-                                           CaseStudyListSerializer, 
+                                           CaseStudyListSerializer,
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
 
@@ -42,9 +42,6 @@ class CaseStudyViewSet(RevisionMixin,
     """
     API endpoint that allows casestudy to be viewed or edited.
     """
-    add_perm = 'login.add_casestudy'
-    change_perm = 'login.change_casestudy'
-    delete_perm = 'login.delete_casestudy'
 
     queryset = CaseStudy.objects.all()
     serializer_class = CaseStudySerializer
@@ -69,9 +66,6 @@ class UserInCasestudyViewSet(CasestudyViewSetMixin,
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
-    add_perm = 'login.add_userincasestudy'
-    change_perm = 'login.change_userincasestudy'
-    delete_perm = 'login.delete_userincasestudy'
     queryset = UserInCasestudy.objects.all()
     serializer_class = UserInCasestudySerializer
 
