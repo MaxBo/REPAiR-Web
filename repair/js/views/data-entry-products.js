@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'collections/products', 'loader', 
+define(['backbone', 'underscore', 'collections/products', 'utils/loader', 
         'tablesorter'],
 
 function(Backbone, _, Products, Loader){

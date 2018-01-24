@@ -1,6 +1,6 @@
 define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'tablesorter'],
+        'utils/loader', 'tablesorter'],
 function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *

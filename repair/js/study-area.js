@@ -1,6 +1,7 @@
 define([
   'd3',
   'visualizations/sankey-map',
+  'utils/overrides'
 ], function(d3, MapView) {
   NodeHandler = function(){
     this.id = 0;

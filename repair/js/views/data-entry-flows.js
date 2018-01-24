@@ -3,7 +3,7 @@ define(['backbone', 'underscore',
         'collections/activities', 'collections/actors',
         'collections/products', 'collections/flows', 'collections/stocks',
         'collections/activitygroups', 'collections/publications', 
-        'visualizations/sankey', 'loader'],
+        'visualizations/sankey', 'utils/loader'],
 function(Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
          Stocks, ActivityGroups, Publications, Sankey, Loader){
 
