@@ -54,16 +54,16 @@
       center: center,
       zoom: 10
     });
-    var markerLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
-    var backgroundLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+    var layers = {};
+    layers.basic = basicLayer;
   
     var map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.OSM({crossOrigin: 'anonymous'}),
         }),
-        backgroundLayer,
-        markerLayer
+        basicLayer
       ],
       target: options.divid,
       controls: ol.control.defaults({
@@ -109,10 +109,41 @@
     };
     
     /**
+     * add a new vector layer to map
+     *
+     * @param {string} name  name of the layer
+     * @param {Object=} options
+     * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
+     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     *
+     * @method addLayer
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.addLayer = function(name, options){
+      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      layers[name] = layer;
+      map.addLayer(layer);
+      var options = options || {};
+      var style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: options.stroke || 'rgb(255, 255, 255)',
+          width: options.strokeWidth || 3
+        }),
+        fill: new ol.style.Fill({
+          color: options.fill || 'rgba(255, 255, 255, 0.1)'
+        })
+      });
+      layer.setStyle(style);
+    };
+    
+    /**
      * add a polygon to the map
      *
      * @param {Array.&lt;Array.&lt;number>>} coordinates  coordinates of the polygon
-     * @param {Object} options
+     * @param {Object=} options
+     * @param {string} [options.layername='basic']  layer to which the polygon will be added
      * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
      *
      * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
@@ -126,10 +157,14 @@
       var proj = options.projection || mapProjection;
       var poly = new ol.geom.Polygon(coordinates);
       var ret = poly.clone();
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
+      
       var feature = new ol.Feature({ geometry: poly.transform(proj, mapProjection) });
-      backgroundLayer.getSource().addFeature(feature);
+      layer.getSource().addFeature(feature);
       return ret;
     };
+    
     
     
     /**
@@ -144,9 +179,11 @@
      *
      * @param {Array.&lt;number>} coordinates    (x,y) coordinates where marker will be added at
      * @param {Object} options
+     * @param {string} [options.layername='basic']  layer to which the marker will be added
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
      * @param {string=} options.icon        url to image the marker will be rendered with
+     * @param {Array.&lt;number>} [options.anchor=[0.5, 0.5]] anchor of icon, defaults to icon center
      * @param {string=} options.dragIcon    url to image the marker will be rendered with while dragging
      * @param {module:visualizations/Map~onDrag=} options.onDrag      callback that will be called when the marker is dragged to new position
      *
@@ -157,6 +194,8 @@
     this.addmarker = function(coordinates, options) {
       var options = options || {};
       var proj = options.projection || mapProjection;
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
       
       var template = '({x}, {y})';
           
@@ -168,7 +207,7 @@
           });
       if (options.icon){
          var iconStyle = new ol.style.Style({
-          image: new ol.style.Icon({ scale: .08, src: options.icon }),
+          image: new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor }),
           text: new ol.style.Text({
             offsetY: 25,
             text: options.name, //ol.coordinate.format(coordinate, template, 2),
@@ -198,7 +237,7 @@
         var coordinate = feature.getGeometry().getCoordinates();
         var transformed = ol.proj.transform(coordinate, mapProjection, proj);
         //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-        markerLayer.changed();
+        layer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
         }        
@@ -210,44 +249,97 @@
       feature.setId(id);
       // remember the interactions to access them on remove by setting them as attributes
       feature.onRemove = options.onRemove;
+      feature.removable = options.removable;
       feature.interaction = dragInteraction;
       idCounter++;
-      markerLayer.getSource().addFeature(feature);
+      layer.getSource().addFeature(feature);
       return id;
     }
     
-    /*
-    * move marker with given id to given coordinates, not tested yet
-    */
+    /**
+     * move marker with given id to given coordinates
+     *
+     * @param {Array.&lt;number>} markerId       id of the marker
+     * @param {Array.&lt;number>} coordinates    (x,y) coordinates where marker will be added atwhere marker will be added at
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the layer the marker is in
+     * @param {string=} options.projection          projection the given coordinates are in, uses map projection if not given
+     *
+     * @method moveMarker
+     * @memberof module:visualizations/Map
+     * @instance
+     */
     this.moveMarker = function(markerId, coordinates, options) {
-      var feature = markerLayer.getSource().getFeatureById(markerId);
       var options = options || {};
+      var layername = (options.layername) ? options.layername : 'basic',
+          layer = layers[layername];
+      var feature = layer.getSource().getFeatureById(markerId);
       var proj = options.projection || mapProjection;
       feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
     }
     
     /**
-     * remove all markers from map
+     * remove all features from a layer
      *
-     * @method removeMarkers
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the name of the layer
+     * @param {Array.&lt;string>=} options.types               types of the features to remove, defaults to all
+     *
+     * @method clearLayer
      * @memberof module:visualizations/Map
      * @instance
      */
-    this.removeMarkers = function(){
+    this.clearLayer = function(layername, options){
+      var options = options || {};
+      var layername = layername || 'basic',
+          layer = layers[layername];
+      if (options.types == null){
+        layer.getSource().clear();
+      }
+      else {
+        var source = layer.getSource();
+        // iterate features of the layer and remove those that are in given types
+        source.getFeatures().forEach(function(feature){
+          if (options.types.includes(feature.getGeometry().getType()))
+            source.removeFeature(feature);
+        })
+      }
+    };
+    
+    /**
+     * remove all interactions from the map
+     *
+     * @method removeInteractions
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.removeInteractions = function(){
       map.getInteractions().forEach(function (interaction) {
           if (interaction instanceof ol.interaction.Modify) 
              map.removeInteraction(interaction);
       });
-      markerLayer.getSource().clear();
     };
     
-    // remove marker of given feature
-    function removeMarker(obj) {
-      var feature = obj.data.marker;
+    
+    // get the layers the given feature is in
+    function getAssociatedLayers(feature){
+      var associated = [];
+      Object.keys(layers).forEach(function(layername){ 
+        var layer = layers[layername];
+        if (layer.getSource().getFeatureById(feature.getId()) != null)
+          associated.push(layer);
+      })
+      return associated;
+    }
+    
+    // event to remove marker
+    function removeFeatureEvent(obj) {
+      var feature = obj.data.feature;
       if (feature.interaction != null) map.removeInteraction(feature.interaction);
       if (feature.onRemove != null) feature.onRemove();
       
-      markerLayer.getSource().removeFeature(feature);
+      layers = getAssociatedLayers(feature);
+      layers.forEach(function(layer){ layer.getSource().removeFeature(feature); })
     }
     
     /**
@@ -280,19 +372,19 @@
       this.contextmenu = contextmenu;
       map.addControl(contextmenu);
       
-      var removeMarkerItem = {
-        text: 'Remove this Marker',
-        classname: 'marker',
-        callback: removeMarker
+      var removeFeatureItem = {
+        text: 'Remove',
+        classname: 'feature',
+        callback: removeFeatureEvent
       };
       
       contextmenu.on('open', function (evt) {
         var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
-        if (feature &amp;&amp; feature.get('type') === 'removable') {
+        if (feature &amp;&amp; feature.get('type') === 'removable' &amp;&amp; feature.removable) {
           contextmenu.clear();
-          removeMarkerItem.data = { marker: feature };
-          contextmenu.push(removeMarkerItem);
+          removeFeatureItem.data = { feature: feature };
+          contextmenu.push(removeFeatureItem);
         } else {
           contextmenu.clear();
           contextmenu.extend(contextmenuItems);
@@ -317,23 +409,51 @@
      * @param {Object} options
      * @param {string=} options.projection      projection of the coordinates and extent, defaults to map projection
      * @param {Array.&lt;number>=} options.extent  an array of numbers representing an extent: [minx, miny, maxx, maxy], map will be zoomed to fit the extent
+     *
+     * @method center
+     * @memberof module:visualizations/Map
+     * @instance
      */
     this.center = function(coordinate, options) {
       var options = options || {};
+      var zoom;
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
       if (options.extent){
         var extent = options.extent;
         if (options.projection){
-          extent = this.toMapProjection(extent, options.projection);
+          var min = this.toMapProjection(extent.slice(0, 2), options.projection);
+          var max = this.toMapProjection(extent.slice(2, 4), options.projection);
+          extent = min.concat(max);
         }
-        view.fit(extent, {size: map.getSize(), padding: [50, 50, 50, 50]});
+        var resolution = view.getResolutionForExtent(extent);
+        zoom = view.getZoomForResolution(resolution);
       }
-      
-      view.animate({center: coordinate});//, {zoom: 10});
+      view.animate({ center: coordinate, zoom: zoom });//, {zoom: 10});
+    }
+    
+    /**
+     * center map on polygon
+     * 
+     * @param {ol.geom.Polygon} polygon      the OpenLayers polygon
+     * @param {Object} options
+     * @param {string=} options.projection   projection of the coordinates of the polygon
+     *
+     * @method centerOnPolygon
+     * @memberof module:visualizations/Map
+     * @instance
+     */
+    this.centerOnPolygon = function(polygon, options) {
+      var options = options || {};
+      var centroid = polygon.getInteriorPoint().getCoordinates().slice(0, 2);
+      var extent = polygon.getExtent();
+      options.extent = extent;
+      this.center(centroid, options);
+      return centroid;
     }
     
     this.map = map;
+    
 
   };
   
@@ -349,13 +469,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 13:29:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

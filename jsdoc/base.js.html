@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: collections/actors.js</title>
+    <title>JSDoc: Source: base.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: collections/actors.js</h1>
+    <h1 class="page-title">Source: base.js</h1>
 
     
 
@@ -26,60 +26,56 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(["backbone", "models/actor", "app-config"],
-
-  function(Backbone, Actor, config) {
-  
-   /**
-    *
-    * @author Christoph Franke
-    * @name module:collections/Actors
-    * @augments Backbone.Collection
-    */
-    var Actors = Backbone.Collection.extend(
-      /** @lends module:collections/Actors.prototype */
-      {
-      /**
-       * generates an url to the api resource list based on the ids given in constructor
-       *
-       * @returns {string} the url string
-       */
-      url: function(){
-        // if an activity is given, take the route that retrieves all actors 
-        // of the activity
-        if (this.activityId != null)
-          return config.api.actorsInGroup.format(
-            this.caseStudyId, this.keyflowId, this.activityGroupCode, this.activityId);
-        // if no activity is given, get all activities in the casestudy
-        else
-          return config.api.actors.format(this.caseStudyId, this.keyflowId);
-      },
+            <pre class="prettyprint source linenums"><code>define(['jquery', 'document-ready', 'bootstrap', 'utils/overrides'],
+function ($, ready) {  
+  /**
+   *
+   * base entry point loading requirements for base django template and overriding functions as needed by other entry points
+   * sets up sidebar and dropdowns in base django template
+   *
+   * @author Christoph Franke
+   * @module Base
+   */
    
-    /**
-     * collection of module:models/Actor
-     *
-     * @param {Array.&lt;Object>} [attrs=null]         list objects representing the fields of each model and their values, will be set if passed
-     * @param {Object} options
-     * @param {string} options.caseStudyId        id of the casestudy the actors belong to
-     * @param {string} options.activityId         id of the activity the actors belong to
-     * @param {string} options.activityGroupCode  id of the activitygroup the actors belong to
-     * @param {string} options.keyflowId          id of the keyflow the actors belong to
-     *
-     * @constructs
-     * @see http://backbonejs.org/#Collection
-     */
-      initialize: function (attrs, options) {
-        this.caseStudyId = options.caseStudyId;
-        this.activityId = options.activityId;
-        this.activityGroupCode = options.activityGroupCode;
-        this.keyflowId = options.keyflowId;
-      },
-      model: Actor
+  ready(function () {
+  
+   // hide sidebar if there is no content in it
+    if (document.getElementById('sidebar-content').childElementCount == 0){
+      document.getElementById('wrapper').style.paddingLeft = '0px';
+      document.getElementById('sidebar-wrapper').style.display = 'none';
+    };
+    
+    function toggleShow(element){
+      closeDropdowns();
+      element.classList.toggle('show');
+    }
+    
+    function closeDropdowns(){
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i &lt; dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+    
+    // show content on dropdown button click (for all dropdowns)
+    dropdowns = [].slice.call(document.querySelectorAll('.dropdown'));
+    
+    dropdowns.forEach(function(dropdown) {
+      var button = dropdown.querySelector('.dropdown-button'),
+          content = dropdown.querySelector('.dropdown-content');
+      button.addEventListener('click', function(){ toggleShow(content) })
     });
     
-    return Actors;
-  }
-);</code></pre>
+    // Close the dropdowns if the user clicks outside of it
+    window.onclick = function(event) {
+      if (!event.target.matches('.dropdown-button')) closeDropdowns();
+    }
+   });
+ });</code></pre>
         </article>
     </section>
 

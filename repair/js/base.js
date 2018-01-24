@@ -15,10 +15,7 @@ function ($, ready) {
     if (document.getElementById('sidebar-content').childElementCount == 0){
       document.getElementById('wrapper').style.paddingLeft = '0px';
       document.getElementById('sidebar-wrapper').style.display = 'none';
-      //console.log(document.getElementById('sidebar-wrapper'))
     };
-    
-    <!-- show/hide dropdown-menus in main menu on click -->
     
     function toggleShow(element){
       closeDropdowns();
@@ -42,7 +39,6 @@ function ($, ready) {
     dropdowns.forEach(function(dropdown) {
       var button = dropdown.querySelector('.dropdown-button'),
           content = dropdown.querySelector('.dropdown-content');
-      console.log(content)
       button.addEventListener('click', function(){ toggleShow(content) })
     });
     
