@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ProductFactory)
 
 
-class ProductsInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ProductsInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
         1. Products is not in casestudy/xx/keyflows/xx/

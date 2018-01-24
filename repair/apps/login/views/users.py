@@ -48,6 +48,8 @@ class CaseStudyViewSet(RevisionMixin,
     serializers = {'list': CaseStudyListSerializer,}
 
     def list(self, request, **kwargs):
+        # TODO: this overwrites the list function of ModelPermissionTest
+        # -> Permission is not checked!
         user_id = -1 if request.user.id is None else request.user.id
         casestudies = set()
         for casestudy in self.queryset:

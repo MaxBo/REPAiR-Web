@@ -153,7 +153,7 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
             key_response = self.get_check_200(response.data[key])
 
 
-class BasicModelTest(BasicModelReadTest):
+class BasicModelPermissionTest(BasicModelReadTest):
     post_urls = []
     post_data = dict()
 
@@ -197,7 +197,7 @@ class BasicModelTest(BasicModelReadTest):
             response = self.get_check_200(url)
 
 
-class BasicModelPermissionTest(BasicModelTest):
+class BasicModelPermissionTest(BasicModelPermissionTest):
     permissions = Permission.objects.all()
 
     def tearDown(self):
@@ -221,6 +221,13 @@ class BasicModelPermissionTest(BasicModelTest):
         self.uic.user.user.user_permissions.clear()
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = self.url_key + '-detail'
-        response = self.get_check_200(url, **kwargs)
+        #response = self.get_check_200(url, **kwargs)
         response = self.delete(url, **kwargs)
         self.response_403()
+
+    def test_list_permission(self):
+        self.uic.user.user.user_permissions.clear()
+        response = self.get(self.url_key + '-list', **self.url_pks)
+        self.response_403()
+
+

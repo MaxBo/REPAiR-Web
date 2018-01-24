@@ -12,6 +12,7 @@ from repair.apps.login.factories import (UserFactory,
                                          ProfileFactory,
                                          CaseStudyFactory)
 from repair.tests.test import BasicModelPermissionTest, CompareAbsURIMixin
+from django.contrib.auth.models import Permission
 
 
 class ModelTest(TestCase):
@@ -81,6 +82,18 @@ class ViewTest(CompareAbsURIMixin, APITestCase):
                                    user__password='Password')
 
         cls.casestudy = CaseStudyFactory(name='lodz')
+        permissions = Permission.objects.all()
+        cls.user2.user.user_permissions.set(list(permissions))
+        cls.anonymus_user.user.user_permissions.set(list(permissions))
+
+        def setUp(self):
+            self.client.force_login(user=self.anonymus_user.user)
+            super().setUp()
+
+        def tearDown(self):
+            self.client.logout()
+            super().tearDown()
+
 
     def test_get_group(self):
         url = reverse('group-list')
@@ -190,7 +203,6 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
     post_data = dict(name='posttestname')
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
-    add_perm = "login.add_casestudy"
 
     def test_post(self):
         url = self.url_key + '-list'

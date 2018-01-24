@@ -3,13 +3,13 @@
 from django.urls import reverse
 from rest_framework import status
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowFactory,
                                          KeyflowInCasestudyFactory)
 
 
-class KeyflowTest(BasicModelTest, APITestCase):
+class KeyflowTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
 
@@ -35,7 +35,7 @@ class KeyflowTest(BasicModelTest, APITestCase):
         self.obj = KeyflowFactory()
 
 
-class KeyflowInCaseStudyTest(BasicModelTest, APITestCase):
+class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     keyflow = 3

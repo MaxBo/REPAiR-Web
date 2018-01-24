@@ -3,7 +3,7 @@
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest, LoginTestCase
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
@@ -38,7 +38,7 @@ class TestActor(LoginTestCase, APITestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-class ActorInCaseStudyTest(BasicModelTest, APITestCase):
+class ActorInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     keyflow = 23
@@ -71,7 +71,7 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
         self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic)
 
 
-class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5
@@ -106,7 +106,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__id=self.activitygroup)
 
 
-class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activitygroup = 90
@@ -128,7 +128,7 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         self.obj = ActivityGroupFactory(keyflow=self.kic)
 
 
-class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5
