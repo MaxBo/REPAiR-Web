@@ -10,6 +10,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Actor,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      Reason, 
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -229,6 +230,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
     website = URLFieldWithoutProtocol(required=False, default="",
                                       allow_blank=True)
+    reason = IDRelatedField(allow_null=True)
 
     class Meta:
         model = Actor
@@ -251,3 +253,10 @@ class AllActorListSerializer(AllActorSerializer):
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'included', 'reason', )
+
+
+class ReasonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reason
+        fields = ('id', 'reason')
+        

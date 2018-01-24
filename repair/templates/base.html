@@ -3,6 +3,10 @@
 {% load staticfiles %}
 {% load i18n %}
 
+{% load render_bundle from webpack_loader %}
+{% render_bundle 'vendors' %}
+{% render_bundle 'Base' %}
+
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
@@ -11,8 +15,6 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" /> 
-    <script type="text/javascript" src="{{STATIC_URL}}libs/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}libs/bootstrap.min.js"></script>
     
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
     
@@ -54,11 +56,11 @@
                 <input name="next" type="hidden" value="{{ request.path }}" />
                 <input name="casestudy" id="casestudy" type="hidden">
                 <div class="dropdown">
-                  <button class="drop-button" onclick="show('casestudy-dropdown')" type="button">
+                  <button class="dropdown-button" type="button">
                     {% trans "Casestudy" %}
                     <span class="caret"></span>
                   </button>
-                  <div id="casestudy-dropdown" class="dropdown-content">
+                  <div class="dropdown-content">
                     <!-- BaseView has property 'casestudies' -->
                     {% if view.casestudies|length > 0 %}
                     {% for casestudy in view.casestudies %} 
@@ -81,11 +83,11 @@
             <li id="login-link" >
               {% if request.user.is_authenticated %}
               <div class="dropdown">
-                <button class="drop-button" onclick="show('login-dropdown')" type="button">
+                <button class="dropdown-button" type="button">
                   {% trans "User Area" %} ({{ request.user.username }})
                   <span class="caret"></span>
                 </button>
-                <div id="login-dropdown" class="dropdown-content">
+                <div class="dropdown-content">
                   <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
                   <a href="/admin">{% trans "Admin Area" %}</a>
                   <a href="/logout">{% trans "Logout" %}</a>
@@ -138,36 +140,5 @@
       </div>
     </div>
   </div>
-  <script>
-    // hide sidebar if there is no content in it
-    if (document.getElementById('sidebar-content').childElementCount == 0){
-      document.getElementById('wrapper').style.paddingLeft = '0px';
-      document.getElementById('sidebar-wrapper').style.display = 'none';
-      //console.log(document.getElementById('sidebar-wrapper'))
-    };
-    
-    <!-- show/hide dropdown-menus in main menu on click -->
-    
-    function show(elementId){
-      closeDropdowns(); 
-      document.getElementById(elementId).classList.toggle('show');
-    }
-    
-    function closeDropdowns(){
-      var dropdowns = document.getElementsByClassName("dropdown-content");
-      var i;
-      for (i = 0; i < dropdowns.length; i++) {
-        var openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
-      }
-    }
-    
-    // Close the dropdowns if the user clicks outside of it
-    window.onclick = function(event) {
-      if (!event.target.matches('.drop-button')) closeDropdowns();
-    }
-  </script>
 </body>
 </html>
