@@ -83,6 +83,7 @@ class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
 
 
 class ReasonViewSet(RevisionMixin, ModelViewSet):
+    pagination_class = None
     serializer_class = ReasonSerializer
     queryset = Reason.objects.all()
     

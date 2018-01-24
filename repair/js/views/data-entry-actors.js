@@ -1,7 +1,8 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/activities',
         'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
-        'loader', 'tablesorter'],
-function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Loader){
+        'loader', 'app-config', 'tablesorter'],
+function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
+         Loader, config){
   /**
    *
    * @author Christoph Franke
@@ -46,11 +47,11 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Load
         
       this.projection = 'EPSG:4326'; 
       
-      //var Reasons = Backbone.Collection.extend({url: config.api.reasons}),
-          //reasons = new Reasons([]);
+      var Reasons = Backbone.Collection.extend({url: config.api.reasons});
+      this.reasons = new Reasons([]);
         
       $.when(this.activities.fetch(), this.actors.fetch(), 
-             this.areaLevels.fetch()).then(function() {
+             this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
           _this.areaLevels.sort();
           loader.remove();
           _this.render();
@@ -165,7 +166,8 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Load
           keyflow: _this.model,
           onUpload: function(a) { setRowValues(a); showActor(a); },
           focusarea: _this.caseStudy.get('properties').focusarea,
-          areaLevels: _this.areaLevels
+          areaLevels: _this.areaLevels,
+          reasons: _this.reasons
         });
       }
       

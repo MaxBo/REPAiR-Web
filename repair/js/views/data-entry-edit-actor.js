@@ -39,6 +39,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
      * @param {module:collections/Activities} options.activities       the activities belonging to the keyflow
      * @param {module:collections/AreaLevels} options.areaLevels       the levels of areas belonging to the casestudy of the keyflow (sorted ascending by level, starting with top-level)
+     * @param {Backbone.Collection} options.reasons                    possible options for reasons to exclude the actor
      * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
      * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
      *
@@ -58,6 +59,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.onUpload = options.onUpload;
       this.focusarea = options.focusarea;
       this.areaLevels = options.areaLevels;
+      this.reasons = options.reasons;
       
       this.layers = {
         operational: {
@@ -84,16 +86,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           }
         }
       };
-      
-      // TODO: get this from database or template
-      this.reasons = [
-        //0: "Included",
-        {id: 1, name: "Outside Region, inside country"},
-        {id: 2, name: "Outside Region, inside EU"},
-        {id: 3, name: "Outside Region, outside EU"},
-        {id: 4, name: "Outside Material Scope"},
-        {id: 5, name: "Does Not Produce Waste"}
-      ]
 
       var _this = this;
       
@@ -171,7 +163,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var included = this.el.querySelector('input[name = "included"]').checked;
       actor.set('included', included);
       var checked = this.el.querySelector('input[name = "reason"]:checked')
-      var reason = (checked != null) ? checked.value: this.reasons[0].id;
+      // set reason to null, if included
+      var reason = (checked != null) ? checked.value: null;
       actor.set('reason', reason);
       
       var loader = new Loader(this.el, {disable: true});

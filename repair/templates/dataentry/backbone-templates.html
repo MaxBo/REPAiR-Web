@@ -349,10 +349,10 @@
             <form id="reasons" style="display: <%= actor.get('included') == true ? 'none' : 'block' %>;" >
               {% trans "Reason for exclusion" %}
               </br>
-              <% _.each(reasons, function(reason) { %>
+              <% reasons.each(function(reason) { %>
                 <span style="white-space: nowrap;">
                   <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>" <% if(actor.get('reason') == reason.id) { %> checked <% } %>></input>
-                  <%= reason.name %>
+                  <%= reason.get('reason') %>
                 </span>
                 </br>
               <% });  %>
