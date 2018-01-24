@@ -40,7 +40,7 @@ class AdministrativeLocationSerializer(PatchFields,
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
         queryset=AdminLevels.objects.all(),
-        #source='area.adminlevel', 
+        #source='area.adminlevel',
     )
 
     class Meta:
@@ -86,16 +86,6 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
         return aloc
 
 
-class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorSerializer):
-    class Meta:
-        model = AdministrativeLocation
-        geo_field = 'geom'
-        fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name',
-                  'area',
-                  ]
-
-
 class OperationalLocationSerializer(PatchFields,
                                     GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
@@ -110,7 +100,7 @@ class OperationalLocationSerializer(PatchFields,
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
         queryset=AdminLevels.objects.all(),
-        #source='area.adminlevel', 
+        #source='area.adminlevel',
     )
 
     class Meta:
@@ -128,7 +118,7 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
         'keyflow_pk':
         'actor__activity__activitygroup__keyflow__id',
         'actor_pk': 'actor__id', }
-    
+
     class Meta(OperationalLocationSerializer.Meta):
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name', 'actor',
