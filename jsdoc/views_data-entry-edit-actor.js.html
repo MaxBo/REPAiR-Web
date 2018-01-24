@@ -173,7 +173,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.setupAreaInput();
     },
 
-
     /* 
      * check the models for changes and upload the changed/added ones 
      */
@@ -324,7 +323,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         
         // zoom to location if marker in table is clicked 
         markerCell.addEventListener('click', function(){ 
-          _this.globalMap.center(loc.get('geometry').get('coordinates'), 
+          _this.globalMap.centerOnPoint(loc.get('geometry').get('coordinates'), 
                           {projection: _this.projection})
         });
         
@@ -493,7 +492,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             area.fetch({ success: function(){
               var polyCoords = area.get('geometry').coordinates[0];
               var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
-              _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
+              _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
             }});
           }
           _this.setAreaChildSelects(cur);
@@ -586,7 +585,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           removable: true,
           layername: _this.activeType
         });
-        //_this.localMap.center(coords, {projection: _this.projection});
+        //_this.localMap.centerOnPoint(coords, {projection: _this.projection});
       }
       
       // connect add/remove point buttons
@@ -594,7 +593,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
-        _this.localMap.center(center, {projection: _this.projection});
+        _this.localMap.centerOnPoint(center, {projection: _this.projection});
         setPointButtons('remove');
       });
       removePointBtn.addEventListener('click', function(){
@@ -628,19 +627,16 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           return;
         }
         var select = this.areaSelects[selectIdx];
-        console.log(selectIdx)
         
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType });
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
             var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
-              console.log(areas.url())
             areas.fetch({ data: { parent_id: parentId }, success: function(){
-              console.log(areas)
               _this.addAreaOptions(areas, select);
               select.value = areaId;
               _this.setAreaChildSelects(selectIdx);
@@ -779,13 +775,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 13:29:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 15:38:53 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

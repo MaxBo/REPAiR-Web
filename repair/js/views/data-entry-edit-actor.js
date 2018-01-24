@@ -145,7 +145,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.setupAreaInput();
     },
 
-
     /* 
      * check the models for changes and upload the changed/added ones 
      */
@@ -296,7 +295,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         
         // zoom to location if marker in table is clicked 
         markerCell.addEventListener('click', function(){ 
-          _this.globalMap.center(loc.get('geometry').get('coordinates'), 
+          _this.globalMap.centerOnPoint(loc.get('geometry').get('coordinates'), 
                           {projection: _this.projection})
         });
         
@@ -465,7 +464,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             area.fetch({ success: function(){
               var polyCoords = area.get('geometry').coordinates[0];
               var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
-              _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
+              _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
             }});
           }
           _this.setAreaChildSelects(cur);
@@ -558,7 +557,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           removable: true,
           layername: _this.activeType
         });
-        //_this.localMap.center(coords, {projection: _this.projection});
+        //_this.localMap.centerOnPoint(coords, {projection: _this.projection});
       }
       
       // connect add/remove point buttons
@@ -566,7 +565,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
-        _this.localMap.center(center, {projection: _this.projection});
+        _this.localMap.centerOnPoint(center, {projection: _this.projection});
         setPointButtons('remove');
       });
       removePointBtn.addEventListener('click', function(){
@@ -600,19 +599,16 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           return;
         }
         var select = this.areaSelects[selectIdx];
-        console.log(selectIdx)
         
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType });
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
             var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
-              console.log(areas.url())
             areas.fetch({ data: { parent_id: parentId }, success: function(){
-              console.log(areas)
               _this.addAreaOptions(areas, select);
               select.value = areaId;
               _this.setAreaChildSelects(selectIdx);

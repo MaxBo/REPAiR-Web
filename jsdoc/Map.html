@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: module:visualizations/Map</title>
+    <title>JSDoc: Class: Map</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: module:visualizations/Map</h1>
+    <h1 class="page-title">Class: Map</h1>
 
     
 
@@ -28,7 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:visualizations/Map<span class="signature">(options)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Map<span class="signature">(options)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">OpenLayers Map with draggable markers, optional context-menu and fullscreen controls</div>
         
     
 </header>
@@ -39,9 +41,11 @@
         
 
     
+    <h2>Constructor</h2>
+    
 
     
-    <h4 class="name" id="module:visualizations/Map"><span class="type-signature"></span>new module:visualizations/Map<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Map"><span class="type-signature"></span>new Map<span class="signature">(options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +53,7 @@
 
 
 <div class="description">
-    OpenLayers Map with draggable markers, optional context-menu and fullscreen controls
+    create the map
 </div>
 
 
@@ -292,7 +296,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line5">line 5</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -396,7 +400,7 @@
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;{text: string, icon: string, callback: <a href="module-visualizations_Map.html#~itemClicked">module:visualizations/Map~itemClicked</a>}></span>
+<span class="param-type">Array.&lt;{text: string, icon: string, callback: <a href="Map.html#~itemClicked">Map~itemClicked</a>}></span>
 
 
             
@@ -447,7 +451,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line326">line 326</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -779,7 +783,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line83">line 83</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line99">line 99</a>
     </li></ul></dd>
     
 
@@ -1232,7 +1236,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line149">line 149</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line161">line 161</a>
     </li></ul></dd>
     
 
@@ -1516,7 +1520,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line113">line 113</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line127">line 127</a>
     </li></ul></dd>
     
 
@@ -1572,7 +1576,7 @@
     
 
     
-    <h4 class="name" id="center"><span class="type-signature"></span>center<span class="signature">(coordinates, options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="centerOnPoint"><span class="type-signature"></span>centerOnPoint<span class="signature">(coordinates, options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1746,6 +1750,39 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>zoomOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">offset for zooming on extent (negative values will zoom out more)</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1790,7 +1827,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line377">line 377</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line361">line 361</a>
     </li></ul></dd>
     
 
@@ -1965,6 +2002,39 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>zoomOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">offset for zooming on extent (negative values will zoom out more)</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -2009,7 +2079,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line407">line 407</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line390">line 390</a>
     </li></ul></dd>
     
 
@@ -2250,7 +2320,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line253">line 253</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line252">line 252</a>
     </li></ul></dd>
     
 
@@ -2537,7 +2607,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line231">line 231</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line236">line 236</a>
     </li></ul></dd>
     
 
@@ -2623,7 +2693,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line281">line 281</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line273">line 273</a>
     </li></ul></dd>
     
 
@@ -2781,7 +2851,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line51">line 51</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -2961,7 +3031,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line67">line 67</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -3173,7 +3243,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line317">line 317</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line303">line 303</a>
     </li></ul></dd>
     
 
@@ -3186,141 +3256,6 @@
             <li><a href="https://github.com/jonataswalker/ol-contextmenu">https://github.com/jonataswalker/ol-contextmenu</a></li>
         </ul>
     </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    
-    <h4 class="name" id="~onDrag"><span class="type-signature"></span>onDrag<span class="signature">(coordinates)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    callback for dragging markers
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>coordinates</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;number></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">(x, y) coordinates in original projection</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line142">line 142</a>
-    </li></ul></dd>
-    
-
-    
-
     
 
     
@@ -3357,13 +3292,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 13:29:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 15:38:53 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
