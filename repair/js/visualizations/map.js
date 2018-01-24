@@ -148,6 +148,8 @@ define([
      * @param {Object=} options
      * @param {string} [options.layername='basic']  layer to which the polygon will be added
      * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     * @param {string=} options.tooltip             tooltip shown on hover over polygon
+     * @param {string} [options.type='Polygon']     Polygon or Multipolygon
      *
      * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
      *
@@ -155,7 +157,7 @@ define([
     addPolygon(coordinates, options){
       var options = options || {};
       var proj = options.projection || this.mapProjection;
-      var poly = new ol.geom.Polygon(coordinates);
+      var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
       var ret = poly.clone();
       var layername = options.layername || 'basic',
           layer = this.layers[layername];
@@ -418,7 +420,9 @@ define([
      */
     centerOnPolygon(polygon, options) {
       var options = options || {};
-      var centroid = polygon.getInteriorPoint().getCoordinates().slice(0, 2);
+      var type = polygon.getType();
+      var interior = (type == 'MultiPolygon') ? polygon.getInteriorPoints().getCoordinates()[0]: polygon.getInteriorPoint().getCoordinates();
+      var centroid = interior.slice(0, 2);
       var extent = polygon.getExtent();
       options.extent = extent;
       this.centerOnPoint(centroid, options);
