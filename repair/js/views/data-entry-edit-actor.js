@@ -477,13 +477,22 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      },
     
     /*
-     * prerender the select boxes for areas in the location modal
+     * preset the select boxes for top level and connect all area selects
      */
     setupAreaInput: function(){
       var _this = this;
       var table = document.getElementById('location-area-table');
       this.areaSelects = [];
       var caseStudyId = _this.keyflow.get('casestudy');
+      
+      // fetch geometry of area and draw it on map
+      function fetchDraw(area){
+        area.fetch({ success: function(){
+          var polyCoords = area.get('geometry').coordinates[0];
+          var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
+          _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
+        }});
+      }
       
       var idx = 0;
       this.areaLevels.each(function(level){
@@ -502,12 +511,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           _this.localMap.clearLayer('operational', { types: ['Polygon'] });
           if (areaId >= 0){
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
-            // fetch geometry of area and draw it on map
-            area.fetch({ success: function(){
-              var polyCoords = area.get('geometry').coordinates[0];
-              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
-              _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
-            }});
+            fetchDraw(area);
+          }
+          // an area is deselected -> draw parent one (not on top level)
+          else if (cur > 0) {
+            var parentSelect = _this.areaSelects[cur-1];
+            var area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
+            fetchDraw(area);
           }
           _this.setAreaChildSelects(cur);
         });
