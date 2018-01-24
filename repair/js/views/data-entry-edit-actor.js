@@ -345,8 +345,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           wrapper.appendChild(areanameDiv);
           areaCell.appendChild(wrapper);
           
-          var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername, tooltip: area.get('properties').name });
+          var polyCoords = area.get('geometry').coordinates;
+          var poly = _this.globalMap.addPolygon(polyCoords, 
+            { projection: _this.projection, 
+              layername: layername, 
+              tooltip: area.get('properties').name,
+              type: area.get('geometry').type }
+          );
           // zoom to location if marker in table is clicked 
           areaCell.addEventListener('click', function(){ 
             _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
@@ -488,8 +493,14 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       // fetch geometry of area and draw it on map
       function fetchDraw(area){
         area.fetch({ success: function(){
-          var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType, tooltip: area.get('properties').name });
+          var polyCoords = area.get('geometry').coordinates;
+          var poly = _this.localMap.addPolygon(
+            polyCoords, 
+            { projection: _this.projection, 
+              layername: _this.activeType, 
+              tooltip: area.get('properties').name,
+              type: area.get('geometry').type 
+          });
           _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
         }});
       }
@@ -507,8 +518,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         select.addEventListener('change', function(){
           var areaId = select.value;
           // remove polygons, keep markers
-          _this.localMap.clearLayer('administrative', { types: ['Polygon'] });
-          _this.localMap.clearLayer('operational', { types: ['Polygon'] });
+          _this.localMap.clearLayer('administrative', { types: ['Polygon', 'MultiPolygon'] });
+          _this.localMap.clearLayer('operational', { types: ['Polygon', 'MultiPolygon'] });
           if (areaId >= 0){
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
             fetchDraw(area);
