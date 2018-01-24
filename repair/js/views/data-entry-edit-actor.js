@@ -346,7 +346,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           areaCell.appendChild(wrapper);
           
           var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername });
+          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername, tooltip: area.get('properties').name });
           // zoom to location if marker in table is clicked 
           areaCell.addEventListener('click', function(){ 
             _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
@@ -489,7 +489,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       function fetchDraw(area){
         area.fetch({ success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
+          var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType, tooltip: area.get('properties').name });
           _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
         }});
       }
@@ -655,7 +655,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType });
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType, tooltip: area.get('properties').name });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
@@ -766,8 +766,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
+        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
         this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
         this.localMap.centerOnPolygon(poly, { projection: _this.projection });
       };

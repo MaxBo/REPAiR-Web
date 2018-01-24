@@ -18,6 +18,7 @@ define([
      *
      */
     constructor(options){
+      var _this = this;
       this.idCounter = 0;
       this.mapProjection = options.projection || 'EPSG:3857';
       this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
@@ -58,6 +59,33 @@ define([
       
         _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
       });
+      
+      var div = document.getElementById(options.divid);
+      
+      var tooltip = div.querySelector('.tooltip');
+      if (tooltip){
+        var overlay = new ol.Overlay({
+          element: tooltip,
+          offset: [10, 0],
+          positioning: 'bottom-left'
+        });
+        this.map.addOverlay(overlay);
+  
+        function displayTooltip(evt) {
+          var pixel = evt.pixel;
+          var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
+            return feature;
+          });
+          if (feature && feature.tooltip) {
+            overlay.setPosition(evt.coordinate);
+            tooltip.innerHTML = feature.tooltip;
+            tooltip.style.display = '';
+          }
+          else tooltip.style.display = 'none';
+        };
+        
+        this.map.on('pointermove', displayTooltip);
+      }
     }
     
     /**
@@ -133,6 +161,7 @@ define([
           layer = this.layers[layername];
       
       var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+      feature.tooltip = options.tooltip;
       layer.getSource().addFeature(feature);
       return ret;
     }
