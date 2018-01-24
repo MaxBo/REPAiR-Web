@@ -41,7 +41,7 @@ function(Backbone, _, Products, Loader){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
                                     keyflow: this.model.get('name')});
 
       this.table = this.el.querySelector('#products-table');
