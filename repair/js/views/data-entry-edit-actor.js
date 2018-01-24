@@ -145,7 +145,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.setupAreaInput();
     },
 
-
     /* 
      * check the models for changes and upload the changed/added ones 
      */
@@ -160,9 +159,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         if (input.name == 'reason' || input.name == 'included') return; // continue, handled seperately (btw 'return' in _.each(...) is equivalent to continue)
         actor.set(input.name, input.value);
       });
-      var included = this.el.querySelector('input[name = "included"]').checked;
+      var included = this.el.querySelector('input[name="included"]').checked;
       actor.set('included', included);
-      var checked = this.el.querySelector('input[name = "reason"]:checked')
+      var checked = this.el.querySelector('input[name="reason"]:checked')
       // set reason to null, if included
       var reason = (checked != null) ? checked.value: null;
       actor.set('reason', reason);
@@ -296,7 +295,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         
         // zoom to location if marker in table is clicked 
         markerCell.addEventListener('click', function(){ 
-          _this.globalMap.center(loc.get('geometry').get('coordinates'), 
+          _this.globalMap.centerOnPoint(loc.get('geometry').get('coordinates'), 
                           {projection: _this.projection})
         });
         
@@ -347,7 +346,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           areaCell.appendChild(wrapper);
           
           var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername });
+          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername, tooltip: area.get('properties').name });
           // zoom to location if marker in table is clicked 
           areaCell.addEventListener('click', function(){ 
             _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
@@ -413,8 +412,50 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       });
     },
     
-    setAreaParentSelect: function(idx){
-    
+    /*
+     * set the select options of select with given index
+     * if options.setParents=true recursively fetch and set options for parent selects as well
+     */
+    setAreaSelects: function(area, idx, options){
+        var options = options || {};
+        var _this = this;
+        var select = this.areaSelects[idx];
+        // don't fetch top level entries, they always stay the same, also serves as end of possible recursion
+        if (idx <= 0) {
+          select.value = area.id;
+          if ( options.onSuccess != null ) options.onSuccess();
+          return;
+        }
+        
+        var parentId = area.get('properties').parent_area,
+            parentLevelId = area.get('properties').parent_level,
+            caseStudyId = this.keyflow.get('casestudy');
+            
+        // fill this select
+        var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        areas.fetch({
+          data:  { parent_id: parentId },
+          success: function(){
+            _this.addAreaOptions(areas, select);
+            select.value = area.id;
+          }
+        });
+        
+        // if setParents is set to true fetch parent area and recursively call this function again
+        if (options.setParents){
+          var parentArea = new Area(
+            { id: parentId }, 
+            { caseStudyId: caseStudyId, levelId: parentLevelId }
+          );
+          
+          parentArea.fetch({
+            success: function(){ 
+              // proceed recursion with parent select
+              _this.setAreaSelects(parentArea, idx-1, options);
+            },
+            error: function(model, response){ alert(response) }
+          });
+        }
     },
     
     /*
@@ -436,13 +477,22 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      },
     
     /*
-     * render the select boxes for areas in the location modal
+     * preset the select boxes for top level and connect all area selects
      */
     setupAreaInput: function(){
       var _this = this;
       var table = document.getElementById('location-area-table');
       this.areaSelects = [];
       var caseStudyId = _this.keyflow.get('casestudy');
+      
+      // fetch geometry of area and draw it on map
+      function fetchDraw(area){
+        area.fetch({ success: function(){
+          var polyCoords = area.get('geometry').coordinates[0];
+          var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType, tooltip: area.get('properties').name });
+          _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
+        }});
+      }
       
       var idx = 0;
       this.areaLevels.each(function(level){
@@ -461,12 +511,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           _this.localMap.clearLayer('operational', { types: ['Polygon'] });
           if (areaId >= 0){
             var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
-            // fetch geometry of area and draw it on map
-            area.fetch({ success: function(){
-              var polyCoords = area.get('geometry').coordinates[0];
-              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
-              _this.localMap.centerOnPolygon(poly, { projection: _this.projection })
-            }});
+            fetchDraw(area);
+          }
+          // an area is deselected -> draw parent one (not on top level)
+          else if (cur > 0) {
+            var parentSelect = _this.areaSelects[cur-1];
+            var area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
+            fetchDraw(area);
           }
           _this.setAreaChildSelects(cur);
         });
@@ -558,7 +609,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           removable: true,
           layername: _this.activeType
         });
-        //_this.localMap.center(coords, {projection: _this.projection});
+        //_this.localMap.centerOnPoint(coords, {projection: _this.projection});
       }
       
       // connect add/remove point buttons
@@ -566,7 +617,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       addPointBtn.addEventListener('click', function(){ 
         _this.tempCoords = center;
         addMarker(center);
-        _this.localMap.center(center, {projection: _this.projection});
+        _this.localMap.centerOnPoint(center, {projection: _this.projection});
         setPointButtons('remove');
       });
       removePointBtn.addEventListener('click', function(){
@@ -600,22 +651,20 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           return;
         }
         var select = this.areaSelects[selectIdx];
-        console.log(selectIdx)
         
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType });
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType, tooltip: area.get('properties').name });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
             var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
-              console.log(areas.url())
             areas.fetch({ data: { parent_id: parentId }, success: function(){
-              console.log(areas)
-              _this.addAreaOptions(areas, select);
-              select.value = areaId;
-              _this.setAreaChildSelects(selectIdx);
+              _this.setAreaSelects(
+                area, selectIdx, 
+                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(selectIdx); } 
+              });
             }});
           }
           else {
@@ -717,8 +766,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
+        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
         this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
         this.localMap.centerOnPolygon(poly, { projection: _this.projection });
       };

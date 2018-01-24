@@ -405,7 +405,9 @@
     </div>
     <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>
       <h4 class="row"> {% trans "Locations" %} </h4>
-      <div id="actors-map" style="min-height: 400px" class="map row"></div>
+      <div id="actors-map" style="min-height: 400px" class="map row">
+         <div class="tooltip"></div>
+      </div>
       </br>
       <div class="bordered" class="row">
         <table id="adminloc-table">
@@ -457,7 +459,9 @@
           </div>
           <div class="modal-body">
             <div class='row'>
-              <div id='edit-location-map'  class="col-md-6" style="min-height: 400px; min-width: 400px"></div>
+              <div id='edit-location-map'  class="col-md-6" style="min-height: 400px; min-width: 400px">
+                <div class="tooltip"></div>
+              </div>
               <div  class="col-md-6"> 
                 <div id='location-modal-content'> </div <!-- this is the only part we rerender everytime an actor is clicked -->
                 </br>
@@ -478,7 +482,7 @@
 
 <!-- edit location -->
 <script type="text/template" id="location-modal-template">
-
+  <br>
   <b>{% trans "Name" %} </b> <input type="text" name="name" value="<%= properties.name %>" style='margin-left: 20px;'>
   <br><br><br>
   <b>{% trans "Address (optional)" %}</b>
