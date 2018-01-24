@@ -159,9 +159,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         if (input.name == 'reason' || input.name == 'included') return; // continue, handled seperately (btw 'return' in _.each(...) is equivalent to continue)
         actor.set(input.name, input.value);
       });
-      var included = this.el.querySelector('input[name = "included"]').checked;
+      var included = this.el.querySelector('input[name="included"]').checked;
       actor.set('included', included);
-      var checked = this.el.querySelector('input[name = "reason"]:checked')
+      var checked = this.el.querySelector('input[name="reason"]:checked')
       // set reason to null, if included
       var reason = (checked != null) ? checked.value: null;
       actor.set('reason', reason);
@@ -412,8 +412,50 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       });
     },
     
-    setAreaParentSelect: function(idx){
-    
+    /*
+     * set the select options of select with given index
+     * if options.setParents=true recursively fetch and set options for parent selects as well
+     */
+    setAreaSelects: function(area, idx, options){
+        var options = options || {};
+        var _this = this;
+        var select = this.areaSelects[idx];
+        // don't fetch top level entries, they always stay the same, also serves as end of possible recursion
+        if (idx <= 0) {
+          select.value = area.id;
+          if ( options.onSuccess != null ) options.onSuccess();
+          return;
+        }
+        
+        var parentId = area.get('properties').parent_area,
+            parentLevelId = area.get('properties').parent_level,
+            caseStudyId = this.keyflow.get('casestudy');
+            
+        // fill this select
+        var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        areas.fetch({
+          data:  { parent_id: parentId },
+          success: function(){
+            _this.addAreaOptions(areas, select);
+            select.value = area.id;
+          }
+        });
+        
+        // if setParents is set to true fetch parent area and recursively call this function again
+        if (options.setParents){
+          var parentArea = new Area(
+            { id: parentId }, 
+            { caseStudyId: caseStudyId, levelId: parentLevelId }
+          );
+          
+          parentArea.fetch({
+            success: function(){ 
+              // proceed recursion with parent select
+              _this.setAreaSelects(parentArea, idx-1, options);
+            },
+            error: function(model, response){ alert(response) }
+          });
+        }
     },
     
     /*
@@ -435,7 +477,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      },
     
     /*
-     * render the select boxes for areas in the location modal
+     * prerender the select boxes for areas in the location modal
      */
     setupAreaInput: function(){
       var _this = this;
@@ -609,9 +651,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             var parentId = area.get('properties').parent_area;
             var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
             areas.fetch({ data: { parent_id: parentId }, success: function(){
-              _this.addAreaOptions(areas, select);
-              select.value = areaId;
-              _this.setAreaChildSelects(selectIdx);
+              _this.setAreaSelects(
+                area, selectIdx, 
+                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(selectIdx); } 
+              });
             }});
           }
           else {
