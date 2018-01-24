@@ -24,6 +24,7 @@
     "bootstrap": "3.3.7",
     "browser-cookies": "^1.2.0",
     "d3": "3",
+    "document-ready": "^2.0.1",
     "esri-leaflet": "1.0.5",
     "expose-loader": "^0.7.4",
     "imports-loader": "^0.7.1",
