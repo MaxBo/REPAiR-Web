@@ -1,6 +1,6 @@
 define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'bootstrap', 'tablesorter'],
+        'loader', 'tablesorter'],
 function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *
@@ -124,6 +124,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           html: true,
           content: this.attrTableInner
       }
+      require('bootstrap');
       this.setupPopover($('#node-info').popover(popOverSettings));
 
       // render inFlows

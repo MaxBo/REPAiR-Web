@@ -1,6 +1,6 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
-        'collections/areas', 'models/area','visualizations/map', 'loader'],
+        'collections/areas', 'models/area','visualizations/map', 'loader', 'bootstrap'],
 
 function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
          Areas, Area, Map, Loader){
