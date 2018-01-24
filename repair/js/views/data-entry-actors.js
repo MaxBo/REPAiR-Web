@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'underscore', 'models/actor', 'collections/activities',
+define(['backbone', 'underscore', 'models/actor', 'collections/activities',
         'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
         'loader', 'tablesorter'],
-function($, Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Loader){
+function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, Loader){
   /**
    *
    * @author Christoph Franke

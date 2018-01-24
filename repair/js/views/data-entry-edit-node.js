@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'underscore', 'models/activitygroup', 'models/activity',
+define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
         'loader', 'bootstrap', 'tablesorter'],
-function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *
    * @author Christoph Franke

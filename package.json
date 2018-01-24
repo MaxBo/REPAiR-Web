@@ -25,6 +25,7 @@
     "browser-cookies": "^1.2.0",
     "d3": "3",
     "esri-leaflet": "1.0.5",
+    "expose-loader": "^0.7.4",
     "imports-loader": "^0.7.1",
     "jquery": "^3.0.0",
     "js-cookies": "^1.0.4",

@@ -1,10 +1,10 @@
-define(['jquery', 'backbone', 'underscore',
+define(['backbone', 'underscore',
         'views/data-entry-edit-node',
         'collections/activities', 'collections/actors',
         'collections/products', 'collections/flows', 'collections/stocks',
         'collections/activitygroups', 'collections/publications', 
-        'visualizations/sankey', 'loader', 'libs/bootstrap-treeview.min'],
-function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
+        'visualizations/sankey', 'loader'],
+function(Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
          Stocks, ActivityGroups, Publications, Sankey, Loader){
 
   /**
@@ -250,6 +250,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
         _this.renderDataEntry();
       };
       var divid = '#data-tree';
+      require('libs/bootstrap-treeview.min');
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,

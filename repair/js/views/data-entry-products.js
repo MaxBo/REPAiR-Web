@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'underscore', 'collections/products', 'loader', 
+define(['backbone', 'underscore', 'collections/products', 'loader', 
         'tablesorter'],
 
-function($, Backbone, _, Products, Loader){
+function(Backbone, _, Products, Loader){
   var EditProductsView = Backbone.View.extend({
 
     /*
