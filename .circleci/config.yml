@@ -39,6 +39,16 @@ jobs:
           name: run py.test
           command: |
             python manage.py test --settings=repair.settings4tests
+
+      - run:
+          name: Migrate Test Database again
+          command: |
+            python manage.py migrate --run-syncdb --settings=repair.settings4tests
+      - run:
+          name: load fixtures to test database
+          command: |
+            python manage.py loaddata sandbox_data --settings=repair.settings4tests
+
       - store_artifacts:
           path: test-reports/
           destination: tr1

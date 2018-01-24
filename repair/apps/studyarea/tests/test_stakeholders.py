@@ -34,6 +34,10 @@ class UniqueStakeholderNames(TestCase):
             stakeholdercat3 = StakeholderCategoryFactory(
                 casestudy=city2, name='Cat1')
 
+        stakeholder_categories = city1.stakeholder_categories
+        self.assertSetEqual(stakeholder_categories, {stakeholdercat1,
+                                                     stakeholdercat2})
+
 
 class StakeholdercategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
@@ -87,11 +91,10 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.obj = StakeholderFactory(id=self.stakeholder,
-                                      stakeholder_category__id=\
-                                      self.stakeholdercategory,
-                                      stakeholder_category__casestudy=\
-                                      self.uic.casestudy,
-                                      )
+        self.obj = StakeholderFactory(
+            id=self.stakeholder,
+            stakeholder_category__id=self.stakeholdercategory,
+            stakeholder_category__casestudy=self.uic.casestudy,
+            )
 
 

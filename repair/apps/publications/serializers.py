@@ -76,8 +76,9 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
             title=publication_type)
         return publication_type
 
-    def update(self, obj, validated_data):
-        publication = Publication.objects.get(publicationincasestudy=obj.pk)
+    def update(self, instance, validated_data):
+        publication = Publication.objects.get(
+            publicationincasestudy=instance.pk)
         publication_data = validated_data.pop('publication', {})
         publication_type = self.get_publication_type(publication_data)
         if publication_type:
@@ -85,4 +86,4 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
         for attr, value in publication_data.items():
             setattr(publication, attr, value)
         publication.save()
-        return super().update(obj, validated_data)
+        return super().update(instance, validated_data)
