@@ -53,6 +53,7 @@ class LoginTestCase:
     keyflow = None
     userincasestudy = 26
     user = -1
+    permissions = Permission.objects.all()
 
     @classmethod
     def setUpClass(cls):
@@ -64,12 +65,15 @@ class LoginTestCase:
         cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
                                             casestudy=cls.uic.casestudy)
 
+
     def setUp(self):
         self.client.force_login(user=self.uic.user.user)
+        self.uic.user.user.user_permissions.set(list(self.permissions))
         super().setUp()
 
     def tearDown(self):
         self.client.logout()
+        self.uic.user.user.user_permissions.set(list(self.permissions))
         super().tearDown()
 
     @classmethod
@@ -197,11 +201,6 @@ class BasicModelTest(BasicModelReadTest):
 
 
 class BasicModelPermissionTest(BasicModelTest):
-    permissions = Permission.objects.all()
-
-    def tearDown(self):
-        self.uic.user.user.user_permissions.set(list(self.permissions))
-        super().tearDown()
 
     def test_post_permission(self):
         """
@@ -220,6 +219,30 @@ class BasicModelPermissionTest(BasicModelTest):
         self.uic.user.user.user_permissions.clear()
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
         url = self.url_key + '-detail'
-        response = self.get_check_200(url, **kwargs)
         response = self.delete(url, **kwargs)
         self.response_403()
+
+    def test_list_permission(self):
+        self.uic.user.user.user_permissions.clear()
+        response = self.get(self.url_key + '-list', **self.url_pks)
+        self.response_403()
+
+    def test_put_permission(self):
+        self.uic.user.user.user_permissions.clear()
+        url = self.url_key + '-detail'
+        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        formatjson = dict(format='json')
+        response = self.put(url, **kwargs, data=self.put_data,
+                            extra=formatjson)
+        self.response_403()
+
+    def test_get_permission(self):
+        self.uic.user.user.user_permissions.clear()
+        url = self.url_key + '-detail'
+        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        response = self.get(url, **kwargs)
+        self.response_403()
+
+
+
+

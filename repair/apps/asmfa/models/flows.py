@@ -10,9 +10,10 @@ from repair.apps.asmfa.models.nodes import (
     Activity,
     Actor,
 )
+from repair.apps.login.models.bases import GDSEModel
 
 
-class Flow(models.Model):
+class Flow(GDSEModel):
 
     amount = models.PositiveIntegerField(blank=True, default=0)
 
@@ -20,7 +21,7 @@ class Flow(models.Model):
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
 
-    class Meta:
+    class Meta(GDSEModel.Meta):
         abstract = True
 
 

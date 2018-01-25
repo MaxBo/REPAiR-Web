@@ -13,8 +13,9 @@ class Node(GDSEModel):
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
-    class Meta:
+    class Meta(GDSEModel.Meta):
         abstract = True
+        #default_permissions = ('add', 'change', 'delete', 'view')
 
 
 class ActivityGroup(Node):

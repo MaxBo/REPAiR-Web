@@ -10,9 +10,11 @@ from repair.apps.asmfa.models.nodes import (
     Activity,
     Actor,
 )
+from repair.apps.login.models.bases import GDSEModel
 
 
-class Stock(models.Model):
+
+class Stock(GDSEModel):
 
     # stocks relate to only one node, also data will be entered by the users
     amount = models.IntegerField(blank=True, default=0)
@@ -20,7 +22,7 @@ class Stock(models.Model):
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
 
-    class Meta:
+    class Meta(GDSEModel.Meta):
         abstract = True
 
 
