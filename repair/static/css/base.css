@@ -27,6 +27,16 @@ div.fullscreen{
   left: 0;
 }
 
+.tooltip {
+  position: relative;
+  padding: 3px;
+  background: #aad400;
+  opacity: 1;
+  white-space: nowrap;
+  font: 10pt sans-serif;
+  color: white;
+}
+
 #wrapper {
   /*transition: all .4s ease 0s;*/
   height: 100%;

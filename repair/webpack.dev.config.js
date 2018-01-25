@@ -10,6 +10,7 @@ config.entry = {
     DataEntry: ['./js/data-entry', 'webpack/hot/only-dev-server'],
     StudyArea: ['./js/study-area', 'webpack/hot/only-dev-server'],
     StatusQuo: ['./js/status-quo', 'webpack/hot/only-dev-server'],
+    Base:      ['./js/base', 'webpack/hot/only-dev-server'],
     devServerClient: 'webpack-dev-server/client?http://0.0.0.0:' + port
 }
 

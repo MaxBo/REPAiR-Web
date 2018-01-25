@@ -1,7 +1,7 @@
-define(['jquery', 'backbone', 'underscore', 'models/activitygroup', 'models/activity',
+define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'bootstrap', 'tablesorter'],
-function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+        'utils/loader', 'tablesorter'],
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *
    * @author Christoph Franke
@@ -124,6 +124,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           html: true,
           content: this.attrTableInner
       }
+      require('bootstrap');
       this.setupPopover($('#node-info').popover(popOverSettings));
 
       // render inFlows

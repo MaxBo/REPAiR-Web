@@ -42,6 +42,12 @@ class KeyflowInCasestudyFactory(DjangoModelFactory):
         model = models.KeyflowInCasestudy
 
 
+class ReasonFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Reason
+    reason = 'Out of bounds'
+
+
 class NodeFactory(DjangoModelFactory):
     class Meta:
         model = models.Node
@@ -60,7 +66,6 @@ class ActivityFactory(NodeFactory):
         model = models.Activity
     name = factory.Sequence(lambda n: "Activity #%s" % n)
     nace = '52.Retail'
-    #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     activitygroup = factory.SubFactory(ActivityGroupFactory)
 
 
@@ -75,6 +80,7 @@ class ActorFactory(NodeFactory):
     BvDii = 'BvDii99'
     website = 'www.example.com'
     activity = factory.SubFactory(ActivityFactory)
+    reason = factory.SubFactory(ReasonFactory)
 
 
 class FlowFactory(DjangoModelFactory):

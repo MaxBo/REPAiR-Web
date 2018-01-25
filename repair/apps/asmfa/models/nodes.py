@@ -59,19 +59,21 @@ class Activity(Node):
                                       on_delete=models.CASCADE)
 
 
+class Reason(models.Model):
+    """Reason for exclusion of actors"""
+    reason = models.TextField()
+    
+    def __str__(self):
+        return self.reason
+
+
 class Actor(Node):
 
     # unique actor identifier in ORBIS database
     BvDid = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
-    reason_choice = ((0, "Included"),
-                     (1, "Outside Region, inside country"),
-                     (2, "Outside Region, inside EU"),
-                     (3, "Outside Region, outside EU"),
-                     (4, "Outside Material Scope"),
-                     (5, "Does Not Produce Waste"))
-    reason = models.IntegerField(choices=reason_choice, default=0)
+    reason = models.ForeignKey(Reason, null=True, on_delete=models.SET_NULL)
     # if false - actor will be ignored
     included = models.BooleanField(default=True)
 

@@ -161,7 +161,6 @@ class BasicModelTest(BasicModelReadTest):
     post_urls = []
     post_data = dict()
 
-
     def test_delete(self):
         """Test delete method for the detail-view"""
         kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
