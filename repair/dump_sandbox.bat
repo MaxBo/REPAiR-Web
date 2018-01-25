@@ -37,7 +37,6 @@ python manage.py reorder_fixtures repair\fixtures\sandbox_data_unordered.json ^
  changes.strategy ^
  studyarea.adminlevels studyarea.area ^
  asmfa.reason ^
- asmfa.dataentry ^
  asmfa.keyflow asmfa.keyflowincasestudy asmfa.product asmfa.material asmfa.productfraction ^
  asmfa.activitygroup asmfa.activity asmfa.actor ^
  asmfa.group2group asmfa.activity2activity asmfa.actor2actor ^
