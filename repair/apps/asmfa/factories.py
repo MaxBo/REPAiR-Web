@@ -8,13 +8,6 @@ from repair.apps.login.factories import (ProfileFactory,
 from . import models
 
 
-class DataEntryFactory(DjangoModelFactory):
-    class Meta:
-        model = models.DataEntry
-    source = 'data'
-    user = factory.SubFactory(ProfileFactory)
-
-
 class KeyflowFactory(DjangoModelFactory):
     class Meta:
         model = models.Keyflow

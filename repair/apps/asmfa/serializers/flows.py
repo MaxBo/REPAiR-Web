@@ -25,7 +25,7 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
     }
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    publication = IDRelatedField()
+    publication = IDRelatedField(allow_null=True, required=False)
 
     class Meta:
         model = Flow
