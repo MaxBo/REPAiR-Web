@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Group2GroupFactory,
@@ -9,7 +9,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Actor2ActorFactory)
 
 
-class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. origin/destination can be in other casestudies than activity2activity
@@ -63,7 +63,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
+class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -111,7 +111,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelTest, APITestCase):
                                       )
 
 
-class Group2GroupInKeyflowInCaseStudyTest(BasicModelTest, APITestCase):
+class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20

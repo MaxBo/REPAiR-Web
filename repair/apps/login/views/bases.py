@@ -55,6 +55,7 @@ class CasestudyViewSetMixin(ABC):
         the lookup-arguments are defined in the "parent_lookup_kwargs" of the
         Serializer-Class
         """
+        self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
@@ -91,6 +92,7 @@ class CasestudyViewSetMixin(ABC):
         the lookup-arguments are defined in the "parent_lookup_kwargs" of the
         Serializer-Class
         """
+        self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
