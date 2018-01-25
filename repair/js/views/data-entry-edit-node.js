@@ -315,24 +315,40 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // prevent breaking 
       sourceCell.setAttribute("style", "white-space: nowrap");
       var genSource = document.createElement('input');
-      genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
+      var pubId = flow.get('publication');
+      if (pubId){
+        var publication = this.publications.get(pubId)
+        var title = publication.get('title');
+        genSource.value = title;
+        genSource.title = title;
+      }
       genSource.disabled = true;
       genSource.style.cursor = 'pointer';
-      var setDsBtn = document.createElement('button');
-      setDsBtn.innerHTML = gettext('Set');
-      setDsBtn.classList.add('btn');
-      setDsBtn.classList.add('btn-primary');
-      setDsBtn.classList.add('square');
+      var editBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editBtn.classList.add('btn');
+      editBtn.classList.add('btn-primary');
+      editBtn.classList.add('square');
+      editBtn.appendChild(pencil);
+      editBtn.title = gettext('edit datasource');
+      pencil.classList.add('glyphicon');
+      pencil.classList.add('glyphicon-pencil');
       function onChange(publication){
         if (publication != null){
-          genSource.value = publication.get('title');
+          var title = publication.get('title');
+          genSource.value = title;
+          genSource.title = title;
+          genSource.title = title;
+          flow.set('publication', publication.id)
           genSource.dispatchEvent(new Event('change'));
           // ToDo set it to model
         }
       };
-      setDsBtn.addEventListener('click', function(){
+      editBtn.addEventListener('click', function(){
         _this.editDatasource(onChange);
       });
+      
+      /*
       var collapse = document.createElement('div');
       var dsRow = table.insertRow(-1);
       
@@ -348,10 +364,14 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         collapse.classList.toggle('glyphicon-chevron-down');
         collapse.classList.toggle('glyphicon-chevron-up');
       });
+      */
+      
       sourceWrapper.appendChild(genSource);
-      sourceWrapper.appendChild(collapse);
       sourceCell.appendChild(sourceWrapper);
-      sourceCell.appendChild(setDsBtn);
+      sourceCell.appendChild(editBtn);
+      
+      /*
+      sourceWrapper.appendChild(collapse);
       
       // own row for individual Datasources
       
@@ -394,7 +414,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         source.addEventListener('change', function(){
           genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
         });
-      });
+      });*/
       
       return row;
     },
