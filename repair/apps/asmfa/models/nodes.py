@@ -9,14 +9,6 @@ from repair.apps.login.models import GDSEModel
 from .keyflows import KeyflowInCasestudy
 
 
-class DataEntry(GDSEModel):
-
-    user = models.CharField(max_length=255, default="tester")
-    source = models.URLField(max_length=255, default="www.osf.io")  # this will be a link to OSF
-    date = models.DateTimeField(default=now)
-    raw = models.BooleanField(default=True)
-
-
 class Node(GDSEModel):
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
