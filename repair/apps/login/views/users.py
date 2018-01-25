@@ -50,6 +50,7 @@ class CaseStudyViewSet(RevisionMixin,
     def list(self, request, **kwargs):
         # TODO: this overwrites the list function of ModelPermissionTest
         # -> Permission is not checked!
+        self.check_permission(request, 'list')
         user_id = -1 if request.user.id is None else request.user.id
         casestudies = set()
         for casestudy in self.queryset:
