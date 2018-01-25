@@ -540,7 +540,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         row.insertCell(-1).innerHTML = publication.get('authors');
         row.insertCell(-1).innerHTML = publication.get('doi');
         var anchor = document.createElement('a');
-        var url = publication.get('url');
+        var url = publication.get('publication_url');
         anchor.href = url;
         anchor.innerHTML = url;
         anchor.target = '_blank';
