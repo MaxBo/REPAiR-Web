@@ -17,14 +17,17 @@ class GDSEModel(models.Model):
 
 
     def __str__(self):
-        return self.name or ''
+        try:
+            return self.name or ''
+        except Exception:
+            return ''
 
 
 class GDSEUniqueNameModel(GDSEModel):
     """Base class for the GDSE Models"""
     _unique_field = 'name'
 
-    class Meta:
+    class Meta(GDSEModel.Meta):
         abstract = True
 
     def validate_unique(self, exclude=None):

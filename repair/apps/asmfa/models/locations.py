@@ -35,6 +35,7 @@ class Geolocation(gis.Model):
 
     class Meta:
         abstract = True
+        default_permissions = ('add', 'change', 'delete', 'view')
 
 
 class Establishment(Geolocation):
@@ -47,7 +48,7 @@ class Establishment(Geolocation):
     def keyflow(self):
         return self.actor.activity.activitygroup.keyflow
 
-    class Meta:
+    class Meta(Geolocation.Meta):
         abstract = True
 
 

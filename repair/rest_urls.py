@@ -56,8 +56,6 @@ from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 ## base routes ##
 
 router = DefaultRouter()
-router.register(r'users', login_views.UserViewSet)
-router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)

@@ -15,7 +15,9 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     ReadUpdatePermissionViewSet)
+
 
 from .bases import CasestudyViewSetMixin
 
@@ -50,7 +52,7 @@ class CaseStudyViewSet(RevisionMixin,
     def list(self, request, **kwargs):
         # TODO: this overwrites the list function of ModelPermissionTest
         # -> Permission is not checked!
-        self.check_permission(request, 'list')
+        self.check_permission(request, 'view')
         user_id = -1 if request.user.id is None else request.user.id
         casestudies = set()
         for casestudy in self.queryset:
@@ -62,10 +64,7 @@ class CaseStudyViewSet(RevisionMixin,
 
 
 class UserInCasestudyViewSet(CasestudyViewSetMixin,
-                             mixins.RetrieveModelMixin,
-                             mixins.UpdateModelMixin,
-                             mixins.ListModelMixin,
-                             viewsets.GenericViewSet):
+                             ReadUpdatePermissionViewSet):
     """
     API endpoint that allows userincasestudy to be viewed or edited.
     """
@@ -73,7 +72,7 @@ class UserInCasestudyViewSet(CasestudyViewSetMixin,
     serializer_class = UserInCasestudySerializer
 
 
-class PublicationView(viewsets.ModelViewSet):
+class PublicationView(ModelPermissionViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
     pagination_class = None

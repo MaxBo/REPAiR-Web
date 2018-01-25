@@ -20,7 +20,8 @@ from repair.apps.changes.serializers import (
     ImplementationOfUserSerializer,
     )
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     ReadUpdatePermissionViewSet)
 
 
 class ImplementationViewSet(CasestudyViewSetMixin,
@@ -41,13 +42,13 @@ class SolutionInImplementationViewSet(CasestudyViewSetMixin,
 
 
 class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
-                                      ModelPermissionViewSet):
+                                          ModelPermissionViewSet):
     serializer_class = SolutionInImplementationNoteSerializer
     queryset = SolutionInImplementationNote.objects.all()
 
 
 class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
-                                              ReadUpdateViewSet):
+                                              ReadUpdatePermissionViewSet):
     """
     Has to provide exactly one quantity value
     for each quantity defined for the solution
