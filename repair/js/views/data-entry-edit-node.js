@@ -8,6 +8,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
    * @name module:views/EditNodeView
    * @augments Backbone.View
    */
+  function clearSelect(select, stop){
+    var stop = stop || 0;
+    for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
+  }
   var EditNodeView = Backbone.View.extend(
     /** @lends module:views/EditNodeView.prototype */
     {
@@ -233,18 +237,41 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       row.insertCell(-1).appendChild(productWrapper); 
       
       // input for product
+      var typeSelect = document.createElement("select");
+      var wasteOption = document.createElement("option")
+      wasteOption.value = 0; wasteOption.text = gettext('Waste');
+      typeSelect.appendChild(wasteOption);
+      var productOption = document.createElement("option")
+      productOption.value = 1; productOption.text = gettext('Product');
+      typeSelect.appendChild(productOption);
+      typeSelect.value = 1;
       var productSelect = document.createElement("select");
-      var ids = [];
-      var p = flow.get('product');
-      this.products.each(function(product){
+      
+      function addOptions(collection, select){
         var option = document.createElement("option");
-        option.text = product.get('name');
-        option.value = product.id;
-        productSelect.add(option);
-        ids.push(product.id);
+        option.disabled = true;
+        option.text = gettext('select');
+        option.value = null;
+        select.add(option);
+        select.selectedIndex = 0;
+        if (!collection) return;
+        collection.each(function(product){
+          var option = document.createElement("option");
+          option.text = product.get('name');
+          option.value = product.id;
+          select.add(option);
+        });
+      }
+      
+      typeSelect.addEventListener('change', function() {
+        clearSelect(productSelect);
+        if (typeSelect.value == 1) addOptions(_this.products, productSelect);
+        else addOptions(null, productSelect);
       });
-      var idx = ids.indexOf(p);
-      productSelect.selectedIndex = idx.toString();
+      
+      addOptions(this.products, productSelect);
+      productSelect.value = flow.get('product');
+      productWrapper.appendChild(typeSelect);
       productWrapper.appendChild(productSelect);
 
       productSelect.addEventListener('change', function() {
@@ -252,15 +279,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       });
       
       // information popup for products
-      var info = document.createElement('div');
-      info.style.cursor = 'pointer';
-      info.style.marginLeft = "5px";
-      info.classList.add('pop-function');
-      info.setAttribute('rel', 'popover');
-      info.classList.add('glyphicon');
-      info.classList.add('glyphicon-info-sign');
-      info.title = 'Composition';
-      productWrapper.appendChild(info);
       
       var popOverSettings = {
           placement: 'right',
@@ -279,7 +297,18 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           }
       }
       
-      this.setupPopover($(info).popover(popOverSettings));
+      this.setupPopover($(productSelect).popover(popOverSettings));
+      
+      var editProductBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editProductBtn.classList.add('btn');
+      editProductBtn.classList.add('btn-primary');
+      editProductBtn.classList.add('square');
+      editProductBtn.appendChild(pencil);
+      editProductBtn.title = gettext('edit composition');
+      pencil.classList.add('glyphicon');
+      pencil.classList.add('glyphicon-pencil');
+      productWrapper.appendChild(editProductBtn);
       
       // raw checkbox
       

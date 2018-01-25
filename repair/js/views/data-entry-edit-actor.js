@@ -10,7 +10,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
   function clearSelect(select, stop){
     var stop = stop || 0;
     for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
-}
+  }
   
   /**
    *
