@@ -18,6 +18,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
     product = IDRelatedField()
+    publication = IDRelatedField()
 
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
@@ -28,6 +29,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
                   'keyflow', 'year', 'product',
+                  'publication', 
                   )
 
 

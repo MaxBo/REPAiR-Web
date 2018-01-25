@@ -25,6 +25,7 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
     }
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
+    publication = IDRelatedField()
 
     class Meta:
         model = Flow
@@ -49,7 +50,7 @@ class Group2GroupSerializer(FlowSerializer):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url', 'product', 'description',
-                  'year')
+                  'year', 'publication', )
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -67,7 +68,7 @@ class Activity2ActivitySerializer(FlowSerializer):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url', 'product', 'description',
-                  'year')
+                  'year', 'publication')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -86,4 +87,4 @@ class Actor2ActorSerializer(FlowSerializer):
         fields = ('id', 'amount', 'keyflow',
                   'origin', 'origin_url',
                   'destination', 'destination_url', 'product', 'description',
-                  'year')
+                  'year', 'publication')

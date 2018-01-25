@@ -76,6 +76,9 @@ class UserInCasestudy(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     role = models.TextField(default='', blank=True)
 
+    class Meta(GDSEModel.Meta):
+        unique_together = ('user', 'casestudy',)
+
     @property
     def name(self):
         return self.user.name
