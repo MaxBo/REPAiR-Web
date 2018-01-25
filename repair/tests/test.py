@@ -153,7 +153,7 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
             key_response = self.get_check_200(response.data[key])
 
 
-class BasicModelPermissionTest(BasicModelReadTest):
+class BasicModelTest(BasicModelReadTest):
     post_urls = []
     post_data = dict()
 
@@ -197,7 +197,7 @@ class BasicModelPermissionTest(BasicModelReadTest):
             response = self.get_check_200(url)
 
 
-class BasicModelPermissionTest(BasicModelPermissionTest):
+class BasicModelPermissionTest(BasicModelTest):
     permissions = Permission.objects.all()
 
     def tearDown(self):
