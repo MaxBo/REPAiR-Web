@@ -32,8 +32,9 @@ class Group2Group(Flow):
                                     related_name='inputs')
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='outputs')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='GroupFlows')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='GroupFlows')
     entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
                               related_name='Group2GroupData')
 
@@ -46,8 +47,9 @@ class Activity2Activity(Flow):
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                related_name='outputs',
                                )
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActivityFlows')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='ActivityFlows')
     entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
                               related_name='Activity2ActivityData')
 
@@ -58,7 +60,8 @@ class Actor2Actor(Flow):
                                     related_name='inputs')
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='outputs')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActorFlows')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='ActorFlows')
     entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
                               related_name='Actor2ActorData')

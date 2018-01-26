@@ -30,8 +30,9 @@ class GroupStock(Stock):
 
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='GroupStocks')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='GroupStocks')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='GroupStockData', default=1)
 
@@ -40,8 +41,9 @@ class ActivityStock(Stock):
 
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActivityStocks')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='ActivityStocks')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='ActivityStockData', default=1)
 
@@ -50,7 +52,8 @@ class ActorStock(Stock):
 
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActorStocks')
+    fractions = models.ManyToManyField(ProductFraction)
+    # product = models.ForeignKey(Product, on_delete=models.CASCADE,
+    #                             related_name='ActorStocks')
     entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
                               related_name='ActorStockData', default=1)
