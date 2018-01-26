@@ -1,5 +1,5 @@
 SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
-python manage.py dump_object auth.group * --no-follow > repair\fixtures\sandbox_groups.json
+python manage.py dump_object --natural-foreign auth.group * --no-follow > repair\fixtures\sandbox_groups.json
 python manage.py dump_object asmfa.reason * > repair\fixtures\sandbox_reason.json
 python manage.py dump_object -k login.casestudy --query "{\"id\": 7}" > repair\fixtures\sandbox_casestudy.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
