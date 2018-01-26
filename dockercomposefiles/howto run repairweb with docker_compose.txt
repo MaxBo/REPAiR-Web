@@ -1,0 +1,54 @@
+# install repairweb for production and as staged with the latest commits to master
+
+# run the staging server
+
+cd repairdjango_staged
+
+# edit the .env file and add portnumber and secret key, 
+
+# generate a secret key:
+
+>>> import random
+>>> ''.join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50))
+
+# run the conainer
+docker-compose up -d
+
+# stop and restart
+docker-compose down && docker-compose up -d
+
+
+# Production server
+# production site will run on a postgis-database and pull from the production branch
+# it needs a static subfolder outsid the docker container, where the webserver has access to
+cd repairdjango
+
+# edit the .env file and add portnumber and secret key, 
+# add in addition to the portnumber and secret key also the database name, database user and password
+
+#create a user circleci with id 3434
+
+useradd -u 3434 -U --system circleci
+
+#Create a subfolder "static" in the directory, where you put your docker-compose and the .env file
+
+mkdir static
+
+#grant rights to circleci and apache user to static directory:
+
+setfacl -m -R user:circleci:rw static
+setfacl -m -R d:user:circleci:rw static
+setfacl -m -R user:apache:r-x static
+setfacl -m -R d:user:apache:r-x static
+
+
+# grant the access to the staticfiles folder in your apache config:
+
+       Alias "/static" "/opt/dockerfiles/repairdjango/static"
+       <Directory "/opt/dockerfiles/repairdjango/static">
+           Options FollowSymLinks
+           Require all granted
+       </Directory>
+
+       ProxyPassMatch ^/static !
+	   
