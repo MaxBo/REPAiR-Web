@@ -472,12 +472,15 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         fInput.style = 'text-align: right;';
         fInput.max = 100;
         fInput.min = 0;
+        fInput.style.float = 'left';
         fractionsCell.appendChild(fInput);
         fInput.value = fraction.fraction * 100;
         var perDiv = document.createElement('div');
         perDiv.innerHTML = '%';
+        perDiv.style.float = 'left';
         fractionsCell.appendChild(perDiv);
         var matSelect = document.createElement("select");
+        matSelect.style.float = 'left';
         
         _this.materials.each(function(material){
           var option = document.createElement("option");
@@ -486,7 +489,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           matSelect.add(option);
         })
         matSelect.value = fraction.material;
-        fRow.insertCell(-1).appendChild(matSelect);
+        fractionsCell.appendChild(matSelect);
       });
       
       //var editBtn = document.createElement('button');
