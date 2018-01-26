@@ -205,7 +205,8 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
         "BvDii": "-",
         "website": "www.website.org",
         "activity": this.activities.first().id,
-        }, {"caseStudyId": this.model.get('casestudy')});
+        'reason': null
+        }, {"caseStudyId": this.model.get('casestudy'), 'keyflowId': this.model.id});
       actor.save({}, {success: function(){
         _this.actors.add(actor);
         var row = _this.addActorRow(actor);
