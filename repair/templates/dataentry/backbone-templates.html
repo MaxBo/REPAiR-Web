@@ -77,7 +77,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -96,7 +96,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -115,7 +115,7 @@
         <tr>
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -155,7 +155,7 @@
                 <img src="{{STATIC_URL}}img/first.png" class="first"/>
                 <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
                 <!-- the "pagedisplay" can be any element, including an input -->
-                <input type="text" class="pagedisplay"/>
+                <input disabled type="text" class="pagedisplay"/>
                 <img src="{{STATIC_URL}}img/next.png" class="next"/>
                 <img src="{{STATIC_URL}}img/last.png" class="last"/>
                 <select class="pagesize">
@@ -176,6 +176,37 @@
       </div>
     </div>
   </div>
+  <div id="product-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <h4> {% trans "Custom Composition" %} </h4>
+        </div>
+        <div class="modal-body">
+          <div id='product-modal-content'></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary" id="confirm-custom-product" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- product modal content -->
+<script type="text/template" id="product-modal-template">
+  {% trans "derived from " %} <% productName %>
+  <table id="product-edit-table">
+    <thead>
+      <tr>
+        <th>{% trans "Fractions" %}</th>
+        <th>{% trans "Data Source" %}</th>
+      </tr>
+    </thead> 
+    <tbody> 
+    </tbody>
+  </table>
 </script>
 
 <!--- popover template -->
@@ -307,7 +338,7 @@
             <img src="{{STATIC_URL}}img/first.png" id="goto-first-page" class="first"/>
             <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
             <!-- the "pagedisplay" can be any element, including an input -->
-            <input type="text" class="pagedisplay"/>
+            <input disabled type="text" class="pagedisplay"/>
             <img src="{{STATIC_URL}}img/next.png" class="next"/>
             <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
             <select id="pagesize" class="pagesize">

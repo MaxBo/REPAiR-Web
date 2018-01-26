@@ -10,7 +10,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
   function clearSelect(select, stop){
     var stop = stop || 0;
     for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
-}
+  }
   
   /**
    *
@@ -141,7 +141,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
       this.initMap();
-      this.renderLocations();
+      this.renderLocations(true);
       this.setupAreaInput();
     },
 
@@ -755,7 +755,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     /* 
      * render the locations of the given actor as markers inside the map and table
      */
-    renderLocations: function(){
+    renderLocations: function(zoomToFocusarea){
       var adminLoc = this.adminLocations.first();
       
       var _this = this;
@@ -778,9 +778,11 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
         var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-        this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
-        this.localMap.centerOnPolygon(poly, { projection: _this.projection });
+        if (zoomToFocusarea){
+          this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+          this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+          this.localMap.centerOnPolygon(poly, { projection: _this.projection });
+        }
       };
     },
     

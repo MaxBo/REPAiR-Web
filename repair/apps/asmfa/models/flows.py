@@ -3,10 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from .keyflows import (KeyflowInCasestudy, Product)
-
-from .nodes import (
-    DataEntry,
+from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Product)
+from repair.apps.publications.models import PublicationInCasestudy
+from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
     Activity,
     Actor,
@@ -34,8 +33,8 @@ class Group2Group(Flow):
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='GroupFlows')
-    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
-                              related_name='Group2GroupData')
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='Group2GroupData')
 
 
 class Activity2Activity(Flow):
@@ -48,8 +47,8 @@ class Activity2Activity(Flow):
                                )
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActivityFlows')
-    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
-                              related_name='Activity2ActivityData')
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='Activity2ActivityData')
 
 
 class Actor2Actor(Flow):
@@ -60,5 +59,5 @@ class Actor2Actor(Flow):
                                related_name='outputs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActorFlows')
-    entry = models.ForeignKey(DataEntry, null=True, on_delete=models.SET_NULL,
-                              related_name='Actor2ActorData')
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='Actor2ActorData')

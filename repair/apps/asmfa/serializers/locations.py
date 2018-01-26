@@ -39,8 +39,7 @@ class AdministrativeLocationSerializer(PatchFields,
                                               queryset=Area.objects.all())
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
-        queryset=AdminLevels.objects.all(),
-        #source='area.adminlevel',
+        read_only=True, 
     )
 
     class Meta:
@@ -99,8 +98,7 @@ class OperationalLocationSerializer(PatchFields,
                                               queryset=Area.objects.all())
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
-        queryset=AdminLevels.objects.all(),
-        #source='area.adminlevel',
+        read_only=True, 
     )
 
     class Meta:

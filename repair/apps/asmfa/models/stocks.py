@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from .keyflows import (KeyflowInCasestudy, Product)
-from .nodes import (
-    DataEntry,
+from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Product)
+from repair.apps.publications.models import PublicationInCasestudy
+from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
     Activity,
     Actor,
@@ -32,8 +32,8 @@ class GroupStock(Stock):
                                related_name='stocks')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='GroupStocks')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='GroupStockData', default=1)
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='GroupStockData')
 
 
 class ActivityStock(Stock):
@@ -42,8 +42,8 @@ class ActivityStock(Stock):
                                related_name='stocks')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActivityStocks')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='ActivityStockData', default=1)
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='ActivityStockData')
 
 
 class ActorStock(Stock):
@@ -52,5 +52,5 @@ class ActorStock(Stock):
                                related_name='stocks')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActorStocks')
-    entry = models.ForeignKey(DataEntry, on_delete=models.CASCADE,
-                              related_name='ActorStockData', default=1)
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='ActorStockData')
