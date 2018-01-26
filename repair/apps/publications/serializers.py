@@ -35,6 +35,8 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
     doi = serializers.CharField(source='publication.doi',
                                  allow_blank=True, required=False)
     casestudy = serializers.IntegerField(required=False, write_only=True)
+    publication_url = serializers.CharField(source='publication.url',
+                                            allow_blank=True, required=False)
 
     class Meta:
         model = PublicationInCasestudy
@@ -48,6 +50,7 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                   'authors',
                   'year',
                   'doi',
+                  'publication_url', 
                   'casestudy',
                   )
 

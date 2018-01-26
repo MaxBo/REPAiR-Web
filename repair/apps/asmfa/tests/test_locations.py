@@ -63,6 +63,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [location.geom.x, location.geom.y]
         assert properties['area'] == delft.pk
+        assert properties['level'] == delft.adminlevel_id
 
         # delete location
         response = self.client.delete(url_locations_detail)
@@ -192,6 +193,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_location.x, new_location.y]
         assert properties['area'] == rotterdam.pk
+        assert properties['level'] == rotterdam.adminlevel_id
 
         # delete location 2
         url_locations_detail = self.get_location_url(cs, keyflow,
@@ -230,6 +232,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         coordinates = response.data['geometry']['coordinates']
         assert coordinates == [new_geom.x, new_geom.y]
         assert properties['area'] == zuid_holland.pk
+        assert properties['level'] == zuid_holland.adminlevel_id
 
         # patch a geometry in EWKT format directly in the locations table
         new_geom_ewkt = 'SRID=4326;POINT(6 5)'

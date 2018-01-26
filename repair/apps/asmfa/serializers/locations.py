@@ -9,7 +9,7 @@ from repair.apps.asmfa.models import (Actor,
                                       )
 
 from repair.apps.login.serializers import NestedHyperlinkedModelSerializer
-from repair.apps.studyarea.models import Area
+from repair.apps.studyarea.models import Area, AdminLevels
 
 from .nodes import ActorIDField
 
@@ -37,6 +37,10 @@ class AdministrativeLocationSerializer(PatchFields,
     actor = ActorIDField()
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
+    level = serializers.PrimaryKeyRelatedField(
+        required=False, allow_null=True,
+        read_only=True, 
+    )
 
     class Meta:
         model = AdministrativeLocation
@@ -45,6 +49,7 @@ class AdministrativeLocationSerializer(PatchFields,
                   'city', 'geom', 'name',
                   'actor',
                   'area',
+                  'level'
                   ]
 
     def create(self, validated_data):
@@ -80,16 +85,6 @@ class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
         return aloc
 
 
-class AdministrativeLocationOfActorPostSerializer(AdministrativeLocationOfActorSerializer):
-    class Meta:
-        model = AdministrativeLocation
-        geo_field = 'geom'
-        fields = ['id', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name',
-                  'area',
-                  ]
-
-
 class OperationalLocationSerializer(PatchFields,
                                     GeoFeatureModelSerializer,
                                     NestedHyperlinkedModelSerializer):
@@ -101,13 +96,17 @@ class OperationalLocationSerializer(PatchFields,
     actor = ActorIDField()
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
+    level = serializers.PrimaryKeyRelatedField(
+        required=False, allow_null=True,
+        read_only=True, 
+    )
 
     class Meta:
         model = OperationalLocation
         geo_field = 'geom'
         fields = ['id', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name', 'actor',
-                  'area']
+                  'area', 'level']
 
 
 class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
@@ -117,6 +116,11 @@ class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
         'keyflow_pk':
         'actor__activity__activitygroup__keyflow__id',
         'actor_pk': 'actor__id', }
+
+    class Meta(OperationalLocationSerializer.Meta):
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name', 'actor',
+                  'area']
 
     id = serializers.IntegerField(label='ID', required=False)
     actor = ActorIDField(required=False)

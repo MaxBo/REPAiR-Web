@@ -1,6 +1,1043 @@
 [
     {
         "fields": {
+            "name": "WorkshopParticipant",
+            "permissions": [
+                [
+                    "view_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "view_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "view_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "view_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "view_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "view_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "view_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "delete_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "delete_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "delete_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "delete_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "delete_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "change_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "change_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "change_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "change_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "change_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "view_casestudy",
+                    "login",
+                    "casestudy"
+                ],
+                [
+                    "view_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "change_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "change_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "change_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ]
+            ]
+        },
+        "model": "auth.group",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "name": "Expert",
+            "permissions": [
+                [
+                    "add_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "change_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "delete_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "view_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "add_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "change_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "delete_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "view_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "add_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "change_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "delete_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "view_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "add_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "change_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "delete_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "view_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "add_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "change_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "delete_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "view_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "add_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "change_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "delete_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "view_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "add_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "change_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "delete_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "view_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "add_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "change_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "delete_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "add_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "change_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "delete_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "view_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "add_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "change_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "delete_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "view_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "add_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "change_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "delete_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "view_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "add_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "change_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "delete_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "view_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "add_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "change_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "delete_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "view_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "add_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "change_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "delete_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "view_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "add_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "delete_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "add_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "change_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "delete_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "view_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "add_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "change_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "delete_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "view_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "add_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "change_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "delete_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "view_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "add_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "change_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "delete_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "view_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "add_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "change_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "view_casestudy",
+                    "login",
+                    "casestudy"
+                ],
+                [
+                    "view_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "change_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "view_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "add_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "change_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "delete_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "view_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "add_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ],
+                [
+                    "change_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ]
+            ]
+        },
+        "model": "auth.group",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "name": "Researcher",
+            "permissions": [
+                [
+                    "add_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "change_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "delete_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "view_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "add_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "change_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "delete_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "view_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "add_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "change_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "delete_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "view_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "add_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "change_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "delete_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "view_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "add_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "change_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "delete_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "view_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "add_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "change_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "delete_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "view_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "add_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "change_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "delete_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "view_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "add_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "change_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "delete_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "add_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "change_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "delete_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "view_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "add_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "change_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "delete_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "view_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "add_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "change_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "delete_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "view_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "add_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "change_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "delete_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "view_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "add_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "change_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "delete_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "view_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "add_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "change_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "delete_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "view_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "add_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "delete_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "add_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "change_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "delete_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "view_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "add_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "change_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "delete_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "view_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "add_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "change_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "delete_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "view_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "add_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "change_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "delete_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "view_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "add_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "change_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "view_casestudy",
+                    "login",
+                    "casestudy"
+                ],
+                [
+                    "view_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "change_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "view_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "add_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "change_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "delete_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "view_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "add_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ],
+                [
+                    "change_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ]
+            ]
+        },
+        "model": "auth.group",
+        "pk": 3
+    },
+    {
+        "fields": {
             "name": "Pull-Leader",
             "permissions": []
         },
@@ -9,8 +1046,469 @@
     },
     {
         "fields": {
-            "name": "DataCaptains",
-            "permissions": []
+            "name": "DataCaptain",
+            "permissions": [
+                [
+                    "add_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "change_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "delete_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "view_activity",
+                    "asmfa",
+                    "activity"
+                ],
+                [
+                    "add_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "change_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "delete_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "view_activity2activity",
+                    "asmfa",
+                    "activity2activity"
+                ],
+                [
+                    "add_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "change_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "delete_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "view_activitygroup",
+                    "asmfa",
+                    "activitygroup"
+                ],
+                [
+                    "add_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "change_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "delete_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "view_activitystock",
+                    "asmfa",
+                    "activitystock"
+                ],
+                [
+                    "add_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "change_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "delete_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "view_actor",
+                    "asmfa",
+                    "actor"
+                ],
+                [
+                    "add_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "change_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "delete_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "view_actor2actor",
+                    "asmfa",
+                    "actor2actor"
+                ],
+                [
+                    "add_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "change_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "delete_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "view_actorstock",
+                    "asmfa",
+                    "actorstock"
+                ],
+                [
+                    "add_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "change_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "delete_administrativelocation",
+                    "asmfa",
+                    "administrativelocation"
+                ],
+                [
+                    "add_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "change_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "delete_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "view_group2group",
+                    "asmfa",
+                    "group2group"
+                ],
+                [
+                    "add_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "change_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "delete_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "view_groupstock",
+                    "asmfa",
+                    "groupstock"
+                ],
+                [
+                    "add_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "change_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "delete_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "view_keyflow",
+                    "asmfa",
+                    "keyflow"
+                ],
+                [
+                    "add_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "change_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "delete_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "view_keyflowincasestudy",
+                    "asmfa",
+                    "keyflowincasestudy"
+                ],
+                [
+                    "add_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "change_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "delete_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "view_material",
+                    "asmfa",
+                    "material"
+                ],
+                [
+                    "add_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "change_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "delete_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "view_operationallocation",
+                    "asmfa",
+                    "operationallocation"
+                ],
+                [
+                    "add_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_product",
+                    "asmfa",
+                    "product"
+                ],
+                [
+                    "change_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "delete_reason",
+                    "asmfa",
+                    "reason"
+                ],
+                [
+                    "add_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "change_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "delete_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "view_implementation",
+                    "changes",
+                    "implementation"
+                ],
+                [
+                    "add_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "change_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "delete_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "view_solution",
+                    "changes",
+                    "solution"
+                ],
+                [
+                    "add_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "change_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "delete_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "view_solutioncategory",
+                    "changes",
+                    "solutioncategory"
+                ],
+                [
+                    "add_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "change_solutioninimplementation",
+                    "changes",
+                    "solutioninimplementation"
+                ],
+                [
+                    "delete_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "view_solutionratiooneunit",
+                    "changes",
+                    "solutionratiooneunit"
+                ],
+                [
+                    "add_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "change_strategy",
+                    "changes",
+                    "strategy"
+                ],
+                [
+                    "view_casestudy",
+                    "login",
+                    "casestudy"
+                ],
+                [
+                    "add_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "change_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "delete_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "view_userincasestudy",
+                    "login",
+                    "userincasestudy"
+                ],
+                [
+                    "change_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_type",
+                    "publications_bootstrap",
+                    "type"
+                ],
+                [
+                    "delete_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "view_adminlevels",
+                    "studyarea",
+                    "adminlevels"
+                ],
+                [
+                    "add_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "change_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "delete_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "view_stakeholder",
+                    "studyarea",
+                    "stakeholder"
+                ],
+                [
+                    "add_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ],
+                [
+                    "change_stakeholdercategory",
+                    "studyarea",
+                    "stakeholdercategory"
+                ]
+            ]
         },
         "model": "auth.group",
         "pk": 1
@@ -47,7 +1545,7 @@
             "is_superuser": false,
             "last_login": "2018-01-12T10:18:42.771Z",
             "last_name": "Arciniegas",
-            "password": "pbkdf2_sha256$36000$wjqrQhShjpVw$LSQNONjBBfBSBC20C1c7NmU9q58Q/2R+SW5Po+1AGd4=",
+            "password": "pbkdf2_sha256$100000$2FhyPRYNt4Mv$Q+jrs7NnikxOVTELiT/dxEIYZafua5KCjtzS++4rqpw=",
             "user_permissions": [],
             "username": "gustavo"
         },
@@ -63,7 +1561,7 @@
             "is_active": true,
             "is_staff": true,
             "is_superuser": true,
-            "last_login": "2018-01-22T11:07:40.852Z",
+            "last_login": "2018-01-26T13:02:09.283Z",
             "last_name": "",
             "password": "pbkdf2_sha256$100000$5QWxtF8hrVgz$AYdLj/WUru2LRjq5mXnvbD9T2ITicAcxrjQwJC1/4Z4=",
             "user_permissions": [],
@@ -112,7 +1610,7 @@
     },
     {
         "fields": {
-            "date_joined": "2017-11-01T18:11:08.660Z",
+            "date_joined": "2017-11-01T18:11:08Z",
             "email": "gutsche@ggr-planung.de",
             "first_name": "",
             "groups": [
@@ -123,7 +1621,7 @@
             "is_superuser": false,
             "last_login": null,
             "last_name": "",
-            "password": "",
+            "password": "pbkdf2_sha256$100000$YQCIFYqSgFVN$RovG9BFy0jxW7xhYRJ7mDcW2dc9vyBkJ4HA1LYI2sQk=",
             "user_permissions": [],
             "username": "JM"
         },
@@ -4800,12 +6298,37 @@
     },
     {
         "fields": {
-            "date": "2017-11-15T16:07:43.277Z",
-            "raw": true,
-            "source": "https://osf.io/xkhrp/",
-            "user": "rusne"
+            "reason": "Does Not Produce Waste"
         },
-        "model": "asmfa.dataentry",
+        "model": "asmfa.reason",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "reason": "Outside Material Scope"
+        },
+        "model": "asmfa.reason",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "reason": "Outside Region, outside EU"
+        },
+        "model": "asmfa.reason",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "reason": "Outside Region, inside EU"
+        },
+        "model": "asmfa.reason",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "reason": "Outside Region, inside country"
+        },
+        "model": "asmfa.reason",
         "pk": 1
     },
     {
@@ -5773,7 +7296,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5794,7 +7317,7 @@
             "employees": 100,
             "included": true,
             "name": "Farm Type 4",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5815,7 +7338,7 @@
             "employees": 100,
             "included": true,
             "name": "Restaurant waste collector",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5836,7 +7359,7 @@
             "employees": 100,
             "included": true,
             "name": "Farm waste collector",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5857,7 +7380,7 @@
             "employees": 100,
             "included": true,
             "name": "Food&Plastic waste collector",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5878,7 +7401,7 @@
             "employees": 100,
             "included": true,
             "name": "Bottle Deposit bv",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5899,7 +7422,7 @@
             "employees": 100,
             "included": true,
             "name": "Bottle Sorting bv",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5920,7 +7443,7 @@
             "employees": 100,
             "included": true,
             "name": "Plastic Sorting bv",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5941,7 +7464,7 @@
             "employees": 100,
             "included": true,
             "name": "MSW collector",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5962,7 +7485,7 @@
             "employees": 100,
             "included": true,
             "name": "Tourism",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -5983,7 +7506,7 @@
             "employees": 100,
             "included": true,
             "name": "Farm Type 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6004,7 +7527,7 @@
             "employees": 100,
             "included": true,
             "name": "Farm Type 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6025,7 +7548,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 6",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6046,7 +7569,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 5",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6067,7 +7590,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 4",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6088,7 +7611,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 3",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6109,7 +7632,7 @@
             "employees": 100,
             "included": true,
             "name": "Household Type 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6130,7 +7653,7 @@
             "employees": 100,
             "included": true,
             "name": "Cafe 3",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6151,7 +7674,7 @@
             "employees": 100,
             "included": true,
             "name": "Cafe 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6172,7 +7695,7 @@
             "employees": 100,
             "included": true,
             "name": "Cafe 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6193,7 +7716,7 @@
             "employees": 100,
             "included": true,
             "name": "Bar 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6214,7 +7737,7 @@
             "employees": 100,
             "included": true,
             "name": "Bar 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6235,7 +7758,7 @@
             "employees": 100,
             "included": true,
             "name": "Restaurant 4",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6256,7 +7779,7 @@
             "employees": 100,
             "included": true,
             "name": "Restaurant 3",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6277,7 +7800,7 @@
             "employees": 100,
             "included": true,
             "name": "Restaurant 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6298,7 +7821,7 @@
             "employees": 100,
             "included": true,
             "name": "Wholeseller",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6319,7 +7842,7 @@
             "employees": 100,
             "included": true,
             "name": "Market 4",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6340,7 +7863,7 @@
             "employees": 100,
             "included": true,
             "name": "Market 3",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6361,7 +7884,7 @@
             "employees": 100,
             "included": true,
             "name": "Market 2",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6382,7 +7905,7 @@
             "employees": 100,
             "included": true,
             "name": "Market 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6403,7 +7926,7 @@
             "employees": 100,
             "included": true,
             "name": "Spar",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6424,7 +7947,7 @@
             "employees": 100,
             "included": true,
             "name": "Deen",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6445,7 +7968,7 @@
             "employees": 100,
             "included": true,
             "name": "Lidl",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6466,7 +7989,7 @@
             "employees": 100,
             "included": true,
             "name": "Albert Heijn",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6487,7 +8010,7 @@
             "employees": 0,
             "included": true,
             "name": "Import Inside Country",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -6508,7 +8031,7 @@
             "employees": 100,
             "included": true,
             "name": "Jumbo",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6529,7 +8052,7 @@
             "employees": 100,
             "included": true,
             "name": "Milk Distributor",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6550,7 +8073,7 @@
             "employees": 100,
             "included": true,
             "name": "Water Distributor",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6571,7 +8094,7 @@
             "employees": 100,
             "included": true,
             "name": "Drink Distributor",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6592,7 +8115,7 @@
             "employees": 100,
             "included": true,
             "name": "Landfilling bv",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6613,7 +8136,7 @@
             "employees": 100,
             "included": true,
             "name": "3D-Box.",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6634,7 +8157,7 @@
             "employees": 100,
             "included": true,
             "name": "Pack-a-Box.",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6655,7 +8178,7 @@
             "employees": 100,
             "included": true,
             "name": "Boxes Inc.",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6676,7 +8199,7 @@
             "employees": 100,
             "included": true,
             "name": "Bottles Inc.",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6697,7 +8220,7 @@
             "employees": 100,
             "included": true,
             "name": "Pretty Bottle",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6718,7 +8241,7 @@
             "employees": 0,
             "included": true,
             "name": "Export Inside Country",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -6739,7 +8262,7 @@
             "employees": 100,
             "included": true,
             "name": "Happy Farm",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6760,7 +8283,7 @@
             "employees": 100,
             "included": true,
             "name": "Vytautas Water",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6781,7 +8304,7 @@
             "employees": 100,
             "included": true,
             "name": "Mountain Water",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6802,7 +8325,7 @@
             "employees": 100,
             "included": true,
             "name": "TetraPak",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6823,7 +8346,7 @@
             "employees": 100,
             "included": true,
             "name": "Frozen Juice",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6844,7 +8367,7 @@
             "employees": 100,
             "included": true,
             "name": "WaterPack",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6865,7 +8388,7 @@
             "employees": 100,
             "included": true,
             "name": "Fresh Juice",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6886,7 +8409,7 @@
             "employees": 100,
             "included": true,
             "name": "PETPETPET",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6907,7 +8430,7 @@
             "employees": 100,
             "included": true,
             "name": "Orange Juice",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6928,7 +8451,7 @@
             "employees": 100,
             "included": true,
             "name": "Appelsientje",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6949,7 +8472,7 @@
             "employees": 100,
             "included": true,
             "name": "Apple Juice",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6970,7 +8493,7 @@
             "employees": 100,
             "included": true,
             "name": "Cola&Sprite",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -6991,7 +8514,7 @@
             "employees": 100,
             "included": true,
             "name": "Sprite",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7012,7 +8535,7 @@
             "employees": 100,
             "included": true,
             "name": "Pepsi",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7033,7 +8556,7 @@
             "employees": 100,
             "included": true,
             "name": "Restaurant 1",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7054,7 +8577,7 @@
             "employees": 100,
             "included": true,
             "name": "Cocacola",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7075,7 +8598,7 @@
             "employees": 100,
             "included": true,
             "name": "Incinerator",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7096,7 +8619,7 @@
             "employees": 0,
             "included": true,
             "name": "Import Outside EU",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -7117,7 +8640,7 @@
             "employees": 0,
             "included": true,
             "name": "Import Inside EU",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -7138,7 +8661,7 @@
             "employees": 0,
             "included": true,
             "name": "Export Outside EU",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -7159,7 +8682,7 @@
             "employees": 0,
             "included": true,
             "name": "Export Inside EU",
-            "reason": 0,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "",
@@ -7180,7 +8703,7 @@
             "employees": 3430,
             "included": true,
             "name": "Dictum",
-            "reason": 3,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7201,7 +8724,7 @@
             "employees": 1980,
             "included": true,
             "name": "Nisised",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7222,7 +8745,7 @@
             "employees": 9450,
             "included": true,
             "name": "Assum",
-            "reason": 4,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7243,7 +8766,7 @@
             "employees": 7940,
             "included": true,
             "name": "Ultriciespellentesque",
-            "reason": 3,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7264,7 +8787,7 @@
             "employees": 2500,
             "included": true,
             "name": "Molestie",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7285,7 +8808,7 @@
             "employees": 3100,
             "included": true,
             "name": "Nisl",
-            "reason": 5,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7306,7 +8829,7 @@
             "employees": 6690,
             "included": true,
             "name": "Ante",
-            "reason": 3,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7327,7 +8850,7 @@
             "employees": 6650,
             "included": true,
             "name": "Eros",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7348,7 +8871,7 @@
             "employees": 5790,
             "included": true,
             "name": "Elitr",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7369,7 +8892,7 @@
             "employees": 5050,
             "included": true,
             "name": "Praesent",
-            "reason": 3,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7390,7 +8913,7 @@
             "employees": 5830,
             "included": true,
             "name": "Gubergren",
-            "reason": 4,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7411,7 +8934,7 @@
             "employees": 8490,
             "included": true,
             "name": "Eirmod",
-            "reason": 5,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7432,7 +8955,7 @@
             "employees": 9530,
             "included": true,
             "name": "Accusam",
-            "reason": 4,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7453,7 +8976,7 @@
             "employees": 9760,
             "included": true,
             "name": "Delenit",
-            "reason": 5,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7474,7 +8997,7 @@
             "employees": 3580,
             "included": true,
             "name": "Elitvivamus",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7495,7 +9018,7 @@
             "employees": 2250,
             "included": true,
             "name": "Varius",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7516,7 +9039,7 @@
             "employees": 5990,
             "included": true,
             "name": "Liberoduis",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7537,7 +9060,7 @@
             "employees": 8220,
             "included": true,
             "name": "Voluptua",
-            "reason": 4,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7558,7 +9081,7 @@
             "employees": 6460,
             "included": true,
             "name": "Eratproin",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7579,7 +9102,7 @@
             "employees": 690,
             "included": true,
             "name": "Erat",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7600,7 +9123,7 @@
             "employees": 3890,
             "included": true,
             "name": "Lorem",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7621,7 +9144,7 @@
             "employees": 4460,
             "included": true,
             "name": "Minim",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7642,7 +9165,7 @@
             "employees": 8150,
             "included": true,
             "name": "Blandit",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7663,7 +9186,7 @@
             "employees": 360,
             "included": true,
             "name": "Senectus",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7684,7 +9207,7 @@
             "employees": 4460,
             "included": true,
             "name": "Eirmod",
-            "reason": 5,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7705,7 +9228,7 @@
             "employees": 270,
             "included": true,
             "name": "Etiam",
-            "reason": 1,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7726,7 +9249,7 @@
             "employees": 120,
             "included": true,
             "name": "Cras",
-            "reason": 3,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7747,7 +9270,7 @@
             "employees": 3360,
             "included": true,
             "name": "Gubergren",
-            "reason": 2,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7768,7 +9291,7 @@
             "employees": 6470,
             "included": true,
             "name": "Posuere",
-            "reason": 4,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7789,7 +9312,7 @@
             "employees": 4360,
             "included": true,
             "name": "Labore",
-            "reason": 5,
+            "reason": null,
             "turnover": "0",
             "turnover_currency": "EUR",
             "website": "www.website.org",
@@ -7803,10 +9326,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7817,10 +9340,10 @@
             "amount": 10,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7831,10 +9354,10 @@
             "amount": 50,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 2,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7845,10 +9368,10 @@
             "amount": 10,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7859,10 +9382,10 @@
             "amount": 5,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7873,10 +9396,10 @@
             "amount": 10,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7887,10 +9410,10 @@
             "amount": 20,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 1,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7901,10 +9424,10 @@
             "amount": 30,
             "description": null,
             "destination": 8,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7915,10 +9438,10 @@
             "amount": 10,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 11,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7929,10 +9452,10 @@
             "amount": 100,
             "description": null,
             "destination": 3,
-            "entry": 1,
             "keyflow": 30,
             "origin": 6,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7943,10 +9466,10 @@
             "amount": 5,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 1,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7957,10 +9480,10 @@
             "amount": 5,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7971,10 +9494,10 @@
             "amount": 30,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7985,10 +9508,10 @@
             "amount": 50,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -7999,10 +9522,10 @@
             "amount": 30,
             "description": null,
             "destination": 5,
-            "entry": 1,
             "keyflow": 30,
             "origin": 7,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8013,10 +9536,10 @@
             "amount": 50,
             "description": "This is a test text",
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8027,10 +9550,10 @@
             "amount": 50,
             "description": null,
             "destination": 6,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8041,10 +9564,10 @@
             "amount": 30,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 1,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8055,10 +9578,10 @@
             "amount": 50,
             "description": null,
             "destination": 8,
-            "entry": 1,
             "keyflow": 30,
             "origin": 12,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8069,10 +9592,10 @@
             "amount": 10,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8083,10 +9606,10 @@
             "amount": 5,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8097,10 +9620,10 @@
             "amount": 50,
             "description": null,
             "destination": 6,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8111,10 +9634,10 @@
             "amount": 10,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 8,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.group2group",
@@ -8125,10 +9648,10 @@
             "amount": 5,
             "description": null,
             "destination": 24,
-            "entry": 1,
             "keyflow": 30,
             "origin": 21,
             "product": 11,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8139,10 +9662,10 @@
             "amount": 5,
             "description": null,
             "destination": 26,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8153,10 +9676,10 @@
             "amount": 5,
             "description": null,
             "destination": 19,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8167,10 +9690,10 @@
             "amount": 20,
             "description": null,
             "destination": 21,
-            "entry": 1,
             "keyflow": 30,
             "origin": 13,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8181,10 +9704,10 @@
             "amount": 50,
             "description": null,
             "destination": 16,
-            "entry": 1,
             "keyflow": 30,
             "origin": 28,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8195,10 +9718,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 20,
             "product": 8,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8209,10 +9732,10 @@
             "amount": 5,
             "description": null,
             "destination": 25,
-            "entry": 1,
             "keyflow": 30,
             "origin": 19,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8223,10 +9746,10 @@
             "amount": 5,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 6,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8237,10 +9760,10 @@
             "amount": 5,
             "description": null,
             "destination": 23,
-            "entry": 1,
             "keyflow": 30,
             "origin": 19,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8251,10 +9774,10 @@
             "amount": 20,
             "description": null,
             "destination": 22,
-            "entry": 1,
             "keyflow": 30,
             "origin": 14,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8265,10 +9788,10 @@
             "amount": 15,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8279,10 +9802,10 @@
             "amount": 10,
             "description": null,
             "destination": 15,
-            "entry": 1,
             "keyflow": 30,
             "origin": 12,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8293,10 +9816,10 @@
             "amount": 10,
             "description": null,
             "destination": 12,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8307,10 +9830,10 @@
             "amount": 20,
             "description": null,
             "destination": 8,
-            "entry": 1,
             "keyflow": 30,
             "origin": 24,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8321,10 +9844,10 @@
             "amount": 5,
             "description": null,
             "destination": 24,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 11,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8335,10 +9858,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8349,10 +9872,10 @@
             "amount": 5,
             "description": null,
             "destination": 16,
-            "entry": 1,
             "keyflow": 30,
             "origin": 13,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8363,10 +9886,10 @@
             "amount": 5,
             "description": null,
             "destination": 22,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8377,10 +9900,10 @@
             "amount": 5,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 24,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8391,10 +9914,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 8,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8405,10 +9928,10 @@
             "amount": 5,
             "description": null,
             "destination": 17,
-            "entry": 1,
             "keyflow": 30,
             "origin": 14,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8419,10 +9942,10 @@
             "amount": 10,
             "description": null,
             "destination": 29,
-            "entry": 1,
             "keyflow": 30,
             "origin": 15,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8433,10 +9956,10 @@
             "amount": 10,
             "description": null,
             "destination": 18,
-            "entry": 1,
             "keyflow": 30,
             "origin": 16,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8447,10 +9970,10 @@
             "amount": 10,
             "description": null,
             "destination": 26,
-            "entry": 1,
             "keyflow": 30,
             "origin": 19,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8461,10 +9984,10 @@
             "amount": 45,
             "description": null,
             "destination": 19,
-            "entry": 1,
             "keyflow": 30,
             "origin": 16,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8475,10 +9998,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 16,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8489,10 +10012,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8503,10 +10026,10 @@
             "amount": 5,
             "description": null,
             "destination": 22,
-            "entry": 1,
             "keyflow": 30,
             "origin": 13,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8517,10 +10040,10 @@
             "amount": 10,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8531,10 +10054,10 @@
             "amount": 5,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8545,10 +10068,10 @@
             "amount": 15,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 26,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8559,10 +10082,10 @@
             "amount": 5,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 6,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8573,10 +10096,10 @@
             "amount": 15,
             "description": null,
             "destination": 25,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8587,10 +10110,10 @@
             "amount": 10,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8601,10 +10124,10 @@
             "amount": 5,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8615,10 +10138,10 @@
             "amount": 20,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 7,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8629,10 +10152,10 @@
             "amount": 5,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 23,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8643,10 +10166,10 @@
             "amount": 5,
             "description": null,
             "destination": 25,
-            "entry": 1,
             "keyflow": 30,
             "origin": 18,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8657,10 +10180,10 @@
             "amount": 40,
             "description": null,
             "destination": 13,
-            "entry": 1,
             "keyflow": 30,
             "origin": 11,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8671,10 +10194,10 @@
             "amount": 10,
             "description": null,
             "destination": 25,
-            "entry": 1,
             "keyflow": 30,
             "origin": 21,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8685,10 +10208,10 @@
             "amount": 25,
             "description": null,
             "destination": 11,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8699,10 +10222,10 @@
             "amount": 10,
             "description": null,
             "destination": 15,
-            "entry": 1,
             "keyflow": 30,
             "origin": 14,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8713,10 +10236,10 @@
             "amount": 5,
             "description": null,
             "destination": 26,
-            "entry": 1,
             "keyflow": 30,
             "origin": 18,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8727,10 +10250,10 @@
             "amount": 35,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 25,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8741,10 +10264,10 @@
             "amount": 10,
             "description": null,
             "destination": 29,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8755,10 +10278,10 @@
             "amount": 40,
             "description": null,
             "destination": 14,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8769,10 +10292,10 @@
             "amount": 10,
             "description": null,
             "destination": 18,
-            "entry": 1,
             "keyflow": 30,
             "origin": 15,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8783,10 +10306,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 17,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8797,10 +10320,10 @@
             "amount": 10,
             "description": null,
             "destination": 29,
-            "entry": 1,
             "keyflow": 30,
             "origin": 13,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8811,10 +10334,10 @@
             "amount": 10,
             "description": null,
             "destination": 13,
-            "entry": 1,
             "keyflow": 30,
             "origin": 10,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8825,10 +10348,10 @@
             "amount": 15,
             "description": null,
             "destination": 24,
-            "entry": 1,
             "keyflow": 30,
             "origin": 19,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8839,10 +10362,10 @@
             "amount": 5,
             "description": null,
             "destination": 29,
-            "entry": 1,
             "keyflow": 30,
             "origin": 18,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8853,10 +10376,10 @@
             "amount": 5,
             "description": null,
             "destination": 20,
-            "entry": 1,
             "keyflow": 30,
             "origin": 14,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8867,10 +10390,10 @@
             "amount": 5,
             "description": null,
             "destination": 27,
-            "entry": 1,
             "keyflow": 30,
             "origin": 18,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activity2activity",
@@ -8881,10 +10404,10 @@
             "amount": 15,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 37,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8895,10 +10418,10 @@
             "amount": 35,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 36,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8909,10 +10432,10 @@
             "amount": 5,
             "description": null,
             "destination": 54,
-            "entry": 1,
             "keyflow": 30,
             "origin": 35,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8923,10 +10446,10 @@
             "amount": 5,
             "description": null,
             "destination": 53,
-            "entry": 1,
             "keyflow": 30,
             "origin": 34,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8937,10 +10460,10 @@
             "amount": 20,
             "description": null,
             "destination": 5,
-            "entry": 1,
             "keyflow": 30,
             "origin": 33,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8951,10 +10474,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 32,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8965,10 +10488,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 31,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8979,10 +10502,10 @@
             "amount": 5,
             "description": null,
             "destination": 33,
-            "entry": 1,
             "keyflow": 30,
             "origin": 30,
             "product": 11,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -8993,10 +10516,10 @@
             "amount": 5,
             "description": null,
             "destination": 33,
-            "entry": 1,
             "keyflow": 30,
             "origin": 29,
             "product": 11,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9007,10 +10530,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 28,
             "product": 8,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9021,10 +10544,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 27,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9035,10 +10558,10 @@
             "amount": 5,
             "description": null,
             "destination": 37,
-            "entry": 1,
             "keyflow": 30,
             "origin": 26,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9049,10 +10572,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 25,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9063,10 +10586,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 24,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9077,10 +10600,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 24,
             "product": 8,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9091,10 +10614,10 @@
             "amount": 5,
             "description": null,
             "destination": 77,
-            "entry": 1,
             "keyflow": 30,
             "origin": 23,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9105,10 +10628,10 @@
             "amount": 5,
             "description": null,
             "destination": 38,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9119,10 +10642,10 @@
             "amount": 5,
             "description": null,
             "destination": 39,
-            "entry": 1,
             "keyflow": 30,
             "origin": 21,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9133,10 +10656,10 @@
             "amount": 5,
             "description": null,
             "destination": 37,
-            "entry": 1,
             "keyflow": 30,
             "origin": 20,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9147,10 +10670,10 @@
             "amount": 5,
             "description": null,
             "destination": 37,
-            "entry": 1,
             "keyflow": 30,
             "origin": 19,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9161,10 +10684,10 @@
             "amount": 5,
             "description": null,
             "destination": 35,
-            "entry": 1,
             "keyflow": 30,
             "origin": 18,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9175,10 +10698,10 @@
             "amount": 5,
             "description": null,
             "destination": 34,
-            "entry": 1,
             "keyflow": 30,
             "origin": 17,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9189,10 +10712,10 @@
             "amount": 5,
             "description": null,
             "destination": 33,
-            "entry": 1,
             "keyflow": 30,
             "origin": 16,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9203,10 +10726,10 @@
             "amount": 5,
             "description": null,
             "destination": 33,
-            "entry": 1,
             "keyflow": 30,
             "origin": 15,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9217,10 +10740,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 15,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9231,10 +10754,10 @@
             "amount": 5,
             "description": null,
             "destination": 36,
-            "entry": 1,
             "keyflow": 30,
             "origin": 14,
             "product": 9,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9245,10 +10768,10 @@
             "amount": 5,
             "description": null,
             "destination": 77,
-            "entry": 1,
             "keyflow": 30,
             "origin": 13,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9259,10 +10782,10 @@
             "amount": 5,
             "description": null,
             "destination": 77,
-            "entry": 1,
             "keyflow": 30,
             "origin": 12,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9273,10 +10796,10 @@
             "amount": 5,
             "description": null,
             "destination": 14,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9287,10 +10810,10 @@
             "amount": 5,
             "description": null,
             "destination": 23,
-            "entry": 1,
             "keyflow": 30,
             "origin": 10,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9301,10 +10824,10 @@
             "amount": 5,
             "description": null,
             "destination": 22,
-            "entry": 1,
             "keyflow": 30,
             "origin": 67,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9315,10 +10838,10 @@
             "amount": 5,
             "description": null,
             "destination": 21,
-            "entry": 1,
             "keyflow": 30,
             "origin": 67,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9329,10 +10852,10 @@
             "amount": 5,
             "description": null,
             "destination": 20,
-            "entry": 1,
             "keyflow": 30,
             "origin": 66,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9343,10 +10866,10 @@
             "amount": 5,
             "description": null,
             "destination": 19,
-            "entry": 1,
             "keyflow": 30,
             "origin": 66,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9357,10 +10880,10 @@
             "amount": 5,
             "description": null,
             "destination": 18,
-            "entry": 1,
             "keyflow": 30,
             "origin": 66,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9371,10 +10894,10 @@
             "amount": 5,
             "description": null,
             "destination": 17,
-            "entry": 1,
             "keyflow": 30,
             "origin": 64,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9385,10 +10908,10 @@
             "amount": 5,
             "description": null,
             "destination": 16,
-            "entry": 1,
             "keyflow": 30,
             "origin": 65,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9399,10 +10922,10 @@
             "amount": 5,
             "description": null,
             "destination": 15,
-            "entry": 1,
             "keyflow": 30,
             "origin": 65,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9413,10 +10936,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 63,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9427,10 +10950,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 62,
             "product": 10,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9441,10 +10964,10 @@
             "amount": 5,
             "description": null,
             "destination": 66,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9455,10 +10978,10 @@
             "amount": 10,
             "description": null,
             "destination": 77,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9469,10 +10992,10 @@
             "amount": 10,
             "description": null,
             "destination": 32,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9483,10 +11006,10 @@
             "amount": 5,
             "description": null,
             "destination": 31,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9497,10 +11020,10 @@
             "amount": 5,
             "description": null,
             "destination": 30,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9511,10 +11034,10 @@
             "amount": 5,
             "description": null,
             "destination": 29,
-            "entry": 1,
             "keyflow": 30,
             "origin": 61,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9525,10 +11048,10 @@
             "amount": 5,
             "description": null,
             "destination": 28,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9539,10 +11062,10 @@
             "amount": 5,
             "description": null,
             "destination": 27,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9553,10 +11076,10 @@
             "amount": 5,
             "description": null,
             "destination": 26,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9567,10 +11090,10 @@
             "amount": 5,
             "description": null,
             "destination": 25,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9581,10 +11104,10 @@
             "amount": 5,
             "description": null,
             "destination": 24,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9595,10 +11118,10 @@
             "amount": 5,
             "description": null,
             "destination": 62,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9609,10 +11132,10 @@
             "amount": 5,
             "description": null,
             "destination": 13,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9623,10 +11146,10 @@
             "amount": 5,
             "description": null,
             "destination": 12,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9637,10 +11160,10 @@
             "amount": 5,
             "description": null,
             "destination": 9,
-            "entry": 1,
             "keyflow": 30,
             "origin": 60,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9651,10 +11174,10 @@
             "amount": 5,
             "description": null,
             "destination": 10,
-            "entry": 1,
             "keyflow": 30,
             "origin": 60,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9665,10 +11188,10 @@
             "amount": 10,
             "description": null,
             "destination": 67,
-            "entry": 1,
             "keyflow": 30,
             "origin": 76,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9679,10 +11202,10 @@
             "amount": 10,
             "description": null,
             "destination": 66,
-            "entry": 1,
             "keyflow": 30,
             "origin": 76,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9693,10 +11216,10 @@
             "amount": 10,
             "description": null,
             "destination": 65,
-            "entry": 1,
             "keyflow": 30,
             "origin": 76,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9707,10 +11230,10 @@
             "amount": 10,
             "description": null,
             "destination": 64,
-            "entry": 1,
             "keyflow": 30,
             "origin": 76,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9721,10 +11244,10 @@
             "amount": 10,
             "description": null,
             "destination": 63,
-            "entry": 1,
             "keyflow": 30,
             "origin": 76,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9735,10 +11258,10 @@
             "amount": 10,
             "description": null,
             "destination": 61,
-            "entry": 1,
             "keyflow": 30,
             "origin": 59,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9749,10 +11272,10 @@
             "amount": 20,
             "description": null,
             "destination": 61,
-            "entry": 1,
             "keyflow": 30,
             "origin": 7,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9763,10 +11286,10 @@
             "amount": 20,
             "description": null,
             "destination": 61,
-            "entry": 1,
             "keyflow": 30,
             "origin": 58,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9777,10 +11300,10 @@
             "amount": 15,
             "description": null,
             "destination": 8,
-            "entry": 1,
             "keyflow": 30,
             "origin": 6,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9791,10 +11314,10 @@
             "amount": 5,
             "description": null,
             "destination": 60,
-            "entry": 1,
             "keyflow": 30,
             "origin": 6,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9805,10 +11328,10 @@
             "amount": 25,
             "description": null,
             "destination": 8,
-            "entry": 1,
             "keyflow": 30,
             "origin": 57,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9819,10 +11342,10 @@
             "amount": 5,
             "description": null,
             "destination": 60,
-            "entry": 1,
             "keyflow": 30,
             "origin": 57,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9833,10 +11356,10 @@
             "amount": 5,
             "description": null,
             "destination": 2,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9847,10 +11370,10 @@
             "amount": 5,
             "description": null,
             "destination": 59,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9861,10 +11384,10 @@
             "amount": 10,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9875,10 +11398,10 @@
             "amount": 5,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 56,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9889,10 +11412,10 @@
             "amount": 10,
             "description": null,
             "destination": 58,
-            "entry": 1,
             "keyflow": 30,
             "origin": 55,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9903,10 +11426,10 @@
             "amount": 10,
             "description": null,
             "destination": 6,
-            "entry": 1,
             "keyflow": 30,
             "origin": 54,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9917,10 +11440,10 @@
             "amount": 5,
             "description": null,
             "destination": 57,
-            "entry": 1,
             "keyflow": 30,
             "origin": 54,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9931,10 +11454,10 @@
             "amount": 5,
             "description": null,
             "destination": 57,
-            "entry": 1,
             "keyflow": 30,
             "origin": 53,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9945,10 +11468,10 @@
             "amount": 10,
             "description": null,
             "destination": 77,
-            "entry": 1,
             "keyflow": 30,
             "origin": 46,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9959,10 +11482,10 @@
             "amount": 10,
             "description": null,
             "destination": 57,
-            "entry": 1,
             "keyflow": 30,
             "origin": 46,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9973,10 +11496,10 @@
             "amount": 5,
             "description": null,
             "destination": 58,
-            "entry": 1,
             "keyflow": 30,
             "origin": 46,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -9987,10 +11510,10 @@
             "amount": 5,
             "description": null,
             "destination": 6,
-            "entry": 1,
             "keyflow": 30,
             "origin": 46,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10001,10 +11524,10 @@
             "amount": 5,
             "description": null,
             "destination": 57,
-            "entry": 1,
             "keyflow": 30,
             "origin": 11,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10015,10 +11538,10 @@
             "amount": 5,
             "description": null,
             "destination": 59,
-            "entry": 1,
             "keyflow": 30,
             "origin": 52,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10029,10 +11552,10 @@
             "amount": 5,
             "description": null,
             "destination": 7,
-            "entry": 1,
             "keyflow": 30,
             "origin": 51,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10043,10 +11566,10 @@
             "amount": 5,
             "description": null,
             "destination": 58,
-            "entry": 1,
             "keyflow": 30,
             "origin": 50,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10057,10 +11580,10 @@
             "amount": 5,
             "description": null,
             "destination": 6,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10071,10 +11594,10 @@
             "amount": 5,
             "description": null,
             "destination": 57,
-            "entry": 1,
             "keyflow": 30,
             "origin": 49,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10085,10 +11608,10 @@
             "amount": 5,
             "description": null,
             "destination": 15,
-            "entry": 1,
             "keyflow": 30,
             "origin": 48,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10099,10 +11622,10 @@
             "amount": 5,
             "description": null,
             "destination": 24,
-            "entry": 1,
             "keyflow": 30,
             "origin": 47,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10113,10 +11636,10 @@
             "amount": 5,
             "description": null,
             "destination": 1,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
@@ -10126,10 +11649,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.groupstock",
@@ -10139,10 +11662,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 4,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.groupstock",
@@ -10152,10 +11675,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 2,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.groupstock",
@@ -10165,10 +11688,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 8,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.groupstock",
@@ -10178,10 +11701,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 9,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.groupstock",
@@ -10191,10 +11714,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 12,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10204,10 +11727,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 22,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10217,10 +11740,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 5,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10230,10 +11753,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 26,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10243,10 +11766,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 27,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10256,10 +11779,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 16,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.activitystock",
@@ -10269,10 +11792,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 24,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10282,10 +11805,10 @@
         "fields": {
             "amount": 10,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 60,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10295,10 +11818,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 39,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10308,10 +11831,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 38,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10321,10 +11844,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 63,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10334,10 +11857,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 64,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10347,10 +11870,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 47,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -10360,10 +11883,10 @@
         "fields": {
             "amount": 5,
             "description": null,
-            "entry": 1,
             "keyflow": 30,
             "origin": 3,
             "product": 1,
+            "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
@@ -16181,6 +17704,20 @@
         },
         "model": "asmfa.administrativelocation",
         "pk": 23
+    },
+    {
+        "fields": {
+            "actor": 22,
+            "address": "",
+            "area": null,
+            "city": "",
+            "country": "-1",
+            "geom": null,
+            "name": "",
+            "postcode": ""
+        },
+        "model": "asmfa.operationallocation",
+        "pk": 101
     },
     {
         "fields": {

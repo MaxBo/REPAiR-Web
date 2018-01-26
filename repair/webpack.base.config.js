@@ -8,6 +8,7 @@ module.exports = {
     DataEntry: './js/data-entry',
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
+    Base:      './js/base',
   },
   
   output: {
@@ -25,7 +26,7 @@ module.exports = {
   externals: [ 'ws' ],
   
   module: {
-    rules: [{ test: require.resolve("jquery"), loader: "expose?$!expose?jQuery" }] // add all common loaders here
+    rules: [{ test: require.resolve("jquery"), loader: 'expose-loader?jQuery!expose-loader?$' }] 
   },
 
   resolve: {

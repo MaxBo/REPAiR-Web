@@ -20,7 +20,7 @@ class Keyflow(GDSEModel):
                                          through='KeyflowInCasestudy')
 
 
-class KeyflowInCasestudy(models.Model):
+class KeyflowInCasestudy(GDSEModel):
     keyflow = models.ForeignKey(Keyflow, on_delete=models.CASCADE,
                                 related_name='products')
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
@@ -48,7 +48,7 @@ class Material(GDSEModel):
     flowType = models.CharField(max_length=255, null=True)
 
 
-class ProductFraction(models.Model):
+class ProductFraction(GDSEModel):
 
     fraction = models.FloatField(default=1)
 

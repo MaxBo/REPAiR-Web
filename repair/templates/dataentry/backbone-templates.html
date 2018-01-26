@@ -77,7 +77,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -96,7 +96,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -115,7 +115,7 @@
         <tr>
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Product" %}</th>
+          <th>{% trans "Waste/Product" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -155,7 +155,7 @@
                 <img src="{{STATIC_URL}}img/first.png" class="first"/>
                 <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
                 <!-- the "pagedisplay" can be any element, including an input -->
-                <input type="text" class="pagedisplay"/>
+                <input disabled type="text" class="pagedisplay"/>
                 <img src="{{STATIC_URL}}img/next.png" class="next"/>
                 <img src="{{STATIC_URL}}img/last.png" class="last"/>
                 <select class="pagesize">
@@ -176,6 +176,37 @@
       </div>
     </div>
   </div>
+  <div id="product-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <h4> {% trans "Custom Composition" %} </h4>
+        </div>
+        <div class="modal-body">
+          <div id='product-modal-content'></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary" id="confirm-custom-product" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- product modal content -->
+<script type="text/template" id="product-modal-template">
+  {% trans "derived from " %} <% productName %>
+  <table id="product-edit-table">
+    <thead>
+      <tr>
+        <th>{% trans "Fractions" %}</th>
+        <th>{% trans "Data Source" %}</th>
+      </tr>
+    </thead> 
+    <tbody> 
+    </tbody>
+  </table>
 </script>
 
 <!--- popover template -->
@@ -307,7 +338,7 @@
             <img src="{{STATIC_URL}}img/first.png" id="goto-first-page" class="first"/>
             <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
             <!-- the "pagedisplay" can be any element, including an input -->
-            <input type="text" class="pagedisplay"/>
+            <input disabled type="text" class="pagedisplay"/>
             <img src="{{STATIC_URL}}img/next.png" class="next"/>
             <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
             <select id="pagesize" class="pagesize">
@@ -349,10 +380,10 @@
             <form id="reasons" style="display: <%= actor.get('included') == true ? 'none' : 'block' %>;" >
               {% trans "Reason for exclusion" %}
               </br>
-              <% _.each(reasons, function(reason) { %>
+              <% reasons.each(function(reason) { %>
                 <span style="white-space: nowrap;">
                   <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>" <% if(actor.get('reason') == reason.id) { %> checked <% } %>></input>
-                  <%= reason.name %>
+                  <%= reason.get('reason') %>
                 </span>
                 </br>
               <% });  %>
@@ -405,17 +436,20 @@
     </div>
     <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>
       <h4 class="row"> {% trans "Locations" %} </h4>
-      <div id="actors-map" style="min-height: 300px" class="map row"></div>
+      <div id="actors-map" style="min-height: 400px" class="map row">
+         <div class="tooltip"></div>
+      </div>
       </br>
       <div class="bordered" class="row">
         <table id="adminloc-table">
           <b>Administrative Location</b>
           <thead>
               <tr>
-                <th></th>
-                <th>{% trans "Remove" %}</th>
+                <th>{% trans "Remove " %}</th>
                 <th>{% trans "Name" %}</th>
-                <th style="text-align: right;">{% trans "Edit " %}</th>
+                <th>{% trans "Marker" %}</th>
+                <th>{% trans "Area" %}</th>
+                <th style="text-align: right;">{% trans "Edit" %}</th>
               </tr>
             </thead> 
             <tbody> 
@@ -431,10 +465,11 @@
           <b>Operational Locations</b>
           <thead>
             <tr>
-              <th></th>
-              <th>{% trans "Remove" %}</th>
+              <th>{% trans "Remove " %}</th>
               <th>{% trans "Name" %}</th>
-              <th style="text-align: right;">{% trans "Edit " %}</th>
+              <th>{% trans "Marker" %}</th>
+              <th>{% trans "Area" %}</th>
+              <th style="text-align: right;">{% trans "Edit" %}</th>
             </tr>
           </thead> 
           <tbody> 
@@ -455,12 +490,14 @@
           </div>
           <div class="modal-body">
             <div class='row'>
-              <div id='edit-location-map'  class="col-md-6" style="min-height: 400px; min-width: 400px"></div>
+              <div id='edit-location-map'  class="col-md-6" style="min-height: 400px; min-width: 400px">
+                <div class="tooltip"></div>
+              </div>
               <div  class="col-md-6"> 
-                <table id="location-area-table"></table>
+                <div id='location-modal-content'> </div <!-- this is the only part we rerender everytime an actor is clicked -->
                 </br>
-                <!-- this is the only part we rerender everytime an actor is clicked -->
-                <div id='location-modal-content'> </div>
+                <b>{% trans "Area (optional)" %}</b>
+                <table id="location-area-table"></table>
               </div>
             </div>
           </div>
@@ -476,11 +513,11 @@
 
 <!-- edit location -->
 <script type="text/template" id="location-modal-template">
+  <br>
+  <b>{% trans "Name" %} </b> <input type="text" name="name" value="<%= properties.name %>" style='margin-left: 20px;'>
+  <br><br><br>
+  <b>{% trans "Address (optional)" %}</b>
   <table id="location-edit-table">
-    <tr>
-      <td>{% trans "Name" %}</td>
-      <td><input type="text" name="name" value="<%= properties.name %>"></td>
-    </tr>
     <tr>
       <td>{% trans "City" %}</td>
       <td><input type="text" name="city" value="<%= properties.city %>"></td>

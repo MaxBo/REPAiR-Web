@@ -1,13 +1,17 @@
-define(['jquery', 'backbone', 'underscore', 'models/activitygroup', 'models/activity',
+define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'bootstrap', 'tablesorter'],
-function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+        'utils/loader', 'tablesorter'],
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
   /**
    *
    * @author Christoph Franke
    * @name module:views/EditNodeView
    * @augments Backbone.View
    */
+  function clearSelect(select, stop){
+    var stop = stop || 0;
+    for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
+  }
   var EditNodeView = Backbone.View.extend(
     /** @lends module:views/EditNodeView.prototype */
     {
@@ -124,6 +128,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           html: true,
           content: this.attrTableInner
       }
+      require('bootstrap');
       this.setupPopover($('#node-info').popover(popOverSettings));
 
       // render inFlows
@@ -232,18 +237,41 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       row.insertCell(-1).appendChild(productWrapper); 
       
       // input for product
+      var typeSelect = document.createElement("select");
+      var wasteOption = document.createElement("option")
+      wasteOption.value = 0; wasteOption.text = gettext('Waste');
+      typeSelect.appendChild(wasteOption);
+      var productOption = document.createElement("option")
+      productOption.value = 1; productOption.text = gettext('Product');
+      typeSelect.appendChild(productOption);
+      typeSelect.value = 1;
       var productSelect = document.createElement("select");
-      var ids = [];
-      var p = flow.get('product');
-      this.products.each(function(product){
+      
+      function addOptions(collection, select){
         var option = document.createElement("option");
-        option.text = product.get('name');
-        option.value = product.id;
-        productSelect.add(option);
-        ids.push(product.id);
+        option.disabled = true;
+        option.text = gettext('select');
+        option.value = null;
+        select.add(option);
+        select.selectedIndex = 0;
+        if (!collection) return;
+        collection.each(function(product){
+          var option = document.createElement("option");
+          option.text = product.get('name');
+          option.value = product.id;
+          select.add(option);
+        });
+      }
+      
+      typeSelect.addEventListener('change', function() {
+        clearSelect(productSelect);
+        if (typeSelect.value == 1) addOptions(_this.products, productSelect);
+        else addOptions(null, productSelect);
       });
-      var idx = ids.indexOf(p);
-      productSelect.selectedIndex = idx.toString();
+      
+      addOptions(this.products, productSelect);
+      productSelect.value = flow.get('product');
+      productWrapper.appendChild(typeSelect);
       productWrapper.appendChild(productSelect);
 
       productSelect.addEventListener('change', function() {
@@ -251,15 +279,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       });
       
       // information popup for products
-      var info = document.createElement('div');
-      info.style.cursor = 'pointer';
-      info.style.marginLeft = "5px";
-      info.classList.add('pop-function');
-      info.setAttribute('rel', 'popover');
-      info.classList.add('glyphicon');
-      info.classList.add('glyphicon-info-sign');
-      info.title = 'Composition';
-      productWrapper.appendChild(info);
       
       var popOverSettings = {
           placement: 'right',
@@ -278,7 +297,22 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           }
       }
       
-      this.setupPopover($(info).popover(popOverSettings));
+      this.setupPopover($(productSelect).popover(popOverSettings));
+      
+      var editProductBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editProductBtn.classList.add('btn');
+      editProductBtn.classList.add('btn-primary');
+      editProductBtn.classList.add('square');
+      editProductBtn.appendChild(pencil);
+      editProductBtn.title = gettext('edit composition');
+      pencil.classList.add('glyphicon');
+      pencil.classList.add('glyphicon-pencil');
+      productWrapper.appendChild(editProductBtn);
+      
+      editProductBtn.addEventListener('click', function(){
+        _this.editCustomProduct(_this.products.get(productSelect.value));
+      })
       
       // raw checkbox
       
@@ -314,24 +348,40 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // prevent breaking 
       sourceCell.setAttribute("style", "white-space: nowrap");
       var genSource = document.createElement('input');
-      genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
+      var pubId = flow.get('publication');
+      if (pubId){
+        var publication = this.publications.get(pubId)
+        var title = publication.get('title');
+        genSource.value = title;
+        genSource.title = title;
+      }
       genSource.disabled = true;
       genSource.style.cursor = 'pointer';
-      var setDsBtn = document.createElement('button');
-      setDsBtn.innerHTML = gettext('Set');
-      setDsBtn.classList.add('btn');
-      setDsBtn.classList.add('btn-primary');
-      setDsBtn.classList.add('square');
+      var editBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editBtn.classList.add('btn');
+      editBtn.classList.add('btn-primary');
+      editBtn.classList.add('square');
+      editBtn.appendChild(pencil);
+      editBtn.title = gettext('edit datasource');
+      pencil.classList.add('glyphicon');
+      pencil.classList.add('glyphicon-pencil');
       function onChange(publication){
         if (publication != null){
-          genSource.value = publication.get('title');
+          var title = publication.get('title');
+          genSource.value = title;
+          genSource.title = title;
+          genSource.title = title;
+          flow.set('publication', publication.id)
           genSource.dispatchEvent(new Event('change'));
           // ToDo set it to model
         }
       };
-      setDsBtn.addEventListener('click', function(){
+      editBtn.addEventListener('click', function(){
         _this.editDatasource(onChange);
       });
+      
+      /*
       var collapse = document.createElement('div');
       var dsRow = table.insertRow(-1);
       
@@ -347,10 +397,14 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         collapse.classList.toggle('glyphicon-chevron-down');
         collapse.classList.toggle('glyphicon-chevron-up');
       });
+      */
+      
       sourceWrapper.appendChild(genSource);
-      sourceWrapper.appendChild(collapse);
       sourceCell.appendChild(sourceWrapper);
-      sourceCell.appendChild(setDsBtn);
+      sourceCell.appendChild(editBtn);
+      
+      /*
+      sourceWrapper.appendChild(collapse);
       
       // own row for individual Datasources
       
@@ -393,9 +447,58 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         source.addEventListener('change', function(){
           genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
         });
-      });
+      });*/
       
       return row;
+    },
+    
+    editCustomProduct: function(customProduct){
+      if (!customProduct) return;
+      var _this = this;
+      var modal = document.getElementById('product-modal');
+      var inner = document.getElementById('product-modal-template').innerHTML;
+      var template = _.template(inner);
+      var html = template({ productName: customProduct.get('name') });
+      document.getElementById('product-modal-content').innerHTML = html;
+      
+      var table = document.getElementById('product-edit-table')
+      
+      var fractions = customProduct.get('fractions');
+      _.each(fractions, function(fraction){
+        var row = table.insertRow(-1);
+        var fractionsCell = row.insertCell(-1);
+        var fInput = document.createElement("input");
+        fInput.type = 'number';
+        fInput.style = 'text-align: right;';
+        fInput.max = 100;
+        fInput.min = 0;
+        fractionsCell.appendChild(fInput);
+        fInput.value = fraction.fraction * 100;
+        var perDiv = document.createElement('div');
+        perDiv.innerHTML = '%';
+        fractionsCell.appendChild(perDiv);
+        var matSelect = document.createElement("select");
+        
+        _this.materials.each(function(material){
+          var option = document.createElement("option");
+          option.text = '[' + material.get('code') + '] ' + material.get('name');
+          option.value = material.id;
+          matSelect.add(option);
+        })
+        matSelect.value = fraction.material;
+        fRow.insertCell(-1).appendChild(matSelect);
+      });
+      
+      //var editBtn = document.createElement('button');
+      //var pencil = document.createElement('span');
+      //editBtn.classList.add('btn');
+      //editBtn.classList.add('btn-primary');
+      //editBtn.classList.add('square');
+      //editBtn.appendChild(pencil);
+      //editBtn.title = gettext('edit datasource');
+      //pencil.classList.add('glyphicon');
+      //pencil.classList.add('glyphicon-pencil');
+      $(modal).modal('show'); 
     },
 
     // on click add row button
@@ -539,7 +642,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         row.insertCell(-1).innerHTML = publication.get('authors');
         row.insertCell(-1).innerHTML = publication.get('doi');
         var anchor = document.createElement('a');
-        var url = publication.get('url');
+        var url = publication.get('publication_url');
         anchor.href = url;
         anchor.innerHTML = url;
         anchor.target = '_blank';

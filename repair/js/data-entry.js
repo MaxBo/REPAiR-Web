@@ -3,7 +3,7 @@ define(['models/casestudy', 'views/data-entry-flows',
         'views/data-entry-actors', 'views/data-entry-products', 
         'collections/flows', 'collections/actors',
         'collections/keyflows', 'collections/materials',
-        'app-config', 'loader'],
+        'app-config', 'utils/loader', 'utils/overrides'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
 function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
           Actors, Keyflows, Materials,
           appConfig, Loader) {  

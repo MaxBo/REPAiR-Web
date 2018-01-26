@@ -2,13 +2,13 @@
 
 from django.urls import reverse
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.publications.factories import PublicationInCasestudyFactory
 from repair.apps.login.factories import ProfileFactory, UserInCasestudyFactory
 
 
-class PublicationInCaseStudyTest(BasicModelTest, APITestCase):
+class PublicationInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 1
     casestudy2 = 21

@@ -20,14 +20,12 @@ from repair.apps.changes.serializers import (
     ImplementationOfUserSerializer,
     )
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     ReadUpdatePermissionViewSet)
 
 
 class ImplementationViewSet(CasestudyViewSetMixin,
                             ModelPermissionViewSet):
-    add_perm = 'changes.add_implementation'
-    change_perm = 'changes.change_implementation'
-    delete_perm = 'changes.delete_implementation'
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
 
@@ -39,24 +37,18 @@ class ImplementationOfUserViewSet(ImplementationViewSet):
 
 class SolutionInImplementationViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
-    add_perm = 'changes.add_solutioninimplementation'
-    change_perm = 'changes.change_solutioninimplementation'
-    delete_perm = 'changes.delete_solutioninimplementation'
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
 
 
 class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
-                                      ModelPermissionViewSet):
-    add_perm = 'changes.add_solutioninimplementationnote'
-    change_perm = 'changes.change_solutioninimplementationnote'
-    delete_perm = 'changes.delete_solutioninimplementationnote'
+                                          ModelPermissionViewSet):
     serializer_class = SolutionInImplementationNoteSerializer
     queryset = SolutionInImplementationNote.objects.all()
 
 
 class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
-                                              ReadUpdateViewSet):
+                                              ReadUpdatePermissionViewSet):
     """
     Has to provide exactly one quantity value
     for each quantity defined for the solution
@@ -68,8 +60,5 @@ class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
 
 class SolutionInImplementationGeometryViewSet(CasestudyViewSetMixin,
                                               ModelPermissionViewSet):
-    add_perm = 'changes.add_solutioninimplementationgeometry'
-    change_perm = 'changes.change_solutioninimplementationgeometry'
-    delete_perm = 'changes.delete_solutioninimplementationgeometry'
     serializer_class = SolutionInImplementationGeometrySerializer
     queryset = SolutionInImplementationGeometry.objects.all()

@@ -1,5 +1,6 @@
 SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
-python manage.py dump_object auth.group * --no-follow > repair\fixtures\sandbox_groups.json
+python manage.py dump_object --natural-foreign auth.group * --no-follow > repair\fixtures\sandbox_groups.json
+python manage.py dump_object asmfa.reason * > repair\fixtures\sandbox_reason.json
 python manage.py dump_object -k login.casestudy --query "{\"id\": 7}" > repair\fixtures\sandbox_casestudy.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
 python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow.json
@@ -13,6 +14,7 @@ python manage.py dump_object -k studyarea.stakeholdercategory --query "{\"casest
 
 python manage.py merge_fixtures^
  repair\fixtures\sandbox_groups.json^
+ repair\fixtures\sandbox_reason.json^
  repair\fixtures\sandbox_casestudy.json^
  repair\fixtures\sandbox_areas.json^
  repair\fixtures\sandbox_keyflow.json^
@@ -34,7 +36,7 @@ python manage.py reorder_fixtures repair\fixtures\sandbox_data_unordered.json ^
  changes.solutioninimplementationnote changes.solutioninimplementationquantity changes.solutioninimplementationgeometry ^
  changes.strategy ^
  studyarea.adminlevels studyarea.area ^
- asmfa.dataentry ^
+ asmfa.reason ^
  asmfa.keyflow asmfa.keyflowincasestudy asmfa.product asmfa.material asmfa.productfraction ^
  asmfa.activitygroup asmfa.activity asmfa.actor ^
  asmfa.group2group asmfa.activity2activity asmfa.actor2actor ^

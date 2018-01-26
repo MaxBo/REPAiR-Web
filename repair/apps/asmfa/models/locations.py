@@ -35,6 +35,12 @@ class Geolocation(gis.Model):
 
     class Meta:
         abstract = True
+        default_permissions = ('add', 'change', 'delete', 'view')
+
+    @property
+    def level(self):
+        """Return the adminlevel of the area, if exists, else None"""
+        return getattr(self.area, 'adminlevel_id', None)
 
 
 class Establishment(Geolocation):
@@ -47,7 +53,7 @@ class Establishment(Geolocation):
     def keyflow(self):
         return self.actor.activity.activitygroup.keyflow
 
-    class Meta:
+    class Meta(Geolocation.Meta):
         abstract = True
 
 

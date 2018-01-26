@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          GroupStockFactory,
@@ -9,7 +9,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActorStockFactory)
 
 
-class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -57,7 +57,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                                         )
 
 
-class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -106,7 +106,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
             )
 
 
-class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0

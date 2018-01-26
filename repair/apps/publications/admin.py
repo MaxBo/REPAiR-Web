@@ -36,6 +36,8 @@ def import_bibtex(request):
         return response
 
 
+
+
 class PublicationInCasestudyInline(admin.StackedInline):
     model = PublicationInCasestudy
     can_delete = False
@@ -51,6 +53,17 @@ class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
                     name='publications_publication_import_bibtex'),
                 ] + super().get_urls()
 
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        obj.save()
+        casestudy_id = request.session.get('casestudy', None)
+        if casestudy_id is not None:
+            casestudy = CaseStudy.objects.get(pk=casestudy_id)
+            pic = PublicationInCasestudy.objects.get_or_create(
+                casestudy=casestudy,
+                publication=obj)
 
 admin.site.unregister(Publication)
 admin.site.register(Publication, CustomPublicationAdmin)
