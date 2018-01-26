@@ -46,12 +46,15 @@ class PublicationInCasestudyInline(admin.StackedInline):
 
 class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
     inlines = PublicationAdmin.inlines + [PublicationInCasestudyInline]
+    change_list_template = 'publications/publication_change_list.html'
+
 
     def get_urls(self):
-        return [url(r'^import_bibtex/$',
+        urls = [url(r'^import_bibtex/$',
                     import_bibtex,
                     name='publications_publication_import_bibtex'),
                 ] + super().get_urls()
+        return urls
 
     def save_model(self, request, obj, form, change):
         """
