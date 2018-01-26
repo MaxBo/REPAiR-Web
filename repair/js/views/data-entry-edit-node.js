@@ -310,6 +310,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       pencil.classList.add('glyphicon-pencil');
       productWrapper.appendChild(editProductBtn);
       
+      editProductBtn.addEventListener('click', function(){
+        _this.editCustomProduct(_this.products.get(productSelect.value));
+      })
+      
       // raw checkbox
       
       var rawCheckbox = document.createElement("input");
@@ -446,6 +450,55 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       });*/
       
       return row;
+    },
+    
+    editCustomProduct: function(customProduct){
+      if (!customProduct) return;
+      var _this = this;
+      var modal = document.getElementById('product-modal');
+      var inner = document.getElementById('product-modal-template').innerHTML;
+      var template = _.template(inner);
+      var html = template({ productName: customProduct.get('name') });
+      document.getElementById('product-modal-content').innerHTML = html;
+      
+      var table = document.getElementById('product-edit-table')
+      
+      var fractions = customProduct.get('fractions');
+      _.each(fractions, function(fraction){
+        var row = table.insertRow(-1);
+        var fractionsCell = row.insertCell(-1);
+        var fInput = document.createElement("input");
+        fInput.type = 'number';
+        fInput.style = 'text-align: right;';
+        fInput.max = 100;
+        fInput.min = 0;
+        fractionsCell.appendChild(fInput);
+        fInput.value = fraction.fraction * 100;
+        var perDiv = document.createElement('div');
+        perDiv.innerHTML = '%';
+        fractionsCell.appendChild(perDiv);
+        var matSelect = document.createElement("select");
+        
+        _this.materials.each(function(material){
+          var option = document.createElement("option");
+          option.text = '[' + material.get('code') + '] ' + material.get('name');
+          option.value = material.id;
+          matSelect.add(option);
+        })
+        matSelect.value = fraction.material;
+        fRow.insertCell(-1).appendChild(matSelect);
+      });
+      
+      //var editBtn = document.createElement('button');
+      //var pencil = document.createElement('span');
+      //editBtn.classList.add('btn');
+      //editBtn.classList.add('btn-primary');
+      //editBtn.classList.add('square');
+      //editBtn.appendChild(pencil);
+      //editBtn.title = gettext('edit datasource');
+      //pencil.classList.add('glyphicon');
+      //pencil.classList.add('glyphicon-pencil');
+      $(modal).modal('show'); 
     },
 
     // on click add row button

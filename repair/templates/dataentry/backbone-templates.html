@@ -176,6 +176,37 @@
       </div>
     </div>
   </div>
+  <div id="product-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <h4> {% trans "Custom Composition" %} </h4>
+        </div>
+        <div class="modal-body">
+          <div id='product-modal-content'></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary" id="confirm-custom-product" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- product modal content -->
+<script type="text/template" id="product-modal-template">
+  {% trans "derived from " %} <% productName %>
+  <table id="product-edit-table">
+    <thead>
+      <tr>
+        <th>{% trans "Fractions" %}</th>
+        <th>{% trans "Data Source" %}</th>
+      </tr>
+    </thead> 
+    <tbody> 
+    </tbody>
+  </table>
 </script>
 
 <!--- popover template -->
