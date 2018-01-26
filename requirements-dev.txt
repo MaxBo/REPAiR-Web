@@ -1,8 +1,8 @@
 -e .
 
-django==1.11.5
-django-webpack-loader
-djangorestframework
+django==2
+django-webpack-loader>=0.5
+djangorestframework>=3.7
 djangorestframework-gis
 django-test-plus
 django-money
@@ -11,7 +11,8 @@ django-reversion-compare
 diff-match-patch
 bibtexparser>=0.5.5
 
-git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap
+git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.4
+
 drf-nested-routers
 numpy
 matplotlib
@@ -22,7 +23,7 @@ geojson
 django-debug-toolbar
 
 django-dynamic-fixture
-git+https://github.com/davedash/django-fixture-magic.git#egg=django-fixture-magic
+git+https://github.com/MaxBo/django-fixture-magic.git#egg=django-fixture-magic>=0.1.4
 
 fake-factory
 factory_boy

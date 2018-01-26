@@ -5,6 +5,7 @@ body {
   margin: 0px;
   font-family: 'Lato', sans-serif;
   color: #000;
+  background-color: white;
 }
 
 .row{
@@ -24,21 +25,35 @@ div.fullscreen{
   position: fixed;
   top: 0;
   left: 0;
-  background-color: white;
+}
+
+.tooltip {
+  position: relative;
+  padding: 3px;
+  background: #aad400;
+  opacity: 1;
+  white-space: nowrap;
+  font: 10pt sans-serif;
+  color: white;
 }
 
 #wrapper {
-    /*transition: all .4s ease 0s;*/
-    height: 100%;
-    padding-left: 60px;
+  /*transition: all .4s ease 0s;*/
+  height: 100%;
+  padding-left: 60px;
 }
 
 #page-content-wrapper {
-    padding: 5px;
-    margin-left: 0px;
-    width: 100%;
-    height: auto;
-    padding-top: 100px;
+  padding: 5px;
+  margin-left: 0px;
+  width: 100%;
+  height: auto;
+  padding-top: 100px;
+  background-color: white;
+}
+
+#tab-content {
+  background-color: white;
 }
 
 #map {
@@ -262,11 +277,13 @@ tr.popunder > td{
 .bordered {
   border: 1px solid #e6e6e6;
   padding: 10px;
+  background-color: white;
 }
 
 .dashed {
   border: 2px dashed #aad400;
   padding: 10px;
+  background-color: white;
 }
 
 button.square, button.round{
