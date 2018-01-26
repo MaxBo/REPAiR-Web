@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% load render_bundle from webpack_loader %}
+
 {% block sidebar %}
   <script>
     document.getElementById("changes-link").classList.add('active');
@@ -12,7 +14,10 @@
   </ul>
 {% endblock %}
 
-{% block content %}
+{% block content %}  
+  {% render_bundle 'vendors' %}
+  {% render_bundle 'Base' %}
+
   <div class="tab-content">
     <div class="tab-pane fade in active" id="solutions">
       <div class="row">
