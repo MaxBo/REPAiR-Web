@@ -4,6 +4,7 @@ django==2
 django-webpack-loader>=0.5
 djangorestframework>=3.7
 djangorestframework-gis
+django-filter
 django-test-plus
 django-money
 django-reversion

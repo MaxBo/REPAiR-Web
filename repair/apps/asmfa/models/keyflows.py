@@ -77,7 +77,7 @@ class ProductFraction(GDSEModel):
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='items')
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
-                                related_name='products')
+                                related_name='fractions')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='fractions', null=True)
     waste = models.ForeignKey(Waste, on_delete=models.CASCADE,

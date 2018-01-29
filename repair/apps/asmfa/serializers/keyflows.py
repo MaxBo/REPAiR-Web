@@ -8,6 +8,7 @@ from repair.apps.asmfa.models import (Keyflow,
                                       Product,
                                       ProductFraction,
                                       Material,
+                                      Waste, 
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -206,22 +207,9 @@ class ProductFractionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'product']
 
 
-class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
-                        NestedHyperlinkedModelSerializer):
-    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      read_only=True)
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
+class ItemSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
-
-    class Meta:
-        model = Product
-        fields = ('url', 'id', 'name', 'default',
-                  'keyflow',
-                  'fractions',
-                  )
+    parent_lookup_kwargs = {}
 
     def create(self, validated_data):
         fractions = validated_data.pop('fractions')
@@ -268,9 +256,34 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
         return instance
 
 
-class MaterialSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
+class ProductSerializer(ItemSerializer):
+
+    class Meta:
+        model = Product
+        fields = ('url', 'id', 'name', 'nace', 'cpa',
+                  'fractions',
+                  )
+
+
+class WasteSerializer(ItemSerializer):
+
+    class Meta:
+        model = Waste
+        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous', 
+                  'fractions',
+                  )
+
+
+class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
+                         NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    parent = IDRelatedField()
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'code', 'flowType')
+        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')

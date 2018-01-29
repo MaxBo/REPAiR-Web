@@ -1,11 +1,14 @@
 # API View
 from reversion.views import RevisionMixin
+from rest_framework import serializers, pagination
+from django_filters.rest_framework import DjangoFilterBackend
 
 from repair.apps.asmfa.models import (
     Keyflow,
     KeyflowInCasestudy,
     Product,
     Material,
+    Waste, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -14,6 +17,7 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
     MaterialSerializer,
+    WasteSerializer
 )
 
 from repair.apps.login.views import CasestudyViewSetMixin
@@ -48,6 +52,25 @@ class ProductViewSet(RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_product'
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+
+class StandardResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    #max_page_size = 1000
+
+
+class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
+
+    pagination_class = StandardResultsSetPagination
+    #pagination_class = None
+    add_perm = 'asmfa.add_waste'
+    change_perm = 'asmfa.change_waste'
+    delete_perm = 'asmfa.delete_waste'
+    queryset = Waste.objects.all()
+    serializer_class = WasteSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('nace', 'hazardous')
 
 
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
