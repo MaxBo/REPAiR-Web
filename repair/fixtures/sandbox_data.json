@@ -1515,6 +1515,26 @@
     },
     {
         "fields": {
+            "date_joined": "2018-01-29T09:50:23Z",
+            "email": "",
+            "first_name": "",
+            "groups": [
+                5
+            ],
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": false,
+            "last_login": null,
+            "last_name": "",
+            "password": "pbkdf2_sha256$100000$T5R2Dnsl6bWH$d7+t5AJ3zSBkYu1Dcm1eKEEQAgzE1cBl9zcNNluh0+A=",
+            "user_permissions": [],
+            "username": "Yan"
+        },
+        "model": "auth.user",
+        "pk": 9
+    },
+    {
+        "fields": {
             "date_joined": "2018-01-12T10:50:47.774Z",
             "email": "",
             "first_name": "",
@@ -1651,6 +1671,14 @@
     {
         "fields": {
             "organization": "",
+            "user": 9
+        },
+        "model": "login.profile",
+        "pk": 9
+    },
+    {
+        "fields": {
+            "organization": "",
             "user": 8
         },
         "model": "login.profile",
@@ -1721,6 +1749,15 @@
         },
         "model": "login.casestudy",
         "pk": 5
+    },
+    {
+        "fields": {
+            "casestudy": 7,
+            "role": "",
+            "user": 9
+        },
+        "model": "login.userincasestudy",
+        "pk": 74
     },
     {
         "fields": {
@@ -9299,6 +9336,48 @@
         },
         "model": "asmfa.actor",
         "pk": 68
+    },
+    {
+        "fields": {
+            "BvDid": "-",
+            "BvDii": "-",
+            "activity": 18,
+            "consCode": "-",
+            "description": null,
+            "description_eng": null,
+            "done": false,
+            "employees": 0,
+            "included": true,
+            "name": "-----",
+            "reason": null,
+            "turnover": "0",
+            "turnover_currency": "EUR",
+            "website": "www.website.org",
+            "year": 0
+        },
+        "model": "asmfa.actor",
+        "pk": 108
+    },
+    {
+        "fields": {
+            "BvDid": "-",
+            "BvDii": "-",
+            "activity": 18,
+            "consCode": "-",
+            "description": null,
+            "description_eng": null,
+            "done": false,
+            "employees": 0,
+            "included": true,
+            "name": "-----",
+            "reason": null,
+            "turnover": "0",
+            "turnover_currency": "EUR",
+            "website": "www.website.org",
+            "year": 0
+        },
+        "model": "asmfa.actor",
+        "pk": 106
     },
     {
         "fields": {
