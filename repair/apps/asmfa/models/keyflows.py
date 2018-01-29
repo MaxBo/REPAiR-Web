@@ -31,31 +31,60 @@ class KeyflowInCasestudy(GDSEModel):
             pk=self.pk, k=self.keyflow, c=self.casestudy)
 
 
-class Product(GDSEModel):
-
-    # not sure about the max length, leaving everywhere 255 for now
-    name = models.CharField(max_length=255, null=True)
-    default = models.BooleanField(default=True)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
-                                related_name='products')
-
-
 class Material(GDSEModel):
 
-    # not the same as the former Material class that has been renamed to Keyflow
-    code = models.CharField(max_length=10)
     name = models.CharField(max_length=255)
-    flowType = models.CharField(max_length=255, null=True)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,)
+    level = models.IntegerField()
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
+                               related_name='submaterials')
+
+    def clean(self):
+        # Check if parent class is exactly one level higher
+        if self.level - 1 != parent.level and self.level != 1:
+            raise ValidationError(_('Parent material must be one level higher'))
+        elif self.level == 1 and self.parent is not None:
+            raise ValidationError(_('Materials in level I do not have parents'))
+
+
+class Item(GDSEModel):
+
+    nace = models.CharField(max_length=255)
+
+    class Meta:
+        abstract = True
+
+
+class Product(Item):
+
+    cpa = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+
+class Waste(Item):
+
+    ewc = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    wastetype = models.CharField(max_length=255)
+    hazardous = models.BooleanField()
 
 
 class ProductFraction(GDSEModel):
 
-    fraction = models.FloatField(default=1)
-
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='fractions')
+    fraction = models.FloatField()
+    name = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
-                                 related_name='products')
+                                 related_name='items')
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                related_name='products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='fractions', null=True)
+    waste = models.ForeignKey(Waste, on_delete=models.CASCADE,
+                              related_name='fractions', null=True)
+    default = models.BooleanField(default=True)
 
     def __str__(self):
-        return '{}: {}'.format(self.product, self.material)
+        if self.product:
+            return '{}: {}'.format(self.product, self.material)
+        elif self.waste:
+            return '{}: {}'.format(self.waste, self.material)

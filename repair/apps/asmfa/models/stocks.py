@@ -34,6 +34,7 @@ class GroupStock(Stock):
                                 related_name='GroupStocks')
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='GroupStockData')
+    fractions = models.ManyToManyField(ProductFraction)
 
 
 class ActivityStock(Stock):
@@ -42,6 +43,7 @@ class ActivityStock(Stock):
                                related_name='stocks')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='ActivityStocks')
+    fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='ActivityStockData')
 
@@ -50,7 +52,6 @@ class ActorStock(Stock):
 
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActorStocks')
+    fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='ActorStockData')
