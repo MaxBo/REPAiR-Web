@@ -34,8 +34,8 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,)
-    level = models.IntegerField()
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                related_name='materials')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
 

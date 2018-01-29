@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import GDSEModel
-from .keyflows import KeyflowInCasestudy
+from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
 
 
 class Node(GDSEModel):

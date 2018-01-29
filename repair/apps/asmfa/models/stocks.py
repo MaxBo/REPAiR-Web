@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Product)
+from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, ProductFraction)
 from repair.apps.publications.models import PublicationInCasestudy
 from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
@@ -30,8 +30,6 @@ class GroupStock(Stock):
 
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='GroupStocks')
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='GroupStockData')
     fractions = models.ManyToManyField(ProductFraction)
@@ -41,8 +39,6 @@ class ActivityStock(Stock):
 
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                related_name='stocks')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='ActivityStocks')
     fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='ActivityStockData')

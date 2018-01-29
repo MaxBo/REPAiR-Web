@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Product)
+from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, ProductFraction)
 from repair.apps.publications.models import PublicationInCasestudy
 from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
@@ -57,3 +57,4 @@ class Actor2Actor(Flow):
                                related_name='outputs')
     fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='Actor2ActorData')
