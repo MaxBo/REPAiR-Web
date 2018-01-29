@@ -397,7 +397,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      * set the select options of all selects with higher (=finer) level than
      * the select with given index (as in this.areaSelects with ascending level)
      */
-    setAreaChildSelects: function(idx){
+    setAreaChildSelects: function(area, idx){
       var _this = this;
       // last level has no children itself -> return
       var select = this.areaSelects[idx];
@@ -407,13 +407,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         _.each(childSelects, function(sel){
           clearSelect(sel);
       });
-      if (select.value == -1) return;
+      if (area == null) return;
       var directChild = childSelects[0];
       var childAreas = new Areas([], { 
         caseStudyId: this.keyflow.get('casestudy'), levelId: directChild.levelId 
       });
       childAreas.fetch({ 
-        data: { parent_id: select.value, parent_level: select.level },
+        data: { parent_id: area.id },
         success: function(){ _this.addAreaOptions(childAreas, directChild); } 
       });
     },
@@ -436,7 +436,6 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var parentId = area.get('properties').parent_area,
             parentLevelId = area.get('properties').parent_level,
             caseStudyId = this.keyflow.get('casestudy');
-            
         // fill this select
         var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
         areas.fetch({
@@ -521,17 +520,18 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           // remove polygons, keep markers
           _this.localMap.clearLayer('administrative', { types: ['Polygon', 'MultiPolygon'] });
           _this.localMap.clearLayer('operational', { types: ['Polygon', 'MultiPolygon'] });
+          var area;
           if (areaId >= 0){
-            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+            area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
             fetchDraw(area);
           }
           // an area is deselected -> draw parent one (not on top level)
           else if (cur > 0) {
             var parentSelect = _this.areaSelects[cur-1];
-            var area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
+            area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
             fetchDraw(area);
           }
-          _this.setAreaChildSelects(cur);
+          _this.setAreaChildSelects(area, cur);
         });
         
         idx++;
@@ -675,13 +675,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             areas.fetch({ data: { parent_id: parentId }, success: function(){
               _this.setAreaSelects(
                 area, selectIdx, 
-                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(selectIdx); } 
+                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); } 
               });
             }});
           }
           else {
             select.value = areaId;
-            _this.setAreaChildSelects(selectIdx);
+            _this.setAreaChildSelects(area, selectIdx);
           }
         }});
         
