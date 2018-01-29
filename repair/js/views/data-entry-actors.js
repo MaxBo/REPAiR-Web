@@ -235,7 +235,6 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
      * remove selected actor on button click in modal
      */
     removeActorEvent: function(){
-      console.log('hallo')
       var _this = this;
       this.activeActor.destroy({success: function(){
         _this.actorView.close();

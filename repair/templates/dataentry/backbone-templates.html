@@ -62,7 +62,7 @@
     <div class="row">
       <h3>
         <%= name %> 
-        <div id='node-info' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
+        <div id='node-info-popover' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
       </h3>
       <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger btn-upload">
         <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
@@ -137,10 +137,19 @@
         </div>
         <div class="modal-body">
           <div class='row'>
+            <a href="/admin/publications_bootstrap/publication/" target="_blank" class="btn btn-primary square" style='float: left;'>
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Add Publication" %} 
+            </a>
+            <button id='refresh-publications-button' class="btn btn-primary round" title="{% trans "refresh list of publications" %}" style='float: right;'>
+              <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh List" %}
+            </button>
+          </div>
+          <div class='row'>
             <table id='publications-table' class='tablesorter'>
               <thead>
                 <tr>
                   <th>{% trans "Title" %}</th>
+                  <th>{% trans "Type" %}</th>
                   <th>{% trans "Authors" %}</th>
                   <th>{% trans "DOI" %}</th>
                   <th>{% trans "URL" %}</th>
@@ -158,7 +167,7 @@
                 <input disabled type="text" class="pagedisplay"/>
                 <img src="{{STATIC_URL}}img/next.png" class="next"/>
                 <img src="{{STATIC_URL}}img/last.png" class="last"/>
-                <select class="pagesize">
+                <select id="dspagesize" class="pagesize">
                   <option value="20">20</option>
                   <option value="40">40</option>
                   <option value="60">60</option>
@@ -209,12 +218,19 @@
   </table>
 </script>
 
-<!--- popover template -->
+<!--- popover templates -->
 <script type="text/template" id="popover-product-template">
-  <!--<b><%= productName %></b>-->
+  <b><%= productName %></b>
   <% _.each(fractions, function(fraction){ %>
     <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
   <% }); %>
+</script>
+
+<script type="text/template" id="popover-source-template">
+  <div class='row'><b> <%= publication.get('title') %> </b></div>
+  <div class='row'> <%= publication.get('authors') %></div>
+  <div class='row'> <%= publication.get('doi') %></div>
+  <div class='row'> <%= publication.get('publication_url') %></div>
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->

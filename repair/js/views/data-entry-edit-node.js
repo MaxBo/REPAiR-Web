@@ -106,7 +106,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     events: {
       'click #upload-flows-button': 'uploadChanges',
       'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
-      'click #confirm-datasource': 'confirmDatasource'
+      'click #confirm-datasource': 'confirmDatasource',
+      'click #refresh-publications-button': 'refreshDatasources'
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
@@ -129,7 +130,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           content: this.attrTableInner
       }
       require('bootstrap');
-      this.setupPopover($('#node-info').popover(popOverSettings));
+      this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
       // render inFlows
       this.inFlows.each(function(flow){
@@ -142,8 +143,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         _this.addFlowRow('stock-table', stock, 'origin', true);
       });
       
-      this.setupDsTable();
       this.renderDatasources(this.publications);
+      this.setupDsTable();
     },
     
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -281,7 +282,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // information popup for products
       
       var popOverSettings = {
-          placement: 'right',
+          placement: 'top',
           container: 'body',
           trigger: 'manual',
           html: true,
@@ -353,7 +354,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         var publication = this.publications.get(pubId)
         var title = publication.get('title');
         genSource.value = title;
-        genSource.title = title;
       }
       genSource.disabled = true;
       genSource.style.cursor = 'pointer';
@@ -370,84 +370,37 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         if (publication != null){
           var title = publication.get('title');
           genSource.value = title;
-          genSource.title = title;
-          genSource.title = title;
           flow.set('publication', publication.id)
           genSource.dispatchEvent(new Event('change'));
-          // ToDo set it to model
         }
       };
       editBtn.addEventListener('click', function(){
         _this.editDatasource(onChange);
       });
       
-      /*
-      var collapse = document.createElement('div');
-      var dsRow = table.insertRow(-1);
-      
-      // collapse icon to show/hide individual datasources
-      dsRow.classList.add('hidden');
-      collapse.style.marginLeft = "4px";
-      collapse.style.cursor = 'pointer';
-      collapse.classList.add('glyphicon');
-      collapse.title = 'show individual datasources';
-      collapse.classList.add('glyphicon-chevron-down');
-      sourceWrapper.addEventListener('click', function(){
-        dsRow.classList.toggle('hidden');
-        collapse.classList.toggle('glyphicon-chevron-down');
-        collapse.classList.toggle('glyphicon-chevron-up');
-      });
-      */
-      
       sourceWrapper.appendChild(genSource);
       sourceCell.appendChild(sourceWrapper);
       sourceCell.appendChild(editBtn);
       
-      /*
-      sourceWrapper.appendChild(collapse);
+      // information popup for source
       
-      // own row for individual Datasources
-      
-      dsRow.classList.add('popunder');
-      dsRow.insertCell(-1).innerHTML = gettext('Sources:');
-      
-      var datasourcableAttributes = ['amount', 'product'];
-      // all except stocks have datasource for target
-      if (!skipTarget)
-        datasourcableAttributes.splice(1, 0, targetIdentifier)
-      _.each(datasourcableAttributes, function(attr){
-        var source = document.createElement('input');
-        source.value = 'test';
-        source.disabled = true;
-        var button = document.createElement('button');
-        button.innerHTML = gettext('Set');
-        button.classList.add('btn');
-        button.classList.add('btn-primary');
-        button.classList.add('square');
-        function onChange(publication){
-          if (publication != null){
-            source.value = publication.get('title');
-            source.dispatchEvent(new Event('change'));
+      var popOverSettingsSource = {
+          placement: 'top',
+          container: 'body',
+          trigger: 'manual',
+          html: true,
+          content: function () {
+              var publication = _this.publications.get(flow.get('publication'));
+              if (publication == null) return '';
+              var html = document.getElementById('popover-source-template').innerHTML;
+              var template = _.template(html);
+              console.log(publication.get('title'))
+              var content = template({publication: publication});
+              return content;
           }
-          // ToDo set it to model
-        };
-        button.addEventListener('click', function(){
-          _this.editDatasource(onChange);
-        });
-        //var sel = document.createElement("select");
-        var cell = dsRow.insertCell(-1);
-        cell.setAttribute("style", "white-space: nowrap");
-        cell.appendChild(source);
-        cell.appendChild(button);
-        // general datasource overrides all sub datasources
-        genSource.addEventListener('change', function(){
-          source.value = genSource.value;
-        });
-        // sub datasources changes -> show that general datasource is custom by leaving it blank
-        source.addEventListener('change', function(){
-          genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
-        });
-      });*/
+      }
+      
+      this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
       
       return row;
     },
@@ -619,29 +572,48 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     
     setupDsTable: function(){
       require('libs/jquery.tablesorter.pager');
-      $(this.dsTable).tablesorter({});
+      $(this.dsTable).tablesorter({
+        widgets: ['filter'],
+        widgetOptions : {
+          filter_placeholder: { search : gettext('Search') + '...' }
+        }
+      });
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
       if ($(this.dsTable).find('tr').length > 1)
         $(this.dsTable).tablesorterPager({container: $("#dspager")});
       
       ////workaround for a bug in tablesorter-pager by triggering
       ////event that pager-selection changed to redraw number of visible rows
-      //var sel = document.getElementById('dspagesize');
-      //sel.selectedIndex = 0;
-      //sel.dispatchEvent(new Event('change'));
+      var sel = document.getElementById('dspagesize');
+      sel.selectedIndex = 0;
+      sel.dispatchEvent(new Event('change'));
+    },
     
+    refreshDatasources(){
+      var _this = this;
+      this.publications.fetch({ success: function(){
+        _this.renderDatasources(_this.publications) 
+      }});
     },
     
     renderDatasources: function(publications){
       var _this = this;
       var table = this.dsTable;
-      $.tablesorter.clearTableBody($(table)[0]);
       this.dsRows = [];
+      // avoid error message if not initialized with tablesorter yet
+      try {
+        $.tablesorter.clearTableBody($(table)[0]);
+      }
+      catch (err) { }
       publications.each(function(publication){
-        var row = document.createElement('tr');
+        var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
+        console.log(table.getElementsByTagName('tbody')[0])
+        console.log(publication)
+        console.log(row)
         row.style.cursor = 'pointer';
         _this.dsRows.push(row);
         row.insertCell(-1).innerHTML = publication.get('title');
+        row.insertCell(-1).innerHTML = publication.get('type');
         row.insertCell(-1).innerHTML = publication.get('authors');
         row.insertCell(-1).innerHTML = publication.get('doi');
         var anchor = document.createElement('a');
@@ -650,7 +622,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         anchor.innerHTML = url;
         anchor.target = '_blank';
         row.insertCell(-1).appendChild(anchor);
-        $(table).find('tbody').append($(row)).trigger('addRows', [$(row), true]);
+        
+        // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
+        //$(table).trigger('addRows', [$(row), true]);
         
         row.addEventListener('click', function() {
           _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
@@ -699,7 +673,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       $.when.apply($, saveComplete).done(function(){
         $.when.apply($, destructionComplete).done(function(){
           loader.remove();
-          console.log('upload complete');
           _this.onUpload();
         }).fail(onError);
       }).fail(onError);

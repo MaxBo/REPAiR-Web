@@ -58,7 +58,7 @@ tr.dsbld td{
     opacity: 0.8;
 }
 
-#actors-table th, #products-table th{
+#actors-table th, #products-table th, #publications-table th{
     color: white !IMPORTANT;
     background-color:  #aad400 !IMPORTANT;
 }
