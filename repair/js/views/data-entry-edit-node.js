@@ -394,7 +394,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
               if (publication == null) return '';
               var html = document.getElementById('popover-source-template').innerHTML;
               var template = _.template(html);
-              console.log(publication.get('title'))
               var content = template({publication: publication});
               return content;
           }
@@ -592,7 +591,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     refreshDatasources(){
       var _this = this;
       this.publications.fetch({ success: function(){
-        _this.renderDatasources(_this.publications) 
+        // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
+        $(_this.dsTable).trigger("destroy");
+        _this.renderDatasources(_this.publications);
+        _this.setupDsTable();
       }});
     },
     
@@ -607,9 +609,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       catch (err) { }
       publications.each(function(publication){
         var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
-        console.log(table.getElementsByTagName('tbody')[0])
-        console.log(publication)
-        console.log(row)
         row.style.cursor = 'pointer';
         _this.dsRows.push(row);
         row.insertCell(-1).innerHTML = publication.get('title');
