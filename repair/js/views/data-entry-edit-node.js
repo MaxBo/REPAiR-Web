@@ -108,12 +108,13 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
       var nace = this.model.get('nace') || 'None';
+      nace = 'C-1086';
 
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
              this.outFlows.fetch({ data: { origin: this.model.id } }),
              this.stocks.fetch({ data: { origin: this.model.id } }),
-             this.outProducts.getFirstPage({ data: { nace: 'A-0111' } }),
-             this.outWastes.getFirstPage({ data: { nace: 'A-0111' } })).then(function() {
+             this.outProducts.getFirstPage({ data: { nace: nace } }),
+             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
           loader.remove();
           _this.render();
       });
@@ -294,50 +295,40 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         else addOptions(null, productSelect);
       });
       
-      addOptions(this.products, productSelect);
-      productSelect.value = flow.get('product');
       productWrapper.appendChild(typeSelect);
-      productWrapper.appendChild(productSelect);
-
-      productSelect.addEventListener('change', function() {
-        flow.set('product', productSelect.value);
-      });
       
-      // information popup for products
       
-      //var popOverSettings = {
-          //placement: 'top',
-          //container: 'body',
-          //trigger: 'manual',
-          //html: true,
-          //content: function () {
-              //var product = _this.products.get(productSelect.value);
-              //if (product == null) return '';
-              //var html = document.getElementById('popover-product-template').innerHTML;
-              //var template = _.template(html);
-              //var content = template({fractions: product.get('fractions'), 
-                                      //materials: _this.materials,
-                                      //productName: product.get('name')});
-              //return content;
-          //}
-      //}
-      
-      //this.setupPopover($(productSelect).popover(popOverSettings));
-      
-      var editProductBtn = document.createElement('button');
+      var editFractionsBtn = document.createElement('button');
       var pencil = document.createElement('span');
-      editProductBtn.classList.add('btn');
-      editProductBtn.classList.add('btn-primary');
-      editProductBtn.classList.add('square');
-      editProductBtn.appendChild(pencil);
-      editProductBtn.title = gettext('edit composition');
-      pencil.classList.add('glyphicon');
-      pencil.classList.add('glyphicon-pencil');
-      productWrapper.appendChild(editProductBtn);
+      editFractionsBtn.classList.add('btn');
+      editFractionsBtn.classList.add('btn-primary');
+      editFractionsBtn.classList.add('square');
+      editFractionsBtn.appendChild(pencil);
+      editFractionsBtn.innerHTML = gettext('Fractions');
       
-      editProductBtn.addEventListener('click', function(){
-        _this.editCustomProduct(_this.products.get(productSelect.value));
+      productWrapper.appendChild(editFractionsBtn);
+      
+      editFractionsBtn.addEventListener('click', function(){
+        _this.editFractions(flow);
       })
+      
+      // information popup for fractions
+      var popOverSettings = {
+          placement: 'top',
+          container: 'body',
+          trigger: 'manual',
+          html: true,
+          content: function () {
+              var html = document.getElementById('popover-fractions-template').innerHTML;
+              var template = _.template(html);
+              var content = template({fractions: flow.get('fractions'), 
+                                      materials: _this.materials});
+              return content;
+          }
+      }
+      
+      this.setupPopover($(editFractionsBtn).popover(popOverSettings));
+      
       
       // raw checkbox
       
@@ -428,45 +419,60 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       return row;
     },
     
-    editCustomProduct: function(customProduct){
-      if (!customProduct) return;
+    editFractions: function(flow, items){
+      
+      var items = (flow.get('waste')) ? this.outWastes : this.outProducts;
       var _this = this;
-      var modal = document.getElementById('product-modal');
-      var inner = document.getElementById('product-modal-template').innerHTML;
+      var modal = document.getElementById('fractions-modal');
+      var inner = document.getElementById('fractions-modal-template').innerHTML;
       var template = _.template(inner);
-      var html = template({ productName: customProduct.get('name') });
-      document.getElementById('product-modal-content').innerHTML = html;
+      var html = template({items: items, waste: flow.get('waste')});
+      document.getElementById('fractions-modal-content').innerHTML = html;
       
-      var table = document.getElementById('product-edit-table')
+      var table = document.getElementById('fractions-edit-table')
       
-      var fractions = customProduct.get('fractions');
-      _.each(fractions, function(fraction){
-        var row = table.insertRow(-1);
-        var fractionsCell = row.insertCell(-1);
-        var fInput = document.createElement("input");
-        fInput.type = 'number';
-        fInput.style = 'text-align: right;';
-        fInput.max = 100;
-        fInput.min = 0;
-        fInput.style.float = 'left';
-        fractionsCell.appendChild(fInput);
-        fInput.value = fraction.fraction * 100;
-        var perDiv = document.createElement('div');
-        perDiv.innerHTML = '%';
-        perDiv.style.float = 'left';
-        fractionsCell.appendChild(perDiv);
-        var matSelect = document.createElement("select");
-        matSelect.style.float = 'left';
-        
-        _this.materials.each(function(material){
-          var option = document.createElement("option");
-          option.text = '[' + material.get('code') + '] ' + material.get('name');
-          option.value = material.id;
-          matSelect.add(option);
-        })
-        matSelect.value = fraction.material;
-        fractionsCell.appendChild(matSelect);
+      var fractions = flow.get('fractions');
+      
+      function setFractions(fractions) {
+        _.each(fractions, function(fraction){
+          var row = table.insertRow(-1);
+          var fractionsCell = row.insertCell(-1);
+          var fInput = document.createElement("input");
+          fInput.type = 'number';
+          fInput.style = 'text-align: right;';
+          fInput.max = 100;
+          fInput.min = 0;
+          fInput.style.float = 'left';
+          fractionsCell.appendChild(fInput);
+          fInput.value = fraction.fraction * 100;
+          var perDiv = document.createElement('div');
+          perDiv.innerHTML = '%';
+          perDiv.style.float = 'left';
+          fractionsCell.appendChild(perDiv);
+          var matSelect = document.createElement("select");
+          matSelect.style.float = 'left';
+          
+          _this.materials.each(function(material){
+            var option = document.createElement("option");
+            var name = material.get('name')
+            option.text = name.substring(0, 70);
+            if (name.length > 70) option.text += '...';
+            option.title = name
+            option.value = material.id;
+            matSelect.add(option);
+          })
+          matSelect.value = fraction.material;
+          fractionsCell.appendChild(matSelect);
+        });
+      }
+      
+      setFractions(fractions);
+      var itemSelect = modal.querySelector('select[name="items"]');
+      itemSelect.addEventListener('change', function(){
+        var item = items.get(itemSelect.value);
+        setFractions(item.get('fractions'));
       });
+      
       
       //var editBtn = document.createElement('button');
       //var pencil = document.createElement('span');

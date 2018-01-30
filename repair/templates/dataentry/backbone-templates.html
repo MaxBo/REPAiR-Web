@@ -77,7 +77,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
-          <th>{% trans "Waste/Product" %}</th>
+          <th>{% trans "Item" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -96,7 +96,7 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
-          <th>{% trans "Waste/Product" %}</th>
+          <th>{% trans "Item" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -115,7 +115,7 @@
         <tr>
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
-          <th>{% trans "Waste/Product" %}</th>
+          <th>{% trans "Item" %}</th>
           <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
@@ -185,28 +185,34 @@
       </div>
     </div>
   </div>
-  <div id="product-modal" class="modal fade" role="dialog">
+  <div id="fractions-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content col-md-12">
         <div class="modal-header">
-          <h4> {% trans "Custom Composition" %} </h4>
+          <h4> {% trans "Composition" %} </h4>
         </div>
         <div class="modal-body">
-          <div id='product-modal-content'></div>
+          <div id='fractions-modal-content'></div>
         </div>
         <div class="modal-footer">
           <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-          <button class="btn btn-primary" id="confirm-custom-product" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+          <button class="btn btn-primary" id="confirm-custom-fractions" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
         </div>
       </div>
     </div>
   </div>
 </script>
 
-<!-- product modal content -->
-<script type="text/template" id="product-modal-template">
-  {% trans "derived from " %} <% productName %>
-  <table id="product-edit-table">
+<!-- fractions modal content -->
+<script type="text/template" id="fractions-modal-template">
+  <% if(waste) { %> {% trans "Waste" %} <% } else  { %> {% trans "Product"%} <% } %>
+  <select name="items">
+    <option disabled selected> {% trans "select"%} </option>
+  <% items.each(function(item) { %>
+    <option value="<%= item.id %>"> <%= item.get("name") %></option>
+  <% }); %>
+  </select>
+  <table id="fractions-edit-table">
     <thead>
       <tr>
         <th>{% trans "Fractions" %}</th>
@@ -219,8 +225,7 @@
 </script>
 
 <!--- popover templates -->
-<script type="text/template" id="popover-product-template">
-  <b><%= productName %></b>
+<script type="text/template" id="popover-fractions-template">
   <% _.each(fractions, function(fraction){ %>
     <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
   <% }); %>
