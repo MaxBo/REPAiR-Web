@@ -227,6 +227,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
+    nace = serializers.CharField(source='activity.nace', read_only=True)
 
     website = URLFieldWithoutProtocol(required=False, default="",
                                       allow_blank=True)
@@ -236,7 +237,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included',
+                  'included', 'nace', 
                   'reason',
                   )
 
@@ -252,7 +253,7 @@ class AllActorListSerializer(AllActorSerializer):
     class Meta(AllActorSerializer.Meta):
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included', 'reason', )
+                  'included', 'nace', 'reason', )
 
 
 class ReasonSerializer(serializers.ModelSerializer):
