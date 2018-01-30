@@ -4,7 +4,7 @@ python manage.py dump_object asmfa.reason * > repair\fixtures\sandbox_reason.jso
 python manage.py dump_object -k login.casestudy --query "{\"id\": 7}" > repair\fixtures\sandbox_casestudy.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
 python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow.json
-python manage.py dump_object -k asmfa.productfraction --query "{\"product__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_products.json
+python manage.py dump_object -k asmfa.productfraction --query "{\"keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_products.json
 python manage.py dump_object -k changes.solutioninimplementation --query "{\"implementation__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutions.json
 python manage.py dump_object -k changes.solutionratiooneunit --query "{\"solution__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutionsratio.json
 python manage.py dump_object -k changes.strategy --query "{\"user__casestudy__id\": 7}"  > repair\fixtures\sandbox_strategy.json

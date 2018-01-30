@@ -269,11 +269,6 @@
                     "product"
                 ],
                 [
-                    "view_product",
-                    "asmfa",
-                    "product"
-                ],
-                [
                     "add_productfraction",
                     "asmfa",
                     "productfraction"
@@ -7151,486 +7146,4180 @@
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Plastic Deposit"
+            "cpa": "11.06",
+            "nace": "C-1106",
+            "name": "Malt"
         },
         "model": "asmfa.product",
-        "pk": 11
+        "pk": 93
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Sorted Plastic"
+            "cpa": "11.05",
+            "nace": "C-1105",
+            "name": "Beer"
         },
         "model": "asmfa.product",
-        "pk": 10
+        "pk": 92
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Municipal Solid Waste"
+            "cpa": "11.04",
+            "nace": "C-1104",
+            "name": "Other non-distilled fermented beverages"
         },
         "model": "asmfa.product",
-        "pk": 9
+        "pk": 91
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Restaurant Waste"
+            "cpa": "11.03",
+            "nace": "C-1103",
+            "name": "Cider and other fruit wines"
         },
         "model": "asmfa.product",
-        "pk": 8
+        "pk": 90
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Sorted Cardboard Waste"
+            "cpa": "11.02",
+            "nace": "C-1102",
+            "name": "Wine from grape"
         },
         "model": "asmfa.product",
-        "pk": 7
+        "pk": 89
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Farm Waste"
+            "cpa": "11.01",
+            "nace": "C-1101",
+            "name": "Distilled alcoholic beverages"
         },
         "model": "asmfa.product",
-        "pk": 6
+        "pk": 88
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Cardboard Box for Water Bottles"
+            "cpa": "10.92",
+            "nace": "C-1092",
+            "name": "Prepared pet foods"
         },
         "model": "asmfa.product",
-        "pk": 5
+        "pk": 87
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Cardboard Cheese Box"
+            "cpa": "10.91",
+            "nace": "C-1091",
+            "name": "Prepared feeds for farm animals"
         },
         "model": "asmfa.product",
-        "pk": 4
+        "pk": 86
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Plastic Juice Bottle"
+            "cpa": "10.89",
+            "nace": "C-1089",
+            "name": "Other food products n.e.c."
         },
         "model": "asmfa.product",
-        "pk": 3
+        "pk": 85
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Plastic Milk Bottle"
+            "cpa": "10.86",
+            "nace": "C-1086",
+            "name": "Homogenised food preparations and dietetic food"
         },
         "model": "asmfa.product",
-        "pk": 2
+        "pk": 84
     },
     {
         "fields": {
-            "default": true,
-            "keyflow": 30,
-            "name": "Plastic Water Bottle"
+            "cpa": "10.85",
+            "nace": "C-1085",
+            "name": "Prepared meals and dishes"
         },
         "model": "asmfa.product",
-        "pk": 1
+        "pk": 83
     },
     {
         "fields": {
-            "code": "P3",
-            "flowType": "Plastic Waste",
-            "name": "Plastic packaging-PP"
+            "cpa": "10.84",
+            "nace": "C-1084",
+            "name": "Condiments and seasonings"
+        },
+        "model": "asmfa.product",
+        "pk": 82
+    },
+    {
+        "fields": {
+            "cpa": "10.83",
+            "nace": "C-1083",
+            "name": "Processed tea and coffee"
+        },
+        "model": "asmfa.product",
+        "pk": 81
+    },
+    {
+        "fields": {
+            "cpa": "10.82",
+            "nace": "C-1082",
+            "name": "Cocoa, chocolate and sugar confectionery"
+        },
+        "model": "asmfa.product",
+        "pk": 80
+    },
+    {
+        "fields": {
+            "cpa": "10.81",
+            "nace": "C-1081",
+            "name": "Sugar"
+        },
+        "model": "asmfa.product",
+        "pk": 79
+    },
+    {
+        "fields": {
+            "cpa": "10.73",
+            "nace": "C-1073",
+            "name": "Macaroni, noodles, couscous and similar farinaceous products"
+        },
+        "model": "asmfa.product",
+        "pk": 78
+    },
+    {
+        "fields": {
+            "cpa": "10.71",
+            "nace": "C-1071",
+            "name": "Bread; fresh pastry goods and cakes"
+        },
+        "model": "asmfa.product",
+        "pk": 76
+    },
+    {
+        "fields": {
+            "cpa": "10.62",
+            "nace": "C-1062",
+            "name": "Starches and starch products"
+        },
+        "model": "asmfa.product",
+        "pk": 75
+    },
+    {
+        "fields": {
+            "cpa": "10.61",
+            "nace": "C-1061",
+            "name": "Grain mill products"
+        },
+        "model": "asmfa.product",
+        "pk": 74
+    },
+    {
+        "fields": {
+            "cpa": "10.52",
+            "nace": "C-1052",
+            "name": "Ice cream"
+        },
+        "model": "asmfa.product",
+        "pk": 73
+    },
+    {
+        "fields": {
+            "cpa": "10.42",
+            "nace": "C-1042",
+            "name": "Margarine and similar edible fats"
+        },
+        "model": "asmfa.product",
+        "pk": 71
+    },
+    {
+        "fields": {
+            "cpa": "10.41",
+            "nace": "C-1041",
+            "name": "Oils and fats"
+        },
+        "model": "asmfa.product",
+        "pk": 70
+    },
+    {
+        "fields": {
+            "cpa": "10.39",
+            "nace": "C-1039",
+            "name": "Other processed and preserved fruit and vegetables"
+        },
+        "model": "asmfa.product",
+        "pk": 69
+    },
+    {
+        "fields": {
+            "cpa": "10.32",
+            "nace": "C-1032",
+            "name": "Fruit and vegetable juices"
+        },
+        "model": "asmfa.product",
+        "pk": 68
+    },
+    {
+        "fields": {
+            "cpa": "10.31",
+            "nace": "C-1031",
+            "name": "Processed and preserved potatoes"
+        },
+        "model": "asmfa.product",
+        "pk": 67
+    },
+    {
+        "fields": {
+            "cpa": "10.2",
+            "nace": "C-1020",
+            "name": "Processed and preserved fish, crustaceans and molluscs"
+        },
+        "model": "asmfa.product",
+        "pk": 66
+    },
+    {
+        "fields": {
+            "cpa": "10.13",
+            "nace": "C-1013",
+            "name": "Meat and poultry meat products"
+        },
+        "model": "asmfa.product",
+        "pk": 65
+    },
+    {
+        "fields": {
+            "cpa": "10.12",
+            "nace": "C-1012",
+            "name": "Processed and preserved poultry meat"
+        },
+        "model": "asmfa.product",
+        "pk": 64
+    },
+    {
+        "fields": {
+            "cpa": "10.11",
+            "nace": "C-1011",
+            "name": "Processed and preserved meat"
+        },
+        "model": "asmfa.product",
+        "pk": 63
+    },
+    {
+        "fields": {
+            "cpa": "10.51",
+            "nace": "C-1051",
+            "name": "Dairy and cheese products"
+        },
+        "model": "asmfa.product",
+        "pk": 72
+    },
+    {
+        "fields": {
+            "cpa": "11.07",
+            "nace": "C-1107",
+            "name": "Soft drinks; mineral waters and other bottled waters"
+        },
+        "model": "asmfa.product",
+        "pk": 94
+    },
+    {
+        "fields": {
+            "cpa": "10.72",
+            "nace": "C-1072",
+            "name": "Rusks and biscuits; preserved pastry goods and cakes"
+        },
+        "model": "asmfa.product",
+        "pk": 77
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Green glass",
+            "parent": 316
         },
         "model": "asmfa.material",
-        "pk": 12
+        "pk": 319
     },
     {
         "fields": {
-            "code": "P4",
-            "flowType": "Plastic Waste",
-            "name": "Plastic packaging-PS"
+            "keyflow": 30,
+            "level": 4,
+            "name": "Brown glass",
+            "parent": 316
+        },
+        "model": "asmfa.material",
+        "pk": 318
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Clear glass",
+            "parent": 316
+        },
+        "model": "asmfa.material",
+        "pk": 317
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Packaging container glass",
+            "parent": 315
+        },
+        "model": "asmfa.material",
+        "pk": 316
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Glass",
+            "parent": 256
+        },
+        "model": "asmfa.material",
+        "pk": 315
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Aluminium wrapping foil",
+            "parent": 311
+        },
+        "model": "asmfa.material",
+        "pk": 314
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Non-ferrous Non-packaging metals",
+            "parent": 311
+        },
+        "model": "asmfa.material",
+        "pk": 313
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Non-ferrous Metal packaging containers",
+            "parent": 311
+        },
+        "model": "asmfa.material",
+        "pk": 312
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Non-ferrous",
+            "parent": 307
+        },
+        "model": "asmfa.material",
+        "pk": 311
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Ferrous Non-packaging metals",
+            "parent": 308
+        },
+        "model": "asmfa.material",
+        "pk": 310
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Ferrous Metal packaging containers",
+            "parent": 308
+        },
+        "model": "asmfa.material",
+        "pk": 309
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Ferrous",
+            "parent": 307
+        },
+        "model": "asmfa.material",
+        "pk": 308
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Metal",
+            "parent": 256
+        },
+        "model": "asmfa.material",
+        "pk": 307
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Unidentified plastic resin",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 306
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Other plastic resins labelled with [1-19] and ABS",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 305
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PS Composite plastic + metal coating",
+            "parent": 302
+        },
+        "model": "asmfa.material",
+        "pk": 304
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PS Pure plastic film",
+            "parent": 302
+        },
+        "model": "asmfa.material",
+        "pk": 303
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PS Plastic film",
+            "parent": 299
+        },
+        "model": "asmfa.material",
+        "pk": 302
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PS Non-packaging plastic",
+            "parent": 299
+        },
+        "model": "asmfa.material",
+        "pk": 301
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PS Packaging plastic",
+            "parent": 299
+        },
+        "model": "asmfa.material",
+        "pk": 300
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "PS",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 299
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PP Composite plastic + metal coating",
+            "parent": 296
+        },
+        "model": "asmfa.material",
+        "pk": 298
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PP Pure plastic film",
+            "parent": 296
+        },
+        "model": "asmfa.material",
+        "pk": 297
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PP Plastic film",
+            "parent": 293
+        },
+        "model": "asmfa.material",
+        "pk": 296
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PP Non-packaging plastic",
+            "parent": 293
+        },
+        "model": "asmfa.material",
+        "pk": 295
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PP Packaging plastic",
+            "parent": 293
+        },
+        "model": "asmfa.material",
+        "pk": 294
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "PP",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 293
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "LDPE/LLDPE Composite plastic + metal coating",
+            "parent": 290
+        },
+        "model": "asmfa.material",
+        "pk": 292
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "LDPE/LLDPE Pure plastic film",
+            "parent": 290
+        },
+        "model": "asmfa.material",
+        "pk": 291
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "LDPE/LLDPE Plastic film",
+            "parent": 287
+        },
+        "model": "asmfa.material",
+        "pk": 290
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "LDPE/LLDPE Non-packaging plastic",
+            "parent": 287
+        },
+        "model": "asmfa.material",
+        "pk": 289
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "LDPE/LLDPE Packaging plastic",
+            "parent": 287
+        },
+        "model": "asmfa.material",
+        "pk": 288
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "LDPE/LLDPE",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 287
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PVC/V Composite plastic + metal coating",
+            "parent": 284
+        },
+        "model": "asmfa.material",
+        "pk": 286
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PVC/V Pure plastic film",
+            "parent": 284
+        },
+        "model": "asmfa.material",
+        "pk": 285
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PVC/V Plastic film",
+            "parent": 281
+        },
+        "model": "asmfa.material",
+        "pk": 284
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PVC/V Non-packaging plastic",
+            "parent": 281
+        },
+        "model": "asmfa.material",
+        "pk": 283
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PVC/V Packaging plastic",
+            "parent": 281
+        },
+        "model": "asmfa.material",
+        "pk": 282
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "PVC/V",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 281
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "HDPE Composite plastic + metal coating",
+            "parent": 278
+        },
+        "model": "asmfa.material",
+        "pk": 280
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "HDPE Pure plastic film",
+            "parent": 278
+        },
+        "model": "asmfa.material",
+        "pk": 279
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "HDPE Plastic film",
+            "parent": 275
+        },
+        "model": "asmfa.material",
+        "pk": 278
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "HDPE Non-packaging plastic",
+            "parent": 275
+        },
+        "model": "asmfa.material",
+        "pk": 277
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "HDPE Packaging plastic",
+            "parent": 275
+        },
+        "model": "asmfa.material",
+        "pk": 276
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "HDPE",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 275
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PET/PETE Composite plastic + metal coating",
+            "parent": 272
+        },
+        "model": "asmfa.material",
+        "pk": 274
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "PET/PETE Pure plastic film",
+            "parent": 272
+        },
+        "model": "asmfa.material",
+        "pk": 273
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PET/PETE Plastic film",
+            "parent": 269
+        },
+        "model": "asmfa.material",
+        "pk": 272
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PET/PETE Non-packaging plastic",
+            "parent": 269
+        },
+        "model": "asmfa.material",
+        "pk": 271
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "PET/PETE Packaging plastic",
+            "parent": 269
+        },
+        "model": "asmfa.material",
+        "pk": 270
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "PET/PETE",
+            "parent": 268
+        },
+        "model": "asmfa.material",
+        "pk": 269
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Plastic",
+            "parent": 256
+        },
+        "model": "asmfa.material",
+        "pk": 268
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Tubes",
+            "parent": 257
+        },
+        "model": "asmfa.material",
+        "pk": 267
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other board",
+            "parent": 261
+        },
+        "model": "asmfa.material",
+        "pk": 266
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Egg boxes & alike",
+            "parent": 261
+        },
+        "model": "asmfa.material",
+        "pk": 265
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cards & labels",
+            "parent": 261
+        },
+        "model": "asmfa.material",
+        "pk": 264
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Paper plates & cups",
+            "parent": 261
+        },
+        "model": "asmfa.material",
+        "pk": 263
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Beverage cartons",
+            "parent": 261
+        },
+        "model": "asmfa.material",
+        "pk": 262
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Miscellaneous board",
+            "parent": 257
+        },
+        "model": "asmfa.material",
+        "pk": 261
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Cartons/plates/cups",
+            "parent": 257
+        },
+        "model": "asmfa.material",
+        "pk": 260
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Folding boxes",
+            "parent": 257
+        },
+        "model": "asmfa.material",
+        "pk": 259
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Corrugated boxes",
+            "parent": 257
+        },
+        "model": "asmfa.material",
+        "pk": 258
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Board",
+            "parent": 256
+        },
+        "model": "asmfa.material",
+        "pk": 257
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 1,
+            "name": "Packaging materials",
+            "parent": null
+        },
+        "model": "asmfa.material",
+        "pk": 256
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Wine of fresh grapes, except sparkling wine; grape must",
+            "parent": 253
+        },
+        "model": "asmfa.material",
+        "pk": 255
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Sparkling wine of fresh grapes",
+            "parent": 253
+        },
+        "model": "asmfa.material",
+        "pk": 254
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Wine of fresh grapes; grape must",
+            "parent": 251
+        },
+        "model": "asmfa.material",
+        "pk": 253
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Wine lees; argol",
+            "parent": 251
+        },
+        "model": "asmfa.material",
+        "pk": 252
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Wine from grape",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 251
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other non alcoholic beverages",
+            "parent": 248
+        },
+        "model": "asmfa.material",
+        "pk": 250
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Mineral waters and aerated waters, not sweetened nor flavoured",
+            "parent": 248
+        },
+        "model": "asmfa.material",
+        "pk": 249
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Soft drinks; mineral waters and other bottled waters",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 248
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Other non-distilled fermented beverages",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 247
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Malt",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 246
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Distilled alcoholic beverages",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 245
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Cider and other fruit wines",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 244
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Brewing or distilling dregs",
+            "parent": 241
+        },
+        "model": "asmfa.material",
+        "pk": 243
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Beer, except dregs from brewing",
+            "parent": 241
+        },
+        "model": "asmfa.material",
+        "pk": 242
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Beer",
+            "parent": 240
+        },
+        "model": "asmfa.material",
+        "pk": 241
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Beverages",
+            "parent": 239
+        },
+        "model": "asmfa.material",
+        "pk": 240
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 1,
+            "name": "Beverages",
+            "parent": null
+        },
+        "model": "asmfa.material",
+        "pk": 239
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetable waxes (excluding triglycerides)",
+            "parent": 236
+        },
+        "model": "asmfa.material",
+        "pk": 238
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Degras; residues resulting from treatment of fatty substances or animal or vegetable waxes",
+            "parent": 236
+        },
+        "model": "asmfa.material",
+        "pk": 237
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Vegetable waxes (excluding triglycerides); degras; residues resulting from treatment of fatty substances or animal or vegetable waxes",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 236
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Sunflower-seed oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 235
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Soya-bean oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 234
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Rape, colza and mustard oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 233
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Palm oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 232
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other vegetable oils, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 231
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Olive oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 230
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Groundnut oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 229
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cotton-seed oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 228
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Coconut oil, crude",
+            "parent": 226
+        },
+        "model": "asmfa.material",
+        "pk": 227
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Vegetable oils, crude",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 226
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Sunflower-seed oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 225
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Soya-bean oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 224
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Rape, colza and mustard oil and their fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 223
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Palm oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 222
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other oils and their fractions, refined but not chemically modified; fixed vegetable fats and other vegetable oils (except maize oil) and their fractions n.e.c. refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 221
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Olive oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 220
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Groundnut oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 219
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cotton-seed oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 218
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Coconut oil and its fractions, refined but not chemically modified",
+            "parent": 216
+        },
+        "model": "asmfa.material",
+        "pk": 217
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Refined oils, except residues",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 216
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Oil-cake and other solid residues, of vegetable fats or oils",
+            "parent": 213
+        },
+        "model": "asmfa.material",
+        "pk": 215
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Flours and meals of oil seeds or oleaginous fruits, except those of mustard",
+            "parent": 213
+        },
+        "model": "asmfa.material",
+        "pk": 214
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Oil-cake and other solid residues, of vegetable fats or oils; flours and meals of oil seeds or oleaginous fruits",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 213
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cotton linters",
+            "parent": 211
+        },
+        "model": "asmfa.material",
+        "pk": 212
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cotton linters",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 211
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Animal or vegetable fats and oils and their fractions, hydrogenated, esterified, but not further prepared",
+            "parent": 209
+        },
+        "model": "asmfa.material",
+        "pk": 210
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Animal or vegetable fats and oils and their fractions, hydrogenated, esterified, but not further prepared",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 209
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other animal fats and oils and their fractions, whether or not refined, but not chemically modified",
+            "parent": 205
+        },
+        "model": "asmfa.material",
+        "pk": 208
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Lard stearin, lard oil, oleostearin, oleo-oil and tallow oil, not emulsified or mixed or otherwise prepared",
+            "parent": 205
+        },
+        "model": "asmfa.material",
+        "pk": 207
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Fats and oils and their fractions, of fish and marine mammals",
+            "parent": 205
+        },
+        "model": "asmfa.material",
+        "pk": 206
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Animal oils and fats, their fractions, crude",
+            "parent": 204
+        },
+        "model": "asmfa.material",
+        "pk": 205
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Oils and fats",
+            "parent": 202
+        },
+        "model": "asmfa.material",
+        "pk": 204
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Margarine and similar edible fats",
+            "parent": 202
+        },
+        "model": "asmfa.material",
+        "pk": 203
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Vegetable and animal oils and fats",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 202
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Potatoes, frozen",
+            "parent": 197
+        },
+        "model": "asmfa.material",
+        "pk": 201
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Potatoes prepared or preserved",
+            "parent": 197
+        },
+        "model": "asmfa.material",
+        "pk": 200
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Dried potatoes whether or not cut or sliced but not further prepared",
+            "parent": 197
+        },
+        "model": "asmfa.material",
+        "pk": 199
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Dried potatoes in the form of flour, meal, flakes, granulates and pellets",
+            "parent": 197
+        },
+        "model": "asmfa.material",
+        "pk": 198
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Processed and preserved potatoes",
+            "parent": 170
+        },
+        "model": "asmfa.material",
+        "pk": 197
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Vegetable materials and vegetable waste, vegetable residues and by-products",
+            "parent": 180
+        },
+        "model": "asmfa.material",
+        "pk": 196
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetables, frozen",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 195
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetables provisionally preserved",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 194
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetables (except potatoes), fruit, nuts and other edible parts of plants, prepared or preserved by vinegar or acetic acid",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 193
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Peas, preserved otherwise than by vinegar or acetic acid, except prepared vegetable dishes",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 192
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other vegetables (except potatoes), preserved otherwise than by vinegar or acetic acid, except prepared vegetable dishes",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 191
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Dried vegetables",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 190
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cut and packaged vegetables and fruits",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 189
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Beans, preserved otherwise than by vinegar or acetic acid, except prepared vegetable dishes",
+            "parent": 187
+        },
+        "model": "asmfa.material",
+        "pk": 188
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Processed and preserved vegetables, excluding potatoes",
+            "parent": 180
+        },
+        "model": "asmfa.material",
+        "pk": 187
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other prepared or preserved fruits",
+            "parent": 181
+        },
+        "model": "asmfa.material",
+        "pk": 186
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Nuts, groundnuts, roasted, salted or otherwise prepared",
+            "parent": 181
+        },
+        "model": "asmfa.material",
+        "pk": 185
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Jams, fruit jellies and fruit or nut puree and pastes",
+            "parent": 181
+        },
+        "model": "asmfa.material",
+        "pk": 184
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Fruit and nuts, uncooked or cooked, frozen",
+            "parent": 181
+        },
+        "model": "asmfa.material",
+        "pk": 183
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Fruit and nuts, provisionally preserved, not for immediate consumption",
+            "parent": 181
+        },
+        "model": "asmfa.material",
+        "pk": 182
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Processed and preserved fruit and nuts",
+            "parent": 180
+        },
+        "model": "asmfa.material",
+        "pk": 181
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Other processed and preserved fruit and vegetables",
+            "parent": 170
+        },
+        "model": "asmfa.material",
+        "pk": 180
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Tomato juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 179
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Pineapple juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 178
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other fruit and vegetable juices",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 177
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Orange juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 176
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Mixtures of fruit and vegetable juices",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 175
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Grapefruit juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 174
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Grape juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 173
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Apple juice",
+            "parent": 171
+        },
+        "model": "asmfa.material",
+        "pk": 172
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Fruit and vegetable juices",
+            "parent": 170
+        },
+        "model": "asmfa.material",
+        "pk": 171
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Processed and preserved fruit and vegetables",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 170
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other inedible products of fish, crustaceans, molluscs or other aquatic invertebrates",
+            "parent": 167
+        },
+        "model": "asmfa.material",
+        "pk": 169
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Flours, meals and pellets of fish, crustaceans, molluscs or other aquatic invertebrates, unfit for human consumption",
+            "parent": 167
+        },
+        "model": "asmfa.material",
+        "pk": 168
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Flours, meals and pellets, unfit for human consumption, and other products n.e.c. of fish or of crustaceans, molluscs or other aquatic invertebrates",
+            "parent": 147
+        },
+        "model": "asmfa.material",
+        "pk": 167
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish, otherwise prepared or preserved, except prepared fish dishes",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 166
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish, including fillets, smoked",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 165
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish, dried, whether or not salted, or in brine",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 164
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish livers and roes dried, smoked, salted or in brine; flours, meals and pellets of fish, fit for human consumption",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 163
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish fillets, dried, salted or in brine, but not smoked",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 162
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Caviar and caviar substitutes",
+            "parent": 160
+        },
+        "model": "asmfa.material",
+        "pk": 161
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Fish, otherwise prepared or preserved; caviar and caviar substitutes",
+            "parent": 147
+        },
+        "model": "asmfa.material",
+        "pk": 160
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish, frozen",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 159
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish meat, (whether or not minced), frozen",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 158
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish livers and roes, frozen",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 157
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish livers and roes, fresh or chilled",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 156
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish fillets, frozen",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 155
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fish fillets and other fish meat (whether or not minced), fresh or chilled",
+            "parent": 153
+        },
+        "model": "asmfa.material",
+        "pk": 154
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Fish, fresh, chilled or frozen",
+            "parent": 147
+        },
+        "model": "asmfa.material",
+        "pk": 153
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other aquatic invertebrates, frozen, dried, salted or in brine, smoked",
+            "parent": 148
+        },
+        "model": "asmfa.material",
+        "pk": 152
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Molluscs, frozen, dried, salted or in brine, smoked",
+            "parent": 148
+        },
+        "model": "asmfa.material",
+        "pk": 151
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Crustaceans, otherwise prepared or preserved; molluscs and other aquatic invertebrates, otherwise prepared or preserved",
+            "parent": 148
+        },
+        "model": "asmfa.material",
+        "pk": 150
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Crustaceans, frozen",
+            "parent": 148
+        },
+        "model": "asmfa.material",
+        "pk": 149
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Crustaceans, molluscs and other aquatic invertebrates, frozen, prepared or preserved",
+            "parent": 147
+        },
+        "model": "asmfa.material",
+        "pk": 148
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Processed and preserved fish, crustaceans and molluscs",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 147
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Meat of poultry, frozen",
+            "parent": 141
+        },
+        "model": "asmfa.material",
+        "pk": 146
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Meat of poultry, fresh or chilled",
+            "parent": 141
+        },
+        "model": "asmfa.material",
+        "pk": 145
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Feathers and skins of birds with feathers",
+            "parent": 141
+        },
+        "model": "asmfa.material",
+        "pk": 144
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fats of poultry",
+            "parent": 141
+        },
+        "model": "asmfa.material",
+        "pk": 143
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Edible offal of poultry",
+            "parent": 141
+        },
+        "model": "asmfa.material",
+        "pk": 142
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Processed and preserved poultry meat",
+            "parent": 110
+        },
+        "model": "asmfa.material",
+        "pk": 141
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Raw offal, inedible",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 140
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Whole raw hides and skins of bovine or equine animals",
+            "parent": 134
+        },
+        "model": "asmfa.material",
+        "pk": 139
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Raw hides and skins of sheep or lambs",
+            "parent": 134
+        },
+        "model": "asmfa.material",
+        "pk": 138
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Raw hides and skins of goats or kids",
+            "parent": 134
+        },
+        "model": "asmfa.material",
+        "pk": 137
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Pulled wool, greasy, including fleece-washed pulled wool",
+            "parent": 134
+        },
+        "model": "asmfa.material",
+        "pk": 136
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other raw hides and skins of bovine or equine animals",
+            "parent": 134
+        },
+        "model": "asmfa.material",
+        "pk": 135
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Pulled wool and raw hides and skins of bovine or equine animals, sheep and goats",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 134
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of swine, fresh or chilled",
+            "parent": 128
+        },
+        "model": "asmfa.material",
+        "pk": 133
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of sheep, fresh or chilled",
+            "parent": 128
+        },
+        "model": "asmfa.material",
+        "pk": 132
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of horses and other equines, fresh or chilled",
+            "parent": 128
+        },
+        "model": "asmfa.material",
+        "pk": 131
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of goats, fresh or chilled",
+            "parent": 128
+        },
+        "model": "asmfa.material",
+        "pk": 130
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of bovine animals, fresh or chilled",
+            "parent": 128
+        },
+        "model": "asmfa.material",
+        "pk": 129
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Meat of bovine animals, swine, sheep, goats, horses and other equines, fresh or chilled",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 128
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other meat and edible offal, fresh, chilled or frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 127
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of swine, frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 126
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of sheep, frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 125
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of horses and other equines, frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 124
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of goats, frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 123
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Meat of bovine animals, frozen",
+            "parent": 121
+        },
+        "model": "asmfa.material",
+        "pk": 122
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Frozen meat and edible offal; other meat and edible offal",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 121
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fats of bovine animals, sheep, goats or pigs",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 120
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Edible offal of bovine animals, swine, sheep, goats, horses and other equines, fresh or chilled",
+            "parent": 118
+        },
+        "model": "asmfa.material",
+        "pk": 119
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Processed and preserved meat",
+            "parent": 110
+        },
+        "model": "asmfa.material",
+        "pk": 118
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Swine meat, cuts, salted, dried or smoked (bacon and ham)",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 117
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Sausages and similar products of meat, offal or blood",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 116
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other prepared and preserved meat, meat offal or blood, except prepared meat and offal dishes",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 115
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other meat and edible meat offal, salted, in brine, dried or smoked (excluding swine and bovine meat); edible flours and meals of meat or meat offal",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 114
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Flours, meals and pellets of meat unfit for human consumption; greaves",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 113
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Bovine meat, salted, dried or smoked",
+            "parent": 111
+        },
+        "model": "asmfa.material",
+        "pk": 112
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Meat and poultry meat products",
+            "parent": 110
+        },
+        "model": "asmfa.material",
+        "pk": 111
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Preserved meat and meat products",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 110
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Prepared pet foods",
+            "parent": 105
+        },
+        "model": "asmfa.material",
+        "pk": 109
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Prepared feeds for farm animals, except lucerne meal and pellets",
+            "parent": 106
+        },
+        "model": "asmfa.material",
+        "pk": 108
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Lucerne (alfalfa) meal and pellets",
+            "parent": 106
+        },
+        "model": "asmfa.material",
+        "pk": 107
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Prepared feeds for farm animals",
+            "parent": 105
+        },
+        "model": "asmfa.material",
+        "pk": 106
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Prepared animal feeds",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 105
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Refined cane or beet sugar, containing added flavouring or colouring matter; maple sugar and maple syrup",
+            "parent": 100
+        },
+        "model": "asmfa.material",
+        "pk": 104
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Refined cane or beet sugar and chemically pure sucrose, in solid form, not containing added flavouring or colouring matter",
+            "parent": 100
+        },
+        "model": "asmfa.material",
+        "pk": 103
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Raw cane or beet sugar, in solid form",
+            "parent": 100
+        },
+        "model": "asmfa.material",
+        "pk": 102
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Molasses",
+            "parent": 100
+        },
+        "model": "asmfa.material",
+        "pk": 101
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Raw or refined cane or beet sugar; molasses",
+            "parent": 98
+        },
+        "model": "asmfa.material",
+        "pk": 100
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Beet-pulp, bagasse and other waste of sugar manufacture",
+            "parent": 98
+        },
+        "model": "asmfa.material",
+        "pk": 99
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Sugar",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 98
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Herb infusions",
+            "parent": 92
+        },
+        "model": "asmfa.material",
+        "pk": 97
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Green tea (not fermented), black tea (fermented) and partly fermented tea, in immediate packings of a content <= 3 kg",
+            "parent": 92
+        },
+        "model": "asmfa.material",
+        "pk": 96
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Extracts, essences, concentrates and preparations of tea or mate",
+            "parent": 92
+        },
+        "model": "asmfa.material",
+        "pk": 95
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Coffee, decaffeinated or roasted",
+            "parent": 92
+        },
+        "model": "asmfa.material",
+        "pk": 94
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Coffee substitutes; extracts, essences and concentrates of coffee or coffee substitutes; coffee husks and skins",
+            "parent": 92
+        },
+        "model": "asmfa.material",
+        "pk": 93
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Processed tea and coffee",
+            "parent": 91
+        },
+        "model": "asmfa.material",
+        "pk": 92
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Processed tea and coffee",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 91
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Prepared meals and dishes based on vegetables",
+            "parent": 85
+        },
+        "model": "asmfa.material",
+        "pk": 90
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Prepared meals and dishes based on pasta",
+            "parent": 85
+        },
+        "model": "asmfa.material",
+        "pk": 89
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Prepared meals and dishes based on meat, meat offal or blood",
+            "parent": 85
+        },
+        "model": "asmfa.material",
+        "pk": 88
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Prepared meals and dishes based on fish, crustaceans and molluscs",
+            "parent": 85
+        },
+        "model": "asmfa.material",
+        "pk": 87
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other prepared dishes and meals (including frozen pizza)",
+            "parent": 85
+        },
+        "model": "asmfa.material",
+        "pk": 86
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Prepared meals and dishes",
+            "parent": 84
+        },
+        "model": "asmfa.material",
+        "pk": 85
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Prepared meals and dishes",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 84
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Yeasts (active or inactive); other single-cell micro-organisms, dead; prepared baking powders",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 83
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetable saps and extracts; peptic substances; mucilages and thickeners",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 82
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Soups and broths and preparations thereof",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 81
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Miscellaneous food products n.e.c.",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 80
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Extracts and juices of meat, fish and aquatic invertebrates",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 79
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Eggs, not in shell, and eggs yolks fresh or preserved; eggs in shells preserved or cooked; egg albumin",
+            "parent": 77
+        },
+        "model": "asmfa.material",
+        "pk": 78
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Soups, eggs, yeasts and other food products; extracts and juices of meat, fish and aquatic invertebrated",
+            "parent": 76
+        },
+        "model": "asmfa.material",
+        "pk": 77
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Other food products n.e.c.",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 76
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Homogenised food preparations and dietetic food",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 75
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vinegar and substitutes for vinegar obtained from acetic acid",
+            "parent": 72
+        },
+        "model": "asmfa.material",
+        "pk": 74
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Sauces; mixed condiments and mixed seasonings; mustard flour and meal and prepared mustard",
+            "parent": 72
+        },
+        "model": "asmfa.material",
+        "pk": 73
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Vinegar; sauces; mixed condiments; mustard flour or meal; prepared mustard",
+            "parent": 66
+        },
+        "model": "asmfa.material",
+        "pk": 72
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Pepper (piper spp.), processed",
+            "parent": 68
+        },
+        "model": "asmfa.material",
+        "pk": 71
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cinnamon (canella), processed; other processed spices",
+            "parent": 68
+        },
+        "model": "asmfa.material",
+        "pk": 70
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Chillies and peppers, dry (capsicum spp.), processed",
+            "parent": 68
+        },
+        "model": "asmfa.material",
+        "pk": 69
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Spices, processed",
+            "parent": 66
+        },
+        "model": "asmfa.material",
+        "pk": 68
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Food-grade salt",
+            "parent": 66
+        },
+        "model": "asmfa.material",
+        "pk": 67
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Condiments and seasonings",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 66
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cocoa shells, husks, skins and other cocoa waste",
+            "parent": 54
+        },
+        "model": "asmfa.material",
+        "pk": 65
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cocoa powder, not containing added sugar or other sweetening matter",
+            "parent": 60
+        },
+        "model": "asmfa.material",
+        "pk": 64
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cocoa powder, containing added sugar or other sweetening matter",
+            "parent": 60
+        },
+        "model": "asmfa.material",
+        "pk": 63
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cocoa paste, whether or not defatted",
+            "parent": 60
+        },
+        "model": "asmfa.material",
+        "pk": 62
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cocoa butter, fat and oil",
+            "parent": 60
+        },
+        "model": "asmfa.material",
+        "pk": 61
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cocoa paste, whether or not defatted, cocoa butter, fat and oil, cocoa powder",
+            "parent": 54
+        },
+        "model": "asmfa.material",
+        "pk": 60
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Sugar confectionery (including white chocolate), not containing cocoa",
+            "parent": 55
+        },
+        "model": "asmfa.material",
+        "pk": 59
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Fruit, nuts, fruit-peel and other parts of plants, preserved by sugar",
+            "parent": 55
+        },
+        "model": "asmfa.material",
+        "pk": 58
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Chocolate and food preparations containing cocoa (except sweetened cocoa powder), other than in bulk forms",
+            "parent": 55
+        },
+        "model": "asmfa.material",
+        "pk": 57
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Chocolate and food preparations containing cocoa (except sweetened cocoa powder), in bulk forms",
+            "parent": 55
+        },
+        "model": "asmfa.material",
+        "pk": 56
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Chocolate and sugar confectionery",
+            "parent": 54
+        },
+        "model": "asmfa.material",
+        "pk": 55
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Cocoa, chocolate and sugar confectionery",
+            "parent": 53
+        },
+        "model": "asmfa.material",
+        "pk": 54
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Other food products",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 53
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Tapioca and substitutes prepared from starch in flakes, grains and the like",
+            "parent": 48
+        },
+        "model": "asmfa.material",
+        "pk": 52
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Starches; inulin; wheat gluten; dextrins and other modified starches",
+            "parent": 48
+        },
+        "model": "asmfa.material",
+        "pk": 51
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Maize oil",
+            "parent": 48
+        },
+        "model": "asmfa.material",
+        "pk": 50
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Glucose and glucose syrup; fructose and fructose syrup; invert sugar; sugars and sugar syrups n.e.c.",
+            "parent": 48
+        },
+        "model": "asmfa.material",
+        "pk": 49
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Starches and starch products; sugars and sugar syrups n.e.c.",
+            "parent": 46
+        },
+        "model": "asmfa.material",
+        "pk": 48
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Residues of starch manufacture and similar residues",
+            "parent": 46
+        },
+        "model": "asmfa.material",
+        "pk": 47
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Starches and starch products",
+            "parent": 31
+        },
+        "model": "asmfa.material",
+        "pk": 46
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Rice, semi- or wholly milled or broken",
+            "parent": 43
+        },
+        "model": "asmfa.material",
+        "pk": 45
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Husked rice",
+            "parent": 43
+        },
+        "model": "asmfa.material",
+        "pk": 44
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Rice, semi- or wholly milled, or husked or broken",
+            "parent": 32
+        },
+        "model": "asmfa.material",
+        "pk": 43
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Groats and meal of wheat",
+            "parent": 39
+        },
+        "model": "asmfa.material",
+        "pk": 42
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Cereal groats, meal and pellets n.e.c.",
+            "parent": 39
+        },
+        "model": "asmfa.material",
+        "pk": 41
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Breakfast cereals and other cereal grain products",
+            "parent": 39
+        },
+        "model": "asmfa.material",
+        "pk": 40
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Groats, meal and pellets and other cereal grain products",
+            "parent": 32
+        },
+        "model": "asmfa.material",
+        "pk": 39
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Wheat or meslin flour",
+            "parent": 34
+        },
+        "model": "asmfa.material",
+        "pk": 38
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Vegetable flour and meal",
+            "parent": 34
+        },
+        "model": "asmfa.material",
+        "pk": 37
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Other cereal flour",
+            "parent": 34
+        },
+        "model": "asmfa.material",
+        "pk": 36
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Mixes for preparation of bakers wares",
+            "parent": 34
+        },
+        "model": "asmfa.material",
+        "pk": 35
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cereal and vegetable flour; mixes thereof",
+            "parent": 32
+        },
+        "model": "asmfa.material",
+        "pk": 34
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Bran, sharps and other residues from the working of cereals",
+            "parent": 32
+        },
+        "model": "asmfa.material",
+        "pk": 33
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Grain mill products",
+            "parent": 31
+        },
+        "model": "asmfa.material",
+        "pk": 32
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Grain mill products, starches and starch products",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 31
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Ice cream",
+            "parent": 13
+        },
+        "model": "asmfa.material",
+        "pk": 30
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Processed liquid milk",
+            "parent": 27
+        },
+        "model": "asmfa.material",
+        "pk": 29
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Milk and cream of > 6% fat, not concentrated or sweetened",
+            "parent": 27
+        },
+        "model": "asmfa.material",
+        "pk": 28
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Processed liquid milk and cream",
+            "parent": 14
+        },
+        "model": "asmfa.material",
+        "pk": 27
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Yoghurt and other fermented or acidified milk or cream",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 26
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Whey",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 25
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Milk and cream, concentrated or containing added sugar or other sweetening matter, other than in solid forms",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 24
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Lactose and lactose syrup",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 23
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Dairy products n.e.c.",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 22
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Casein",
+            "parent": 20
+        },
+        "model": "asmfa.material",
+        "pk": 21
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other dairy products",
+            "parent": 14
+        },
+        "model": "asmfa.material",
+        "pk": 20
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Whole milk powder",
+            "parent": 17
+        },
+        "model": "asmfa.material",
+        "pk": 19
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 5,
+            "name": "Skimmed milk powder",
+            "parent": 17
+        },
+        "model": "asmfa.material",
+        "pk": 18
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Milk in solid forms",
+            "parent": 14
+        },
+        "model": "asmfa.material",
+        "pk": 17
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Cheese and curd",
+            "parent": 14
+        },
+        "model": "asmfa.material",
+        "pk": 16
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Butter and dairy spreads",
+            "parent": 14
+        },
+        "model": "asmfa.material",
+        "pk": 15
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Dairy and cheese products",
+            "parent": 13
+        },
+        "model": "asmfa.material",
+        "pk": 14
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Dairy products",
+            "parent": 1
         },
         "model": "asmfa.material",
         "pk": 13
     },
     {
         "fields": {
-            "code": "PC6",
-            "flowType": "Paper and Cardboard Waste",
-            "name": "Other paper"
+            "keyflow": 30,
+            "level": 4,
+            "name": "Other dry or preserved bakers wares",
+            "parent": 9
         },
         "model": "asmfa.material",
-        "pk": 8
+        "pk": 12
     },
     {
         "fields": {
-            "code": "PC1",
-            "flowType": "Paper and Cardboard Waste",
-            "name": "Magazines and advertisement"
-        },
-        "model": "asmfa.material",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "code": "Y1",
-            "flowType": "Organic Waste",
-            "name": "Plant material"
-        },
-        "model": "asmfa.material",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "code": "PC7",
-            "flowType": "Paper and Cardboard Waste",
-            "name": "Cardboard and paperboard"
-        },
-        "model": "asmfa.material",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "code": "P2",
-            "flowType": "Plastic Waste",
-            "name": "Plastic packaging-HDPE"
+            "keyflow": 30,
+            "level": 4,
+            "name": "Gingerbread and the like; sweet biscuits; waffles and wafers",
+            "parent": 9
         },
         "model": "asmfa.material",
         "pk": 11
     },
     {
         "fields": {
-            "code": "F2",
-            "flowType": "Organic Waste",
-            "name": "Vegetable food waste"
-        },
-        "model": "asmfa.material",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "code": "F1",
-            "flowType": "Organic Waste",
-            "name": "Animal-derived food waste"
-        },
-        "model": "asmfa.material",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "code": "P1",
-            "flowType": "Plastic Waste",
-            "name": "Plastic packaging-PET"
+            "keyflow": 30,
+            "level": 4,
+            "name": "Crispbread, rusks, toasted bread and similar toasted products",
+            "parent": 9
         },
         "model": "asmfa.material",
         "pk": 10
     },
     {
         "fields": {
-            "fraction": 0.05,
-            "material": 13,
-            "product": 11
+            "keyflow": 30,
+            "level": 3,
+            "name": "Rusks and biscuits; preserved pastry goods and cakes",
+            "parent": 2
+        },
+        "model": "asmfa.material",
+        "pk": 9
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Macaroni, noodles and similar farinaceous products",
+            "parent": 6
+        },
+        "model": "asmfa.material",
+        "pk": 8
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Couscous",
+            "parent": 6
+        },
+        "model": "asmfa.material",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Macaroni, noodles, couscous and similar farinaceous products",
+            "parent": 2
+        },
+        "model": "asmfa.material",
+        "pk": 6
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fresh pastry goods and cakes",
+            "parent": 3
+        },
+        "model": "asmfa.material",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 4,
+            "name": "Fresh bread",
+            "parent": 3
+        },
+        "model": "asmfa.material",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 3,
+            "name": "Bread; fresh pastry goods and cakes",
+            "parent": 2
+        },
+        "model": "asmfa.material",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 2,
+            "name": "Bakery and farinaceous products",
+            "parent": 1
+        },
+        "model": "asmfa.material",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "keyflow": 30,
+            "level": 1,
+            "name": "Food products",
+            "parent": null
+        },
+        "model": "asmfa.material",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 248,
+            "name": "Soft drinks; mineral waters and other bottled waters",
+            "product": 94,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 54
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 246,
+            "name": "Malt",
+            "product": 93,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 53
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 241,
+            "name": "Beer",
+            "product": 92,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 52
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 247,
+            "name": "Other non-distilled fermented beverages",
+            "product": 91,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 51
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 244,
+            "name": "Cider and other fruit wines",
+            "product": 90,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 50
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 251,
+            "name": "Wine from grape",
+            "product": 89,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 49
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 245,
+            "name": "Distilled alcoholic beverages",
+            "product": 88,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 48
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 109,
+            "name": "Prepared pet foods",
+            "product": 87,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 47
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 106,
+            "name": "Prepared feeds for farm animals",
+            "product": 86,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 46
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 76,
+            "name": "Other food products n.e.c.",
+            "product": 85,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 45
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 75,
+            "name": "Homogenised food preparations and dietetic food",
+            "product": 84,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 44
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 84,
+            "name": "Prepared meals and dishes",
+            "product": 83,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 43
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 85,
+            "name": "Prepared meals and dishes",
+            "product": 83,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 42
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 66,
+            "name": "Condiments and seasonings",
+            "product": 82,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 41
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 91,
+            "name": "Processed tea and coffee",
+            "product": 81,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 40
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 92,
+            "name": "Processed tea and coffee",
+            "product": 81,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 39
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 54,
+            "name": "Cocoa, chocolate and sugar confectionery",
+            "product": 80,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 38
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 98,
+            "name": "Sugar",
+            "product": 79,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 37
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 6,
+            "name": "Macaroni, noodles, couscous and similar farinaceous products",
+            "product": 78,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 36
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 9,
+            "name": "Rusks and biscuits; preserved pastry goods and cakes",
+            "product": 77,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 35
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 3,
+            "name": "Bread; fresh pastry goods and cakes",
+            "product": 76,
+            "waste": null
+        },
+        "model": "asmfa.productfraction",
+        "pk": 34
+    },
+    {
+        "fields": {
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 46,
+            "name": "Starches and starch products",
+            "product": 75,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 33
     },
     {
         "fields": {
-            "fraction": 0.95,
-            "material": 10,
-            "product": 11
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 32,
+            "name": "Grain mill products",
+            "product": 74,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 32
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 13,
-            "product": 10
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 30,
+            "name": "Ice cream",
+            "product": 73,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 31
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 12,
-            "product": 10
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 14,
+            "name": "Dairy and cheese products",
+            "product": 72,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 30
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 11,
-            "product": 10
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 203,
+            "name": "Margarine and similar edible fats",
+            "product": 71,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 29
     },
     {
         "fields": {
-            "fraction": 0.4,
-            "material": 10,
-            "product": 10
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 204,
+            "name": "Oils and fats",
+            "product": 70,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 28
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 13,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 180,
+            "name": "Other processed and preserved fruit and vegetables",
+            "product": 69,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 27
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 8,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 171,
+            "name": "Fruit and vegetable juices",
+            "product": 68,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 26
     },
     {
         "fields": {
-            "fraction": 0.1,
-            "material": 11,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 197,
+            "name": "Processed and preserved potatoes",
+            "product": 67,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 25
     },
     {
         "fields": {
-            "fraction": 0.3,
-            "material": 10,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 147,
+            "name": "Processed and preserved fish, crustaceans and molluscs",
+            "product": 66,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 24
     },
     {
         "fields": {
-            "fraction": 0.1,
-            "material": 2,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 111,
+            "name": "Meat and poultry meat products",
+            "product": 65,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 23
     },
     {
         "fields": {
-            "fraction": 0.1,
-            "material": 1,
-            "product": 9
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 141,
+            "name": "Processed and preserved poultry meat",
+            "product": 64,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 22
     },
     {
         "fields": {
-            "fraction": 0.4,
-            "material": 2,
-            "product": 8
+            "default": true,
+            "fraction": 1.0,
+            "keyflow": 30,
+            "material": 118,
+            "name": "Processed and preserved meat",
+            "product": 63,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 21
     },
     {
         "fields": {
+            "default": false,
             "fraction": 0.1,
-            "material": 1,
-            "product": 8
+            "keyflow": 30,
+            "material": 222,
+            "name": "Farm waste",
+            "product": null,
+            "waste": 18606
         },
         "model": "asmfa.productfraction",
         "pk": 20
     },
     {
         "fields": {
-            "fraction": 0.5,
-            "material": 10,
-            "product": 8
+            "default": false,
+            "fraction": 0.3,
+            "keyflow": 30,
+            "material": 265,
+            "name": "Farm waste",
+            "product": null,
+            "waste": 18606
         },
         "model": "asmfa.productfraction",
         "pk": 19
     },
     {
         "fields": {
-            "fraction": 0.05,
-            "material": 10,
-            "product": 7
+            "default": false,
+            "fraction": 0.3,
+            "keyflow": 30,
+            "material": 176,
+            "name": "Farm waste",
+            "product": null,
+            "waste": 18606
         },
         "model": "asmfa.productfraction",
         "pk": 18
     },
     {
         "fields": {
-            "fraction": 0.95,
-            "material": 6,
-            "product": 7
+            "default": false,
+            "fraction": 0.3,
+            "keyflow": 30,
+            "material": 18,
+            "name": "Farm waste",
+            "product": null,
+            "waste": 18606
         },
         "model": "asmfa.productfraction",
         "pk": 17
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 10,
-            "product": 6
+            "default": false,
+            "fraction": 0.5,
+            "keyflow": 30,
+            "material": 315,
+            "name": "Dairy from farms",
+            "product": 72,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 16
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 6,
-            "product": 6
+            "default": false,
+            "fraction": 0.5,
+            "keyflow": 30,
+            "material": 13,
+            "name": "Dairy from farms",
+            "product": 72,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 15
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 3,
-            "product": 6
+            "default": false,
+            "fraction": 0.3,
+            "keyflow": 30,
+            "material": 300,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 14
     },
     {
         "fields": {
+            "default": false,
             "fraction": 0.2,
-            "material": 2,
-            "product": 6
+            "keyflow": 30,
+            "material": 278,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 13
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 1,
-            "product": 6
+            "default": false,
+            "fraction": 0.1,
+            "keyflow": 30,
+            "material": 189,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 12
     },
     {
         "fields": {
-            "fraction": 0.5,
-            "material": 9,
-            "product": 5
+            "default": false,
+            "fraction": 0.2,
+            "keyflow": 30,
+            "material": 98,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 11
     },
     {
         "fields": {
-            "fraction": 0.5,
-            "material": 10,
-            "product": 5
+            "default": false,
+            "fraction": 0.2,
+            "keyflow": 30,
+            "material": 65,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 10
     },
     {
         "fields": {
+            "default": false,
             "fraction": 0.1,
-            "material": 10,
-            "product": 4
+            "keyflow": 30,
+            "material": 17,
+            "name": "Supermarket waste",
+            "product": null,
+            "waste": 39735
         },
         "model": "asmfa.productfraction",
         "pk": 9
     },
     {
         "fields": {
-            "fraction": 0.1,
-            "material": 9,
-            "product": 4
+            "default": false,
+            "fraction": 0.2,
+            "keyflow": 30,
+            "material": 123,
+            "name": "Household waste",
+            "product": null,
+            "waste": 39734
         },
         "model": "asmfa.productfraction",
         "pk": 8
     },
     {
         "fields": {
-            "fraction": 0.8,
-            "material": 1,
-            "product": 4
+            "default": false,
+            "fraction": 0.5,
+            "keyflow": 30,
+            "material": 89,
+            "name": "Household waste",
+            "product": null,
+            "waste": 39734
         },
         "model": "asmfa.productfraction",
         "pk": 7
     },
     {
         "fields": {
-            "fraction": 0.05,
-            "material": 11,
-            "product": 3
+            "default": false,
+            "fraction": 0.1,
+            "keyflow": 30,
+            "material": 28,
+            "name": "Household waste",
+            "product": null,
+            "waste": 39734
         },
         "model": "asmfa.productfraction",
         "pk": 6
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 10,
-            "product": 3
+            "default": false,
+            "fraction": 0.3,
+            "keyflow": 30,
+            "material": 15,
+            "name": "Household waste",
+            "product": null,
+            "waste": 39734
         },
         "model": "asmfa.productfraction",
         "pk": 5
     },
     {
         "fields": {
-            "fraction": 0.75,
-            "material": 2,
-            "product": 3
+            "default": false,
+            "fraction": 0.1,
+            "keyflow": 30,
+            "material": 268,
+            "name": "Wholesale soft drinks",
+            "product": 94,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 4
     },
     {
         "fields": {
-            "fraction": 0.8,
-            "material": 1,
-            "product": 2
+            "default": false,
+            "fraction": 0.9,
+            "keyflow": 30,
+            "material": 248,
+            "name": "Wholesale soft drinks",
+            "product": 94,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 3
     },
     {
         "fields": {
-            "fraction": 0.2,
-            "material": 10,
-            "product": 2
+            "default": false,
+            "fraction": 0.05,
+            "keyflow": 30,
+            "material": 259,
+            "name": "Bread in paper package",
+            "product": 77,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 2
     },
     {
         "fields": {
-            "fraction": 1.0,
+            "default": false,
+            "fraction": 0.95,
+            "keyflow": 30,
             "material": 10,
-            "product": 1
+            "name": "Bread in paper package",
+            "product": 77,
+            "waste": null
         },
         "model": "asmfa.productfraction",
         "pk": 1
@@ -10127,9 +13816,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10141,9 +13830,9 @@
             "amount": 10,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10155,9 +13844,9 @@
             "amount": 50,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 2,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10169,9 +13858,9 @@
             "amount": 10,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10183,9 +13872,9 @@
             "amount": 5,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10197,9 +13886,9 @@
             "amount": 10,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10211,9 +13900,9 @@
             "amount": 20,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 1,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10225,9 +13914,9 @@
             "amount": 30,
             "description": null,
             "destination": 8,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10239,9 +13928,9 @@
             "amount": 10,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 11,
             "publication": null,
             "year": 2016
         },
@@ -10253,9 +13942,9 @@
             "amount": 100,
             "description": null,
             "destination": 3,
+            "fractions": [],
             "keyflow": 30,
             "origin": 6,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10267,9 +13956,9 @@
             "amount": 5,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 1,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10281,9 +13970,9 @@
             "amount": 5,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10295,9 +13984,9 @@
             "amount": 30,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10309,9 +13998,9 @@
             "amount": 50,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10323,9 +14012,9 @@
             "amount": 30,
             "description": null,
             "destination": 5,
+            "fractions": [],
             "keyflow": 30,
             "origin": 7,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10337,9 +14026,9 @@
             "amount": 50,
             "description": "This is a test text",
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10351,9 +14040,9 @@
             "amount": 50,
             "description": null,
             "destination": 6,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10365,9 +14054,9 @@
             "amount": 30,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 1,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10379,9 +14068,9 @@
             "amount": 50,
             "description": null,
             "destination": 8,
+            "fractions": [],
             "keyflow": 30,
             "origin": 12,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10393,9 +14082,9 @@
             "amount": 10,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10407,9 +14096,9 @@
             "amount": 5,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10421,9 +14110,9 @@
             "amount": 50,
             "description": null,
             "destination": 6,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10435,9 +14124,9 @@
             "amount": 10,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 8,
             "publication": null,
             "year": 2016
         },
@@ -10449,9 +14138,9 @@
             "amount": 5,
             "description": null,
             "destination": 24,
+            "fractions": [],
             "keyflow": 30,
             "origin": 21,
-            "product": 11,
             "publication": null,
             "year": 2016
         },
@@ -10463,9 +14152,9 @@
             "amount": 5,
             "description": null,
             "destination": 26,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10477,9 +14166,9 @@
             "amount": 5,
             "description": null,
             "destination": 19,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10491,9 +14180,9 @@
             "amount": 20,
             "description": null,
             "destination": 21,
+            "fractions": [],
             "keyflow": 30,
             "origin": 13,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10505,9 +14194,9 @@
             "amount": 50,
             "description": null,
             "destination": 16,
+            "fractions": [],
             "keyflow": 30,
             "origin": 28,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10519,9 +14208,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 20,
-            "product": 8,
             "publication": null,
             "year": 2016
         },
@@ -10533,9 +14222,9 @@
             "amount": 5,
             "description": null,
             "destination": 25,
+            "fractions": [],
             "keyflow": 30,
             "origin": 19,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10547,9 +14236,9 @@
             "amount": 5,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 6,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10561,9 +14250,9 @@
             "amount": 5,
             "description": null,
             "destination": 23,
+            "fractions": [],
             "keyflow": 30,
             "origin": 19,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10575,9 +14264,9 @@
             "amount": 20,
             "description": null,
             "destination": 22,
+            "fractions": [],
             "keyflow": 30,
             "origin": 14,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10589,9 +14278,9 @@
             "amount": 15,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10603,9 +14292,9 @@
             "amount": 10,
             "description": null,
             "destination": 15,
+            "fractions": [],
             "keyflow": 30,
             "origin": 12,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10617,9 +14306,9 @@
             "amount": 10,
             "description": null,
             "destination": 12,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10631,9 +14320,9 @@
             "amount": 20,
             "description": null,
             "destination": 8,
+            "fractions": [],
             "keyflow": 30,
             "origin": 24,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10645,9 +14334,9 @@
             "amount": 5,
             "description": null,
             "destination": 24,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 11,
             "publication": null,
             "year": 2016
         },
@@ -10659,9 +14348,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10673,9 +14362,9 @@
             "amount": 5,
             "description": null,
             "destination": 16,
+            "fractions": [],
             "keyflow": 30,
             "origin": 13,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10687,9 +14376,9 @@
             "amount": 5,
             "description": null,
             "destination": 22,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10701,9 +14390,9 @@
             "amount": 5,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 24,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10715,9 +14404,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 8,
             "publication": null,
             "year": 2016
         },
@@ -10729,9 +14418,9 @@
             "amount": 5,
             "description": null,
             "destination": 17,
+            "fractions": [],
             "keyflow": 30,
             "origin": 14,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10743,9 +14432,9 @@
             "amount": 10,
             "description": null,
             "destination": 29,
+            "fractions": [],
             "keyflow": 30,
             "origin": 15,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10757,9 +14446,9 @@
             "amount": 10,
             "description": null,
             "destination": 18,
+            "fractions": [],
             "keyflow": 30,
             "origin": 16,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10771,9 +14460,9 @@
             "amount": 10,
             "description": null,
             "destination": 26,
+            "fractions": [],
             "keyflow": 30,
             "origin": 19,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10785,9 +14474,9 @@
             "amount": 45,
             "description": null,
             "destination": 19,
+            "fractions": [],
             "keyflow": 30,
             "origin": 16,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10799,9 +14488,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 16,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10813,9 +14502,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10827,9 +14516,9 @@
             "amount": 5,
             "description": null,
             "destination": 22,
+            "fractions": [],
             "keyflow": 30,
             "origin": 13,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10841,9 +14530,9 @@
             "amount": 10,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10855,9 +14544,9 @@
             "amount": 5,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10869,9 +14558,9 @@
             "amount": 15,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 26,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10883,9 +14572,9 @@
             "amount": 5,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 6,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10897,9 +14586,9 @@
             "amount": 15,
             "description": null,
             "destination": 25,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10911,9 +14600,9 @@
             "amount": 10,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10925,9 +14614,9 @@
             "amount": 5,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10939,9 +14628,9 @@
             "amount": 20,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 7,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10953,9 +14642,9 @@
             "amount": 5,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 23,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -10967,9 +14656,9 @@
             "amount": 5,
             "description": null,
             "destination": 25,
+            "fractions": [],
             "keyflow": 30,
             "origin": 18,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -10981,9 +14670,9 @@
             "amount": 40,
             "description": null,
             "destination": 13,
+            "fractions": [],
             "keyflow": 30,
             "origin": 11,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -10995,9 +14684,9 @@
             "amount": 10,
             "description": null,
             "destination": 25,
+            "fractions": [],
             "keyflow": 30,
             "origin": 21,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11009,9 +14698,9 @@
             "amount": 25,
             "description": null,
             "destination": 11,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11023,9 +14712,9 @@
             "amount": 10,
             "description": null,
             "destination": 15,
+            "fractions": [],
             "keyflow": 30,
             "origin": 14,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11037,9 +14726,9 @@
             "amount": 5,
             "description": null,
             "destination": 26,
+            "fractions": [],
             "keyflow": 30,
             "origin": 18,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11051,9 +14740,9 @@
             "amount": 35,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 25,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11065,9 +14754,9 @@
             "amount": 10,
             "description": null,
             "destination": 29,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11079,9 +14768,9 @@
             "amount": 40,
             "description": null,
             "destination": 14,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11093,9 +14782,9 @@
             "amount": 10,
             "description": null,
             "destination": 18,
+            "fractions": [],
             "keyflow": 30,
             "origin": 15,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11107,9 +14796,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 17,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11121,9 +14810,9 @@
             "amount": 10,
             "description": null,
             "destination": 29,
+            "fractions": [],
             "keyflow": 30,
             "origin": 13,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11135,9 +14824,9 @@
             "amount": 10,
             "description": null,
             "destination": 13,
+            "fractions": [],
             "keyflow": 30,
             "origin": 10,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11149,9 +14838,9 @@
             "amount": 15,
             "description": null,
             "destination": 24,
+            "fractions": [],
             "keyflow": 30,
             "origin": 19,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11163,9 +14852,9 @@
             "amount": 5,
             "description": null,
             "destination": 29,
+            "fractions": [],
             "keyflow": 30,
             "origin": 18,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11177,9 +14866,9 @@
             "amount": 5,
             "description": null,
             "destination": 20,
+            "fractions": [],
             "keyflow": 30,
             "origin": 14,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11191,9 +14880,9 @@
             "amount": 5,
             "description": null,
             "destination": 27,
+            "fractions": [],
             "keyflow": 30,
             "origin": 18,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11205,9 +14894,9 @@
             "amount": 15,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 37,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11219,9 +14908,9 @@
             "amount": 35,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 36,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11233,9 +14922,9 @@
             "amount": 5,
             "description": null,
             "destination": 54,
+            "fractions": [],
             "keyflow": 30,
             "origin": 35,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11247,9 +14936,9 @@
             "amount": 5,
             "description": null,
             "destination": 53,
+            "fractions": [],
             "keyflow": 30,
             "origin": 34,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11261,9 +14950,9 @@
             "amount": 20,
             "description": null,
             "destination": 5,
+            "fractions": [],
             "keyflow": 30,
             "origin": 33,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11275,9 +14964,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 32,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11289,9 +14978,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 31,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11303,9 +14992,9 @@
             "amount": 5,
             "description": null,
             "destination": 33,
+            "fractions": [],
             "keyflow": 30,
             "origin": 30,
-            "product": 11,
             "publication": null,
             "year": 2016
         },
@@ -11317,9 +15006,9 @@
             "amount": 5,
             "description": null,
             "destination": 33,
+            "fractions": [],
             "keyflow": 30,
             "origin": 29,
-            "product": 11,
             "publication": null,
             "year": 2016
         },
@@ -11331,9 +15020,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 28,
-            "product": 8,
             "publication": null,
             "year": 2016
         },
@@ -11345,9 +15034,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 27,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11359,9 +15048,9 @@
             "amount": 5,
             "description": null,
             "destination": 37,
+            "fractions": [],
             "keyflow": 30,
             "origin": 26,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11373,9 +15062,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 25,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11387,9 +15076,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 24,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11401,9 +15090,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 24,
-            "product": 8,
             "publication": null,
             "year": 2016
         },
@@ -11415,9 +15104,9 @@
             "amount": 5,
             "description": null,
             "destination": 77,
+            "fractions": [],
             "keyflow": 30,
             "origin": 23,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11429,9 +15118,9 @@
             "amount": 5,
             "description": null,
             "destination": 38,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11443,9 +15132,9 @@
             "amount": 5,
             "description": null,
             "destination": 39,
+            "fractions": [],
             "keyflow": 30,
             "origin": 21,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11457,9 +15146,9 @@
             "amount": 5,
             "description": null,
             "destination": 37,
+            "fractions": [],
             "keyflow": 30,
             "origin": 20,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11471,9 +15160,9 @@
             "amount": 5,
             "description": null,
             "destination": 37,
+            "fractions": [],
             "keyflow": 30,
             "origin": 19,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11485,9 +15174,9 @@
             "amount": 5,
             "description": null,
             "destination": 35,
+            "fractions": [],
             "keyflow": 30,
             "origin": 18,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11499,9 +15188,9 @@
             "amount": 5,
             "description": null,
             "destination": 34,
+            "fractions": [],
             "keyflow": 30,
             "origin": 17,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11513,9 +15202,9 @@
             "amount": 5,
             "description": null,
             "destination": 33,
+            "fractions": [],
             "keyflow": 30,
             "origin": 16,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11527,9 +15216,9 @@
             "amount": 5,
             "description": null,
             "destination": 33,
+            "fractions": [],
             "keyflow": 30,
             "origin": 15,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11541,9 +15230,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 15,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11555,9 +15244,9 @@
             "amount": 5,
             "description": null,
             "destination": 36,
+            "fractions": [],
             "keyflow": 30,
             "origin": 14,
-            "product": 9,
             "publication": null,
             "year": 2016
         },
@@ -11569,9 +15258,9 @@
             "amount": 5,
             "description": null,
             "destination": 77,
+            "fractions": [],
             "keyflow": 30,
             "origin": 13,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11583,9 +15272,9 @@
             "amount": 5,
             "description": null,
             "destination": 77,
+            "fractions": [],
             "keyflow": 30,
             "origin": 12,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11597,9 +15286,9 @@
             "amount": 5,
             "description": null,
             "destination": 14,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11611,9 +15300,9 @@
             "amount": 5,
             "description": null,
             "destination": 23,
+            "fractions": [],
             "keyflow": 30,
             "origin": 10,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11625,9 +15314,9 @@
             "amount": 5,
             "description": null,
             "destination": 22,
+            "fractions": [],
             "keyflow": 30,
             "origin": 67,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11639,9 +15328,9 @@
             "amount": 5,
             "description": null,
             "destination": 21,
+            "fractions": [],
             "keyflow": 30,
             "origin": 67,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11653,9 +15342,9 @@
             "amount": 5,
             "description": null,
             "destination": 20,
+            "fractions": [],
             "keyflow": 30,
             "origin": 66,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11667,9 +15356,9 @@
             "amount": 5,
             "description": null,
             "destination": 19,
+            "fractions": [],
             "keyflow": 30,
             "origin": 66,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11681,9 +15370,9 @@
             "amount": 5,
             "description": null,
             "destination": 18,
+            "fractions": [],
             "keyflow": 30,
             "origin": 66,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11695,9 +15384,9 @@
             "amount": 5,
             "description": null,
             "destination": 17,
+            "fractions": [],
             "keyflow": 30,
             "origin": 64,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11709,9 +15398,9 @@
             "amount": 5,
             "description": null,
             "destination": 16,
+            "fractions": [],
             "keyflow": 30,
             "origin": 65,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11723,9 +15412,9 @@
             "amount": 5,
             "description": null,
             "destination": 15,
+            "fractions": [],
             "keyflow": 30,
             "origin": 65,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11737,9 +15426,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 63,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11751,9 +15440,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 62,
-            "product": 10,
             "publication": null,
             "year": 2016
         },
@@ -11765,9 +15454,9 @@
             "amount": 5,
             "description": null,
             "destination": 66,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11779,9 +15468,9 @@
             "amount": 10,
             "description": null,
             "destination": 77,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11793,9 +15482,9 @@
             "amount": 10,
             "description": null,
             "destination": 32,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11807,9 +15496,9 @@
             "amount": 5,
             "description": null,
             "destination": 31,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11821,9 +15510,9 @@
             "amount": 5,
             "description": null,
             "destination": 30,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11835,9 +15524,9 @@
             "amount": 5,
             "description": null,
             "destination": 29,
+            "fractions": [],
             "keyflow": 30,
             "origin": 61,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11849,9 +15538,9 @@
             "amount": 5,
             "description": null,
             "destination": 28,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11863,9 +15552,9 @@
             "amount": 5,
             "description": null,
             "destination": 27,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11877,9 +15566,9 @@
             "amount": 5,
             "description": null,
             "destination": 26,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11891,9 +15580,9 @@
             "amount": 5,
             "description": null,
             "destination": 25,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11905,9 +15594,9 @@
             "amount": 5,
             "description": null,
             "destination": 24,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11919,9 +15608,9 @@
             "amount": 5,
             "description": null,
             "destination": 62,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11933,9 +15622,9 @@
             "amount": 5,
             "description": null,
             "destination": 13,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11947,9 +15636,9 @@
             "amount": 5,
             "description": null,
             "destination": 12,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11961,9 +15650,9 @@
             "amount": 5,
             "description": null,
             "destination": 9,
+            "fractions": [],
             "keyflow": 30,
             "origin": 60,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11975,9 +15664,9 @@
             "amount": 5,
             "description": null,
             "destination": 10,
+            "fractions": [],
             "keyflow": 30,
             "origin": 60,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -11989,9 +15678,9 @@
             "amount": 10,
             "description": null,
             "destination": 67,
+            "fractions": [],
             "keyflow": 30,
             "origin": 76,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12003,9 +15692,9 @@
             "amount": 10,
             "description": null,
             "destination": 66,
+            "fractions": [],
             "keyflow": 30,
             "origin": 76,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12017,9 +15706,9 @@
             "amount": 10,
             "description": null,
             "destination": 65,
+            "fractions": [],
             "keyflow": 30,
             "origin": 76,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12031,9 +15720,9 @@
             "amount": 10,
             "description": null,
             "destination": 64,
+            "fractions": [],
             "keyflow": 30,
             "origin": 76,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12045,9 +15734,9 @@
             "amount": 10,
             "description": null,
             "destination": 63,
+            "fractions": [],
             "keyflow": 30,
             "origin": 76,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12059,9 +15748,9 @@
             "amount": 10,
             "description": null,
             "destination": 61,
+            "fractions": [],
             "keyflow": 30,
             "origin": 59,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12073,9 +15762,9 @@
             "amount": 20,
             "description": null,
             "destination": 61,
+            "fractions": [],
             "keyflow": 30,
             "origin": 7,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12087,9 +15776,9 @@
             "amount": 20,
             "description": null,
             "destination": 61,
+            "fractions": [],
             "keyflow": 30,
             "origin": 58,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12101,9 +15790,9 @@
             "amount": 15,
             "description": null,
             "destination": 8,
+            "fractions": [],
             "keyflow": 30,
             "origin": 6,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12115,9 +15804,9 @@
             "amount": 5,
             "description": null,
             "destination": 60,
+            "fractions": [],
             "keyflow": 30,
             "origin": 6,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12129,9 +15818,9 @@
             "amount": 25,
             "description": null,
             "destination": 8,
+            "fractions": [],
             "keyflow": 30,
             "origin": 57,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12143,9 +15832,9 @@
             "amount": 5,
             "description": null,
             "destination": 60,
+            "fractions": [],
             "keyflow": 30,
             "origin": 57,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12157,9 +15846,9 @@
             "amount": 5,
             "description": null,
             "destination": 2,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12171,9 +15860,9 @@
             "amount": 5,
             "description": null,
             "destination": 59,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12185,9 +15874,9 @@
             "amount": 10,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12199,9 +15888,9 @@
             "amount": 5,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 56,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12213,9 +15902,9 @@
             "amount": 10,
             "description": null,
             "destination": 58,
+            "fractions": [],
             "keyflow": 30,
             "origin": 55,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12227,9 +15916,9 @@
             "amount": 10,
             "description": null,
             "destination": 6,
+            "fractions": [],
             "keyflow": 30,
             "origin": 54,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12241,9 +15930,9 @@
             "amount": 5,
             "description": null,
             "destination": 57,
+            "fractions": [],
             "keyflow": 30,
             "origin": 54,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12255,9 +15944,9 @@
             "amount": 5,
             "description": null,
             "destination": 57,
+            "fractions": [],
             "keyflow": 30,
             "origin": 53,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12269,9 +15958,9 @@
             "amount": 10,
             "description": null,
             "destination": 77,
+            "fractions": [],
             "keyflow": 30,
             "origin": 46,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12283,9 +15972,9 @@
             "amount": 10,
             "description": null,
             "destination": 57,
+            "fractions": [],
             "keyflow": 30,
             "origin": 46,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12297,9 +15986,9 @@
             "amount": 5,
             "description": null,
             "destination": 58,
+            "fractions": [],
             "keyflow": 30,
             "origin": 46,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12311,9 +16000,9 @@
             "amount": 5,
             "description": null,
             "destination": 6,
+            "fractions": [],
             "keyflow": 30,
             "origin": 46,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12325,9 +16014,9 @@
             "amount": 5,
             "description": null,
             "destination": 57,
+            "fractions": [],
             "keyflow": 30,
             "origin": 11,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12339,9 +16028,9 @@
             "amount": 5,
             "description": null,
             "destination": 59,
+            "fractions": [],
             "keyflow": 30,
             "origin": 52,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12353,9 +16042,9 @@
             "amount": 5,
             "description": null,
             "destination": 7,
+            "fractions": [],
             "keyflow": 30,
             "origin": 51,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12367,9 +16056,9 @@
             "amount": 5,
             "description": null,
             "destination": 58,
+            "fractions": [],
             "keyflow": 30,
             "origin": 50,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12381,9 +16070,9 @@
             "amount": 5,
             "description": null,
             "destination": 6,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12395,9 +16084,9 @@
             "amount": 5,
             "description": null,
             "destination": 57,
+            "fractions": [],
             "keyflow": 30,
             "origin": 49,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12409,9 +16098,9 @@
             "amount": 5,
             "description": null,
             "destination": 15,
+            "fractions": [],
             "keyflow": 30,
             "origin": 48,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12423,9 +16112,9 @@
             "amount": 5,
             "description": null,
             "destination": 24,
+            "fractions": [],
             "keyflow": 30,
             "origin": 47,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12437,9 +16126,9 @@
             "amount": 5,
             "description": null,
             "destination": 1,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12450,9 +16139,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12463,9 +16152,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 4,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12476,9 +16165,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 2,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12489,9 +16178,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 8,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12502,9 +16191,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 9,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12515,9 +16204,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 12,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12528,9 +16217,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 22,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12541,9 +16230,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 5,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12554,9 +16243,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 26,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12567,9 +16256,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 27,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12580,9 +16269,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 16,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12593,9 +16282,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 24,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12606,9 +16295,9 @@
         "fields": {
             "amount": 10,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 60,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12619,9 +16308,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 39,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12632,9 +16321,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 38,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12645,9 +16334,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 63,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12658,9 +16347,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 64,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12671,9 +16360,9 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 47,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
@@ -12684,14 +16373,25 @@
         "fields": {
             "amount": 5,
             "description": null,
+            "fractions": [],
             "keyflow": 30,
             "origin": 3,
-            "product": 1,
             "publication": null,
             "year": 2016
         },
         "model": "asmfa.actorstock",
         "pk": 1
+    },
+    {
+        "fields": {
+            "bibtex_types": "inproceedings, conference",
+            "description": "Conference Papers",
+            "hidden": false,
+            "order": 1,
+            "title": "Conference"
+        },
+        "model": "publications_bootstrap.type",
+        "pk": 2
     },
     {
         "fields": {
@@ -12703,6 +16403,46 @@
         },
         "model": "publications_bootstrap.type",
         "pk": 1
+    },
+    {
+        "fields": {
+            "abstract": "",
+            "authors": "Ich",
+            "book_title": "",
+            "chapter": null,
+            "citekey": "Ich1a",
+            "code": "",
+            "country": "",
+            "doi": null,
+            "edition": "",
+            "editor": "",
+            "external": false,
+            "image": "",
+            "institution": "",
+            "isbn": null,
+            "journal": "",
+            "location": "",
+            "month": null,
+            "note": "",
+            "number": null,
+            "organization": "",
+            "pages": "",
+            "pdf": "",
+            "publisher": "",
+            "school": "",
+            "section": null,
+            "series": "",
+            "status": "p",
+            "tags": "",
+            "thumbnail": "",
+            "title": "Test",
+            "type": 2,
+            "url": "",
+            "volume": null,
+            "year": 1
+        },
+        "model": "publications_bootstrap.publication",
+        "pk": 14
     },
     {
         "fields": {
@@ -12783,6 +16523,14 @@
         },
         "model": "publications_bootstrap.publication",
         "pk": 12
+    },
+    {
+        "fields": {
+            "casestudy": 7,
+            "publication": 14
+        },
+        "model": "publications.publicationincasestudy",
+        "pk": 4
     },
     {
         "fields": {
@@ -15655,6 +19403,39 @@
         },
         "model": "studyarea.nuts1",
         "pk": 406
+    },
+    {
+        "fields": {
+            "ewc": "20 02 01",
+            "hazardous": false,
+            "nace": "C-1105",
+            "name": "biodegradable waste",
+            "wastetype": "Vegetal wastes"
+        },
+        "model": "asmfa.waste",
+        "pk": 18606
+    },
+    {
+        "fields": {
+            "ewc": "20 03 02",
+            "hazardous": false,
+            "nace": "T-9700",
+            "name": "waste from markets",
+            "wastetype": "Household and similar wastes"
+        },
+        "model": "asmfa.waste",
+        "pk": 39735
+    },
+    {
+        "fields": {
+            "ewc": "20 03 01",
+            "hazardous": false,
+            "nace": "T-9700",
+            "name": "mixed municipal waste",
+            "wastetype": "Household and similar wastes"
+        },
+        "model": "asmfa.waste",
+        "pk": 39734
     },
     {
         "fields": {
