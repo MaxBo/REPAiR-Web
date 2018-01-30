@@ -87,9 +87,15 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
     keyflowSelect.addEventListener('change', function(){
       var keyflow = getKeyflow();
       document.getElementById('keyflow-warning').style.display = 'none';
-      renderFlows(keyflow);
-      renderEditActors(keyflow);
-      renderEditProducts(keyflow);
+      materials = new Materials([], {caseStudyId: caseStudy.id, keyflowId: keyflow.id});
+      var loader = new Loader(document.getElementById('content'),
+                              {disable: true});
+      materials.fetch({success: function(){
+        loader.remove();
+        renderFlows(keyflow);
+        renderEditActors(keyflow);
+        renderEditProducts(keyflow);
+      }});
     });
     refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
     refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
@@ -106,12 +112,10 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
         return;
       }
       caseStudy = new CaseStudy({id: caseStudyId});
-      materials = new Materials();
       keyflows = new Keyflows([], {caseStudyId: caseStudyId});
       var loader = new Loader(document.getElementById('content'),
                               {disable: true});
-      $.when(caseStudy.fetch(), materials.fetch(), 
-             keyflows.fetch()).then(function() {
+      $.when(caseStudy.fetch(),  keyflows.fetch()).then(function() {
         loader.remove();
         render(caseStudy);
       });

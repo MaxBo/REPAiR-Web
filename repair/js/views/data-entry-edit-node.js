@@ -1,7 +1,9 @@
 define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
+        'collections/products', 'collections/wastes',
         'utils/loader', 'tablesorter'],
-function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
+         Wastes, Loader){
   /**
    *
    * @author Christoph Franke
@@ -33,7 +35,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
     * @param {string} options.keyflowName                            the name of the keyflow
-    * @param {module:collections/Products} options.products          the available products
     * @param {module:collections/Materials} options.materials        the available materials
     * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
@@ -47,7 +48,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.keyflowId = options.keyflowId;
       this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
-      this.products = options.products;
       this.materials = options.materials;
       this.publications = options.publications;
       
@@ -86,15 +86,34 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                       keyflowId: this.keyflowId,
                                       type: flowType});
+      
+      this.outProducts = new Products([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      this.outWastes = new Wastes([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      
       var _this = this;
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
+      var nace = this.model.get('nace') || 'None';
 
-      $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
-             this.outFlows.fetch({data: 'origin=' + this.model.id}),
-             this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
+      $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
+             this.outFlows.fetch({ data: { origin: this.model.id } }),
+             this.stocks.fetch({ data: { origin: this.model.id } }),
+             this.outProducts.getFirstPage({ data: { nace: 'A-0111' } }),
+             this.outWastes.getFirstPage({ data: { nace: 'A-0111' } })).then(function() {
           loader.remove();
           _this.render();
       });
@@ -240,12 +259,17 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // input for product
       var typeSelect = document.createElement("select");
       var wasteOption = document.createElement("option")
-      wasteOption.value = 0; wasteOption.text = gettext('Waste');
+      wasteOption.value = true; wasteOption.text = gettext('Waste');
       typeSelect.appendChild(wasteOption);
       var productOption = document.createElement("option")
-      productOption.value = 1; productOption.text = gettext('Product');
+      productOption.value = false; productOption.text = gettext('Product');
       typeSelect.appendChild(productOption);
-      typeSelect.value = 1;
+      typeSelect.value = flow.get('waste');
+      typeSelect.addEventListener('change', function(){
+        flow.set('waste', typeSelect.value);
+      })
+      
+      
       var productSelect = document.createElement("select");
       
       function addOptions(collection, select){
@@ -281,24 +305,24 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       
       // information popup for products
       
-      var popOverSettings = {
-          placement: 'top',
-          container: 'body',
-          trigger: 'manual',
-          html: true,
-          content: function () {
-              var product = _this.products.get(productSelect.value);
-              if (product == null) return '';
-              var html = document.getElementById('popover-product-template').innerHTML;
-              var template = _.template(html);
-              var content = template({fractions: product.get('fractions'), 
-                                      materials: _this.materials,
-                                      productName: product.get('name')});
-              return content;
-          }
-      }
+      //var popOverSettings = {
+          //placement: 'top',
+          //container: 'body',
+          //trigger: 'manual',
+          //html: true,
+          //content: function () {
+              //var product = _this.products.get(productSelect.value);
+              //if (product == null) return '';
+              //var html = document.getElementById('popover-product-template').innerHTML;
+              //var template = _.template(html);
+              //var content = template({fractions: product.get('fractions'), 
+                                      //materials: _this.materials,
+                                      //productName: product.get('name')});
+              //return content;
+          //}
+      //}
       
-      this.setupPopover($(productSelect).popover(popOverSettings));
+      //this.setupPopover($(productSelect).popover(popOverSettings));
       
       var editProductBtn = document.createElement('button');
       var pencil = document.createElement('span');
