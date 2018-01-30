@@ -10,14 +10,14 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
 
 from repair.apps.asmfa.serializers.keyflows import (
     KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,
-    ProductFractionSerializer)
+    ProductFractionSerializer, ItemSerializer)
 
 from .nodes import (ActivityGroupField,
                     ActivityField,
                     ActorField)
 
 
-class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
+class FlowSerializer(ItemSerializer, KeyflowInCasestudyDetailCreateMixin,
                      NestedHyperlinkedModelSerializer):
     """Abstract Base Class for a Flow Serializer"""
     parent_lookup_kwargs = {

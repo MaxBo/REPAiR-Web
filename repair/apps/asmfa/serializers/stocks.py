@@ -11,10 +11,10 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
 
 from repair.apps.asmfa.serializers.keyflows import (
     KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,
-    ProductFractionSerializer)
+    ProductFractionSerializer, ItemSerializer)
 
 
-class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
+class StockSerializer(ItemSerializer, KeyflowInCasestudyDetailCreateMixin,
                       NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
