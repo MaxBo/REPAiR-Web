@@ -8,8 +8,9 @@ from repair.apps.asmfa.models import (Flow,
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
 
-from .keyflows import (KeyflowInCasestudyField,
-                       KeyflowInCasestudyDetailCreateMixin)
+from repair.apps.asmfa.serializers.keyflows import (
+    KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,
+    ProductFractionSerializer)
 
 from .nodes import (ActivityGroupField,
                     ActivityField,
@@ -32,7 +33,7 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
         fields = ('url', 'id',
                   'keyflow',
                   'amount', 'origin',
-                  'destination', 'product', 'description', 'year')
+                  'destination', 'product', 'description', 'year', 'waste')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -40,7 +41,7 @@ class Group2GroupSerializer(FlowSerializer):
     origin_url = ActivityGroupField(view_name='activitygroup-detail',
                                     source='origin',
                                     read_only=True)
-    product = IDRelatedField()
+    fractions = ProductFractionSerializer(many=True)
     destination = IDRelatedField()
     destination_url = ActivityGroupField(view_name='activitygroup-detail',
                                          source='destination',
@@ -49,8 +50,8 @@ class Group2GroupSerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description',
-                  'year', 'publication', )
+                  'destination', 'destination_url', 'fractions', 'description',
+                  'year', 'publication', 'waste')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -58,7 +59,7 @@ class Activity2ActivitySerializer(FlowSerializer):
     origin_url = ActivityField(view_name='activity-detail',
                                source='origin',
                                read_only=True)
-    product = IDRelatedField()
+    fractions = ProductFractionSerializer(many=True)
     destination = IDRelatedField()
     destination_url = ActivityField(view_name='activity-detail',
                                     source='destination',
@@ -67,8 +68,8 @@ class Activity2ActivitySerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description',
-                  'year', 'publication')
+                  'destination', 'destination_url', 'fractions', 'description',
+                  'year', 'publication', 'waste')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -76,7 +77,7 @@ class Actor2ActorSerializer(FlowSerializer):
     origin_url = ActorField(view_name='actor-detail',
                             source='origin',
                             read_only=True)
-    product = IDRelatedField()
+    fractions = ProductFractionSerializer(many=True)
     destination = IDRelatedField()
     destination_url = ActorField(view_name='actor-detail',
                                  source='destination',
@@ -86,5 +87,5 @@ class Actor2ActorSerializer(FlowSerializer):
         model = Actor2Actor
         fields = ('id', 'amount', 'keyflow',
                   'origin', 'origin_url',
-                  'destination', 'destination_url', 'product', 'description',
-                  'year', 'publication')
+                  'destination', 'destination_url', 'fractions', 'description',
+                  'year', 'publication', 'waste')

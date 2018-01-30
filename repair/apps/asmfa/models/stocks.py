@@ -21,6 +21,7 @@ class Stock(GDSEModel):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
+    waste = models.BooleanField(default=False)
 
     class Meta(GDSEModel.Meta):
         abstract = True

@@ -9,15 +9,16 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
 
 
-from .keyflows import (KeyflowInCasestudyField,
-                       KeyflowInCasestudyDetailCreateMixin)
+from repair.apps.asmfa.serializers.keyflows import (
+    KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,
+    ProductFractionSerializer)
 
 
 class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
                       NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    product = IDRelatedField()
+    fractions = ProductFractionSerializer(many=True)
     publication = IDRelatedField(allow_null=True, required=False)
 
     parent_lookup_kwargs = {
@@ -28,8 +29,8 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
-                  'keyflow', 'year', 'product',
-                  'publication', 
+                  'keyflow', 'year', 'fractions',
+                  'publication', 'waste' 
                   )
 
 
