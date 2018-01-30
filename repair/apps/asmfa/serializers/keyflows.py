@@ -225,7 +225,7 @@ class ItemSerializer(NestedHyperlinkedModelSerializer):
         # handle product fractions
         new_fractions = validated_data.pop('fractions', None)
 
-        if new_fractions is not None:
+        if new_fractions:
             product_fractions = ProductFraction.objects.filter(product=product)
             # delete existing rows not needed any more
             fraction_materials = (
