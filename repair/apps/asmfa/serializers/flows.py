@@ -19,24 +19,8 @@ from .nodes import (ActivityGroupField,
                     ActorField)
 
 
-class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
-                     NestedHyperlinkedModelSerializer):
-    """Abstract Base Class for a Flow Serializer"""
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
-    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      read_only=True)
-    publication = IDRelatedField(allow_null=True, required=False)
-    composition = CompositionSerializer()
+class CompositionMixin:
 
-    class Meta:
-        model = Flow
-        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'composition', 'description',
-                  'year', 'publication', 'waste')
-    
     def create(self, validated_data):
         comp_data = validated_data.pop('composition')
         instance = super().create(validated_data)
@@ -75,7 +59,27 @@ class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
             
         # assign the composition to the flow
         instance.composition = composition
-        return super().update(instance, validated_data)
+        return super().update(instance, validated_data)    
+
+
+class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
+                     CompositionMixin, 
+                     NestedHyperlinkedModelSerializer):
+    """Abstract Base Class for a Flow Serializer"""
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    publication = IDRelatedField(allow_null=True, required=False)
+    composition = CompositionSerializer()
+
+    class Meta:
+        model = Flow
+        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
+                  'destination', 'destination_url', 'composition', 'description',
+                  'year', 'publication', 'waste')
 
 
 class Group2GroupSerializer(FlowSerializer):

@@ -7,6 +7,7 @@ from repair.apps.asmfa.models import (Stock,
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
+from repair.apps.asmfa.serializers import CompositionMixin
 
 
 from repair.apps.asmfa.serializers.keyflows import (
@@ -15,6 +16,7 @@ from repair.apps.asmfa.serializers.keyflows import (
 
 
 class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
+                      CompositionMixin, 
                       NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
