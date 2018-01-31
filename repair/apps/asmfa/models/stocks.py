@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, ProductFraction)
+from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Composition)
 from repair.apps.publications.models import PublicationInCasestudy
 from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
@@ -33,22 +33,25 @@ class GroupStock(Stock):
                                related_name='stocks')
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='GroupStockData')
-    fractions = models.ManyToManyField(ProductFraction)
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
+                                    related_name='groupstock', null=True)
 
 
 class ActivityStock(Stock):
 
     origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
                                related_name='stocks')
-    fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='ActivityStockData')
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
+                                    related_name='activitystock', null=True)
 
 
 class ActorStock(Stock):
 
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='stocks')
-    fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='ActorStockData')
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
+                                    related_name='actorstock', null=True)

@@ -47,21 +47,18 @@ class Material(GDSEModel):
             raise ValidationError(_('Materials in level I do not have parents'))
 
 
-class Item(GDSEModel):
+class Composition(GDSEModel):
 
     nace = models.CharField(max_length=255)
 
-    class Meta:
-        abstract = True
 
-
-class Product(Item):
+class Product(Composition):
 
     cpa = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
 
-class Waste(Item):
+class Waste(Composition):
 
     ewc = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
@@ -75,13 +72,8 @@ class ProductFraction(GDSEModel):
     name = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='items')
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
-                                related_name='products')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='fractions', null=True)
-    waste = models.ForeignKey(Waste, on_delete=models.CASCADE,
-                              related_name='fractions', null=True)
-    default = models.BooleanField(default=True)
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
+                                    related_name='fractions', null=True)
 
     def __str__(self):
         if self.product:
