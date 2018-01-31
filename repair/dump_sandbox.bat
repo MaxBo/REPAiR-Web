@@ -1,12 +1,13 @@
 SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
 python manage.py dump_object --natural-foreign auth.group * --no-follow > repair\fixtures\sandbox_groups.json
 python manage.py dump_object asmfa.reason * > repair\fixtures\sandbox_reason.json
-python manage.py dump_object asmfa.product * > repair\fixtures\sandbox_products.json
 python manage.py dump_object asmfa.waste * > repair\fixtures\sandbox_wastes.json
+python manage.py dump_object asmfa.product * > repair\fixtures\sandbox_products.json
+python manage.py dump_object --no-follow asmfa.material * > repair\fixtures\sandbox_materials.json
+python manage.py dump_object --no-follow asmfa.productfraction * > repair\fixtures\sandbox_fractions.json
 python manage.py dump_object -k login.casestudy --query "{\"id\": 7}" > repair\fixtures\sandbox_casestudy.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}" > repair\fixtures\sandbox_actor.json
 python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow.json
-python manage.py dump_object  --no-follow asmfa.productfraction --query "{\"keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_fractions.json
 python manage.py dump_object -k changes.solutioninimplementation --query "{\"implementation__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutions.json
 python manage.py dump_object -k changes.solutionratiooneunit --query "{\"solution__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutionsratio.json
 python manage.py dump_object -k changes.strategy --query "{\"user__casestudy__id\": 7}"  > repair\fixtures\sandbox_strategy.json
@@ -22,6 +23,7 @@ python manage.py merge_fixtures^
  repair\fixtures\sandbox_keyflow.json^
  repair\fixtures\sandbox_products.json^
  repair\fixtures\sandbox_wastes.json^
+ repair\fixtures\sandbox_materials.json^
  repair\fixtures\sandbox_fractions.json^
  repair\fixtures\sandbox_solutions.json^
  repair\fixtures\sandbox_solutionsratio.json^
@@ -34,7 +36,7 @@ python manage.py merge_fixtures^
 
 python manage.py reorder_fixtures repair\fixtures\sandbox_data_unordered.json ^
  auth.group auth.user login.profile login.casestudy login.userincasestudy ^
- asmfa.product asmfa.waste asmfa.productfraction ^
+ asmfa.composition asmfa.product asmfa.waste asmfa.material asmfa.productfraction ^
  studyarea.stakeholdercategory studyarea.stakeholder ^
  changes.unit changes.solutioncategory changes.solution changes.solutionquantity changes.solutionratiooneunit ^
  changes.implementation changes.solutioninimplementation ^

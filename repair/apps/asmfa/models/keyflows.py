@@ -49,19 +49,18 @@ class Material(GDSEModel):
 
 class Composition(GDSEModel):
 
-    nace = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, blank=True)
+    nace = models.CharField(max_length=255, blank=True)
 
 
 class Product(Composition):
 
     cpa = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
 
 
 class Waste(Composition):
 
     ewc = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
     wastetype = models.CharField(max_length=255)
     hazardous = models.BooleanField()
 
@@ -69,7 +68,6 @@ class Waste(Composition):
 class ProductFraction(GDSEModel):
 
     fraction = models.FloatField()
-    name = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,

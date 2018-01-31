@@ -8,6 +8,7 @@ python manage.py loaddata sandbox_groups
 python manage.py loaddata sandbox_casestudy
 python manage.py loaddata sandbox_areas
 python manage.py loaddata sandbox_keyflow
+python manage.py loaddata sandbox_materials
 python manage.py loaddata sandbox_products
 python manage.py loaddata sandbox_wastes
 python manage.py loaddata sandbox_fractions
