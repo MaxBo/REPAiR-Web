@@ -50,7 +50,6 @@ class Activity2Activity(Flow):
     composition = models.ForeignKey(Composition, on_delete=models.SET_NULL,
                                related_name='activity2activity', null=True, 
                                )
-    #fractions = models.ManyToManyField(ProductFraction)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='Activity2ActivityData')
 

@@ -52,6 +52,20 @@ class Composition(GDSEModel):
     name = models.CharField(max_length=255, blank=True)
     nace = models.CharField(max_length=255, blank=True)
 
+    @property
+    def is_custom(self):
+        """
+        returns true, if composition is neither product or waste
+        
+        Returns
+        -------
+        bool
+        """
+        is_waste = getattr(self, 'waste', None) is not None
+        is_product = getattr(self, 'product', None) is not None
+        is_custom = not (is_waste or is_product)
+        return is_custom
+
 
 class Product(Composition):
 
@@ -74,7 +88,4 @@ class ProductFraction(GDSEModel):
                                     related_name='fractions', null=True)
 
     def __str__(self):
-        if self.product:
-            return '{}: {}'.format(self.product, self.material)
-        elif self.waste:
-            return '{}: {}'.format(self.waste, self.material)
+        return '{}: {}'.format(self.composition, self.material)
