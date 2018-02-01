@@ -418,6 +418,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       return row;
     },
     
+    /*
+     * open modal for editing the fractions of a flow 
+     * items are the available products/wastes the user can select from
+     */
     editFractions: function(flow, items){
       
       var _this = this;
@@ -539,7 +543,38 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       // fraction confirmed by clicking OK, completely recreate the composition
       var okBtn = modal.querySelector('#confirm-fractions');
+      
       okBtn.addEventListener('click', function(){
+        
+        // check the inputs first
+        var alert = modal.querySelector('.alert');
+        var fractionInputs = modal.querySelectorAll('input[name="fraction"]');
+        var sum = 0;
+        for (i = 0; i < fractionInputs.length; i++) {
+          sum += parseFloat(fractionInputs[i].value); // strangely the input returns a text (though its type is number)
+        }
+        sum = Math.round(sum);
+        console.log(sum)
+        if (sum != 100){
+          var msg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
+          alert.innerHTML = msg;
+          alert.style.display = 'block';
+          return;
+        }
+        
+        var matSelects = modal.querySelectorAll('select[name="material"]');
+        isNotSet = false;
+        for (i = 0; i < matSelects.length; i++) {
+          if (matSelects[i].selectedIndex < 0) isNotSet = true;
+        }
+        if (isNotSet){
+          var msg = gettext('All materials have to be set!');
+          alert.innerHTML = msg;
+          alert.style.display = 'block';
+          return;
+        }
+      
+        // set the compositions after completing checks
         var composition = {};
         var item = items.get(itemSelect.value);
         // no item -> set id to null and name to "custom"
@@ -741,6 +776,11 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         });
       });
     },
+    
+    alert: function(message){
+      document.getElementById('alert-message').innerHTML = message; 
+      $('#alert-modal').modal('show'); 
+    },
 
     uploadChanges: function(){
       var _this = this;
@@ -775,7 +815,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
       var onError = function(response){
-        alert(response.responseText); 
+        _this.alert(response.responseText); 
         loader.remove();
       };
       $.when.apply($, saveComplete).done(function(){
