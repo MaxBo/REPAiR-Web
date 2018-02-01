@@ -558,7 +558,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           sum += parseFloat(fractionInputs[i].value); // strangely the input returns a text (though its type is number)
         }
         sum = Math.round(sum);
-        console.log(sum)
         
         if (sum != 100){
           var errorMsg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
@@ -690,7 +689,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       return template({
         name: this.model.get('name'),
         keyflow: this.keyflowName,
-        group: this.model.get('activitygroup'),
         nace: this.model.get('nace')
       });
     },
@@ -702,7 +700,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         name: this.model.get('name'),
         keyflow: this.keyflowName,
         bvdid: this.model.get('BvDid'),
-        activity: this.model.get('activity'),
         url: this.model.get('website'),
         year: this.model.get('year'),
         employees: this.model.get('employees'),

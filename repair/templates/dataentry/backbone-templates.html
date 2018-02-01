@@ -266,10 +266,6 @@
       <td><%= keyflow %></td>
     </tr>
     <tr>
-      <td>{% trans "Activity Group" %}</td>
-      <td><%= group %></td>
-    </tr>
-    <tr>
       <td>{% trans "NACE Code" %}</td>
       <td><%= nace %></td>
     </tr>
@@ -287,10 +283,6 @@
     <tr>
       <td>{% trans "Keyflow" %}</td>
       <td><%= keyflow %></td>
-    </tr>
-    <tr>
-      <td>{% trans "Activity" %}</td>
-      <td><%= activity %></td>
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>
@@ -564,30 +556,17 @@
   </table>
 </script>
 
-<!-- Products -->
+<!-- Materials -->
 
-<script type="text/template" id="products-edit-template">
-  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Products" %}</h3>
+<script type="text/template" id="materials-edit-template">
+  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Materials" %}</h3>
   <div class="row">
-    <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger btn-upload">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-    </button>
-  </div>
-  </br>
-  <div class="row">
-    <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
-      <div class="row" style="overflow-x:auto;">
-        <table id='products-table' class='tablesorter'>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Fractions" %}</th>
-              <th>{% trans "Default" %}</th>
-            </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
-        </table>
+    <div class="col-md-6">
+      <div id="material-tree"></div>
+    </div>
+    <div class="col-md-6">
+      <div id="edit-material">
+        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select a material by clicking its row." %}</h3>
       </div>
     </div>
   </div>
