@@ -51,7 +51,7 @@ jobs:
       - run:
           name: Run Jasmine Tests
           command: |
-            jasmine
+            node_modules/.bin/jasmine
       - store_artifacts:
           path: test-reports/
           destination: tr1
