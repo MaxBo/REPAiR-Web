@@ -108,7 +108,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
       var nace = this.model.get('nace') || 'None';
-      nace = 'T-9700';
+      //nace = 'T-9700';
 
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
              this.outFlows.fetch({ data: { origin: this.model.id } }),
@@ -785,15 +785,12 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     uploadChanges: function(){
       var _this = this;
       
-      var modelsToSave = [];
-      var modelsToDestroy = [];
-      // delete exisiting flows if marked for deletion
-      // otherwise update them if they changed
+      var models = [];
+      
+      // update existing models
       var update = function(model){
-        if (model.markedForDeletion)
-          modelsToDestroy.push(model);
-        else if (model.changedAttributes() != false)
-          modelsToSave.push(model);
+        if (model.markedForDeletion || model.changedAttributes() != false)
+          models.push(model);
       };
       this.inFlows.each(update);
       this.outFlows.each(update);
@@ -802,28 +799,44 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       // save added flows only, when they are not marked for deletion
       var create = function(model){
         if (!model.markedForDeletion && Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
-          modelsToSave.push(model);
+          models.push(model);
       }
       this.newInFlows.each(create);
       this.newOutFlows.each(create);
       this.newStocks.each(create);
       
-      // chain save and destroy operations
-      var saveComplete = _.invoke(modelsToSave, 'save');
-      var destructionComplete = _.invoke(modelsToDestroy, 'destroy');
       
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
+                              
       var onError = function(response){
         _this.alert(response.responseText); 
         loader.remove();
       };
-      $.when.apply($, saveComplete).done(function(){
-        $.when.apply($, destructionComplete).done(function(){
+      
+      // upload the models recursively (starting at index it)
+      function uploadModel(models, it){
+        // end recursion if no elements are left and call the passed success method
+        if (it >= models.length) {
           loader.remove();
           _this.onUpload();
-        }).fail(onError);
-      }).fail(onError);
+          return;
+        };
+        var model = models[it];
+        // upload or destroy current model and upload next model recursively on success
+        var params = {
+            success: function(){ uploadModel(models, it+1) },
+            error: function(model, response){ onError(response) }
+          }
+        if (model.markedForDeletion)
+          model.destroy(params);
+        else {
+          model.save(null, params);
+        }
+      };
+      
+      // start recursion at index 0
+      uploadModel(models, 0);
     },
 
     /**
