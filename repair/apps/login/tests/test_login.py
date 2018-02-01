@@ -302,6 +302,7 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def test_delete_permission(self):
         """no Delete"""
 
+    @unittest.skip('not shure what is checked here')
     def test_filter_fields(self):
         """Test the filter fields request parameters"""
         kwargs = {**self.url_pks, 'pk': self.obj.pk, }

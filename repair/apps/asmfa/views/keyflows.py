@@ -1,11 +1,14 @@
 # API View
 from reversion.views import RevisionMixin
+from rest_framework import serializers, pagination
+from django_filters.rest_framework import DjangoFilterBackend
 
 from repair.apps.asmfa.models import (
     Keyflow,
     KeyflowInCasestudy,
     Product,
     Material,
+    Waste, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -14,10 +17,16 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
     MaterialSerializer,
+    WasteSerializer
 )
 
 from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
+
+
+class UnlimitedResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
 
 
 class KeyflowViewSet(ModelPermissionViewSet):
@@ -41,13 +50,26 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
                    'update': KeyflowInCasestudyPostSerializer, }
 
 
-class ProductViewSet(RevisionMixin, CasestudyViewSetMixin,
-                     ModelPermissionViewSet):
+class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_product'
     change_perm = 'asmfa.change_product'
     delete_perm = 'asmfa.delete_product'
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('nace', 'cpa')
+
+
+class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
+    add_perm = 'asmfa.add_waste'
+    change_perm = 'asmfa.change_waste'
+    delete_perm = 'asmfa.delete_waste'
+    queryset = Waste.objects.all()
+    serializer_class = WasteSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('nace', 'hazardous', 'wastetype', 'ewc')
 
 
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,

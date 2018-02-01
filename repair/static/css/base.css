@@ -286,7 +286,7 @@ tr.popunder > td{
   background-color: white;
 }
 
-button.square, button.round{
+button.square, button.round, .btn.square, .btn.round {
   padding: 1px 5px 1px 5px;
   outline: none !important;
   /*background-color: white !important;*/
@@ -294,7 +294,7 @@ button.square, button.round{
   /*color: #aad400;*/
 }
 
-button.round{
+button.round, .btn.round{
   border-radius: 20px;
 }
 

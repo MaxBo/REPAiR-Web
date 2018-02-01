@@ -48,6 +48,7 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
+    WasteViewSet, 
 )
 
 from repair.apps.utils.views import PublicationView
@@ -60,7 +61,8 @@ router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'materials', MaterialViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'wastes', WasteViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
 
@@ -125,7 +127,7 @@ kf_router.register(r'actorstock', ActorStockViewSet)
 kf_router.register(r'group2group', Group2GroupViewSet)
 kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
-kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', AllActivityViewSet)
 kf_router.register(r'actors', AllActorViewSet)

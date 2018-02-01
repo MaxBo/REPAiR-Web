@@ -1,7 +1,9 @@
 define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
+        'collections/products', 'collections/wastes',
         'utils/loader', 'tablesorter'],
-function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
+         Wastes, Loader){
   /**
    *
    * @author Christoph Franke
@@ -33,7 +35,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
     * @param {string} options.keyflowName                            the name of the keyflow
-    * @param {module:collections/Products} options.products          the available products
     * @param {module:collections/Materials} options.materials        the available materials
     * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
@@ -47,7 +48,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.keyflowId = options.keyflowId;
       this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
-      this.products = options.products;
       this.materials = options.materials;
       this.publications = options.publications;
       
@@ -86,15 +86,35 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                       keyflowId: this.keyflowId,
                                       type: flowType});
+      
+      this.outProducts = new Products([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      this.outWastes = new Wastes([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      
       var _this = this;
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
+      var nace = this.model.get('nace') || 'None';
+      nace = 'C-1086';
 
-      $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
-             this.outFlows.fetch({data: 'origin=' + this.model.id}),
-             this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
+      $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
+             this.outFlows.fetch({ data: { origin: this.model.id } }),
+             this.stocks.fetch({ data: { origin: this.model.id } }),
+             this.outProducts.getFirstPage({ data: { nace: nace } }),
+             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
           loader.remove();
           _this.render();
       });
@@ -106,7 +126,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     events: {
       'click #upload-flows-button': 'uploadChanges',
       'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
-      'click #confirm-datasource': 'confirmDatasource'
+      'click #confirm-datasource': 'confirmDatasource',
+      'click #refresh-publications-button': 'refreshDatasources'
       //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
@@ -129,7 +150,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           content: this.attrTableInner
       }
       require('bootstrap');
-      this.setupPopover($('#node-info').popover(popOverSettings));
+      this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
       // render inFlows
       this.inFlows.each(function(flow){
@@ -142,8 +163,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         _this.addFlowRow('stock-table', stock, 'origin', true);
       });
       
-      this.setupDsTable();
       this.renderDatasources(this.publications);
+      this.setupDsTable();
     },
     
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -239,12 +260,17 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // input for product
       var typeSelect = document.createElement("select");
       var wasteOption = document.createElement("option")
-      wasteOption.value = 0; wasteOption.text = gettext('Waste');
+      wasteOption.value = true; wasteOption.text = gettext('Waste');
       typeSelect.appendChild(wasteOption);
       var productOption = document.createElement("option")
-      productOption.value = 1; productOption.text = gettext('Product');
+      productOption.value = false; productOption.text = gettext('Product');
       typeSelect.appendChild(productOption);
-      typeSelect.value = 1;
+      typeSelect.value = flow.get('waste');
+      typeSelect.addEventListener('change', function(){
+        flow.set('waste', typeSelect.value);
+      })
+      
+      
       var productSelect = document.createElement("select");
       
       function addOptions(collection, select){
@@ -269,50 +295,40 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         else addOptions(null, productSelect);
       });
       
-      addOptions(this.products, productSelect);
-      productSelect.value = flow.get('product');
       productWrapper.appendChild(typeSelect);
-      productWrapper.appendChild(productSelect);
-
-      productSelect.addEventListener('change', function() {
-        flow.set('product', productSelect.value);
-      });
       
-      // information popup for products
       
+      var editFractionsBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editFractionsBtn.classList.add('btn');
+      editFractionsBtn.classList.add('btn-primary');
+      editFractionsBtn.classList.add('square');
+      editFractionsBtn.appendChild(pencil);
+      editFractionsBtn.innerHTML = gettext('Fractions');
+      
+      productWrapper.appendChild(editFractionsBtn);
+      
+      editFractionsBtn.addEventListener('click', function(){
+        _this.editFractions(flow);
+      })
+      
+      // information popup for fractions
       var popOverSettings = {
-          placement: 'right',
+          placement: 'top',
           container: 'body',
           trigger: 'manual',
           html: true,
           content: function () {
-              var product = _this.products.get(productSelect.value);
-              if (product == null) return '';
-              var html = document.getElementById('popover-product-template').innerHTML;
+              var html = document.getElementById('popover-fractions-template').innerHTML;
               var template = _.template(html);
-              var content = template({fractions: product.get('fractions'), 
-                                      materials: _this.materials,
-                                      productName: product.get('name')});
+              var content = template({fractions: flow.get('fractions'), 
+                                      materials: _this.materials});
               return content;
           }
       }
       
-      this.setupPopover($(productSelect).popover(popOverSettings));
+      this.setupPopover($(editFractionsBtn).popover(popOverSettings));
       
-      var editProductBtn = document.createElement('button');
-      var pencil = document.createElement('span');
-      editProductBtn.classList.add('btn');
-      editProductBtn.classList.add('btn-primary');
-      editProductBtn.classList.add('square');
-      editProductBtn.appendChild(pencil);
-      editProductBtn.title = gettext('edit composition');
-      pencil.classList.add('glyphicon');
-      pencil.classList.add('glyphicon-pencil');
-      productWrapper.appendChild(editProductBtn);
-      
-      editProductBtn.addEventListener('click', function(){
-        _this.editCustomProduct(_this.products.get(productSelect.value));
-      })
       
       // raw checkbox
       
@@ -353,7 +369,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         var publication = this.publications.get(pubId)
         var title = publication.get('title');
         genSource.value = title;
-        genSource.title = title;
       }
       genSource.disabled = true;
       genSource.style.cursor = 'pointer';
@@ -370,127 +385,94 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         if (publication != null){
           var title = publication.get('title');
           genSource.value = title;
-          genSource.title = title;
-          genSource.title = title;
           flow.set('publication', publication.id)
           genSource.dispatchEvent(new Event('change'));
-          // ToDo set it to model
         }
       };
       editBtn.addEventListener('click', function(){
         _this.editDatasource(onChange);
       });
       
-      /*
-      var collapse = document.createElement('div');
-      var dsRow = table.insertRow(-1);
-      
-      // collapse icon to show/hide individual datasources
-      dsRow.classList.add('hidden');
-      collapse.style.marginLeft = "4px";
-      collapse.style.cursor = 'pointer';
-      collapse.classList.add('glyphicon');
-      collapse.title = 'show individual datasources';
-      collapse.classList.add('glyphicon-chevron-down');
-      sourceWrapper.addEventListener('click', function(){
-        dsRow.classList.toggle('hidden');
-        collapse.classList.toggle('glyphicon-chevron-down');
-        collapse.classList.toggle('glyphicon-chevron-up');
-      });
-      */
-      
       sourceWrapper.appendChild(genSource);
       sourceCell.appendChild(sourceWrapper);
       sourceCell.appendChild(editBtn);
       
-      /*
-      sourceWrapper.appendChild(collapse);
+      // information popup for source
       
-      // own row for individual Datasources
-      
-      dsRow.classList.add('popunder');
-      dsRow.insertCell(-1).innerHTML = gettext('Sources:');
-      
-      var datasourcableAttributes = ['amount', 'product'];
-      // all except stocks have datasource for target
-      if (!skipTarget)
-        datasourcableAttributes.splice(1, 0, targetIdentifier)
-      _.each(datasourcableAttributes, function(attr){
-        var source = document.createElement('input');
-        source.value = 'test';
-        source.disabled = true;
-        var button = document.createElement('button');
-        button.innerHTML = gettext('Set');
-        button.classList.add('btn');
-        button.classList.add('btn-primary');
-        button.classList.add('square');
-        function onChange(publication){
-          if (publication != null){
-            source.value = publication.get('title');
-            source.dispatchEvent(new Event('change'));
+      var popOverSettingsSource = {
+          placement: 'top',
+          container: 'body',
+          trigger: 'manual',
+          html: true,
+          content: function () {
+              var publication = _this.publications.get(flow.get('publication'));
+              if (publication == null) return '';
+              var html = document.getElementById('popover-source-template').innerHTML;
+              var template = _.template(html);
+              var content = template({publication: publication});
+              return content;
           }
-          // ToDo set it to model
-        };
-        button.addEventListener('click', function(){
-          _this.editDatasource(onChange);
-        });
-        //var sel = document.createElement("select");
-        var cell = dsRow.insertCell(-1);
-        cell.setAttribute("style", "white-space: nowrap");
-        cell.appendChild(source);
-        cell.appendChild(button);
-        // general datasource overrides all sub datasources
-        genSource.addEventListener('change', function(){
-          source.value = genSource.value;
-        });
-        // sub datasources changes -> show that general datasource is custom by leaving it blank
-        source.addEventListener('change', function(){
-          genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
-        });
-      });*/
+      }
+      
+      this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
       
       return row;
     },
     
-    editCustomProduct: function(customProduct){
-      if (!customProduct) return;
+    editFractions: function(flow, items){
+      
+      var items = (flow.get('waste')) ? this.outWastes : this.outProducts;
       var _this = this;
-      var modal = document.getElementById('product-modal');
-      var inner = document.getElementById('product-modal-template').innerHTML;
+      var modal = document.getElementById('fractions-modal');
+      var inner = document.getElementById('fractions-modal-template').innerHTML;
       var template = _.template(inner);
-      var html = template({ productName: customProduct.get('name') });
-      document.getElementById('product-modal-content').innerHTML = html;
+      var html = template({items: items, waste: flow.get('waste')});
+      document.getElementById('fractions-modal-content').innerHTML = html;
       
-      var table = document.getElementById('product-edit-table')
+      var table = document.getElementById('fractions-edit-table')
       
-      var fractions = customProduct.get('fractions');
-      _.each(fractions, function(fraction){
-        var row = table.insertRow(-1);
-        var fractionsCell = row.insertCell(-1);
-        var fInput = document.createElement("input");
-        fInput.type = 'number';
-        fInput.style = 'text-align: right;';
-        fInput.max = 100;
-        fInput.min = 0;
-        fInput.style.float = 'left';
-        fractionsCell.appendChild(fInput);
-        fInput.value = fraction.fraction * 100;
-        var perDiv = document.createElement('div');
-        perDiv.innerHTML = '%';
-        perDiv.style.float = 'left';
-        fractionsCell.appendChild(perDiv);
-        var matSelect = document.createElement("select");
-        matSelect.style.float = 'left';
-        
-        _this.materials.each(function(material){
-          var option = document.createElement("option");
-          option.text = '[' + material.get('code') + '] ' + material.get('name');
-          option.value = material.id;
-          matSelect.add(option);
-        })
-        matSelect.value = fraction.material;
-        fractionsCell.appendChild(matSelect);
+      var fractions = flow.get('fractions');
+      
+      function setFractions(fractions) {
+        _.each(fractions, function(fraction){
+          var row = table.insertRow(-1);
+          var fractionsCell = row.insertCell(-1);
+          var fInput = document.createElement("input");
+          fInput.type = 'number';
+          fInput.style = 'text-align: right;';
+          fInput.max = 100;
+          fInput.min = 0;
+          fInput.style.float = 'left';
+          fractionsCell.appendChild(fInput);
+          fInput.value = fraction.fraction * 100;
+          var perDiv = document.createElement('div');
+          perDiv.innerHTML = '%';
+          perDiv.style.float = 'left';
+          fractionsCell.appendChild(perDiv);
+          var matSelect = document.createElement("select");
+          matSelect.style.float = 'left';
+          
+          _this.materials.each(function(material){
+            var option = document.createElement("option");
+            var name = material.get('name')
+            option.text = name.substring(0, 70);
+            if (name.length > 70) option.text += '...';
+            option.title = name
+            option.value = material.id;
+            matSelect.add(option);
+          })
+          matSelect.value = fraction.material;
+          fractionsCell.appendChild(matSelect);
+        });
+      }
+      
+      setFractions(fractions);
+      var itemSelect = modal.querySelector('select[name="items"]');
+      itemSelect.addEventListener('change', function(){
+        var item = items.get(itemSelect.value);
+        setFractions(item.get('fractions'));
       });
+      
       
       //var editBtn = document.createElement('button');
       //var pencil = document.createElement('span');
@@ -619,29 +601,48 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     
     setupDsTable: function(){
       require('libs/jquery.tablesorter.pager');
-      $(this.dsTable).tablesorter({});
+      $(this.dsTable).tablesorter({
+        widgets: ['filter'],
+        widgetOptions : {
+          filter_placeholder: { search : gettext('Search') + '...' }
+        }
+      });
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
       if ($(this.dsTable).find('tr').length > 1)
         $(this.dsTable).tablesorterPager({container: $("#dspager")});
       
       ////workaround for a bug in tablesorter-pager by triggering
       ////event that pager-selection changed to redraw number of visible rows
-      //var sel = document.getElementById('dspagesize');
-      //sel.selectedIndex = 0;
-      //sel.dispatchEvent(new Event('change'));
+      var sel = document.getElementById('dspagesize');
+      sel.selectedIndex = 0;
+      sel.dispatchEvent(new Event('change'));
+    },
     
+    refreshDatasources(){
+      var _this = this;
+      this.publications.fetch({ success: function(){
+        // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
+        $(_this.dsTable).trigger("destroy");
+        _this.renderDatasources(_this.publications);
+        _this.setupDsTable();
+      }});
     },
     
     renderDatasources: function(publications){
       var _this = this;
       var table = this.dsTable;
-      $.tablesorter.clearTableBody($(table)[0]);
       this.dsRows = [];
+      // avoid error message if not initialized with tablesorter yet
+      try {
+        $.tablesorter.clearTableBody($(table)[0]);
+      }
+      catch (err) { }
       publications.each(function(publication){
-        var row = document.createElement('tr');
+        var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
         row.style.cursor = 'pointer';
         _this.dsRows.push(row);
         row.insertCell(-1).innerHTML = publication.get('title');
+        row.insertCell(-1).innerHTML = publication.get('type');
         row.insertCell(-1).innerHTML = publication.get('authors');
         row.insertCell(-1).innerHTML = publication.get('doi');
         var anchor = document.createElement('a');
@@ -650,7 +651,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         anchor.innerHTML = url;
         anchor.target = '_blank';
         row.insertCell(-1).appendChild(anchor);
-        $(table).find('tbody').append($(row)).trigger('addRows', [$(row), true]);
+        
+        // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
+        //$(table).trigger('addRows', [$(row), true]);
         
         row.addEventListener('click', function() {
           _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
@@ -699,7 +702,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       $.when.apply($, saveComplete).done(function(){
         $.when.apply($, destructionComplete).done(function(){
           loader.remove();
-          console.log('upload complete');
           _this.onUpload();
         }).fail(onError);
       }).fail(onError);
