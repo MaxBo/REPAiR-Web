@@ -15,8 +15,7 @@ from repair.apps.asmfa.serializers.keyflows import (
     ProductFractionSerializer, CompositionSerializer)
 
 
-class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
-                      CompositionMixin, 
+class StockSerializer(CompositionMixin,
                       NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
@@ -32,7 +31,7 @@ class StockSerializer(KeyflowInCasestudyDetailCreateMixin,
         model = Stock
         fields = ('url', 'id', 'origin', 'amount',
                   'keyflow', 'year', 'composition',
-                  'publication', 'waste' 
+                  'publication', 'waste'
                   )
 
 

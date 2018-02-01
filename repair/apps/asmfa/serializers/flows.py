@@ -26,11 +26,11 @@ class CompositionMixin:
         instance = super().create(validated_data)
         validated_data['composition'] = comp_data
         return self.update(instance, validated_data)
-    
+
     def update(self, instance, validated_data):
         comp_data = validated_data.pop('composition')
         comp_id = comp_data.get('id')
-        
+
         # custom composition: no product or waste
         if comp_id is None or comp_id == instance.composition_id:
             # no former compostition
@@ -48,22 +48,21 @@ class CompositionMixin:
 
         # product or waste
         else:
-            # take the product or waste-instance as composition 
+            # take the product or waste-instance as composition
             composition = Composition.objects.get(id=comp_id)
-            
+
             # if old composition is a custom composition, delete it
             if instance.composition is not None:
                 old_composition = instance.composition
                 if old_composition.is_custom:
                     old_composition.delete()
-            
+
         # assign the composition to the flow
         instance.composition = composition
-        return super().update(instance, validated_data)    
+        return super().update(instance, validated_data)
 
 
-class FlowSerializer(KeyflowInCasestudyDetailCreateMixin,
-                     CompositionMixin, 
+class FlowSerializer(CompositionMixin,
                      NestedHyperlinkedModelSerializer):
     """Abstract Base Class for a Flow Serializer"""
     parent_lookup_kwargs = {
