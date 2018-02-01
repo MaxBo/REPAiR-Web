@@ -8,13 +8,6 @@ from repair.apps.login.factories import (ProfileFactory,
 from . import models
 
 
-class DataEntryFactory(DjangoModelFactory):
-    class Meta:
-        model = models.DataEntry
-    source = 'data'
-    user = factory.SubFactory(ProfileFactory)
-
-
 class KeyflowFactory(DjangoModelFactory):
     class Meta:
         model = models.Keyflow
@@ -94,8 +87,16 @@ class ProductFactory(DjangoModelFactory):
     class Meta:
         model = models.Product
     name = factory.Sequence(lambda n: "Product #%s" % n)
-    default = True
-    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    nace = 'testnace'
+    #default = True
+    #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+
+
+class CompositionFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Composition
+    name = factory.Sequence(lambda n: "Composition #%s" % n)
+    nace = '52.Retail'
 
 
 class Group2GroupFactory(FlowFactory):
@@ -103,7 +104,6 @@ class Group2GroupFactory(FlowFactory):
         model = models.Group2Group
     origin = factory.SubFactory(ActivityGroupFactory)
     destination = factory.SubFactory(ActivityGroupFactory)
-    product = factory.SubFactory(ProductFactory)
 
 
 class Activity2ActivityFactory(FlowFactory):
@@ -111,7 +111,7 @@ class Activity2ActivityFactory(FlowFactory):
         model = models.Activity2Activity
     origin = factory.SubFactory(ActivityFactory)
     destination = factory.SubFactory(ActivityFactory)
-    product = factory.SubFactory(ProductFactory)
+    #composition = factory.SubFactory(CompositionFactory)
 
 
 class Actor2ActorFactory(FlowFactory):
@@ -119,7 +119,14 @@ class Actor2ActorFactory(FlowFactory):
         model = models.Actor2Actor
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
-    product = factory.SubFactory(ProductFactory)
+
+
+class MaterialFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Material
+    name = factory.Sequence(lambda n: "Material #%s" % n)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    level = 1
 
 
 class StockFactory(FlowFactory):
@@ -131,21 +138,21 @@ class GroupStockFactory(FlowFactory):
     class Meta:
         model = models.GroupStock
     origin = factory.SubFactory(ActivityGroupFactory)
-    product = factory.SubFactory(ProductFactory)
+    #product = factory.SubFactory(ProductFactory)
 
 
 class ActivityStockFactory(FlowFactory):
     class Meta:
         model = models.ActivityStock
     origin = factory.SubFactory(ActivityFactory)
-    product = factory.SubFactory(ProductFactory)
+    #product = factory.SubFactory(ProductFactory)
 
 
 class ActorStockFactory(FlowFactory):
     class Meta:
         model = models.ActorStock
     origin = factory.SubFactory(ActorFactory)
-    product = factory.SubFactory(ProductFactory)
+    #product = factory.SubFactory(ProductFactory)
 
 
 class GeolocationFactory(DjangoModelFactory):
@@ -168,3 +175,6 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
+
+
+

@@ -6,15 +6,7 @@ from django.utils.timezone import now
 from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import GDSEModel
-from .keyflows import KeyflowInCasestudy
-
-
-class DataEntry(GDSEModel):
-
-    user = models.CharField(max_length=255, default="tester")
-    source = models.URLField(max_length=255, default="www.osf.io")  # this will be a link to OSF
-    date = models.DateTimeField(default=now)
-    raw = models.BooleanField(default=True)
+from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
 
 
 class Node(GDSEModel):

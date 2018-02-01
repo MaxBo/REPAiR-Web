@@ -34,7 +34,7 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     level = models.IntegerField()
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
@@ -47,24 +47,34 @@ class Material(GDSEModel):
             raise ValidationError(_('Materials in level I do not have parents'))
 
 
-class Item(GDSEModel):
+class Composition(GDSEModel):
 
-    nace = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, blank=True)
+    nace = models.CharField(max_length=255, blank=True)
 
-    class Meta:
-        abstract = True
+    @property
+    def is_custom(self):
+        """
+        returns true, if composition is neither product or waste
+        
+        Returns
+        -------
+        bool
+        """
+        is_waste = getattr(self, 'waste', None) is not None
+        is_product = getattr(self, 'product', None) is not None
+        is_custom = not (is_waste or is_product)
+        return is_custom
 
 
-class Product(Item):
+class Product(Composition):
 
     cpa = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
 
 
-class Waste(Item):
+class Waste(Composition):
 
     ewc = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
     wastetype = models.CharField(max_length=255)
     hazardous = models.BooleanField()
 
@@ -72,19 +82,10 @@ class Waste(Item):
 class ProductFraction(GDSEModel):
 
     fraction = models.FloatField()
-    name = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE,
                                  related_name='items')
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
-                                related_name='products')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='fractions', null=True)
-    waste = models.ForeignKey(Waste, on_delete=models.CASCADE,
-                              related_name='fractions', null=True)
-    default = models.BooleanField(default=True)
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
+                                    related_name='fractions', null=True)
 
     def __str__(self):
-        if self.product:
-            return '{}: {}'.format(self.product, self.material)
-        elif self.waste:
-            return '{}: {}'.format(self.waste, self.material)
+        return '{}: {}'.format(self.composition, self.material)

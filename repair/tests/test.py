@@ -133,7 +133,7 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
         # check if name has changed
         response = self.get_check_200(url, **kwargs)
         for key in self.patch_data:
-            if key not in response.data.keys():
+            if key not in response.data.keys() or key in self.do_not_check:
                 continue
             response_value = response.data[key]
             expected = self.patch_data[key]
@@ -178,7 +178,8 @@ class BasicModelTest(BasicModelReadTest):
         """Test post method for the detail-view"""
         url = self.url_key +'-list'
         # post
-        response = self.post(url, **self.url_pks, data=self.post_data)
+        response = self.post(url, **self.url_pks, data=self.post_data,
+                             extra={'format': 'json'})
         self.response_201()
         for key in self.post_data:
             if key not in response.data.keys() or key in self.do_not_check:
@@ -209,7 +210,8 @@ class BasicModelPermissionTest(BasicModelTest):
         self.uic.user.user.user_permissions.clear()
         url = self.url_key +'-list'
         # post
-        response = self.post(url, **self.url_pks, data=self.post_data)
+        response = self.post(url, **self.url_pks, data=self.post_data,
+                             extra={'format': 'json'})
         self.response_403()
 
     def test_delete_permission(self):

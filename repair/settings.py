@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
+    'django_filters'
 ]
 
 ADD_REVERSION_ADMIN=True

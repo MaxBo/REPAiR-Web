@@ -4,6 +4,7 @@ django==2
 django-webpack-loader>=0.5
 djangorestframework>=3.7
 djangorestframework-gis
+django-filter
 django-test-plus
 django-money
 django-reversion
@@ -11,7 +12,7 @@ django-reversion-compare
 diff-match-patch
 bibtexparser>=0.5.5
 
-git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.4
+git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.4.1
 
 drf-nested-routers
 numpy

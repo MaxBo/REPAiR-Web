@@ -1,38 +1,37 @@
-define(["backbone", "app-config"],
+define(["backbone-pageable", "app-config"],
 
-  function(Backbone, config) {
+  function(PageableCollection , config) {
 
    /**
+    * collection for fetching/putting products
+    *
+    * @param {Array.<Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
+    * 
     * @author Christoph Franke
     * @name module:collections/Products
-    * @augments Backbone.Collection
+    * @augments Backbone.PageableCollection
+    *
+    * @constructor
+    * @see https://github.com/backbone-paginator/backbone.paginator
     */
-    var Products = Backbone.Collection.extend(
+    var Products = PageableCollection.extend(
       /** @lends module:collections/Products.prototype */
       {
       /**
-       * generates an url to the api resource list based on the ids given in constructor
+       * generates an url to the api resource
        *
        * @returns {string} the url string
        */
       url: function(){
-        return config.api.products.format(this.caseStudyId, this.keyflowId);
+        return config.api.products;
       },
       
-    /**
-     * collection for fetching/putting products
-     *
-     * @param {Array.<Object>} [attrs=null]   list objects representing the fields of each model and their values, will be set if passed
-     * @param {Object} options
-     * @param {string} options.caseStudyId  id of the casestudy the products belong to
-     * @param {string} options.keyflowId    id of the keyflow the products belong to
-     *
-     * @constructs
-     * @see http://backbonejs.org/#Collection
-     */
-      initialize: function (attrs, options) {
-        this.caseStudyId = options.caseStudyId;
-        this.keyflowId = options.keyflowId;
+      queryParams: {
+        pageSize: "page_size"
+      },
+      
+      parseRecords: function (response) {
+        return response.results;
       }
     });
 

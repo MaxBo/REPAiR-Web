@@ -66,7 +66,7 @@ class CasestudyViewSetMixin(ABC):
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         data = self.filter_fields(serializer, request)
-        return Response(data)
+        return Response(serializer.data)
 
     def create(self, request, **kwargs):
         """set the """

@@ -272,7 +272,14 @@ babylon@7.0.0-beta.19:
   version "7.0.0-beta.19"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.19.tgz#e928c7e807e970e0536b078ab3e0c48f9e052503"
 
-backbone@^1.3.3:
+backbone-pageable@^1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/backbone-pageable/-/backbone-pageable-1.4.8.tgz#a9e90e65adfe68d76b49fe4820d34076880765ca"
+  dependencies:
+    backbone ">=1.1.1"
+    underscore ">=1.4.0"
+
+backbone@>=1.1.1, backbone@^1.3.3:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.3.3.tgz#4cc80ea7cb1631ac474889ce40f2f8bc683b2999"
   dependencies:
@@ -4478,7 +4485,7 @@ underscore@1.6.0, underscore@~1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.6.0.tgz#8b38b10cacdef63337b8b24e4ff86d45aea529a8"
 
-underscore@>=1.8.3, underscore@^1.8.3, underscore@~1.8.3:
+underscore@>=1.4.0, underscore@>=1.8.3, underscore@^1.8.3, underscore@~1.8.3:
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
 

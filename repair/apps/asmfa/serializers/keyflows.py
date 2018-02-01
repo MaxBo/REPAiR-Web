@@ -8,6 +8,8 @@ from repair.apps.asmfa.models import (Keyflow,
                                       Product,
                                       ProductFraction,
                                       Material,
+                                      Waste,
+                                      Composition
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -200,28 +202,23 @@ class ProductFractionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductFraction
         fields = ('id',
-                  'product',
+                  'composition',
                   'material',
                   'fraction')
-        read_only_fields = ['id', 'product']
+        read_only_fields = ['id', 'composition']
 
 
-class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
-                        NestedHyperlinkedModelSerializer):
-    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      read_only=True)
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
+class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
+    id = serializers.IntegerField(label='ID', read_only=False, required=False)
+    parent_lookup_kwargs = {}
 
     class Meta:
-        model = Product
-        fields = ('url', 'id', 'name', 'default',
-                  'keyflow',
-                  'fractions',
-                  )
+        model = Composition
+        fields = ('id',
+                  'name',
+                  'nace',
+                  'fractions')
 
     def create(self, validated_data):
         fractions = validated_data.pop('fractions')
@@ -232,13 +229,14 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
 
     def update(self, instance, validated_data):
         """update the user-attributes, including fraction information"""
-        product = instance
+        composition = instance
 
         # handle product fractions
         new_fractions = validated_data.pop('fractions', None)
 
         if new_fractions is not None:
-            product_fractions = ProductFraction.objects.filter(product=product)
+            product_fractions = ProductFraction.objects.filter(
+                composition=composition)
             # delete existing rows not needed any more
             fraction_materials = (
                 getattr(fraction.get('material'), 'id')
@@ -252,7 +250,8 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
                 fraction = ProductFraction.objects.update_or_create(
-                    product=product,
+                    fraction=new_fraction.get('fraction'), 
+                    composition=composition,
                     material=material)[0]
 
                 for attr, value in new_fraction.items():
@@ -268,9 +267,34 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
         return instance
 
 
-class MaterialSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
+class ProductSerializer(CompositionSerializer):
+
+    class Meta:
+        model = Product
+        fields = ('url', 'id', 'name', 'nace', 'cpa',
+                  'fractions',
+                  )
+
+
+class WasteSerializer(CompositionSerializer):
+
+    class Meta:
+        model = Waste
+        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous', 
+                  'fractions',
+                  )
+
+
+class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
+                         NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    parent = IDRelatedField()
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'code', 'flowType')
+        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')

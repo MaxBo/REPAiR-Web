@@ -111,7 +111,7 @@ define([
      *
      */
     toProjection(coordinate, projection) {
-      return ol.proj.transform(coordinate, this.mapProjection, this.projection);
+      return ol.proj.transform(coordinate, this.mapProjection, projection);
     }
     
     /**
