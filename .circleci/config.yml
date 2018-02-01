@@ -104,7 +104,15 @@ workflows:
     jobs:
       - build
       - set up database
+          requires:
+            - build
       - django testing
+          requires:
+            - set up database
       - setup database again
+          requires:
+            - django testing
       - jasmine tests
+          requires:
+            - build
       - store results
