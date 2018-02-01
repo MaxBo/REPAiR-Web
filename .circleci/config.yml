@@ -48,7 +48,10 @@ jobs:
           name: load fixtures to test database
           command: |
             python manage.py loaddata sandbox_data --settings=repair.settings4tests
-
+      - run:
+          name: Run Jasmine Tests
+          command: |
+            jasmine
       - store_artifacts:
           path: test-reports/
           destination: tr1
