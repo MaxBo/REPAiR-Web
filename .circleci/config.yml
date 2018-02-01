@@ -102,16 +102,16 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - set up database
+      - set up database:
           requires:
             - build
-      - django testing
+      - django testing:
           requires:
             - set up database
-      - setup database again
+      - setup database again:
           requires:
             - django testing
-      - jasmine tests
+      - jasmine tests:
           requires:
             - build
       - store results
