@@ -74,7 +74,7 @@ jobs:
       - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
-   - run:
+      - run:
           name: Run Jasmine Tests
           command: |
             node_modules/.bin/jasmine
