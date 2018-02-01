@@ -275,9 +275,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       var editFractionsBtn = document.createElement('button');
       var pencil = document.createElement('span');
-      editFractionsBtn.classList.add('btn');
-      editFractionsBtn.classList.add('btn-primary');
-      editFractionsBtn.classList.add('square');
+      editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
       editFractionsBtn.appendChild(pencil);
       editFractionsBtn.innerHTML = gettext('Fractions');
       
@@ -378,13 +376,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       genSource.style.cursor = 'pointer';
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
-      editBtn.classList.add('btn');
-      editBtn.classList.add('btn-primary');
-      editBtn.classList.add('square');
+      editBtn.classList.add('btn', 'btn-primary', 'square');
       editBtn.appendChild(pencil);
       editBtn.title = gettext('edit datasource');
-      pencil.classList.add('glyphicon');
-      pencil.classList.add('glyphicon-pencil');
+      pencil.classList.add('glyphicon', 'glyphicon-pencil');
       function onChange(publication){
         if (publication != null){
           var title = publication.get('title');
@@ -497,10 +492,26 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           matSelect.add(option);
         })
         matSelect.value = fraction.material;
-        matSelect.title = matSelect.options[matSelect.selectedIndex].title;
+        if (matSelect.selectedIndex >= 0)
+          matSelect.title = matSelect.options[matSelect.selectedIndex].title;
         fractionsCell.appendChild(matSelect);
         matSelect.addEventListener('change', function(){
           matSelect.title = matSelect.options[matSelect.selectedIndex].title;
+          setCustom();
+        });
+        
+        // ToDo: datasource
+        row.insertCell(-1)
+        
+        var removeBtn = document.createElement('button');
+        removeBtn.classList.add('btn', 'btn-warning', 'square');
+        removeBtn.title = gettext('remove fraction');
+        var span = document.createElement('span');
+        span.classList.add('glyphicon', 'glyphicon-minus');
+        removeBtn.appendChild(span);
+        row.insertCell(-1).appendChild(removeBtn);
+        removeBtn.addEventListener('click', function(){
+          row.parentNode.removeChild(row);
           setCustom();
         });
       }
@@ -519,6 +530,11 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         while (table.rows.length > 1) table.deleteRow(1);
         itemSelect.title = item.get('name');
         setFractions(item.get('fractions'));
+      });
+      
+      var addBtn = modal.querySelector('#add-fraction-button');
+      addBtn.addEventListener('click', function(){
+        addFractionRow( { fraction: 0, material: -1 } )
       });
       
       // fraction confirmed by clicking OK, completely recreate the composition
