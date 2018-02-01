@@ -210,7 +210,8 @@ class ProductFractionSerializer(serializers.ModelSerializer):
 
 class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
-    id = serializers.IntegerField(label='ID', read_only=False, required=False)
+    id = serializers.IntegerField(label='ID', read_only=False, required=False,
+                                  allow_null=True)
     parent_lookup_kwargs = {}
 
     class Meta:

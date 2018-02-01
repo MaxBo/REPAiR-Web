@@ -55,7 +55,7 @@ class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     add_perm = 'asmfa.add_product'
     change_perm = 'asmfa.change_product'
     delete_perm = 'asmfa.delete_product'
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by('id')
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('nace', 'cpa')
@@ -66,7 +66,7 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     add_perm = 'asmfa.add_waste'
     change_perm = 'asmfa.change_waste'
     delete_perm = 'asmfa.delete_waste'
-    queryset = Waste.objects.all()
+    queryset = Waste.objects.order_by('id')
     serializer_class = WasteSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('nace', 'hazardous', 'wastetype', 'ewc')
