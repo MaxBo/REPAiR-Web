@@ -5,46 +5,88 @@ define([
   /**
    *
    * OpenLayers Map with draggable markers, optional context-menu and fullscreen controls
-   *
-   * @param {Object} options
-   * @param {string} options.divid                        id of the HTMLElement to render the map into
-   * @param {string} [options.projection='EPSG:3857']     projection of the map
-   * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
-   *
    * @author Christoph Franke
-   * @name module:visualizations/Map
-   * @constructor
    */
-  var Map = function(options){
-    var idCounter = 0;
-    var interactions = [];
-    var mapProjection = options.projection || 'EPSG:3857';
-    var center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', mapProjection);
-
-    var view = new ol.View({
-      projection: mapProjection,
-      center: center,
-      zoom: 10
-    });
-    var vectorLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+  class Map {
+    
+    /**
+     * create the map
+     * @param {Object} options
+     * @param {string} options.divid                        id of the HTMLElement to render the map into
+     * @param {string} [options.projection='EPSG:3857']     projection of the map
+     * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
+     *
+     */
+    constructor(options){
+      var _this = this;
+      this.idCounter = 0;
+      this.mapProjection = options.projection || 'EPSG:3857';
+      this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
   
-    var map = new ol.Map({
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM({crossOrigin: 'anonymous'}),
-        }),
-        vectorLayer
-      ],
-      target: options.divid,
-      controls: ol.control.defaults({
-        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-          collapsible: false
-        })
-      }).extend([
-        new ol.control.FullScreen({source: options.divid})
-      ]),
-      view: view
-    });    
+      this.view = new ol.View({
+        projection: this.mapProjection,
+        center: this.center,
+        zoom: 10
+      });
+      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      this.layers = {};
+      this.layers.basic = basicLayer;
+    
+      this.map = new ol.Map({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM({crossOrigin: 'anonymous'}),
+          }),
+          basicLayer
+        ],
+        target: options.divid,
+        controls: ol.control.defaults({
+          attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+            collapsible: false
+          })
+        }).extend([
+          new ol.control.FullScreen({source: options.divid})
+        ]),
+        view: this.view
+      });
+      
+      var _this = this;
+      this.map.on('pointermove', function (e) {
+        if (e.dragging) return;
+      
+        var pixel = _this.map.getEventPixel(e.originalEvent);
+        var hit = _this.map.hasFeatureAtPixel(pixel);
+      
+        _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+      });
+      
+      var div = document.getElementById(options.divid);
+      
+      var tooltip = div.querySelector('.tooltip');
+      if (tooltip){
+        var overlay = new ol.Overlay({
+          element: tooltip,
+          offset: [10, 0],
+          positioning: 'bottom-left'
+        });
+        this.map.addOverlay(overlay);
+  
+        function displayTooltip(evt) {
+          var pixel = evt.pixel;
+          var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
+            return feature;
+          });
+          if (feature && feature.tooltip) {
+            overlay.setPosition(evt.coordinate);
+            tooltip.innerHTML = feature.tooltip;
+            tooltip.style.display = '';
+          }
+          else tooltip.style.display = 'none';
+        };
+        
+        this.map.on('pointermove', displayTooltip);
+      }
+    }
     
     /**
      * transforms given coordinates into projection of map
@@ -54,12 +96,9 @@ define([
      *
      * @returns {Array.<number>} (x,y)      coordinates in map projection
      *
-     * @method toMapProjection
-     * @memberof module:visualizations/Map
-     * @instance
      */
-    this.toMapProjection = function(coordinate, projection) {
-      return ol.proj.transform(coordinate, projection, mapProjection);
+    toMapProjection(coordinate, projection) {
+      return ol.proj.transform(coordinate, projection, this.mapProjection);
     }
     
     /**
@@ -70,14 +109,64 @@ define([
      *
      * @returns {Array.<number>} (x,y)      coordinates in given projection
      *
-     * @method toProjection
-     * @memberof module:visualizations/Map
-     * @instance
      */
-    this.toProjection = function(coordinate, projection) {
-      return ol.proj.transform(coordinate, mapProjection, projection);
+    toProjection(coordinate, projection) {
+      return ol.proj.transform(coordinate, this.mapProjection, projection);
     }
     
+    /**
+     * add a new vector layer to map
+     *
+     * @param {string} name  name of the layer
+     * @param {Object=} options
+     * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
+     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     *
+     */
+    addLayer(name, options){
+      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      this.layers[name] = layer;
+      this.map.addLayer(layer);
+      var options = options || {};
+      var style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: options.stroke || 'rgb(255, 255, 255)',
+          width: options.strokeWidth || 3
+        }),
+        fill: new ol.style.Fill({
+          color: options.fill || 'rgba(255, 255, 255, 0.1)'
+        })
+      });
+      layer.setStyle(style);
+    }
+    
+    /**
+     * add a polygon to the map
+     *
+     * @param {Array.<Array.<number>>} coordinates  coordinates of the polygon
+     * @param {Object=} options
+     * @param {string} [options.layername='basic']  layer to which the polygon will be added
+     * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     * @param {string=} options.tooltip             tooltip shown on hover over polygon
+     * @param {string} [options.type='Polygon']     Polygon or Multipolygon
+     *
+     * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
+     *
+     */
+    addPolygon(coordinates, options){
+      var options = options || {};
+      var proj = options.projection || this.mapProjection;
+      var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
+      var ret = poly.clone();
+      var layername = options.layername || 'basic',
+          layer = this.layers[layername];
+      
+      var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+      feature.tooltip = options.tooltip;
+      layer.getSource().addFeature(feature);
+      return ret;
+    }
     
     /**
      * callback for dragging markers
@@ -91,18 +180,21 @@ define([
      *
      * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
      * @param {Object} options
+     * @param {string} [options.layername='basic']  layer to which the marker will be added
      * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
      * @param {string=} [options.name='']   the name will be rendered below the marker
      * @param {string=} options.icon        url to image the marker will be rendered with
+     * @param {Array.<number>} [options.anchor=[0.5, 0.5]] anchor of icon, defaults to icon center
      * @param {string=} options.dragIcon    url to image the marker will be rendered with while dragging
      * @param {module:visualizations/Map~onDrag=} options.onDrag      callback that will be called when the marker is dragged to new position
      *
-     * @method addmarker
-     * @memberof module:visualizations/Map
-     * @instance
      */
-    this.addmarker = function(coordinates, options) {
-      var proj = options.projection || mapProjection;
+    addmarker(coordinates, options) {
+      var _this = this;
+      var options = options || {};
+      var proj = options.projection || this.mapProjection;
+      var layername = options.layername || 'basic',
+          layer = this.layers[layername];
       
       var template = '({x}, {y})';
           
@@ -114,7 +206,7 @@ define([
           });
       if (options.icon){
          var iconStyle = new ol.style.Style({
-          image: new ol.style.Icon({ scale: .08, src: options.icon }),
+          image: new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor }),
           text: new ol.style.Text({
             offsetY: 25,
             text: options.name, //ol.coordinate.format(coordinate, template, 2),
@@ -142,64 +234,107 @@ define([
       // Add the event to the drag and drop feature
       dragInteraction.on('modifyend', function(){
         var coordinate = feature.getGeometry().getCoordinates();
-        var transformed = ol.proj.transform(coordinate, mapProjection, proj);
+        var transformed = ol.proj.transform(coordinate, _this.mapProjection, proj);
         //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-        vectorLayer.changed();
+        layer.changed();
         if(options.onDrag){
           options.onDrag(transformed);
         }        
       }, feature);
       
-      interactions.push(dragInteraction);
-      map.addInteraction(dragInteraction);
-      var id = idCounter;
+      this.map.addInteraction(dragInteraction);
+      var id = this.idCounter;
       feature.setId(id);
       // remember the interactions to access them on remove by setting them as attributes
       feature.onRemove = options.onRemove;
+      feature.removable = options.removable;
       feature.interaction = dragInteraction;
-      idCounter++;
-      vectorLayer.getSource().addFeature(feature);
+      this.idCounter++;
+      layer.getSource().addFeature(feature);
       return id;
     }
     
-    /*
-    * move marker with given id to given coordinates, not tested yet
-    */
-    this.moveMarker = function(markerId, coordinates, options) {
-      var feature = vectorLayer.getSource().getFeatureById(markerId);
+    /**
+     * move marker with given id to given coordinates
+     *
+     * @param {Array.<number>} markerId       id of the marker
+     * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added atwhere marker will be added at
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the layer the marker is in
+     * @param {string=} options.projection          projection the given coordinates are in, uses map projection if not given
+     *
+     */
+    moveMarker(markerId, coordinates, options) {
       var options = options || {};
-      var proj = options.projection || mapProjection;
+      var layername = options.layername || 'basic',
+          layer = this.layers[layername];
+      var feature = layer.getSource().getFeatureById(markerId);
+      var proj = options.projection || this.mapProjection;
       feature.setGeometry(new ol.geom.Point(this.toMapProjection(coordinates, proj)));
     }
     
     /**
-     * remove all markers from map
+     * remove all features from a layer
      *
-     * @method removeMarkers
-     * @memberof module:visualizations/Map
-     * @instance
+     * @param {Object} options
+     * @param {string} [options.layername='basic']  the name of the layer
+     * @param {Array.<string>=} options.types               types of the features to remove, defaults to all
      */
-    this.removeMarkers = function(){
-      map.getInteractions().forEach(function (interaction) {
-          if (interaction instanceof ol.interaction.Modify) 
-             map.removeInteraction(interaction);
-      });
-      vectorLayer.getSource().clear();
-    };
+    clearLayer(layername, options){
+      var options = options || {};
+      var layername = layername || 'basic',
+          layer = this.layers[layername];
+      if (options.types == null){
+        layer.getSource().clear();
+      }
+      else {
+        var source = layer.getSource();
+        // iterate features of the layer and remove those that are in given types
+        source.getFeatures().forEach(function(feature){
+          if (options.types.includes(feature.getGeometry().getType()))
+            source.removeFeature(feature);
+        })
+      }
+    }
     
-    // remove marker of given feature
-    function removeMarker(obj) {
-      var feature = obj.data.marker;
-      if (feature.interaction != null) map.removeInteraction(feature.interaction);
+    /**
+     * remove all interactions from the map
+     *
+     */
+    removeInteractions(){
+      var _this = this;
+      this.map.getInteractions().forEach(function (interaction) {
+          if (interaction instanceof ol.interaction.Modify) 
+             _this.map.removeInteraction(interaction);
+      });
+    }
+    
+    // get the layers the given feature is in
+    getAssociatedLayers(feature){
+      var associated = [];
+      var _this = this;
+      Object.keys(this.layers).forEach(function(layername){ 
+        var layer = _this.layers[layername];
+        if (layer.getSource().getFeatureById(feature.getId()) != null)
+          associated.push(layer);
+      })
+      return associated;
+    }
+    
+    // event to remove marker
+    removeFeatureEvent(obj) {
+      var feature = obj.data.feature;
+      if (feature.interaction != null) this.map.removeInteraction(feature.interaction);
       if (feature.onRemove != null) feature.onRemove();
       
-      vectorLayer.getSource().removeFeature(feature);
+      this.layers = this.getAssociatedLayers(feature);
+      this.layers.forEach(function(layer){ layer.getSource().removeFeature(feature); })
     }
     
     /**
      * callback for clicking item in context menu
      *
-     * @callback module:visualizations/Map~itemClicked
+     * @callback Map~itemClicked
      * @param {Object} event event
      * @param {Array.<number>} event.coordinate coordinates in map projection
      * @see https://github.com/jonataswalker/ol-contextmenu
@@ -209,14 +344,10 @@ define([
      * add a context menu to the map 
      * option to remove marker and zoom controls are always added
      *
-     * @param {Array.<{text: string, icon: string, callback: module:visualizations/Map~itemClicked}>} contextmenuItems  items to be added to the context menu
-     *
-     * @method addContextMenu
-     * @memberof module:visualizations/Map
-     * @instance
+     * @param {Array.<{text: string, icon: string, callback: Map~itemClicked}>} contextmenuItems  items to be added to the context menu
      * @see https://github.com/jonataswalker/ol-contextmenu
      */
-    this.addContextMenu = function (contextmenuItems){
+    addContextMenu(contextmenuItems){
       if (this.contextmenu != null)
         this.map.removeControl(this.contextmenu);
       var contextmenu = new ContextMenu({
@@ -224,22 +355,22 @@ define([
         items: contextmenuItems
       });
       this.contextmenu = contextmenu;
-      map.addControl(contextmenu);
+      this.map.addControl(contextmenu);
       
-      var removeMarkerItem = {
-        text: 'Remove this Marker',
-        classname: 'marker',
-        callback: removeMarker
+      var removeFeatureItem = {
+        text: 'Remove',
+        classname: 'feature',
+        callback: this.removeFeatureEvent
       };
       
+      var _this = this;
       contextmenu.on('open', function (evt) {
-        console.log(evt.pixel)
-        var feature = map.forEachFeatureAtPixel(evt.pixel, ft => ft);
+        var feature = _this.map.forEachFeatureAtPixel(evt.pixel, ft => ft);
         
-        if (feature && feature.get('type') === 'removable') {
+        if (feature && feature.get('type') === 'removable' && feature.removable) {
           contextmenu.clear();
-          removeMarkerItem.data = { marker: feature };
-          contextmenu.push(removeMarkerItem);
+          removeFeatureItem.data = { feature: feature };
+          contextmenu.push(removeFeatureItem);
         } else {
           contextmenu.clear();
           contextmenu.extend(contextmenuItems);
@@ -248,30 +379,55 @@ define([
       });
     }
     
-    map.on('pointermove', function (e) {
-      if (e.dragging) return;
-    
-      var pixel = map.getEventPixel(e.originalEvent);
-      var hit = map.hasFeatureAtPixel(pixel);
-    
-      map.getTargetElement().style.cursor = hit ? 'pointer' : '';
-    });
   
     /**
      * center map on given coordinates
      * 
-     * @param {Array.<number>} coordinates  (x,y) coordinates 
+     * @param {Array.<number>} coordinates     (x,y) coordinates 
      * @param {Object} options
-     * @param {string=} options.projection  projection of the coordinates, defaults to map projection
+     * @param {string=} options.projection      projection of the coordinates and extent, defaults to map projection
+     * @param {Array.<number>=} options.extent  an array of numbers representing an extent: [minx, miny, maxx, maxy], map will be zoomed to fit the extent
+     * @param {number=} options.zoomOffset      offset for zooming on extent (negative values will zoom out more)
      */
-    this.center = function(coordinate, options) {
+    centerOnPoint(coordinate, options) {
+      var options = options || {};
+      var zoom;
       if (options.projection)
         coordinate = this.toMapProjection(coordinate, options.projection)
-      
-      view.animate({center: coordinate});//, {zoom: 10});
+      if (options.extent){
+        var extent = options.extent;
+        if (options.projection){
+          var min = this.toMapProjection(extent.slice(0, 2), options.projection);
+          var max = this.toMapProjection(extent.slice(2, 4), options.projection);
+          extent = min.concat(max);
+        }
+        var resolution = this.view.getResolutionForExtent(extent);
+        zoom = this.view.getZoomForResolution(resolution);
+        var zoomOffset = options.zoomOffset || 0;
+        zoom += zoomOffset;
+      }
+      this.view.animate({ center: coordinate, zoom: zoom });//, {zoom: 10});
     }
     
-    this.map = map;
+    /**
+     * center map on polygon
+     * 
+     * @param {ol.geom.Polygon} polygon      the OpenLayers polygon
+     * @param {Object} options
+     * @param {string=} options.projection   projection of the coordinates of the polygon
+     * @param {number=} options.zoomOffset   offset for zooming on extent (negative values will zoom out more)
+     *
+     */
+    centerOnPolygon(polygon, options) {
+      var options = options || {};
+      var type = polygon.getType();
+      var interior = (type == 'MultiPolygon') ? polygon.getInteriorPoints().getCoordinates()[0]: polygon.getInteriorPoint().getCoordinates();
+      var centroid = interior.slice(0, 2);
+      var extent = polygon.getExtent();
+      options.extent = extent;
+      this.centerOnPoint(centroid, options);
+      return centroid;
+    }
 
   };
   

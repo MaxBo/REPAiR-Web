@@ -1,7 +1,8 @@
-define(['jquery', 'backbone', 'underscore', 'models/actor', 'collections/activities', 
-        'collections/actors', 'views/data-entry-edit-actor', 'loader', 
-        'tablesorter'],
-function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
+define(['backbone', 'underscore', 'models/actor', 'collections/activities',
+        'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
+        'utils/loader', 'app-config', 'tablesorter'],
+function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
+         Loader, config){
   /**
    *
    * @author Christoph Franke
@@ -32,8 +33,9 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
       var keyflowId = this.model.id,
           caseStudyId = this.model.get('casestudy');
       
-      this.activities = new Activities([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
-      this.actors = new Actors([], {caseStudyId: caseStudyId, keyflowId: keyflowId});
+      this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+      this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+      this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
       this.showAll = true;
       this.caseStudy = options.caseStudy;
       this.caseStudyId = this.model.get('casestudy');
@@ -44,8 +46,13 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
         {disable: true});
         
       this.projection = 'EPSG:4326'; 
+      
+      var Reasons = Backbone.Collection.extend({url: config.api.reasons});
+      this.reasons = new Reasons([]);
         
-      $.when(this.activities.fetch(), this.actors.fetch()).then(function() {
+      $.when(this.activities.fetch(), this.actors.fetch(), 
+             this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
+          _this.areaLevels.sort();
           loader.remove();
           _this.render();
       });
@@ -68,7 +75,7 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
                                     keyflow: this.model.get('name')});
       
       // confirmation modal for deletion of actor
@@ -157,7 +164,10 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
           model: actor,
           activities: _this.activities,
           keyflow: _this.model,
-          onUpload: function(a) { setRowValues(a); showActor(a); }
+          onUpload: function(a) { setRowValues(a); showActor(a); },
+          focusarea: _this.caseStudy.get('properties').focusarea,
+          areaLevels: _this.areaLevels,
+          reasons: _this.reasons
         });
       }
       
@@ -195,7 +205,8 @@ function($, Backbone, _, Actor, Activities, Actors, EditActorView, Loader){
         "BvDii": "-",
         "website": "www.website.org",
         "activity": this.activities.first().id,
-        }, {"caseStudyId": this.model.get('casestudy')});
+        'reason': null
+        }, {"caseStudyId": this.model.get('casestudy'), 'keyflowId': this.model.id});
       actor.save({}, {success: function(){
         _this.actors.add(actor);
         var row = _this.addActorRow(actor);

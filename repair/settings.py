@@ -38,6 +38,7 @@ SECRET_KEY = '$f#=dn^_6xu1e7py@$(8_8yu2(%*a&b@6uxr*_zyi3c*%5@u1^'
 
 ALLOWED_HOSTS = ['geodesignhub.h2020repair.bk.tudelft.nl',
                  'gdse.h2020repair.bk.tudelft.nl',
+                 'staging.h2020repair.bk.tudelft.nl',
                  "localhost",
                  "127.0.0.1"]
 
@@ -66,6 +67,7 @@ INSTALLED_APPS = [
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
+    'django_filters'
 ]
 
 ADD_REVERSION_ADMIN=True

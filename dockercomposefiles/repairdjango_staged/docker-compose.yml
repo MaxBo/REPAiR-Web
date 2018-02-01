@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+
+  web:
+    env_file: .env
+    image: maxboh/repair-web:latest
+
+    command: bash -c "cd /home/circleci/repairweb && echo $PWD && git pull && pip install -r requirements-dev.txt && yarn install && node_modules/.bin/webpack --config repair/webpack.staged.config.js && python manage.py migrate --run-syncdb && python manage.py loaddata sandbox_data && python manage.py runserver 0.0.0.0:8000"
+
+    ports:
+      - "${REPAIRPORT}:8000"
+
+    restart: always

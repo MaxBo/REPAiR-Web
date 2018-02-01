@@ -1,7 +1,11 @@
 {% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}Test Home{% endblock %}
 
-{% block content %}
+{% block content %}  
+  {% render_bundle 'vendors' %}
+  {% render_bundle 'Base' %}
+
 <h2> Hello World </h2>
 {% endblock %}

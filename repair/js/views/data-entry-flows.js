@@ -1,10 +1,9 @@
-define(['jquery', 'backbone', 'underscore',
+define(['backbone', 'underscore',
         'views/data-entry-edit-node',
-        'collections/activities', 'collections/actors',
-        'collections/products', 'collections/flows', 'collections/stocks',
+        'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
         'collections/activitygroups', 'collections/publications', 
-        'visualizations/sankey', 'loader', 'libs/bootstrap-treeview.min'],
-function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
+        'visualizations/sankey', 'utils/loader'],
+function(Backbone, _, EditNodeView, Activities, Actors, Flows, 
          Stocks, ActivityGroups, Publications, Sankey, Loader){
 
   /**
@@ -44,15 +43,14 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
 
       // collections of nodes associated to the casestudy
       this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.publications = new Publications([]);
+      this.publications = new Publications([], { caseStudyId: this.caseStudyId });
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
 
-      $.when(this.actors.fetch({data: 'included=True'}, this.products.fetch(), 
+      $.when(this.actors.fetch({data: 'included=True'}, 
              this.activityGroups.fetch(), this.activities.fetch(), 
              this.publications.fetch())).then(function(){
         _this.render();
@@ -78,7 +76,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
                                     keyflow: this.model.get('name')});
       this.renderDataTree();
       this.renderSankey();
@@ -154,7 +152,6 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
      * readable by the sankey-diagram
      */
     transformData: function(models, modelLinks, stocks){
-      var products = this.products;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -170,13 +167,11 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
         var value = modelLink.get('amount');
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
-        var product = products.get(modelLink.get('product'))
-        var productName = (product != null) ? product.get('name') : 'undefined';
         links.push({
           value: modelLink.get('amount'),
           source: source,
           target: target,
-          text: productName
+          text: 'ToDo'
         });
       })
       stocks.each(function(stock){
@@ -250,6 +245,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
         _this.renderDataEntry();
       };
       var divid = '#data-tree';
+      require('libs/bootstrap-treeview.min');
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
@@ -277,7 +273,6 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
           template: 'edit-node-template',
           model: model,
           materials: _this.materials,
-          products: _this.products,
           keyflowId: _this.keyflowId,
           keyflowName: _this.model.get('name'),
           caseStudyId: _this.caseStudyId,

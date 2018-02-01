@@ -103,7 +103,7 @@
     color: #aad400;
 }
 
-.navbar-top select, .navbar-top .drop-button{
+.navbar-top select, .navbar-top .dropdown-button{
     color: #4c5867 !IMPORTANT;
     background-color: white !IMPORTANT;
     border: none;
@@ -158,7 +158,6 @@
     background-color: #aad400; 
     color: white;
 }
-
 
 .show {display:block;}
 /*.navbar-top select option:checked, .navbar-top select option:hover{

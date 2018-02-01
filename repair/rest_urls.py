@@ -31,6 +31,7 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
+    ReasonViewSet, 
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
@@ -47,20 +48,23 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
+    WasteViewSet, 
 )
 
+from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
+
 
 ## base routes ##
 
 router = DefaultRouter()
-router.register(r'users', login_views.UserViewSet)
-router.register(r'groups', login_views.GroupViewSet)
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'materials', MaterialViewSet)
-router.register(r'publications', login_views.PublicationView)
+router.register(r'products', ProductViewSet)
+router.register(r'wastes', WasteViewSet)
+router.register(r'publications', PublicationView)
+router.register(r'reasons', ReasonViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
@@ -123,7 +127,7 @@ kf_router.register(r'actorstock', ActorStockViewSet)
 kf_router.register(r'group2group', Group2GroupViewSet)
 kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
-kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', AllActivityViewSet)
 kf_router.register(r'actors', AllActorViewSet)
