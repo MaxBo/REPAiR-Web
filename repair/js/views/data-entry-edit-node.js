@@ -550,30 +550,40 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         var alert = modal.querySelector('.alert');
         var fractionInputs = modal.querySelectorAll('input[name="fraction"]');
         var sum = 0;
+        
+        var errorMsg;
+        
+        // sum test
         for (i = 0; i < fractionInputs.length; i++) {
           sum += parseFloat(fractionInputs[i].value); // strangely the input returns a text (though its type is number)
         }
         sum = Math.round(sum);
         console.log(sum)
-        if (sum != 100){
-          var msg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
-          alert.innerHTML = msg;
-          alert.style.display = 'block';
-          return;
-        }
         
-        var matSelects = modal.querySelectorAll('select[name="material"]');
-        isNotSet = false;
-        for (i = 0; i < matSelects.length; i++) {
-          if (matSelects[i].selectedIndex < 0) isNotSet = true;
-        }
-        if (isNotSet){
-          var msg = gettext('All materials have to be set!');
-          alert.innerHTML = msg;
-          alert.style.display = 'block';
-          return;
+        if (sum != 100){
+          var errorMsg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
+        } else {
+          // if sum test is passed check materials
+          var matSelects = modal.querySelectorAll('select[name="material"]');
+          var matIds = []
+          for (i = 0; i < matSelects.length; i++) {
+            if (matSelects[i].selectedIndex < 0) {
+              errorMsg = gettext('All materials have to be set!');
+              break;
+            }
+            if (matIds.includes(matSelects[i].value)){
+              errorMsg = gettext('Multiple fractions with the same material are not allowed!');
+              break;
+            }
+            matIds.push(matSelects[i].value);
+          }
         }
       
+        if (errorMsg){
+          alert.innerHTML = errorMsg;
+          alert.style.display = 'block';
+          return;
+        }
         // set the compositions after completing checks
         var composition = {};
         var item = items.get(itemSelect.value);
