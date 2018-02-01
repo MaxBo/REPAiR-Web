@@ -186,49 +186,45 @@
     </div>
   </div>
   <div id="fractions-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content col-md-12">
-        <div class="modal-header">
-          <h4> {% trans "Composition" %} </h4>
-        </div>
-        <div class="modal-body">
-          <div id='fractions-modal-content'></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-          <button class="btn btn-primary" id="confirm-custom-fractions" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
-        </div>
+  </div>
+</script>
+
+<!-- fractions modal -->
+<script type="text/template" id="fractions-modal-template">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <h4> {% trans "Composition" %} </h4>
+      </div>
+      <div class="modal-body">
+        <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
+        <select name="items"></select>
+        <table id="fractions-edit-table" style="font-size: 12px;">
+          <tr>
+            <th>{% trans "Fractions" %}</th>
+            <th>{% trans "Data Source" %}</th>
+            <th>{% trans "Remove" %}</th>
+          </tr>
+        </table>
+        <button id='add-fraction-button' class="btn btn-primary square" title="{% trans "add new fraction" %}">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Add Fraction" %}
+        </button>
+        <div class="alert alert-danger" style="display: None; margin-top: 20px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+        <button class="btn btn-primary" id="confirm-fractions" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>
   </div>
 </script>
 
-<!-- fractions modal content -->
-<script type="text/template" id="fractions-modal-template">
-  <% if(waste) { %> {% trans "Waste" %} <% } else  { %> {% trans "Product"%} <% } %>
-  <select name="items">
-    <option disabled selected> {% trans "select"%} </option>
-  <% items.each(function(item) { %>
-    <option value="<%= item.id %>"> <%= item.get("name") %></option>
-  <% }); %>
-  </select>
-  <table id="fractions-edit-table">
-    <thead>
-      <tr>
-        <th>{% trans "Fractions" %}</th>
-        <th>{% trans "Data Source" %}</th>
-      </tr>
-    </thead> 
-    <tbody> 
-    </tbody>
-  </table>
-</script>
-
 <!--- popover templates -->
 <script type="text/template" id="popover-fractions-template">
-  <% _.each(fractions, function(fraction){ %>
-    <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
-  <% }); %>
+  <b> <%= title %> </b>
+  <% if (fractions) {_.each(fractions, function(fraction){ %>
+    <div class='row'> <%= Math.round(fraction.fraction * 1000) / 10 %>% <%= materials.get(fraction.material).get('name') %></div>
+  <% }); } else { %> {% trans "No composition defined" %} <% } %>
 </script>
 
 <script type="text/template" id="popover-source-template">
@@ -270,10 +266,6 @@
       <td><%= keyflow %></td>
     </tr>
     <tr>
-      <td>{% trans "Activity Group" %}</td>
-      <td><%= group %></td>
-    </tr>
-    <tr>
       <td>{% trans "NACE Code" %}</td>
       <td><%= nace %></td>
     </tr>
@@ -291,10 +283,6 @@
     <tr>
       <td>{% trans "Keyflow" %}</td>
       <td><%= keyflow %></td>
-    </tr>
-    <tr>
-      <td>{% trans "Activity" %}</td>
-      <td><%= activity %></td>
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>
@@ -568,30 +556,17 @@
   </table>
 </script>
 
-<!-- Products -->
+<!-- Materials -->
 
-<script type="text/template" id="products-edit-template">
-  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Products" %}</h3>
+<script type="text/template" id="materials-edit-template">
+  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Materials" %}</h3>
   <div class="row">
-    <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger btn-upload">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-    </button>
-  </div>
-  </br>
-  <div class="row">
-    <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
-      <div class="row" style="overflow-x:auto;">
-        <table id='products-table' class='tablesorter'>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Fractions" %}</th>
-              <th>{% trans "Default" %}</th>
-            </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
-        </table>
+    <div class="col-md-6">
+      <div id="material-tree"></div>
+    </div>
+    <div class="col-md-6">
+      <div id="edit-material">
+        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select a material by clicking its row." %}</h3>
       </div>
     </div>
   </div>
