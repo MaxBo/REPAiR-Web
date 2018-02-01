@@ -80,6 +80,7 @@ jobs:
             node_modules/.bin/jasmine
 
 
+
   store results:
     docker:
       - image: maxboh/docker-circleci-node-miniconda-gdal
