@@ -108,7 +108,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
                               {disable: true});
       // fetch inFlows and outFlows with different query parameters
       var nace = this.model.get('nace') || 'None';
-      nace = 'C-1086';
+      nace = 'T-9700';
 
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
              this.outFlows.fetch({ data: { origin: this.model.id } }),
@@ -127,8 +127,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       'click #upload-flows-button': 'uploadChanges',
       'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
       'click #confirm-datasource': 'confirmDatasource',
+      'click #confirm-fractions': 'confirmFractions',
       'click #refresh-publications-button': 'refreshDatasources'
-      //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
     },
 
     /*
@@ -187,8 +187,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
     // add a flow to table (which one is depending on type of flow)
     // targetIdentifier is the attribute of the flow with the id of the node connected with this node 
-    // set skipTarget to True for stocks
-    addFlowRow: function(tableId, flow, targetIdentifier, skipTarget){
+    // set isStock to True for stocks
+    addFlowRow: function(tableId, flow, targetIdentifier, isStock){
       var _this = this;
 
       var table = this.el.querySelector('#' + tableId);
@@ -227,7 +227,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       // origin respectively destination (skipped at stocks)
 
-      if (!skipTarget){
+      if (!isStock){
         // select input for target (origin resp. destination of flow)
 
         var nodeSelect = document.createElement("select");
@@ -252,51 +252,26 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         });
       };
       
-      var productWrapper = document.createElement("span");
+      var itemWrapper = document.createElement("span");
       // prevent breaking 
-      productWrapper.setAttribute("style", "white-space: nowrap");
-      row.insertCell(-1).appendChild(productWrapper); 
+      itemWrapper.setAttribute("style", "white-space: nowrap");
+      row.insertCell(-1).appendChild(itemWrapper); 
       
       // input for product
       var typeSelect = document.createElement("select");
       var wasteOption = document.createElement("option")
-      wasteOption.value = true; wasteOption.text = gettext('Waste');
+      wasteOption.value = 'true'; wasteOption.text = gettext('Waste');
       typeSelect.appendChild(wasteOption);
       var productOption = document.createElement("option")
-      productOption.value = false; productOption.text = gettext('Product');
+      productOption.value = 'false'; productOption.text = gettext('Product');
       typeSelect.appendChild(productOption);
       typeSelect.value = flow.get('waste');
-      typeSelect.addEventListener('change', function(){
-        flow.set('waste', typeSelect.value);
-      })
-      
-      
-      var productSelect = document.createElement("select");
-      
-      function addOptions(collection, select){
-        var option = document.createElement("option");
-        option.disabled = true;
-        option.text = gettext('select');
-        option.value = null;
-        select.add(option);
-        select.selectedIndex = 0;
-        if (!collection) return;
-        collection.each(function(product){
-          var option = document.createElement("option");
-          option.text = product.get('name');
-          option.value = product.id;
-          select.add(option);
-        });
-      }
-      
+            
       typeSelect.addEventListener('change', function() {
-        clearSelect(productSelect);
-        if (typeSelect.value == 1) addOptions(_this.products, productSelect);
-        else addOptions(null, productSelect);
+        flow.set('waste', typeSelect.value);
       });
       
-      productWrapper.appendChild(typeSelect);
-      
+      itemWrapper.appendChild(typeSelect);
       
       var editFractionsBtn = document.createElement('button');
       var pencil = document.createElement('span');
@@ -306,28 +281,57 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       editFractionsBtn.appendChild(pencil);
       editFractionsBtn.innerHTML = gettext('Fractions');
       
-      productWrapper.appendChild(editFractionsBtn);
+      itemWrapper.appendChild(editFractionsBtn);
       
       editFractionsBtn.addEventListener('click', function(){
-        _this.editFractions(flow);
+        if (flow.get('waste') == null) return;
+        // the nace of this node determines the items for stocks and outputs
+        if (targetIdentifier == 'destination' || isStock == true){
+          var items = (flow.get('waste') == 'true') ? _this.outWastes : _this.outProducts;
+          _this.editFractions(flow, items);
+        }
+        // take nace of origin node in case of inputs
+        else {
+          var origin = _this.model.collection.get(flow.get('origin'));
+          if (origin == null) return;
+          var options = { 
+            state: {
+              pageSize: 1000000,
+              firstPage: 1,
+              currentPage: 1
+            }
+          };
+          var nace = origin.get('nace') || 'None';
+          var loader = new Loader(document.getElementById('flows-edit'),
+                                  {disable: true});
+          var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+          items.getFirstPage({ data: { nace: nace } }).then( 
+            function(){ _this.editFractions(flow, items); loader.remove(); }
+          )
+          
+        }
       })
       
       // information popup for fractions
-      var popOverSettings = {
-          placement: 'top',
+      var popOverFractionsSettings = {
+          placement: 'right',
           container: 'body',
-          trigger: 'manual',
+          trigger: 'hover',
           html: true,
           content: function () {
+              var composition = flow.get('composition') || {};
               var html = document.getElementById('popover-fractions-template').innerHTML;
               var template = _.template(html);
-              var content = template({fractions: flow.get('fractions'), 
-                                      materials: _this.materials});
+              var content = template({ 
+                title: composition.name,
+                fractions: composition.fractions, 
+                materials: _this.materials
+              });
               return content;
           }
       }
       
-      this.setupPopover($(editFractionsBtn).popover(popOverSettings));
+      $(editFractionsBtn).popover(popOverFractionsSettings);
       
       
       // raw checkbox
@@ -421,69 +425,128 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     
     editFractions: function(flow, items){
       
-      var items = (flow.get('waste')) ? this.outWastes : this.outProducts;
       var _this = this;
       var modal = document.getElementById('fractions-modal');
       var inner = document.getElementById('fractions-modal-template').innerHTML;
       var template = _.template(inner);
-      var html = template({items: items, waste: flow.get('waste')});
-      document.getElementById('fractions-modal-content').innerHTML = html;
+      var html = template({waste: flow.get('waste')});
+      modal.innerHTML = html;
+      
+      var itemSelect = modal.querySelector('select[name="items"]');
+      var customOption = document.createElement("option");
+      customOption.text = customOption.title = gettext('custom');
+      customOption.value = -1;
+      customOption.disabled = true;
+      itemSelect.appendChild(customOption);
+      items.each(function(item){
+        var option = document.createElement("option");
+        var name = item.get('name');
+        item.get('ewc') || item.get('cpa');
+        option.title = name;
+        option.value = item.id;
+        var suffix = item.get('ewc') || item.get('cpa') || '-';
+        option.text = '[' + suffix + '] ' + name;
+        if (option.text.length > 70) option.text = option.text.substring(0, 70) + '...';
+        itemSelect.appendChild(option);
+      });
+      
+      var composition = flow.get('composition') || {};
+      itemSelect.value = composition.id || -1;
+      // if js doesn't find the id in the select box, it set's index to -1 -> item appears to be custom
+      if (itemSelect.selectedIndex < 0) itemSelect.value = -1;
+      itemSelect.title = composition.name || '';
+      var fractions = composition.fractions || [];
+      
+      function setCustom(){
+        itemSelect.value = -1;
+        itemSelect.title = '';
+      }
       
       var table = document.getElementById('fractions-edit-table')
       
-      var fractions = flow.get('fractions');
-      
-      function setFractions(fractions) {
-        _.each(fractions, function(fraction){
-          var row = table.insertRow(-1);
-          var fractionsCell = row.insertCell(-1);
-          var fInput = document.createElement("input");
-          fInput.type = 'number';
-          fInput.style = 'text-align: right;';
-          fInput.max = 100;
-          fInput.min = 0;
-          fInput.style.float = 'left';
-          fractionsCell.appendChild(fInput);
-          fInput.value = fraction.fraction * 100;
-          var perDiv = document.createElement('div');
-          perDiv.innerHTML = '%';
-          perDiv.style.float = 'left';
-          fractionsCell.appendChild(perDiv);
-          var matSelect = document.createElement("select");
-          matSelect.style.float = 'left';
-          
-          _this.materials.each(function(material){
-            var option = document.createElement("option");
-            var name = material.get('name')
-            option.text = name.substring(0, 70);
-            if (name.length > 70) option.text += '...';
-            option.title = name
-            option.value = material.id;
-            matSelect.add(option);
-          })
-          matSelect.value = fraction.material;
-          fractionsCell.appendChild(matSelect);
+      function addFractionRow(fraction){
+        var row = table.insertRow(-1);
+        var fractionsCell = row.insertCell(-1);
+        var fInput = document.createElement("input");
+        fInput.type = 'number';
+        fInput.name = 'fraction';
+        fInput.style = 'text-align: right;';
+        fInput.max = 100;
+        fInput.min = 0;
+        fInput.style.float = 'left';
+        fractionsCell.appendChild(fInput);
+        fInput.value = Math.round(fraction.fraction * 1000) / 10;
+        fInput.addEventListener('change', setCustom);
+        
+        var perDiv = document.createElement('div');
+        perDiv.innerHTML = '%';
+        perDiv.style.float = 'left';
+        perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
+        fractionsCell.appendChild(perDiv);
+        var matSelect = document.createElement("select");
+        matSelect.name = 'material';
+        matSelect.style.float = 'left';
+        
+        _this.materials.each(function(material){
+          var option = document.createElement("option");
+          var name = material.get('name');
+          option.text = name.substring(0, 70);
+          if (name.length > 70) option.text += '...';
+          option.title =  material.get('name');
+          option.value = material.id;
+          matSelect.add(option);
+        })
+        matSelect.value = fraction.material;
+        matSelect.title = matSelect.options[matSelect.selectedIndex].title;
+        fractionsCell.appendChild(matSelect);
+        matSelect.addEventListener('change', function(){
+          matSelect.title = matSelect.options[matSelect.selectedIndex].title;
+          setCustom();
         });
       }
       
+      // put the given fractions into the table
+      function setFractions(fractions) {
+        _.each(fractions, addFractionRow)
+      }
+      
       setFractions(fractions);
-      var itemSelect = modal.querySelector('select[name="items"]');
+      
+      // on selection of new item render its fractions
       itemSelect.addEventListener('change', function(){
         var item = items.get(itemSelect.value);
+        // delete all rows except first one (= header)
+        while (table.rows.length > 1) table.deleteRow(1);
+        itemSelect.title = item.get('name');
         setFractions(item.get('fractions'));
       });
       
+      // fraction confirmed by clicking OK, completely recreate the composition
+      var okBtn = modal.querySelector('#confirm-fractions');
+      okBtn.addEventListener('click', function(){
+        var composition = {};
+        var item = items.get(itemSelect.value);
+        // no item -> set id to null and name to "custom"
+        composition.id = (item) ? item.id : null;
+        composition.name = (item) ? item.get('name') : gettext('custom');
+        composition.fractions = [];
+        for (var i = 1; i < table.rows.length; i++) {
+          var row = table.rows[i];
+          var fInput = row.querySelector('input[name="fraction"]');
+          var matSelect = row.querySelector('select[name="material"]');
+          var f = fInput.value / 100;
+          var fraction = { 
+            'fraction': Number(Math.round(f+'e3')+'e-3'),
+            'material': matSelect.value 
+          };
+          composition.fractions.push(fraction);
+        }
+        flow.set('composition', composition);
+        $(modal).modal('hide');
+      })
       
-      //var editBtn = document.createElement('button');
-      //var pencil = document.createElement('span');
-      //editBtn.classList.add('btn');
-      //editBtn.classList.add('btn-primary');
-      //editBtn.classList.add('square');
-      //editBtn.appendChild(pencil);
-      //editBtn.title = gettext('edit datasource');
-      //pencil.classList.add('glyphicon');
-      //pencil.classList.add('glyphicon-pencil');
-      $(modal).modal('show'); 
+      // finally show the modal after setting it up
+      $(modal).modal('show');
     },
 
     // on click add row button
@@ -492,7 +555,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var tableId;
       var flow;
       var targetIdentifier;
-      var skipTarget = false;
+      var isStock = false;
       if (buttonId == 'add-input-button'){
         tableId = 'input-table';
         flow = this.newInFlows.add({});
@@ -522,9 +585,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           'origin': this.model.id,
           'quality': null
         });
-        skipTarget = true;
+        isStock = true;
       }
-      this.addFlowRow(tableId, flow, targetIdentifier, skipTarget);
+      this.addFlowRow(tableId, flow, targetIdentifier, isStock);
 
     },
 
