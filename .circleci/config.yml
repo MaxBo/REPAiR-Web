@@ -25,11 +25,24 @@ jobs:
           name: Download Selenium
           command: |
             curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
+
+
+  set up database:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
       - run:
           name: Migrate Test Database
           command: |
-
             python manage.py migrate --settings=repair.settings4tests
+
+
+  django testing:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
       - run:
           name: start Testserver
           command: |
@@ -40,6 +53,12 @@ jobs:
           command: |
             python manage.py test --settings=repair.settings4tests
 
+
+  setup database again:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
       - run:
           name: Migrate Test Database again
           command: |
@@ -48,10 +67,24 @@ jobs:
           name: load fixtures to test database
           command: |
             python manage.py loaddata sandbox_data --settings=repair.settings4tests
-      - run:
+
+
+  jasmine tests:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+   - run:
           name: Run Jasmine Tests
           command: |
             node_modules/.bin/jasmine
+
+
+  store results:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
       - store_artifacts:
           path: test-reports/
           destination: tr1
@@ -62,3 +95,15 @@ jobs:
           command: |
             coverage run manage.py test --settings=repair.settings4tests
             codecov
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - set up database
+      - django testing
+      - setup database again
+      - jasmine tests
+      - store results
