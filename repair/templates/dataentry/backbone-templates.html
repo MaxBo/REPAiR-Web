@@ -367,8 +367,8 @@
       </div>
     </div>
   </div>
-  <div id="confirmation-modal"></div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+  <div id="confirmation-modal"></div>
 </script>
 
 <!-- edit actor -->
@@ -564,16 +564,26 @@
     <div class="col-md-6">
       <div id="material-tree"></div>
     </div>
-    <div class="col-md-6">
-      <div id="edit-material">
-        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select a material by clicking its row." %}</h3>
+    <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
+      <button id='edit-material-button' class="btn btn-primary square" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
+        <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
+      </button>
+      <button id='add-material-button' class="btn btn-primary square" title="{% trans "add child material" %}" style="pointer-events: auto;">
+        <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
+      </button>
+        <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-minus"></span> <!--{% trans "Remove Material" %}-->
+        </button>
       </div>
     </div>
   </div>
+  <div id="delete-material-modal"></div>
+  <div id="edit-material-modal"> </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- general modal for confirmations -->
+
 <script type="text/template" id="confirmation-template">
   <div class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -586,8 +596,28 @@
           <p id="confirmation-message"><%= message %></p>
         </div>
         <div class="modal-footer">
-          <button id="confirm-button" type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Yes" %}</button>
+          <button id="confirm-button" type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
           <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "No" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- empty modal -->
+
+<script type="text/template" id="empty-modal-template">
+  <div class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"> <%= header %> </h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
+          <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
         </div>
       </div>
     </div>

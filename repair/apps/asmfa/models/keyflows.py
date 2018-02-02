@@ -39,12 +39,12 @@ class Material(GDSEModel):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
 
-    def clean(self):
-        # Check if parent class is exactly one level higher
-        if self.level - 1 != parent.level and self.level != 1:
-            raise ValidationError(_('Parent material must be one level higher'))
-        elif self.level == 1 and self.parent is not None:
-            raise ValidationError(_('Materials in level I do not have parents'))
+    #def clean(self):
+        ## Check if parent class is exactly one level higher
+        #if self.level - 1 != parent.level and self.level != 1:
+            #raise ValidationError(_('Parent material must be one level higher'))
+        #elif self.level == 1 and self.parent is not None:
+            #raise ValidationError(_('Materials in level I do not have parents'))
 
 
 class Composition(GDSEModel):

@@ -249,6 +249,8 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
+                         expandIcon: 'glyphicon glyphicon-triangle-right',
+                         collapseIcon: 'glyphicon glyphicon-triangle-bottom'
                          //showCheckbox: true
                          });
       $(divid).treeview('collapseAll', {silent: true});

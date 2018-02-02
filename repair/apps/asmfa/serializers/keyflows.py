@@ -290,7 +290,8 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
                          NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    parent = IDRelatedField()
+    parent = IDRelatedField(allow_null=True)
+    level = serializers.IntegerField(required=False, default=0)
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
