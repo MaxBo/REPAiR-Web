@@ -114,6 +114,6 @@ workflows:
       - jasmine tests:
           requires:
             - build
-      - store results
+      - store results:
           requires:
             - build
