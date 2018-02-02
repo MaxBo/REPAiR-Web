@@ -106,10 +106,12 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      // fetch inFlows and outFlows with different query parameters
+
+      // the nace of the model determines the products/wastes of the flows out
       var nace = this.model.get('nace') || 'None';
       //nace = 'T-9700';
 
+      // fetch inFlows and outFlows with different query parameters
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
              this.outFlows.fetch({ data: { origin: this.model.id } }),
              this.stocks.fetch({ data: { origin: this.model.id } }),
@@ -419,7 +421,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     },
     
     /*
-     * open modal for editing the fractions of a flow 
+     * open modal dialog for editing the fractions of a flow 
      * items are the available products/wastes the user can select from
      */
     editFractions: function(flow, items){
@@ -463,7 +465,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       var table = document.getElementById('fractions-edit-table')
       
+      // add a row to the fractions table with inputs and event listeners
       function addFractionRow(fraction){
+      
+        // input for fraction percentage
         var row = table.insertRow(-1);
         var fractionsCell = row.insertCell(-1);
         var fInput = document.createElement("input");
@@ -482,6 +487,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         perDiv.style.float = 'left';
         perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
         fractionsCell.appendChild(perDiv);
+        
+        // select material
         var matSelect = document.createElement("select");
         matSelect.name = 'material';
         matSelect.style.float = 'left';
@@ -507,6 +514,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         // ToDo: datasource
         row.insertCell(-1)
         
+        // button to remove the row
         var removeBtn = document.createElement('button');
         removeBtn.classList.add('btn', 'btn-warning', 'square');
         removeBtn.title = gettext('remove fraction');
@@ -525,6 +533,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         _.each(fractions, addFractionRow)
       }
       
+      // init with fractions of current composition
       setFractions(fractions);
       
       // on selection of new item render its fractions
@@ -536,6 +545,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         setFractions(item.get('fractions'));
       });
       
+      // button for adding the fraction
       var addBtn = modal.querySelector('#add-fraction-button');
       addBtn.addEventListener('click', function(){
         addFractionRow( { fraction: 0, material: -1 } )
@@ -583,6 +593,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           alert.style.display = 'block';
           return;
         }
+        
         // set the compositions after completing checks
         var composition = {};
         var item = items.get(itemSelect.value);
