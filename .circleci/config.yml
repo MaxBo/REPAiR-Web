@@ -50,14 +50,6 @@ jobs:
           command: |
             pip install -r requirements-dev.txt
       - run:
-          name: Install Node Modules
-          command: |
-            yarn install
-      - run:
-          name: Configure Javascript packages
-          command: |
-            node_modules/.bin/webpack --config repair/webpack.dev.config.js
-      - run:
           name: Migrate Test Database again
           command: |
             python manage.py migrate --run-syncdb --settings=repair.settings4tests
