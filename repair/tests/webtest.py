@@ -10,7 +10,7 @@ from django.test import TestCase
 
 class UntitledTestCase(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(r'F:\Downloads\chromedriver.exe')
         self.driver.implicitly_wait(30)
         self.base_url = "https://www.katalon.com/"
         self.verificationErrors = []
