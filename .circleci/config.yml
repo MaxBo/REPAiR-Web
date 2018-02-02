@@ -28,8 +28,6 @@ jobs:
 
 
   set up database:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run:
@@ -39,8 +37,6 @@ jobs:
 
 
   django testing:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run:
@@ -55,8 +51,6 @@ jobs:
 
 
   setup database again:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run:
@@ -70,8 +64,6 @@ jobs:
 
 
   jasmine tests:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - run:
@@ -81,8 +73,6 @@ jobs:
 
 
   store results:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
       - store_artifacts:
