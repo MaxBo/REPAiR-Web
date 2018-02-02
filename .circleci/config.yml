@@ -101,8 +101,32 @@ jobs:
 
 
   store results:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
       - checkout
+      - run: mkdir test-reports
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
+          name: Install Node Modules
+          command: |
+            yarn install
+      - run:
+          name: Configure Javascript packages
+          command: |
+            node_modules/.bin/webpack --config repair/webpack.dev.config.js
+      - run:
+          name: Migrate Test Database
+          command: |
+            python manage.py migrate --settings=repair.settings4tests
+      - run:
+          name: start Testserver
+          command: |
+            python manage.py runserver 4444 --settings=repair.settings4tests
+          background: true
       - store_artifacts:
           path: test-reports/
           destination: tr1
