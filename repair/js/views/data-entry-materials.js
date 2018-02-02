@@ -1,6 +1,6 @@
-define(['backbone', 'underscore', 'utils/loader'],
+define(['backbone', 'underscore', "models/material", 'utils/loader'],
 
-function(Backbone, _, Products, Loader){
+function(Backbone, _, Material, Loader){
 
   /**
    *
@@ -27,13 +27,14 @@ function(Backbone, _, Products, Loader){
      */
     initialize: function(options){
       _.bindAll(this, 'render');
+      _.bindAll(this, 'renderDataTree');
       _.bindAll(this, 'nodeSelected');
       var _this = this;
       
       this.template = options.template;
       this.caseStudy = options.caseStudy;
-      var keyflowId = this.model.id,
-          caseStudyId = this.caseStudy.id;
+      this.keyflowId = this.model.id,
+      this.caseStudyId = this.caseStudy.id;
       
       this.materials = options.materials;
       
@@ -108,7 +109,8 @@ function(Backbone, _, Products, Loader){
       
       // root node "Materials"
       var tree = [{
-        id: -1,
+        id: null,
+        parent: null,
         nodes: treeify(materialList), // collection as tree
         text: 'Materials',
         state: { collapsed: false }
@@ -122,6 +124,12 @@ function(Backbone, _, Products, Loader){
         collapseIcon: 'glyphicon glyphicon-triangle-bottom',
         onNodeSelected: this.nodeSelected
       });
+    },
+    
+    rerender: function(){
+      this.buttonBox.style.display = 'None';
+      $(this.materialTree).treeview('remove');
+      this.renderDataTree();
     },
     
     /*
@@ -141,10 +149,19 @@ function(Backbone, _, Products, Loader){
      * add a material to the tree with selected node as parent
      */
     addMaterial: function(){
-      if (this.selectedNode == null) return;
+      var node = this.selectedNode;
+      if (node == null) return;
+      var _this = this;
       
       function onChange(name){
-        console.log(name)
+        var material = new Material(
+          { parent: node.id, name: name }, 
+          { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId }
+        );
+        material.save({}, { success: function(){
+          _this.materials.add(material);
+          _this.rerender();
+        }});
       }
       this.getName({ 
         title: gettext('Add Material'),
@@ -172,7 +189,9 @@ function(Backbone, _, Products, Loader){
      * remove the selected material 
      */
     removeMaterial: function(){
-      if (this.selectedNode == null) return;
+      var node = this.selectedNode;
+      if (node == null) return;
+      var _this = this;
       
       var elConfirmation = document.getElementById('delete-material-modal'),
           html = document.getElementById('confirmation-template').innerHTML,
@@ -182,7 +201,14 @@ function(Backbone, _, Products, Loader){
         message: gettext("Do you really want to delete the selected material and all of its children from the database?")
       });
       elConfirmation.querySelector('.confirm').addEventListener('click', function(){
-        console.log('confirmed')
+        var loader = new Loader(_this.el, { disable: true });
+        node.model.destroy( { success: function(){
+          // fetch the materials again because all children of this node will be removed in backend
+          _this.materials.fetch({ success: function(){
+            _this.rerender();
+            loader.remove();
+          }});
+        }});
       });
       $(modal).modal('show'); 
     },
