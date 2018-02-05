@@ -70,10 +70,11 @@ function(Backbone, _, Material, Loader){
     /*
      * render the hierarchic tree of materials
      */
-    renderDataTree: function(){
+    renderDataTree: function(expandedIds){
     
       var _this = this;
       var dataDict = {};
+      var expandedIds = expandedIds || []
       
       // list to tree
       function treeify(list) {
@@ -93,16 +94,17 @@ function(Backbone, _, Material, Loader){
         });
         return treeList;
       };
-    
       // collection to list, prepare it to treeify
       var materialList = [];
       this.materials.each(function(material){
+        // expand if id is in given array
+        var collapsed = expandedIds.includes(material.id) ? false: true;
         var mat = { 
           id: material.id, 
           parent: material.get('parent'),
           text: material.get('name'),
           model: material,
-          state: { collapsed: true }
+          state: { collapsed: collapsed, expanded: !collapsed }
         };
         materialList.push(mat);
       });
@@ -116,20 +118,35 @@ function(Backbone, _, Material, Loader){
         state: { collapsed: false }
       }]
       
+      function select(event, node){ 
+        $(_this.materialTree).treeview('selectNode', node.nodeId);
+      }
+      
       require('libs/bootstrap-treeview.min');
       $(this.materialTree).treeview({
         data: tree, showTags: true,
         selectedBackColor: '#aad400',
         expandIcon: 'glyphicon glyphicon-triangle-right',
         collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-        onNodeSelected: this.nodeSelected
+        onNodeSelected: this.nodeSelected,
+        // workaround for misplaced buttons when collapsing parent node -> select the collapsed node
+        onNodeCollapsed: select,
+        onNodeExpanded: select
       });
     },
     
-    rerender: function(){
+    /*
+     * clear the data tree and render it again
+     */
+    rerender: function(expandedIds){
       this.buttonBox.style.display = 'None';
       $(this.materialTree).treeview('remove');
-      this.renderDataTree();
+      this.renderDataTree(expandedIds);
+    },
+    
+    onError: function(response){
+      document.getElementById('alert-message').innerHTML = response.responseText; 
+      $('#alert-modal').modal('show'); 
     },
     
     /*
@@ -141,6 +158,7 @@ function(Backbone, _, Material, Loader){
       if (!node.model) editBtn.style.display = 'None'; // nothing to edit (most likely root)
       else editBtn.style.display = 'inline';
       var li = this.materialTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
+      if (!li) return;
       this.buttonBox.style.top = li.offsetTop + 10 + 'px';
       this.buttonBox.style.display = 'inline';
     },
@@ -158,10 +176,13 @@ function(Backbone, _, Material, Loader){
           { parent: node.id, name: name }, 
           { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId }
         );
-        material.save({}, { success: function(){
-          _this.materials.add(material);
-          _this.rerender();
-        }});
+        material.save({}, { 
+          success: function(){
+            _this.materials.add(material);
+            _this.rerender([node.id]);
+          },
+          error: _this.onError
+        });
       }
       this.getName({ 
         title: gettext('Add Material'),
@@ -173,11 +194,21 @@ function(Backbone, _, Material, Loader){
      * edit the selected material 
      */
     editMaterial: function(){
+      var node = this.selectedNode;
+      if (node == null) return;
       if (this.selectedNode == null) return;
       
+      var _this = this;
+      
       function onChange(name){
-        console.log(name)
-      }
+        node.model.set('name', name);
+        node.model.save(null, { 
+          success: function(){
+            _this.rerender([node.id]);
+          },
+          error: _this.onError
+        });
+      };
       this.getName({ 
         name: this.selectedNode.model.get('name'), 
         title: gettext('Edit Material'),
@@ -201,14 +232,20 @@ function(Backbone, _, Material, Loader){
         message: gettext("Do you really want to delete the selected material and all of its children from the database?")
       });
       elConfirmation.querySelector('.confirm').addEventListener('click', function(){
-        var loader = new Loader(_this.el, { disable: true });
         node.model.destroy( { success: function(){
           // fetch the materials again because all children of this node will be removed in backend
-          _this.materials.fetch({ success: function(){
-            _this.rerender();
-            loader.remove();
-          }});
-        }});
+          var loader = new Loader(_this.el, { disable: true });
+          _this.materials.fetch({ 
+            success: function(){
+              _this.rerender();
+              loader.remove();
+            },
+            error: function(response){
+              error: _this.onError(response);
+              loader.remove();
+            }
+          });
+        }, error: _this.onError});
       });
       $(modal).modal('show'); 
     },
