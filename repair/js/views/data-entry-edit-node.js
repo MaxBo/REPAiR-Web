@@ -362,62 +362,76 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       // general datasource
       
-      var sourceWrapper = document.createElement("div");
-      sourceWrapper.style.float = 'left';
       var sourceCell = row.insertCell(-1);
       // prevent breaking 
       sourceCell.setAttribute("style", "white-space: nowrap");
-      var genSource = document.createElement('input');
-      var pubId = flow.get('publication');
-      if (pubId){
-        var publication = this.publications.get(pubId)
+      this.addPublicationInput(sourceCell, flow.get('publication'), 
+        function(id){ flow.set('publication', id) })
+      
+      return row;
+    },
+    
+    /*
+     * add input for publication to given cell, value is set to currentId
+     * onChange(publicationId) is called when publication is confirmed by user
+     */
+    addPublicationInput: function(cell, currentId, onChange, container){
+      var _this = this;
+      var sourceWrapper = document.createElement('div');
+      sourceWrapper.style.float = 'left';
+      var sourceInput = document.createElement('input');
+      sourceInput.name = 'publication';
+      if (currentId){
+        var publication = this.publications.get(currentId)
         var title = publication.get('title');
-        genSource.value = title;
+        sourceInput.value = title;
+        sourceInput.setAttribute('data-publication-id', currentId)
       }
-      genSource.disabled = true;
-      genSource.style.cursor = 'pointer';
+      sourceInput.disabled = true;
+      sourceInput.style.cursor = 'pointer';
       var editBtn = document.createElement('button');
       var pencil = document.createElement('span');
       editBtn.classList.add('btn', 'btn-primary', 'square');
       editBtn.appendChild(pencil);
       editBtn.title = gettext('edit datasource');
       pencil.classList.add('glyphicon', 'glyphicon-pencil');
-      function onChange(publication){
+      
+      function onConfirm(publication){
         if (publication != null){
           var title = publication.get('title');
-          genSource.value = title;
-          flow.set('publication', publication.id)
-          genSource.dispatchEvent(new Event('change'));
+          sourceInput.value = title;
+          sourceInput.setAttribute('data-publication-id', publication.id)
+          onChange(publication.id)
+          sourceInput.dispatchEvent(new Event('change'));
         }
       };
       editBtn.addEventListener('click', function(){
-        _this.editDatasource(onChange);
+        _this.editDatasource(onConfirm);
       });
       
-      sourceWrapper.appendChild(genSource);
-      sourceCell.appendChild(sourceWrapper);
-      sourceCell.appendChild(editBtn);
+      sourceWrapper.appendChild(sourceInput);
+      cell.appendChild(sourceWrapper);
+      cell.appendChild(editBtn);
       
       // information popup for source
       
       var popOverSettingsSource = {
-          placement: 'top',
-          container: 'body',
-          trigger: 'manual',
-          html: true,
-          content: function () {
-              var publication = _this.publications.get(flow.get('publication'));
-              if (publication == null) return '';
-              var html = document.getElementById('popover-source-template').innerHTML;
-              var template = _.template(html);
-              var content = template({publication: publication});
-              return content;
-          }
+        placement: 'left',
+        container: container || 'body',
+        trigger: 'manual',
+        html: true,
+        content: function () {
+          var pubId = sourceInput.getAttribute('data-publication-id');
+          var publication = _this.publications.get(pubId);
+          if (publication == null) return '';
+          var html = document.getElementById('popover-source-template').innerHTML;
+          var template = _.template(html);
+          var content = template({ publication: publication });
+          return content;
+        }
       }
       
       this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
-      
-      return row;
     },
     
     /*
@@ -511,8 +525,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           setCustom();
         });
         
-        // ToDo: datasource
-        row.insertCell(-1)
+        var sourceCell = row.insertCell(-1);
+        sourceCell.setAttribute("style", "white-space: nowrap");
+        _this.addPublicationInput(sourceCell, fraction.publication, function(id){}, '#fractions-modal') // do nothing on change, we get the publication via the data attribute later
         
         // button to remove the row
         var removeBtn = document.createElement('button');
@@ -548,7 +563,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       // button for adding the fraction
       var addBtn = modal.querySelector('#add-fraction-button');
       addBtn.addEventListener('click', function(){
-        addFractionRow( { fraction: 0, material: -1 } )
+        addFractionRow( { fraction: 0, material: -1, publication: null } )
       });
       
       // fraction confirmed by clicking OK, completely recreate the composition
@@ -605,10 +620,12 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           var row = table.rows[i];
           var fInput = row.querySelector('input[name="fraction"]');
           var matSelect = row.querySelector('select[name="material"]');
+          var pubInput = row.querySelector('input[name="publication"]');
           var f = fInput.value / 100;
           var fraction = { 
             'fraction': Number(Math.round(f+'e3')+'e-3'),
-            'material': matSelect.value 
+            'material': matSelect.value,
+            'publication': pubInput.getAttribute('data-publication-id')
           };
           composition.fractions.push(fraction);
         }
@@ -719,18 +736,21 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     },
     
     // open modal for setting the datasource
-    editDatasource: function(onChange){
+    editDatasource: function(onConfirm){
       var _this = this;
-      this.activeDs = null;
+      this.activePublication = null;
       _.each(this.dsRows, function(row){ row.classList.remove('selected'); });
-      this.onDsChange = onChange;
+      this.onPubConfirmed = onConfirm;
       $('#datasource-modal').modal('show'); 
     },
     
     confirmDatasource: function(){
-      this.onDsChange(this.activeDs);
+      this.onPubConfirmed(this.activePublication);
     },
     
+    /*
+     * prepare the table of publications
+     */
     setupDsTable: function(){
       require('libs/jquery.tablesorter.pager');
       $(this.dsTable).tablesorter({
@@ -750,6 +770,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       sel.dispatchEvent(new Event('change'));
     },
     
+    /*
+     * refresh the table of publications
+     */
     refreshDatasources(){
       var _this = this;
       this.publications.fetch({ success: function(){
@@ -760,6 +783,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       }});
     },
     
+    /*
+     * prerender the table for publications inside a modal
+     */
     renderDatasources: function(publications){
       var _this = this;
       var table = this.dsTable;
@@ -790,7 +816,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         row.addEventListener('click', function() {
           _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
           row.classList.add('selected');
-          _this.activeDs = publication;
+          _this.activePublication = publication;
         });
       });
     },
