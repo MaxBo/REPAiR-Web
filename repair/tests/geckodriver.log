@@ -41,3 +41,5 @@ Unable to read VR Path Registry from C:\Users\GGR\AppData\Local\openvr\openvrpat
 
 ###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
 
+thread '<unnamed>' panicked at 'called `Result::unwrap()` on an `Err` value: Error { repr: Os { code: 10054, message: "Eine vorhandene Verbindung wurde vom Remotehost geschlossen." } }', C:\bot\slave\stable-dist-rustc-win-gnu-64\build\src\libcore\result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.

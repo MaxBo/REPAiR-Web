@@ -6,23 +6,22 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.remote.command import Command
+import time
+from repair.tests.selenium_basic import SeleniumBasic
 
-class EditActorTest(unittest.TestCase):
+class EditActorTest(SeleniumBasic, unittest.TestCase):
+
     def setUp(self):
-        self.driver = webdriver.Chrome(r'F:\Downloads\chromedriver.exe')
-        self.driver.implicitly_wait(30)
-        self.base_url = "https://www.katalon.com/"
-        self.verificationErrors = []
-        self.accept_next_alert = True
+        super().setUp()
 
     def test_edit_actor(self):
         driver = self.driver
-        driver.get("https://staging.h2020repair.bk.tudelft.nl/")
-        driver.find_element_by_css_selector("span.caret").click()
-        driver.find_element_by_css_selector("button.dropdown-button").click()
-        driver.find_element_by_link_text("SandboxCity").click()
+        # login
         driver.find_element_by_css_selector("#login-link > div.dropdown > button.dropdown-button").click()
-        driver.find_element_by_id("data-entry-link").click()
+        driver.find_element_by_id("data-entry-lin23k").click()
         driver.find_element_by_link_text("Edit Actors").click()
         driver.find_element_by_id("keyflow-select").click()
         Select(driver.find_element_by_id("keyflow-select")).select_by_visible_text("Organic")
@@ -152,13 +151,18 @@ class EditActorTest(unittest.TestCase):
         driver.find_element_by_id("confirm-location").click()
         driver.find_element_by_id("upload-actor-button").click()
         driver.find_element_by_id("included-check").click()
-        driver.find_element_by_name("reason").click()
+        #driver.find_element_by_name("reason").click()
+        time.sleep(5)
         driver.find_element_by_id("upload-actor-button").click()
         driver.find_element_by_css_selector("input.tablesorter-filter").click()
         driver.find_element_by_id("pagesize").click()
         driver.find_element_by_css_selector("input.pagedisplay").click()
         driver.find_element_by_id("goto-first-page").click()
-        driver.find_element_by_xpath("//table[@id='actors-table']/tbody/tr/td[2]").click()
+        # added this:
+        driver.find_element_by_xpath("(//input[@type='search'])[2]").clear()
+        driver.find_element_by_css_selector("input.tablesorter-filter").clear()
+        #
+        driver.find_element_by_xpath("//table[@id='actors-table']/tbody/tr/td[1]").click()
         driver.find_element_by_id("included-check").click()
         driver.find_element_by_xpath("(//input[@name='reason'])[3]").click()
         driver.find_element_by_id("upload-actor-button").click()
@@ -228,9 +232,9 @@ class EditActorTest(unittest.TestCase):
         driver.find_element_by_css_selector("img.next").click()
         driver.find_element_by_id("pagesize").click()
         driver.find_element_by_id("pagesize").click()
-        driver.find_element_by_css_selector("tr.selected > td").click()
-        driver.find_element_by_xpath("(//input[@type='checkbox'])[4]").click()
-        driver.find_element_by_id("upload-actor-button").click()
+        #driver.find_element_by_css_selector("tr.selected > td").click()
+        #driver.find_element_by_xpath("(//input[@type='checkbox'])[4]").click()
+        #driver.find_element_by_id("upload-actor-button").click()
 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
@@ -254,6 +258,7 @@ class EditActorTest(unittest.TestCase):
         finally: self.accept_next_alert = True
 
     def tearDown(self):
+        super().tearDown()
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)
 
