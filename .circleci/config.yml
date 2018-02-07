@@ -137,7 +137,7 @@ jobs:
       - run: pwd
       - run: python repair/screenshot.py
       - store_artifacts:
-          path: /tmp/screenshots
+          path: /repair/artifacts/
 
 
 workflows:
