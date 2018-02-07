@@ -1,7 +1,3 @@
-import pyautogui
-
-# Take screenshot
-pic = pyautogui.screenshot()
-
-# Save the image
-pic.save('/home/circleci/project/tmp/screenshots/error.png')
+text_file = open("/home/circleci/project/tmp/screenshots/error.txt", "w")
+text_file.write("string")
+text_file.close()

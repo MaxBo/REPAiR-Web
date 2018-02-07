@@ -132,11 +132,6 @@ jobs:
       - checkout
       - run: pwd
       - run: mkdir /tmp/screenshots
-      - run:
-          name: Install Python deps in a venv
-          command: |
-            pip install -r requirements-dev.txt
-      - run: pip install pyautogui
       - run: python repair/screenshot.py
       - store_artifacts:
           path: /tmp/screenshots
