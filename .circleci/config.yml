@@ -22,10 +22,16 @@ jobs:
           command: |
             python manage.py runserver 4444 --settings=repair.settings4tests
           background: true
+      - store_artifacts:
+          path: test-reports/
+          destination: tr1
+      - store_test_results:
+          path: test-reports/
       - run:
-          name: run py.test
+          name: codecov
           command: |
-            python manage.py test --settings=repair.settings4tests
+            coverage run manage.py test --settings=repair.settings4tests
+            codecov
 
 
   selenium testing:
@@ -118,37 +124,6 @@ jobs:
             node_modules/.bin/jasmine
 
 
-  store results:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
-    steps:
-      - checkout
-      - run: mkdir test-reports
-      - run:
-          name: Install Python deps in a venv
-          command: |
-            pip install -r requirements-dev.txt
-      - run:
-          name: Migrate Test Database
-          command: |
-            python manage.py migrate --settings=repair.settings4tests
-      - run:
-          name: start Testserver
-          command: |
-            python manage.py runserver 4444 --settings=repair.settings4tests
-          background: true
-      - store_artifacts:
-          path: test-reports/
-          destination: tr1
-      - store_test_results:
-          path: test-reports/
-      - run:
-          name: codecov
-          command: |
-            coverage run manage.py test --settings=repair.settings4tests
-            codecov
-
-
 workflows:
   version: 2
   build-and-deploy:
@@ -157,4 +132,3 @@ workflows:
       - setup database
       - jasmine tests
       - selenium testing
-      - store results
