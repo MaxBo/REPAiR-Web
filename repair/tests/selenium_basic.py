@@ -30,7 +30,7 @@ class SeleniumBasic(object):
             if x_off > 0:
                 hover.move_to_element_with_offset(self, 500, 0).perform()
 
-    driver = webdriver.Chrome(r'F:\Downloads\chromedriver.exe')
+    driver = webdriver.Chrome()
     WebElement.driver = driver
     WebElement.click = WebElement_click
 
@@ -40,7 +40,7 @@ class SeleniumBasic(object):
         self.accept_next_alert = True
         driver = self.driver
         driver.get("localhost:4444")
-        driver.maximize_window()
+        #driver.maximize_window()
         driver.set_window_size(1936, 1056)
         driver.find_element_by_css_selector("span.caret").click()
         driver.find_element_by_css_selector("button.dropdown-button").click()
