@@ -60,4 +60,4 @@ class SeleniumBasic(object):
         driver.find_element_by_id("submit-id-submit").click()
 
     def tearDown(self):
-        self.driver.get_screenshot_as_file(r'F:\test99.png')
+        self.driver.get_screenshot_as_file(r'screenshots\error.png')
