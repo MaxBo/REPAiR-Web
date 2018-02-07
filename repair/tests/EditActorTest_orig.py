@@ -18,6 +18,7 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         super().setUp()
 
     def test_edit_actor(self):
+        pass
         driver = self.driver
         # login
         driver.find_element_by_css_selector("#login-link > div.dropdown > button.dropdown-button").click()
