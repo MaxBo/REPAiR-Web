@@ -30,12 +30,12 @@ class SeleniumBasic(object):
             if x_off > 0:
                 hover.move_to_element_with_offset(self, 500, 0).perform()
 
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(r'F:\Downloads\chromedriver.exe')
     WebElement.driver = driver
     WebElement.click = WebElement_click
 
     def setUp(self):
-        self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(60)
         self.verificationErrors = []
         self.accept_next_alert = True
         driver = self.driver
