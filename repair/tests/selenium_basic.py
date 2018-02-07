@@ -16,7 +16,7 @@ class CustomWebElement(WebElement):
 
     def click(self, x_off=0, y_off=0):
         """Clicks the element."""
-        print("tag_name: {}; text: {}".format(self.tag_name, self.text))
+        print("tag_name: {}; text: {}; location: {}".format(self.tag_name, self.text, self.location))
         time.sleep(1)
         self.driver.get_screenshot_as_file(r'\home\ubuntu\tmp\screenshots\click{}.png'.format(time.time()))
         try:
