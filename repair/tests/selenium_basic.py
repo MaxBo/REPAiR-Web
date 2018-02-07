@@ -18,7 +18,7 @@ class CustomWebElement(WebElement):
         """Clicks the element."""
         print("tag_name: {}; text: {}".format(self.tag_name, self.text))
         time.sleep(1)
-        self.driver.get_screenshot_as_file(r'screenshots\click{}.png'.format(time.time()))
+        self.driver.get_screenshot_as_file(r'tmp\screenshots\click{}.png'.format(time.time()))
         try:
             self._execute(Command.CLICK_ELEMENT)
         except Exception:
@@ -42,7 +42,7 @@ class SeleniumBasic(object):
     WebElement.driver = driver
 
     def setUp(self):
-        self.driver.implicitly_wait(60)
+        self.driver.implicitly_wait(20)
         self.verificationErrors = []
         self.accept_next_alert = True
         driver = self.driver
@@ -61,4 +61,4 @@ class SeleniumBasic(object):
         driver.find_element_by_id("submit-id-submit").click()
 
     def tearDown(self):
-        self.driver.get_screenshot_as_file(r'screenshots\error.png')
+        self.driver.get_screenshot_as_file(r'tmp\screenshots\error.png')
