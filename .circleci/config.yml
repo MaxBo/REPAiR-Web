@@ -68,7 +68,7 @@ jobs:
       - run:
           name: Selenium Tests
           command: |
-            python repair/tests/EditActorTest_orig.py
+            python repair/tests/Selenium_CI.py
 
 
 

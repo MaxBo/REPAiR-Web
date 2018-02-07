@@ -54,3 +54,4 @@ class SeleniumBasic(object):
 
     def tearDown(self):
         self.driver.get_screenshot_as_file(r'F:\test99.png')
+
