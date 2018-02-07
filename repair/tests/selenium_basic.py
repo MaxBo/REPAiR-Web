@@ -39,7 +39,7 @@ class SeleniumBasic(object):
         self.verificationErrors = []
         self.accept_next_alert = True
         driver = self.driver
-        driver.get("localhost:8000")
+        driver.get("localhost:4444")
         driver.maximize_window()
         driver.find_element_by_css_selector("span.caret").click()
         driver.find_element_by_css_selector("button.dropdown-button").click()
