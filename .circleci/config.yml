@@ -56,6 +56,10 @@ jobs:
           command: |
             python manage.py migrate --settings=repair.settings4tests
       - run:
+          name: load fixtures to test database
+          command: |
+            python manage.py loaddata sandbox_data --settings=repair.settings4tests
+      - run:
           name: start Testserver
           command: |
             python manage.py runserver 4444 --settings=repair.settings4tests
