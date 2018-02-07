@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Configure Javascript packages
           command: |
-            node_modules/.bin/webpack --config repair/webpack.dev.config.js
+            node_modules/.bin/webpack --config repair/webpack.staged.config.js
       - run:
           name: Download Selenium
           command: |
