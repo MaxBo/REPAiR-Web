@@ -125,11 +125,26 @@ jobs:
             node_modules/.bin/jasmine
 
 
+  screentest:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run: pwd
+      - run: mkdir /tmp/screenshots
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run: pip install pyautogui
+      - run: python repair/screenshot.py
+      - store_artifacts:
+          path: /tmp/screenshots
+
+
 workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - django testing
-      - setup database
-      - jasmine tests
+      - screentest
       - selenium testing
