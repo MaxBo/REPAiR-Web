@@ -32,7 +32,6 @@ jobs:
   selenium testing:
     docker:
       - image: maxboh/docker-circleci-node-miniconda-gdal
-    working_directory: /tmp
     steps:
       - checkout
       - run: mkdir /tmp/screenshots
