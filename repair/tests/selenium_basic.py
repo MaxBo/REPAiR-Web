@@ -18,7 +18,7 @@ class CustomWebElement(WebElement):
         """Clicks the element."""
         print("tag_name: {}; text: {}".format(self.tag_name, self.text))
         time.sleep(1)
-        #self.driver.get_screenshot_as_file(r'screenshots\click{}.png'.format(screen_counter))
+        self.driver.get_screenshot_as_file(r'screenshots\click{}.png'.format(time.time()))
         try:
             self._execute(Command.CLICK_ELEMENT)
         except Exception:
@@ -35,7 +35,7 @@ class CustomWebElement(WebElement):
                 hover.move_to_element_with_offset(self, 500, 0).perform()
 
 class SeleniumBasic(object):
-    #screen_counter = 0
+
     local_driver = r'F:\Downloads\chromedriver.exe'
     driver = webdriver.Chrome()
     WebElement.click = CustomWebElement.click
