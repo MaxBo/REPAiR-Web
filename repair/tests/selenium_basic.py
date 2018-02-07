@@ -15,7 +15,7 @@ class SeleniumBasic(object):
 
     def WebElement_click(self, x_off=0, y_off=0):
         """Clicks the element."""
-        print("my click")
+        print("tag_name: {}; text: {}".format(self.tag_name, self.text))
         time.sleep(1)
         try:
             self._execute(Command.CLICK_ELEMENT)
@@ -30,7 +30,7 @@ class SeleniumBasic(object):
             if x_off > 0:
                 hover.move_to_element_with_offset(self, 500, 0).perform()
 
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(r'F:\Downloads\chromedriver.exe')
     WebElement.driver = driver
     WebElement.click = WebElement_click
 
@@ -41,7 +41,7 @@ class SeleniumBasic(object):
         driver = self.driver
         driver.get("localhost:4444")
         driver.maximize_window()
-        #driver.set_window_size(1936, 1056)
+        driver.set_window_size(1936, 1056)
         driver.find_element_by_css_selector("span.caret").click()
         driver.find_element_by_css_selector("button.dropdown-button").click()
         driver.find_element_by_link_text("SandboxCity").click()
