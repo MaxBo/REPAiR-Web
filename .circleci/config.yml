@@ -62,7 +62,7 @@ jobs:
       - run:
           name: Selenium Tests
           command: |
-            python tests.EditActorTest_orig.py
+            python repair/tests/EditActorTest_orig.py
 
 
 
@@ -156,5 +156,5 @@ workflows:
       - django testing
       - setup database
       - jasmine tests
-      - store results
       - selenium testing
+      - store results
