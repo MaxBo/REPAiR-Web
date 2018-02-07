@@ -40,7 +40,8 @@ class SeleniumBasic(object):
         self.accept_next_alert = True
         driver = self.driver
         driver.get("localhost:4444")
-        driver.set_window_size(1936, 1056)
+        driver.maximize_window()
+        #driver.set_window_size(1936, 1056)
         driver.find_element_by_css_selector("span.caret").click()
         driver.find_element_by_css_selector("button.dropdown-button").click()
         driver.find_element_by_link_text("SandboxCity").click()

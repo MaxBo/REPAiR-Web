@@ -5,7 +5,7 @@ import unittest
 class EditActorTestCI(EditActorTest):
     """
     """
-    driver = webdriver.Chrome()
+    circleCI = True
 
 
 if __name__ == "__main__":
