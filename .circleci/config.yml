@@ -131,7 +131,10 @@ jobs:
     steps:
       - checkout
       - run: pwd
+      - run: ls
       - run: mkdir /tmp/screenshots
+      - run: cd /tmp/screenshots
+      - run: pwd
       - run: python repair/screenshot.py
       - store_artifacts:
           path: /tmp/screenshots
