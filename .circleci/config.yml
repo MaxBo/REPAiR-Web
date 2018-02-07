@@ -32,9 +32,10 @@ jobs:
   selenium testing:
     docker:
       - image: maxboh/docker-circleci-node-miniconda-gdal
+    working_directory: /tmp
     steps:
       - checkout
-      - run: mkdir /screenshots
+      - run: mkdir /tmp/screenshots
       - run:
           name: Install Python deps in a venv
           command: |
@@ -69,7 +70,7 @@ jobs:
           command: |
             python repair/tests/Selenium_CI.py
       - store_artifacts:
-          path: /screenshots
+          path: /tmp/screenshots
 
 
   setup database:
