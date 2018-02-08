@@ -70,7 +70,7 @@ function(Backbone, _, Material, Loader){
     /*
      * render the hierarchic tree of materials
      */
-    renderDataTree: function(expandedIds){
+    renderDataTree: function(selectId){
     
       var _this = this;
       var dataDict = {};
@@ -85,7 +85,7 @@ function(Backbone, _, Material, Loader){
         });
         list.forEach(function(item) {
           if (item['parent'] != null) {
-            lookupParent = lookup[item['parent']]
+            lookupParent = lookup[item['parent']];
             if (!lookupParent['nodes']) lookupParent['nodes'] = [];
             lookupParent['nodes'].push(item);
           } else {
@@ -98,13 +98,12 @@ function(Backbone, _, Material, Loader){
       var materialList = [];
       this.materials.each(function(material){
         // expand if id is in given array
-        var collapsed = expandedIds.includes(material.id) ? false: true;
         var mat = { 
           id: material.id, 
           parent: material.get('parent'),
           text: material.get('name'),
           model: material,
-          state: { collapsed: collapsed, expanded: !collapsed }
+          state: { collapsed: true }
         };
         materialList.push(mat);
       });
@@ -133,15 +132,31 @@ function(Backbone, _, Material, Loader){
         onNodeCollapsed: select,
         onNodeExpanded: select
       });
+      // look for and expand and select node with given material id
+      if (selectId){
+        // there is no other method to get all nodes or to search for an attribute
+        var nodes = $(this.materialTree).treeview('getCollapsed');
+        var found;
+        _.forEach(nodes, function(node){
+          if (node.id = selectId){
+            found = node; 
+            return false; // in lodash forEach behaves like "break"
+          }
+        })
+        if (found){
+          $(this.materialTree).treeview('revealNode', [ found.nodeId, { levels: 1, silent: true } ]);
+          $(this.materialTree).treeview('selectNode', [ found.nodeId ]);
+        }
+      }
     },
     
     /*
      * clear the data tree and render it again
      */
-    rerender: function(expandedIds){
+    rerender: function(selectId){
       this.buttonBox.style.display = 'None';
       $(this.materialTree).treeview('remove');
-      this.renderDataTree(expandedIds);
+      this.renderDataTree(selectId);
     },
     
     onError: function(response){
@@ -155,7 +170,12 @@ function(Backbone, _, Material, Loader){
     nodeSelected: function(event, node){
       this.selectedNode = node;
       var editBtn = document.getElementById('edit-material-button');
-      if (!node.model) editBtn.style.display = 'None'; // nothing to edit (most likely root)
+      var removeBtn = document.getElementById('remove-material-button');
+      // root can't be deleted or edited (root has no model)
+      if (!node.model) {
+        editBtn.style.display = 'None'; 
+        removeBtn.style.display = 'None'; 
+      }
       else editBtn.style.display = 'inline';
       var li = this.materialTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
       if (!li) return;
@@ -179,7 +199,7 @@ function(Backbone, _, Material, Loader){
         material.save({}, { 
           success: function(){
             _this.materials.add(material);
-            _this.rerender([node.id]);
+            _this.rerender(material.id);
           },
           error: _this.onError
         });
@@ -204,7 +224,7 @@ function(Backbone, _, Material, Loader){
         node.model.set('name', name);
         node.model.save(null, { 
           success: function(){
-            _this.rerender([node.id]);
+            _this.rerender(node.id);
           },
           error: _this.onError
         });
@@ -224,13 +244,14 @@ function(Backbone, _, Material, Loader){
       if (node == null) return;
       var _this = this;
       
+      console.log('begin')
       var elConfirmation = document.getElementById('delete-material-modal'),
           html = document.getElementById('confirmation-template').innerHTML,
-          modal = elConfirmation.querySelector('.modal'),
           template = _.template(html);
       elConfirmation.innerHTML = template({ 
         message: gettext("Do you really want to delete the selected material and all of its children from the database?")
       });
+      
       elConfirmation.querySelector('.confirm').addEventListener('click', function(){
         node.model.destroy( { success: function(){
           // fetch the materials again because all children of this node will be removed in backend
@@ -247,7 +268,11 @@ function(Backbone, _, Material, Loader){
           });
         }, error: _this.onError});
       });
+      
+      var modal = elConfirmation.querySelector('.modal');
       $(modal).modal('show'); 
+      
+      console.log(modal)
     },
     
     /*
