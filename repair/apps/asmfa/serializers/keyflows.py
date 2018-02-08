@@ -198,13 +198,15 @@ class ProductInKeyflowInCasestudyField(InCasestudyField):
 
 
 class ProductFractionSerializer(serializers.ModelSerializer):
+    publication = IDRelatedField(allow_null=True, required=False)
 
     class Meta:
         model = ProductFraction
         fields = ('id',
                   'composition',
                   'material',
-                  'fraction')
+                  'fraction',
+                  'publication')
         read_only_fields = ['id', 'composition']
 
 
