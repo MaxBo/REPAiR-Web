@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: module:collections/AreaLevels</title>
+    <title>JSDoc: Class: module:models/Material</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: module:collections/AreaLevels</h1>
+    <h1 class="page-title">Class: module:models/Material</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:collections/AreaLevels<span class="signature">(attrs<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>module:models/Material<span class="signature">(attributes<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="module:collections/AreaLevels"><span class="type-signature"></span>new module:collections/AreaLevels<span class="signature">(attrs<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="module:models/Material"><span class="type-signature"></span>new module:models/Material<span class="signature">(attributes<span class="signature-attributes">opt</span>, options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    collection for fetching/putting levels of areassort() sorts by level
+    model for fetching/putting an material
 </div>
 
 
@@ -89,13 +89,13 @@
 
         <tr>
             
-                <td class="name"><code>attrs</code></td>
+                <td class="name"><code>attributes</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;Object></span>
+<span class="param-type">Object</span>
 
 
             
@@ -121,7 +121,7 @@
                 </td>
             
 
-            <td class="description last">list objects representing the fields of each model and their values, will be set if passed</td>
+            <td class="description last">fields of the model and their values, will be set if passed</td>
         </tr>
 
     
@@ -198,7 +198,30 @@
 
             
 
-            <td class="description last">id of the casestudy the levels belong to</td>
+            <td class="description last">id of the casestudy the material belongs to</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keyflowId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">id of the keyflow the material belongs to</td>
         </tr>
 
     
@@ -246,7 +269,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="collections_arealevels.js.html">collections/arealevels.js</a>, <a href="collections_arealevels.js.html#line33">line 33</a>
+        <a href="models_material.js.html">models/material.js</a>, <a href="models_material.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -256,7 +279,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="http://backbonejs.org/#Collection">http://backbonejs.org/#Collection</a></li>
+            <li><a href="http://backbonejs.org/#Model">http://backbonejs.org/#Model</a></li>
         </ul>
     </dd>
     
@@ -307,7 +330,7 @@
     
 
     
-    <h4 class="name" id="url"><span class="type-signature"></span>url<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="urlRoot"><span class="type-signature"></span>urlRoot<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -315,7 +338,7 @@
 
 
 <div class="description">
-    generates an url to the api resource list based on the ids given in constructor
+    generates an url to the api resource based on the ids given in constructor
 </div>
 
 
@@ -359,7 +382,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="collections_arealevels.js.html">collections/arealevels.js</a>, <a href="collections_arealevels.js.html#line18">line 18</a>
+        <a href="models_material.js.html">models/material.js</a>, <a href="models_material.js.html#line20">line 20</a>
     </li></ul></dd>
     
 

@@ -28,7 +28,8 @@
         <article>
             <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
-        'collections/areas', 'models/area','visualizations/map', 'utils/loader', 'bootstrap'],
+        'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
+        'bootstrap'],
 
 function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
          Areas, Area, Map, Loader){
@@ -38,7 +39,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
   function clearSelect(select, stop){
     var stop = stop || 0;
     for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
-}
+  }
   
   /**
    *
@@ -169,7 +170,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
       this.initMap();
-      this.renderLocations();
+      this.renderLocations(true);
       this.setupAreaInput();
     },
 
@@ -187,9 +188,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         if (input.name == 'reason' || input.name == 'included') return; // continue, handled seperately (btw 'return' in _.each(...) is equivalent to continue)
         actor.set(input.name, input.value);
       });
-      var included = this.el.querySelector('input[name = "included"]').checked;
+      var included = this.el.querySelector('input[name="included"]').checked;
       actor.set('included', included);
-      var checked = this.el.querySelector('input[name = "reason"]:checked')
+      var checked = this.el.querySelector('input[name="reason"]:checked')
       // set reason to null, if included
       var reason = (checked != null) ? checked.value: null;
       actor.set('reason', reason);
@@ -373,8 +374,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           wrapper.appendChild(areanameDiv);
           areaCell.appendChild(wrapper);
           
-          var polyCoords = area.get('geometry').coordinates[0];
-          var poly = _this.globalMap.addPolygon(polyCoords, { projection: _this.projection, layername: layername });
+          var polyCoords = area.get('geometry').coordinates;
+          var poly = _this.globalMap.addPolygon(polyCoords, 
+            { projection: _this.projection, 
+              layername: layername, 
+              tooltip: area.get('properties').name,
+              type: area.get('geometry').type }
+          );
           // zoom to location if marker in table is clicked 
           areaCell.addEventListener('click', function(){ 
             _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
@@ -419,7 +425,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      * set the select options of all selects with higher (=finer) level than
      * the select with given index (as in this.areaSelects with ascending level)
      */
-    setAreaChildSelects: function(idx){
+    setAreaChildSelects: function(area, idx){
       var _this = this;
       // last level has no children itself -> return
       var select = this.areaSelects[idx];
@@ -429,19 +435,60 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         _.each(childSelects, function(sel){
           clearSelect(sel);
       });
-      if (select.value == -1) return;
+      if (area == null) return;
       var directChild = childSelects[0];
       var childAreas = new Areas([], { 
         caseStudyId: this.keyflow.get('casestudy'), levelId: directChild.levelId 
       });
       childAreas.fetch({ 
-        data: { parent_id: select.value, parent_level: select.level },
+        data: { parent_id: area.id },
         success: function(){ _this.addAreaOptions(childAreas, directChild); } 
       });
     },
     
-    setAreaParentSelect: function(idx){
-    
+    /*
+     * set the select options of select with given index
+     * if options.setParents=true recursively fetch and set options for parent selects as well
+     */
+    setAreaSelects: function(area, idx, options){
+        var options = options || {};
+        var _this = this;
+        var select = this.areaSelects[idx];
+        // don't fetch top level entries, they always stay the same, also serves as end of possible recursion
+        if (idx &lt;= 0) {
+          select.value = area.id;
+          if ( options.onSuccess != null ) options.onSuccess();
+          return;
+        }
+        
+        var parentId = area.get('properties').parent_area,
+            parentLevelId = area.get('properties').parent_level,
+            caseStudyId = this.keyflow.get('casestudy');
+        // fill this select
+        var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        areas.fetch({
+          data:  { parent_id: parentId },
+          success: function(){
+            _this.addAreaOptions(areas, select);
+            select.value = area.id;
+          }
+        });
+        
+        // if setParents is set to true fetch parent area and recursively call this function again
+        if (options.setParents){
+          var parentArea = new Area(
+            { id: parentId }, 
+            { caseStudyId: caseStudyId, levelId: parentLevelId }
+          );
+          
+          parentArea.fetch({
+            success: function(){ 
+              // proceed recursion with parent select
+              _this.setAreaSelects(parentArea, idx-1, options);
+            },
+            error: function(model, response){ alert(response) }
+          });
+        }
     },
     
     /*
@@ -463,13 +510,28 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      },
     
     /*
-     * render the select boxes for areas in the location modal
+     * preset the select boxes for top level and connect all area selects
      */
     setupAreaInput: function(){
       var _this = this;
       var table = document.getElementById('location-area-table');
       this.areaSelects = [];
       var caseStudyId = _this.keyflow.get('casestudy');
+      
+      // fetch geometry of area and draw it on map
+      function fetchDraw(area){
+        area.fetch({ success: function(){
+          var polyCoords = area.get('geometry').coordinates;
+          var poly = _this.localMap.addPolygon(
+            polyCoords, 
+            { projection: _this.projection, 
+              layername: _this.activeType, 
+              tooltip: area.get('properties').name,
+              type: area.get('geometry').type 
+          });
+          _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
+        }});
+      }
       
       var idx = 0;
       this.areaLevels.each(function(level){
@@ -484,18 +546,20 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         select.addEventListener('change', function(){
           var areaId = select.value;
           // remove polygons, keep markers
-          _this.localMap.clearLayer('administrative', { types: ['Polygon'] });
-          _this.localMap.clearLayer('operational', { types: ['Polygon'] });
+          _this.localMap.clearLayer('administrative', { types: ['Polygon', 'MultiPolygon'] });
+          _this.localMap.clearLayer('operational', { types: ['Polygon', 'MultiPolygon'] });
+          var area;
           if (areaId >= 0){
-            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
-            // fetch geometry of area and draw it on map
-            area.fetch({ success: function(){
-              var polyCoords = area.get('geometry').coordinates[0];
-              var poly = _this.localMap.addPolygon(polyCoords, { projection: _this.projection, layername: _this.activeType});
-              _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
-            }});
+            area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+            fetchDraw(area);
           }
-          _this.setAreaChildSelects(cur);
+          // an area is deselected -> draw parent one (not on top level)
+          else if (cur > 0) {
+            var parentSelect = _this.areaSelects[cur-1];
+            area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
+            fetchDraw(area);
+          }
+          _this.setAreaChildSelects(area, cur);
         });
         
         idx++;
@@ -631,20 +695,21 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType });
+          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType, tooltip: area.get('properties').name });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
             var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
             areas.fetch({ data: { parent_id: parentId }, success: function(){
-              _this.addAreaOptions(areas, select);
-              select.value = areaId;
-              _this.setAreaChildSelects(selectIdx);
+              _this.setAreaSelects(
+                area, selectIdx, 
+                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); } 
+              });
             }});
           }
           else {
             select.value = areaId;
-            _this.setAreaChildSelects(selectIdx);
+            _this.setAreaChildSelects(area, selectIdx);
           }
         }});
         
@@ -719,7 +784,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     /* 
      * render the locations of the given actor as markers inside the map and table
      */
-    renderLocations: function(){
+    renderLocations: function(zoomToFocusarea){
       var adminLoc = this.adminLocations.first();
       
       var _this = this;
@@ -741,10 +806,12 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add polygon of focusarea to both maps and center on their centroid
       if (this.focusarea != null){
-        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background' });
-        this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
-        this.localMap.centerOnPolygon(poly, { projection: _this.projection });
+        var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+        if (zoomToFocusarea){
+          this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+          this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+          this.localMap.centerOnPolygon(poly, { projection: _this.projection });
+        }
       };
     },
     
@@ -775,13 +842,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 15:38:53 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
