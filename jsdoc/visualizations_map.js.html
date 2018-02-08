@@ -46,6 +46,7 @@
      *
      */
     constructor(options){
+      var _this = this;
       this.idCounter = 0;
       this.mapProjection = options.projection || 'EPSG:3857';
       this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
@@ -86,6 +87,33 @@
       
         _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
       });
+      
+      var div = document.getElementById(options.divid);
+      
+      var tooltip = div.querySelector('.tooltip');
+      if (tooltip){
+        var overlay = new ol.Overlay({
+          element: tooltip,
+          offset: [10, 0],
+          positioning: 'bottom-left'
+        });
+        this.map.addOverlay(overlay);
+  
+        function displayTooltip(evt) {
+          var pixel = evt.pixel;
+          var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
+            return feature;
+          });
+          if (feature &amp;&amp; feature.tooltip) {
+            overlay.setPosition(evt.coordinate);
+            tooltip.innerHTML = feature.tooltip;
+            tooltip.style.display = '';
+          }
+          else tooltip.style.display = 'none';
+        };
+        
+        this.map.on('pointermove', displayTooltip);
+      }
     }
     
     /**
@@ -111,7 +139,7 @@
      *
      */
     toProjection(coordinate, projection) {
-      return ol.proj.transform(coordinate, this.mapProjection, this.projection);
+      return ol.proj.transform(coordinate, this.mapProjection, projection);
     }
     
     /**
@@ -120,7 +148,7 @@
      * @param {string} name  name of the layer
      * @param {Object=} options
      * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
-     * @param {string} [options.strokeWidth=3]                   width of outline
+     * @param {string} [options.strokeWidth=3]                   color of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
      *
      */
@@ -148,6 +176,8 @@
      * @param {Object=} options
      * @param {string} [options.layername='basic']  layer to which the polygon will be added
      * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+     * @param {string=} options.tooltip             tooltip shown on hover over polygon
+     * @param {string} [options.type='Polygon']     Polygon or Multipolygon
      *
      * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
      *
@@ -155,12 +185,13 @@
     addPolygon(coordinates, options){
       var options = options || {};
       var proj = options.projection || this.mapProjection;
-      var poly = new ol.geom.Polygon(coordinates);
+      var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
       var ret = poly.clone();
       var layername = options.layername || 'basic',
           layer = this.layers[layername];
       
       var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+      feature.tooltip = options.tooltip;
       layer.getSource().addFeature(feature);
       return ret;
     }
@@ -417,7 +448,9 @@
      */
     centerOnPolygon(polygon, options) {
       var options = options || {};
-      var centroid = polygon.getInteriorPoint().getCoordinates().slice(0, 2);
+      var type = polygon.getType();
+      var interior = (type == 'MultiPolygon') ? polygon.getInteriorPoints().getCoordinates()[0]: polygon.getInteriorPoint().getCoordinates();
+      var centroid = interior.slice(0, 2);
       var extent = polygon.getExtent();
       options.extent = extent;
       this.centerOnPoint(centroid, options);
@@ -438,13 +471,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 15:40:28 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
