@@ -1,7 +1,7 @@
 define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
         'collections/products', 'collections/wastes',
-        'utils/loader', 'tablesorter'],
+        'utils/loader', 'tablesorter', 'hierarchy-select'],
 function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
          Wastes, Loader){
   /**
@@ -109,7 +109,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
       // the nace of the model determines the products/wastes of the flows out
       var nace = this.model.get('nace') || 'None';
-      //nace = 'T-9700';
+      nace = 'T-9700';
 
       // fetch inFlows and outFlows with different query parameters
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
@@ -129,7 +129,6 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       'click #upload-flows-button': 'uploadChanges',
       'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
       'click #confirm-datasource': 'confirmDatasource',
-      'click #confirm-fractions': 'confirmFractions',
       'click #refresh-publications-button': 'refreshDatasources'
     },
 
@@ -503,31 +502,25 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         fractionsCell.appendChild(perDiv);
         
         // select material
-        var matSelect = document.createElement("select");
-        matSelect.name = 'material';
-        matSelect.style.float = 'left';
-        
-        _this.materials.each(function(material){
-          var option = document.createElement("option");
-          var name = material.get('name');
-          option.text = name.substring(0, 70);
-          if (name.length > 70) option.text += '...';
-          option.title =  material.get('name');
-          option.value = material.id;
-          matSelect.add(option);
-        })
-        matSelect.value = fraction.material;
-        if (matSelect.selectedIndex >= 0)
-          matSelect.title = matSelect.options[matSelect.selectedIndex].title;
-        fractionsCell.appendChild(matSelect);
-        matSelect.addEventListener('change', function(){
-          matSelect.title = matSelect.options[matSelect.selectedIndex].title;
-          setCustom();
+        var matSelect = document.createElement('div');
+        matSelect.classList.add('materialSelect');
+        matSelect.setAttribute('data-material-id', fraction.material);
+        _this.hierarchicalSelect(_this.materials, matSelect, {
+          callback: function(model){
+            var matId = (model) ? model.id : '';
+            matSelect.setAttribute('data-material-id', matId);
+            setCustom();
+          },
+          selected: fraction.material
         });
+        matSelect.style.float = 'left';
+        row.insertCell(-1).appendChild(matSelect);
         
         var sourceCell = row.insertCell(-1);
         sourceCell.setAttribute("style", "white-space: nowrap");
-        _this.addPublicationInput(sourceCell, fraction.publication, function(id){}, '#fractions-modal') // do nothing on change, we get the publication via the data attribute later
+        _this.addPublicationInput(sourceCell, fraction.publication, function(id){
+          setCustom();
+        }, '#fractions-modal')
         
         // button to remove the row
         var removeBtn = document.createElement('button');
@@ -563,7 +556,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       // button for adding the fraction
       var addBtn = modal.querySelector('#add-fraction-button');
       addBtn.addEventListener('click', function(){
-        addFractionRow( { fraction: 0, material: -1, publication: null } )
+        addFractionRow( { fraction: 0, material: '', publication: null } );
+        setCustom();
       });
       
       // fraction confirmed by clicking OK, completely recreate the composition
@@ -588,18 +582,19 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           var errorMsg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
         } else {
           // if sum test is passed check materials
-          var matSelects = modal.querySelectorAll('select[name="material"]');
+          var matSelects = modal.querySelectorAll('.materialSelect');
           var matIds = []
           for (i = 0; i < matSelects.length; i++) {
-            if (matSelects[i].selectedIndex < 0) {
+            var matId = matSelects[i].getAttribute('data-material-id');
+            if (!matId) {
               errorMsg = gettext('All materials have to be set!');
               break;
             }
-            if (matIds.includes(matSelects[i].value)){
+            if (matIds.includes(matId)){
               errorMsg = gettext('Multiple fractions with the same material are not allowed!');
               break;
             }
-            matIds.push(matSelects[i].value);
+            matIds.push(matId);
           }
         }
       
@@ -619,12 +614,12 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         for (var i = 1; i < table.rows.length; i++) {
           var row = table.rows[i];
           var fInput = row.querySelector('input[name="fraction"]');
-          var matSelect = row.querySelector('select[name="material"]');
+          var matSelect = row.querySelector('.materialSelect');
           var pubInput = row.querySelector('input[name="publication"]');
           var f = fInput.value / 100;
           var fraction = { 
             'fraction': Number(Math.round(f+'e3')+'e-3'),
-            'material': matSelect.value,
+            'material': matSelect.getAttribute('data-material-id'),
             'publication': pubInput.getAttribute('data-publication-id')
           };
           composition.fractions.push(fraction);
@@ -635,6 +630,108 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       
       // finally show the modal after setting it up
       $(modal).modal('show');
+    },
+    
+    // build a hierarchical selection of a collection, 
+    // parent  of the models define tree structure
+    // options.callback(model) is called, when a model from the collection is selected
+    // options.selected preselects the model with given id
+    hierarchicalSelect: function(collection, parent, options){
+    
+      var wrapper = document.createElement("div");
+      var options = options || {};
+      var items = [];
+      
+      // list to tree
+      function treeify(list) {
+        var treeList = [];
+        var lookup = {};
+        list.forEach(function(item) {
+          lookup[item['id']] = item;
+        });
+        list.forEach(function(item) {
+          if (item['parent'] != null) {
+            lookupParent = lookup[item['parent']]
+            if (!lookupParent['nodes']) lookupParent['nodes'] = [];
+            lookupParent['nodes'].push(item);
+          } else {
+            treeList.push(item);
+          }
+        });
+        return treeList;
+      };
+      
+      // make a list out of the collection that is understandable by treeify and hierarchySelect
+      collection.each(function(model){
+        var item = {};
+        var name = model.get('name');
+        item.text = name.substring(0, 70);
+        if (name.length > 70) item.text += '...';
+        item.title = model.get('name');
+        item.level = 1;
+        item.id = model.id;
+        item.parent = model.get('parent');
+        item.value = model.id;
+        items.push(item);
+      })
+      
+      var treeList = treeify(items);
+      
+      // converts tree to list sorted by appearance in tree, 
+      // stores the level inside the tree as an attribute in each node
+      function treeToLevelList(root, level){
+        var children = root['nodes'] || [];
+        children = children.slice();
+        delete root['nodes'];
+        root.level = level;
+        list = [root];
+        children.forEach(function(child){
+          list = list.concat(treeToLevelList(child, level + 1));
+        })
+        return list;
+      };
+      
+      var levelList = [];
+      treeList.forEach(function(root){ levelList = levelList.concat(treeToLevelList(root, 1)) });
+      
+      // load template and initialize the hierarchySelect plugin
+      var inner = document.getElementById('hierarchical-select-template').innerHTML,
+          template = _.template(inner),
+          html = template({ options: levelList });
+      wrapper.innerHTML = html;
+      wrapper.name = 'material';
+      parent.appendChild(wrapper);
+      var select = wrapper.querySelector('.hierarchy-select');
+      $(select).hierarchySelect({
+          width: 400
+      });
+      
+      // preselect an item
+      if (options.selected){
+        var selection = select.querySelector('.selected-label');
+        var model = collection.get(options.selected);
+        if (model){
+          // unselect the default value
+          var li = select.querySelector('li[data-default-selected]');
+          li.classList.remove('active');
+          selection.innerHTML = model.get('name');
+          var li = select.querySelector('li[data-value="' + options.selected + '"]');
+          li.classList.add('active');
+        }
+      }
+      
+      // event click on item
+      var anchors = select.querySelectorAll('a');
+      for (var i = 0; i < anchors.length; i++) {
+        anchors[i].addEventListener('click', function(){
+          var item = this.parentElement;
+          console.log(item)
+          var model = collection.get(item.getAttribute('data-value'));
+          wrapper.title = item.title;
+          console.log(model)
+          if (options.callback) options.callback(model);
+        })
+      }
     },
 
     // on click add row button
