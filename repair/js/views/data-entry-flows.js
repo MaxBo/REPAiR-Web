@@ -151,7 +151,8 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
      */
-    transformData: function(models, modelLinks, stocks){
+    transformData: function(models, flows, stocks){
+      var _this = this;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -163,15 +164,26 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
         i += 1;
       });
       var links = [];
-      modelLinks.each(function(modelLink){
-        var value = modelLink.get('amount');
-        var source = nodeIdxDict[modelLink.get('origin')];
-        var target = nodeIdxDict[modelLink.get('destination')];
+      
+      flows.each(function(flow){
+        var value = flow.get('amount');
+        var source = nodeIdxDict[flow.get('origin')];
+        var target = nodeIdxDict[flow.get('destination')];
+        var composition = flow.get('composition');
+        var text = '';
+        if (composition){
+          var fractions = composition.fractions;
+          fractions.forEach(function(fraction){
+            var material = _this.materials.get(fraction.material);
+            text += '\n' + fraction.fraction * 100 + '% ';
+            text += material.get('name');
+          })
+        }
         links.push({
-          value: modelLink.get('amount'),
+          value: flow.get('amount'),
           source: source,
           target: target,
-          text: 'ToDo'
+          text: text || gettext('\nno composition defined')
         });
       })
       stocks.each(function(stock){
