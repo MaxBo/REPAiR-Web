@@ -68,7 +68,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(255, 51, 0)',
             fill: 'rgba(255, 51, 0, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         administrative: {
@@ -76,15 +77,17 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(51, 153, 255)',
             fill: 'rgba(51, 153, 255, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         background: {
           style: {
             stroke: '#aad400',
             fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1
-          }
+            strokeWidth: 1,
+            zIndex: 0
+          },
         }
       };
 

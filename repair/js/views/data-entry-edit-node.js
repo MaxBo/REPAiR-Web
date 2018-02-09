@@ -278,7 +278,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var pencil = document.createElement('span');
       editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
       editFractionsBtn.appendChild(pencil);
-      editFractionsBtn.innerHTML = gettext('Fractions');
+      editFractionsBtn.innerHTML = gettext('Composition');
       
       itemWrapper.appendChild(editFractionsBtn);
       
