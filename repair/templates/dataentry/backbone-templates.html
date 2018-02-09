@@ -434,7 +434,7 @@
         <tr>
           <td>{% trans "Activity" %}</td>
           <td>
-            <select name="activity">
+            <select name="activity" class="form-control">
               <% activities.each(function(activity) { %>
                 <option value="<%= activity.id %>" <% if(actor.get('activity') == activity.id) { %> selected="selected" <% } %>> <%= activity.get('name') %></option>
               <% });  %>
