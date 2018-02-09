@@ -138,7 +138,7 @@ function(Backbone, _, Material, Loader){
         var nodes = $(this.materialTree).treeview('getCollapsed');
         var found;
         _.forEach(nodes, function(node){
-          if (node.id = selectId){
+          if (node.id == selectId){
             found = node; 
             return false; // in lodash forEach behaves like "break"
           }
@@ -224,6 +224,9 @@ function(Backbone, _, Material, Loader){
         node.model.set('name', name);
         node.model.save(null, { 
           success: function(){
+            console.log(node.id)
+            
+            console.log(node.nodeId)
             _this.rerender(node.id);
           },
           error: _this.onError

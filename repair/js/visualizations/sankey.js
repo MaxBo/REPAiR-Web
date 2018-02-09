@@ -103,7 +103,7 @@ define([
         .style("stroke-width", function(d) { return Math.max(1, d.dy); })
 
       link.append("title")
-        .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + d.text + "\n" + format(d.value); });
+        .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + format(d.value) + "\n" + d.text; });
 
       var node = allgraphics.append("g").attr("id", "node-container")
         .selectAll(".node")
