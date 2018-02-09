@@ -109,7 +109,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
       // the nace of the model determines the products/wastes of the flows out
       var nace = this.model.get('nace') || 'None';
-      nace = 'T-9700';
+      //nace = 'T-9700';
 
       // fetch inFlows and outFlows with different query parameters
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
@@ -725,10 +725,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       for (var i = 0; i < anchors.length; i++) {
         anchors[i].addEventListener('click', function(){
           var item = this.parentElement;
-          console.log(item)
           var model = collection.get(item.getAttribute('data-value'));
           wrapper.title = item.title;
-          console.log(model)
           if (options.callback) options.callback(model);
         })
       }
