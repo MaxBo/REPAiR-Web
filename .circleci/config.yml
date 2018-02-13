@@ -58,6 +58,7 @@ jobs:
           name: load fixtures to test database
           command: |
             python manage.py loaddata sandbox_data --settings=repair.settings_staged
+            python manage.py loaddata seleniumtester --settings=repair.settings_staged
       - run:
           name: start Testserver
           command: |

@@ -77,9 +77,9 @@ class SeleniumBasic(object):
         driver.find_element_by_link_text("Login").click()
         driver.find_element_by_id("id_username").click()
         driver.find_element_by_id("id_username").clear()
-        driver.find_element_by_id("id_username").send_keys("stefaan")
+        driver.find_element_by_id("id_username").send_keys("SeleniumTester")
         driver.find_element_by_id("id_password").clear()
-        driver.find_element_by_id("id_password").send_keys("84568456a")
+        driver.find_element_by_id("id_password").send_keys("HwuceC?&j6a-2^/4")
         driver.find_element_by_id("submit-id-submit").click()
 
     def tearDown(self):
