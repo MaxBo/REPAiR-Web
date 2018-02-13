@@ -138,20 +138,11 @@ jobs:
             cd /tmp/screenshots;
             pwd;
       - run: pwd
-      - run: python repair/screenshot.py
       - run:
           command: |
-            cd /repair/artifacts/;
-            pwd;
-            ls;
-      - run:
-          name: Creating Dummy Artifacts
-          command: |
-            echo "my artifact file" > /repair/artifacts/artifact-1;
-            mkdir /tmp/artifacts;
-            echo "my artifact files in a dir" > /repair/artifacts/artifact-2;
-      - store_artifacts:
-          path: /repair/artifacts/
+            python repair/screenshot.py
+          - store_artifacts:
+              path: /repair/artifacts/
 
 
 workflows:
