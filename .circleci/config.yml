@@ -132,9 +132,10 @@ jobs:
       - checkout
       - run:
           command: |
+            pwd
             python repair/screenshot.py
       - store_artifacts:
-          path: /repair/artifacts
+          path: repair/artifacts
 
 
 workflows:
