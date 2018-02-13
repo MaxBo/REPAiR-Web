@@ -143,3 +143,5 @@ workflows:
   build-and-deploy:
     jobs:
       - screentest
+      - jasmine tests
+      - selenium testing
