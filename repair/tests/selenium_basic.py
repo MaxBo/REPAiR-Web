@@ -10,6 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.command import Command
 import time
+import os
 
 
 class CustomWebElement(WebElement):
@@ -61,4 +62,7 @@ class SeleniumBasic(object):
         driver.find_element_by_id("submit-id-submit").click()
 
     def tearDown(self):
-        self.driver.get_screenshot_as_file(r'/home/circleci/project/tmp/screenshots/error.png')
+        file_dir = os.path.dirname(__file__)
+        self.driver.get_screenshot_as_file(os.path.join(file_dir,
+                                                        'screenshots',
+                                                        'error.png'))

@@ -70,7 +70,7 @@ jobs:
           command: |
             python repair/tests/Selenium_CI.py
       - store_artifacts:
-          path: /tmp/screenshots
+          path: rapair/tests/screenshots
 
 
   setup database:
@@ -143,5 +143,4 @@ workflows:
   build-and-deploy:
     jobs:
       - screentest
-      - jasmine tests
       - selenium testing
