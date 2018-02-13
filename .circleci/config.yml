@@ -138,11 +138,11 @@ jobs:
             cd /tmp/screenshots;
             pwd;
       - run: pwd
-      - run:
-          command: |
-            python repair/screenshot.py
-          - store_artifacts:
-              path: /repair/artifacts/
+      - run: python repair/screenshot.py
+      - store_test_results:
+          path: /repair/artifacts/
+      - store_artifacts:
+          path: /repair/artifacts/
 
 
 workflows:
