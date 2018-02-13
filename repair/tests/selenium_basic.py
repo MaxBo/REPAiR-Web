@@ -17,9 +17,21 @@ class CustomWebElement(WebElement):
 
     def click(self, x_off=0, y_off=0):
         """Clicks the element."""
-        print("tag_name: {}; text: {}; location: {}".format(self.tag_name, self.text, self.location))
-        time.sleep(1)
-        self.driver.get_screenshot_as_file('/home/circleci/project/tmp/screenshots/click{}.png'.format(time.time()))
+        # write click information into log file:
+        file_dir = os.path.dirname(__file__)
+        artifacts_dir = os.path.join(file_dir, 'artifacts')
+        fn = os.path.join(artifacts_dir, 'click_log.txt')
+        log_file = open(fn, "a")
+        log_file.write(
+            "\ntag_name: {}; text: {}; location: {}\n".format(self.tag_name,
+                                                              self.text,
+                                                              self.location))
+        log_file.close()
+        # save screenshot:
+        self.driver.get_screenshot_as_file(
+            os.path.join(artifacts_dir,
+                         'screenshots/click{}.png'.format(time.time())))
+        # do clicking:
         try:
             self._execute(Command.CLICK_ELEMENT)
         except Exception:
@@ -43,6 +55,15 @@ class SeleniumBasic(object):
     WebElement.driver = driver
 
     def setUp(self):
+        file_dir = os.path.dirname(__file__)
+        os.mkdir(os.path.join(file_dir, 'artifacts'))
+        artifacts_dir = os.path.join(file_dir, 'artifacts')
+        os.mkdir(os.path.join(artifacts_dir, 'screenshots'))
+        fn = os.path.join(artifacts_dir, 'click_log.txt')
+        log_file = open(fn, "a")
+        log_file.write("SetUp\n")
+        log_file.close()
+
         self.driver.implicitly_wait(20)
         self.verificationErrors = []
         self.accept_next_alert = True
@@ -64,9 +85,8 @@ class SeleniumBasic(object):
     def tearDown(self):
         file_dir = os.path.dirname(__file__)
         print("save at {}".format(os.path.join(file_dir,
-                                               'screenshots',
+                                               'artifacts',
                                                'error.png')))
-        os.mkdir(os.path.join(file_dir, 'screenshots'))
         self.driver.get_screenshot_as_file(os.path.join(file_dir,
-                                                        'screenshots',
+                                                        'artifacts',
                                                         'error.png'))

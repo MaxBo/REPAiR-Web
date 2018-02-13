@@ -68,7 +68,7 @@ jobs:
           command: |
             python repair/tests/Selenium_CI.py
       - store_artifacts:
-          path: repair/tests/screenshots
+          path: repair/tests/artifacts
 
 
   setup database:
