@@ -142,10 +142,10 @@ jobs:
           command: |
             ulimit -c unlimited
             python repair/screenshot.py
-          store_test_results:
-            path: /repair/artifacts/
-          store_artifacts:
-            path: /repair/artifacts/
+      - store_test_results:
+          path: /repair/artifacts/
+      - store_artifacts:
+          path: /repair/artifacts/
 
 
 workflows:
