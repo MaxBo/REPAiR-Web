@@ -130,9 +130,9 @@ jobs:
       - image: python:3.6.0
     steps:
       - checkout
-      - run: mkdir /tmp/artifacts
       - run:
           command: |
+            mkdir /tmp/artifacts
             python repair/screenshot.py
       - store_artifacts:
           path: /tmp/artifacts
