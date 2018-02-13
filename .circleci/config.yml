@@ -129,7 +129,7 @@ jobs:
     docker:
       - image: python:3.6.0
     steps:
-    - checkout
+      - checkout
       - run: mkdir /tmp/artifacts
       - run:
           command: |
