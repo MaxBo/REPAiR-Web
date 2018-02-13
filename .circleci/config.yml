@@ -128,24 +128,14 @@ jobs:
   screentest:
     docker:
       - image: python:3.6.0
+    working_directory: /tmp
     steps:
-      - checkout
-      - run: pwd
-      - run: ls
-      - run: mkdir /tmp/screenshots
+      - run: mkdir /tmp/artifacts
       - run:
           command: |
-            cd /tmp/screenshots;
-            pwd;
-      - run: pwd
-      - post:
-          command: |
-            ulimit -c unlimited
             python repair/screenshot.py
-      - store_test_results:
-          path: /repair/artifacts/
       - store_artifacts:
-          path: /repair/artifacts/
+          path: /tmp/artifacts
 
 
 workflows:
