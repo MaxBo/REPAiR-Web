@@ -63,6 +63,9 @@ class SeleniumBasic(object):
 
     def tearDown(self):
         file_dir = os.path.dirname(__file__)
+        print("save at {}".format(os.path.join(file_dir,
+                                               'screenshots',
+                                               'error.png')))
         self.driver.get_screenshot_as_file(os.path.join(file_dir,
                                                         'screenshots',
                                                         'error.png'))

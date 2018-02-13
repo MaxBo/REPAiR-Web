@@ -18,13 +18,12 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         super().setUp()
 
     def test_edit_actor(self):
-        pass
         driver = self.driver
         # login
         driver.find_element_by_css_selector("#login-link > div.dropdown > button.dropdown-button").click()
         driver.find_element_by_id("data-entry-lin"
                                   "k").click()
-        driver.find_element_by_link_text("Edit Actors").click()
+        driver.find_element_by_link_text("Edit Actosdrs").click()
         driver.find_element_by_id("keyflow-select").click()
         Select(driver.find_element_by_id("keyflow-select")).select_by_visible_text("Organic")
         driver.find_element_by_id("keyflow-select").click()
