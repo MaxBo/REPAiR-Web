@@ -122,25 +122,6 @@ jobs:
           command: |
             node_modules/.bin/jasmine
 
-  selenium testing:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
-    steps:
-      - checkout
-      - run: pwd
-
-  screentest:
-    docker:
-      - image: python:3.6.0
-    steps:
-      - checkout
-      - run:
-          command: |
-            pwd
-            python repair/screenshot.py
-      - store_artifacts:
-          path: repair/artifacts
-
 
 workflows:
   version: 2
