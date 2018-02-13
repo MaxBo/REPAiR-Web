@@ -195,28 +195,35 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
       var _this = this;
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({
-        "BvDid": "-",
-        "name": "-----",
-        "consCode": "-",
-        "year": 0,
-        "turnover": 0,
-        "employees": 0,
-        "BvDii": "-",
-        "website": "www.website.org",
-        "activity": this.activities.first().id,
-        'reason': null
-        }, {"caseStudyId": this.model.get('casestudy'), 'keyflowId': this.model.id});
-      actor.save({}, {success: function(){
-        _this.actors.add(actor);
-        var row = _this.addActorRow(actor);
-        // let tablesorter know, that there is a new row
-        $('table').trigger('addRows', [$(row)]);
-        // workaround for going to last page by emulating click (thats where new row is added)
-        document.getElementById('goto-last-page').click();
-        // click row to show details of new actor in edit view
-        row.click();
-      }});
+      
+      function onChange(name){
+        var actor = new Actor({
+          "BvDid": "-",
+          "name": name || "-----",
+          "consCode": "-",
+          "year": 0,
+          "turnover": 0,
+          "employees": 0,
+          "BvDii": "-",
+          "website": "www.website.org",
+          "activity": _this.activities.first().id,
+          'reason': null
+          }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
+        actor.save({}, {success: function(){
+          _this.actors.add(actor);
+          var row = _this.addActorRow(actor);
+          // let tablesorter know, that there is a new row
+          $('table').trigger('addRows', [$(row)]);
+          // workaround for going to last page by emulating click (thats where new row is added)
+          document.getElementById('goto-last-page').click();
+          // click row to show details of new actor in edit view
+          row.click();
+        }});
+      }
+      this.getName({ 
+        title: gettext('Add Actor'),
+        onConfirm: onChange
+      });
     },
     
     /* 
@@ -229,6 +236,42 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
       var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
       document.getElementById('confirmation-message').innerHTML = message; 
       $(modal).modal('show'); 
+    },
+    
+    /*
+     * open modal dialog to enter a name
+     * options: onConfirm, name, title
+     */
+    getName: function(options){
+      
+      var options = options || {};
+      
+      var div = document.getElementById('actor-name-modal'),
+          inner = document.getElementById('empty-modal-template').innerHTML;
+          template = _.template(inner),
+          html = template({ header:  options.title || '' });
+      
+      div.innerHTML = html;
+      var modal = div.querySelector('.modal');
+      var body = modal.querySelector('.modal-body');
+      
+      var row = document.createElement('div');
+      row.classList.add('row');
+      var label = document.createElement('div');
+      label.innerHTML = gettext('Name');
+      var input = document.createElement('input');
+      input.style.width = '100%';
+      input.value = options.name || '';
+      body.appendChild(row);
+      row.appendChild(label);
+      row.appendChild(input);
+      
+      modal.querySelector('.confirm').addEventListener('click', function(){
+        if (options.onConfirm) options.onConfirm(input.value);
+        $(modal).modal('hide');
+      });
+      
+      $(modal).modal('show');
     },
     
     /* 

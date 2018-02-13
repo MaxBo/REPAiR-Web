@@ -1,6 +1,6 @@
-define(["backbone", "app-config"],
+define(["backbone", "models/material", "app-config"],
 
-  function(Backbone, config) {
+  function(Backbone, Material, config) {
 
    /**
     * @author Christoph Franke
@@ -18,6 +18,8 @@ define(["backbone", "app-config"],
       url: function(){
         return config.api.materials.format(this.caseStudyId, this.keyflowId);
       },
+      
+      model: Material,
     
     /**
      * collection for fetching/putting materials

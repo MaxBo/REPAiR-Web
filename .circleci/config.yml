@@ -122,6 +122,12 @@ jobs:
           command: |
             node_modules/.bin/jasmine
 
+  selenium testing:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run: pwd
 
   screentest:
     docker:
@@ -140,5 +146,8 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - screentest
+      - django testing
+      - setup database
+      - jasmine tests
+      - store results
       - selenium testing

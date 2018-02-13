@@ -68,7 +68,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(255, 51, 0)',
             fill: 'rgba(255, 51, 0, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         administrative: {
@@ -76,15 +77,17 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(51, 153, 255)',
             fill: 'rgba(51, 153, 255, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         background: {
           style: {
             stroke: '#aad400',
             fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1
-          }
+            strokeWidth: 1,
+            zIndex: 0
+          },
         }
       };
 
@@ -339,6 +342,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           wrapper.style.cursor = 'pointer';
           
           var name = area.get('properties').name;
+          areanameDiv.title = name;
           if (name && name.length > 15) name = name.substring(0, 15) + '...';
           areanameDiv.innerHTML = name;
           
@@ -438,11 +442,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             caseStudyId = this.keyflow.get('casestudy');
         // fill this select
         var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        var loader = new Loader(document.getElementById('location-area-table'), {disable: true});
         areas.fetch({
           data:  { parent_id: parentId },
           success: function(){
             _this.addAreaOptions(areas, select);
             select.value = area.id;
+            loader.remove();
           }
         });
         
@@ -458,7 +464,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
               // proceed recursion with parent select
               _this.setAreaSelects(parentArea, idx-1, options);
             },
-            error: function(model, response){ alert(response) }
+            error: function(model, response){ alert(response); }
           });
         }
     },
@@ -667,7 +673,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType, tooltip: area.get('properties').name });
+          _this.localMap.addPolygon(polyCoords, { 
+            projection: _this.projection, zoomOffset: -1, 
+            layername: _this.activeType, tooltip: area.get('properties').name 
+          });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;

@@ -151,7 +151,8 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
      */
-    transformData: function(models, modelLinks, stocks){
+    transformData: function(models, flows, stocks){
+      var _this = this;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -163,25 +164,43 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
         i += 1;
       });
       var links = [];
-      modelLinks.each(function(modelLink){
-        var value = modelLink.get('amount');
-        var source = nodeIdxDict[modelLink.get('origin')];
-        var target = nodeIdxDict[modelLink.get('destination')];
+      
+      function compositionRepr(composition){
+        var text = '';
+          if (composition){
+            var fractions = composition.fractions;
+            fractions.forEach(function(fraction){
+              var material = _this.materials.get(fraction.material);
+              text += '\n' + fraction.fraction * 100 + '% ';
+              text += material.get('name');
+            })
+          }
+        return text || ('\nno composition defined')
+      }
+      
+      flows.each(function(flow){
+        var value = flow.get('amount');
+        var source = nodeIdxDict[flow.get('origin')];
+        var target = nodeIdxDict[flow.get('destination')];
+        var composition = flow.get('composition');
+        
         links.push({
-          value: modelLink.get('amount'),
+          value: flow.get('amount'),
           source: source,
           target: target,
-          text: 'ToDo'
+          text: compositionRepr(composition)
         });
       })
       stocks.each(function(stock){
         var id = 'stock-' + stock.id;
         var source = nodeIdxDict[stock.get('origin')];
         nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
+        var composition = stock.get('composition');
         links.push({
           value: stock.get('amount'),
           source: source,
-          target: i
+          target: i,
+          text: compositionRepr(composition)
         });
         i += 1;
       });
@@ -249,6 +268,8 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
+                         expandIcon: 'glyphicon glyphicon-triangle-right',
+                         collapseIcon: 'glyphicon glyphicon-triangle-bottom'
                          //showCheckbox: true
                          });
       $(divid).treeview('collapseAll', {silent: true});

@@ -127,7 +127,7 @@
       </button>
     </div>
   </div>
-  <div id="datasource-modal" class="modal fade" role="dialog">
+  <div id="datasource-modal" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content col-md-12">
@@ -185,7 +185,7 @@
       </div>
     </div>
   </div>
-  <div id="fractions-modal" class="modal fade" role="dialog">
+  <div id="fractions-modal" class="modal fade" role="dialog" style='z-index: 1100;'> <!-- has to behind datasource modal -->
   </div>
 </script>
 
@@ -199,9 +199,10 @@
       <div class="modal-body">
         <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
         <select name="items"></select>
-        <table id="fractions-edit-table" style="font-size: 12px;">
+        <table id="fractions-edit-table">
           <tr>
-            <th>{% trans "Fractions" %}</th>
+            <th>{% trans "Fraction" %}</th>
+            <th>{% trans "Material" %}</th>
             <th>{% trans "Data Source" %}</th>
             <th>{% trans "Remove" %}</th>
           </tr>
@@ -216,6 +217,33 @@
         <button class="btn btn-primary" id="confirm-fractions" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>
+  </div>
+</script>
+
+<!-- hierarchical selection -->
+<script type="text/template" id="hierarchical-select-template">
+  <div class="btn-group hierarchy-select" data-resize="auto">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="selected-label pull-left">&nbsp;</span>
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <div class="dropdown-menu open">
+      <div class="hs-searchbox">
+          <input type="text" class="form-control" autocomplete="off">
+      </div>
+      <ul class="dropdown-menu inner" role="menu">
+        <li data-value="" data-level="1" data-default-selected="">
+            <a href="#">{% trans "Select a material"%}</a>
+        </li>
+        <% _.each(options, function(option){ %>
+           <li data-value="<%= option.value %>" data-level="<%= option.level %>" title="<%= option.title %>">
+              <a href="#"><%= option.text %></a>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+    <input class="hidden hidden-field" readonly="readonly" aria-hidden="true" type="text"/>
   </div>
 </script>
 
@@ -367,8 +395,9 @@
       </div>
     </div>
   </div>
-  <div id="confirmation-modal"></div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+  <div id="confirmation-modal"></div>
+  <div id="actor-name-modal"> </div>
 </script>
 
 <!-- edit actor -->
@@ -406,7 +435,7 @@
         <tr>
           <td>{% trans "Activity" %}</td>
           <td>
-            <select name="activity">
+            <select name="activity" class="form-control">
               <% activities.each(function(activity) { %>
                 <option value="<%= activity.id %>" <% if(actor.get('activity') == activity.id) { %> selected="selected" <% } %>> <%= activity.get('name') %></option>
               <% });  %>
@@ -564,16 +593,26 @@
     <div class="col-md-6">
       <div id="material-tree"></div>
     </div>
-    <div class="col-md-6">
-      <div id="edit-material">
-        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select a material by clicking its row." %}</h3>
+    <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
+      <button id='edit-material-button' class="btn btn-primary square" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
+        <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
+      </button>
+      <button id='add-material-button' class="btn btn-primary square" title="{% trans "add child material" %}" style="pointer-events: auto;">
+        <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
+      </button>
+        <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-minus"></span> <!--{% trans "Remove Material" %}-->
+        </button>
       </div>
     </div>
   </div>
+  <div id="delete-material-modal"></div>
+  <div id="edit-material-modal"> </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- general modal for confirmations -->
+
 <script type="text/template" id="confirmation-template">
   <div class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -586,8 +625,28 @@
           <p id="confirmation-message"><%= message %></p>
         </div>
         <div class="modal-footer">
-          <button id="confirm-button" type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Yes" %}</button>
+          <button id="confirm-button" type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
           <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "No" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- empty modal -->
+
+<script type="text/template" id="empty-modal-template">
+  <div class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"> <%= header %> </h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
+          <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
         </div>
       </div>
     </div>
