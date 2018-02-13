@@ -149,5 +149,4 @@ workflows:
       - django testing
       - setup database
       - jasmine tests
-      - store results
       - selenium testing
