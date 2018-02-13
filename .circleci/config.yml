@@ -138,7 +138,7 @@ jobs:
             cd /tmp/screenshots;
             pwd;
       - run: pwd
-      - run:
+      - post:
           command: |
             ulimit -c unlimited
             python repair/screenshot.py
@@ -153,4 +153,3 @@ workflows:
   build-and-deploy:
     jobs:
       - screentest
-      - selenium testing
