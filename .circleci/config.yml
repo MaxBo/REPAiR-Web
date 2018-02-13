@@ -127,7 +127,7 @@ jobs:
 
   screentest:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
+      - image: python:3.6.0
     steps:
       - checkout
       - run: pwd
