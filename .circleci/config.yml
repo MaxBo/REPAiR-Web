@@ -128,7 +128,6 @@ jobs:
   screentest:
     docker:
       - image: python:3.6.0
-    working_directory: /tmp
     steps:
       - run: mkdir /tmp/artifacts
       - run:
