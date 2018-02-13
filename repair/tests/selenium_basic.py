@@ -66,6 +66,7 @@ class SeleniumBasic(object):
         print("save at {}".format(os.path.join(file_dir,
                                                'screenshots',
                                                'error.png')))
+        os.mkdir(os.path.join(file_dir, 'screenshots'))
         self.driver.get_screenshot_as_file(os.path.join(file_dir,
                                                         'screenshots',
                                                         'error.png'))
