@@ -47,6 +47,7 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
+            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
                 {% csrf_token %}
@@ -77,6 +78,25 @@
                 <span class="caret drop-arrow"></span>
               </form>
             </li>
+            <li>
+              <form id="mode-select" action="/login/session/" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <input name="mode" id="mode" type="hidden">
+                <div class="dropdown">
+                  <button class="dropdown-button" type="button">
+                    {% trans "Mode" %}
+                    <span class="caret"></span>
+                  </button>
+                  <div class="dropdown-content">
+                    <a {% if request.session.mode|stringformat:"i" == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
+                    <a {% if request.session.mode|stringformat:"i" == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
+                  </div>
+                </div>
+                <span class="caret drop-arrow"></span>
+              </form>
+            </li>
+           {% endif %}
             <li id="login-link" >
               {% if request.user.is_authenticated %}
               <div class="dropdown">
