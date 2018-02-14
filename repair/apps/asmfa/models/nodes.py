@@ -40,6 +40,18 @@ class ActivityGroup(Node):
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
 
+    @property
+    def nace_codes(self):
+        """
+        returns a set of the nace codes of the activities
+        that belong to the activity group
+
+        Returns
+        -------
+        nace_code : set
+        """
+        return set((act['nace'] for act in self.activity_set.values()))
+
 
 class Activity(Node):
 
@@ -54,7 +66,7 @@ class Activity(Node):
 class Reason(models.Model):
     """Reason for exclusion of actors"""
     reason = models.TextField()
-    
+
     def __str__(self):
         return self.reason
 
