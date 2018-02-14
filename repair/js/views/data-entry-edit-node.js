@@ -210,12 +210,20 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       /* add an input-field to the row, 
        * tracking changes made by user to the attribute and automatically updating the model 
        */
-      var addInput = function(attribute, inputType){
+      var addInput = function(attribute, inputType, unit){
         var input = document.createElement("input");
         if (inputType != null)
           input.type = inputType;
         input.value = flow.get(attribute);
-        row.insertCell(-1).appendChild(input);
+        var cell = row.insertCell(-1);
+        cell.appendChild(input);
+        if (unit){
+          cell.style.whiteSpace = "nowrap";
+          input.style.float = 'left';
+          var div = document.createElement('div');
+          div.innerHTML = unit
+          cell.appendChild(div);
+        }
 
         input.addEventListener('change', function() {
           flow.set(attribute, input.value);
@@ -223,7 +231,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         return input;
       };
 
-      var amount = addInput('amount', 'number');
+      var amount = addInput('amount', 'number', gettext('t/year'));
       amount.min = 0;
       
       // origin respectively destination (skipped at stocks)

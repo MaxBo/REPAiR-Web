@@ -8,6 +8,8 @@ class BaseView(TemplateView):
 
         if 'casestudy' not in request.session:
             request.session['casestudy'] = None
+        if 'mode' not in request.session:
+            request.session['mode'] = 0
         return super().get(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
