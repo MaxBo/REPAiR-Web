@@ -122,6 +122,7 @@ define([
      * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
      * @param {string} [options.strokeWidth=3]                   color of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     * @param {string=} options.zIndex                           z-index of the layer
      *
      */
     addLayer(name, options){
@@ -139,6 +140,7 @@ define([
         })
       });
       layer.setStyle(style);
+      if (options.zIndex) layer.setZIndex(options.zIndex);
     }
     
     /**

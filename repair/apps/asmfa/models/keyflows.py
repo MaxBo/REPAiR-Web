@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
+from repair.apps.publications.models import PublicationInCasestudy
 
 
 class Keyflow(GDSEModel):
@@ -86,6 +87,8 @@ class ProductFraction(GDSEModel):
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='fractions')
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)

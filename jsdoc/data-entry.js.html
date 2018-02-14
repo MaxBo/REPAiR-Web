@@ -28,17 +28,17 @@
         <article>
             <pre class="prettyprint source linenums"><code>
 define(['models/casestudy', 'views/data-entry-flows',
-        'views/data-entry-actors', 'views/data-entry-products', 
+        'views/data-entry-actors', 'views/data-entry-materials', 
         'collections/flows', 'collections/actors',
         'collections/keyflows', 'collections/materials',
-        'app-config', 'utils/loader', 'utils/overrides'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
-function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
+        'app-config', 'utils/loader', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
+function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows, 
           Actors, Keyflows, Materials,
           appConfig, Loader) {  
   /**
    *
    * entry point for data-entry, 
-   * render tabs for entering data (edit actors, flows and products)
+   * render tabs for entering data (edit actors, flows and materials)
    *
    * @author Christoph Franke
    * @module DataEntry
@@ -51,10 +51,10 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
 
   var flowsView,
       actorsView,
-      editProductsView;
+      editMaterialsView;
       
   var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
-      refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
+      refreshMaterialsBtn = document.getElementById('refresh-materialsview-btn'),
       refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
   function renderFlows(keyflow){
@@ -87,22 +87,21 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
     refreshActorsBtn.style.display = 'block';
   };
   
-  function renderEditProducts(keyflow){
+  function renderEditMaterials(keyflow){
     if (keyflow == null) return;
-    if (editProductsView != null)
-      editProductsView.close();
+    if (editMaterialsView != null)
+      editMaterialsView.close();
 
     // create casestudy-object and render view on it (data will be fetched in view)
 
-    editProductsView = new EditProductsView({
-      el: document.getElementById('products-content'),
-      template: 'products-edit-template',
+    editMaterialsView = new EditMaterialsView({
+      el: document.getElementById('materials-content'),
+      template: 'materials-edit-template',
       model: keyflow,
       caseStudy: caseStudy,
-      materials: materials, 
-      onUpload: function(){renderEditProducts(keyflow)}
+      materials: materials
     });
-    refreshProductsBtn.style.display = 'block';
+    refreshMaterialsBtn.style.display = 'block';
   };
 
   function render(caseStudy){
@@ -115,13 +114,19 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
     keyflowSelect.addEventListener('change', function(){
       var keyflow = getKeyflow();
       document.getElementById('keyflow-warning').style.display = 'none';
-      renderFlows(keyflow);
-      renderEditActors(keyflow);
-      renderEditProducts(keyflow);
+      materials = new Materials([], { caseStudyId: caseStudy.id, keyflowId: keyflow.id });
+      var loader = new Loader(document.getElementById('content'),
+                              { disable: true });
+      materials.fetch({success: function(){
+        loader.remove();
+        renderFlows(keyflow);
+        renderEditActors(keyflow);
+        renderEditMaterials(keyflow);
+      }});
     });
-    refreshFlowsBtn.addEventListener('click', function(){renderFlows(getKeyflow())});
-    refreshProductsBtn.addEventListener('click', function(){renderEditProducts(getKeyflow())});
-    refreshActorsBtn.addEventListener('click', function(){renderEditActors(getKeyflow())});
+    refreshFlowsBtn.addEventListener('click', function(){ renderFlows(getKeyflow()) });
+    refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
+    refreshActorsBtn.addEventListener('click', function(){ renderEditActors(getKeyflow()) });
     document.getElementById('keyflow-select').disabled = false;
   }
 
@@ -134,12 +139,10 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
         return;
       }
       caseStudy = new CaseStudy({id: caseStudyId});
-      materials = new Materials();
       keyflows = new Keyflows([], {caseStudyId: caseStudyId});
       var loader = new Loader(document.getElementById('content'),
                               {disable: true});
-      $.when(caseStudy.fetch(), materials.fetch(), 
-             keyflows.fetch()).then(function() {
+      $.when(caseStudy.fetch(),  keyflows.fetch()).then(function() {
         loader.remove();
         render(caseStudy);
       });
@@ -154,13 +157,13 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 24 2018 15:38:53 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
