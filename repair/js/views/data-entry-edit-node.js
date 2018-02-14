@@ -109,6 +109,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
       // the nace of the model determines the products/wastes of the flows out
       var nace = this.model.get('nace') || 'None';
+      if (nace instanceof Array)
+        nace = nace[0];
       //nace = 'T-9700';
 
       // fetch inFlows and outFlows with different query parameters

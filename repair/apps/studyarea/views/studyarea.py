@@ -10,12 +10,23 @@ from repair.apps.login.models import CaseStudy
 from repair.apps.changes.forms import NameForm
 from .graphs import Testgraph1, Testgraph2
 
-from repair.views import BaseView
+from repair.views import BaseView, ModeView
 
 
-class StudyAreaIndexView(BaseView):
+class StudyAreaIndexView(ModeView):
 
     def get(self, request):
+        mode = request.session.get('mode', 0)
+        if mode == 1:
+            return self.render_setup(request)
+        else:
+            return self.render_workshop(request)
+    
+    def render_setup(self, request):
+        
+        return render(request, 'studyarea/index.html')
+    
+    def render_workshop(self, request):
         # get the current casestudy
         casestudy_id = request.session.get('casestudy', 0)
         try:
@@ -26,10 +37,11 @@ class StudyAreaIndexView(BaseView):
             StakeholderCategory.objects.filter(casestudy=casestudy_id)
         stakeholder_list = Stakeholder.objects.filter(
             stakeholder_category__casestudy=casestudy_id)
-        context = {'casestudy': casestudy,
-                   'stakeholder_category_list': stakeholder_category_list,
-                   'stakeholder_list': stakeholder_list,
-                   }
+        context = {
+            'casestudy': casestudy,
+            'stakeholder_category_list': stakeholder_category_list,
+            'stakeholder_list': stakeholder_list,
+        }
 
         context['graph1'] = Testgraph1().get_context_data()
         context['graph2'] = Testgraph2().get_context_data()
