@@ -77,5 +77,5 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
-   config.vm.provision "shell", path: "VagrantProvisionUbuntu1604_noconda.sh"
+   config.vm.provision "shell", path: "VagrantProvisionUbuntu1604.sh"
 end
