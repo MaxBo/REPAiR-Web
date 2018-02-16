@@ -53,7 +53,7 @@ class CustomWebElement(WebElement):
 class SeleniumBasic(object):
 
     local_driver = r'F:\Downloads\chromedriver.exe'
-    driver = webdriver.Chrome(local_driver)
+    driver = webdriver.Chrome()
     WebElement.click = CustomWebElement.click
     WebElement.driver = driver
 
