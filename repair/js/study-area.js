@@ -1,9 +1,10 @@
 define([
   'd3',
   'visualizations/sankey-map',
-  'app-config',
+  'visualizations/map',
+  'app-config', 'geoserver',
   'base'
-], function(d3, MapView, appConfig) {
+], function(d3, MapView, Map, appConfig, Geoserver) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -39,12 +40,18 @@ define([
   }
   
   function renderSetup(){
-    
+    //var map = new Map({
+        //divid: 'edit-location-map', 
+      //});
+    var geoserver = new Geoserver({ user: '', pass: '' });
+    geoserver.getLayers({ success: function(layers){
+      console.log(layers);
+      geoserver.getLayer(layers.first().get('href'), { success: function(layer) { console.log(layer)}})
+    }});
   }
   
   var session = appConfig.getSession(
     function(session){
-      var caseStudyId = session['casestudy'];
       var mode = session['mode'];
       console.log(mode)
       if (Number(mode) == 1) 
