@@ -11,7 +11,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.command import Command
 import time
 import os
-
+import sys
+import builtins
 
 class CustomWebElement(WebElement):
 
@@ -22,10 +23,12 @@ class CustomWebElement(WebElement):
         artifacts_dir = os.path.join(file_dir, 'artifacts')
         fn = os.path.join(artifacts_dir, 'click_log.txt')
         log_file = open(fn, "a")
-        log_file.write(
-            "\ntag_name: {}; text: {}; location: {}\n".format(self.tag_name,
-                                                              self.text,
-                                                              self.location))
+        log_line = u"\ntag_name: {}; text: {}; location: {}\n".format(
+            self.tag_name, self.text, self.location)
+        try:
+            log_file.write(log_line)
+        except builtins.UnicodeEncodeError:
+            log_file.write("encoding error")
         log_file.close()
         # save screenshot:
         self.driver.get_screenshot_as_file(
@@ -50,15 +53,18 @@ class CustomWebElement(WebElement):
 class SeleniumBasic(object):
 
     local_driver = r'F:\Downloads\chromedriver.exe'
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(local_driver)
     WebElement.click = CustomWebElement.click
     WebElement.driver = driver
 
     def setUp(self):
         file_dir = os.path.dirname(__file__)
-        os.mkdir(os.path.join(file_dir, 'artifacts'))
         artifacts_dir = os.path.join(file_dir, 'artifacts')
-        os.mkdir(os.path.join(artifacts_dir, 'screenshots'))
+        screenshots_dir = os.path.join(artifacts_dir, 'screenshots')
+        if not os.path.exists(artifacts_dir):
+            os.mkdir(os.path.join(artifacts_dir))
+        if not os.path.exists(screenshots_dir):
+            os.mkdir(screenshots_dir)
         fn = os.path.join(artifacts_dir, 'click_log.txt')
         log_file = open(fn, "a")
         log_file.write("SetUp\n")
@@ -84,9 +90,6 @@ class SeleniumBasic(object):
 
     def tearDown(self):
         file_dir = os.path.dirname(__file__)
-        print("save at {}".format(os.path.join(file_dir,
-                                               'artifacts',
-                                               'error.png')))
-        self.driver.get_screenshot_as_file(os.path.join(file_dir,
-                                                        'artifacts',
-                                                        'error.png'))
+        tear_down_file = os.path.join(file_dir, 'artifacts', 'tear_down.png')
+        print("save at {}".format(tear_down_file))
+        self.driver.get_screenshot_as_file(tear_down_file)
