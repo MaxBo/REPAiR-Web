@@ -3,7 +3,7 @@
 
 # REPAiR-Web Programmer’s Guide
 
-## 1. Setting Up Django 
+## 1. Setting Up Django
 
 -   Pull project from <https://github.com/MaxBo/REPAiR-Web>
 
@@ -16,13 +16,13 @@
 - On Windows:
 *conda install -c conda-forge gdal=2.1
 -   you have to add the spatialite directory to your PATH
--   in teh settings.py the following environment variable has to be specified:
+-   in the settings.py the following environment variable has to be specified:
 -   SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
--   the spatialite directory contains the mod_spatialite.dll 
--   with its dependencies from 
+-   the spatialite directory contains the mod_spatialite.dll
+-   with its dependencies from
 -   http://www.gaia-gis.it/gaia-sins/windows-bin-amd64/
 
--   the following dlls have to be exchanged from the ones from mingw 
+-   the following dlls have to be exchanged from the ones from mingw
 -   according to this blog
 -   http://blog.jrg.com.br/2016/04/25/Fixing-spatialite-loading-problem/
 -   rename libstdc++_64-6.dll to libstdc++_64-6.dll.original
@@ -277,7 +277,7 @@ Have a look at Workflow.pdf for further information.
     -   cd to your directory
 
     -   and type “*manage.py test”*
-    
+
 ## 6. Internationalization
 
 ### **a.  Label Strings**

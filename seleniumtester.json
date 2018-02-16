@@ -1,0 +1,22 @@
+[
+{
+  "model": "auth.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$100000$Cdf5jQpQYloW$dqjVjK0uNGRzflg4dE1bgrVrC4WMBNYozM2dSTDe/Uk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "SeleniumTester",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-02-13T16:23:00Z",
+    "groups": [
+      6
+    ],
+    "user_permissions": []
+  }
+}
+]
