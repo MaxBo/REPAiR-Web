@@ -2,8 +2,8 @@ from rest_framework import viewsets, exceptions, mixins
 from django.views import View
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
-from django.http import HttpResponseRedirect, JsonResponse
-
+from django.http import (HttpResponseRedirect, JsonResponse,
+                         HttpResponseBadRequest)
 
 
 class ModelPermissionViewSet(viewsets.ModelViewSet):
@@ -71,14 +71,34 @@ class ModelPermissionViewSet(viewsets.ModelViewSet):
 
 
 class SessionView(View):
+    modes = {
+        'Workshop': 0,
+        'Setup': 1,
+    }
+    
     def post(self, request):
-        if request.POST['casestudy']:
-            request.session['casestudy'] = request.POST['casestudy']
-            next = request.POST.get('next', '/')
-            return HttpResponseRedirect(next)
+        casestudy = request.POST.get('casestudy')
+        mode = request.POST.get('mode')
+        next = request.POST.get('next', '/')
+        
+        if casestudy is not None:
+            request.session['casestudy'] = casestudy
+        if mode is not None:
+            try:
+                mode = int(mode)
+            except ValueError:
+                return HttpResponseBadRequest('invalid mode')
+            if mode not in self.modes.values():
+                return HttpResponseBadRequest('invalid mode')
+            request.session['mode'] = mode
+        
+        return HttpResponseRedirect(next)
 
     def get(self, request):
-        response =  {'casestudy': request.session.get('casestudy')}
+        response =  {
+            'casestudy': request.session.get('casestudy'),
+            'mode': request.session.get('mode') or self.modes['Workshop']
+        }
         return JsonResponse(response)
 
 
