@@ -70,7 +70,7 @@ class SeleniumBasic(object):
         log_file.write("SetUp\n")
         log_file.close()
 
-        self.driver.implicitly_wait(20)
+        self.driver.implicitly_wait(40)
         self.verificationErrors = []
         self.accept_next_alert = True
         driver = self.driver
