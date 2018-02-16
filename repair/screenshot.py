@@ -1,0 +1,12 @@
+import os
+file_dir = os.path.dirname(__file__)
+artifacts_dir = os.path.join(file_dir, 'artifacts')
+fn = os.path.join(artifacts_dir, 'test.txt')
+os.mkdir(artifacts_dir)
+text_file = open(fn, "w")
+text_file.write("string")
+text_file.close()
+print("file_dir: {}".format(file_dir))
+print(os.listdir(file_dir))
+print("artifacts dir: {}".format(artifacts_dir))
+print(os.listdir(artifacts_dir))
