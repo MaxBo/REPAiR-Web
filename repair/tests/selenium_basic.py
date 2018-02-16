@@ -90,6 +90,12 @@ class SeleniumBasic(object):
 
     def tearDown(self):
         file_dir = os.path.dirname(__file__)
+        artifacts_dir = os.path.join(file_dir, 'artifacts')
+        file_dir = os.path.dirname(__file__)
         tear_down_file = os.path.join(file_dir, 'artifacts', 'tear_down.png')
         print("save at {}".format(tear_down_file))
         self.driver.get_screenshot_as_file(tear_down_file)
+        fn = os.path.join(artifacts_dir, 'click_log.txt')
+        log_file = open(fn, "a")
+        log_file.write("\n***tear down***")
+        log_file.close()
