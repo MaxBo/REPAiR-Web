@@ -151,14 +151,6 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         driver.find_element_by_css_selector("#edit-location-map > div.ol-viewport > canvas.ol-unselectable").click()
         driver.find_element_by_id("confirm-location").click()
         driver.find_element_by_id("upload-actor-button").click()
-        driver.find_element_by_id("included-check").click()
-        #driver.find_element_by_name("reason").click()
-        time.sleep(5)
-        driver.find_element_by_id("upload-actor-button").click()
-        driver.find_element_by_css_selector("input.tablesorter-filter").click()
-        driver.find_element_by_id("pagesize").click()
-        driver.find_element_by_css_selector("input.pagedisplay").click()
-        driver.find_element_by_id("goto-first-page").click()
 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
