@@ -9,7 +9,7 @@ from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet,
     StakeholderViewSet,
     AdminLevelViewSet,
-    AreaViewSet,
+    AreaViewSet
 )
 
 from repair.apps.changes.views import (
