@@ -169,13 +169,16 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
         var text = '';
           if (composition){
             var fractions = composition.fractions;
+            var i = 0;
             fractions.forEach(function(fraction){
               var material = _this.materials.get(fraction.material);
-              text += '\n' + fraction.fraction * 100 + '% ';
+              text += fraction.fraction * 100 + '% ';
               text += material.get('name');
+              if (i < fractions.length - 1) text += '\n';
+              i++;
             })
           }
-        return text || ('\nno composition defined')
+        return text || ('no composition defined')
       }
       
       flows.each(function(flow){
@@ -186,6 +189,7 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
         
         links.push({
           value: flow.get('amount'),
+          units: gettext('t/year'),
           source: source,
           target: target,
           text: compositionRepr(composition)
@@ -198,6 +202,7 @@ function(Backbone, _, EditNodeView, Activities, Actors, Flows,
         var composition = stock.get('composition');
         links.push({
           value: stock.get('amount'),
+          units: gettext('t/year'),
           source: source,
           target: i,
           text: compositionRepr(composition)

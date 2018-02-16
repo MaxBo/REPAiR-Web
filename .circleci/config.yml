@@ -67,7 +67,7 @@ jobs:
       - run:
           name: Selenium Tests
           command: |
-            python repair/tests/Selenium_CI.py
+            python repair/tests/EditActorTest_orig.py
       - store_artifacts:
           path: repair/tests/artifacts
 

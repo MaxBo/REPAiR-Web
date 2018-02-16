@@ -42,6 +42,12 @@
 
 website is then accessible in browser via *localhost:\<port-number\>*
 
+## 2. Or using Vagrant
+
+Vagrant can set up the development evironment for you automatically. Essentially, it automates the management of virtual machines, thus you also need to have a virtualization provider (e.g. VirtualBox, VMware) installed. Then the REPAiR-Web server is set up and runs on a virtual machine (guest), completely isolated from your host. Yet, you can edit the source code on your host, with the same tools as normally, the code (actually the whole `REPAiR-Web` directory) is shared between the host and the guest. 
+
+Once Vagrant is up and running, Django is listening at `http://localhost:8081` on the host.
+
 ## 2. Package/Folder Structure
 
 **Packages**
