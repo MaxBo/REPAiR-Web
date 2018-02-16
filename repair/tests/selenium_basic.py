@@ -19,6 +19,7 @@ class CustomWebElement(WebElement):
     def click(self, x_off=0, y_off=0):
         """Clicks the element."""
         # write click information into log file:
+        time.sleep(1)
         file_dir = os.path.dirname(__file__)
         artifacts_dir = os.path.join(file_dir, 'artifacts')
         fn = os.path.join(artifacts_dir, 'click_log.txt')
@@ -77,9 +78,7 @@ class SeleniumBasic(object):
         driver.get("localhost:4444")
         #driver.maximize_window()
         driver.set_window_size(1936, 1056)
-        driver.find_element_by_css_selector("span.caret").click()
-        driver.find_element_by_css_selector("button.dropdown-button").click()
-        driver.find_element_by_link_text("SandboxCity").click()
+        driver.set_window_position(0, 0)
         driver.find_element_by_link_text("Login").click()
         driver.find_element_by_id("id_username").click()
         driver.find_element_by_id("id_username").clear()
@@ -87,6 +86,8 @@ class SeleniumBasic(object):
         driver.find_element_by_id("id_password").clear()
         driver.find_element_by_id("id_password").send_keys("HwuceC?&j6a-2^/4")
         driver.find_element_by_id("submit-id-submit").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
+        driver.find_element_by_link_text("SandboxCity").click()
 
     def tearDown(self):
         file_dir = os.path.dirname(__file__)
