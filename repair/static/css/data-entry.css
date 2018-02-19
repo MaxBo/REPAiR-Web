@@ -73,11 +73,6 @@ tr.dsbld td{
     display: none;
 }
 
-tr.selected td{
-    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
-    border-bottom: 2px solid #aad400;
-    border-top: 2px solid #aad400;
-}
 .map:-moz-full-screen {
   width: 100%;
   height: 100%;
@@ -106,10 +101,6 @@ td button {
     padding: 0px 5px 0px 5px;
     margin-left: 3px;
     margin-right: 3px;
-}
-
-.modal{
-    top: 80px;
 }
 
 table{

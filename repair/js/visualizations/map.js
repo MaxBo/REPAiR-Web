@@ -63,6 +63,11 @@ define([
       var div = document.getElementById(options.divid);
       
       var tooltip = div.querySelector('.tooltip');
+      if (!tooltip){
+        tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        div.appendChild(tooltip);
+      }
       if (tooltip){
         var overlay = new ol.Overlay({
           element: tooltip,
@@ -123,13 +128,24 @@ define([
      * @param {string} [options.strokeWidth=3]                   color of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
      * @param {string=} options.zIndex                           z-index of the layer
+     * @param {string=} options.source                           source layer
+     * @param {string=} options.source.url                       url to source
      *
      */
     addLayer(name, options){
-      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      var options = options || {};
+      var sourceopt = options.source || {};
+      
+      if (sourceopt.url){
+        var source = new ol.source.Vector({
+          format: new ol.format.GeoJSON(),
+          url: sourceopt.url
+        })
+      }
+      
+      var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
-      var options = options || {};
       var style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',

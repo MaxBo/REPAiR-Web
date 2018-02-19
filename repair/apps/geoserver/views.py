@@ -46,7 +46,10 @@ class GeoserverLayerViewSet(viewsets.ViewSet):
                     id='{}:{}'.format(namespace, name),
                     namespace=namespace,
                     href=url_2,
-                    name=name)
+                    name=name,
+                    srs=l_2['srs'],
+                    bbox=l_2['nativeBoundingBox'],
+                )
                 layers.append(layer)
             # happens when there are url related characters in the name of
             # the layer, like '.' - don't name them like that!!!!!!
@@ -66,7 +69,7 @@ class GeoserverIndexView(View):
 
 
 class GeoserverOwsView(View):
-    url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/napoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=napoli:clc12&maxFeatures=50&outputFormat=application%2Fjson'
+    url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/napoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=napoli:clc12&maxFeatures=50&srsname=EPSG:3857&outputFormat=application%2Fjson'
     def get(self, request, *args, **kwargs):
         auth = (GEOSERVER_USER, GEOSERVER_PASS)
         response = requests.get(self.url, auth=auth)

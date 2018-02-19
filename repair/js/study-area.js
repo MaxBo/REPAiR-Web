@@ -1,10 +1,10 @@
 define([
   'd3',
   'visualizations/sankey-map',
-  'visualizations/map',
-  'app-config', 'geoserver',
+  'views/study-area/base-maps',
+  'app-config',
   'base'
-], function(d3, MapView, Map, appConfig, Geoserver) {
+], function(d3, MapView, BaseMapsView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -40,20 +40,16 @@ define([
   }
   
   function renderSetup(){
-    //var map = new Map({
-        //divid: 'edit-location-map', 
-      //});
-    var geoserver = new Geoserver({ user: '', pass: '' });
-    geoserver.getLayers({ success: function(layers){
-      console.log(layers);
-      geoserver.getLayer(layers.first().get('href'), { success: function(layer) { console.log(layer)}})
-    }});
+    var mapsView = new BaseMapsView({
+      template: 'base-map-template',
+      el: document.getElementById('base-map-setup'),
+      casestudy: ''
+    })
   }
   
   var session = appConfig.getSession(
     function(session){
       var mode = session['mode'];
-      console.log(mode)
       if (Number(mode) == 1) 
         renderSetup()
       else

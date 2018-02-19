@@ -140,6 +140,7 @@ div.fullscreen{
   position: fixed;
   right: -9999px;
   width: 100%;
+  min-height: 300px;
 }
 .tab-pane.active {
   position: relative;
@@ -168,6 +169,11 @@ tr.strikeout td:before {
     border-bottom: 2px solid red;
     width: 100%;
 }
+tr.selected td{
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border-bottom: 2px solid #aad400;
+    border-top: 2px solid #aad400;
+}
 
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
@@ -183,7 +189,7 @@ th {
   z-index: 1;
   width: 150px;
   height: 150px;
-  margin: -75px 0 0 -75px;
+  /*margin: -75px 0 0 -75px;*/
   border: 16px solid #f3f3f3;
   border-radius: 50%;
   border-top: 16px solid #aad400;
@@ -284,6 +290,10 @@ tr.popunder > td{
   border: 2px dashed #aad400;
   padding: 10px;
   background-color: white;
+}
+
+.modal{
+    top: 80px;
 }
 
 button.square, button.round, .btn.square, .btn.round {
