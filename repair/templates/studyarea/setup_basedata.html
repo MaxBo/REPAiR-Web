@@ -7,23 +7,25 @@
 
 <script type="text/template" id="base-map-template">
 <div class="row">
-  <div class="col-md-2">
-    <h4> {% trans "Layers" %} </h4>
-    <div id="layer-tree"></div>
-    <div id="layer-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
-      <button id='add-group-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
-        <span class="glyphicon glyphicon-plus"></span> {% trans "Group" %}
-      </button>
+  <div class="col-md-4">
+    <div id="layer-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
       <button id='add-layer-button' class="btn btn-primary square" title="{% trans "add layer" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
-      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove layer" %}" style="pointer-events: auto;">
+      <button id='remove-button'  class="btn btn-warning square" title="{% trans "remove category/layer" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
     </div>
+    <div class="row">
+      <h4> {% trans "Layers" %} </h4>
+      <div id="layer-tree"></div>
+      <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
+        <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
+      </button>
+    </div>
   </div>
-  <div class="graph col-md-8">
-    <div id='base-map' style='min-height: 500px'>
+  <div class="graph col-md-6">
+    <div id='base-map' style='min-height: 800px'>
     </div>
   </div>
   <div class="graph col-md-2">
@@ -67,6 +69,7 @@
     </div>
   </div>
 </div>
+<div id="edit-category-modal"/>
 </script>
 
 {% endblock %}
