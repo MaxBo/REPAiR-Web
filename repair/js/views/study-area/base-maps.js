@@ -74,10 +74,9 @@ function(Backbone, _, Map, Loader, config){
     },
     
     renderMap: function(){
-      var map = new Map({
+      this.map = new Map({
         divid: 'base-map', 
       });
-      map.addLayer('test', { source: { url: '/geoserver/ows' } })
     },
     
     rerenderDataTree: function(selectId){
@@ -166,7 +165,6 @@ function(Backbone, _, Map, Loader, config){
       var _this = this;
       function onConfirm(name){
         var nextId = Math.max(...Object.keys(_this.categoryTree).map(Number)) + 1;
-        console.log(Object.keys(_this.categoryTree).map(Number))
         var cat = {text: name, categoryId: nextId};
         _this.categoryTree[nextId] = cat;
         _this.rerenderDataTree();
@@ -178,10 +176,22 @@ function(Backbone, _, Map, Loader, config){
     },
     
     confirmLayer: function(){
-      if (!this.selectedGeoLayer) return;
+      var layer = this.selectedGeoLayer;
+      if (!layer) return;
       var category = this.categoryTree[this.selectedNode.categoryId];
-      var layerNode = { text: this.selectedGeoLayer.get('name'),
-                        layer: this.selectedGeoLayer };
+      var layerNode = { text: layer.get('name'),
+                        layer: layer };
+      var color = this.el.querySelector('#colorpicker').value
+      console.log(color)
+      this.map.addLayer(layer.id, { 
+        fill: color,
+        stroke: color,
+        source: { 
+          url: '/geoserver/ows' + '?id=' + layer.id + '&namespace=' + layer.get('namespace'),// + '&srs=EPSG:4326',
+          projection: layer.get('srs') //'EPSG:4326'
+        } 
+      })
+      console.log(this.map.layers)
       if (!category.nodes) category.nodes = [];
       category.nodes.push(layerNode);
       this.rerenderDataTree();

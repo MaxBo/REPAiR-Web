@@ -125,10 +125,11 @@ define([
      * @param {string} name  name of the layer
      * @param {Object=} options
      * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
-     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.strokeWidth=3]                   width of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
      * @param {string=} options.zIndex                           z-index of the layer
      * @param {string=} options.source                           source layer
+     * @param {string=} options.source.projection                projection of the source
      * @param {string=} options.source.url                       url to source
      *
      */
@@ -139,13 +140,16 @@ define([
       if (sourceopt.url){
         var source = new ol.source.Vector({
           format: new ol.format.GeoJSON(),
-          url: sourceopt.url
+          url: sourceopt.url,
+          projection : sourceopt.projection || this.mapProjection,
         })
       }
       
       var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
+      console.log(options.fill)
+      console.log(options.stroke)
       var style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',

@@ -69,10 +69,16 @@ class GeoserverIndexView(View):
 
 
 class GeoserverOwsView(View):
-    url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/napoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=napoli:clc12&maxFeatures=50&srsname=EPSG:3857&outputFormat=application%2Fjson'
+    url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/{namespace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName={id}&maxFeatures=50&outputFormat=application%2Fjson'
     def get(self, request, *args, **kwargs):
+        id = request.GET.get('id')
+        namespace = request.GET.get('namespace')
+        srs = request.GET.get('srs')
+        suffix = ''
+        if srs:
+            suffix += '&srsname=' + srs
         auth = (GEOSERVER_USER, GEOSERVER_PASS)
-        response = requests.get(self.url, auth=auth)
+        response = requests.get(self.url.format(id=id, namespace=namespace) + suffix, auth=auth)
         content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)
