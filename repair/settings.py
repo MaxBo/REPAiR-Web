@@ -21,8 +21,8 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
 
 GEOSERVER_URL = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver'
-GEOSERVER_USER = os.environ['GEOSERVER_USER']
-GEOSERVER_PASS = os.environ['GEOSERVER_PASS']
+GEOSERVER_USER = os.environ.get('GEOSERVER_USER')
+GEOSERVER_PASS = os.environ.get('GEOSERVER_PASS')
 
 
 if os.name == 'nt':
