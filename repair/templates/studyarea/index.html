@@ -23,6 +23,11 @@
       {% endif %}
     </div>
     <div class="tab-pane fade" id="base-charts-content">
+      {% if request.session.mode == 0 %}
+        ToDo
+      {% else %}
+        {% include "studyarea/setup_charts.html" %}
+      {% endif %}
     </div>
     <div class="tab-pane fade" id="stakeholders-content">
       {% if request.session.mode == 0 %}

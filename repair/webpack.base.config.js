@@ -26,7 +26,24 @@ module.exports = {
   externals: [ 'ws' ],
   
   module: {
-    rules: [{ test: require.resolve("jquery"), loader: 'expose-loader?jQuery!expose-loader?$' }] 
+    rules: [
+      { 
+        test: require.resolve("jquery"), 
+        loader: 'expose-loader?jQuery!expose-loader?$' 
+      },
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true
+            }
+          }
+        ]
+      }
+    ],
   },
 
   resolve: {

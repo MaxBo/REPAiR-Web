@@ -1,5 +1,5 @@
 define(['backbone', 'underscore', 'models/actor', 'collections/activities',
-        'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
+        'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
         'utils/loader', 'app-config', 'tablesorter'],
 function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
          Loader, config){

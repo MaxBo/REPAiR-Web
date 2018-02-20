@@ -1,9 +1,12 @@
 define([
   'd3',
+  'models/casestudy',
   'visualizations/sankey-map',
+  'views/study-area/base-maps',
+  'views/study-area/base-charts',
   'app-config',
   'base'
-], function(d3, MapView, appConfig) {
+], function(d3, CaseStudy, MapView, BaseMapsView, BaseChartsView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -38,18 +41,33 @@ define([
     });
   }
   
-  function renderSetup(){
-    
-  }
-  
   var session = appConfig.getSession(
     function(session){
-      var caseStudyId = session['casestudy'];
       var mode = session['mode'];
-      console.log(mode)
-      if (Number(mode) == 1) 
-        renderSetup()
+      if (Number(mode) == 1) {
+        var caseStudyId = session['casestudy'];
+        caseStudy = new CaseStudy({id: caseStudyId});
+      
+        caseStudy.fetch({success: function(){
+          renderSetup(caseStudy)
+        }});
+      }
       else
         renderWorkshop()
   });
+  
+  function renderSetup(caseStudy){
+    var mapsView = new BaseMapsView({
+      template: 'base-map-template',
+      el: document.getElementById('base-map-setup'),
+      caseStudy: caseStudy
+    });
+    
+    var chartsView = new BaseChartsView({
+      template: 'base-charts-template',
+      el: document.getElementById('base-charts-setup'),
+      caseStudy: caseStudy
+    })
+  }
+  
 });

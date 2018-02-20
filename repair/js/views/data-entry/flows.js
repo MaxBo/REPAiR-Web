@@ -1,5 +1,5 @@
 define(['backbone', 'underscore',
-        'views/data-entry-edit-node',
+        'views/data-entry/edit-node',
         'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
         'collections/activitygroups', 'collections/publications', 
         'visualizations/sankey', 'utils/loader'],
