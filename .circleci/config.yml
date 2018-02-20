@@ -14,13 +14,38 @@ jobs:
           command: |
             pip install -r requirements-dev.txt
       - run:
+          name: Migrate Test Database
+          command: |
+            python manage.py migrate --settings=repair.settings4tests
+      - store_artifacts:
+          path: test-reports/
+          destination: tr1
+      - store_test_results:
+          path: test-reports/
+      - run:
+          name: codecov
+          command: |
+            coverage run manage.py test --settings=repair.settings4tests
+            codecov
+
+
+  selenium testing:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
           name: Install Node Modules
           command: |
             yarn install
       - run:
           name: Configure Javascript packages
           command: |
-            node_modules/.bin/webpack --config repair/webpack.dev.config.js
+            node_modules/.bin/webpack --config repair/webpack.staged.config.js
       - run:
           name: Download Selenium
           command: |
@@ -28,16 +53,23 @@ jobs:
       - run:
           name: Migrate Test Database
           command: |
-            python manage.py migrate --settings=repair.settings4tests
+            python manage.py migrate --settings=repair.settings_staged
+      - run:
+          name: load fixtures to test database
+          command: |
+            python manage.py loaddata sandbox_data --settings=repair.settings_staged
+            python manage.py loaddata seleniumtester --settings=repair.settings_staged
       - run:
           name: start Testserver
           command: |
-            python manage.py runserver 4444 --settings=repair.settings4tests
+            python manage.py runserver 4444 --settings=repair.settings_staged
           background: true
       - run:
-          name: run py.test
+          name: Selenium Tests
           command: |
-            python manage.py test --settings=repair.settings4tests
+            python repair/tests/EditActorTest_orig.py
+      - store_artifacts:
+          path: repair/tests/artifacts
 
 
   setup database:
@@ -91,51 +123,6 @@ jobs:
           command: |
             node_modules/.bin/jasmine
 
-  selenium testing:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
-    steps:
-      - checkout
-      - run: pwd
-
-  store results:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
-    steps:
-      - checkout
-      - run: mkdir test-reports
-      - run:
-          name: Install Python deps in a venv
-          command: |
-            pip install -r requirements-dev.txt
-      - run:
-          name: Install Node Modules
-          command: |
-            yarn install
-      - run:
-          name: Configure Javascript packages
-          command: |
-            node_modules/.bin/webpack --config repair/webpack.dev.config.js
-      - run:
-          name: Migrate Test Database
-          command: |
-            python manage.py migrate --settings=repair.settings4tests
-      - run:
-          name: start Testserver
-          command: |
-            python manage.py runserver 4444 --settings=repair.settings4tests
-          background: true
-      - store_artifacts:
-          path: test-reports/
-          destination: tr1
-      - store_test_results:
-          path: test-reports/
-      - run:
-          name: codecov
-          command: |
-            coverage run manage.py test --settings=repair.settings4tests
-            codecov
-
 
 workflows:
   version: 2
@@ -144,5 +131,4 @@ workflows:
       - django testing
       - setup database
       - jasmine tests
-      - store results
       - selenium testing
