@@ -3,9 +3,10 @@ define([
   'models/casestudy',
   'visualizations/sankey-map',
   'views/study-area/base-maps',
+  'views/study-area/base-charts',
   'app-config',
   'base'
-], function(d3, CaseStudy, MapView, BaseMapsView, appConfig) {
+], function(d3, CaseStudy, MapView, BaseMapsView, BaseChartsView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -59,6 +60,12 @@ define([
     var mapsView = new BaseMapsView({
       template: 'base-map-template',
       el: document.getElementById('base-map-setup'),
+      caseStudy: caseStudy
+    });
+    
+    var chartsView = new BaseChartsView({
+      template: 'base-charts-template',
+      el: document.getElementById('base-charts-setup'),
       caseStudy: caseStudy
     })
   }
