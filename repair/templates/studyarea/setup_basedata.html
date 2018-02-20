@@ -7,7 +7,7 @@
 
 <script type="text/template" id="base-map-template">
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div id="layer-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
       <button id='add-layer-button' class="btn btn-primary square" title="{% trans "add layer" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
@@ -24,12 +24,20 @@
       </button>
     </div>
   </div>
-  <div class="graph col-md-6">
+  <div class="graph col-md-7">
     <div id='base-map' style='min-height: 600px'>
     </div>
   </div>
   <div class="graph col-md-2">
     <h4> {% trans "Legend" %} </h4>
+    <div class="row">
+      <svg width="30" height="30">
+        <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
+      </svg>
+      <label style="position: relative; top:-10px;">
+        {% trans "Focus Area" %}
+      </label>
+    </div>
   </div>
 </div>
 <div class="modal fade" role="dialog" id="add-layer-modal">
@@ -40,26 +48,50 @@
         <h4 class="modal-title"><span class="fa fa-map"></span> {% trans "Add Layer" %} </h4>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <table id='available-layers-table'>
-            <thead>
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#import-geoserver-tab">{% trans "GDSE Geoserver" %}
+          <li><a data-toggle="tab" href="#import-custom-tab">{% trans "Custom Service" %}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="import-geoserver-tab">
+            <div class="row">
+              <table id='available-layers-table'>
+                <thead>
+                  <tr>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Name" %}</th>
+                  </tr>
+                </thead> 
+                <tbody> 
+                </tbody> 
+              </table>
+            </div>
+            <div class="row">
+              {% trans "Import as" %}
+              <select>
+                <option selected> GeoJSON </option>
+              </select>
+            </div>
+            <div class="row">
+              {% trans "Color" %} <input id='colorpicker' style="margin-left: 5px"/>
+            </div>
+          </div>
+          <div class="tab-pane fade in" id="import-custom-tab">
+            <table id='available-layers-table'>
               <tr>
-                <th>{% trans "Type" %}</th>
-                <th>{% trans "Name" %}</th>
+                <td> URL </td>
+                <td> <input style="min-width: 400px;"/></td>
               </tr>
-            </thead> 
-            <tbody> 
-            </tbody> 
-          </table>
-        </div>
-        <div class="row">
-          {% trans "Import as" %}
-          <select>
-            <option selected> GeoJSON </option>
-          </select>
-        </div>
-        <div class="row">
-          {% trans "Color" %} <input id='colorpicker' style="margin-left: 5px"/>
+              <tr>
+                <td>{% trans "User" %}</td>
+                <td> <input/></td>
+              </tr>
+              <tr>
+                <td>{% trans "Password" %}</td>
+                <td> <input type="password"/></td>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
