@@ -31,13 +31,16 @@ function(Backbone, _, Map, Loader, config){
       this.template = options.template;
       this.caseStudy = options.caseStudy;
       
+      this.focusarea = options.focusarea;
+      this.projection = 'EPSG:4326'; 
+      
       var GeoLayers = Backbone.Collection.extend({ url: config.geoserverApi.layers })
       
       this.geoLayers = new GeoLayers();
       
       this.categoryTree = {
-        1: {text: 'Test1', categoryId: 1}, 
-        2: {text: 'Test2', categoryId: 2}
+        1: {text: 'Group 1', categoryId: 1}, 
+        2: {text: 'Group 2', categoryId: 2}
       }
     
       var loader = new Loader(this.el, {disable: true});
@@ -77,6 +80,22 @@ function(Backbone, _, Map, Loader, config){
       this.map = new Map({
         divid: 'base-map', 
       });
+      var focusarea = this.caseStudy.get('properties').focusarea;
+      
+      this.map.addLayer('background', {
+          stroke: '#aad400',
+          fill: 'rgba(170, 212, 0, 0.1)',
+          strokeWidth: 1,
+          zIndex: 0
+        },
+      );
+      // add polygon of focusarea to both maps and center on their centroid
+      if (focusarea != null){
+        var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+        this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+        this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
+        this.map.centerOnPolygon(poly, { projection: this.projection });
+      };
     },
     
     rerenderDataTree: function(selectId){
@@ -187,8 +206,8 @@ function(Backbone, _, Map, Loader, config){
         fill: color,
         stroke: color,
         source: { 
-          url: '/geoserver/ows' + '?id=' + layer.id + '&namespace=' + layer.get('namespace'),// + '&srs=EPSG:4326',
-          projection: layer.get('srs') //'EPSG:4326'
+          url: '/geoserver/ows' + '?id=' + layer.id + '&namespace=' + layer.get('namespace') + '&srs=EPSG:4326',
+          projection: 'EPSG:4326'//layer.get('srs') 
         } 
       })
       console.log(this.map.layers)

@@ -10,7 +10,8 @@ define([
   class Map {
     
     /**
-     * create the map
+     * create the map and show it inside the HTMLElement with the given id
+     *
      * @param {Object} options
      * @param {string} options.divid                        id of the HTMLElement to render the map into
      * @param {string} [options.projection='EPSG:3857']     projection of the map
