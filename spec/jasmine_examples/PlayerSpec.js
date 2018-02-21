@@ -1,4 +1,14 @@
 describe("Player", function() {
+
+  require('../../repair/js/utils/overrides');
+  var Actors = require('../../repair/js/collections/actors');
+  var actors = new Actors([], {caseStudyId: 7, keyflowId: 30});
+  actors.fetch({
+    success: function(){
+      console.log(actors)
+    }
+  })
+
   var Player = require('../../lib/jasmine_examples/Player');
   var Song = require('../../lib/jasmine_examples/Song');
   var player;

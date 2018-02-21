@@ -17,7 +17,7 @@ if (!String.prototype.format) {
 }
 
 // force Backbone to add a trailing Slash to urls (Django is picky with that)
-require(['backbone', 'underscore'], function (Backbone, _) {
+define(['backbone', 'underscore'], function (Backbone, _) {
   var _sync = Backbone.sync;
   Backbone.sync = function(method, model, options){
     if (!model.noTrail){
@@ -42,7 +42,7 @@ require(['backbone', 'underscore'], function (Backbone, _) {
 });
 
 // add the csrf-token to all unsafe requests, otherwise django would deny access
-require(['jquery', 'browser-cookies'], function ($, cookies) {
+define(['jquery', 'browser-cookies'], function ($, cookies) {
   var csrftoken = cookies.get('csrftoken');
   function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection

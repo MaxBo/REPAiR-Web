@@ -18,7 +18,7 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendors.js' }),
+    //new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendors.js' }),
   ],
   
   node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true }, 
@@ -30,6 +30,16 @@ module.exports = {
       { 
         test: require.resolve("jquery"), 
         loader: 'expose-loader?jQuery!expose-loader?$' 
+      },
+      {
+        test: /\.js$/,
+         exclude: /(node_modules|bower_components)/,
+         use: {
+           loader: 'babel-loader',
+           options: {
+             presets: ['babel-preset-env']
+           }
+        }
       },
       {
         test: /\.css$/,

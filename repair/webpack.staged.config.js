@@ -14,11 +14,11 @@ config.plugins = config.plugins.concat([
   // minify the code
   // WARNING: beta version is used here, because normal version (see below) does not support ES6
 
-  new Uglify({
-    compressor: {
-      warnings: false
-    }
-  })
+  //new Uglify({
+    //compressor: {
+      //warnings: false
+    //}
+  //})
 ])
   
 module.exports = config;
