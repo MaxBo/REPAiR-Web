@@ -40,15 +40,6 @@
     display: block;
 }
 
-#fullscreen-toggle{
-    position: absolute;
-    top: 60px;
-    right: 20px;
-    font-size: 1em;
-    opacity: 0.8;
-    padding: 3px 7px 3px 7px;
-}
-
 input.changed, select.changed {
     background-color: #e6f2ff;
 }

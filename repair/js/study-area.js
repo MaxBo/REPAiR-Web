@@ -6,7 +6,7 @@ define([
   'views/study-area/base-charts',
   'app-config',
   'base'
-], function(d3, CaseStudy, MapView, BaseMapsView, BaseChartsView, appConfig) {
+], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -33,7 +33,7 @@ define([
     
     handler.add(callbackTest);
     
-    var map = new MapView({
+    var map = new SankeyMap({
       divid: 'map', 
       nodes: '/static/data/nodes.geojson', 
       links: '/static/data/links.csv',

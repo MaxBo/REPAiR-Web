@@ -75,6 +75,7 @@ class GeoserverIndexView(View):
 class GeoserverOwsView(View):
     url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/{namespace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName={id}&outputFormat=application%2Fjson'
     def get(self, request, *args, **kwargs):
+        
         id = request.GET.get('id')
         namespace = request.GET.get('namespace')
         srs = request.GET.get('srs')
