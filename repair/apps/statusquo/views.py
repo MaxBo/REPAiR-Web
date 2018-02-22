@@ -29,11 +29,11 @@ class Testgraph1(TemplateView):
 class StatusQuoView(LoginRequiredMixin, ModeView):
 
     def render_setup(self, request):
-        return render(request, 'statusquo/setup/index.html')
+        return render(request, 'statusquo/setup/index.html', self.get_context_data())
     
     def render_workshop(self, request):
         template = loader.get_template('statusquo/workshop/index.html')
-        context = {}
+        context = self.get_context_data()
         context['indicatorgraph'] = Testgraph1().get_context_data()
         context['casestudies'] = self.casestudies()
         html = template.render(context, request)
