@@ -1,8 +1,10 @@
 from django.views.generic import TemplateView
+from django.core.exceptions import ObjectDoesNotExist
 from repair.apps.login.models import CaseStudy
 
 
 class BaseView(TemplateView):
+    modes = { 0: 'Workshop', 1: 'Setup'}
 
     def get(self, request, *args, **kwargs):
         if 'casestudy' not in request.session:
@@ -18,6 +20,9 @@ class BaseView(TemplateView):
         except ObjectDoesNotExist:
             casestudy = None
         
+        mode = self.request.session.get('mode', 0)
+        
+        kwargs['mode'] = self.modes[mode]
         kwargs['casestudy'] = casestudy
         kwargs['casestudies'] = self.casestudies()
         return kwargs

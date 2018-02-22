@@ -55,7 +55,7 @@
                 <input name="casestudy" id="casestudy" type="hidden">
                 <div class="dropdown">
                   <button class="dropdown-button" type="button">
-                    {% trans "Casestudy" %}
+                    {% if casestudy %} {{ casestudy.name }} {% else %} {% trans "Casestudy" %} {% endif %}
                     <span class="caret"></span>
                   </button>
                   <div class="dropdown-content">
@@ -85,7 +85,7 @@
                 <input name="mode" id="mode" type="hidden">
                 <div class="dropdown">
                   <button class="dropdown-button" type="button">
-                    {% trans "Mode" %}
+                    {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
                     <span class="caret"></span>
                   </button>
                   <div class="dropdown-content">
