@@ -11,16 +11,3 @@
     <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-align-right gly-rotate-90"></span></a></li>
   </ul>
 {% endblock %}
-
-{% block content %}
-  <div class="tab-content">
-    <div class="tab-pane fade in active" id="flows">
-      {% include "statusquo/flows.html" %}
-    </div>
-    <div class="tab-pane fade" id="evaluation">
-      {% include "statusquo/evaluation.html" %}
-    </div>
-  </div>
-{% render_bundle 'vendors' %}
-{% render_bundle 'StatusQuo' %}
-{% endblock %}
