@@ -12,6 +12,13 @@ class BaseView(TemplateView):
         return super().get(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
+        casestudy_id = self.request.session.get('casestudy', 0)
+        try:
+            casestudy = CaseStudy.objects.get(pk=casestudy_id)
+        except ObjectDoesNotExist:
+            casestudy = None
+        
+        kwargs['casestudy'] = casestudy
         kwargs['casestudies'] = self.casestudies()
         return kwargs
 
