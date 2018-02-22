@@ -1,11 +1,12 @@
 require([
   'd3',
   'models/casestudy',
+  'views/status-quo/flows',
   'visualizations/mapviewer',
   'app-config',
   'utils/overrides',
   'base'
-], function (d3, CaseStudy, MapViewer, appConfig) {
+], function (d3, CaseStudy, FlowsView, MapViewer, appConfig) {
   
   var session = appConfig.getSession(
     function(session){
@@ -62,6 +63,10 @@ require([
   }
   
   renderSetup = function(caseStudy){
-    
+    var flowsView = new FlowsView({ 
+      caseStudy: caseStudy,
+      el: document.getElementById('flows-setup'),
+      template: 'flows-template'
+    })
   };
 });
