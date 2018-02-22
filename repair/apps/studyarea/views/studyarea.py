@@ -9,21 +9,14 @@ from repair.apps.studyarea.models import (StakeholderCategory,
 from repair.apps.login.models import CaseStudy
 from repair.apps.changes.forms import NameForm
 from .graphs import Testgraph1, Testgraph2
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from repair.views import BaseView, ModeView
 
 
-class StudyAreaIndexView(ModeView):
+class StudyAreaIndexView(LoginRequiredMixin, ModeView):
 
-    def get(self, request):
-        mode = request.session.get('mode', 0)
-        if mode == 1:
-            return self.render_setup(request)
-        else:
-            return self.render_workshop(request)
-    
     def render_setup(self, request):
-        
         return render(request, 'studyarea/index.html')
     
     def render_workshop(self, request):

@@ -27,7 +27,6 @@ class BaseView(TemplateView):
 class ModeView(BaseView):
     
     def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
         mode = request.session.get('mode', 0)
         if mode == 1:
             return self.render_setup(request)
@@ -39,7 +38,6 @@ class ModeView(BaseView):
 
     def render_workshop(self, request, *args, **kwargs):
         raise NotImplementedError
-
 
 
 class HomeView(BaseView):
