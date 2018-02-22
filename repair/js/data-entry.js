@@ -1,6 +1,6 @@
 
-define(['models/casestudy', 'views/data-entry-flows',
-        'views/data-entry-actors', 'views/data-entry-materials', 
+define(['models/casestudy', 'views/data-entry/flows',
+        'views/data-entry/actors', 'views/data-entry/materials', 
         'collections/flows', 'collections/actors',
         'collections/keyflows', 'collections/materials',
         'app-config', 'utils/loader', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances

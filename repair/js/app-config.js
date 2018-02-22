@@ -26,8 +26,6 @@ define(['browser-cookies'],
      */
     config.getSession = function(callback){
     
-      //var sessionid = cookies.get('sessionid');
-      //console.log(sessionid)
       fetch('/login/session', {
           headers: {
             'Accept': 'application/json',
@@ -70,6 +68,11 @@ define(['browser-cookies'],
       arealevels:             '/api/casestudies/{0}/levels/',
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
     };
+    
+    config.geoserverApi = {
+      base:   '/geoserver',
+      layers: '/geoserver/layers'
+    }
   
     return config;
   }

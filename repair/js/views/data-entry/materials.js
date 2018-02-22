@@ -73,7 +73,6 @@ function(Backbone, _, Material, Loader){
     renderDataTree: function(selectId){
     
       var _this = this;
-      var dataDict = {};
       var expandedIds = expandedIds || []
       
       // list to tree
