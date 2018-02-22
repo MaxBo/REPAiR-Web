@@ -7,8 +7,7 @@ module.exports = {
   entry: {
     DataEntry: './js/data-entry',
     StudyArea: './js/study-area',
-    StatusQuoWorkshop: './js/status-quo-workshop',
-    StatusQuoSetup: './js/status-quo-setup',
+    StatusQuo: './js/status-quo',
     Base:      './js/base',
   },
   
