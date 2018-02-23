@@ -318,7 +318,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   /*color: white;*/
 }
 
-#fullscreen-toggle{
+.fullscreen-toggle{
     position: absolute;
     top: 60px;
     right: 20px;

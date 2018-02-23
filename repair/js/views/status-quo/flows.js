@@ -82,11 +82,21 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
              this.activities.fetch(), this.activityGroups.fetch()).then(function(){
         loader.remove();
         _this.renderMatFilter();
-        _this.flowsView = new FlowSankeyView({
-          el: document.getElementById('sankey-wrapper'),
-          collection: _this.activities
-        })
+        _this.renderSankey();
       })
+    },
+    
+    renderSankey: function(){
+      var type = this.el.querySelector('#data-view-type-select').value;
+      var collection = (type == 'actor') ? this.actors: 
+                       (type == 'activity') ? this.activities: 
+                       this.activityGroups;
+      if (this.flowsView != null) this.flowsView.close();
+      this.flowsView = new FlowSankeyView({
+          el: document.getElementById('sankey-wrapper'),
+          collection: collection,
+          materials: this.materials
+        })
     },
     
     renderSankeyMap: function(){
@@ -117,7 +127,6 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
     // options.callback(model) is called, when a model from the collection is selected
     // options.selected preselects the model with given id
     hierarchicalSelect: function(collection, parent, options){
-      console.log(collection)
       var wrapper = document.createElement("div");
       var options = options || {};
       var items = [];
@@ -156,7 +165,6 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       })
       
       var treeList = treeify(items);
-      console.log(treeList)
       
       // converts tree to list sorted by appearance in tree, 
       // stores the level inside the tree as an attribute in each node

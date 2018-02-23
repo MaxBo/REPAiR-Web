@@ -28,11 +28,13 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      */
     initialize: function(options){
       _.bindAll(this, 'render');
+      _.bindAll(this, 'toggleFullscreen');
       var _this = this;
-      this.keyflowId = this.collection.caseStudyId;
-      this.caseStudyId = this.collection.keyflowId;
+      this.caseStudyId = this.collection.caseStudyId;
+      this.keyflowId = this.collection.keyflowId;
+      this.materials = options.materials;
       var type = (this.collection instanceof Actors) ? 'actor': 
-                 (this.collection instanceof Activities) ? 'activity': 'activitygroup'
+                 (this.collection instanceof Activities) ? 'activity': 'activitygroup';
       this.flows = new Flows([], {caseStudyId: this.caseStudyId,
                                   keyflowId: this.keyflowId,
                                   type: type});
@@ -60,25 +62,24 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * render the view
      */
     render: function(){
-      this.sankeyData = this.transformData(this.collection, this.flows, this.stocks);
+      this.sankeyData = this.transformData(this.collection, this.flows, this.stocks, this.materials);
+      var fullscreenBtn = document.createElement('button');
+      fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
+      fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+      this.el.appendChild(fullscreenBtn);
       var width = this.el.clientWidth;
-      // this.el (#data-view) may be hidden at the moment this view is called
-      // (is close to body width then, at least wider as the wrapper of the content),
-      // in this case take width of first tab instead, because this one is always shown first
-      if (width >= document.getElementById('page-content-wrapper').clientWidth)
-        width = document.getElementById('data-entry-tab').clientWidth;
       var height = this.el.classList.contains('fullscreen') ?
                    this.el.clientHeight: width / 3;
       var div = this.el.querySelector('.sankey');
       if (div == null){
         div = document.createElement('div');
-        div.classList.add('sankey');
+        div.classList.add('sankey', 'bordered');
         this.el.appendChild(div);
       }
       var sankey = new Sankey({
         height: height,
         width: width,
-        divid: '#sankey',
+        el: div,
         title: ''
       })
       sankey.render(this.sankeyData);
@@ -97,8 +98,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
      */
-    transformData: function(models, flows, stocks){
-      var _this = this;
+    transformData: function(models, flows, stocks, materials){
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -117,7 +117,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
             var fractions = composition.fractions;
             var i = 0;
             fractions.forEach(function(fraction){
-              var material = _this.materials.get(fraction.material);
+              var material = materials.get(fraction.material);
               text += fraction.fraction * 100 + '% ';
               text += material.get('name');
               if (i < fractions.length - 1) text += '\n';
