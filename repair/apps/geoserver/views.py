@@ -2,6 +2,7 @@ from rest_framework import exceptions, viewsets
 from rest_framework.response import Response
 from django.http import HttpResponse
 from django.views import View
+from rest_framework.permissions import IsAuthenticated
 import requests
 
 from repair.apps.geoserver.serializers import (GeoserverLayerSerializer,
@@ -13,6 +14,7 @@ class GeoserverLayerViewSet(viewsets.ViewSet):
     # Required for the Browsable API renderer to have a nice form.
     serializer_class = GeoserverLayerSerializer
     rest_url = GEOSERVER_URL + '/rest/layers'
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         
@@ -60,6 +62,8 @@ class GeoserverLayerViewSet(viewsets.ViewSet):
             
         return Response(serializer.data)
 
+    def permission_denied(self, request, message=None):
+        pass
 
 class GeoserverIndexView(View):
 
@@ -71,6 +75,7 @@ class GeoserverIndexView(View):
 class GeoserverOwsView(View):
     url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/{namespace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName={id}&outputFormat=application%2Fjson'
     def get(self, request, *args, **kwargs):
+        
         id = request.GET.get('id')
         namespace = request.GET.get('namespace')
         srs = request.GET.get('srs')

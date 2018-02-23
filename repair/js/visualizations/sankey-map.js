@@ -46,8 +46,7 @@ define([
             return link.source == d.id;
           });
           
-          console.log(_this);
-          _this.handler.changeActive(d.id);
+          if (_this.handler) _this.handler.changeActive(d.id);
     
           // Add data to link layer
           var beziers = linklayer.selectAll("path").data(nodelinks);
@@ -110,6 +109,8 @@ define([
     d3.selectAll("input").on("click", function(){
       options[this.name] = parseFloat(this.value);
     });
+    
+    this.refresh = function(){ map.invalidateSize() };
   };
   return Map
 });

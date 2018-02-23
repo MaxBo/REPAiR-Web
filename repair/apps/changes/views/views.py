@@ -26,9 +26,9 @@ class ChangesIndexView(BaseView):
             return HttpResponseForbidden(_('Please select a casestudy'))
         solution_list = Solution.objects.filter(
             user__casestudy=uic.casestudy_id)
-        context = {'solution_list': solution_list,
-                   'uic': uic,
-                   }
+        context = self.get_context_data()
+        context['solution_list'] = solution_list
+        context['uic'] = uic
         return render(request, 'changes/index.html', context)
 
 
