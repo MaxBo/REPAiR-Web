@@ -18,6 +18,7 @@ module.exports = {
   },
 
   plugins: [
+    // deactivated because karma doesn't understand the chunks
     //new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendors.js' }),
   ],
   

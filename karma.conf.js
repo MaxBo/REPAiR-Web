@@ -16,7 +16,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'repair/tests/frontend/*.js'
+      'repair/js/tests/*.js',
+      'repair/js/**/*test.js',
     ],
 
 
@@ -29,7 +30,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'spec/**/*Spec.js': ['webpack']
+      'repair/js/tests/*.js': ['webpack'],
+      'repair/js/**/*test.js': ['webpack']
     },
 
 
@@ -71,8 +73,6 @@ module.exports = function(config) {
     
     proxies: {
       '/api': 'http://localhost:8000/api',
-      '/login': 'http://localhost:8000/login',
-      '/home': 'http://localhost:8000'
       }
   })
 }
