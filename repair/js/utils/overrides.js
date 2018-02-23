@@ -44,6 +44,7 @@ define(['backbone', 'underscore'], function (Backbone, _) {
 // add the csrf-token to all unsafe requests, otherwise django would deny access
 define(['jquery', 'browser-cookies'], function ($, cookies) {
   var csrftoken = cookies.get('csrftoken');
+  console.log(csrftoken)
   function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));

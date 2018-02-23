@@ -1,70 +1,44 @@
 describe("Player", function() {
 
-  require('../../repair/js/utils/overrides');
-  var Actors = require('../../repair/js/collections/actors');
-  var actors = new Actors([], {caseStudyId: 7, keyflowId: 30});
-  actors.fetch({
-    success: function(){
-      console.log(actors)
-    }
-  })
-
-  var Player = require('../../lib/jasmine_examples/Player');
-  var Song = require('../../lib/jasmine_examples/Song');
-  var player;
-  var song;
-
-  beforeEach(function() {
-    player = new Player();
-    song = new Song();
+  
+  //var login = function(callback){
+      //var request = new XMLHttpRequest();
+      //var url = '/login/login/';
+      ////var url = this.url + '/wfs?Request=GetCapabilities';
+      //request.open('POST', url, true);
+      //request.setRequestHeader("Content-type", "application/json");
+      
+      //function processRequest(e) {
+        //console.log(e)
+        //console.log(request.status)
+        //console.log(request.responseText)
+        //callback()
+      //}
+      //request.onreadystatechange = processRequest;
+      //request.send({ username: 'admin', password: 'S_fmK10yB$7e' }); 
+    //}
+  
+  require('jquery');
+  //$.get( "/home/").done(function( data ) {
+    //var cookies = require('browser-cookies');
+    //var csrftoken = cookies.get('csrftoken');
+    //console.log(csrftoken);
+  //});
+    
+  var testActors = function(){
+    require('../../repair/js/utils/overrides');
+    var Actors = require('../../repair/js/collections/actors');
+    var actors = new Actors([], {caseStudyId: 7, keyflowId: 30});
+    actors.fetch({
+      success: function(){
+        console.log(actors)
+      }
+  })}
+  
+  $.post( "/login/login/", { username: 'admin', password: 'S_fmK10yB$7e' } ).done(function( data ) {
+    alert( "Data Loaded: " + data );
+    
+    testActors()
   });
 
-  it("should be able to play a Song", function() {
-    player.play(song);
-    expect(player.currentlyPlayingSong).toEqual(song);
-
-    //demonstrates use of custom matcher
-    expect(player).toBePlaying(song);
-  });
-
-  describe("when song has been paused", function() {
-    beforeEach(function() {
-      player.play(song);
-      player.pause();
-    });
-
-    it("should indicate that the song is currently paused", function() {
-      expect(player.isPlaying).toBeFalsy();
-
-      // demonstrates use of 'not' with a custom matcher
-      expect(player).not.toBePlaying(song);
-    });
-
-    it("should be possible to resume", function() {
-      player.resume();
-      expect(player.isPlaying).toBeTruthy();
-      expect(player.currentlyPlayingSong).toEqual(song);
-    });
-  });
-
-  // demonstrates use of spies to intercept and test method calls
-  it("tells the current song if the user has made it a favorite", function() {
-    spyOn(song, 'persistFavoriteStatus');
-
-    player.play(song);
-    player.makeFavorite();
-
-    expect(song.persistFavoriteStatus).toHaveBeenCalledWith(true);
-  });
-
-  //demonstrates use of expected exceptions
-  describe("#resume", function() {
-    it("should throw an exception if song is already playing", function() {
-      player.play(song);
-
-      expect(function() {
-        player.resume();
-      }).toThrowError("song is already playing");
-    });
-  });
 });

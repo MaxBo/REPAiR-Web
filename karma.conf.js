@@ -67,6 +67,12 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+    
+    proxies: {
+      '/api': 'http://localhost:8000/api',
+      '/login': 'http://localhost:8000/login',
+      '/home': 'http://localhost:8000'
+      }
   })
 }
