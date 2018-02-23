@@ -1,12 +1,11 @@
 define(['backbone', 'underscore', 'visualizations/sankey-map',
         'collections/keyflows', 'collections/materials', 
         'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'collections/flows',
-        'collections/stocks', 'visualizations/sankey', 'utils/loader',
+        'collections/activities', 'views/flowsankey', 'utils/loader',
         'hierarchy-select'],
 
 function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups, 
-         Activities, Flows, Stocks, Sankey, Loader){
+         Activities, FlowSankeyView, Loader){
   /**
    *
    * @author Christoph Franke
@@ -50,7 +49,6 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
     events: {
       'change select[name="keyflow"]': 'keyflowChanged',
       'click a[href="#flow-map-panel"]': 'refreshMap',
-      'click #fullscreen-toggle': 'toggleFullscreen',
       'change #data-view-type-select': 'renderSankey'
     },
 
@@ -84,7 +82,10 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
              this.activities.fetch(), this.activityGroups.fetch()).then(function(){
         loader.remove();
         _this.renderMatFilter();
-        _this.renderSankey();
+        _this.flowsView = new FlowSankeyView({
+          el: document.getElementById('sankey-wrapper'),
+          collection: _this.activities
+        })
       })
     },
     
@@ -94,14 +95,6 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
         nodes: '/static/data/nodes.geojson', 
         links: '/static/data/links.csv'
       });
-    },
-    
-    /*
-     * render sankey-diagram in fullscreen
-     */
-    toggleFullscreen: function(){
-      document.getElementById('sankey-wrapper').classList.toggle('fullscreen');
-      this.renderSankey({skipFetch: true});
     },
     
     renderMatFilter: function(){
@@ -219,128 +212,6 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
         })
       }
     },
-    /*
-     * render the sankey diagram
-     *
-     * @param {boolean} options.skipFetch   if True, don't fetch the models to render again, but use the already fetched ones
-     */
-    renderSankey: function(options){
-      var options = options || {};
-      var el = document.getElementById('sankey-wrapper');
-      var loader = new Loader(el, {disable: true});
-      var _this = this;
-      
-      var type = document.getElementById('data-view-type-select').value;
-
-      function render(data){
-        var width = el.clientWidth;
-        // this.el (#data-view) may be hidden at the moment this view is called
-        // (is close to body width then, at least wider as the wrapper of the content),
-        // in this case take width of first tab instead, because this one is always shown first
-        if (width >= document.getElementById('page-content-wrapper').clientWidth)
-          width = document.getElementById('data-entry-tab').clientWidth;
-        var height = el.classList.contains('fullscreen') ?
-                     el.clientHeight: width / 3;
-        var sankey = new Sankey({
-          height: height,
-          width: width,
-          divid: '#sankey',
-          title: ''
-        })
-        sankey.render(data);
-      };
-      
-      // skip reloading data and render
-      if (this.sankeyData != null & options.skipFetch){
-        loader.remove();
-        render(this.sankeyData);
-      }
-      // (re)load and transform data and render
-      else{
-        this.flows = new Flows([], {caseStudyId: this.caseStudy.id,
-                                    keyflowId: this.keyflowId,
-                                    type: type});
-        this.stocks = new Stocks([], {caseStudyId: this.caseStudy.id,
-                                      keyflowId: this.keyflowId,
-                                      type: type});
-        var nodes = (type == 'activity') ? _this.activities :
-                    (type == 'actor') ? _this.actors :
-                    _this.activityGroups;
-        $.when(this.stocks.fetch(), this.flows.fetch()).then(function(){
-          _this.sankeyData = _this.transformData(nodes, _this.flows, _this.stocks);
-          loader.remove();
-          render(_this.sankeyData);
-        }
-        );
-      }
-    },
-    
-    /*
-     * transform the models, their links and the stocks to a json-representation
-     * readable by the sankey-diagram
-     */
-    transformData: function(models, flows, stocks){
-      var _this = this;
-      var nodes = [];
-      var nodeIdxDict = {}
-      var i = 0;
-      models.each(function(model){
-        var id = model.id;
-        var name = model.get('name');
-        nodes.push({id: id, name: name});
-        nodeIdxDict[id] = i;
-        i += 1;
-      });
-      var links = [];
-      
-      function compositionRepr(composition){
-        var text = '';
-          if (composition){
-            var fractions = composition.fractions;
-            var i = 0;
-            fractions.forEach(function(fraction){
-              var material = _this.materials.get(fraction.material);
-              text += fraction.fraction * 100 + '% ';
-              text += material.get('name');
-              if (i < fractions.length - 1) text += '\n';
-              i++;
-            })
-          }
-        return text || ('no composition defined')
-      }
-      
-      flows.each(function(flow){
-        var value = flow.get('amount');
-        var source = nodeIdxDict[flow.get('origin')];
-        var target = nodeIdxDict[flow.get('destination')];
-        var composition = flow.get('composition');
-        
-        links.push({
-          value: flow.get('amount'),
-          units: gettext('t/year'),
-          source: source,
-          target: target,
-          text: compositionRepr(composition)
-        });
-      })
-      stocks.each(function(stock){
-        var id = 'stock-' + stock.id;
-        var source = nodeIdxDict[stock.get('origin')];
-        nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
-        var composition = stock.get('composition');
-        links.push({
-          value: stock.get('amount'),
-          units: gettext('t/year'),
-          source: source,
-          target: i,
-          text: compositionRepr(composition)
-        });
-        i += 1;
-      });
-      var transformed = {nodes: nodes, links: links};
-      return transformed;
-    },
-    
     /*
      * remove this view from the DOM
      */
