@@ -52,12 +52,16 @@ div.fullscreen{
   margin-left: 0px;
   width: 100%;
   height: auto;
-  padding-top: 100px;
+  padding-top: 120px;
   background-color: white;
 }
 
 #tab-content {
   background-color: white;
+}
+
+.tab-pane{
+  min-height: 300px;
 }
 
 #map {
@@ -288,6 +292,10 @@ tr.popunder > td{
   border: 1px solid #e6e6e6;
   padding: 10px;
   background-color: white;
+}
+
+.bordered:hover{
+  border-color: #aad400;
 }
 
 .dashed {
