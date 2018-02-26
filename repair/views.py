@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 from repair.apps.login.models import CaseStudy
+from django.shortcuts import render
 
 
 class BaseView(TemplateView):
@@ -40,6 +41,12 @@ class ModeView(BaseView):
     
     def get(self, request, *args, **kwargs):
         mode = request.session.get('mode', 0)
+        
+        # all pages with modes require a casestudy to be selected
+        if not request.session.get('casestudy', None):
+            return render(request, 'casestudy-missing.html',
+                          self.get_context_data())
+        
         if mode == 1:
             return self.render_setup(request)
         else:

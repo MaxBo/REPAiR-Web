@@ -53,7 +53,7 @@ function(Backbone, _,){
             var _this = this;
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
-            this.el.innerHTML = template({ keyflows: this.keyflows });
+            this.el.innerHTML = template();
 
             var challengesPanel = this.el.querySelector('#challenges').querySelector('.item-panel'),
                 aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
