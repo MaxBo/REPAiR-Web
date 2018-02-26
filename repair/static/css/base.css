@@ -52,12 +52,16 @@ div.fullscreen{
   margin-left: 0px;
   width: 100%;
   height: auto;
-  padding-top: 100px;
+  padding-top: 120px;
   background-color: white;
 }
 
 #tab-content {
   background-color: white;
+}
+
+.tab-pane{
+  min-height: 300px;
 }
 
 #map {

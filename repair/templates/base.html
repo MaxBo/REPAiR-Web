@@ -3,7 +3,6 @@
 {% load staticfiles %}
 {% load i18n %}
 
-
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
@@ -158,52 +157,6 @@
     </div>
   </div> 
   
-  <!-- template for an empty modal -->
-  
-  <script type="text/template" id="empty-modal-template">
-    <div class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title"> <%= header %> </h4>
-          </div>
-          <div class="modal-body">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
-            <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </script>
-
-  <!-- template for hierarchical selection -->
-  <script type="text/template" id="hierarchical-select-template">
-    <div class="btn-group hierarchy-select" data-resize="auto">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        <span class="selected-label pull-left">&nbsp;</span>
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <div class="dropdown-menu open">
-        <div class="hs-searchbox">
-            <input type="text" class="form-control" autocomplete="off">
-        </div>
-        <ul class="dropdown-menu inner" role="menu">
-          <li data-value="" data-level="1" data-default-selected="">
-              <a href="#">{% trans "Select a material"%}</a>
-          </li>
-          <% _.each(options, function(option){ %>
-             <li data-value="<%= option.value %>" data-level="<%= option.level %>" title="<%= option.title %>">
-                <a href="#"><%= option.text %></a>
-            </li>
-          <% }) %>
-        </ul>
-      </div>
-      <input class="hidden hidden-field" readonly="readonly" aria-hidden="true" type="text"/>
-    </div>
-  </script>
-
+{% include 'common.html' %}
 </body>
 </html>

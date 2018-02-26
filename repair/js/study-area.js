@@ -1,12 +1,9 @@
-define([
-  'd3',
-  'models/casestudy',
-  'visualizations/sankey-map',
-  'views/study-area/base-maps',
-  'views/study-area/base-charts',
-  'app-config',
-  'base'
-], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, appConfig) {
+define(['d3', 'models/casestudy', 'visualizations/sankey-map',
+        'views/study-area/base-maps', 'views/study-area/base-charts',
+        'views/study-area/stakeholders',
+        'app-config', 'base'
+], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, 
+            StakeholdersView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -50,12 +47,16 @@ define([
       el: document.getElementById('base-map-setup'),
       caseStudy: caseStudy
     });
-    
     var chartsView = new BaseChartsView({
       template: 'base-charts-template',
       el: document.getElementById('base-charts-setup'),
       caseStudy: caseStudy
-    })
+    });
+    var stakeholdersView = new StakeholdersView({
+      template: 'stakeholders-template',
+      el: document.getElementById('stakeholders-setup'),
+      caseStudy: caseStudy
+    });
   }
   
   var session = appConfig.getSession(
