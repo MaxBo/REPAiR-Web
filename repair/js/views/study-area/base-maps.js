@@ -31,7 +31,6 @@ function(Backbone, _, Map, Loader, config){
       this.template = options.template;
       this.caseStudy = options.caseStudy;
       
-      this.focusarea = options.focusarea;
       this.projection = 'EPSG:4326'; 
       
       var GeoLayers = Backbone.Collection.extend({ url: config.geoserverApi.layers })

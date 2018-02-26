@@ -41,20 +41,8 @@ define([
     });
   }
   
-  var session = appConfig.getSession(
-    function(session){
-      var mode = session['mode'];
-      if (Number(mode) == 1) {
-        var caseStudyId = session['casestudy'];
-        caseStudy = new CaseStudy({id: caseStudyId});
-      
-        caseStudy.fetch({success: function(){
-          renderSetup(caseStudy)
-        }});
-      }
-      else
-        renderWorkshop()
-  });
+  var caseStudyId;
+  var mode;
   
   function renderSetup(caseStudy){
     var mapsView = new BaseMapsView({
@@ -69,5 +57,21 @@ define([
       caseStudy: caseStudy
     })
   }
+  
+  var session = appConfig.getSession(
+    function(session){
+      mode = session['mode'];
+      if (Number(mode) == 1) {
+        caseStudyId = session['casestudy'];
+        caseStudy = new CaseStudy({id: caseStudyId});
+      
+        caseStudy.fetch({success: function(){
+          renderSetup(caseStudy)
+        }});
+      }
+      else {
+        renderWorkshop();
+      }
+  });
   
 });
