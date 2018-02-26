@@ -4,20 +4,20 @@ function(Backbone, _,){
     /**
     *
     * @author Christoph Franke
-    * @name module:views/StakeholdersView
+    * @name module:views/SolutionsView
     * @augments Backbone.View
     */
-    var StakeholdersView = Backbone.View.extend(
-        /** @lends module:views/StakeholdersView.prototype */
+    var SolutionsView = Backbone.View.extend(
+        /** @lends module:views/SolutionsView.prototype */
         {
 
         /**
-        * render setup view on stakeholder categories and stakeholders
+        * render setup view on solutions
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                          element the view will be rendered in
         * @param {string} options.template                         id of the script element containing the underscore template to render this view
-        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add stakeholder categories and stakeholders to
+        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add solutions to
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -31,9 +31,9 @@ function(Backbone, _,){
             
             // ToDo: replace with collections fetched from server
             this.categories = [
-                { name: 'Government', stakeholders: ['City of Amsterdam'] },
-                { name: 'Waste Companies', stakeholders: ['AEB Amsterdam', 'Van Gansewinkel'] },
-                { name: 'NGOs', stakeholders: ['Stichting Natuur en Milieu', 'SNV'] }
+                { name: 'Political', solutions: ['Forbid Plastic Bags in Supermarkets'] },
+                { name: 'Economic', solutions: ['Raise Fees on Garbage Disposal'] },
+                { name: 'Technical', solutions: ['Wood and Insulation Materials', 'Underfloor Collectors'] }
             ]
 
             this.render();
@@ -72,8 +72,7 @@ function(Backbone, _,){
                 button.classList.add("btn", "btn-primary", "square", "add");
                 var span = document.createElement('span');
                 span.classList.add('glyphicon', 'glyphicon-plus');
-                button.innerHTML = gettext('Stakeholder');
-                button.title = gettext('add stakeholder');
+                button.innerHTML = gettext('Solution');
                 button.insertBefore(span, button.firstChild);
                 button.addEventListener('click', function(){
                     // ToDo: add functionality for click event (add stakeholder item)
@@ -84,7 +83,7 @@ function(Backbone, _,){
                 div.appendChild(panel);
                 div.appendChild(button);
                 // add the items
-                _this.addPanelItems(panel, category.stakeholders);
+                _this.addPanelItems(panel, category.solutions);
             })
         },
         
@@ -110,6 +109,6 @@ function(Backbone, _,){
         },
 
     });
-    return StakeholdersView;
+    return SolutionsView;
 }
 );

@@ -1,7 +1,6 @@
-require([
-  'd3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-  'views/status-quo/challenges-aims', 'visualizations/mapviewer', 
-  'app-config', 'utils/overrides', 'base'
+require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
+        'views/status-quo/challenges-aims', 'visualizations/mapviewer', 
+        'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
              MapViewer, appConfig) {
   

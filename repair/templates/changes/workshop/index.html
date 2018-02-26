@@ -1,22 +1,8 @@
-{% extends "base.html" %}
+{% extends "changes/base.html" %}
 {% load i18n %}
-
 {% load render_bundle from webpack_loader %}
 
-{% block sidebar %}
-  <script>
-    document.getElementById("changes-link").classList.add('active');
-  </script>
-  <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
-    <li><a href="#implementations" data-toggle="pill">{% trans "Implementations" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
-    <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
-  </ul>
-{% endblock %}
-
 {% block content %}  
-  {% render_bundle 'vendors' %}
-  {% render_bundle 'Base' %}
 
   <div class="tab-content">
     <div class="tab-pane fade in active" id="solutions">
@@ -52,4 +38,6 @@
     </div>
   </div>
 </html>
+{% render_bundle 'vendors' %}
+{% render_bundle 'Base' %}
 {% endblock %}

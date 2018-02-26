@@ -294,6 +294,10 @@ tr.popunder > td{
   background-color: white;
 }
 
+.bordered:hover{
+  border-color: #aad400;
+}
+
 .dashed {
   border: 2px dashed #aad400;
   padding: 10px;

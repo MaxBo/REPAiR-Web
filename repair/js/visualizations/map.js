@@ -149,8 +149,6 @@ define([
       var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
-      console.log(options.fill)
-      console.log(options.stroke)
       var style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',
