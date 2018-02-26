@@ -326,3 +326,38 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
     opacity: 0.8;
     padding: 3px 7px 3px 7px;
 }
+
+.item-panel{
+  min-height: 500px;
+}
+
+.item-panel .panel-item {
+  background-color: lightgrey;
+  margin-bottom: 15px;
+  list-style-type: none;
+  height: 50px;
+  line-height: 50px;
+  white-space: nowrap;
+  cursor: pointer;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.panel-item label{
+  font-weight: normal;
+}
+
+.panel-item .button-box{
+  float: right;
+  display: none;
+}
+
+.panel-item:hover{
+  background: #aad400;
+}
+.panel-item:hover label{
+  color: white;
+}
+.panel-item:hover .button-box{
+  display: inline;
+}
