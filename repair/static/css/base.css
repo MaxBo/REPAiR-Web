@@ -328,11 +328,14 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 }
 
 .item-panel{
-  min-height: 500px;
+  /*min-height: 500px;*/
 }
 
-.item-panel .panel-item {
-  background-color: lightgrey;
+.panel-item {
+  background-color: white;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #aad400;
   margin-bottom: 15px;
   list-style-type: none;
   height: 50px;
@@ -352,12 +355,21 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   display: none;
 }
 
-.panel-item:hover{
+div.panel-item:hover{
   background: #aad400;
 }
-.panel-item:hover label{
+div.panel-item:hover label{
   color: white;
 }
 .panel-item:hover .button-box{
   display: inline;
+}
+
+/* row with columns that become scrollable instead of breaking */
+.row.overflow{
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.row.overflow>div{
+  display: inline-block;
 }

@@ -62,11 +62,11 @@ function(Backbone, _,){
         },
 
         renderPanel(panel, items){
+            var html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html);
             items.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
-                var html = document.getElementById('panel-item-template').innerHTML
-                var template = _.template(html);
                 panelItem.innerHTML = template({ name: item });
                 panel.appendChild(panelItem);
             })
