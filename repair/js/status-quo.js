@@ -1,8 +1,9 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-        'views/status-quo/challenges-aims', 'visualizations/mapviewer', 
+        'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
+        'visualizations/mapviewer', 
         'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             MapViewer, appConfig) {
+             EvaluationView, MapViewer, appConfig) {
   
   var session = appConfig.getSession(
     function(session){
@@ -73,6 +74,11 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
       caseStudy: caseStudy,
       el: document.getElementById('targets-setup'),
       template: 'targets-template'
+    })
+    var evaluationView = new EvaluationView({ 
+      caseStudy: caseStudy,
+      el: document.getElementById('evaluation-setup'),
+      template: 'evaluation-template'
     })
   };
 });

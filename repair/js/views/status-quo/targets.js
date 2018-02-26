@@ -73,7 +73,7 @@ function(Backbone, _,){
             var _this = this;
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
-            this.el.innerHTML = template({ keyflows: this.keyflows });
+            this.el.innerHTML = template();
             this.renderRows();
         },
 
