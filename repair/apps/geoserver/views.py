@@ -89,11 +89,13 @@ class GeoserverOwsView(View):
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)
 
+
 class WMSProxyView(View):
     def get(self, request, layer_id):
         layer = Layer.objects.get(id=layer_id)
         auth = (layer.user, layer.password) if (layer.user) else None
-        response = requests.get(layer.url, auth=auth)
+        query_params = request.GET
+        response = requests.get(layer.url, params=query_params, auth=auth)
         content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)
