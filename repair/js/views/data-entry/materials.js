@@ -175,7 +175,10 @@ function(Backbone, _, Material, Loader){
         editBtn.style.display = 'None'; 
         removeBtn.style.display = 'None'; 
       }
-      else editBtn.style.display = 'inline';
+      else {
+        editBtn.style.display = 'inline';
+        removeBtn.style.display = 'inline'; 
+      }
       var li = this.materialTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
       if (!li) return;
       this.buttonBox.style.top = li.offsetTop + 10 + 'px';
