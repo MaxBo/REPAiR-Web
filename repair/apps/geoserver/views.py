@@ -7,6 +7,7 @@ import requests
 
 from repair.apps.geoserver.serializers import (GeoserverLayerSerializer,
                                                GeoserverLayer)
+from repair.apps.studyarea.models import Layer
 from repair.settings import GEOSERVER_URL, GEOSERVER_PASS, GEOSERVER_USER
 
 
@@ -84,6 +85,17 @@ class GeoserverOwsView(View):
             suffix += '&srsname=' + srs
         auth = (GEOSERVER_USER, GEOSERVER_PASS)
         response = requests.get(self.url.format(id=id, namespace=namespace) + suffix, auth=auth)
+        content_type = response.headers['content-type']
+        return HttpResponse(response.content, content_type=content_type,
+                            status=response.status_code)
+
+
+class WMSProxyView(View):
+    def get(self, request, layer_id):
+        layer = Layer.objects.get(id=layer_id)
+        auth = (layer.user, layer.password) if (layer.user) else None
+        query_params = request.GET
+        response = requests.get(layer.url, params=query_params, auth=auth)
         content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)

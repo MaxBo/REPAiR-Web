@@ -363,8 +363,12 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 }
 
 .panel-item .button-box{
-  float: right;
   display: none;
+  /*float: right;  <-- does not work in Firefox*/
+  /* the firefox version for aligning buttons right */
+  right: 0px;
+  position: absolute;
+  margin-right: 20px;
 }
 
 div.panel-item:hover{
