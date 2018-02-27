@@ -92,8 +92,6 @@ function(Backbone, _, Map, utils){
             utils.clearSelect(impactSelect);
             var category = evt.target.value,
                 indicators = this.indicators[category];
-            console.log(document.getElementById('category-select').value);
-            console.log(this.indicators)
             indicators.forEach(function(indicator){
                 var option = document.createElement('option');
                 option.text = indicator;
