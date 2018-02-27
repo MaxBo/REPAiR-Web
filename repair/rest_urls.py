@@ -9,7 +9,9 @@ from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet,
     StakeholderViewSet,
     AdminLevelViewSet,
-    AreaViewSet
+    AreaViewSet,
+    LayerCategoryViewSet,
+    LayerViewSet
 )
 
 from repair.apps.changes.views import (
@@ -48,7 +50,7 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
-    WasteViewSet, 
+    WasteViewSet,
 )
 
 from repair.apps.utils.views import PublicationView
@@ -76,8 +78,14 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
+cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
+
+# /casestudies/*/layercategories/...
+layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
+                                     lookup='layercategory')
+layercat_router.register(r'layers', LayerViewSet)
 
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',
@@ -172,4 +180,5 @@ urlpatterns = [
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
+    url(r'^', include(layercat_router.urls)),
 ]
