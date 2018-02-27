@@ -1,6 +1,6 @@
-define(['backbone', 'underscore', 'visualizations/map'],
+define(['backbone', 'underscore', 'visualizations/map', 'utils/utils'],
 
-function(Backbone, _, Map){
+function(Backbone, _, Map, utils){
     /**
     *
     * @author Christoph Franke
@@ -25,10 +25,24 @@ function(Backbone, _, Map){
         initialize: function(options){
             var _this = this;
             _.bindAll(this, 'render');
+            _.bindAll(this, 'categoryChanged');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
             this.projection = 'EPSG:4326'; 
+
+            this.categories = ['Social', 'Economic', 'Environmental']
+
+            this.indicators = {
+                'Social': [],
+                'Economic': ['Effectiveness in achieving behaviour change', 
+                'Public acceptance','Urban space consumption',
+                'Not in my backyard syndrome','Odour',
+                'Stakeholder involvement','Access to green spaces','Accessability / convenience of us of the WM system',
+                'Private space consumption','Visual impacts','Risk perception','Total employment','Inconveniences because of waste management','Mobility (traffic jams)','Noise'],
+                'Environmental': []
+            }
+
             this.render();
         },
 
@@ -36,6 +50,7 @@ function(Backbone, _, Map){
         * dom events (managed by jquery)
         */
         events: {
+            'change #category-select': 'categoryChanged'
         },
 
         /*
@@ -45,31 +60,43 @@ function(Backbone, _, Map){
             var _this = this;
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
-            this.el.innerHTML = template();
-            
+            this.el.innerHTML = template({ categories: this.categories});
+
             this.renderMap();
         },
-    
+
         renderMap: function(){
-          this.map = new Map({
-            divid: 'evaluation-map', 
-          });
-          var focusarea = this.caseStudy.get('properties').focusarea;
-          
-          this.map.addLayer('background', {
-              stroke: '#aad400',
-              fill: 'rgba(170, 212, 0, 0.1)',
-              strokeWidth: 1,
-              zIndex: 0
+            this.map = new Map({
+                divid: 'evaluation-map', 
+            });
+            var focusarea = this.caseStudy.get('properties').focusarea;
+
+            this.map.addLayer('background', {
+                stroke: '#aad400',
+                fill: 'rgba(170, 212, 0, 0.1)',
+                strokeWidth: 1,
+                zIndex: 0
             },
-          );
-          // add polygon of focusarea to both maps and center on their centroid
-          if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
-            this.map.centerOnPolygon(poly, { projection: this.projection });
-          };
+            );
+            // add polygon of focusarea to both maps and center on their centroid
+            if (focusarea != null){
+                var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+                this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+                this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
+                this.map.centerOnPolygon(poly, { projection: this.projection });
+            };
+        },
+
+        categoryChanged: function(evt){
+            var impactSelect = this.el.querySelector('#indicator-select');
+            utils.clearSelect(impactSelect);
+            var category = evt.target.value,
+                indicators = this.indicators[category];
+            indicators.forEach(function(indicator){
+                var option = document.createElement('option');
+                option.text = indicator;
+                impactSelect.appendChild(option);
+            })
         },
 
         /*
