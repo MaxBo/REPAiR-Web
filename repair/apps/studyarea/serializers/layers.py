@@ -9,7 +9,7 @@ class LayerCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LayerCategory
-        fields = ('id', 'casestudy', 'name')
+        fields = ('id', 'name')
 
 
 class LayerSerializer(serializers.ModelSerializer):
@@ -19,7 +19,10 @@ class LayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Layer
-        fields = ('id', 'category', 'name', 'url', 'description', 'user', 'password')
+        fields = ('id', 'name', 'url', 'description',
+                  'credentials_needed', 'user', 'password', 'service_version',
+                  'service_layers', 'is_repair_layer', 'repair_namespace')
+        # don't show credentials, only allow to set them via api
         extra_kwargs = {
             'user': {'write_only': True},
             'password': {'write_only': True}

@@ -41,7 +41,6 @@ define(['browser-cookies'],
      */
     config.api = {
       base:                   '/api', // base Rest-API URL
-      stakeholders:           '/api/stakeholders/',
       casestudies:            '/api/casestudies/',
       publications:           '/api/publications/',
       publicationsInCasestudy:'/api/casestudies/{0}/publications/',
@@ -50,6 +49,10 @@ define(['browser-cookies'],
       keyflows:               '/api/keyflows/',
       qualities:              '/api/qualities/',
       reasons:                '/api/reasons/',
+      stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
+      stakeholders:           '/api/casestudies/{0}/stakeholdercategories/{1}/stakeholders/',
+      layerCategories:        '/api/casestudies/{0}/layercategories',
+      layers:                 '/api/casestudies/{0}/layercategories/{1}/layers',
       keyflowsInCaseStudy:    '/api/casestudies/{0}/keyflows',
       activitygroups:         '/api/casestudies/{0}/keyflows/{1}/activitygroups/',
       activities:             '/api/casestudies/{0}/keyflows/{1}/activities/',
