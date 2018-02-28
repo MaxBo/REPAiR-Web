@@ -162,6 +162,7 @@ define([
     
     addServiceLayer(name, options){
       var layer = new ol.layer.Tile({
+        opacity: options.opacity || 1,
         //extent: [-13884991, 2870341, -7455066, 6338219],
         source: new ol.source.TileWMS({
           url: options.url,

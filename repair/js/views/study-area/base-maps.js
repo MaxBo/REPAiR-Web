@@ -1,8 +1,8 @@
 define(['backbone', 'underscore', 'collections/layercategories', 
-        'collections/layers', 'visualizations/map', 'utils/loader', 
-        'app-config', 'bootstrap-colorpicker'],
+        'collections/layers', 'models/layer', 'visualizations/map', 
+        'utils/loader', 'app-config', 'bootstrap-colorpicker'],
 
-function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
+function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
   /**
    *
    * @author Christoph Franke
@@ -58,7 +58,7 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
       this.layerCategories.each(function(category){
         var layers = new Layers([], { caseStudyId: _this.caseStudy.id, 
                                       layerCategoryId: category.id });
-        var node = { text: category.get('name') };
+        var node = { text: category.get('name'), category: category };
         _this.categoryTree[category.id] = node;
         layerList.push(layers);
         deferred.push(layers.fetch());
@@ -66,11 +66,10 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
       // fetch prepared layers and put informations into the tree nodes
       $.when.apply($, deferred).then(function(){
         layerList.forEach(function(layers){
-          console.log(layers)
           var catNode = _this.categoryTree[layers.layerCategoryId];
           var children = [];
           layers.each(function(layer){
-            var node = { layer: layer, text: layer.get('name') };
+            var node = { layer: layer, text: layer.get('name'), icon: 'fa fa-bookmark' };
             children.push(node);
           });
           catNode.nodes = children;
@@ -106,6 +105,7 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
     },
     
     renderMap: function(){
+      var _this = this;
       this.map = new Map({
         divid: 'base-map', 
       });
@@ -125,17 +125,28 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
         this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
         this.map.centerOnPolygon(poly, { projection: this.projection });
       };
-      //this.map.addServiceLayer('testwms', { 
-          //url: 'http://localhost:8000/geoserver/proxy/1/wms',
-          //params: {'layers': 'napoli:osm_railways_free_1', 'TILED': true},//, 'VERSION': '1.1.0'},
-          ////projection: 'EPSG:4326'//layer.get('srs') 
-      //})
+      // get all layers and render them
+      Object.keys(this.categoryTree).forEach(function(catId){
+        var children = _this.categoryTree[catId].nodes;
+        children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
+      })
     },
     
     rerenderDataTree: function(selectId){
       this.buttonBox.style.display = 'None';
       $(this.layerTree).treeview('remove');
       this.renderDataTree(selectId);
+    },
+    
+    addServiceLayer: function(layer){
+      
+      this.map.addServiceLayer(layer.get('name'), { 
+          opacity: 0.5,
+          url: '/geoserver/proxy/' + layer.id + '/wms',
+          params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
+          //projection: 'EPSG:4326'//layer.get('srs') 
+      })
+    
     },
     
     /*
@@ -148,7 +159,6 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
       var tree = [];
       
       _.each(this.categoryTree, function(category){
-        category.tag = 'category';
         tree.push(category)
       })
       
@@ -161,6 +171,8 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
         onNodeSelected: this.nodeSelected,
         showCheckbox: true
       });
+      
+      $(this.layerTree).treeview('selectNode', 0);
     },
     
     /*
@@ -177,17 +189,17 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
       }
       var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
       if (!li) return;
-      this.buttonBox.style.top = li.offsetTop + 10 + 'px';
+      this.buttonBox.style.top = li.offsetTop + 'px';
       this.buttonBox.style.display = 'inline';
     },
     
     renderAvailableLayers: function(){
       var _this = this;
       
-      $('#colorpicker').colorpicker().on('changeColor',
-        function(ev) { this.style.backgroundColor = this.value; }
-      );
-      colorpicker.value = '#ffffff';
+      //$('#colorpicker').colorpicker().on('changeColor',
+        //function(ev) { this.style.backgroundColor = this.value; }
+      //);
+      //colorpicker.value = '#ffffff';
       var rows = [];
       var table = document.getElementById('available-layers-table');
       
@@ -203,7 +215,7 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
             r.classList.remove('selected');
           });
           row.classList.add('selected');
-          _this.selectedGeoLayer = layer;
+          _this.selectedRepairLayer = layer;
         });
       });
       
@@ -217,10 +229,13 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
     addCategory: function(){
       var _this = this;
       function onConfirm(name){
-        var nextId = Math.max(...Object.keys(_this.categoryTree).map(Number)) + 1;
-        var cat = {text: name, categoryId: nextId};
-        _this.categoryTree[nextId] = cat;
-        _this.rerenderDataTree();
+        var category = new _this.layerCategories.model(
+          { name: name }, { caseStudyId: _this.caseStudy.id })
+        category.save(null, { success: function(){
+          var catNode = { text: name };
+          _this.categoryTree[category.id] = catNode;
+          _this.rerenderDataTree();
+        }})
       }
       this.getName({ 
         title: gettext('Add Category'),
@@ -229,23 +244,28 @@ function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
     },
     
     confirmLayer: function(){
-      var layer = this.selectedGeoLayer;
-      if (!layer) return;
-      var category = this.categoryTree[this.selectedNode.categoryId];
-      var layerNode = { text: layer.get('name'),
-                        layer: layer };
-      var color = this.el.querySelector('#colorpicker').value
-      this.map.addLayer(layer.id, { 
-        fill: color,
-        stroke: color,
-        source: { 
-          url: '/geoserver/ows' + '?id=' + layer.id + '&namespace=' + layer.get('namespace') + '&srs=EPSG:4326',
-          projection: 'EPSG:4326'//layer.get('srs') 
-        } 
-      })
-      if (!category.nodes) category.nodes = [];
-      category.nodes.push(layerNode);
-      this.rerenderDataTree();
+      var _this = this;
+      var repairLayer = this.selectedRepairLayer;
+      if (!repairLayer) return;
+      var category = this.selectedNode.category,
+          catNode = this.categoryTree[category.id];
+          
+      var layer = new Layer({ 
+        name: repairLayer.get('name'), 
+        is_repair_layer: true, 
+        repair_namespace: repairLayer.get('namespace'), 
+        service_layers: repairLayer.get('name'),
+        url: '-' 
+      }, { caseStudyId: this.caseStudy.id, layerCategoryId: category.id });
+      layer.save(null, { success: function(){
+        var layerNode = { text: layer.get('name'),
+                          icon: 'fa fa-bookmark',
+                          layer: layer};
+        if (!catNode.nodes) catNode.nodes = [];
+        catNode.nodes.push(layerNode);
+        _this.rerenderDataTree();
+        _this.addServiceLayer(layer);
+      }})
     },
     
     /*

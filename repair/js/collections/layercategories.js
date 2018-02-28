@@ -1,6 +1,6 @@
-define(["backbone", "app-config"],
+define(["backbone", "models/layercategory", "app-config"],
 
-  function(Backbone, config) {
+  function(Backbone, LayerCategory, config) {
 
    /**
     * @author Christoph Franke
@@ -18,6 +18,8 @@ define(["backbone", "app-config"],
       url: function(){
         return config.api.layerCategories.format(this.caseStudyId);
       },
+      
+      model: LayerCategory,
     
     /**
      * collection for fetching/putting categories of service layer definitions

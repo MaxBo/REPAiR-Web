@@ -7,12 +7,12 @@
 
 <script type="text/template" id="base-map-template">
 <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-3 bordered" style="margin-right: 10px;">
     <div id="layer-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
-      <button id='add-layer-button' class="btn btn-primary square" title="{% trans "add layer" %}" style="pointer-events: auto;">
+      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
-      <button id='remove-button'  class="btn btn-warning square" title="{% trans "remove category/layer" %}" style="pointer-events: auto;">
+      <button id='remove-button'  class="btn btn-warning square" title="{% trans "remove" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
     </div>
@@ -24,11 +24,11 @@
       </button>
     </div>
   </div>
-  <div class="graph col-md-7">
+  <div class="graph col-md-6 bordered" style="margin-right: 10px;">
     <div id='base-map' style='min-height: 600px'>
     </div>
   </div>
-  <div class="graph col-md-2">
+  <div class="graph col-md-2 bordered">
     <h4> {% trans "Legend" %} </h4>
     <div class="row">
       <svg width="30" height="30">
@@ -49,7 +49,7 @@
       </div>
       <div class="modal-body">
         <ul class="nav nav-tabs">
-          <li class="active"><a data-toggle="tab" href="#import-geoserver-tab">{% trans "GDSE Geoserver" %}
+          <li class="active"><a data-toggle="tab" href="#import-geoserver-tab">{% trans "REPAiR Geoserver" %}
           <li><a data-toggle="tab" href="#import-custom-tab">{% trans "Custom Service" %}</a></li>
         </ul>
         <div class="tab-content">
@@ -66,15 +66,15 @@
                 </tbody> 
               </table>
             </div>
-            <div class="row">
-              {% trans "Import as" %}
-              <select>
-                <option selected> GeoJSON </option>
-              </select>
-            </div>
-            <div class="row">
-              {% trans "Color" %} <input id='colorpicker' style="margin-left: 5px"/>
-            </div>
+            <!--<div class="row">-->
+              <!--{% trans "Import as" %}-->
+              <!--<select>-->
+                <!--<option selected> GeoJSON </option>-->
+              <!--</select>-->
+            <!--</div>-->
+            <!--<div class="row">-->
+              <!--{% trans "Color" %} <input id='colorpicker' style="margin-left: 5px"/>-->
+            <!--</div>-->
           </div>
           <div class="tab-pane fade in" id="import-custom-tab">
             <table id='available-layers-table'>
