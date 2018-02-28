@@ -14,6 +14,7 @@ python manage.py dump_object -k changes.strategy --query "{\"user__casestudy__id
 python manage.py dump_object -k publications_bootstrap.publication * > repair\fixtures\sandbox_publications.json
 python manage.py dump_object -k studyarea.area --query "{\"adminlevel__casestudy__id\": 7}"  > repair\fixtures\sandbox_areas.json
 python manage.py dump_object -k studyarea.stakeholdercategory --query "{\"casestudy__id\": 7}"  > repair\fixtures\sandbox_stakeholders.json
+python manage.py dump_object -k studyarea.layercategory --query "{\"casestudy__id\": 7}"  > repair\fixtures\sandbox_layers.json
 
 python manage.py merge_fixtures^
  repair\fixtures\sandbox_groups.json^
@@ -32,12 +33,14 @@ python manage.py merge_fixtures^
  repair\fixtures\sandbox_areas.json^
  repair\fixtures\sandbox_actor.json^
  repair\fixtures\sandbox_stakeholders.json^
+ repair\fixtures\sandbox_layers.json^
  > repair\fixtures\sandbox_data_unordered.json
 
 python manage.py reorder_fixtures repair\fixtures\sandbox_data_unordered.json ^
  auth.group auth.user login.profile login.casestudy login.userincasestudy ^
  asmfa.composition asmfa.product asmfa.waste asmfa.material asmfa.productfraction ^
  studyarea.stakeholdercategory studyarea.stakeholder ^
+ studyarea.layercategory studyarea.stakeholder ^
  changes.unit changes.solutioncategory changes.solution changes.solutionquantity changes.solutionratiooneunit ^
  changes.implementation changes.solutioninimplementation ^
  changes.solutioninimplementationnote changes.solutioninimplementationquantity changes.solutioninimplementationgeometry ^
