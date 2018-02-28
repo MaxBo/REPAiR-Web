@@ -311,9 +311,35 @@ tr.popunder > td{
 button.square, button.round, .btn.square, .btn.round {
   padding: 1px 5px 1px 5px;
   outline: none !important;
-  /*background-color: white !important;*/
-  /*border: solid 1px #aad400;*/
-  /*color: #aad400;*/
+}
+
+.btn-primary {
+  background-color: #aad400;
+  border: solid 1px #aad400;
+}
+
+.btn-primary:focus, .btn-primary:hover, .btn-primary:active {
+  border-color: #93b700 !important;
+  background-color: #a3cc00 !important;
+}
+
+.btn-primary:active {
+  color: #93b700;
+}
+
+.btn-primary.inverted {
+  background-color: white;
+  border: solid 1px #aad400;
+  color: #aad400;
+}
+
+.btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
+  border-color: #93b700 !important;
+  background-color: #f9ffe2 !important;
+}
+
+.btn-primary.inverted:active {
+  color: #93b700;
 }
 
 button.round, .btn.round{
@@ -340,6 +366,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 }
 
 .panel-item {
+  font-size: 1em;
   background-color: white;
   border-style: solid;
   border-width: 1px;
@@ -352,9 +379,8 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   cursor: pointer;
   padding-left: 10px;
   padding-right: 10px;
-  box-shadow: 0px 1px 6px 0px rgba(0,0,0,0.2);
-  transition: height 0.2s;
-  transition: margin 0.2s;
+  transition: height 0.25s;
+  transition: margin 0.25s;
   border-radius: 5px;
 }
 
@@ -371,12 +397,17 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   margin-right: 20px;
 }
 
+div.panel-item{
+  box-shadow: 0px 1px 6px 0px rgba(0,0,0,0.2);
+}
+
 div.panel-item:hover{
+  font-size: 1.1em;
   background: #aad400;
   box-shadow: 1px 3px 10px 1px rgba(0,0,0,0.2);
   border-width: 3px;
   height: 56px;
-  line-height: 56px;
+  line-height: 50px;
   margin-left: -3px;
   margin-right: -3px;
 }
