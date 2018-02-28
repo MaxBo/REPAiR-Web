@@ -1,7 +1,8 @@
-define(['backbone', 'underscore', 'visualizations/map', 'utils/loader', 
+define(['backbone', 'underscore', 'collections/layercategories', 
+        'collections/layers', 'visualizations/map', 'utils/loader', 
         'app-config', 'bootstrap-colorpicker'],
 
-function(Backbone, _, Map, Loader, config){
+function(Backbone, _, LayerCategories, Layers, Map, Loader, config){
   /**
    *
    * @author Christoph Franke
@@ -36,17 +37,46 @@ function(Backbone, _, Map, Loader, config){
       var GeoLayers = Backbone.Collection.extend({ url: config.geoserverApi.layers })
       
       this.geoLayers = new GeoLayers();
+      this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
       
       this.categoryTree = {
-        1: {text: 'Group 1', categoryId: 1}, 
-        2: {text: 'Group 2', categoryId: 2}
       }
     
       var loader = new Loader(this.el, {disable: true});
-      this.geoLayers.fetch({ success: function(){
+      $.when(this.geoLayers.fetch(), this.layerCategories.fetch()).then(function(){
         loader.remove();
+        _this.initTree();
+      })
+    },
+    
+    initTree: function(){
+      var _this = this;
+      var deferred = [],
+          layerList = [];
+      // put nodes for each category into the tree and prepare fetching the layers
+      // per category
+      this.layerCategories.each(function(category){
+        var layers = new Layers([], { caseStudyId: _this.caseStudy.id, 
+                                      layerCategoryId: category.id });
+        var node = { text: category.get('name') };
+        _this.categoryTree[category.id] = node;
+        layerList.push(layers);
+        deferred.push(layers.fetch());
+      });
+      // fetch prepared layers and put informations into the tree nodes
+      $.when.apply($, deferred).then(function(){
+        layerList.forEach(function(layers){
+          console.log(layers)
+          var catNode = _this.categoryTree[layers.layerCategoryId];
+          var children = [];
+          layers.each(function(layer){
+            var node = { layer: layer, text: layer.get('name') };
+            children.push(node);
+          });
+          catNode.nodes = children;
+        });
         _this.render();
-      }});
+      })
     },
 
     /*
@@ -95,6 +125,11 @@ function(Backbone, _, Map, Loader, config){
         this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
         this.map.centerOnPolygon(poly, { projection: this.projection });
       };
+      //this.map.addServiceLayer('testwms', { 
+          //url: 'http://localhost:8000/geoserver/proxy/1/wms',
+          //params: {'layers': 'napoli:osm_railways_free_1', 'TILED': true},//, 'VERSION': '1.1.0'},
+          ////projection: 'EPSG:4326'//layer.get('srs') 
+      //})
     },
     
     rerenderDataTree: function(selectId){

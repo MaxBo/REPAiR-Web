@@ -19,7 +19,10 @@ class LayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Layer
-        fields = ('id', 'category', 'name', 'url', 'description', 'user', 'password')
+        fields = ('id', 'category', 'name', 'url', 'description',
+                  'credentials_needed', 'user', 'password', 'service_version',
+                  'service_layers')
+        # don't show credentials, only allow to set them via api
         extra_kwargs = {
             'user': {'write_only': True},
             'password': {'write_only': True}

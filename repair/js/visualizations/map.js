@@ -129,15 +129,14 @@ define([
      * @param {string} [options.strokeWidth=3]                   width of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
      * @param {string=} options.zIndex                           z-index of the layer
-     * @param {string=} options.source                           source layer
+     * @param {Object=} options.source                           source layer
      * @param {string=} options.source.projection                projection of the source
-     * @param {string=} options.source.url                       url to source
      *
      */
     addLayer(name, options){
       var options = options || {};
       var sourceopt = options.source || {};
-      
+      var source;
       if (sourceopt.url){
         var source = new ol.source.Vector({
           format: new ol.format.GeoJSON(),
@@ -145,7 +144,6 @@ define([
           projection : sourceopt.projection || this.mapProjection,
         })
       }
-      
       var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
@@ -160,6 +158,21 @@ define([
       });
       layer.setStyle(style);
       if (options.zIndex) layer.setZIndex(options.zIndex);
+    }
+    
+    addServiceLayer(name, options){
+      var layer = new ol.layer.Tile({
+        //extent: [-13884991, 2870341, -7455066, 6338219],
+        source: new ol.source.TileWMS({
+          url: options.url,
+          params: options.params,
+          serverType: 'geoserver',
+          // Countries have transparency, so do not fade tiles:
+          transition: 0
+        })
+      })
+      this.layers[name] = layer;
+      this.map.addLayer(layer);
     }
     
     /**
