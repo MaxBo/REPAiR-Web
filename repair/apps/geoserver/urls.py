@@ -11,6 +11,6 @@ urlpatterns = [
     url(r'^', include(rest_router.urls)), 
 
     url(r'^ows',
-        views.GeoserverOwsView.as_view(),
+        views.GeoserverWfsView.as_view(),
         name='ows')
 ]

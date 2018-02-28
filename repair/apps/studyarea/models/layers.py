@@ -26,3 +26,7 @@ class Layer(GDSEModel):
     # service query parameters 
     service_version = models.TextField(null=True, blank=True)
     service_layers = models.TextField(null=True, blank=True)
+    
+    # is it located on our GDSE geoserver?
+    is_repair_layer = models.BooleanField(default=False)
+    repair_namespace = models.TextField(null=True, blank=True)
