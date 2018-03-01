@@ -54,7 +54,11 @@ from repair.apps.asmfa.views import (
 )
 from repair.apps.statusquo.views import (AimViewSet,
                                          ChallengeViewSet,
-                                         TargetViewSet)
+                                         TargetViewSet,
+                                         SustainabilityFieldViewSet,
+                                         ImpactcategoryViewSet,
+                                         ImpactCategoryInSusytainabilityViewSet,
+                                         AreaOfProtectionViewSet)
 
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
@@ -70,9 +74,16 @@ router.register(r'products', ProductViewSet)
 router.register(r'wastes', WasteViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
+router.register(r'sustainabilities', SustainabilityFieldViewSet)
+router.register(r'impactcategories', ImpactcategoryViewSet)
 
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
+# / sustainabilities/../
+sus_router = NestedDefaultRouter(router, r'sustainabilities',
+                                 lookup='sustainability')
+sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
+sus_router.register(r'impactcategories', ImpactCategoryInSusytainabilityViewSet)
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
@@ -176,6 +187,7 @@ url(r'^api/payload', include('repair.static.webhook.urls'))
 urlpatterns = [
     url(r'^docs/', include_docs_urls(title='REPAiR API Documentation')),
     url(r'^', include(router.urls)),
+    url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(ag_router.urls)),
     url(r'^', include(ac_router.urls)),

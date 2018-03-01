@@ -7,21 +7,24 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
                                            NestedHyperlinkedRelatedField,
+                                           NestedHyperlinkedRelatedField2,
                                            IDRelatedField,
-                                           CreateWithUserInCasestudyMixin)
+                                           CreateWithUserInCasestudyMixin,
+                                           UserInCasestudyField)
 from repair.apps.statusquo.models import (Aim,
                                           Challenge,
-                                          IndicatorAreaOfProtection,
-                                          IndicatorImpactCategory,
-                                          IndicatorSustainabilityField,
+                                          AreaOfProtection,
+                                          ImpactCategory,
+                                          ImpactCategoryInSustainability,
+                                          SustainabilityField,
                                           Target,
                                           TargetSpatialReference,
                                           TargetValue)
+from rest_framework.serializers import HyperlinkedModelSerializer
 
 
 class AimSerializer(InCasestudySerializerMixin,
-                    NestedHyperlinkedModelSerializer,
-                    InCasestudyListField):
+                    NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
     text = serializers.CharField()
@@ -30,13 +33,34 @@ class AimSerializer(InCasestudySerializerMixin,
         model = Aim
         fields = ('url',
                   'id',
-                  'casestudy',
+                  'text',
+                  'casestudy')
+
+
+class AimPostSerializer(InCasestudySerializerMixin,
+                        NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    text = serializers.CharField()
+
+    class Meta:
+        model = Aim
+        fields = ('url',
+                  'id',
                   'text')
 
 
-class ChallengeSerializer(InCasestudySerializerMixin,
-                          NestedHyperlinkedModelSerializer,
-                          InCasestudyListField):
+class ChallengeSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    text = serializers.CharField()
+
+    class Meta:
+        model = Challenge
+        fields = ('url',
+                  'id',
+                  'text')
+
+
+class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
     text = serializers.CharField()
@@ -48,27 +72,27 @@ class ChallengeSerializer(InCasestudySerializerMixin,
                   'casestudy',
                   'text')
 
-class IndicatorAreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
+class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'sustainability_pk': 'sustainability_field__id'}
     name = serializers.CharField()
     sustainability_field = IDRelatedField()
 
     class Meta:
-        model = IndicatorAreaOfProtection
+        model = AreaOfProtection
         fields = ('url',
                   'id',
                   'name',
                   'sustainability_field')
 
 
-class IndicatorImpactCategorySerielizer(NestedHyperlinkedModelSerializer):
+class ImpactCategorySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     name = serializers.CharField()
     area_of_protection = IDRelatedField()
     spatial_differentiation = serializers.BooleanField()
 
     class Meta:
-        model = IndicatorImpactCategory
+        model = ImpactCategory
         fields = ('url',
                   'id',
                   'name',
@@ -76,21 +100,33 @@ class IndicatorImpactCategorySerielizer(NestedHyperlinkedModelSerializer):
                   'spatial_differentiation')
 
 
-class IndicatorSustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
+class ImpactCategoryInSustainabilitySerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'sustainability_pk': 'sustainability_field__id'}
+    impact_category = IDRelatedField()
+
+    class Meta:
+        model = ImpactCategory
+        fields = ('url',
+                  'id',
+                  'impact_category')
+
+
+class SustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     name = serializers.CharField()
 
     class Meta:
-        model = IndicatorSustainabilityField
+        model = SustainabilityField
         fields = ('url',
                   'id',
                   'name')
 
 
-class TargetSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
-    casestudy = IDRelatedField()
-    user = IDRelatedField()
+class TargetSerializer(CreateWithUserInCasestudyMixin,
+                       NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail')
     aim = IDRelatedField()
     impact_category = IDRelatedField()
     target_value = IDRelatedField()
@@ -100,7 +136,6 @@ class TargetSerializer(NestedHyperlinkedModelSerializer):
         model = Target
         fields = ('url',
                   'id',
-                  'casestudy',
                   'user',
                   'aim',
                   'impact_category',

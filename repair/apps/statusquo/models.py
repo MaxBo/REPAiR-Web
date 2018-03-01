@@ -4,7 +4,7 @@ from django.db import models
 #from __future__ import unicode_literals
 
 
-from repair.apps.login.models import (CaseStudy, User, GDSEModel)
+from repair.apps.login.models import (UserInCasestudy, CaseStudy, User, GDSEModel)
 
 
 
@@ -18,20 +18,25 @@ class Challenge(GDSEModel):
     text = models.CharField(max_length=255)
 
 
-class IndicatorSustainabilityField(GDSEModel):
+class SustainabilityField(GDSEModel):
     name = models.CharField(max_length=255)
 
 
-class IndicatorAreaOfProtection(GDSEModel):
+class AreaOfProtection(GDSEModel):
     name = models.CharField(max_length=255)
-    sustainability_field = models.ForeignKey(IndicatorSustainabilityField,
+    sustainability_field = models.ForeignKey(SustainabilityField,
                                              on_delete=models.CASCADE)
 
-class IndicatorImpactCategory(GDSEModel):
+class ImpactCategory(GDSEModel):
     name = models.CharField(max_length=255)
-    area_of_protection = models.ForeignKey(IndicatorAreaOfProtection,
+    area_of_protection = models.ForeignKey(AreaOfProtection,
                                            on_delete=models.CASCADE)
     spatial_differentiation = models.BooleanField()
+
+
+class ImpactCategoryInSustainability(GDSEModel):
+    impact_category = models.ForeignKey(ImpactCategory,
+                                        on_delete=models.CASCADE)
 
 
 class TargetSpatialReference(GDSEModel):
@@ -46,10 +51,9 @@ class TargetValue(GDSEModel):
 
 
 class Target(GDSEModel):
-    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     aim = models.ForeignKey(Aim, on_delete=models.CASCADE)
-    impact_category = models.ForeignKey(IndicatorImpactCategory,
+    impact_category = models.ForeignKey(ImpactCategory,
                                         on_delete=models.CASCADE)
     target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
     spatial_reference = models.ForeignKey(TargetSpatialReference,
