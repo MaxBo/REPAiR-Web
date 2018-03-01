@@ -8,6 +8,25 @@ from django.utils.translation import ugettext as _
 from rest_framework import viewsets
 from repair.views import BaseView
 import numpy as np
+from repair.apps.login.views import  CasestudyViewSetMixin
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     ReadUpdatePermissionViewSet)
+from repair.apps.statusquo.serializers import (AimSerializer,
+                                               ChallengeSerializer,
+                                               IndicatorAreaOfProtectionSerializer,
+                                               IndicatorImpactCategorySerielizer,
+                                               IndicatorSustainabilityFieldSerializer,
+                                               TargetSerializer,
+                                               TargetSpatialReferenceSerializer,
+                                               TargetValueSerializer)
+from repair.apps.statusquo.models import (Aim,
+                                          Challenge,
+                                          IndicatorAreaOfProtection,
+                                          IndicatorImpactCategory,
+                                          IndicatorSustainabilityField,
+                                          Target,
+                                          TargetSpatialReference,
+                                          TargetValue)
 
 
 class Testgraph1(TemplateView):
@@ -31,3 +50,22 @@ class StatusQuoView(BaseView):
         context['casestudies'] = self.casestudies()
         html = template.render(context, request)
         return HttpResponse(html)
+
+
+class AimViewSet(CasestudyViewSetMixin,
+                 ModelPermissionViewSet):
+    queryset = Aim.objects.all()
+    serializer_class = AimSerializer
+
+
+class ChallengeViewSet(CasestudyViewSetMixin,
+                       ModelPermissionViewSet):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
+
+
+class TargetViewSet(ModelPermissionViewSet):
+    queryset = Target.objects.all()
+    serializer_class = TargetSerializer
+
+

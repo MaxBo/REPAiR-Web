@@ -7,7 +7,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyListField,
                                            IdentityFieldMixin,
                                            NestedHyperlinkedRelatedField,
-                                           IDRelatedField)
+                                           IDRelatedField,
+                                           CreateWithUserInCasestudyMixin)
 from repair.apps.statusquo.models import (Aim,
                                           Challenge,
                                           IndicatorAreaOfProtection,
@@ -18,8 +19,10 @@ from repair.apps.statusquo.models import (Aim,
                                           TargetValue)
 
 
-class AimSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
+class AimSerializer(InCasestudySerializerMixin,
+                    NestedHyperlinkedModelSerializer,
+                    InCasestudyListField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
     text = serializers.CharField()
 
@@ -31,8 +34,10 @@ class AimSerializer(NestedHyperlinkedModelSerializer):
                   'text')
 
 
-class ChallengeSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {}
+class ChallengeSerializer(InCasestudySerializerMixin,
+                          NestedHyperlinkedModelSerializer,
+                          InCasestudyListField):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
     text = serializers.CharField()
 
@@ -115,6 +120,19 @@ class TargetValueSerializer(NestedHyperlinkedModelSerializer):
                   'text',
                   'number',
                   'factor')
+
+
+class TargetSpatialReferenceSerializer(NestedHyperlinkedModelSerializer):
+    name = serializers.CharField()
+    text = serializers.CharField()
+
+    class Meta:
+        model = TargetSpatialReference
+        fields = ('url',
+                  'id',
+                  'name',
+                  'text')
+
 
 
 

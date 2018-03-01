@@ -31,7 +31,7 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
-    ReasonViewSet, 
+    ReasonViewSet,
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
@@ -48,8 +48,11 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
-    WasteViewSet, 
+    WasteViewSet,
 )
+from repair.apps.statusquo.views import (AimViewSet,
+                                         ChallengeViewSet,
+                                         TargetViewSet)
 
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
@@ -66,6 +69,7 @@ router.register(r'wastes', WasteViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
 
+
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 
 # /casestudies/...
@@ -78,6 +82,8 @@ cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
+cs_router.register(r'aims', AimViewSet)
+cs_router.register(r'challenges', ChallengeViewSet)
 
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',
@@ -85,10 +91,12 @@ levels_router = NestedSimpleRouter(cs_router, r'levels',
 levels_router.register(r'areas', AreaViewSet)
 
 
-# /casestudies/*/stakeholdercategories/...
+# /casestudies/*/users/...
 user_router = NestedSimpleRouter(cs_router, r'users',
                                   lookup='user')
 user_router.register(r'implementations', ImplementationOfUserViewSet)
+user_router.register(r'targets', TargetViewSet)
+
 
 
 # /casestudies/*/stakeholdercategories/...
