@@ -13,8 +13,9 @@ function ($, ready) {
     // hide sidebar if there is no content in it
      if (document.getElementById('sidebar-content').childElementCount == 0){
        document.getElementById('wrapper').style.paddingLeft = '0px';
-       document.getElementById('sidebar-wrapper').style.display = 'none';
-     };
+     }
+     else 
+       document.getElementById('sidebar-wrapper').style.display = 'inline';
      
      function toggleShow(element){
        closeDropdowns();

@@ -57,9 +57,9 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         driver.find_element_by_xpath("//table[@id='location-area-table']/tbody/tr[4]/td[2]/select").click()
         driver.find_element_by_id("confirm-location").click()
         driver.find_element_by_id("upload-actor-button").click()
-        driver.find_element_by_xpath("//input[@type='search']").click()
-        driver.find_element_by_xpath("//input[@type='search']").clear()
-        driver.find_element_by_xpath("//input[@type='search']").send_keys("test123")
+        #driver.find_element_by_xpath("//input[@type='search']").click()
+        #driver.find_element_by_xpath("//input[@type='search']").clear()
+        #driver.find_element_by_xpath("//input[@type='search']").send_keys("test123")
 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)

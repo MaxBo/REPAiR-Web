@@ -12,24 +12,3 @@
     <li><a href="#stakeholders-content" data-toggle="pill">{% trans "Stakeholders" %} <span class="sub-icon fa fa-users"></span></a></li>
   </ul>
 {% endblock %}
-
-{% block content %}
-  <div class="tab-content">
-    <div class="tab-pane fade in active" id="base-map-content">
-      {% if request.session.mode == 0 %}
-        {% include "studyarea/workshop_basedata.html" %}
-      {% else %}
-        {% include "studyarea/setup_basedata.html" %}
-      {% endif %}
-    </div>
-    <div class="tab-pane fade" id="base-charts-content">
-    </div>
-    <div class="tab-pane fade" id="stakeholders-content">
-      {% if request.session.mode == 0 %}
-        {% include "studyarea/workshop_stakeholders.html" %}
-      {% endif %}
-    </div>
-  </div>
-  {% render_bundle 'vendors' %}
-  {% render_bundle 'StudyArea' %}
-{% endblock %}

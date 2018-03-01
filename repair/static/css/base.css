@@ -8,6 +8,10 @@ body {
   background-color: white;
 }
 
+a {
+  color: #aad400;
+}
+
 .row{
     margin-left:0px;
     margin-right:0px;
@@ -48,12 +52,16 @@ div.fullscreen{
   margin-left: 0px;
   width: 100%;
   height: auto;
-  padding-top: 100px;
+  padding-top: 120px;
   background-color: white;
 }
 
 #tab-content {
   background-color: white;
+}
+
+.tab-pane{
+  min-height: 300px;
 }
 
 #map {
@@ -140,6 +148,7 @@ div.fullscreen{
   position: fixed;
   right: -9999px;
   width: 100%;
+  min-height: 300px;
 }
 .tab-pane.active {
   position: relative;
@@ -168,6 +177,11 @@ tr.strikeout td:before {
     border-bottom: 2px solid red;
     width: 100%;
 }
+tr.selected td{
+    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    border-bottom: 2px solid #aad400;
+    border-top: 2px solid #aad400;
+}
 
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
@@ -183,7 +197,7 @@ th {
   z-index: 1;
   width: 150px;
   height: 150px;
-  margin: -75px 0 0 -75px;
+  /*margin: -75px 0 0 -75px;*/
   border: 16px solid #f3f3f3;
   border-radius: 50%;
   border-top: 16px solid #aad400;
@@ -280,18 +294,52 @@ tr.popunder > td{
   background-color: white;
 }
 
+.bordered:hover{
+  border-color: #aad400;
+}
+
 .dashed {
   border: 2px dashed #aad400;
   padding: 10px;
   background-color: white;
 }
 
+.modal{
+    top: 80px;
+}
+
 button.square, button.round, .btn.square, .btn.round {
   padding: 1px 5px 1px 5px;
   outline: none !important;
-  /*background-color: white !important;*/
-  /*border: solid 1px #aad400;*/
-  /*color: #aad400;*/
+}
+
+.btn-primary {
+  background-color: #aad400;
+  border: solid 1px #aad400;
+}
+
+.btn-primary:focus, .btn-primary:hover, .btn-primary:active {
+  border-color: #93b700 !important;
+  background-color: #a3cc00 !important;
+}
+
+.btn-primary:active {
+  color: #93b700;
+}
+
+.btn-primary.inverted {
+  background-color: white;
+  border: solid 1px #aad400;
+  color: #aad400;
+}
+
+.btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
+  border-color: #93b700 !important;
+  background-color: #f9ffe2 !important;
+}
+
+.btn-primary.inverted:active {
+  color: #93b700;
 }
 
 button.round, .btn.round{
@@ -302,4 +350,79 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   /*background-color: #aad400 !important;*/
   /*border: none;*/
   /*color: white;*/
+}
+
+.fullscreen-toggle{
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
+}
+
+.item-panel{
+  /*min-height: 500px;*/
+}
+
+.panel-item {
+  font-size: 1em;
+  background-color: white;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #aad400;
+  margin-bottom: 15px;
+  list-style-type: none;
+  height: 50px;
+  line-height: 50px;
+  white-space: nowrap;
+  cursor: pointer;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: height 0.25s;
+  transition: margin 0.25s;
+  border-radius: 5px;
+}
+
+.panel-item label{
+  font-weight: normal;
+}
+
+.panel-item .button-box{
+  display: none;
+  /*float: right;  <-- does not work in Firefox*/
+  /* the firefox version for aligning buttons right */
+  right: 0px;
+  position: absolute;
+  margin-right: 20px;
+}
+
+div.panel-item{
+  box-shadow: 0px 1px 6px 0px rgba(0,0,0,0.2);
+}
+
+div.panel-item:hover{
+  font-size: 1.1em;
+  background: #aad400;
+  box-shadow: 1px 3px 10px 1px rgba(0,0,0,0.2);
+  border-width: 3px;
+  height: 56px;
+  line-height: 50px;
+  margin-left: -3px;
+  margin-right: -3px;
+}
+div.panel-item:hover label{
+  color: white;
+}
+.panel-item:hover .button-box{
+  display: inline;
+}
+
+/* row with columns that become scrollable instead of breaking */
+.row.overflow{
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.row.overflow>div{
+  display: inline-block;
 }

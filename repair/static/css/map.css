@@ -1,20 +1,20 @@
-#map * path {
+.sankeymap * path {
   fill: none;
   stroke: #4682B4;
   stroke-opacity: 0.6;
   stroke-linecap: round;
   cursor: pointer;
 }
-#map * path:hover {
+.sankeymap * path:hover {
   stroke-opacity: 0.8;
   stroke: #315B7E;
 }
-#map * .curvesettings {
+.sankeymap * .curvesettings {
   position: absolute;
   right: 10px;
   top:6px;
 }
-#map * .box {
+.sankeymap * .box {
   border: 1px solid #EEE;
   margin: 3px;
   padding: 5px;
@@ -22,15 +22,15 @@
   font-family: sans-serif;
   font-size: 12px;
 }
-#map * .title {
+.sankeymap * .title {
   font-weight: 600;
 }
-#map * .source {
+.sankeymap * .source {
   position: absolute;
   width: 50%;
   top: 6px;
   left: 50px;
 }
-#map * .leaflet-top, #map * .leaflet-bottom {
+.sankeymap * .leaflet-top, .sankeymap * .leaflet-bottom {
   z-index: 5 !IMPORTANT;
 }

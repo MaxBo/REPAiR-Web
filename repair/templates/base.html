@@ -3,7 +3,6 @@
 {% load staticfiles %}
 {% load i18n %}
 
-
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
@@ -55,7 +54,7 @@
                 <input name="casestudy" id="casestudy" type="hidden">
                 <div class="dropdown">
                   <button class="dropdown-button" type="button">
-                    {% trans "Casestudy" %}
+                    {% if casestudy %} {{ casestudy.name }} {% else %} {% trans "Casestudy" %} {% endif %}
                     <span class="caret"></span>
                   </button>
                   <div class="dropdown-content">
@@ -85,7 +84,7 @@
                 <input name="mode" id="mode" type="hidden">
                 <div class="dropdown">
                   <button class="dropdown-button" type="button">
-                    {% trans "Mode" %}
+                    {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
                     <span class="caret"></span>
                   </button>
                   <div class="dropdown-content">
@@ -136,7 +135,7 @@
     </div>
   </nav>
   <div id="wrapper" class="active">
-    <div id="sidebar-wrapper">
+    <div id="sidebar-wrapper" style="display: None;">
       </br>
       </br>
       <div id="sidebar-content">
@@ -150,13 +149,14 @@
       <div class="page-content inset">
         <div class="row">
           <div id="content" class="col-md-12">
-                {% block content %}{% endblock %}
+              {% block content %}{% endblock %}
             </div>
           </div>
         </div>
       </div>
     </div>
   </div> 
-
+  
+{% include 'common.html' %}
 </body>
 </html>

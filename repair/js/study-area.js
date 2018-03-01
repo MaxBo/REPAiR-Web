@@ -1,9 +1,9 @@
-define([
-  'd3',
-  'visualizations/sankey-map',
-  'app-config',
-  'base'
-], function(d3, MapView, appConfig) {
+define(['d3', 'models/casestudy', 'visualizations/sankey-map',
+        'views/study-area/base-maps', 'views/study-area/base-charts',
+        'views/study-area/stakeholders',
+        'app-config', 'base'
+], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, 
+            StakeholdersView, appConfig) {
 
   function renderWorkshop(){
     NodeHandler = function(){
@@ -30,7 +30,7 @@ define([
     
     handler.add(callbackTest);
     
-    var map = new MapView({
+    var map = new SankeyMap({
       divid: 'map', 
       nodes: '/static/data/nodes.geojson', 
       links: '/static/data/links.csv',
@@ -38,18 +38,41 @@ define([
     });
   }
   
-  function renderSetup(){
-    
+  var caseStudyId;
+  var mode;
+  
+  function renderSetup(caseStudy){
+    var mapsView = new BaseMapsView({
+      template: 'base-map-template',
+      el: document.getElementById('base-map-setup'),
+      caseStudy: caseStudy
+    });
+    var chartsView = new BaseChartsView({
+      template: 'base-charts-template',
+      el: document.getElementById('base-charts-setup'),
+      caseStudy: caseStudy
+    });
+    var stakeholdersView = new StakeholdersView({
+      template: 'stakeholders-template',
+      el: document.getElementById('stakeholders-setup'),
+      caseStudy: caseStudy
+    });
   }
   
   var session = appConfig.getSession(
     function(session){
-      var caseStudyId = session['casestudy'];
-      var mode = session['mode'];
-      console.log(mode)
-      if (Number(mode) == 1) 
-        renderSetup()
-      else
-        renderWorkshop()
+      mode = session['mode'];
+      if (Number(mode) == 1) {
+        caseStudyId = session['casestudy'];
+        caseStudy = new CaseStudy({id: caseStudyId});
+      
+        caseStudy.fetch({success: function(){
+          renderSetup(caseStudy)
+        }});
+      }
+      else {
+        renderWorkshop();
+      }
   });
+  
 });

@@ -6,7 +6,9 @@ from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets
-from repair.views import BaseView
+from repair.views import ModeView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 import numpy as np
 from repair.apps.login.views import  CasestudyViewSetMixin
 from repair.apps.utils.views import (ModelPermissionViewSet,
@@ -42,30 +44,16 @@ class Testgraph1(TemplateView):
 
         return div
 
-class StatusQuoView(BaseView):
-    def get(self, request):
-        template = loader.get_template('statusquo/index.html')
-        context = {}
+
+class StatusQuoView(LoginRequiredMixin, ModeView):
+
+    def render_setup(self, request):
+        return render(request, 'statusquo/setup/index.html', self.get_context_data())
+    
+    def render_workshop(self, request):
+        template = loader.get_template('statusquo/workshop/index.html')
+        context = self.get_context_data()
         context['indicatorgraph'] = Testgraph1().get_context_data()
         context['casestudies'] = self.casestudies()
         html = template.render(context, request)
         return HttpResponse(html)
-
-
-class AimViewSet(CasestudyViewSetMixin,
-                 ModelPermissionViewSet):
-    queryset = Aim.objects.all()
-    serializer_class = AimSerializer
-
-
-class ChallengeViewSet(CasestudyViewSetMixin,
-                       ModelPermissionViewSet):
-    queryset = Challenge.objects.all()
-    serializer_class = ChallengeSerializer
-
-
-class TargetViewSet(ModelPermissionViewSet):
-    queryset = Target.objects.all()
-    serializer_class = TargetSerializer
-
-
