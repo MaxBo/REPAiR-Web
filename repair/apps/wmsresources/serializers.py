@@ -1,10 +1,5 @@
-import datetime
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
-from django.core.validators import URLValidator
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.exceptions import ValidationError
-
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.wmsresources.models import (WMSResourceInCasestudy,
@@ -23,6 +18,7 @@ class LayerStyleSerializer(NestedHyperlinkedModelSerializer):
         model = LayerStyle
         fields = (
             'id',
+            'name',
             'title',
             'legend_uri',
             )
@@ -50,7 +46,6 @@ class WMSResourceInCasestudySerializer(InCasestudySerializerMixin,
 
     wmsresource_id = serializers.CharField(source='wmsresource.id',
                                            required=False)
-    casestudy = serializers.IntegerField(required=False, write_only=True)
     wms_uri = serializers.CharField(source='wmsresource.uri')
     name = serializers.CharField(source='wmsresource.name')
     layers = WMSLayerSerializer(source='wmsresource.wmslayer_set', many=True)
@@ -61,7 +56,6 @@ class WMSResourceInCasestudySerializer(InCasestudySerializerMixin,
         fields = ('url',
                   'id',
                   'wmsresource_id',
-                  'casestudy',
                   'wms_uri',
                   'name',
                   'layers',

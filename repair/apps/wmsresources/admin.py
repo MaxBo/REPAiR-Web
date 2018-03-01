@@ -33,5 +33,6 @@ class CustomWMSResourceAdmin(VersionAdmin, WMSResourceAdmin):
                 casestudy=casestudy,
                 wmsresource=obj)
 
+
 admin.site.unregister(WMSResource)
 admin.site.register(WMSResource, CustomWMSResourceAdmin)

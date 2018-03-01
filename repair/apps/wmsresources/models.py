@@ -2,7 +2,7 @@
 from django.db import models
 from repair.apps.login.models import (CaseStudy, GDSEModel)
 
-from wms_client.models import (WMSResource)
+from wms_client.models import WMSResource
 
 
 class WMSResourceInCasestudy(GDSEModel):
