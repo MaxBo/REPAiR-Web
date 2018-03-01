@@ -3,6 +3,7 @@ from factory.django import DjangoModelFactory
 from repair.apps.login.factories import (CaseStudyFactory)
 
 from . import models
+from wms_client.models import WMSLayer, LayerStyle
 
 
 class WMSResourceFactory(DjangoModelFactory):
@@ -39,7 +40,7 @@ class WMSLayerFactory(DjangoModelFactory):
     title = 'Layer No. 1'
 
     class Meta:
-        model = models.WMSLayer
+        model = WMSLayer
 
 
 class LayerStyleFactory(DjangoModelFactory):
@@ -49,4 +50,4 @@ class LayerStyleFactory(DjangoModelFactory):
     legend_uri = 'https://example.com/legend'
 
     class Meta:
-        model = models.LayerStyle
+        model = LayerStyle
