@@ -55,7 +55,7 @@ from repair.apps.asmfa.views import (
 
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
-from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet,)
+from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 
 
 ## base routes ##
@@ -160,7 +160,6 @@ actors_router.register(r'administrativelocation',
                    AdministrativeLocationOfActorViewSet)
 actors_router.register(r'operationallocations',
                    OperationalLocationsOfActorViewSet)
-
 
 
 ## webhook ##

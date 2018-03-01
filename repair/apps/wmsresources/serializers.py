@@ -10,9 +10,38 @@ from repair.apps.login.models import CaseStudy
 from repair.apps.wmsresources.models import (WMSResourceInCasestudy,
                                              WMSResource,
                                              )
+from wms_client.models import WMSLayer, LayerStyle
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudySerializerMixin,)
+
+
+class LayerStyleSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
+
+    class Meta:
+        model = LayerStyle
+        fields = (
+            'id',
+            'title',
+            'legend_uri',
+            )
+
+
+class WMSLayerSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
+
+    styles = LayerStyleSerializer(source='layerstyle_set',
+                                  many=True)
+
+    class Meta:
+        model = WMSLayer
+        fields = (
+            'id',
+            'name',
+            'title',
+            'styles',
+            )
 
 
 class WMSResourceInCasestudySerializer(InCasestudySerializerMixin,
@@ -24,9 +53,8 @@ class WMSResourceInCasestudySerializer(InCasestudySerializerMixin,
     casestudy = serializers.IntegerField(required=False, write_only=True)
     wms_uri = serializers.CharField(source='wmsresource.uri')
     name = serializers.CharField(source='wmsresource.name')
-    layers = serializers.CharField(source='wmsresource.layers')
+    layers = WMSLayerSerializer(source='wmsresource.wmslayer_set', many=True)
     description = serializers.CharField(source='wmsresource.description')
-
 
     class Meta:
         model = WMSResourceInCasestudy
