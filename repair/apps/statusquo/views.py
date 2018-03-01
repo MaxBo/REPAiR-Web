@@ -49,7 +49,7 @@ class StatusQuoView(LoginRequiredMixin, ModeView):
 
     def render_setup(self, request):
         return render(request, 'statusquo/setup/index.html', self.get_context_data())
-    
+
     def render_workshop(self, request):
         template = loader.get_template('statusquo/workshop/index.html')
         context = self.get_context_data()
@@ -57,3 +57,20 @@ class StatusQuoView(LoginRequiredMixin, ModeView):
         context['casestudies'] = self.casestudies()
         html = template.render(context, request)
         return HttpResponse(html)
+
+
+class AimViewSet(CasestudyViewSetMixin,
+                 ModelPermissionViewSet):
+    queryset = Aim.objects.all()
+    serializer_class = AimSerializer
+
+
+class ChallengeViewSet(CasestudyViewSetMixin,
+                       ModelPermissionViewSet):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
+
+
+class TargetViewSet(ModelPermissionViewSet):
+    queryset = Target.objects.all()
+    serializer_class = TargetSerializer
