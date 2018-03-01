@@ -26,7 +26,7 @@ django-debug-toolbar
 django-dynamic-fixture
 git+https://github.com/MaxBo/django-fixture-magic.git#egg=django-fixture-magic>=0.1.4
 
-fake-factory
+fake-factory==0.7.4
 factory_boy
 coreapi
 
