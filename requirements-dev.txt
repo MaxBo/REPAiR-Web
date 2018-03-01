@@ -9,6 +9,7 @@ django-test-plus
 django-money
 django-reversion
 django-reversion-compare
+django-wms-client
 diff-match-patch
 bibtexparser==0.6.2
 
