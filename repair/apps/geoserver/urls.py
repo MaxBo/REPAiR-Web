@@ -7,9 +7,10 @@ rest_router.register(r'layers', views.GeoserverLayerViewSet,
                      base_name='layers')
 urlpatterns = [
     url(r'^$', views.GeoserverIndexView.as_view(), name='index'),
+    url(r'^proxy/(?P<layer_id>[0-9]+)/wms', views.WMSProxyView.as_view(), name='index'),
     url(r'^', include(rest_router.urls)), 
 
     url(r'^ows',
-        views.GeoserverOwsView.as_view(),
+        views.GeoserverWfsView.as_view(),
         name='ows')
 ]

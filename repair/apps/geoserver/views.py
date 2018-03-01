@@ -7,6 +7,7 @@ import requests
 
 from repair.apps.geoserver.serializers import (GeoserverLayerSerializer,
                                                GeoserverLayer)
+from repair.apps.studyarea.models import Layer
 from repair.settings import GEOSERVER_URL, GEOSERVER_PASS, GEOSERVER_USER
 
 
@@ -72,7 +73,7 @@ class GeoserverIndexView(View):
                             .format(url=GEOSERVER_URL))
 
 
-class GeoserverOwsView(View):
+class GeoserverWfsView(View):
     url = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver/{namespace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName={id}&outputFormat=application%2Fjson'
     def get(self, request, *args, **kwargs):
         
@@ -84,6 +85,23 @@ class GeoserverOwsView(View):
             suffix += '&srsname=' + srs
         auth = (GEOSERVER_USER, GEOSERVER_PASS)
         response = requests.get(self.url.format(id=id, namespace=namespace) + suffix, auth=auth)
+        content_type = response.headers['content-type']
+        return HttpResponse(response.content, content_type=content_type,
+                            status=response.status_code)
+
+
+class WMSProxyView(View):
+    def get(self, request, layer_id):
+        layer = Layer.objects.get(id=layer_id)
+        if layer.is_repair_layer:
+            url = '{url}/{namespace}/ows'.format(
+                url=GEOSERVER_URL, namespace=layer.repair_namespace)
+            auth = (GEOSERVER_USER, GEOSERVER_PASS)
+        else:
+            auth = (layer.user, layer.password) if (layer.user) else None
+            url = layer.url
+        query_params = request.GET
+        response = requests.get(url, params=query_params, auth=auth)
         content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)
