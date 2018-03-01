@@ -6,12 +6,7 @@ from django.http import (HttpResponseRedirect, JsonResponse,
                          HttpResponseBadRequest)
 
 
-class ModelPermissionViewSet(viewsets.ModelViewSet):
-    """
-    Check if a user has the required permissions for create(), delete(),
-    update(), retrieve() and list(). Throw exceptions.PermissionDenied() if
-    permission is missing.
-    """
+class CheckPermissionMixin:
 
     def check_permission(self, request, permission_name):
         """
@@ -27,6 +22,9 @@ class ModelPermissionViewSet(viewsets.ModelViewSet):
         if not request.user.has_perm(permission):
             raise exceptions.PermissionDenied()
 
+
+class ModelReadPermissionMixin(CheckPermissionMixin):
+
     def list(self, request, **kwargs):
         """
         Check if user is permitted for list view.
@@ -40,6 +38,9 @@ class ModelPermissionViewSet(viewsets.ModelViewSet):
         """
         self.check_permission(request, 'view')
         return super().retrieve(request, **kwargs)
+
+
+class ModelWritePermissionMixin(CheckPermissionMixin):
 
     def create(self, request, **kwargs):
         """
@@ -70,17 +71,28 @@ class ModelPermissionViewSet(viewsets.ModelViewSet):
         return super().partial_update(request, **kwargs)
 
 
+
+class ModelPermissionViewSet(ModelReadPermissionMixin,
+                             ModelWritePermissionMixin,
+                             viewsets.ModelViewSet):
+    """
+    Check if a user has the required permissions for create(), delete(),
+    update(), retrieve() and list(). Throw exceptions.PermissionDenied() if
+    permission is missing.
+    """
+
+
 class SessionView(View):
     modes = {
         'Workshop': 0,
         'Setup': 1,
     }
-    
+
     def post(self, request):
         casestudy = request.POST.get('casestudy')
         mode = request.POST.get('mode')
         next = request.POST.get('next', '/')
-        
+
         if casestudy is not None:
             request.session['casestudy'] = casestudy
         if mode is not None:
@@ -91,7 +103,7 @@ class SessionView(View):
             if mode not in self.modes.values():
                 return HttpResponseBadRequest('invalid mode')
             request.session['mode'] = mode
-        
+
         return HttpResponseRedirect(next)
 
     def get(self, request):
