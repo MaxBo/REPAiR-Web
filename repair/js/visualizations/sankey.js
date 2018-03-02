@@ -22,8 +22,6 @@ define([
         var margin = {top: 1, right: 10, bottom: 6, left: 10};
         this.width = options.width;
         var height = options.height - margin.top - margin.bottom;
-        console.log(this.width)
-        console.log(height)
         var title = options.title;
         require('libs/cycle-sankey');
         var formatNumber = d3.format(",.0f"),
@@ -62,7 +60,6 @@ define([
             * @instance
             */
         this.render = function ( data ) {
-            console.log(data)
             div = d3.select(el);
             var bbox = div.node().getBoundingClientRect();
             var width = this.width || bbox.width;

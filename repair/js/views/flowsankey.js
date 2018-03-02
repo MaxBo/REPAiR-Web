@@ -21,6 +21,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * @param {Object} options
      * @param {HTMLElement} options.el                          element the view will be rendered in
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
+     * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
+     * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
      * @param {module:collections/ActivityGroups|module:collections/ActivityGroups|module:collections/Actors} options.model the nodes to render
      *
      * @constructs
@@ -33,6 +35,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.caseStudyId = this.collection.caseStudyId;
       this.keyflowId = this.collection.keyflowId;
       this.materials = options.materials;
+      this.hideUnconnected = options.hideUnconnected;
+      
       var type = (this.collection instanceof Actors) ? 'actor': 
                  (this.collection instanceof Activities) ? 'activity': 'activitygroup';
       this.flows = new Flows([], {caseStudyId: this.caseStudyId,
@@ -43,7 +47,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
                                     type: type});
                                     
       var loader = new Loader(this.el, {disable: true});
-      $.when(this.stocks.fetch(), this.flows.fetch()).then(function(){
+      $.when(this.stocks.fetch({data: options.filterParams}), this.flows.fetch({data: options.filterParams})).then(function(){
         _this.render();
         loader.remove();
       });
@@ -92,20 +96,26 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.el.classList.toggle('fullscreen');
       this.render();
     },
-
     
     /*
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
      */
     transformData: function(models, flows, stocks, materials){
+      var _this = this;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
+      
       models.each(function(model){
         var id = model.id;
         var name = model.get('name');
-        nodes.push({id: id, name: name});
+        // ignore nodes with no connections at all (if requested)
+        if (_this.hideUnconnected) {
+          if (flows.nConnections(id) == 0 && stocks.nConnections(id) == 0)
+            return;
+        }
+        nodes.push({ id: id, name: name });
         nodeIdxDict[id] = i;
         i += 1;
       });
@@ -129,10 +139,11 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       
       flows.each(function(flow){
         var value = flow.get('amount');
-        var source = nodeIdxDict[flow.get('origin')];
-        var target = nodeIdxDict[flow.get('destination')];
+        var originId = flow.get('origin'),
+            destinationId = flow.get('destination'),
+            source = nodeIdxDict[originId],
+            target = nodeIdxDict[destinationId];
         var composition = flow.get('composition');
-        
         links.push({
           value: flow.get('amount'),
           units: gettext('t/year'),
@@ -143,7 +154,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       })
       stocks.each(function(stock){
         var id = 'stock-' + stock.id;
-        var source = nodeIdxDict[stock.get('origin')];
+        var originId = stock.get('origin'),
+            source = nodeIdxDict[originId];
         nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
         var composition = stock.get('composition');
         links.push({
@@ -155,6 +167,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
         });
         i += 1;
       });
+      
       var transformed = {nodes: nodes, links: links};
       return transformed;
     },

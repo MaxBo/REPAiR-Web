@@ -35,7 +35,7 @@
       </div>
       <ul class="dropdown-menu inner" role="menu">
         <li data-value="" data-level="1" data-default-selected="">
-            <a href="#">{% trans "Select a material"%}</a>
+            <a href="#"><%= defaultOption %></a>
         </li>
         <% _.each(options, function(option){ %>
            <li data-value="<%= option.value %>" data-level="<%= option.level %>" title="<%= option.title %>">

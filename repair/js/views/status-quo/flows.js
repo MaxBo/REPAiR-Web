@@ -35,8 +35,9 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       
       this.template = options.template;
       this.caseStudy = options.caseStudy;
+      this.filterParams = null;
       
-      this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id })
+      this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
       
       this.keyflows.fetch({ success: function(){
         _this.render();
@@ -95,7 +96,9 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       this.flowsView = new FlowSankeyView({
           el: document.getElementById('sankey-wrapper'),
           collection: collection,
-          materials: this.materials
+          materials: this.materials,
+          filterParams: this.filterParams,
+          hideUnconnected: true
         })
     },
     
@@ -108,15 +111,14 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
     },
     
     renderMatFilter: function(){
-    
+      var _this = this;
       // select material
       var matSelect = document.createElement('div');
       matSelect.classList.add('materialSelect');
       this.hierarchicalSelect(this.materials, matSelect, {
         callback: function(model){
-          var matId = (model) ? model.id : '';
-          matSelect.setAttribute('data-material-id', matId);
-          setCustom();
+          _this.filterParams = (model) ? { material: model.id } : null;
+          _this.renderSankey();
         }
       });
       this.el.querySelector('#sub-filter').appendChild(matSelect);
@@ -186,7 +188,7 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       // load template and initialize the hierarchySelect plugin
       var inner = document.getElementById('hierarchical-select-template').innerHTML,
           template = _.template(inner),
-          html = template({ options: levelList });
+          html = template({ options: levelList, defaultOption: gettext('All Materials') });
       wrapper.innerHTML = html;
       wrapper.name = 'material';
       parent.appendChild(wrapper);
