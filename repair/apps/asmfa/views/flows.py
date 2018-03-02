@@ -3,6 +3,7 @@ from abc import ABC
 
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
+from rest_framework.response import Response
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -10,6 +11,9 @@ from repair.apps.asmfa.models import (
     Activity2Activity,
     Actor2Actor,
     Group2Group,
+    Material,
+    Composition,
+    ProductFraction
 )
 
 from repair.apps.asmfa.serializers import (
@@ -41,6 +45,37 @@ class FlowViewSet(RevisionMixin,
     """
     serializer_class = FlowSerializer
     model = Flow
+    
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        SerializerClass = self.get_serializer_class()
+        query_params = request.query_params
+        # query param ?material=xxx
+        if 'material' in query_params.keys():
+            try:
+                material = Material.objects.get(id=query_params['material'])
+            except Material.DoesNotExist:
+                return Response(status=404)
+            filtered = self.filter_by_material(request, material)
+            serializer = SerializerClass(filtered, many=True,
+                                         context={'request': request, })
+            return Response(serializer.data)
+        return super().list(request, **kwargs)
+    
+    def filter_by_material(self, request, material):
+        """filter queryset by their compositions,
+        their fractions have to contain the given material or children
+        of the material"""
+        # get the children of the given material
+        materials = material.children
+        # fractions have to contain any of given material or its children
+        materials.append(material)
+        fractions = ProductFraction.objects.filter(material__in=materials)
+        # the compositions containing the filtered fractions
+        compositions = fractions.values('composition')
+        # the flows containing the filtered compositions
+        filtered = self.queryset.filter(composition__in=compositions)
+        return filtered
 
 
 class Group2GroupViewSet(FlowViewSet):
