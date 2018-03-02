@@ -707,7 +707,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       // load template and initialize the hierarchySelect plugin
       var inner = document.getElementById('hierarchical-select-template').innerHTML,
           template = _.template(inner),
-          html = template({ options: levelList });
+          html = template({ options: levelList, defaultOption: 'Select a material' });
       wrapper.innerHTML = html;
       wrapper.name = 'material';
       parent.appendChild(wrapper);

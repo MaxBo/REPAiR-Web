@@ -69,11 +69,13 @@ INSTALLED_APPS = [
     'repair.apps.publications',
     'repair.apps.reversions',
     'repair.apps.geoserver',
+    'repair.apps.wmsresources',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
-    'django_filters'
+    'django_filters',
+    'wms_client',
 ]
 
 ADD_REVERSION_ADMIN=True

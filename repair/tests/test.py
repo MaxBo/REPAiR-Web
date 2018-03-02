@@ -1,19 +1,10 @@
-from abc import ABCMeta
-import json
-from unittest import skipIf
-
-from django.core.validators import ValidationError
-from django.test import TestCase
-from django.urls import reverse
 from django.http import HttpRequest
 
 from rest_framework_gis.fields import GeoJsonDict
 from django.utils.encoding import force_text
 
 from rest_framework import status
-from test_plus import APITestCase
 
-from repair.apps.login.models import CaseStudy, User, Profile
 from repair.apps.login.factories import UserInCasestudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
@@ -61,10 +52,9 @@ class LoginTestCase:
         cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
-                                         casestudy__id = cls.casestudy)
+                                         casestudy__id=cls.casestudy)
         cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
                                             casestudy=cls.uic.casestudy)
-
 
     def setUp(self):
         self.client.force_login(user=self.uic.user.user)
@@ -92,8 +82,6 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
     sub_urls = []
     url_pks = dict()
     url_pk = dict()
-    put_data = dict()
-    patch_data = dict()
     do_not_check = []
 
     def test_list(self):
@@ -103,7 +91,79 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
     def test_detail(self):
         """Test get, put, patch methods for the detail-view"""
         url = self.url_key + '-detail'
-        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        kwargs = {**self.url_pks, 'pk': self.obj.pk}
+
+        # test get
+        response = self.get_check_200(url, **kwargs)
+        assert response.data['id'] == self.obj.pk
+
+    def assert_response_equals_expected(self, response_value, expected):
+        """
+        Assert that response_value equals expected
+        If response_value is a GeoJson, then compare the texts
+        """
+        if isinstance(response_value, GeoJsonDict):
+            self.assertJSONEqual(force_text(response_value), expected)
+        else:
+            self.assertEqual(force_text(response_value), force_text(expected))
+
+    def test_get_urls(self):
+        """get all sub-elements of a list of urls"""
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, pk=self.obj.pk, **self.url_pks)
+        for key in self.sub_urls:
+            key_response = self.get_check_200(response.data[key])
+
+
+class BasicModelTest(BasicModelReadTest):
+    post_urls = []
+    post_data = dict()
+    put_data = dict()
+    patch_data = dict()
+
+    def test_delete(self):
+        """Test delete method for the detail-view"""
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, **kwargs)
+
+        response = self.delete(url, **kwargs)
+        self.response_204()
+
+        # it should be deleted and raise 404
+        response = self.get(url, **kwargs)
+        self.response_404()
+
+    def test_post(self):
+        """Test post method for the detail-view"""
+        url = self.url_key + '-list'
+        # post
+        response = self.post(url, **self.url_pks, data=self.post_data,
+                             extra={'format': 'json'})
+        self.response_201()
+        for key in self.post_data:
+            if key not in response.data.keys() or key in self.do_not_check:
+                continue
+            response_value = response.data[key]
+            expected = self.post_data[key]
+            self.assert_response_equals_expected(response_value, expected)
+
+        # get the created object
+        new_id = response.data['id']
+        url = self.url_key + '-detail'
+        self.get_check_200(url, pk=new_id, **self.url_pks)
+
+    def test_post_url_exist(self):
+        """post all sub-elements of a list of urls"""
+        url = self.url_key + '-detail'
+        response = self.get_check_200(url, pk=self.obj.pk, **self.url_pks)
+        for url in self.post_urls:
+            response = self.get_check_200(url)
+
+    def test_put_patch(self):
+        """Test get, put, patch methods for the detail-view"""
+        url = self.url_key + '-detail'
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
         formatjson = dict(format='json')
 
         # test get
@@ -139,76 +199,29 @@ class BasicModelReadTest(LoginTestCase, CompareAbsURIMixin):
             expected = self.patch_data[key]
             self.assert_response_equals_expected(response_value, expected)
 
-    def assert_response_equals_expected(self, response_value, expected):
-        """
-        Assert that response_value equals expected
-        If response_value is a GeoJson, then compare the texts
-        """
-        if isinstance(response_value, GeoJsonDict):
-            self.assertJSONEqual(force_text(response_value), expected)
-        else:
-            self.assertEqual(force_text(response_value), force_text(expected))
 
-    def test_get_urls(self):
-        """get all sub-elements of a list of urls"""
+class BasicModelReadPermissionTest(BasicModelReadTest):
+    def test_list_permission(self):
+        self.uic.user.user.user_permissions.clear()
+        response = self.get(self.url_key + '-list', **self.url_pks)
+        self.response_403()
+
+    def test_get_permission(self):
+        self.uic.user.user.user_permissions.clear()
         url = self.url_key + '-detail'
-        response = self.get_check_200(url, pk=self.obj.pk, **self.url_pks)
-        for key in self.sub_urls:
-            key_response = self.get_check_200(response.data[key])
-
-
-class BasicModelTest(BasicModelReadTest):
-    post_urls = []
-    post_data = dict()
-
-    def test_delete(self):
-        """Test delete method for the detail-view"""
-        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
-        url = self.url_key + '-detail'
-        response = self.get_check_200(url, **kwargs)
-
-        response = self.delete(url, **kwargs)
-        self.response_204()
-
-        # it should be deleted and raise 404
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
         response = self.get(url, **kwargs)
-        self.response_404()
-
-    def test_post(self):
-        """Test post method for the detail-view"""
-        url = self.url_key +'-list'
-        # post
-        response = self.post(url, **self.url_pks, data=self.post_data,
-                             extra={'format': 'json'})
-        self.response_201()
-        for key in self.post_data:
-            if key not in response.data.keys() or key in self.do_not_check:
-                continue
-            response_value = response.data[key]
-            expected = self.post_data[key]
-            self.assert_response_equals_expected(response_value, expected)
-
-        # get the created object
-        new_id = response.data['id']
-        url = self.url_key + '-detail'
-        self.get_check_200(url, pk=new_id, **self.url_pks)
-
-    def test_post_url_exist(self):
-        """post all sub-elements of a list of urls"""
-        url = self.url_key + '-detail'
-        response = self.get_check_200(url, pk=self.obj.pk, **self.url_pks)
-        for url in self.post_urls:
-            response = self.get_check_200(url)
+        self.response_403()
 
 
-class BasicModelPermissionTest(BasicModelTest):
+class BasicModelWritePermissionTest(BasicModelTest):
 
     def test_post_permission(self):
         """
         Test if user can post without permission
         """
         self.uic.user.user.user_permissions.clear()
-        url = self.url_key +'-list'
+        url = self.url_key + '-list'
         # post
         response = self.post(url, **self.url_pks, data=self.post_data,
                              extra={'format': 'json'})
@@ -219,32 +232,21 @@ class BasicModelPermissionTest(BasicModelTest):
         Test if user can delete without permission
         """
         self.uic.user.user.user_permissions.clear()
-        kwargs =  {**self.url_pks, 'pk': self.obj.pk, }
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
         url = self.url_key + '-detail'
         response = self.delete(url, **kwargs)
-        self.response_403()
-
-    def test_list_permission(self):
-        self.uic.user.user.user_permissions.clear()
-        response = self.get(self.url_key + '-list', **self.url_pks)
         self.response_403()
 
     def test_put_permission(self):
         self.uic.user.user.user_permissions.clear()
         url = self.url_key + '-detail'
-        kwargs={**self.url_pks, 'pk': self.obj.pk,}
+        kwargs = {**self.url_pks, 'pk': self.obj.pk, }
         formatjson = dict(format='json')
         response = self.put(url, **kwargs, data=self.put_data,
                             extra=formatjson)
         self.response_403()
 
-    def test_get_permission(self):
-        self.uic.user.user.user_permissions.clear()
-        url = self.url_key + '-detail'
-        kwargs={**self.url_pks, 'pk': self.obj.pk,}
-        response = self.get(url, **kwargs)
-        self.response_403()
 
-
-
-
+class BasicModelPermissionTest(BasicModelReadPermissionTest,
+                               BasicModelWritePermissionTest):
+    """Test of read and write permissions"""

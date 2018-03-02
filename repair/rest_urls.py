@@ -65,6 +65,7 @@ from repair.apps.statusquo.views import (
 )
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
+from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 
 
 ## base routes ##
@@ -102,6 +103,7 @@ cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
+cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
@@ -181,7 +183,6 @@ actors_router.register(r'administrativelocation',
                    AdministrativeLocationOfActorViewSet)
 actors_router.register(r'operationallocations',
                    OperationalLocationsOfActorViewSet)
-
 
 
 ## webhook ##

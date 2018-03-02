@@ -22,6 +22,16 @@ define(["backbone", "app-config"],
         return url.format(this.caseStudyId, this.keyflowId);
       },
       
+      /**
+       * @returns {number} number of connections to node with given id
+       */
+      nConnections: function(id){
+        filtered = this.filter(function (model) {
+            return (model.get("origin") === id);
+        });
+        return filtered.length
+      },
+      
     /**
      * collection for fetching/putting stocks
      *
