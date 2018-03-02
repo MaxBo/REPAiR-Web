@@ -117,10 +117,8 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       matSelect.classList.add('materialSelect');
       this.hierarchicalSelect(this.materials, matSelect, {
         callback: function(model){
-          if (model){
-            _this.filterParams = { material: model.id };
-            _this.renderSankey();
-          }
+          _this.filterParams = (model) ? { material: model.id } : null;
+          _this.renderSankey();
         }
       });
       this.el.querySelector('#sub-filter').appendChild(matSelect);
@@ -190,7 +188,7 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       // load template and initialize the hierarchySelect plugin
       var inner = document.getElementById('hierarchical-select-template').innerHTML,
           template = _.template(inner),
-          html = template({ options: levelList });
+          html = template({ options: levelList, defaultOption: gettext('All Materials') });
       wrapper.innerHTML = html;
       wrapper.name = 'material';
       parent.appendChild(wrapper);
