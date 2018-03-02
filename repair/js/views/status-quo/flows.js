@@ -35,8 +35,9 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       
       this.template = options.template;
       this.caseStudy = options.caseStudy;
+      this.filter_params = null;
       
-      this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id })
+      this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
       
       this.keyflows.fetch({ success: function(){
         _this.render();
@@ -95,7 +96,8 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
       this.flowsView = new FlowSankeyView({
           el: document.getElementById('sankey-wrapper'),
           collection: collection,
-          materials: this.materials
+          materials: this.materials,
+          filter_params: this.filter_params,
         })
     },
     
@@ -108,15 +110,16 @@ function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups,
     },
     
     renderMatFilter: function(){
-    
+      var _this = this;
       // select material
       var matSelect = document.createElement('div');
       matSelect.classList.add('materialSelect');
       this.hierarchicalSelect(this.materials, matSelect, {
         callback: function(model){
-          var matId = (model) ? model.id : '';
-          matSelect.setAttribute('data-material-id', matId);
-          setCustom();
+          if (model){
+            _this.filter_params = { material: model.id };
+            _this.renderSankey();
+          }
         }
       });
       this.el.querySelector('#sub-filter').appendChild(matSelect);

@@ -21,6 +21,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * @param {Object} options
      * @param {HTMLElement} options.el                          element the view will be rendered in
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
+     * @param {Object=} options.filter_params  parameters to filter the flows and stocks with (e.g. {material: 1})
      * @param {module:collections/ActivityGroups|module:collections/ActivityGroups|module:collections/Actors} options.model the nodes to render
      *
      * @constructs
@@ -33,6 +34,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.caseStudyId = this.collection.caseStudyId;
       this.keyflowId = this.collection.keyflowId;
       this.materials = options.materials;
+      
       var type = (this.collection instanceof Actors) ? 'actor': 
                  (this.collection instanceof Activities) ? 'activity': 'activitygroup';
       this.flows = new Flows([], {caseStudyId: this.caseStudyId,
@@ -43,7 +45,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
                                     type: type});
                                     
       var loader = new Loader(this.el, {disable: true});
-      $.when(this.stocks.fetch(), this.flows.fetch()).then(function(){
+      $.when(this.stocks.fetch({data: options.filter_params}), this.flows.fetch({data: options.filter_params})).then(function(){
         _this.render();
         loader.remove();
       });
