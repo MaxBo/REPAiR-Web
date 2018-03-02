@@ -41,7 +41,7 @@
   </div>
 </div>
 <div class="modal fade" role="dialog" id="add-layer-modal">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -49,48 +49,22 @@
       </div>
       <div class="modal-body">
         <ul class="nav nav-tabs">
-          <li class="active"><a data-toggle="tab" href="#import-geoserver-tab">{% trans "REPAiR Geoserver" %}
-          <li><a data-toggle="tab" href="#import-custom-tab">{% trans "Custom Service" %}</a></li>
+          <li class="active"><a data-toggle="tab" href="#import-wms-tab">{% trans "WMS Services" %}</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade in active" id="import-geoserver-tab">
-            <div class="row">
-              <table id='available-layers-table'>
-                <thead>
-                  <tr>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Name" %}</th>
-                  </tr>
-                </thead> 
-                <tbody> 
-                </tbody> 
-              </table>
-            </div>
-            <!--<div class="row">-->
-              <!--{% trans "Import as" %}-->
-              <!--<select>-->
-                <!--<option selected> GeoJSON </option>-->
-              <!--</select>-->
-            <!--</div>-->
-            <!--<div class="row">-->
-              <!--{% trans "Color" %} <input id='colorpicker' style="margin-left: 5px"/>-->
-            <!--</div>-->
+          <div class="row"></div>
+          <div class='row'>
+            <a href="/admin/wms_client/wmsresource/" target="_blank" class="btn btn-primary square" style='float: left;'>
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Add WMS Service" %} 
+            </a>
+            <button id='refresh-wms-services-button' class="btn btn-primary round" title="{% trans "Refresh list of WMS services" %}" style='float: right;'>
+              <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh Services" %}
+            </button>
           </div>
-          <div class="tab-pane fade in" id="import-custom-tab">
-            <table id='available-layers-table'>
-              <tr>
-                <td> URL </td>
-                <td> <input style="min-width: 400px;"/></td>
-              </tr>
-              <tr>
-                <td>{% trans "User" %}</td>
-                <td> <input/></td>
-              </tr>
-              <tr>
-                <td>{% trans "Password" %}</td>
-                <td> <input type="password"/></td>
-              </tr>
-            </table>
+          <div class="tab-pane fade in active" id="import-wms-tab">
+            <div class="row">
+              <div id='wms-services'></div>
+            </div>
           </div>
         </div>
       </div>
@@ -103,5 +77,41 @@
 </div>
 <div id="edit-category-modal"/>
 </script>
+
+<script type="text/template" id="wms-services-template">
+<% resources.each(function(resource){ %>
+<div class="row bordered">
+  <div class="row">
+    <div class="col-md-1">
+      <button class="btn btn-primary square inverted" data-toggle="collapse" data-target="#layers<%= resource.id %>" style="margin-right: 5px;">
+        <span class="glyphicon glyphicon-eye-open"></span>
+      </button>
+    </div>
+    <div class="col-md-4">
+      <%= resource.get('name') %>
+    </div>
+    <div class="col-md-7">
+      <%= resource.get('description') %>
+    </div>
+  </div>
+  <div id="layers<%= resource.id %>" class="collapse row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
+      <table style="margin: 0px;">
+      <% _.each(resource.get('layers'), function(layer){ %>
+        <tr> 
+          <td><input type="checkbox" name="layer"></td>
+          <td> <%= layer.title %> </td>
+          <td> <%= layer.abstract %> </td>
+        </tr>
+      <% }) %>
+      </table></td>
+    </div>
+  </div>
+</div>
+<% })  %>
+</script>
+
 
 {% endblock %}

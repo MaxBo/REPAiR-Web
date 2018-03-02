@@ -37,6 +37,7 @@ class WMSLayerSerializer(NestedHyperlinkedModelSerializer):
             'name',
             'title',
             'styles',
+            'abstract'
             )
 
 
