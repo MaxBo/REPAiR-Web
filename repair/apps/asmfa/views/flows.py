@@ -34,6 +34,22 @@ class ReasonViewSet(RevisionMixin, ModelViewSet):
     queryset = Reason.objects.all()
 
 
+def filter_by_material(material, queryset):
+    """filter queryset by their compositions,
+    their fractions have to contain the given material or children
+    of the material"""
+    # get the children of the given material
+    materials = material.children
+    # fractions have to contain any of given material or its children
+    materials.append(material)
+    fractions = ProductFraction.objects.filter(material__in=materials)
+    # the compositions containing the filtered fractions
+    compositions = fractions.values('composition')
+    # the flows containing the filtered compositions
+    filtered = queryset.filter(composition__in=compositions)
+    return filtered
+
+
 class FlowViewSet(RevisionMixin,
                   CasestudyViewSetMixin,
                   ModelPermissionViewSet,
@@ -56,26 +72,11 @@ class FlowViewSet(RevisionMixin,
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
-            filtered = self.filter_by_material(request, material)
+            filtered = filter_by_material(material, self.queryset)
             serializer = SerializerClass(filtered, many=True,
                                          context={'request': request, })
             return Response(serializer.data)
         return super().list(request, **kwargs)
-    
-    def filter_by_material(self, request, material):
-        """filter queryset by their compositions,
-        their fractions have to contain the given material or children
-        of the material"""
-        # get the children of the given material
-        materials = material.children
-        # fractions have to contain any of given material or its children
-        materials.append(material)
-        fractions = ProductFraction.objects.filter(material__in=materials)
-        # the compositions containing the filtered fractions
-        compositions = fractions.values('composition')
-        # the flows containing the filtered compositions
-        filtered = self.queryset.filter(composition__in=compositions)
-        return filtered
 
 
 class Group2GroupViewSet(FlowViewSet):
