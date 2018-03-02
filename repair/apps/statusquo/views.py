@@ -95,7 +95,7 @@ class ImpactcategoryViewSet(ModelPermissionViewSet):
     serializer_class = ImpactCategorySerializer
 
 
-class ImpactCategoryInSusytainabilityViewSet(ModelPermissionViewSet):
+class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
     queryset = ImpactCategory.objects.all()
     serializer_class = ImpactCategorySerializer
 

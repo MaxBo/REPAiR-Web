@@ -57,7 +57,7 @@ from repair.apps.statusquo.views import (AimViewSet,
                                          TargetViewSet,
                                          SustainabilityFieldViewSet,
                                          ImpactcategoryViewSet,
-                                         ImpactCategoryInSusytainabilityViewSet,
+                                         ImpactCategoryInSustainabilityViewSet,
                                          AreaOfProtectionViewSet,
                                          TargetValueViewSet,
                                          TargetSpatialReferenceViewSet)
@@ -86,7 +86,7 @@ router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
 sus_router = NestedDefaultRouter(router, r'sustainabilities',
                                  lookup='sustainability')
 sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
-sus_router.register(r'impactcategories', ImpactCategoryInSusytainabilityViewSet)
+sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')

@@ -52,17 +52,6 @@ class AimPostSerializer(InCasestudySerializerMixin,
 
 class ChallengeSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    text = serializers.CharField()
-
-    class Meta:
-        model = Challenge
-        fields = ('url',
-                  'id',
-                  'text')
-
-
-class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
     text = serializers.CharField()
 
@@ -71,6 +60,17 @@ class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'casestudy',
+                  'text')
+
+
+class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    text = serializers.CharField()
+
+    class Meta:
+        model = Challenge
+        fields = ('url',
+                  'id',
                   'text')
 
 class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
