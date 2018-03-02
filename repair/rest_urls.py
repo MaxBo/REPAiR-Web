@@ -58,7 +58,9 @@ from repair.apps.statusquo.views import (AimViewSet,
                                          SustainabilityFieldViewSet,
                                          ImpactcategoryViewSet,
                                          ImpactCategoryInSusytainabilityViewSet,
-                                         AreaOfProtectionViewSet)
+                                         AreaOfProtectionViewSet,
+                                         TargetValueViewSet,
+                                         TargetSpatialReferenceViewSet)
 
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
@@ -76,7 +78,8 @@ router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
 router.register(r'sustainabilities', SustainabilityFieldViewSet)
 router.register(r'impactcategories', ImpactcategoryViewSet)
-
+router.register(r'targetvalues', TargetValueViewSet)
+router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 # / sustainabilities/../

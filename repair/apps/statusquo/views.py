@@ -115,7 +115,16 @@ class ImpactCategoryInSusytainabilityViewSet(ModelPermissionViewSet):
         return Response(serializer.data)
 
 
-
 class AreaOfProtectionViewSet(ModelPermissionViewSet):
     queryset = AreaOfProtection.objects.all()
     serializer_class = AreaOfProtectionSerializer
+
+
+class TargetValueViewSet(ModelPermissionViewSet):
+    queryset = TargetValue.objects.all()
+    serializer_class = TargetValueSerializer
+
+
+class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
+    queryset = TargetSpatialReference.objects.all()
+    serializer_class = TargetSpatialReferenceSerializer

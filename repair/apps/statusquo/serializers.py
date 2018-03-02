@@ -19,7 +19,8 @@ from repair.apps.statusquo.models import (Aim,
                                           SustainabilityField,
                                           Target,
                                           TargetSpatialReference,
-                                          TargetValue)
+                                          TargetValue,
+                                          IndicatorCharacterisation)
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 
@@ -124,26 +125,28 @@ class SustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
 
 class TargetSerializer(CreateWithUserInCasestudyMixin,
                        NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
-    user = UserInCasestudyField(
-        view_name='userincasestudy-detail')
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
+                            'user_pk': 'user__id',}
     aim = IDRelatedField()
     impact_category = IDRelatedField()
     target_value = IDRelatedField()
     spatial_reference = IDRelatedField()
+    user = UserInCasestudyField(
+        view_name='userincasestudy-detail')
 
     class Meta:
         model = Target
         fields = ('url',
                   'id',
-                  'user',
                   'aim',
                   'impact_category',
                   'target_value',
-                  'spatial_reference')
+                  'spatial_reference',
+                  'user')
 
 
 class TargetValueSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
     text = serializers.CharField()
     number = serializers.FloatField()
     factor = serializers.FloatField()
@@ -158,6 +161,7 @@ class TargetValueSerializer(NestedHyperlinkedModelSerializer):
 
 
 class TargetSpatialReferenceSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {}
     name = serializers.CharField()
     text = serializers.CharField()
 
@@ -167,6 +171,16 @@ class TargetSpatialReferenceSerializer(NestedHyperlinkedModelSerializer):
                   'id',
                   'name',
                   'text')
+
+
+class IndicatorCharacterisationSerializer(NestedHyperlinkedModelSerializer):
+    name = serializers.CharField()
+
+    class Meta:
+        model = IndicatorCharacterisation
+        fields = ('url',
+                  'id',
+                  'name')
 
 
 

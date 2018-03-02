@@ -12,10 +12,22 @@ class Aim(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
 
+    def __str__(self):
+        try:
+            return self.text or ''
+        except Exception:
+            return ''
+
 
 class Challenge(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
+
+    def __str__(self):
+        try:
+            return self.text or ''
+        except Exception:
+            return ''
 
 
 class SustainabilityField(GDSEModel):
@@ -49,6 +61,12 @@ class TargetValue(GDSEModel):
     number = models.FloatField()
     factor = models.FloatField()
 
+    def __str__(self):
+        try:
+            return self.text or ''
+        except Exception:
+            return ''
+
 
 class Target(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
@@ -58,3 +76,13 @@ class Target(GDSEModel):
     target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
     spatial_reference = models.ForeignKey(TargetSpatialReference,
                                           on_delete=models.CASCADE)
+
+    def __str__(self):
+        try:
+            return 'Target {}'.format(self.id) or ''
+        except Exception:
+            return ''
+
+
+class IndicatorCharacterisation(GDSEModel):
+    name = models.CharField(max_length=255)
