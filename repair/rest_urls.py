@@ -52,16 +52,17 @@ from repair.apps.asmfa.views import (
     MaterialViewSet,
     WasteViewSet,
 )
-from repair.apps.statusquo.views import (AimViewSet,
-                                         ChallengeViewSet,
-                                         TargetViewSet,
-                                         SustainabilityFieldViewSet,
-                                         ImpactcategoryViewSet,
-                                         ImpactCategoryInSustainabilityViewSet,
-                                         AreaOfProtectionViewSet,
-                                         TargetValueViewSet,
-                                         TargetSpatialReferenceViewSet)
-
+from repair.apps.statusquo.views import (
+    AimViewSet,
+    ChallengeViewSet,
+    TargetViewSet,
+    SustainabilityFieldViewSet,
+    ImpactcategoryViewSet,
+    ImpactCategoryInSustainabilityViewSet,
+    AreaOfProtectionViewSet,
+    TargetValueViewSet,
+    TargetSpatialReferenceViewSet
+)
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 

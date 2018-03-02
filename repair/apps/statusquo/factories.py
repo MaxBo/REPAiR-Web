@@ -10,7 +10,7 @@ class AimFactory(DjangoModelFactory):
     text = 'aim text'
 
     class Meta:
-        model = models.Aim
+        model = models.aims.Aim
 
 
 class ChallengeFactory(DjangoModelFactory):
@@ -18,14 +18,14 @@ class ChallengeFactory(DjangoModelFactory):
     text = 'aim text'
 
     class Meta:
-        model = models.Challenge
+        model = models.challenges.Challenge
 
 
 class SustainabilityFieldFactory(DjangoModelFactory):
     name = 'name Sustainability Field'
 
     class Meta:
-        model = models.SustainabilityField
+        model = models.targets.SustainabilityField
 
 
 class TargetValueFactory(DjangoModelFactory):
@@ -34,7 +34,7 @@ class TargetValueFactory(DjangoModelFactory):
     factor = 30
 
     class Meta:
-        model = models.TargetValue
+        model = models.targets.TargetValue
 
 
 class TargetSpatialReferenceFactory(DjangoModelFactory):
@@ -42,7 +42,7 @@ class TargetSpatialReferenceFactory(DjangoModelFactory):
     text = 'text Target Value'
 
     class Meta:
-        model = models.TargetSpatialReference
+        model = models.targets.TargetSpatialReference
 
 
 class AreaOfProtectionFactory(DjangoModelFactory):
@@ -50,7 +50,7 @@ class AreaOfProtectionFactory(DjangoModelFactory):
     sustainability_field = factory.SubFactory(SustainabilityFieldFactory)
 
     class Meta:
-        model = models.AreaOfProtection
+        model = models.targets.AreaOfProtection
 
 
 class ImpactCategoryFactory(DjangoModelFactory):
@@ -59,7 +59,7 @@ class ImpactCategoryFactory(DjangoModelFactory):
     spatial_differentiation = True
 
     class Meta:
-        model = models.ImpactCategory
+        model = models.targets.ImpactCategory
 
 
 class TargetFactory(DjangoModelFactory):
@@ -70,4 +70,4 @@ class TargetFactory(DjangoModelFactory):
     spatial_reference = factory.SubFactory(TargetSpatialReferenceFactory)
 
     class Meta:
-        model = models.Target
+        model = models.targets.Target

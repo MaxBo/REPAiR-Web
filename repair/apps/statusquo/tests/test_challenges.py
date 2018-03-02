@@ -4,8 +4,8 @@ from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelPermissionTest, LoginTestCase
-
 from repair.apps.statusquo.factories import ChallengeFactory
+
 
 class ChallengeTest(BasicModelPermissionTest, APITestCase):
 
