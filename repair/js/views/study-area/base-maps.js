@@ -86,6 +86,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             'click #add-layer-button': 'addLayer',
             'click #add-category-button': 'addCategory',
             'click #add-layer-modal .confirm': 'confirmLayer',
+            'click #remove-layer-button': 'removeLayer',
+            'click #remove-confirmation-modal .confirm': 'confirmRemoval',
             'click #refresh-wms-services-button': 'renderAvailableServices'
         },
 
@@ -94,12 +96,17 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             */
         render: function(){
             var _this = this;
-            var html = document.getElementById(this.template).innerHTML
-            var template = _.template(html);
+            var html = document.getElementById(this.template).innerHTML,
+                template = _.template(html);
             this.el.innerHTML = template();
 
             this.layerTree = document.getElementById('layer-tree');
             this.buttonBox = document.getElementById('layer-tree-buttons');
+            
+            html = document.getElementById('empty-modal-template').innerHTML;
+            var elConfirmation = document.getElementById('remove-confirmation-modal');
+            elConfirmation.innerHTML = _.template(html)({ header: gettext('Remove') });
+            this.confirmationModal = elConfirmation.querySelector('.modal');
 
             this.renderMap();
             this.renderDataTree();
@@ -118,8 +125,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 fill: 'rgba(170, 212, 0, 0.1)',
                 strokeWidth: 1,
                 zIndex: 0
-            },
-            );
+            });
             // add polygon of focusarea to both maps and center on their centroid
             if (focusarea != null){
                 var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
@@ -136,7 +142,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
         rerenderDataTree: function(selectId){
             this.buttonBox.style.display = 'None';
-            $(this.layerTree).treeview('remove');
+            if (this.layerTree.innerHTML)
+                $(this.layerTree).treeview('remove');
             this.renderDataTree(selectId);
         },
 
@@ -155,6 +162,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         * render the hierarchic tree of layers
         */
         renderDataTree: function(selectId){
+            if (Object.keys(this.categoryTree).length == 0) return;
 
             var _this = this;
             var dataDict = {};
@@ -175,6 +183,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             });
 
             $(this.layerTree).treeview('selectNode', 0);
+            console.log(this.selectedNode)
         },
 
         /*
@@ -182,7 +191,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         */
         nodeSelected: function(event, node){
             var addBtn = document.getElementById('add-layer-button');
-            var removeBtn = document.getElementById('remove-button');
+            var removeBtn = document.getElementById('remove-layer-button');
             this.selectedNode = node;
             addBtn.style.display = 'inline';
             removeBtn.style.display = 'inline';
@@ -217,6 +226,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     { name: name }, { caseStudyId: _this.caseStudy.id })
                 category.save(null, { success: function(){
                     var catNode = { text: name };
+                    catNode.category = category;
+                    catNode.nodes = [];
                     _this.categoryTree[category.id] = catNode;
                     _this.rerenderDataTree();
                 }})
@@ -250,6 +261,28 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 _this.rerenderDataTree();
                 _this.addServiceLayer(layer);
             }})
+        },
+        
+        removeLayer: function(){
+            if (!this.selectedNode) return;
+            var model = this.selectedNode.layer || this.selectedNode.category,
+                message = (this.selectedNode.layer) ? gettext('Do you really want to delete the selected layer?') :
+                          gettext('Do you really want to delete the selected category?');
+            this.confirmationModal.querySelector('.modal-body').innerHTML = message; 
+            $(this.confirmationModal).modal('show'); 
+        },
+        
+        confirmRemoval: function(){
+            var _this = this;
+            $(this.confirmationModal).modal('hide'); 
+            var is_category = (this.selectedNode.category != null);
+            var model = this.selectedNode.layer || this.selectedNode.category;
+            model.destroy({ success: function(){
+                if (_this.selectedNode.category) delete _this.categoryTree[model.id];
+                else {}
+                _this.rerenderDataTree();
+            }});
+            
         },
 
         /*

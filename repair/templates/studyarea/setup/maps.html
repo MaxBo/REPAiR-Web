@@ -12,7 +12,7 @@
       <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
-      <button id='remove-button'  class="btn btn-warning square" title="{% trans "remove" %}" style="pointer-events: auto;">
+      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
     </div>
@@ -75,7 +75,8 @@
     </div>
   </div>
 </div>
-<div id="edit-category-modal"/>
+<div id="edit-category-modal"></div>
+<div id="remove-confirmation-modal"></div>
 </script>
 
 <script type="text/template" id="wms-services-template">
