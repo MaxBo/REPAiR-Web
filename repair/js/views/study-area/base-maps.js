@@ -70,7 +70,11 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     var catNode = _this.categoryTree[layers.layerCategoryId];
                     var children = [];
                     layers.each(function(layer){
-                        var node = { layer: layer, text: layer.get('name'), icon: 'fa fa-bookmark' };
+                        var node = { 
+                            layer: layer, 
+                            text: layer.get('name'), 
+                            icon: 'fa fa-bookmark'
+                        };
                         children.push(node);
                     });
                     catNode.nodes = children;
@@ -107,6 +111,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var elConfirmation = document.getElementById('remove-confirmation-modal');
             elConfirmation.innerHTML = _.template(html)({ header: gettext('Remove') });
             this.confirmationModal = elConfirmation.querySelector('.modal');
+            this.layerModal = document.getElementById('add-layer-modal');
 
             this.renderMap();
             this.renderDataTree();
@@ -117,6 +122,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var _this = this;
             this.map = new Map({
                 divid: 'base-map', 
+                renderOSM: false
             });
             var focusarea = this.caseStudy.get('properties').focusarea;
 
@@ -148,10 +154,9 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
 
         addServiceLayer: function(layer){
-
             this.map.addServiceLayer(layer.get('name'), { 
                 opacity: 0.5,
-                url: '/geoserver/proxy/' + layer.id + '/wms',
+                url: '/proxy/layers/' + layer.id + '/wms',
                 params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
                 //projection: 'EPSG:4326'//layer.get('srs') 
             })
@@ -179,15 +184,16 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 expandIcon: 'glyphicon glyphicon-triangle-right',
                 collapseIcon: 'glyphicon glyphicon-triangle-bottom',
                 onNodeSelected: this.nodeSelected,
+                nodeChecked: null,
+                nodeUnchecked: null,
                 showCheckbox: true
             });
 
             $(this.layerTree).treeview('selectNode', 0);
-            console.log(this.selectedNode)
         },
 
         /*
-        * event for selecting a node in the material tree
+        * event for selecting a node in the layer tree
         */
         nodeSelected: function(event, node){
             var addBtn = document.getElementById('add-layer-button');
@@ -215,8 +221,10 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
 
         addLayer: function(){
-            var modal = document.getElementById('add-layer-modal');
-            $(modal).modal('show'); 
+            // uncheck all checkboxes
+            var checked = this.layerModal.querySelectorAll('input[name=layer]:checked');
+            checked.forEach(function(checkbox){checkbox.checked = false;})
+            $(this.layerModal).modal('show'); 
         },
 
         addCategory: function(){
@@ -240,27 +248,53 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
         confirmLayer: function(){
             var _this = this;
-            var repairLayer = this.selectedRepairLayer;
-            if (!repairLayer) return;
             var category = this.selectedNode.category,
                 catNode = this.categoryTree[category.id];
-
-            var layer = new Layer({ 
-                name: repairLayer.get('name'), 
-                is_repair_layer: true, 
-                repair_namespace: repairLayer.get('namespace'), 
-                service_layers: repairLayer.get('name'),
-                url: '-' 
-            }, { caseStudyId: this.caseStudy.id, layerCategoryId: category.id });
-            layer.save(null, { success: function(){
-                var layerNode = { text: layer.get('name'),
-                    icon: 'fa fa-bookmark',
-                    layer: layer};
-                if (!catNode.nodes) catNode.nodes = [];
-                catNode.nodes.push(layerNode);
-                _this.rerenderDataTree();
-                _this.addServiceLayer(layer);
-            }})
+            
+            var checked = this.layerModal.querySelectorAll('input[name=layer]:checked');
+            
+            var newLayers = [];
+            
+            checked.forEach(function(checkbox){
+                var wmsLayerId = checkbox.dataset.layerid,
+                    wmsLayerName = checkbox.dataset.layername;
+                var layer = new Layer({ 
+                    name: wmsLayerName, 
+                    included: true,
+                    wms_layer: wmsLayerId
+                }, { caseStudyId: _this.caseStudy.id, layerCategoryId: category.id });
+                newLayers.push(layer);
+            })
+            
+            function onSuccess(){
+                console.log(newLayers)
+                newLayers.forEach(function(layer){
+                    console.log(layer)
+                    var layerNode = { text: layer.get('name'),
+                        icon: 'fa fa-bookmark',
+                        layer: layer};
+                    catNode.nodes.push(layerNode);
+                    _this.rerenderDataTree();
+                    _this.addServiceLayer(layer);
+                })
+            }
+            
+            // upload the models recursively (starting at index it)
+            function uploadModel(models, it){
+              // end recursion if no elements are left and call the passed success method
+              if (it >= models.length) {
+                onSuccess();
+                return;
+              };        
+              var params = {
+                success: function(){ uploadModel(models, it+1) }
+              }
+              var model = models[it];
+              model.save(null, params);
+            };
+            
+            // start recursion at index 0
+            uploadModel(newLayers, 0);
         },
         
         removeLayer: function(){
@@ -278,8 +312,19 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var is_category = (this.selectedNode.category != null);
             var model = this.selectedNode.layer || this.selectedNode.category;
             model.destroy({ success: function(){
+                // remove category from tree (if category was selected)
                 if (_this.selectedNode.category) delete _this.categoryTree[model.id];
-                else {}
+                // remove layer from category (if layer was selected)
+                else {
+                    var catNode = _this.categoryTree[model.get('category')];
+                    var nodes = catNode.nodes;
+                    for (var i = 0; i < nodes.length; i++){
+                        if (nodes[i].layer === model) {
+                           nodes.splice(i, 1);
+                           break;
+                        }
+                    }
+                }
                 _this.rerenderDataTree();
             }});
             

@@ -14,6 +14,7 @@ define([
      *
      * @param {Object} options
      * @param {string} options.divid                        id of the HTMLElement to render the map into
+     * @param {boolean} [options.renderOSM=true]            render default background map
      * @param {string} [options.projection='EPSG:3857']     projection of the map
      * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
      *
@@ -29,17 +30,22 @@ define([
         center: this.center,
         zoom: 10
       });
-      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
       this.layers = {};
-      this.layers.basic = basicLayer;
+      var initlayers = [];
+      
+      // blank map
+      if (options.renderOSM != false){
+        initlayers.push(new ol.layer.Tile({ 
+          source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+      }
+      
+      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      initlayers.push(basicLayer);
+          
+      this.layers = { basic: basicLayer };
     
       this.map = new ol.Map({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM({crossOrigin: 'anonymous'}),
-          }),
-          basicLayer
-        ],
+        layers: initlayers,
         target: options.divid,
         controls: ol.control.defaults({
           attributionOptions: /** @type {olx.control.AttributionOptions} */ ({

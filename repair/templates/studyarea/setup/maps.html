@@ -69,8 +69,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Add" %}</button>
         <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Add" %}</button>
       </div>
     </div>
   </div>
@@ -102,7 +102,7 @@
       <table style="margin: 0px;">
       <% _.each(resource.get('layers'), function(layer){ %>
         <tr> 
-          <td><input type="checkbox" name="layer"></td>
+          <td><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
           <td> <%= layer.title %> </td>
           <td> <%= layer.abstract %> </td>
         </tr>
