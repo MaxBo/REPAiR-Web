@@ -59,7 +59,10 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.layerCategories.each(function(category){
                 var layers = new Layers([], { caseStudyId: _this.caseStudy.id, 
                     layerCategoryId: category.id });
-                var node = { text: category.get('name'), category: category };
+                var node = { 
+                    text: category.get('name'), 
+                    category: category
+                };
                 _this.categoryTree[category.id] = node;
                 layerList.push(layers);
                 deferred.push(layers.fetch());
@@ -146,11 +149,11 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             })
         },
 
-        rerenderDataTree: function(selectId){
+        rerenderDataTree: function(categoryId){
             this.buttonBox.style.display = 'None';
             if (this.layerTree.innerHTML)
                 $(this.layerTree).treeview('remove');
-            this.renderDataTree(selectId);
+            this.renderDataTree(categoryId);
         },
 
         addServiceLayer: function(layer){
@@ -166,7 +169,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         /*
         * render the hierarchic tree of layers
         */
-        renderDataTree: function(selectId){
+        renderDataTree: function(categoryId){
             if (Object.keys(this.categoryTree).length == 0) return;
 
             var _this = this;
@@ -188,8 +191,25 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 nodeUnchecked: null,
                 showCheckbox: true
             });
-
-            $(this.layerTree).treeview('selectNode', 0);
+            
+            var selectNodeId = 0;
+            console.log(categoryId)
+            // look for and expand and select node with given material id
+            if (categoryId){
+                // there is no other method to get all nodes or to search for an attribute
+                var nodes = $(this.layerTree).treeview('getEnabled');
+                console.log(nodes)
+                _.forEach(nodes, function(node){
+                    console.log(node)
+                    if (node.category && (node.category.id == categoryId)){
+                        console.log(node)
+                        selectNodeId = node.nodeId; 
+                        return false;
+                    }
+                })
+            }
+            // select first one, if no slectID is given
+            $(this.layerTree).treeview('selectNode', selectNodeId);
         },
 
         /*
@@ -233,11 +253,13 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var category = new _this.layerCategories.model(
                     { name: name }, { caseStudyId: _this.caseStudy.id })
                 category.save(null, { success: function(){
-                    var catNode = { text: name };
-                    catNode.category = category;
+                    var catNode = { 
+                        text: name, 
+                        category: category
+                    };
                     catNode.nodes = [];
                     _this.categoryTree[category.id] = catNode;
-                    _this.rerenderDataTree();
+                    _this.rerenderDataTree(category.id);
                 }})
             }
             this.getName({ 
@@ -267,14 +289,12 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             })
             
             function onSuccess(){
-                console.log(newLayers)
                 newLayers.forEach(function(layer){
-                    console.log(layer)
                     var layerNode = { text: layer.get('name'),
                         icon: 'fa fa-bookmark',
                         layer: layer};
                     catNode.nodes.push(layerNode);
-                    _this.rerenderDataTree();
+                    _this.rerenderDataTree(category.id);
                     _this.addServiceLayer(layer);
                 })
             }
@@ -324,6 +344,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                            break;
                         }
                     }
+                    _this.map.removeLayer(model.get('name'));
                 }
                 _this.rerenderDataTree();
             }});

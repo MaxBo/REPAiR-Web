@@ -317,14 +317,13 @@ define([
     /**
      * remove all features from a layer
      *
+     * @param {string} layername               the name of the layer
      * @param {Object} options
-     * @param {string} [options.layername='basic']  the name of the layer
-     * @param {Array.<string>=} options.types               types of the features to remove, defaults to all
+     * @param {Array.<string>=} options.types  types of the features to remove, defaults to all
      */
     clearLayer(layername, options){
       var options = options || {};
-      var layername = layername || 'basic',
-          layer = this.layers[layername];
+      var layer = this.layers[layername];
       if (options.types == null){
         layer.getSource().clear();
       }
@@ -336,6 +335,17 @@ define([
             source.removeFeature(feature);
         })
       }
+    }
+    
+    /**
+     * remove layer
+     *
+     * @param {string} layername   the name of the layer to remove
+     */
+    removeLayer(layername){
+      var layer = this.layers[layername];
+      this.map.removeLayer(layer)
+      delete this.layers[layername];
     }
     
     /**
