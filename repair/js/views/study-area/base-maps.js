@@ -379,12 +379,17 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             model.destroy({ success: function(){
                 var selectCatId = 0;
                 // remove category from tree (if category was selected)
-                if (_this.selectedNode.category) delete _this.categoryTree[model.id];
+                if (_this.selectedNode.category) {
+                    _this.selectedNode.nodes.forEach(function(node){
+                        _this.map.removeLayer(_this.layerPrefix + node.layer.id);
+                    })
+                    delete _this.categoryTree[model.id];
+                }
                 // remove layer from category (if layer was selected)
                 else {
                     _this.getTreeLayerNode(model, { pop: true })
                     selectCatId = model.get('category');
-                    _this.map.removeLayer(model.get('name'));
+                    _this.map.removeLayer(_this.layerPrefix + model.id);
                 }
                 _this.rerenderDataTree(selectCatId);
             }});
