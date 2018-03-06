@@ -28,6 +28,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var _this = this;
             _.bindAll(this, 'render');
             _.bindAll(this, 'nodeSelected');
+            _.bindAll(this, 'nodeChecked');
+            _.bindAll(this, 'nodeUnchecked');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -42,6 +44,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
 
             this.categoryTree = {};
+            this.layerPrefix = 'service-layer-';
 
             var loader = new Loader(this.el, {disable: true});
             this.layerCategories.fetch({ success: function(){
@@ -61,7 +64,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     layerCategoryId: category.id });
                 var node = { 
                     text: category.get('name'), 
-                    category: category
+                    category: category,
+                    state: { checked: true }
                 };
                 _this.categoryTree[category.id] = node;
                 layerList.push(layers);
@@ -76,7 +80,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                         var node = { 
                             layer: layer, 
                             text: layer.get('name'), 
-                            icon: 'fa fa-bookmark'
+                            icon: 'fa fa-bookmark',
+                            state: { checked: layer.get('included') } 
                         };
                         children.push(node);
                     });
@@ -158,13 +163,13 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
 
         addServiceLayer: function(layer){
-            this.map.addServiceLayer(layer.get('name'), { 
+            this.map.addServiceLayer(this.layerPrefix + layer.id, { 
                 opacity: 1,
+                visible: layer.get('included'),
                 url: '/proxy/layers/' + layer.id + '/wms',
                 params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
                 //projection: 'EPSG:4326'//layer.get('srs') 
-            })
-
+            });
         },
 
         /*
@@ -188,13 +193,14 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 expandIcon: 'glyphicon glyphicon-triangle-right',
                 collapseIcon: 'glyphicon glyphicon-triangle-bottom',
                 onNodeSelected: this.nodeSelected,
-                nodeChecked: null,
-                nodeUnchecked: null,
+                onNodeChecked: this.nodeChecked,
+                onNodeUnchecked: this.nodeUnchecked,
                 showCheckbox: true
             });
             
             var selectNodeId = 0;
-            // look for and expand and select node with given material id
+
+            // look for and expand and select node with given category id
             if (categoryId){
                 // there is no other method to get all nodes or to search for an attribute
                 var nodes = $(this.layerTree).treeview('getEnabled');
@@ -207,6 +213,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             }
             // select first one, if no slectID is given
             $(this.layerTree).treeview('selectNode', selectNodeId);
+            
         },
 
         /*
@@ -225,6 +232,45 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             if (!li) return;
             this.buttonBox.style.top = li.offsetTop + 'px';
             this.buttonBox.style.display = 'inline';
+        },
+        
+        nodeChecked: function(event, node){
+            var _this = this;
+            // layer checked
+            if (node.layer != null){
+                node.layer.set('included', true);
+                node.layer.save();
+                this.map.setVisible(this.layerPrefix + node.layer.id, true);
+                //$(this.layerTree).treeview('checkNode', [node.parentId, { silent: true }]);
+            }
+            // category checked
+            else {
+                //node.nodes.forEach(function(child){
+                    //$(_this.layerTree).treeview('checkNode', [child.nodeId]);
+                //})
+            }
+        },
+        
+        nodeUnchecked: function(event, node){
+            var _this = this;
+            // layer unchecked
+            if (node.layer != null){
+                node.layer.set('included', false);
+                node.layer.save();
+                this.map.setVisible(this.layerPrefix + node.layer.id, false);
+            }
+            // category unchecked
+            else {
+                //node.nodes.forEach(function(child){
+                    //console.log(child.nodeId)
+                    //console.log(_this.layerTree)
+                    //$(_this.layerTree).treeview('uncheckNode', [child.nodeId]);
+                //})
+                // checking unchecking the children often produces database locks 
+                // (thanks to sqlite, see code above)
+                // just leaving it always checked now
+                $(this.layerTree).treeview('checkNode', [node.nodeId, { silent: true }]);
+            }
         },
 
         renderAvailableServices: function(){
@@ -252,7 +298,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 category.save(null, { success: function(){
                     var catNode = { 
                         text: name, 
-                        category: category
+                        category: category,
+                        state: { checked: true }
                     };
                     catNode.nodes = [];
                     _this.categoryTree[category.id] = catNode;
@@ -289,7 +336,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 newLayers.forEach(function(layer){
                     var layerNode = { text: layer.get('name'),
                         icon: 'fa fa-bookmark',
-                        layer: layer};
+                        layer: layer,
+                        state: { checked: layer.get('included') } };
                     catNode.nodes.push(layerNode);
                     _this.rerenderDataTree(category.id);
                     _this.addServiceLayer(layer);

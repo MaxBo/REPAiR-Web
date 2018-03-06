@@ -166,9 +166,16 @@ define([
       if (options.zIndex) layer.setZIndex(options.zIndex);
     }
     
+    setVisible(layername, visible){
+      var layer = this.layers[layername];
+      layer.setVisible(visible);
+    }
+    
     addServiceLayer(name, options){
+      var options = options || {};
       var layer = new ol.layer.Tile({
         opacity: options.opacity || 1,
+        visible: (options.visible != null) ? options.visible: true,
         //extent: [-13884991, 2870341, -7455066, 6338219],
         source: new ol.source.TileWMS({
           url: options.url,
