@@ -70,12 +70,8 @@ define(['browser-cookies'],
       actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
       arealevels:             '/api/casestudies/{0}/levels/',
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
+      wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };
-    
-    config.geoserverApi = {
-      base:   '/geoserver',
-      layers: '/geoserver/layers'
-    }
   
     return config;
   }
