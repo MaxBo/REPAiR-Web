@@ -94,6 +94,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             'click #add-category-button': 'addCategory',
             'click #add-layer-modal .confirm': 'confirmLayer',
             'click #remove-layer-button': 'removeLayer',
+            'click #edit-layer-button': 'editName',
             'click #remove-confirmation-modal .confirm': 'confirmRemoval',
             'click #refresh-wms-services-button': 'renderAvailableServices'
         },
@@ -129,16 +130,16 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             });
             var focusarea = this.caseStudy.get('properties').focusarea;
 
-            this.map.addLayer('background', {
+            this.map.addLayer('focus', {
                 stroke: '#aad400',
                 fill: 'rgba(170, 212, 0, 0.1)',
                 strokeWidth: 1,
-                zIndex: 0
+                zIndex: 1000
             });
             // add polygon of focusarea to both maps and center on their centroid
             if (focusarea != null){
-                var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-                this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+                var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'focus', tooltip: gettext('Focus area') });
+                this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'focus', tooltip: gettext('Focus area') });
                 this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
                 this.map.centerOnPolygon(poly, { projection: this.projection });
             };
@@ -158,7 +159,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
         addServiceLayer: function(layer){
             this.map.addServiceLayer(layer.get('name'), { 
-                opacity: 0.5,
+                opacity: 1,
                 url: '/proxy/layers/' + layer.id + '/wms',
                 params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
                 //projection: 'EPSG:4326'//layer.get('srs') 
@@ -193,16 +194,12 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             });
             
             var selectNodeId = 0;
-            console.log(categoryId)
             // look for and expand and select node with given material id
             if (categoryId){
                 // there is no other method to get all nodes or to search for an attribute
                 var nodes = $(this.layerTree).treeview('getEnabled');
-                console.log(nodes)
                 _.forEach(nodes, function(node){
-                    console.log(node)
                     if (node.category && (node.category.id == categoryId)){
-                        console.log(node)
                         selectNodeId = node.nodeId; 
                         return false;
                     }
@@ -332,23 +329,52 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var is_category = (this.selectedNode.category != null);
             var model = this.selectedNode.layer || this.selectedNode.category;
             model.destroy({ success: function(){
+                var selectCatId = 0;
                 // remove category from tree (if category was selected)
                 if (_this.selectedNode.category) delete _this.categoryTree[model.id];
                 // remove layer from category (if layer was selected)
                 else {
-                    var catNode = _this.categoryTree[model.get('category')];
-                    var nodes = catNode.nodes;
-                    for (var i = 0; i < nodes.length; i++){
-                        if (nodes[i].layer === model) {
-                           nodes.splice(i, 1);
-                           break;
-                        }
-                    }
+                    _this.getTreeLayerNode(model, { pop: true })
+                    selectCatId = model.get('category');
                     _this.map.removeLayer(model.get('name'));
                 }
-                _this.rerenderDataTree();
+                _this.rerenderDataTree(selectCatId);
             }});
             
+        },
+        
+        getTreeLayerNode: function(layer, options){
+            var options = options || {};
+            var catNode = this.categoryTree[layer.get('category')];
+            var nodes = catNode.nodes;
+            for (var i = 0; i < nodes.length; i++){
+                var node = nodes[i];
+                if (node.layer === layer) {
+                    if (options.pop) nodes.splice(i, 1);
+                    return node;
+                }
+            }
+            return;
+        },
+        
+        editName: function(){
+            var _this = this;
+            var model = this.selectedNode.layer || this.selectedNode.category;
+            function onConfirm(name){
+                model.set('name', name);
+                model.save(null, { success: function(){
+                    var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                                _this.getTreeLayerNode(model);
+                    node.text = name;
+                    var selectCatId = _this.selectedNode.category? model.id: model.get('category');
+                    _this.rerenderDataTree(selectCatId);
+                }})
+            };
+            this.getName({ 
+                name: model.get('name'), 
+                title: gettext('Edit Name'),
+                onConfirm: onConfirm
+            })
         },
 
         /*
