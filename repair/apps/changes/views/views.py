@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden
 
 from repair.apps.login.models import UserInCasestudy
-from repair.views import BaseView
+from repair.views import BaseView, ModeView
 from repair.apps.changes.models import (
     SolutionCategory,
     Solution,
@@ -14,8 +14,13 @@ from repair.apps.changes.models import (
     )
 
 
-class ChangesIndexView(BaseView):
-    def get(self, request, *args, **kwargs):
+class ChangesIndexView(ModeView):
+
+    def render_setup(self, request):
+        return render(request, 'changes/setup/index.html',
+                      self.get_context_data())
+    
+    def render_workshop(self, request):
         casestudy_id = request.session.get('casestudy', 0)
         user = request.user
 
@@ -26,10 +31,10 @@ class ChangesIndexView(BaseView):
             return HttpResponseForbidden(_('Please select a casestudy'))
         solution_list = Solution.objects.filter(
             user__casestudy=uic.casestudy_id)
-        context = {'solution_list': solution_list,
-                   'uic': uic,
-                   }
-        return render(request, 'changes/index.html', context)
+        context = self.get_context_data()
+        context['solution_list'] = solution_list
+        context['uic'] = uic
+        return render(request, 'changes/workshop/index.html', context)
 
 
 def solutioncategories(request, solutioncategory_id):
@@ -37,7 +42,7 @@ def solutioncategories(request, solutioncategory_id):
         pk=solutioncategory_id)
     context = {'solution_category': solution_category,
                }
-    return render(request, 'changes/solution_category.html', context)
+    return render(request, 'changes/workshop/solution_category.html', context)
 
 
 def implementations(request, implementation_id):
@@ -47,14 +52,14 @@ def implementations(request, implementation_id):
     context = {'implementation': implementation,
                'solutions': sii,
                }
-    return render(request, 'changes/implementation.html', context)
+    return render(request, 'changes/workshop/implementation.html', context)
 
 
 def solutions(request, solution_id):
     solution = Solution.objects.get(pk=solution_id)
     context = {'solution': solution,
                }
-    return render(request, 'changes/solution.html', context)
+    return render(request, 'changes/workshop/solution.html', context)
 
 
 def solution_in_implematation(request, implementation_id, solution_id):
@@ -68,7 +73,7 @@ def solution_in_implematation(request, implementation_id, solution_id):
                'geometries': geometries,
                'quantities': quantities,
                }
-    return render(request, 'changes/solution_in_implementation.html', context)
+    return render(request, 'changes/workshop/solution_in_implementation.html', context)
 
 
 def strategies(request, strategy_id):
@@ -78,4 +83,4 @@ def strategies(request, strategy_id):
     context = {'strategy': strategy,
                'implementations': impl_in_strategiy,
                }
-    return render(request, 'changes/strategy.html', context)
+    return render(request, 'changes/workshop/strategy.html', context)

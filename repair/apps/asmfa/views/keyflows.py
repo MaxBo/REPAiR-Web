@@ -76,6 +76,13 @@ class WasteFilter(FilterSet):
         fields = ('nace', 'hazardous', 'wastetype', 'ewc')
 
 
+class MaterialFilter(FilterSet):
+
+    class Meta:
+        model = Material
+        fields = ('parent', )
+
+
 class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_product'
@@ -105,3 +112,5 @@ class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_material'
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = MaterialFilter

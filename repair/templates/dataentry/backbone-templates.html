@@ -43,8 +43,6 @@
           </button>
           <div class="row">
             <div id="sankey-wrapper">
-              <button id="fullscreen-toggle" title="{% trans "toggle fullscreen" %}" class="glyphicon glyphicon-fullscreen btn btn-primary"></button>
-              <div id="sankey" class="bordered"></div>
             </div>
           </div>
         </div>
@@ -217,33 +215,6 @@
         <button class="btn btn-primary" id="confirm-fractions" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>
-  </div>
-</script>
-
-<!-- hierarchical selection -->
-<script type="text/template" id="hierarchical-select-template">
-  <div class="btn-group hierarchy-select" data-resize="auto">
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-      <span class="selected-label pull-left">&nbsp;</span>
-      <span class="caret"></span>
-      <span class="sr-only">Toggle Dropdown</span>
-    </button>
-    <div class="dropdown-menu open">
-      <div class="hs-searchbox">
-          <input type="text" class="form-control" autocomplete="off">
-      </div>
-      <ul class="dropdown-menu inner" role="menu">
-        <li data-value="" data-level="1" data-default-selected="">
-            <a href="#">{% trans "Select a material"%}</a>
-        </li>
-        <% _.each(options, function(option){ %>
-           <li data-value="<%= option.value %>" data-level="<%= option.level %>" title="<%= option.title %>">
-              <a href="#"><%= option.text %></a>
-          </li>
-        <% }) %>
-      </ul>
-    </div>
-    <input class="hidden hidden-field" readonly="readonly" aria-hidden="true" type="text"/>
   </div>
 </script>
 
@@ -594,10 +565,10 @@
       <div id="material-tree"></div>
     </div>
     <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
-      <button id='edit-material-button' class="btn btn-primary square" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
+      <button id='edit-material-button' class="btn btn-primary square inverted" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
         <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
       </button>
-      <button id='add-material-button' class="btn btn-primary square" title="{% trans "add child material" %}" style="pointer-events: auto;">
+      <button id='add-material-button' class="btn btn-primary square inverted" title="{% trans "add child material" %}" style="pointer-events: auto;">
         <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
       </button>
         <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
@@ -627,26 +598,6 @@
         <div class="modal-footer">
           <button id="confirm-button" type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
           <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "No" %}</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</script>
-
-<!-- empty modal -->
-
-<script type="text/template" id="empty-modal-template">
-  <div class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title"> <%= header %> </h4>
-        </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
-          <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
         </div>
       </div>
     </div>

@@ -123,6 +123,8 @@ class CaseStudySerializer(ForceMultiMixin,
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
         view_name='publicationincasestudy-list')
+    aims = InCasestudyListField(view_name='aim-list')
+    challenges = InCasestudyListField(view_name='challenge-list')
 
     class Meta:
         model = CaseStudy
@@ -134,6 +136,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   'levels',
                   'focusarea',
                   'publications',
+                  'aims',
+                  'challenges'
                   )
 
     def update(self, instance, validated_data):
