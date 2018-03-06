@@ -123,6 +123,70 @@ class ImpactCategoryTest(BasicModelPermissionTest, APITestCase):
             self.sustainabilityfield)
 
 
+class ImpactCategoriesAndAreasOfProtectionTest(LoginTestCase, APITestCase):
+    """
+    Test if the api finds the right impact categories for a susatainability
+    field via the area of protection.
+    Areas 1 and 2 should reference to sustainability field 1 and the other area
+    is assigned to sustainability field 2. Impact categories 1 and 2 are
+    assigned to area 1. Impact categories 3 and 4 are assigned to the areas 2
+    and 3.
+    Check now if sustainability field 1 has 3 impact categories and
+    sustainability field 2 has 1 impact category.
+    """
+    baseurl = 'http://testserver'
+    ic_1 = 1
+    ic_2 = 2
+    ic_3 = 3
+    ic_4 = 4
+    aop_1 = 1
+    aop_2 = 2
+    aop_3 = 3
+    sf_1 = 1
+    sf_2 = 2
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "impactcategory"
+        cls.url_pks_1 = dict(sustainability_pk=cls.sf_1)
+        cls.url_pks_2 = dict(sustainability_pk=cls.sf_2)
+        #cls.url_pk = dict(pk=cls.impactcategory)
+
+
+    def setUp(self):
+        super().setUp()
+        self.sf_obj_1 = SustainabilityFieldFactory(id=self.sf_1)
+        self.sf_obj_2 = SustainabilityFieldFactory(id=self.sf_2)
+        self.aop_obj_1 = AreaOfProtectionFactory(id=self.aop_1,
+                                                 sustainability_field=
+                                                 self.sf_obj_1)
+        self.aop_obj_2 = AreaOfProtectionFactory(id=self.aop_2,
+                                                 sustainability_field=
+                                                 self.sf_obj_1)
+        self.aop_obj_3 = AreaOfProtectionFactory(id=self.aop_3,
+                                                 sustainability_field=
+                                                 self.sf_obj_2)
+        self.ic_obj_1 = ImpactCategoryFactory(id=self.ic_1,
+                                              area_of_protection=
+                                              self.aop_obj_1)
+        self.ic_obj_2 = ImpactCategoryFactory(id=self.ic_2,
+                                              area_of_protection=
+                                              self.aop_obj_1)
+        self.ic_obj_3 = ImpactCategoryFactory(id=self.ic_3,
+                                              area_of_protection=
+                                              self.aop_obj_2)
+        self.ic_obj_4 = ImpactCategoryFactory(id=self.ic_4,
+                                              area_of_protection=
+                                              self.aop_obj_3)
+
+    def test_list(self):
+        response = self.get_check_200(self.url_key + '-list', **self.url_pks_1)
+        assert len(response.data['results']) == 3
+        response = self.get_check_200(self.url_key + '-list', **self.url_pks_2)
+        assert len(response.data['results']) == 1
+
+
 class TargetTest(BasicModelPermissionTest, APITestCase):
 
     target = 12
