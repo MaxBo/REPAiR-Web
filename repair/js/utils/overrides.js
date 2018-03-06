@@ -20,20 +20,22 @@ if (!String.prototype.format) {
 require(['backbone', 'underscore'], function (Backbone, _) {
   var _sync = Backbone.sync;
   Backbone.sync = function(method, model, options){
-    // Add trailing slash to backbone model views
-    var parts = _.result(model, 'url').split('?'),
-      _url = parts[0],
-      params = parts[1];
-
-    _url += _url.charAt(_url.length - 1) == '/' ? '' : '/';
-
-    if (!_.isUndefined(params)) {
-      _url += '?' + params;
-    };
-
-    options = _.extend(options, {
-      url: _url
-    });
+    if (!model.noTrail){
+      // Add trailing slash to backbone model views
+      var parts = _.result(model, 'url').split('?'),
+        _url = parts[0],
+        params = parts[1];
+  
+      _url += _url.charAt(_url.length - 1) == '/' ? '' : '/';
+  
+      if (!_.isUndefined(params)) {
+        _url += '?' + params;
+      };
+  
+      options = _.extend(options, {
+        url: _url
+      });
+    }
 
     return _sync(method, model, options);
   };

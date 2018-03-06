@@ -40,7 +40,9 @@ urlpatterns = [
     # API urls
     url(r'^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
+    url(r'^geoserver/', include('repair.apps.geoserver.urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    url(r'^wms-client/', include('wms_client.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

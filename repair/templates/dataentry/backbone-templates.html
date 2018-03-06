@@ -43,8 +43,6 @@
           </button>
           <div class="row">
             <div id="sankey-wrapper">
-              <button id="fullscreen-toggle" title="{% trans "toggle fullscreen" %}" class="glyphicon glyphicon-fullscreen btn btn-primary"></button>
-              <div id="sankey" class="bordered"></div>
             </div>
           </div>
         </div>
@@ -127,7 +125,7 @@
       </button>
     </div>
   </div>
-  <div id="datasource-modal" class="modal fade" role="dialog">
+  <div id="datasource-modal" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content col-md-12">
@@ -185,50 +183,47 @@
       </div>
     </div>
   </div>
-  <div id="fractions-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content col-md-12">
-        <div class="modal-header">
-          <h4> {% trans "Composition" %} </h4>
-        </div>
-        <div class="modal-body">
-          <div id='fractions-modal-content'></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-          <button class="btn btn-primary" id="confirm-custom-fractions" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
-        </div>
+  <div id="fractions-modal" class="modal fade" role="dialog" style='z-index: 1100;'> <!-- has to behind datasource modal -->
+  </div>
+</script>
+
+<!-- fractions modal -->
+<script type="text/template" id="fractions-modal-template">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <h4> {% trans "Composition" %} </h4>
+      </div>
+      <div class="modal-body">
+        <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
+        <select name="items"></select>
+        <table id="fractions-edit-table">
+          <tr>
+            <th>{% trans "Fraction" %}</th>
+            <th>{% trans "Material" %}</th>
+            <th>{% trans "Data Source" %}</th>
+            <th>{% trans "Remove" %}</th>
+          </tr>
+        </table>
+        <button id='add-fraction-button' class="btn btn-primary square" title="{% trans "add new fraction" %}">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Add Fraction" %}
+        </button>
+        <div class="alert alert-danger" style="display: None; margin-top: 20px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+        <button class="btn btn-primary" id="confirm-fractions" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>
   </div>
 </script>
 
-<!-- fractions modal content -->
-<script type="text/template" id="fractions-modal-template">
-  <% if(waste) { %> {% trans "Waste" %} <% } else  { %> {% trans "Product"%} <% } %>
-  <select name="items">
-    <option disabled selected> {% trans "select"%} </option>
-  <% items.each(function(item) { %>
-    <option value="<%= item.id %>"> <%= item.get("name") %></option>
-  <% }); %>
-  </select>
-  <table id="fractions-edit-table">
-    <thead>
-      <tr>
-        <th>{% trans "Fractions" %}</th>
-        <th>{% trans "Data Source" %}</th>
-      </tr>
-    </thead> 
-    <tbody> 
-    </tbody>
-  </table>
-</script>
-
 <!--- popover templates -->
 <script type="text/template" id="popover-fractions-template">
-  <% _.each(fractions, function(fraction){ %>
-    <div class='row'> <%= fraction.fraction * 100 %>% <%= materials.get(fraction.material).get('name') %></div>
-  <% }); %>
+  <b> <%= title %> </b>
+  <% if (fractions) {_.each(fractions, function(fraction){ %>
+    <div class='row'> <%= Math.round(fraction.fraction * 1000) / 10 %>% <%= materials.get(fraction.material).get('name') %></div>
+  <% }); } else { %> {% trans "No composition defined" %} <% } %>
 </script>
 
 <script type="text/template" id="popover-source-template">
@@ -270,10 +265,6 @@
       <td><%= keyflow %></td>
     </tr>
     <tr>
-      <td>{% trans "Activity Group" %}</td>
-      <td><%= group %></td>
-    </tr>
-    <tr>
       <td>{% trans "NACE Code" %}</td>
       <td><%= nace %></td>
     </tr>
@@ -291,10 +282,6 @@
     <tr>
       <td>{% trans "Keyflow" %}</td>
       <td><%= keyflow %></td>
-    </tr>
-    <tr>
-      <td>{% trans "Activity" %}</td>
-      <td><%= activity %></td>
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>
@@ -379,8 +366,9 @@
       </div>
     </div>
   </div>
-  <div id="confirmation-modal"></div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+  <div id="confirmation-modal"></div>
+  <div id="actor-name-modal"> </div>
 </script>
 
 <!-- edit actor -->
@@ -418,7 +406,7 @@
         <tr>
           <td>{% trans "Activity" %}</td>
           <td>
-            <select name="activity">
+            <select name="activity" class="form-control">
               <% activities.each(function(activity) { %>
                 <option value="<%= activity.id %>" <% if(actor.get('activity') == activity.id) { %> selected="selected" <% } %>> <%= activity.get('name') %></option>
               <% });  %>
@@ -568,37 +556,34 @@
   </table>
 </script>
 
-<!-- Products -->
+<!-- Materials -->
 
-<script type="text/template" id="products-edit-template">
-  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Products" %}</h3>
+<script type="text/template" id="materials-edit-template">
+  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Materials" %}</h3>
   <div class="row">
-    <button id='upload-products-button' title="{% trans "upload changes made to products" %}" class="btn btn-danger btn-upload">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-    </button>
-  </div>
-  </br>
-  <div class="row">
-    <div class='col-md-9' style="resize: horizontal; overflow: auto; border: 1px solid #e6e6e6;">
-      <div class="row" style="overflow-x:auto;">
-        <table id='products-table' class='tablesorter'>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Fractions" %}</th>
-              <th>{% trans "Default" %}</th>
-            </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
-        </table>
+    <div class="col-md-6">
+      <div id="material-tree"></div>
+    </div>
+    <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
+      <button id='edit-material-button' class="btn btn-primary square inverted" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
+        <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
+      </button>
+      <button id='add-material-button' class="btn btn-primary square inverted" title="{% trans "add child material" %}" style="pointer-events: auto;">
+        <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
+      </button>
+        <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-minus"></span> <!--{% trans "Remove Material" %}-->
+        </button>
       </div>
     </div>
   </div>
+  <div id="delete-material-modal"></div>
+  <div id="edit-material-modal"> </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>
 
 <!-- general modal for confirmations -->
+
 <script type="text/template" id="confirmation-template">
   <div class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -611,7 +596,7 @@
           <p id="confirmation-message"><%= message %></p>
         </div>
         <div class="modal-footer">
-          <button id="confirm-button" type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Yes" %}</button>
+          <button id="confirm-button" type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
           <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "No" %}</button>
         </div>
       </div>

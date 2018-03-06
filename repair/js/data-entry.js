@@ -1,16 +1,16 @@
 
-define(['models/casestudy', 'views/data-entry-flows',
-        'views/data-entry-actors', 'views/data-entry-products', 
+define(['models/casestudy', 'views/data-entry/flows',
+        'views/data-entry/actors', 'views/data-entry/materials', 
         'collections/flows', 'collections/actors',
         'collections/keyflows', 'collections/materials',
         'app-config', 'utils/loader', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
-function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows, 
+function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows, 
           Actors, Keyflows, Materials,
           appConfig, Loader) {  
   /**
    *
    * entry point for data-entry, 
-   * render tabs for entering data (edit actors, flows and products)
+   * render tabs for entering data (edit actors, flows and materials)
    *
    * @author Christoph Franke
    * @module DataEntry
@@ -23,10 +23,10 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
 
   var flowsView,
       actorsView,
-      editProductsView;
+      editMaterialsView;
       
   var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
-      refreshProductsBtn = document.getElementById('refresh-productsview-btn'),
+      refreshMaterialsBtn = document.getElementById('refresh-materialsview-btn'),
       refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
   function renderFlows(keyflow){
@@ -59,22 +59,21 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
     refreshActorsBtn.style.display = 'block';
   };
   
-  function renderEditProducts(keyflow){
+  function renderEditMaterials(keyflow){
     if (keyflow == null) return;
-    if (editProductsView != null)
-      editProductsView.close();
+    if (editMaterialsView != null)
+      editMaterialsView.close();
 
     // create casestudy-object and render view on it (data will be fetched in view)
 
-    editProductsView = new EditProductsView({
-      el: document.getElementById('products-content'),
-      template: 'products-edit-template',
+    editMaterialsView = new EditMaterialsView({
+      el: document.getElementById('materials-content'),
+      template: 'materials-edit-template',
       model: keyflow,
       caseStudy: caseStudy,
-      materials: materials, 
-      onUpload: function(){renderEditProducts(keyflow)}
+      materials: materials
     });
-    refreshProductsBtn.style.display = 'block';
+    refreshMaterialsBtn.style.display = 'block';
   };
 
   function render(caseStudy){
@@ -94,11 +93,11 @@ function (CaseStudy, FlowsView, ActorsView, EditProductsView, Flows,
         loader.remove();
         renderFlows(keyflow);
         renderEditActors(keyflow);
-        renderEditProducts(keyflow);
+        renderEditMaterials(keyflow);
       }});
     });
     refreshFlowsBtn.addEventListener('click', function(){ renderFlows(getKeyflow()) });
-    refreshProductsBtn.addEventListener('click', function(){ renderEditProducts(getKeyflow()) });
+    refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
     refreshActorsBtn.addEventListener('click', function(){ renderEditActors(getKeyflow()) });
     document.getElementById('keyflow-select').disabled = false;
   }

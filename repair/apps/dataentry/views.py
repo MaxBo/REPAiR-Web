@@ -22,9 +22,9 @@ class DataEntryView(LoginRequiredMixin, BaseView):
         
         casestudy = request.session.get('casestudy')
         keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
+        
+        context = self.get_context_data()
 
-        context = {'casestudies': self.casestudies(),
-                   'keyflows': keyflows,
-                   }
+        context['keyflows'] = keyflows
 
         return render(request, self.template_name, context)

@@ -1,7 +1,8 @@
 # API View
 from reversion.views import RevisionMixin
 from rest_framework import serializers, pagination
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import (
+    DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 
 from repair.apps.asmfa.models import (
     Keyflow,
@@ -50,15 +51,47 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
                    'update': KeyflowInCasestudyPostSerializer, }
 
 
+class CommaSeparatedValueFilter(Filter):
+    def filter(self, qs, value):
+        if not value:
+            return qs
+        self.lookup_expr = 'in'
+        values = value.split(',')
+        return super(CommaSeparatedValueFilter, self).filter(qs, values)
+
+
+class ProductFilter(FilterSet):
+    nace = CommaSeparatedValueFilter(name='nace')
+
+    class Meta:
+        model = Product
+        fields = ('nace', 'cpa')
+
+
+class WasteFilter(FilterSet):
+    nace = CommaSeparatedValueFilter(name='nace')
+
+    class Meta:
+        model = Waste
+        fields = ('nace', 'hazardous', 'wastetype', 'ewc')
+
+
+class MaterialFilter(FilterSet):
+
+    class Meta:
+        model = Material
+        fields = ('parent', )
+
+
 class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_product'
     change_perm = 'asmfa.change_product'
     delete_perm = 'asmfa.delete_product'
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by('id')
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('nace', 'cpa')
+    filter_class = ProductFilter
 
 
 class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
@@ -66,10 +99,10 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     add_perm = 'asmfa.add_waste'
     change_perm = 'asmfa.change_waste'
     delete_perm = 'asmfa.delete_waste'
-    queryset = Waste.objects.all()
+    queryset = Waste.objects.order_by('id')
     serializer_class = WasteSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('nace', 'hazardous', 'wastetype', 'ewc')
+    filter_class = WasteFilter
 
 
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -79,3 +112,5 @@ class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_material'
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = MaterialFilter

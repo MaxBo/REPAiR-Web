@@ -1,0 +1,30 @@
+{% load i18n %}
+{% block content %}
+
+<div id="challenges-aims-setup"></div>
+
+<script type="text/template" id="challenges-aims-template">
+
+<div class="col-md-6">
+  <b>{% trans "Challenges" %}</b>
+  <div id='challenges' class="col-md-12 bordered">
+    <div class='item-panel'>
+    </div>
+    <button class="btn btn-primary square add" title="{% trans "add challenge" %}">
+      <span class="glyphicon glyphicon-plus"></span> {% trans "Challenge" %}
+    </button>
+  </div>
+</div>
+<div class="col-md-6">
+  <b>{% trans "Common Aims" %}</b>
+  <div id='aims' class="col-md-12 bordered">
+    <div class='item-panel'>
+    </div>
+    <button class="btn btn-primary square add" title="{% trans "add aim" %}">
+      <span class="glyphicon glyphicon-plus"></span> {% trans "Aim" %}
+    </button>
+  </div>
+</div>
+</script>
+
+{% endblock %}

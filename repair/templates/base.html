@@ -3,7 +3,6 @@
 {% load staticfiles %}
 {% load i18n %}
 
-
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
@@ -47,6 +46,7 @@
         </div>
         <div class="container-fluid" style='float: right;'>
           <ul class="nav navbar-nav navbar-top">
+            {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
                 {% csrf_token %}
@@ -54,7 +54,7 @@
                 <input name="casestudy" id="casestudy" type="hidden">
                 <div class="dropdown">
                   <button class="dropdown-button" type="button">
-                    {% trans "Casestudy" %}
+                    {% if casestudy %} {{ casestudy.name }} {% else %} {% trans "Casestudy" %} {% endif %}
                     <span class="caret"></span>
                   </button>
                   <div class="dropdown-content">
@@ -77,6 +77,25 @@
                 <span class="caret drop-arrow"></span>
               </form>
             </li>
+            <li>
+              <form id="mode-select" action="/login/session/" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <input name="mode" id="mode" type="hidden">
+                <div class="dropdown">
+                  <button class="dropdown-button" type="button">
+                    {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
+                    <span class="caret"></span>
+                  </button>
+                  <div class="dropdown-content">
+                    <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
+                    <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
+                  </div>
+                </div>
+                <span class="caret drop-arrow"></span>
+              </form>
+            </li>
+           {% endif %}
             <li id="login-link" >
               {% if request.user.is_authenticated %}
               <div class="dropdown">
@@ -116,7 +135,7 @@
     </div>
   </nav>
   <div id="wrapper" class="active">
-    <div id="sidebar-wrapper">
+    <div id="sidebar-wrapper" style="display: None;">
       </br>
       </br>
       <div id="sidebar-content">
@@ -130,13 +149,14 @@
       <div class="page-content inset">
         <div class="row">
           <div id="content" class="col-md-12">
-                {% block content %}{% endblock %}
+              {% block content %}{% endblock %}
             </div>
           </div>
         </div>
       </div>
     </div>
   </div> 
-
+  
+{% include 'common.html' %}
 </body>
 </html>

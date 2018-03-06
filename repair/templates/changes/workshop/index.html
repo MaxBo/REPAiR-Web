@@ -1,0 +1,43 @@
+{% extends "changes/base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}  
+
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="solutions">
+      <div class="row">
+        <div class="col-md-6"> </div>
+      </div>
+
+      <div class="row">
+        {% if solution_list %}
+        <p>{% trans "Solutions" %}.</p>
+            <ul>
+            {% for solution in solution_list %}
+                <li><a href="/api/casestudies/{{ uic.casestudy.id }}/solutioncategories/{{ solution.solution_category.id}}/solutions/{{solution.id}}/">{{ solution.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No solutions are available." %}</p>
+        {% endif %}
+
+      </div>
+    </div>
+    <div class="tab-pane fade" id="implementations">
+      <h2>
+        <span class="glyphicon glyphicon-sunglasses"></span>
+        Nothing to see here...
+      </h2>
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2>
+        <span class="glyphicon glyphicon-sunglasses"></span>
+        Nothing to see here neither...
+      </h2>
+    </div>
+  </div>
+</html>
+{% render_bundle 'vendors' %}
+{% render_bundle 'Base' %}
+{% endblock %}

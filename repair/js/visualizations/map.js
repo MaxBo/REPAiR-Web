@@ -10,7 +10,8 @@ define([
   class Map {
     
     /**
-     * create the map
+     * create the map and show it inside the HTMLElement with the given id
+     *
      * @param {Object} options
      * @param {string} options.divid                        id of the HTMLElement to render the map into
      * @param {string} [options.projection='EPSG:3857']     projection of the map
@@ -63,6 +64,11 @@ define([
       var div = document.getElementById(options.divid);
       
       var tooltip = div.querySelector('.tooltip');
+      if (!tooltip){
+        tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        div.appendChild(tooltip);
+      }
       if (tooltip){
         var overlay = new ol.Overlay({
           element: tooltip,
@@ -120,15 +126,27 @@ define([
      * @param {string} name  name of the layer
      * @param {Object=} options
      * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
-     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.strokeWidth=3]                   width of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     * @param {string=} options.zIndex                           z-index of the layer
+     * @param {Object=} options.source                           source layer
+     * @param {string=} options.source.projection                projection of the source
      *
      */
     addLayer(name, options){
-      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      var options = options || {};
+      var sourceopt = options.source || {};
+      var source;
+      if (sourceopt.url){
+        var source = new ol.source.Vector({
+          format: new ol.format.GeoJSON(),
+          url: sourceopt.url,
+          projection : sourceopt.projection || this.mapProjection,
+        })
+      }
+      var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
-      var options = options || {};
       var style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',
@@ -139,6 +157,23 @@ define([
         })
       });
       layer.setStyle(style);
+      if (options.zIndex) layer.setZIndex(options.zIndex);
+    }
+    
+    addServiceLayer(name, options){
+      var layer = new ol.layer.Tile({
+        opacity: options.opacity || 1,
+        //extent: [-13884991, 2870341, -7455066, 6338219],
+        source: new ol.source.TileWMS({
+          url: options.url,
+          params: options.params,
+          serverType: 'geoserver',
+          // Countries have transparency, so do not fade tiles:
+          transition: 0
+        })
+      })
+      this.layers[name] = layer;
+      this.map.addLayer(layer);
     }
     
     /**

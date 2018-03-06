@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
+from repair.apps.publications.models import PublicationInCasestudy
 
 
 class Keyflow(GDSEModel):
@@ -38,13 +39,16 @@ class Material(GDSEModel):
     level = models.IntegerField()
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
-
-    def clean(self):
-        # Check if parent class is exactly one level higher
-        if self.level - 1 != parent.level and self.level != 1:
-            raise ValidationError(_('Parent material must be one level higher'))
-        elif self.level == 1 and self.parent is not None:
-            raise ValidationError(_('Materials in level I do not have parents'))
+    
+    @property
+    def children(self):
+        """ all children of the material (deep traversal) """
+        deep_children = []
+        children = Material.objects.filter(parent=self.id)
+        for child in children:
+            deep_children.append(child)
+            deep_children.extend(child.children)
+        return deep_children
 
 
 class Composition(GDSEModel):
@@ -86,6 +90,8 @@ class ProductFraction(GDSEModel):
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='fractions')
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)

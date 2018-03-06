@@ -31,12 +31,12 @@ MIGRATION_MODULES = {
     #'sessions': None,
 
     #'login': None,
-    'asmfa': None,
-    'studyarea': None,
-    'changes': None,
-    'profiles': None,
-    'snippets': None,
-    'scaffold_templates': None,
+    #'asmfa': None,
+    #'studyarea': None,
+    #'changes': None,
+    #'profiles': None,
+    #'snippets': None,
+    #'scaffold_templates': None,
 }
 
 

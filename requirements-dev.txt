@@ -9,8 +9,8 @@ django-test-plus
 django-money
 django-reversion
 django-reversion-compare
-diff-match-patch
-bibtexparser>=0.5.5
+-e git+https://github.com/MaxBo/django-wms-client.git@feature/django2#egg=django-wms-client>=0.2.1^&subdirectory=django_project
+bibtexparser==0.6.2
 
 git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.4.1
 
@@ -26,8 +26,8 @@ django-debug-toolbar
 django-dynamic-fixture
 git+https://github.com/MaxBo/django-fixture-magic.git#egg=django-fixture-magic>=0.1.4
 
-fake-factory
-factory_boy
+Faker>=0.7.0
+factory_boy>=2.10
 coreapi
 
 mock

@@ -12,7 +12,7 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
 
 
-class CasestudyViewSetMixin(ABC):
+class CasestudyReadOnlyViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
@@ -67,23 +67,6 @@ class CasestudyViewSetMixin(ABC):
                                      context={'request': request, })
         data = self.filter_fields(serializer, request)
         return Response(serializer.data)
-
-    def create(self, request, **kwargs):
-        """set the """
-        if self.casestudy_only:
-            self.check_casestudy(kwargs, request)
-        return super().create(request, **kwargs)
-
-    def perform_create(self, serializer):
-        url_pks = serializer.context['request'].session['url_pks']
-        new_kwargs = {}
-        for k, v in url_pks.items():
-            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
-            if '__' in key:
-                continue
-            new_kwargs[key] = v
-        serializer.save(**new_kwargs)
-
 
     def retrieve(self, request, **kwargs):
         """
@@ -156,3 +139,31 @@ class CasestudyViewSetMixin(ABC):
                         continue
                 filter_args[k] = v
         return filter_args
+
+
+class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
+    """
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
+    """
+    def create(self, request, **kwargs):
+        """set the """
+        if self.casestudy_only:
+            self.check_casestudy(kwargs, request)
+        return super().create(request, **kwargs)
+
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+

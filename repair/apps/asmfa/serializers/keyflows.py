@@ -198,19 +198,22 @@ class ProductInKeyflowInCasestudyField(InCasestudyField):
 
 
 class ProductFractionSerializer(serializers.ModelSerializer):
+    publication = IDRelatedField(allow_null=True, required=False)
 
     class Meta:
         model = ProductFraction
         fields = ('id',
                   'composition',
                   'material',
-                  'fraction')
+                  'fraction',
+                  'publication')
         read_only_fields = ['id', 'composition']
 
 
 class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
-    id = serializers.IntegerField(label='ID', read_only=False, required=False)
+    id = serializers.IntegerField(label='ID', read_only=False, required=False,
+                                  allow_null=True)
     parent_lookup_kwargs = {}
 
     class Meta:
@@ -250,7 +253,7 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
                 fraction = ProductFraction.objects.update_or_create(
-                    fraction=new_fraction.get('fraction'), 
+                    fraction=new_fraction.get('fraction'),
                     composition=composition,
                     material=material)[0]
 
@@ -280,7 +283,7 @@ class WasteSerializer(CompositionSerializer):
 
     class Meta:
         model = Waste
-        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous', 
+        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
                   'fractions',
                   )
 
@@ -289,7 +292,8 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
                          NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    parent = IDRelatedField()
+    parent = IDRelatedField(allow_null=True)
+    level = serializers.IntegerField(required=False, default=0)
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
