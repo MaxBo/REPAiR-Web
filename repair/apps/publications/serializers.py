@@ -35,6 +35,8 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
     doi = serializers.CharField(source='publication.doi',
                                  allow_blank=True, required=False)
     casestudy = serializers.IntegerField(required=False, write_only=True)
+    publication_url = serializers.CharField(source='publication.url',
+                                            allow_blank=True, required=False)
 
     class Meta:
         model = PublicationInCasestudy
@@ -48,11 +50,12 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                   'authors',
                   'year',
                   'doi',
+                  'publication_url',
                   'casestudy',
                   )
 
     def create(self, validated_data):
-        """Create a new keyflow in casestury"""
+        """Create a new publication in casestury"""
         casestudy_id = validated_data.pop('casestudy_id', None)
         if casestudy_id:
             casestudy = CaseStudy.objects.get(pk=casestudy_id)

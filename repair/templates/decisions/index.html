@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 {% block sidebar %}
   <script> 
@@ -10,6 +11,8 @@
 {% endblock %}
 
 {% block content %}
+  {% render_bundle 'vendors' %}
+  {% render_bundle 'Base' %}
   <div class="tab-content">
     <div class="tab-pane fade in active" id="flows">
       {% include "decisions/decisions.html" %}

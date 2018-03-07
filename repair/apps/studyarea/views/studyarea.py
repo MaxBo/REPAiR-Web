@@ -9,32 +9,31 @@ from repair.apps.studyarea.models import (StakeholderCategory,
 from repair.apps.login.models import CaseStudy
 from repair.apps.changes.forms import NameForm
 from .graphs import Testgraph1, Testgraph2
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from repair.views import BaseView
+from repair.views import BaseView, ModeView
 
 
-class StudyAreaIndexView(BaseView):
+class StudyAreaIndexView(LoginRequiredMixin, ModeView):
 
-    def get(self, request):
-        # get the current casestudy
-        casestudy_id = request.session.get('casestudy', 0)
-        try:
-            casestudy = CaseStudy.objects.get(pk=casestudy_id)
-        except ObjectDoesNotExist:
-            return HttpResponseForbidden(_('Please select a casestudy'))
+    def render_setup(self, request):
+        return render(request, 'studyarea/setup/index.html',
+                      self.get_context_data())
+    
+    def render_workshop(self, request):
+        context = self.get_context_data()
+        
+        casestudy_id = context['casestudy'].id
         stakeholder_category_list = \
             StakeholderCategory.objects.filter(casestudy=casestudy_id)
         stakeholder_list = Stakeholder.objects.filter(
             stakeholder_category__casestudy=casestudy_id)
-        context = {'casestudy': casestudy,
-                   'stakeholder_category_list': stakeholder_category_list,
-                   'stakeholder_list': stakeholder_list,
-                   }
-
+        
+        context['stakeholder_category_list'] = stakeholder_category_list
+        context['stakeholder_list'] = stakeholder_list
         context['graph1'] = Testgraph1().get_context_data()
         context['graph2'] = Testgraph2().get_context_data()
-        context['casestudies'] = self.casestudies()
-        return render(request, 'studyarea/index.html', context)
+        return render(request, 'studyarea/workshop/index.html', context)
 
 
 class StakeholderCategoriesView(BaseView):

@@ -20,6 +20,11 @@ from django.utils.translation import ugettext_lazy as _
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, 'public'))
 
+GEOSERVER_URL = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver'
+GEOSERVER_USER = os.environ.get('GEOSERVER_USER')
+GEOSERVER_PASS = os.environ.get('GEOSERVER_PASS')
+
+
 if os.name == 'nt':
     os.environ['GDAL_DATA'] = os.path.join(sys.prefix, 'Library',
                                            'share', 'gdal')
@@ -63,10 +68,13 @@ INSTALLED_APPS = [
     'repair.apps.statusquo',
     'repair.apps.publications',
     'repair.apps.reversions',
+    'repair.apps.wmsresources',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
+    'django_filters',
+    'wms_client',
 ]
 
 ADD_REVERSION_ADMIN=True

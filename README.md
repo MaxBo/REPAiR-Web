@@ -3,7 +3,7 @@
 
 # REPAiR-Web Programmer’s Guide
 
-## 1. Setting Up Django 
+## 1. Setting Up Django
 
 -   Pull project from <https://github.com/MaxBo/REPAiR-Web>
 
@@ -16,13 +16,13 @@
 - On Windows:
 *conda install -c conda-forge gdal=2.1
 -   you have to add the spatialite directory to your PATH
--   in teh settings.py the following environment variable has to be specified:
+-   in the settings.py the following environment variable has to be specified:
 -   SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
--   the spatialite directory contains the mod_spatialite.dll 
--   with its dependencies from 
+-   the spatialite directory contains the mod_spatialite.dll
+-   with its dependencies from
 -   http://www.gaia-gis.it/gaia-sins/windows-bin-amd64/
 
--   the following dlls have to be exchanged from the ones from mingw 
+-   the following dlls have to be exchanged from the ones from mingw
 -   according to this blog
 -   http://blog.jrg.com.br/2016/04/25/Fixing-spatialite-loading-problem/
 -   rename libstdc++_64-6.dll to libstdc++_64-6.dll.original
@@ -41,6 +41,12 @@
     \<port-number\>*
 
 website is then accessible in browser via *localhost:\<port-number\>*
+
+## 2. Or using Vagrant
+
+Vagrant can set up the development evironment for you automatically. Essentially, it automates the management of virtual machines, thus you also need to have a virtualization provider (e.g. VirtualBox, VMware) installed. Then the REPAiR-Web server is set up and runs on a virtual machine (guest), completely isolated from your host. Yet, you can edit the source code on your host, with the same tools as normally, the code (actually the whole `REPAiR-Web` directory) is shared between the host and the guest. 
+
+Once Vagrant is up and running, Django is listening at `http://localhost:8081` on the host.
 
 ## 2. Package/Folder Structure
 
@@ -271,7 +277,7 @@ Have a look at Workflow.pdf for further information.
     -   cd to your directory
 
     -   and type “*manage.py test”*
-    
+
 ## 6. Internationalization
 
 ### **a.  Label Strings**

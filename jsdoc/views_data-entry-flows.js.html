@@ -26,13 +26,12 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(['jquery', 'backbone', 'underscore',
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore',
         'views/data-entry-edit-node',
-        'collections/activities', 'collections/actors',
-        'collections/products', 'collections/flows', 'collections/stocks',
+        'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
         'collections/activitygroups', 'collections/publications', 
-        'visualizations/sankey', 'loader', 'libs/bootstrap-treeview.min'],
-function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows, 
+        'visualizations/sankey', 'utils/loader'],
+function(Backbone, _, EditNodeView, Activities, Actors, Flows, 
          Stocks, ActivityGroups, Publications, Sankey, Loader){
 
   /**
@@ -72,15 +71,14 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
 
       // collections of nodes associated to the casestudy
       this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.products = new Products([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
       this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-      this.publications = new Publications([]);
+      this.publications = new Publications([], { caseStudyId: this.caseStudyId });
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
 
-      $.when(this.actors.fetch({data: 'included=True'}, this.products.fetch(), 
+      $.when(this.actors.fetch({data: 'included=True'}, 
              this.activityGroups.fetch(), this.activities.fetch(), 
              this.publications.fetch())).then(function(){
         _this.render();
@@ -106,7 +104,7 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
       var _this = this;
       var html = document.getElementById(this.template).innerHTML
       var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.caseStudy.get('name'),
+      this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
                                     keyflow: this.model.get('name')});
       this.renderDataTree();
       this.renderSankey();
@@ -182,7 +180,6 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
      * readable by the sankey-diagram
      */
     transformData: function(models, modelLinks, stocks){
-      var products = this.products;
       var nodes = [];
       var nodeIdxDict = {}
       var i = 0;
@@ -198,13 +195,11 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
         var value = modelLink.get('amount');
         var source = nodeIdxDict[modelLink.get('origin')];
         var target = nodeIdxDict[modelLink.get('destination')];
-        var product = products.get(modelLink.get('product'))
-        var productName = (product != null) ? product.get('name') : 'undefined';
         links.push({
           value: modelLink.get('amount'),
           source: source,
           target: target,
-          text: productName
+          text: 'ToDo'
         });
       })
       stocks.each(function(stock){
@@ -278,9 +273,12 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
         _this.renderDataEntry();
       };
       var divid = '#data-tree';
+      require('libs/bootstrap-treeview.min');
       $(divid).treeview({data: dataTree, showTags: true,
                          selectedBackColor: '#aad400',
                          onNodeSelected: onClick,
+                         expandIcon: 'glyphicon glyphicon-triangle-right',
+                         collapseIcon: 'glyphicon glyphicon-triangle-bottom'
                          //showCheckbox: true
                          });
       $(divid).treeview('collapseAll', {silent: true});
@@ -305,7 +303,6 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
           template: 'edit-node-template',
           model: model,
           materials: _this.materials,
-          products: _this.products,
           keyflowId: _this.keyflowId,
           keyflowName: _this.model.get('name'),
           caseStudyId: _this.caseStudyId,
@@ -337,13 +334,13 @@ function($, Backbone, _, EditNodeView, Activities, Actors, Products, Flows,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

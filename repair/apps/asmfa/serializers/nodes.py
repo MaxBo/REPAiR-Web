@@ -10,6 +10,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Actor,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      Reason,
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -48,11 +49,12 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     keyflow = IDRelatedField(required=False)
+    nace = serializers.ListField(read_only=True, source='nace_codes')
 
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
-                  'inputs', 'outputs', 'stocks', 'keyflow')
+                  'inputs', 'outputs', 'stocks', 'keyflow', 'nace')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -226,15 +228,17 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
+    nace = serializers.CharField(source='activity.nace', read_only=True)
 
     website = URLFieldWithoutProtocol(required=False, default="",
                                       allow_blank=True)
+    reason = IDRelatedField(allow_null=True)
 
     class Meta:
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included',
+                  'included', 'nace',
                   'reason',
                   )
 
@@ -250,4 +254,10 @@ class AllActorListSerializer(AllActorSerializer):
     class Meta(AllActorSerializer.Meta):
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included', 'reason', )
+                  'included', 'nace', 'reason', )
+
+
+class ReasonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reason
+        fields = ('id', 'reason')

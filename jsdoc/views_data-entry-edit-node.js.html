@@ -26,16 +26,22 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(['jquery', 'backbone', 'underscore', 'models/activitygroup', 'models/activity',
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'models/activitygroup', 'models/activity',
         'models/actor', 'collections/flows', 'collections/stocks',
-        'loader', 'bootstrap', 'tablesorter'],
-function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
+        'collections/products', 'collections/wastes',
+        'utils/loader', 'tablesorter', 'hierarchy-select'],
+function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
+         Wastes, Loader){
   /**
    *
    * @author Christoph Franke
    * @name module:views/EditNodeView
    * @augments Backbone.View
    */
+  function clearSelect(select, stop){
+    var stop = stop || 0;
+    for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
+  }
   var EditNodeView = Backbone.View.extend(
     /** @lends module:views/EditNodeView.prototype */
     {
@@ -57,7 +63,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
     * @param {string} options.keyflowName                            the name of the keyflow
-    * @param {module:collections/Products} options.products          the available products
     * @param {module:collections/Materials} options.materials        the available materials
     * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
@@ -71,7 +76,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.keyflowId = options.keyflowId;
       this.keyflowName = options.keyflowName;
       this.caseStudyId = options.caseStudyId;
-      this.products = options.products;
       this.materials = options.materials;
       this.publications = options.publications;
       
@@ -110,15 +114,37 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                       keyflowId: this.keyflowId,
                                       type: flowType});
+      
+      this.outProducts = new Products([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      this.outWastes = new Wastes([], {
+        state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+        }
+      });
+      
       var _this = this;
 
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
-      // fetch inFlows and outFlows with different query parameters
 
-      $.when(this.inFlows.fetch({data: 'destination=' + this.model.id}),
-             this.outFlows.fetch({data: 'origin=' + this.model.id}),
-             this.stocks.fetch({data: 'origin=' + this.model.id})).then(function() {
+      // the nace of the model determines the products/wastes of the flows out
+      var nace = this.model.get('nace') || 'None';
+      nace = 'T-9700';
+
+      // fetch inFlows and outFlows with different query parameters
+      $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
+             this.outFlows.fetch({ data: { origin: this.model.id } }),
+             this.stocks.fetch({ data: { origin: this.model.id } }),
+             this.outProducts.getFirstPage({ data: { nace: nace } }),
+             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
           loader.remove();
           _this.render();
       });
@@ -130,8 +156,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     events: {
       'click #upload-flows-button': 'uploadChanges',
       'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
-      'click #confirm-datasource': 'confirmDatasource'
-      //'click #remove-input-button, #remove-stock-button, #remove-output-button': 'deleteRowEvent'
+      'click #confirm-datasource': 'confirmDatasource',
+      'click #refresh-publications-button': 'refreshDatasources'
     },
 
     /*
@@ -152,7 +178,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           html: true,
           content: this.attrTableInner
       }
-      this.setupPopover($('#node-info').popover(popOverSettings));
+      require('bootstrap');
+      this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
       // render inFlows
       this.inFlows.each(function(flow){
@@ -165,8 +192,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         _this.addFlowRow('stock-table', stock, 'origin', true);
       });
       
-      this.setupDsTable();
       this.renderDatasources(this.publications);
+      this.setupDsTable();
     },
     
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -189,8 +216,8 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
 
     // add a flow to table (which one is depending on type of flow)
     // targetIdentifier is the attribute of the flow with the id of the node connected with this node 
-    // set skipTarget to True for stocks
-    addFlowRow: function(tableId, flow, targetIdentifier, skipTarget){
+    // set isStock to True for stocks
+    addFlowRow: function(tableId, flow, targetIdentifier, isStock){
       var _this = this;
 
       var table = this.el.querySelector('#' + tableId);
@@ -229,7 +256,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       
       // origin respectively destination (skipped at stocks)
 
-      if (!skipTarget){
+      if (!isStock){
         // select input for target (origin resp. destination of flow)
 
         var nodeSelect = document.createElement("select");
@@ -254,59 +281,85 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         });
       };
       
-      var productWrapper = document.createElement("span");
+      var itemWrapper = document.createElement("span");
       // prevent breaking 
-      productWrapper.setAttribute("style", "white-space: nowrap");
-      row.insertCell(-1).appendChild(productWrapper); 
+      itemWrapper.setAttribute("style", "white-space: nowrap");
+      row.insertCell(-1).appendChild(itemWrapper); 
       
       // input for product
-      var productSelect = document.createElement("select");
-      var ids = [];
-      var p = flow.get('product');
-      this.products.each(function(product){
-        var option = document.createElement("option");
-        option.text = product.get('name');
-        option.value = product.id;
-        productSelect.add(option);
-        ids.push(product.id);
-      });
-      var idx = ids.indexOf(p);
-      productSelect.selectedIndex = idx.toString();
-      productWrapper.appendChild(productSelect);
-
-      productSelect.addEventListener('change', function() {
-        flow.set('product', productSelect.value);
+      var typeSelect = document.createElement("select");
+      var wasteOption = document.createElement("option")
+      wasteOption.value = 'true'; wasteOption.text = gettext('Waste');
+      typeSelect.appendChild(wasteOption);
+      var productOption = document.createElement("option")
+      productOption.value = 'false'; productOption.text = gettext('Product');
+      typeSelect.appendChild(productOption);
+      typeSelect.value = flow.get('waste');
+            
+      typeSelect.addEventListener('change', function() {
+        flow.set('waste', typeSelect.value);
       });
       
-      // information popup for products
-      var info = document.createElement('div');
-      info.style.cursor = 'pointer';
-      info.style.marginLeft = "5px";
-      info.classList.add('pop-function');
-      info.setAttribute('rel', 'popover');
-      info.classList.add('glyphicon');
-      info.classList.add('glyphicon-info-sign');
-      info.title = 'Composition';
-      productWrapper.appendChild(info);
+      itemWrapper.appendChild(typeSelect);
       
-      var popOverSettings = {
+      var editFractionsBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
+      editFractionsBtn.appendChild(pencil);
+      editFractionsBtn.innerHTML = gettext('Fractions');
+      
+      itemWrapper.appendChild(editFractionsBtn);
+      
+      editFractionsBtn.addEventListener('click', function(){
+        if (flow.get('waste') == null) return;
+        // the nace of this node determines the items for stocks and outputs
+        if (targetIdentifier == 'destination' || isStock == true){
+          var items = (flow.get('waste') == 'true') ? _this.outWastes : _this.outProducts;
+          _this.editFractions(flow, items);
+        }
+        // take nace of origin node in case of inputs
+        else {
+          var origin = _this.model.collection.get(flow.get('origin'));
+          if (origin == null) return;
+          var options = { 
+            state: {
+              pageSize: 1000000,
+              firstPage: 1,
+              currentPage: 1
+            }
+          };
+          var nace = origin.get('nace') || 'None';
+          var loader = new Loader(document.getElementById('flows-edit'),
+                                  {disable: true});
+          var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+          items.getFirstPage({ data: { nace: nace } }).then( 
+            function(){ _this.editFractions(flow, items); loader.remove(); }
+          )
+          
+        }
+      })
+      
+      // information popup for fractions
+      var popOverFractionsSettings = {
           placement: 'right',
           container: 'body',
-          trigger: 'manual',
+          trigger: 'hover',
           html: true,
           content: function () {
-              var product = _this.products.get(productSelect.value);
-              if (product == null) return '';
-              var html = document.getElementById('popover-product-template').innerHTML;
+              var composition = flow.get('composition') || {};
+              var html = document.getElementById('popover-fractions-template').innerHTML;
               var template = _.template(html);
-              var content = template({fractions: product.get('fractions'), 
-                                      materials: _this.materials,
-                                      productName: product.get('name')});
+              var content = template({ 
+                title: composition.name,
+                fractions: composition.fractions, 
+                materials: _this.materials
+              });
               return content;
           }
       }
       
-      this.setupPopover($(info).popover(popOverSettings));
+      $(editFractionsBtn).popover(popOverFractionsSettings);
+      
       
       // raw checkbox
       
@@ -336,94 +389,377 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       
       // general datasource
       
-      var sourceWrapper = document.createElement("div");
-      sourceWrapper.style.float = 'left';
       var sourceCell = row.insertCell(-1);
       // prevent breaking 
       sourceCell.setAttribute("style", "white-space: nowrap");
-      var genSource = document.createElement('input');
-      genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
-      genSource.disabled = true;
-      genSource.style.cursor = 'pointer';
-      var setDsBtn = document.createElement('button');
-      setDsBtn.innerHTML = gettext('Set');
-      setDsBtn.classList.add('btn');
-      setDsBtn.classList.add('btn-primary');
-      setDsBtn.classList.add('square');
-      function onChange(publication){
-        if (publication != null){
-          genSource.value = publication.get('title');
-          genSource.dispatchEvent(new Event('change'));
-          // ToDo set it to model
-        }
-      };
-      setDsBtn.addEventListener('click', function(){
-        _this.editDatasource(onChange);
-      });
-      var collapse = document.createElement('div');
-      var dsRow = table.insertRow(-1);
-      
-      // collapse icon to show/hide individual datasources
-      dsRow.classList.add('hidden');
-      collapse.style.marginLeft = "4px";
-      collapse.style.cursor = 'pointer';
-      collapse.classList.add('glyphicon');
-      collapse.title = 'show individual datasources';
-      collapse.classList.add('glyphicon-chevron-down');
-      sourceWrapper.addEventListener('click', function(){
-        dsRow.classList.toggle('hidden');
-        collapse.classList.toggle('glyphicon-chevron-down');
-        collapse.classList.toggle('glyphicon-chevron-up');
-      });
-      sourceWrapper.appendChild(genSource);
-      sourceWrapper.appendChild(collapse);
-      sourceCell.appendChild(sourceWrapper);
-      sourceCell.appendChild(setDsBtn);
-      
-      // own row for individual Datasources
-      
-      dsRow.classList.add('popunder');
-      dsRow.insertCell(-1).innerHTML = gettext('Sources:');
-      
-      var datasourcableAttributes = ['amount', 'product'];
-      // all except stocks have datasource for target
-      if (!skipTarget)
-        datasourcableAttributes.splice(1, 0, targetIdentifier)
-      _.each(datasourcableAttributes, function(attr){
-        var source = document.createElement('input');
-        source.value = 'test';
-        source.disabled = true;
-        var button = document.createElement('button');
-        button.innerHTML = gettext('Set');
-        button.classList.add('btn');
-        button.classList.add('btn-primary');
-        button.classList.add('square');
-        function onChange(publication){
-          if (publication != null){
-            source.value = publication.get('title');
-            source.dispatchEvent(new Event('change'));
-          }
-          // ToDo set it to model
-        };
-        button.addEventListener('click', function(){
-          _this.editDatasource(onChange);
-        });
-        //var sel = document.createElement("select");
-        var cell = dsRow.insertCell(-1);
-        cell.setAttribute("style", "white-space: nowrap");
-        cell.appendChild(source);
-        cell.appendChild(button);
-        // general datasource overrides all sub datasources
-        genSource.addEventListener('change', function(){
-          source.value = genSource.value;
-        });
-        // sub datasources changes -> show that general datasource is custom by leaving it blank
-        source.addEventListener('change', function(){
-          genSource.value = '↓↓ ' + gettext('custom') + ' ↓↓';
-        });
-      });
+      this.addPublicationInput(sourceCell, flow.get('publication'), 
+        function(id){ flow.set('publication', id) })
       
       return row;
+    },
+    
+    /*
+     * add input for publication to given cell, value is set to currentId
+     * onChange(publicationId) is called when publication is confirmed by user
+     */
+    addPublicationInput: function(cell, currentId, onChange, container){
+      var _this = this;
+      var sourceWrapper = document.createElement('div');
+      sourceWrapper.style.float = 'left';
+      var sourceInput = document.createElement('input');
+      sourceInput.name = 'publication';
+      if (currentId){
+        var publication = this.publications.get(currentId)
+        var title = publication.get('title');
+        sourceInput.value = title;
+        sourceInput.setAttribute('data-publication-id', currentId)
+      }
+      sourceInput.disabled = true;
+      sourceInput.style.cursor = 'pointer';
+      var editBtn = document.createElement('button');
+      var pencil = document.createElement('span');
+      editBtn.classList.add('btn', 'btn-primary', 'square');
+      editBtn.appendChild(pencil);
+      editBtn.title = gettext('edit datasource');
+      pencil.classList.add('glyphicon', 'glyphicon-pencil');
+      
+      function onConfirm(publication){
+        if (publication != null){
+          var title = publication.get('title');
+          sourceInput.value = title;
+          sourceInput.setAttribute('data-publication-id', publication.id)
+          onChange(publication.id)
+          sourceInput.dispatchEvent(new Event('change'));
+        }
+      };
+      editBtn.addEventListener('click', function(){
+        _this.editDatasource(onConfirm);
+      });
+      
+      sourceWrapper.appendChild(sourceInput);
+      cell.appendChild(sourceWrapper);
+      cell.appendChild(editBtn);
+      
+      // information popup for source
+      
+      var popOverSettingsSource = {
+        placement: 'left',
+        container: container || 'body',
+        trigger: 'manual',
+        html: true,
+        content: function () {
+          var pubId = sourceInput.getAttribute('data-publication-id');
+          var publication = _this.publications.get(pubId);
+          if (publication == null) return '';
+          var html = document.getElementById('popover-source-template').innerHTML;
+          var template = _.template(html);
+          var content = template({ publication: publication });
+          return content;
+        }
+      }
+      
+      this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
+    },
+    
+    /*
+     * open modal dialog for editing the fractions of a flow 
+     * items are the available products/wastes the user can select from
+     */
+    editFractions: function(flow, items){
+      
+      var _this = this;
+      var modal = document.getElementById('fractions-modal');
+      var inner = document.getElementById('fractions-modal-template').innerHTML;
+      var template = _.template(inner);
+      var html = template({waste: flow.get('waste')});
+      modal.innerHTML = html;
+      
+      var itemSelect = modal.querySelector('select[name="items"]');
+      var customOption = document.createElement("option");
+      customOption.text = customOption.title = gettext('custom');
+      customOption.value = -1;
+      customOption.disabled = true;
+      itemSelect.appendChild(customOption);
+      items.each(function(item){
+        var option = document.createElement("option");
+        var name = item.get('name');
+        item.get('ewc') || item.get('cpa');
+        option.title = name;
+        option.value = item.id;
+        var suffix = item.get('ewc') || item.get('cpa') || '-';
+        option.text = '[' + suffix + '] ' + name;
+        if (option.text.length > 70) option.text = option.text.substring(0, 70) + '...';
+        itemSelect.appendChild(option);
+      });
+      
+      var composition = flow.get('composition') || {};
+      itemSelect.value = composition.id || -1;
+      // if js doesn't find the id in the select box, it set's index to -1 -> item appears to be custom
+      if (itemSelect.selectedIndex &lt; 0) itemSelect.value = -1;
+      itemSelect.title = composition.name || '';
+      var fractions = composition.fractions || [];
+      
+      function setCustom(){
+        itemSelect.value = -1;
+        itemSelect.title = '';
+      }
+      
+      var table = document.getElementById('fractions-edit-table')
+      
+      // add a row to the fractions table with inputs and event listeners
+      function addFractionRow(fraction){
+      
+        // input for fraction percentage
+        var row = table.insertRow(-1);
+        var fractionsCell = row.insertCell(-1);
+        var fInput = document.createElement("input");
+        fInput.type = 'number';
+        fInput.name = 'fraction';
+        fInput.style = 'text-align: right;';
+        fInput.max = 100;
+        fInput.min = 0;
+        fInput.style.float = 'left';
+        fractionsCell.appendChild(fInput);
+        fInput.value = Math.round(fraction.fraction * 1000) / 10;
+        fInput.addEventListener('change', setCustom);
+        
+        var perDiv = document.createElement('div');
+        perDiv.innerHTML = '%';
+        perDiv.style.float = 'left';
+        perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
+        fractionsCell.appendChild(perDiv);
+        
+        // select material
+        var matSelect = document.createElement('div');
+        matSelect.classList.add('materialSelect');
+        matSelect.setAttribute('data-material-id', fraction.material);
+        _this.hierarchicalSelect(_this.materials, matSelect, {
+          callback: function(model){
+            var matId = (model) ? model.id : '';
+            matSelect.setAttribute('data-material-id', matId);
+            setCustom();
+          },
+          selected: fraction.material
+        });
+        matSelect.style.float = 'left';
+        row.insertCell(-1).appendChild(matSelect);
+        
+        var sourceCell = row.insertCell(-1);
+        sourceCell.setAttribute("style", "white-space: nowrap");
+        _this.addPublicationInput(sourceCell, fraction.publication, function(id){
+          setCustom();
+        }, '#fractions-modal')
+        
+        // button to remove the row
+        var removeBtn = document.createElement('button');
+        removeBtn.classList.add('btn', 'btn-warning', 'square');
+        removeBtn.title = gettext('remove fraction');
+        var span = document.createElement('span');
+        span.classList.add('glyphicon', 'glyphicon-minus');
+        removeBtn.appendChild(span);
+        row.insertCell(-1).appendChild(removeBtn);
+        removeBtn.addEventListener('click', function(){
+          row.parentNode.removeChild(row);
+          setCustom();
+        });
+      }
+      
+      // put the given fractions into the table
+      function setFractions(fractions) {
+        _.each(fractions, addFractionRow)
+      }
+      
+      // init with fractions of current composition
+      setFractions(fractions);
+      
+      // on selection of new item render its fractions
+      itemSelect.addEventListener('change', function(){
+        var item = items.get(itemSelect.value);
+        // delete all rows except first one (= header)
+        while (table.rows.length > 1) table.deleteRow(1);
+        itemSelect.title = item.get('name');
+        setFractions(item.get('fractions'));
+      });
+      
+      // button for adding the fraction
+      var addBtn = modal.querySelector('#add-fraction-button');
+      addBtn.addEventListener('click', function(){
+        addFractionRow( { fraction: 0, material: '', publication: null } );
+        setCustom();
+      });
+      
+      // fraction confirmed by clicking OK, completely recreate the composition
+      var okBtn = modal.querySelector('#confirm-fractions');
+      
+      okBtn.addEventListener('click', function(){
+        
+        // check the inputs first
+        var alert = modal.querySelector('.alert');
+        var fractionInputs = modal.querySelectorAll('input[name="fraction"]');
+        var sum = 0;
+        
+        var errorMsg;
+        
+        // sum test
+        for (i = 0; i &lt; fractionInputs.length; i++) {
+          sum += parseFloat(fractionInputs[i].value); // strangely the input returns a text (though its type is number)
+        }
+        sum = Math.round(sum);
+        
+        if (sum != 100){
+          var errorMsg = gettext("The fractions have to sum up to 100!") + ' (' + gettext('current sum') + ': ' + sum + ')';
+        } else {
+          // if sum test is passed check materials
+          var matSelects = modal.querySelectorAll('.materialSelect');
+          var matIds = []
+          for (i = 0; i &lt; matSelects.length; i++) {
+            var matId = matSelects[i].getAttribute('data-material-id');
+            if (!matId) {
+              errorMsg = gettext('All materials have to be set!');
+              break;
+            }
+            if (matIds.includes(matId)){
+              errorMsg = gettext('Multiple fractions with the same material are not allowed!');
+              break;
+            }
+            matIds.push(matId);
+          }
+        }
+      
+        if (errorMsg){
+          alert.innerHTML = errorMsg;
+          alert.style.display = 'block';
+          return;
+        }
+        
+        // set the compositions after completing checks
+        var composition = {};
+        var item = items.get(itemSelect.value);
+        // no item -> set id to null and name to "custom"
+        composition.id = (item) ? item.id : null;
+        composition.name = (item) ? item.get('name') : gettext('custom');
+        composition.fractions = [];
+        for (var i = 1; i &lt; table.rows.length; i++) {
+          var row = table.rows[i];
+          var fInput = row.querySelector('input[name="fraction"]');
+          var matSelect = row.querySelector('.materialSelect');
+          var pubInput = row.querySelector('input[name="publication"]');
+          var f = fInput.value / 100;
+          var fraction = { 
+            'fraction': Number(Math.round(f+'e3')+'e-3'),
+            'material': matSelect.getAttribute('data-material-id'),
+            'publication': pubInput.getAttribute('data-publication-id')
+          };
+          composition.fractions.push(fraction);
+        }
+        flow.set('composition', composition);
+        $(modal).modal('hide');
+      })
+      
+      // finally show the modal after setting it up
+      $(modal).modal('show');
+    },
+    
+    // build a hierarchical selection of a collection, 
+    // parent  of the models define tree structure
+    // options.callback(model) is called, when a model from the collection is selected
+    // options.selected preselects the model with given id
+    hierarchicalSelect: function(collection, parent, options){
+    
+      var wrapper = document.createElement("div");
+      var options = options || {};
+      var items = [];
+      
+      // list to tree
+      function treeify(list) {
+        var treeList = [];
+        var lookup = {};
+        list.forEach(function(item) {
+          lookup[item['id']] = item;
+        });
+        list.forEach(function(item) {
+          if (item['parent'] != null) {
+            lookupParent = lookup[item['parent']]
+            if (!lookupParent['nodes']) lookupParent['nodes'] = [];
+            lookupParent['nodes'].push(item);
+          } else {
+            treeList.push(item);
+          }
+        });
+        return treeList;
+      };
+      
+      // make a list out of the collection that is understandable by treeify and hierarchySelect
+      collection.each(function(model){
+        var item = {};
+        var name = model.get('name');
+        item.text = name.substring(0, 70);
+        if (name.length > 70) item.text += '...';
+        item.title = model.get('name');
+        item.level = 1;
+        item.id = model.id;
+        item.parent = model.get('parent');
+        item.value = model.id;
+        items.push(item);
+      })
+      
+      var treeList = treeify(items);
+      
+      // converts tree to list sorted by appearance in tree, 
+      // stores the level inside the tree as an attribute in each node
+      function treeToLevelList(root, level){
+        var children = root['nodes'] || [];
+        children = children.slice();
+        delete root['nodes'];
+        root.level = level;
+        list = [root];
+        children.forEach(function(child){
+          list = list.concat(treeToLevelList(child, level + 1));
+        })
+        return list;
+      };
+      
+      var levelList = [];
+      treeList.forEach(function(root){ levelList = levelList.concat(treeToLevelList(root, 1)) });
+      
+      // load template and initialize the hierarchySelect plugin
+      var inner = document.getElementById('hierarchical-select-template').innerHTML,
+          template = _.template(inner),
+          html = template({ options: levelList });
+      wrapper.innerHTML = html;
+      wrapper.name = 'material';
+      parent.appendChild(wrapper);
+      var select = wrapper.querySelector('.hierarchy-select');
+      $(select).hierarchySelect({
+          width: 400
+      });
+      
+      // preselect an item
+      if (options.selected){
+        var selection = select.querySelector('.selected-label');
+        var model = collection.get(options.selected);
+        if (model){
+          // unselect the default value
+          var li = select.querySelector('li[data-default-selected]');
+          li.classList.remove('active');
+          selection.innerHTML = model.get('name');
+          var li = select.querySelector('li[data-value="' + options.selected + '"]');
+          li.classList.add('active');
+        }
+      }
+      
+      // event click on item
+      var anchors = select.querySelectorAll('a');
+      for (var i = 0; i &lt; anchors.length; i++) {
+        anchors[i].addEventListener('click', function(){
+          var item = this.parentElement;
+          console.log(item)
+          var model = collection.get(item.getAttribute('data-value'));
+          wrapper.title = item.title;
+          console.log(model)
+          if (options.callback) options.callback(model);
+        })
+      }
     },
 
     // on click add row button
@@ -432,7 +768,7 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       var tableId;
       var flow;
       var targetIdentifier;
-      var skipTarget = false;
+      var isStock = false;
       if (buttonId == 'add-input-button'){
         tableId = 'input-table';
         flow = this.newInFlows.add({});
@@ -462,9 +798,9 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
           'origin': this.model.id,
           'quality': null
         });
-        skipTarget = true;
+        isStock = true;
       }
-      this.addFlowRow(tableId, flow, targetIdentifier, skipTarget);
+      this.addFlowRow(tableId, flow, targetIdentifier, isStock);
 
     },
 
@@ -506,7 +842,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       return template({
         name: this.model.get('name'),
         keyflow: this.keyflowName,
-        group: this.model.get('activitygroup'),
         nace: this.model.get('nace')
       });
     },
@@ -518,7 +853,6 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
         name: this.model.get('name'),
         keyflow: this.keyflowName,
         bvdid: this.model.get('BvDid'),
-        activity: this.model.get('activity'),
         url: this.model.get('website'),
         year: this.model.get('year'),
         employees: this.model.get('employees'),
@@ -527,73 +861,105 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
     },
     
     // open modal for setting the datasource
-    editDatasource: function(onChange){
+    editDatasource: function(onConfirm){
       var _this = this;
-      this.activeDs = null;
+      this.activePublication = null;
       _.each(this.dsRows, function(row){ row.classList.remove('selected'); });
-      this.onDsChange = onChange;
+      this.onPubConfirmed = onConfirm;
       $('#datasource-modal').modal('show'); 
     },
     
     confirmDatasource: function(){
-      this.onDsChange(this.activeDs);
+      this.onPubConfirmed(this.activePublication);
     },
     
+    /*
+     * prepare the table of publications
+     */
     setupDsTable: function(){
       require('libs/jquery.tablesorter.pager');
-      $(this.dsTable).tablesorter({});
+      $(this.dsTable).tablesorter({
+        widgets: ['filter'],
+        widgetOptions : {
+          filter_placeholder: { search : gettext('Search') + '...' }
+        }
+      });
       // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
       if ($(this.dsTable).find('tr').length > 1)
         $(this.dsTable).tablesorterPager({container: $("#dspager")});
       
       ////workaround for a bug in tablesorter-pager by triggering
       ////event that pager-selection changed to redraw number of visible rows
-      //var sel = document.getElementById('dspagesize');
-      //sel.selectedIndex = 0;
-      //sel.dispatchEvent(new Event('change'));
-    
+      var sel = document.getElementById('dspagesize');
+      sel.selectedIndex = 0;
+      sel.dispatchEvent(new Event('change'));
     },
     
+    /*
+     * refresh the table of publications
+     */
+    refreshDatasources(){
+      var _this = this;
+      this.publications.fetch({ success: function(){
+        // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
+        $(_this.dsTable).trigger("destroy");
+        _this.renderDatasources(_this.publications);
+        _this.setupDsTable();
+      }});
+    },
+    
+    /*
+     * prerender the table for publications inside a modal
+     */
     renderDatasources: function(publications){
       var _this = this;
       var table = this.dsTable;
-      $.tablesorter.clearTableBody($(table)[0]);
       this.dsRows = [];
+      // avoid error message if not initialized with tablesorter yet
+      try {
+        $.tablesorter.clearTableBody($(table)[0]);
+      }
+      catch (err) { }
       publications.each(function(publication){
-        var row = document.createElement('tr');
+        var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
         row.style.cursor = 'pointer';
         _this.dsRows.push(row);
         row.insertCell(-1).innerHTML = publication.get('title');
+        row.insertCell(-1).innerHTML = publication.get('type');
         row.insertCell(-1).innerHTML = publication.get('authors');
         row.insertCell(-1).innerHTML = publication.get('doi');
         var anchor = document.createElement('a');
-        var url = publication.get('url');
+        var url = publication.get('publication_url');
         anchor.href = url;
         anchor.innerHTML = url;
         anchor.target = '_blank';
         row.insertCell(-1).appendChild(anchor);
-        $(table).find('tbody').append($(row)).trigger('addRows', [$(row), true]);
+        
+        // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
+        //$(table).trigger('addRows', [$(row), true]);
         
         row.addEventListener('click', function() {
           _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
           row.classList.add('selected');
-          _this.activeDs = publication;
+          _this.activePublication = publication;
         });
       });
+    },
+    
+    alert: function(message){
+      document.getElementById('alert-message').innerHTML = message; 
+      $('#alert-modal').modal('show'); 
     },
 
     uploadChanges: function(){
       var _this = this;
       
-      var modelsToSave = [];
-      var modelsToDestroy = [];
-      // delete exisiting flows if marked for deletion
-      // otherwise update them if they changed
+      var models = [];
+      
+      // update existing models
       var update = function(model){
-        if (model.markedForDeletion)
-          modelsToDestroy.push(model);
-        else if (model.changedAttributes() != false)
-          modelsToSave.push(model);
+        if (model.markedForDeletion || model.changedAttributes() != false)
+          models.push(model);
       };
       this.inFlows.each(update);
       this.outFlows.each(update);
@@ -602,29 +968,44 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
       // save added flows only, when they are not marked for deletion
       var create = function(model){
         if (!model.markedForDeletion &amp;&amp; Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
-          modelsToSave.push(model);
+          models.push(model);
       }
       this.newInFlows.each(create);
       this.newOutFlows.each(create);
       this.newStocks.each(create);
       
-      // chain save and destroy operations
-      var saveComplete = _.invoke(modelsToSave, 'save');
-      var destructionComplete = _.invoke(modelsToDestroy, 'destroy');
       
       var loader = new Loader(document.getElementById('flows-edit'),
                               {disable: true});
+                              
       var onError = function(response){
-        alert(response.responseText); 
+        _this.alert(response.responseText); 
         loader.remove();
       };
-      $.when.apply($, saveComplete).done(function(){
-        $.when.apply($, destructionComplete).done(function(){
+      
+      // upload the models recursively (starting at index it)
+      function uploadModel(models, it){
+        // end recursion if no elements are left and call the passed success method
+        if (it >= models.length) {
           loader.remove();
-          console.log('upload complete');
           _this.onUpload();
-        }).fail(onError);
-      }).fail(onError);
+          return;
+        };
+        var model = models[it];
+        // upload or destroy current model and upload next model recursively on success
+        var params = {
+            success: function(){ uploadModel(models, it+1) },
+            error: function(model, response){ onError(response) }
+          }
+        if (model.markedForDeletion)
+          model.destroy(params);
+        else {
+          model.save(null, params);
+        }
+      };
+      
+      // start recursion at index 0
+      uploadModel(models, 0);
     },
 
     /**
@@ -649,13 +1030,13 @@ function($, Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Loader){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

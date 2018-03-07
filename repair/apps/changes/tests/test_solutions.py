@@ -1,7 +1,7 @@
 
 from django.urls import reverse
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.changes.factories import (
     SolutionCategoryFactory,
@@ -12,7 +12,7 @@ from repair.apps.changes.factories import (
 from repair.apps.login.factories import UserInCasestudyFactory
 
 
-class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -52,7 +52,7 @@ class SolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
                                                   solcat3})
 
 
-class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -94,7 +94,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
 
 
 class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
-    BasicModelTest, APITestCase):
+    BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -133,7 +133,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
             )
 
 
-class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21

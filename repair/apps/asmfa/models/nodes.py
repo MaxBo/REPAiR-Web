@@ -6,23 +6,16 @@ from django.utils.timezone import now
 from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import GDSEModel
-from .keyflows import KeyflowInCasestudy
-
-
-class DataEntry(GDSEModel):
-
-    user = models.CharField(max_length=255, default="tester")
-    source = models.URLField(max_length=255, default="www.osf.io")  # this will be a link to OSF
-    date = models.DateTimeField(default=now)
-    raw = models.BooleanField(default=True)
+from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
 
 
 class Node(GDSEModel):
 
     done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
 
-    class Meta:
+    class Meta(GDSEModel.Meta):
         abstract = True
+        #default_permissions = ('add', 'change', 'delete', 'view')
 
 
 class ActivityGroup(Node):
@@ -47,6 +40,18 @@ class ActivityGroup(Node):
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
 
+    @property
+    def nace_codes(self):
+        """
+        returns a set of the nace codes of the activities
+        that belong to the activity group
+
+        Returns
+        -------
+        nace_code : set
+        """
+        return set((act['nace'] for act in self.activity_set.values()))
+
 
 class Activity(Node):
 
@@ -58,19 +63,21 @@ class Activity(Node):
                                       on_delete=models.CASCADE)
 
 
+class Reason(models.Model):
+    """Reason for exclusion of actors"""
+    reason = models.TextField()
+
+    def __str__(self):
+        return self.reason
+
+
 class Actor(Node):
 
     # unique actor identifier in ORBIS database
     BvDid = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
-    reason_choice = ((0, "Included"),
-                     (1, "Outside Region, inside country"),
-                     (2, "Outside Region, inside EU"),
-                     (3, "Outside Region, outside EU"),
-                     (4, "Outside Material Scope"),
-                     (5, "Does Not Produce Waste"))
-    reason = models.IntegerField(choices=reason_choice, default=0)
+    reason = models.ForeignKey(Reason, null=True, on_delete=models.SET_NULL)
     # if false - actor will be ignored
     included = models.BooleanField(default=True)
 

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          GroupStockFactory,
                                          ActivityStockFactory,
-                                         ActorStockFactory)
+                                         ActorStockFactory,
+                                         MaterialFactory)
 
 
-class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -23,6 +24,14 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     activitystock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+    material_1 = 10
+    material_2 = 11
+    comp_data = {'name': 'testname', 'nace': 'testnace',
+                 "fractions": [{ "material": material_1,
+                                 "fraction": 0.4},
+                               { "material": material_2,
+                                 "fraction": 0.6}]}
+    do_not_check = ['composition']
 
     @classmethod
     def setUpClass(cls):
@@ -32,13 +41,13 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                            keyflow_pk=cls.keyflowincasestudy)
         cls.url_pk = dict(pk=cls.activitystock)
         cls.put_data = dict(origin=cls.origin,
-                            product=cls.product,
+                            composition=cls.comp_data,
                             )
         cls.post_data = dict(origin=cls.origin,
-                             product=cls.product,
+                             composition=cls.comp_data,
                              )
         cls.patch_data = dict(origin=cls.origin,
-                              product=cls.product,
+                              composition=cls.comp_data,
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -47,17 +56,19 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
+        self.mat_obj_1 = MaterialFactory(id=self.material_1,
+                                             keyflow=kic_obj)
+        self.mat_obj_2 = MaterialFactory(id=self.material_2,
+                                             keyflow=kic_obj)
         self.obj = ActivityStockFactory(id=self.activitystock,
                                         origin__id=self.origin,
                                         origin__activitygroup__id=self.activitygroup,
                                         origin__activitygroup__keyflow=kic_obj,
-                                        product__id=self.product,
-                                        product__keyflow=kic_obj,
                                         keyflow=kic_obj,
                                         )
 
 
-class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -71,6 +82,14 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     actorstock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+    material_1 = 10
+    material_2 = 11
+    comp_data = {'name': 'testname', 'nace': 'testnace',
+                 "fractions": [{ "material": material_1,
+                                 "fraction": 0.4},
+                               { "material": material_2,
+                                 "fraction": 0.6}]}
+    do_not_check = ['composition']
 
     @classmethod
     def setUpClass(cls):
@@ -80,13 +99,13 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                            keyflow_pk=cls.keyflowincasestudy)
         cls.url_pk = dict(pk=cls.actorstock)
         cls.put_data = dict(origin=cls.origin,
-                            product=cls.product,
+                            composition=cls.comp_data,
                             )
         cls.post_data = dict(origin=cls.origin,
-                             product=cls.product,
+                             composition=cls.comp_data,
                              )
         cls.patch_data = dict(origin=cls.origin,
-                              product=cls.product,
+                              composition=cls.comp_data,
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -95,18 +114,20 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
+        self.mat_obj_1 = MaterialFactory(id=self.material_1,
+                                             keyflow=kic_obj)
+        self.mat_obj_2 = MaterialFactory(id=self.material_2,
+                                             keyflow=kic_obj)
         self.obj = ActorStockFactory(
             id=self.actorstock,
             origin__id=self.origin,
             origin__activity__activitygroup__id=self.activitygroup,
             origin__activity__activitygroup__keyflow=kic_obj,
-            product__id=self.product,
-            product__keyflow=kic_obj,
             keyflow=kic_obj,
             )
 
 
-class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
+class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     """
     MAX:
     1. set stock.amount default value to 0
@@ -120,6 +141,14 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
     groupstock = 13
     keyflowincasestudy = 45
     activitygroup = 76
+    material_1 = 10
+    material_2 = 11
+    comp_data = {'name': 'testname', 'nace': 'testnace',
+                 "fractions": [{ "material": material_1,
+                                 "fraction": 0.4},
+                               { "material": material_2,
+                                 "fraction": 0.6}]}
+    do_not_check = ['composition']
 
     @classmethod
     def setUpClass(cls):
@@ -129,13 +158,13 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
                            keyflow_pk=cls.keyflowincasestudy)
         cls.url_pk = dict(pk=cls.groupstock)
         cls.put_data = dict(origin=cls.origin,
-                            product=cls.product,
+                            composition=cls.comp_data,
                             )
         cls.post_data = dict(origin=cls.origin,
-                             product=cls.product,
+                             composition=cls.comp_data,
                              )
         cls.patch_data = dict(origin=cls.origin,
-                              product=cls.product,
+                              composition=cls.comp_data,
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -144,10 +173,12 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelTest, APITestCase):
         kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
+        self.mat_obj_1 = MaterialFactory(id=self.material_1,
+                                             keyflow=kic_obj)
+        self.mat_obj_2 = MaterialFactory(id=self.material_2,
+                                             keyflow=kic_obj)
         self.obj = GroupStockFactory(id=self.groupstock,
                                      origin__id=self.origin,
                                      origin__keyflow=kic_obj,
-                                     product__id=self.product,
-                                     product__keyflow=kic_obj,
                                      keyflow=kic_obj,
                                      )

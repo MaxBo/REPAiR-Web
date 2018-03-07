@@ -3,7 +3,95 @@ machine:
   environment:
     DJANGO_SETTINGS_MODULE: repair.settings4tests
 jobs:
-  build:
+  django testing:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run: mkdir test-reports
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
+          name: Migrate Test Database
+          command: |
+            python manage.py migrate --settings=repair.settings4tests
+      - store_artifacts:
+          path: test-reports/
+          destination: tr1
+      - store_test_results:
+          path: test-reports/
+      - run:
+          name: codecov
+          command: |
+            coverage run manage.py test --settings=repair.settings4tests
+            codecov
+
+
+  selenium testing:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
+          name: Install Node Modules
+          command: |
+            yarn install
+      - run:
+          name: Configure Javascript packages
+          command: |
+            node_modules/.bin/webpack --config repair/webpack.staged.config.js
+      - run:
+          name: Download Selenium
+          command: |
+            curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
+      - run:
+          name: Migrate Test Database
+          command: |
+            python manage.py migrate --settings=repair.settings_staged
+      - run:
+          name: load fixtures to test database
+          command: |
+            python manage.py loaddata sandbox_data --settings=repair.settings_staged
+            python manage.py loaddata seleniumtester --settings=repair.settings_staged
+      - run:
+          name: start Testserver
+          command: |
+            python manage.py runserver 4444 --settings=repair.settings_staged
+          background: true
+      - run:
+          name: Selenium Tests
+          command: |
+            python repair/tests/EditActorTest_orig.py
+      - store_artifacts:
+          path: repair/tests/artifacts
+
+
+  setup database:
+    docker:
+      - image: maxboh/docker-circleci-node-miniconda-gdal
+    steps:
+      - checkout
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install -r requirements-dev.txt
+      - run:
+          name: Migrate Test Database again
+          command: |
+            python manage.py migrate --run-syncdb --settings=repair.settings4tests
+      - run:
+          name: load fixtures to test database
+          command: |
+            python manage.py loaddata sandbox_data --settings=repair.settings4tests
+
+
+  jasmine tests:
     docker:
       - image: maxboh/docker-circleci-node-miniconda-gdal
     steps:
@@ -22,13 +110,8 @@ jobs:
           command: |
             node_modules/.bin/webpack --config repair/webpack.dev.config.js
       - run:
-          name: Download Selenium
-          command: |
-            curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
-      - run:
           name: Migrate Test Database
           command: |
-
             python manage.py migrate --settings=repair.settings4tests
       - run:
           name: start Testserver
@@ -36,26 +119,16 @@ jobs:
             python manage.py runserver 4444 --settings=repair.settings4tests
           background: true
       - run:
-          name: run py.test
+          name: Run Jasmine Tests
           command: |
-            python manage.py test --settings=repair.settings4tests
+            node_modules/.bin/jasmine
 
-      - run:
-          name: Migrate Test Database again
-          command: |
-            python manage.py migrate --run-syncdb --settings=repair.settings4tests
-      - run:
-          name: load fixtures to test database
-          command: |
-            python manage.py loaddata sandbox_data --settings=repair.settings4tests
 
-      - store_artifacts:
-          path: test-reports/
-          destination: tr1
-      - store_test_results:
-          path: test-reports/
-      - run:
-          name: codecov
-          command: |
-            coverage run manage.py test --settings=repair.settings4tests
-            codecov
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - django testing
+      - setup database
+      - jasmine tests
+      - selenium testing

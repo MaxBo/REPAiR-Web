@@ -6,12 +6,13 @@ var config = require('./webpack.base.config.js')
 var ip = 'localhost';
 var port = '8001';
 
-config.entry = {
-    DataEntry: ['./js/data-entry', 'webpack/hot/only-dev-server'],
-    StudyArea: ['./js/study-area', 'webpack/hot/only-dev-server'],
-    StatusQuo: ['./js/status-quo', 'webpack/hot/only-dev-server'],
-    devServerClient: 'webpack-dev-server/client?http://0.0.0.0:' + port
-}
+// assign hot reloading to all entry points
+Object.keys(config.entry).forEach(function(key, index){
+  var value = config.entry[key];
+  config.entry[key] = [value, 'webpack/hot/only-dev-server']
+});
+
+config.entry.devServerClient = 'webpack-dev-server/client?http://0.0.0.0:' + port
 
 config.output.path = path.resolve('./repair/static/bundles/dev/');
 config.output.publicPath = 'http://' + ip + ':' + port + '/static/bundles/dev/';

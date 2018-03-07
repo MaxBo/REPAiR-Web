@@ -1,7 +1,7 @@
 
 from django.urls import reverse
 from test_plus import APITestCase
-from repair.tests.test import BasicModelTest
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.changes.factories import (ImplementationFactory,
                                            StrategyFactory)
@@ -9,7 +9,7 @@ from repair.apps.changes.factories import (ImplementationFactory,
 from repair.apps.studyarea.factories import StakeholderFactory
 
 
-class StrategyInCasestudyTest(BasicModelTest, APITestCase):
+class StrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     strategy = 48

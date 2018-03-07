@@ -1,0 +1,44 @@
+{% load i18n %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
+
+<div id="evaluation-setup"></div>
+
+<script type="text/template" id="evaluation-template">
+<div class="row">
+  <div class="col-md-4 bordered" style="margin: 10px;">
+    <div class = "row">
+      {% trans "Sustainability Field" %}
+      <select id="category-select" class='form-control'>
+        <% categories.forEach(function(category) { %>
+          <option value="<%= category %>"> <%= category %></option>
+        <% });  %>
+      </select>
+    </div>
+    <div class = "row">
+      {% trans "Indicator" %}
+      <select id="indicator-select" class='form-control'>
+      </select>
+    </div>
+    <div class = "row">
+      {% trans "LCA-Reference" %}
+      <select id="lca-select" class='form-control'>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-7 bordered" style='min-height: 400px;'>
+    <img src='/static/img/example-evaluation-chart.png' />
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 bordered" style='min-height: 500px; margin: 10px;'>
+    <div id="evaluation-map">
+    </div>
+  </div>
+  <div class="col-md-5 bordered" style='min-height: 200px; line-height: 200px; white-space: nowrap; margin: 10px;'>
+    <label style="text-align: center; display: block;">Data source for indicator</label>
+  </div>
+</div>
+</script>
+
+{% endblock %}

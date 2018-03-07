@@ -14,7 +14,8 @@ from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
 from .bases import (ForceMultiMixin,
                     InCasestudyField,
                     InCasestudyListField,
-                    InUICSetField)
+                    InUICSetField,
+                    IDRelatedField)
 
 ###############################################################################
 #### Serializers for the login app                                         ####
@@ -122,6 +123,8 @@ class CaseStudySerializer(ForceMultiMixin,
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
         view_name='publicationincasestudy-list')
+    aims = InCasestudyListField(view_name='aim-list')
+    challenges = InCasestudyListField(view_name='challenge-list')
 
     class Meta:
         model = CaseStudy
@@ -133,8 +136,10 @@ class CaseStudySerializer(ForceMultiMixin,
                   'levels',
                   'focusarea',
                   'publications',
+                  'aims',
+                  'challenges'
                   )
-        
+
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
         geo_field = self.Meta.geo_field
@@ -164,10 +169,7 @@ class UserInCasestudyField(InCasestudyField):
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     role = serializers.CharField(required=False, allow_blank=True)
-    user = serializers.HyperlinkedIdentityField(
-        source='user.user',
-        view_name='user-detail',
-    )
+    user = IDRelatedField()
     implementations = InUICSetField(view_name='implementation-list')
 
     class Meta:

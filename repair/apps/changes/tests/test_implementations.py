@@ -3,7 +3,7 @@ from django.urls import reverse
 from test_plus import APITestCase
 from django.contrib.gis.geos import Point, MultiPoint, LineString
 
-from repair.tests.test import BasicModelTest, BasicModelReadTest
+from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 from repair.apps.changes.models import (
     SolutionInImplementationQuantity,
     SolutionQuantity,
@@ -22,7 +22,7 @@ from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
 
-class ImplementationsInCasestudyTest(BasicModelTest, APITestCase):
+class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
@@ -149,7 +149,7 @@ class ModelSolutionInImplementation(TestCase):
         assert not solution_in_impl_quantities
 
 
-class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
+class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
@@ -195,7 +195,7 @@ class SolutionInImplementationInCasestudyTest(BasicModelTest, APITestCase):
             id=self.solution_implementation)
 
 
-class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
+class GeometryInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
                                                         APITestCase):
 
     casestudy = 17
@@ -234,7 +234,7 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelTest,
             id=self.geometry)
 
 
-class NoteInSolutionInImplementationInCasestudyTest(BasicModelTest,
+class NoteInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
                                                     APITestCase):
 
     casestudy = 17

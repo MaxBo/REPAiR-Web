@@ -3,11 +3,13 @@
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import BasicModelTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest, LoginTestCase
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
-                                         ActorFactory)
+                                         ActorFactory,
+                                         ReasonFactory,
+                                         )
 
 
 class TestActor(LoginTestCase, APITestCase):
@@ -38,11 +40,13 @@ class TestActor(LoginTestCase, APITestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-class ActorInCaseStudyTest(BasicModelTest, APITestCase):
+class ActorInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     keyflow = 23
     actor = 5
+    reason1_id = 3
+    reason2_id = 5
 
     @classmethod
     def setUpClass(cls):
@@ -57,21 +61,59 @@ class ActorInCaseStudyTest(BasicModelTest, APITestCase):
                              turnover='1000.00',
                              employees=2,
                              activity=1,
-                             BvDid='141234')
+                             BvDid='141234',
+                             reason=cls.reason1_id)
         cls.put_data = dict(name='posttestname',
                             year=2017,
                             turnover='1000.00',
                             employees=2,
                             activity=1,
-                            BvDid='141234')
+                            BvDid='141234',
+                            reason=cls.reason2_id)
         cls.patch_data = dict(name='patchtestname')
 
     def setUp(self):
         super().setUp()
-        self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic)
+        self.reason1 = ReasonFactory(id=self.reason1_id, reason='Reason 1')
+        self.reason2 = ReasonFactory(id=self.reason2_id, reason='Reason 2')
+        self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic,
+                                reason=self.reason1)
+
+    def test_reason(self):
+        """Test reason for exclusion"""
+        url_reason = 'reason-list'
+        response = self.get_check_200(url_reason)
+        self.assertSetEqual({'Reason 1', 'Reason 2'},
+                            {r['reason'] for r in response.data})
+
+        data = {'reason': 'Reason 3', }
+        response = self.post(url_reason, data=data)
+        self.response_201(response)
+
+        url = self.url_key + '-detail'
+        kwargs = {'pk': self.obj.pk, **self.url_pks, }
+
+        response = self.get_check_200(url, **kwargs)
+        assert response.data['reason'] == self.reason1.id
+
+        # change reason
+
+        response = self.patch(url, **kwargs,
+                              data={'reason': self.reason2.id, })
+        self.response_200(response)
+        assert response.data['reason'] == self.reason2.id
+
+        # delete the reason
+        url_reason = 'reason-detail'
+        response = self.delete(url_reason, pk=self.reason2.id)
+        self.response_204(response)
+
+        # check if actors reason was set to null
+        response = self.get_check_200(url, **kwargs)
+        assert response.data['reason'] is None
 
 
-class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5
@@ -106,7 +148,7 @@ class ActivityInCaseStudyTest(BasicModelTest, APITestCase):
             activitygroup__id=self.activitygroup)
 
 
-class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activitygroup = 90
@@ -128,7 +170,7 @@ class ActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
         self.obj = ActivityGroupFactory(keyflow=self.kic)
 
 
-class ActivityInActivitygroupInCaseStudyTest(BasicModelTest, APITestCase):
+class ActivityInActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     activity = 5

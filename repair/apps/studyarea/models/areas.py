@@ -11,10 +11,11 @@ class AdminLevels(GDSEUniqueNameModel):
     level = models.IntegerField()
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
 
-    class Meta:
+    class Meta(GDSEUniqueNameModel.Meta):
         unique_together = (('casestudy', 'level',),
                            ('casestudy', 'name',),
                            )
+        abstract = False
 
     def create_area(self, **kwargs):
         """Create an area of the according level"""

@@ -70,91 +70,38 @@
      * @memberof module:config
      */
     config.api = {
-      base:                 '/api', // base Rest-API URL
-      stakeholders:         '/api/stakeholders/',
-      publications:         '/api/publications/',
-      casestudies:          '/api/casestudies/',
-      materials:            '/api/materials/',
-      keyflows:             '/api/keyflows/',
-      qualities:            '/api/qualities',
-      keyflowsInCaseStudy:  '/api/casestudies/{0}/keyflows',
-      activitygroups:       '/api/casestudies/{0}/keyflows/{1}/activitygroups',
-      activities:           '/api/casestudies/{0}/keyflows/{1}/activities',
-      actors:               '/api/casestudies/{0}/keyflows/{1}/actors',
-      adminLocations:       '/api/casestudies/{0}/keyflows/{1}/administrativelocations',
-      opLocations:          '/api/casestudies/{0}/keyflows/{1}/operationallocations',
-      activitiesInGroup:    '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities',
-      actorsInActivity:     '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities/{3}/actors',
-      products:             '/api/casestudies/{0}/keyflows/{1}/products',
-      activityToActivity:   '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
-      groupToGroup:         '/api/casestudies/{0}/keyflows/{1}/group2group/',
-      actorToActor:         '/api/casestudies/{0}/keyflows/{1}/actor2actor/',
-      groupStock:           '/api/casestudies/{0}/keyflows/{1}/groupstock/',
-      activityStock:        '/api/casestudies/{0}/keyflows/{1}/activitystock/',
-      actorStock:           '/api/casestudies/{0}/keyflows/{1}/actorstock/',
-      arealevels:           '/api/casestudies/{0}/levels',
-      areas:                '/api/casestudies/{0}/levels/{1}/areas',
+      base:                   '/api', // base Rest-API URL
+      stakeholders:           '/api/stakeholders/',
+      casestudies:            '/api/casestudies/',
+      publications:           '/api/publications/',
+      publicationsInCasestudy:'/api/casestudies/{0}/publications/',
+      products:               '/api/products/',
+      wastes:                 '/api/wastes/',
+      keyflows:               '/api/keyflows/',
+      qualities:              '/api/qualities/',
+      reasons:                '/api/reasons/',
+      keyflowsInCaseStudy:    '/api/casestudies/{0}/keyflows',
+      activitygroups:         '/api/casestudies/{0}/keyflows/{1}/activitygroups/',
+      activities:             '/api/casestudies/{0}/keyflows/{1}/activities/',
+      actors:                 '/api/casestudies/{0}/keyflows/{1}/actors/',
+      adminLocations:         '/api/casestudies/{0}/keyflows/{1}/administrativelocations/',
+      opLocations:            '/api/casestudies/{0}/keyflows/{1}/operationallocations/',
+      activitiesInGroup:      '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities/',
+      actorsInActivity:       '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities/{3}/actors/',
+      materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
+      activityToActivity:     '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
+      groupToGroup:           '/api/casestudies/{0}/keyflows/{1}/group2group/',
+      actorToActor:           '/api/casestudies/{0}/keyflows/{1}/actor2actor/',
+      groupStock:             '/api/casestudies/{0}/keyflows/{1}/groupstock/',
+      activityStock:          '/api/casestudies/{0}/keyflows/{1}/activitystock/',
+      actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
+      arealevels:             '/api/casestudies/{0}/levels/',
+      areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
     };
   
     return config;
   }
 );
-
-/* OVERRIDE FUNCTIONS */
-
-/* String formatter taken from https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-example: "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET")
-*/
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
-    });
-  };
-}
-
-// force Backbone to add a trailing Slash to urls (Django is picky with that)
-require(['backbone', 'underscore'], function (Backbone, _) {
-  var _sync = Backbone.sync;
-  Backbone.sync = function(method, model, options){
-    // Add trailing slash to backbone model views
-    var parts = _.result(model, 'url').split('?'),
-      _url = parts[0],
-      params = parts[1];
-
-    _url += _url.charAt(_url.length - 1) == '/' ? '' : '/';
-
-    if (!_.isUndefined(params)) {
-      _url += '?' + params;
-    };
-
-    options = _.extend(options, {
-      url: _url
-    });
-
-    return _sync(method, model, options);
-  };
-});
-
-// add the csrf-token to all unsafe requests, otherwise django would deny access
-require(['jquery', 'browser-cookies'], function ($, cookies) {
-  var csrftoken = cookies.get('csrftoken');
-  function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-  }
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-      if (!csrfSafeMethod(settings.type) &amp;&amp; !this.crossDomain) {
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-      }
-    }
-  });
-});
 </code></pre>
         </article>
     </section>
@@ -165,13 +112,13 @@ require(['jquery', 'browser-cookies'], function ($, cookies) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Publications.html">collections/Publications</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-visualizations_Map.html">visualizations/Map</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jan 18 2018 17:39:47 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
