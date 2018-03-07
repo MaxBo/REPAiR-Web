@@ -14,6 +14,7 @@ define([
      *
      * @param {Object} options
      * @param {string} options.divid                        id of the HTMLElement to render the map into
+     * @param {boolean} [options.renderOSM=true]            render default background map
      * @param {string} [options.projection='EPSG:3857']     projection of the map
      * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
      *
@@ -29,17 +30,22 @@ define([
         center: this.center,
         zoom: 10
       });
-      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
       this.layers = {};
-      this.layers.basic = basicLayer;
+      var initlayers = [];
+      
+      // blank map
+      if (options.renderOSM != false){
+        initlayers.push(new ol.layer.Tile({ 
+          source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+      }
+      
+      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      initlayers.push(basicLayer);
+          
+      this.layers = { basic: basicLayer };
     
       this.map = new ol.Map({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM({crossOrigin: 'anonymous'}),
-          }),
-          basicLayer
-        ],
+        layers: initlayers,
         target: options.divid,
         controls: ol.control.defaults({
           attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
@@ -160,9 +166,16 @@ define([
       if (options.zIndex) layer.setZIndex(options.zIndex);
     }
     
+    setVisible(layername, visible){
+      var layer = this.layers[layername];
+      layer.setVisible(visible);
+    }
+    
     addServiceLayer(name, options){
+      var options = options || {};
       var layer = new ol.layer.Tile({
         opacity: options.opacity || 1,
+        visible: (options.visible != null) ? options.visible: true,
         //extent: [-13884991, 2870341, -7455066, 6338219],
         source: new ol.source.TileWMS({
           url: options.url,
@@ -311,14 +324,13 @@ define([
     /**
      * remove all features from a layer
      *
+     * @param {string} layername               the name of the layer
      * @param {Object} options
-     * @param {string} [options.layername='basic']  the name of the layer
-     * @param {Array.<string>=} options.types               types of the features to remove, defaults to all
+     * @param {Array.<string>=} options.types  types of the features to remove, defaults to all
      */
     clearLayer(layername, options){
       var options = options || {};
-      var layername = layername || 'basic',
-          layer = this.layers[layername];
+      var layer = this.layers[layername];
       if (options.types == null){
         layer.getSource().clear();
       }
@@ -330,6 +342,17 @@ define([
             source.removeFeature(feature);
         })
       }
+    }
+    
+    /**
+     * remove layer
+     *
+     * @param {string} layername   the name of the layer to remove
+     */
+    removeLayer(layername){
+      var layer = this.layers[layername];
+      this.map.removeLayer(layer)
+      delete this.layers[layername];
     }
     
     /**

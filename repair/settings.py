@@ -68,7 +68,6 @@ INSTALLED_APPS = [
     'repair.apps.statusquo',
     'repair.apps.publications',
     'repair.apps.reversions',
-    'repair.apps.geoserver',
     'repair.apps.wmsresources',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
