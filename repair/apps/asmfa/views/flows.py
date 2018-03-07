@@ -4,6 +4,7 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
+from django.db.models import Q
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -66,13 +67,19 @@ class FlowViewSet(RevisionMixin,
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         query_params = request.query_params
-        # query param ?material=xxx
+        filtered = None
         if 'material' in query_params.keys():
             try:
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
             filtered = filter_by_material(material, self.queryset)
+        if 'node' in query_params.keys():
+            queryset = filtered or self.queryset
+            nodes = query_params['node']
+            filtered = queryset.filter(Q(origin__in=nodes) |
+                                       Q(destination__in=nodes))
+        if filtered:
             serializer = SerializerClass(filtered, many=True,
                                          context={'request': request, })
             return Response(serializer.data)
