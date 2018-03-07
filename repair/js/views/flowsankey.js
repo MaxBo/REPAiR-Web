@@ -32,8 +32,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       _.bindAll(this, 'render');
       _.bindAll(this, 'toggleFullscreen');
       var _this = this;
-      this.caseStudyId = this.collection.caseStudyId;
-      this.keyflowId = this.collection.keyflowId;
+      this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
+      this.keyflowId = options.keyflowId || this.collection.keyflowId;
       this.materials = options.materials;
       this.hideUnconnected = options.hideUnconnected;
       
@@ -107,7 +107,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       var nodeIdxDict = {}
       var i = 0;
       
-      models.each(function(model){
+      models.forEach(function(model){
         var id = model.id;
         var name = model.get('name');
         // ignore nodes with no connections at all (if requested)
@@ -137,12 +137,14 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
         return text || ('no composition defined')
       }
       
-      flows.each(function(flow){
+      flows.forEach(function(flow){
         var value = flow.get('amount');
         var originId = flow.get('origin'),
             destinationId = flow.get('destination'),
             source = nodeIdxDict[originId],
             target = nodeIdxDict[destinationId];
+        // continue if one of the linked nodes does not exist
+        if (source == null || target == null) return false;
         var composition = flow.get('composition');
         links.push({
           value: flow.get('amount'),
@@ -152,10 +154,12 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           text: compositionRepr(composition)
         });
       })
-      stocks.each(function(stock){
+      stocks.forEach(function(stock){
         var id = 'stock-' + stock.id;
         var originId = stock.get('origin'),
             source = nodeIdxDict[originId];
+        // continue if node does not exist
+        if (source == null) return false;
         nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
         var composition = stock.get('composition');
         links.push({
