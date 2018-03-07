@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: module:visualizations/Sankey</title>
+    <title>JSDoc: Class: Sankey</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: module:visualizations/Sankey</h1>
+    <h1 class="page-title">Class: Sankey</h1>
 
     
 
@@ -28,7 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>module:visualizations/Sankey<span class="signature">(options)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Sankey<span class="signature">(options)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">sankey diagram of nodes and links between those nodes, supports cycles</div>
         
     
 </header>
@@ -39,9 +41,11 @@
         
 
     
+    <h2>Constructor</h2>
+    
 
     
-    <h4 class="name" id="module:visualizations/Sankey"><span class="type-signature"></span>new module:visualizations/Sankey<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Sankey"><span class="type-signature"></span>new Sankey<span class="signature">(options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +53,7 @@
 
 
 <div class="description">
-    sankey diagram of nodes and links between those nodes, supports cycles
+    set up the sankey diagram
 </div>
 
 
@@ -129,7 +133,7 @@
 
         <tr>
             
-                <td class="name"><code>divid</code></td>
+                <td class="name"><code>el</code></td>
             
 
             <td class="type">
@@ -153,7 +157,7 @@
 
             
 
-            <td class="description last">id of the HTMLElement to render the sankey diagram in</td>
+            <td class="description last">the HTMLElement to render the sankey diagram in</td>
         </tr>
 
     
@@ -219,7 +223,7 @@
 
             
 
-            <td class="description last">width of the diagram, defaults to bounding box of div</td>
+            <td class="description last">width of the diagram, defaults to bounding box of el</td>
         </tr>
 
     
@@ -274,7 +278,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line6">line 6</a>
+        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line8">line 8</a>
     </li></ul></dd>
     
 
@@ -378,7 +382,7 @@
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-visualizations_Sankey.html#~Nodes">module:visualizations/Sankey~Nodes</a>></span>
+<span class="param-type">Array.&lt;<a href="Sankey.html#~Nodes">Sankey~Nodes</a>></span>
 
 
             
@@ -401,7 +405,7 @@
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-visualizations_Sankey.html#~Links">module:visualizations/Sankey~Links</a>></span>
+<span class="param-type">Array.&lt;<a href="Sankey.html#~Links">Sankey~Links</a>></span>
 
 
             
@@ -452,7 +456,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line52">line 52</a>
+        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line70">line 70</a>
     </li></ul></dd>
     
 
@@ -663,7 +667,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line42">line 42</a>
+        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line54">line 54</a>
     </li></ul></dd>
     
 
@@ -958,7 +962,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line31">line 31</a>
+        <a href="visualizations_sankey.js.html">visualizations/sankey.js</a>, <a href="visualizations_sankey.js.html#line43">line 43</a>
     </li></ul></dd>
     
 
@@ -988,13 +992,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:56 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

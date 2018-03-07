@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: views/data-entry-actors.js</title>
+    <title>JSDoc: Source: views/data-entry/actors.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: views/data-entry-actors.js</h1>
+    <h1 class="page-title">Source: views/data-entry/actors.js</h1>
 
     
 
@@ -27,7 +27,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'models/actor', 'collections/activities',
-        'collections/actors', 'collections/arealevels', 'views/data-entry-edit-actor',
+        'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
         'utils/loader', 'app-config', 'tablesorter'],
 function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
          Loader, config){
@@ -223,28 +223,35 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
       var _this = this;
       var buttonId = event.currentTarget.id;
       var tableId;
-      var actor = new Actor({
-        "BvDid": "-",
-        "name": "-----",
-        "consCode": "-",
-        "year": 0,
-        "turnover": 0,
-        "employees": 0,
-        "BvDii": "-",
-        "website": "www.website.org",
-        "activity": this.activities.first().id,
-        'reason': null
-        }, {"caseStudyId": this.model.get('casestudy'), 'keyflowId': this.model.id});
-      actor.save({}, {success: function(){
-        _this.actors.add(actor);
-        var row = _this.addActorRow(actor);
-        // let tablesorter know, that there is a new row
-        $('table').trigger('addRows', [$(row)]);
-        // workaround for going to last page by emulating click (thats where new row is added)
-        document.getElementById('goto-last-page').click();
-        // click row to show details of new actor in edit view
-        row.click();
-      }});
+      
+      function onChange(name){
+        var actor = new Actor({
+          "BvDid": "-",
+          "name": name || "-----",
+          "consCode": "-",
+          "year": 0,
+          "turnover": 0,
+          "employees": 0,
+          "BvDii": "-",
+          "website": "www.website.org",
+          "activity": _this.activities.first().id,
+          'reason': null
+          }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
+        actor.save({}, {success: function(){
+          _this.actors.add(actor);
+          var row = _this.addActorRow(actor);
+          // let tablesorter know, that there is a new row
+          $('table').trigger('addRows', [$(row)]);
+          // workaround for going to last page by emulating click (thats where new row is added)
+          document.getElementById('goto-last-page').click();
+          // click row to show details of new actor in edit view
+          row.click();
+        }});
+      }
+      this.getName({ 
+        title: gettext('Add Actor'),
+        onConfirm: onChange
+      });
     },
     
     /* 
@@ -257,6 +264,42 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
       var message = gettext('Do you really want to delete the actor') + ' &amp;#60;' + this.activeActor.get('name') + '&amp;#62; ' + '?';
       document.getElementById('confirmation-message').innerHTML = message; 
       $(modal).modal('show'); 
+    },
+    
+    /*
+     * open modal dialog to enter a name
+     * options: onConfirm, name, title
+     */
+    getName: function(options){
+      
+      var options = options || {};
+      
+      var div = document.getElementById('actor-name-modal'),
+          inner = document.getElementById('empty-modal-template').innerHTML;
+          template = _.template(inner),
+          html = template({ header:  options.title || '' });
+      
+      div.innerHTML = html;
+      var modal = div.querySelector('.modal');
+      var body = modal.querySelector('.modal-body');
+      
+      var row = document.createElement('div');
+      row.classList.add('row');
+      var label = document.createElement('div');
+      label.innerHTML = gettext('Name');
+      var input = document.createElement('input');
+      input.style.width = '100%';
+      input.value = options.name || '';
+      body.appendChild(row);
+      row.appendChild(label);
+      row.appendChild(input);
+      
+      modal.querySelector('.confirm').addEventListener('click', function(){
+        if (options.onConfirm) options.onConfirm(input.value);
+        $(modal).modal('hide');
+      });
+      
+      $(modal).modal('show');
     },
     
     /* 
@@ -298,13 +341,13 @@ function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

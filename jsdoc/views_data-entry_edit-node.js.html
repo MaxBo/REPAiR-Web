@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: views/data-entry-edit-node.js</title>
+    <title>JSDoc: Source: views/data-entry/edit-node.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: views/data-entry-edit-node.js</h1>
+    <h1 class="page-title">Source: views/data-entry/edit-node.js</h1>
 
     
 
@@ -137,7 +137,9 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 
       // the nace of the model determines the products/wastes of the flows out
       var nace = this.model.get('nace') || 'None';
-      nace = 'T-9700';
+      // join list of nace codes to comma seperated query param
+      if (nace instanceof Array)
+        nace = nace.join()
 
       // fetch inFlows and outFlows with different query parameters
       $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
@@ -238,12 +240,26 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       /* add an input-field to the row, 
        * tracking changes made by user to the attribute and automatically updating the model 
        */
-      var addInput = function(attribute, inputType){
+      var addInput = function(attribute, inputType, unit){
         var input = document.createElement("input");
         if (inputType != null)
           input.type = inputType;
         input.value = flow.get(attribute);
-        row.insertCell(-1).appendChild(input);
+        var cell = row.insertCell(-1);
+        if (unit){
+          var div = document.createElement('div'),
+              wrapper = document.createElement('div');
+          div.innerHTML = unit
+          wrapper.appendChild(input);
+          wrapper.appendChild(div);
+          wrapper.style.whiteSpace = "nowrap";
+          input.style.float = 'left';
+          // need space for units
+          input.style.maxWidth = '70%'; 
+          cell.appendChild(wrapper);
+        }
+        
+        else cell.appendChild(input);
 
         input.addEventListener('change', function() {
           flow.set(attribute, input.value);
@@ -251,7 +267,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         return input;
       };
 
-      var amount = addInput('amount', 'number');
+      var amount = addInput('amount', 'number', gettext('t/year'));
       amount.min = 0;
       
       // origin respectively destination (skipped at stocks)
@@ -306,7 +322,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var pencil = document.createElement('span');
       editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
       editFractionsBtn.appendChild(pencil);
-      editFractionsBtn.innerHTML = gettext('Fractions');
+      editFractionsBtn.innerHTML = gettext('Composition');
       
       itemWrapper.appendChild(editFractionsBtn);
       
@@ -725,7 +741,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       // load template and initialize the hierarchySelect plugin
       var inner = document.getElementById('hierarchical-select-template').innerHTML,
           template = _.template(inner),
-          html = template({ options: levelList });
+          html = template({ options: levelList, defaultOption: 'Select a material' });
       wrapper.innerHTML = html;
       wrapper.name = 'material';
       parent.appendChild(wrapper);
@@ -753,10 +769,8 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       for (var i = 0; i &lt; anchors.length; i++) {
         anchors[i].addEventListener('click', function(){
           var item = this.parentElement;
-          console.log(item)
           var model = collection.get(item.getAttribute('data-value'));
           wrapper.title = item.title;
-          console.log(model)
           if (options.callback) options.callback(model);
         })
       }
@@ -1030,13 +1044,13 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

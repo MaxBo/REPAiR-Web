@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: views/data-entry-edit-actor.js</title>
+    <title>JSDoc: Source: views/data-entry/edit-actor.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: views/data-entry-edit-actor.js</h1>
+    <h1 class="page-title">Source: views/data-entry/edit-actor.js</h1>
 
     
 
@@ -29,18 +29,10 @@
             <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
         'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
-        'bootstrap'],
+        'utils/utils', 'bootstrap'],
 
 function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
-         Areas, Area, Map, Loader){
-  function formatCoords(c){
-    return c[0].toFixed(2) + ', ' + c[1].toFixed(2);
-  }
-  function clearSelect(select, stop){
-    var stop = stop || 0;
-    for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
-  }
-  
+         Areas, Area, Map, Loader, utils){
   /**
    *
    * @author Christoph Franke
@@ -96,7 +88,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(255, 51, 0)',
             fill: 'rgba(255, 51, 0, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         administrative: {
@@ -104,15 +97,17 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           style: {
             stroke: 'rgb(51, 153, 255)',
             fill: 'rgba(51, 153, 255, 0.1)',
-            strokeWidth: 2
+            strokeWidth: 2,
+            zIndex: 1
           }
         },
         background: {
           style: {
             stroke: '#aad400',
             fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1
-          }
+            strokeWidth: 1,
+            zIndex: 0
+          },
         }
       };
 
@@ -309,7 +304,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             coordDiv = document.createElement('div'),
             img = document.createElement("img");
         var coords = geom.get('coordinates');
-        coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
+        coordDiv.innerHTML = '(' + utils.formatCoords(coords) + ')';
         coordDiv.style.paddingTop = '8px';
         coordDiv.style.fontSize = '80%';
         img.src = pin;
@@ -338,7 +333,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           name: loc.get('properties').name,
           onDrag: function(coords){
             loc.get('geometry').set("coordinates", coords);
-            coordDiv.innerHTML = '(' + formatCoords(coords) + ')';
+            coordDiv.innerHTML = '(' + utils.formatCoords(coords) + ')';
           },
           layername: layername
         });
@@ -367,6 +362,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           wrapper.style.cursor = 'pointer';
           
           var name = area.get('properties').name;
+          areanameDiv.title = name;
           if (name &amp;&amp; name.length > 15) name = name.substring(0, 15) + '...';
           areanameDiv.innerHTML = name;
           
@@ -433,7 +429,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var childSelects = this.areaSelects.slice(idx + 1);
         // clear all selects hierarchally below this level
         _.each(childSelects, function(sel){
-          clearSelect(sel);
+          utils.clearSelect(sel);
       });
       if (area == null) return;
       var directChild = childSelects[0];
@@ -466,11 +462,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             caseStudyId = this.keyflow.get('casestudy');
         // fill this select
         var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        var loader = new Loader(document.getElementById('location-area-table'), {disable: true});
         areas.fetch({
           data:  { parent_id: parentId },
           success: function(){
             _this.addAreaOptions(areas, select);
             select.value = area.id;
+            loader.remove();
           }
         });
         
@@ -486,7 +484,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
               // proceed recursion with parent select
               _this.setAreaSelects(parentArea, idx-1, options);
             },
-            error: function(model, response){ alert(response) }
+            error: function(model, response){ alert(response); }
           });
         }
     },
@@ -590,7 +588,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var inner = document.getElementById('location-modal-template').innerHTML;
       var template = _.template(inner);
       var html = template({properties: location.get('properties'), 
-                           coordinates: (coordinates != null)? formatCoords(coordinates): '-'});
+                           coordinates: (coordinates != null)? utils.formatCoords(coordinates): '-'});
       document.getElementById('location-modal-content').innerHTML = html;
       $(locationModal).modal('show'); 
       
@@ -603,7 +601,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var i = 0;
       this.areaSelects.forEach(function(select){
         // don't clear first select (top level areas don't change), keep first option as well
-        if (i > 0) clearSelect(select);
+        if (i > 0) utils.clearSelect(select);
         i++;
       });
       
@@ -634,7 +632,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       
       // add a marker to map
       function addMarker(coords){
-        elGeom.innerHTML = formatCoords(coords);
+        elGeom.innerHTML = utils.formatCoords(coords);
         markerId = _this.localMap.addmarker(coords, { 
           icon: pin, 
           anchor: [0.5, 1],
@@ -643,7 +641,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           name: location.get('properties').name,
           onDrag: function(coords){
             _this.tempCoords = coords;
-            elGeom.innerHTML = formatCoords(coords);
+            elGeom.innerHTML = utils.formatCoords(coords);
           },
           onRemove: removeMarkerCallback,
           removable: true,
@@ -695,7 +693,10 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
         area.fetch({success: function(){
           var polyCoords = area.get('geometry').coordinates[0];
-          _this.localMap.addPolygon(polyCoords, { projection: _this.projection, zoomOffset: -1, layername: _this.activeType, tooltip: area.get('properties').name });
+          _this.localMap.addPolygon(polyCoords, { 
+            projection: _this.projection, zoomOffset: -1, 
+            layername: _this.activeType, tooltip: area.get('properties').name 
+          });
           // fetch areas of level and fill select (not for top level, always stays the same)
           if (selectIdx >= 0){
             var parentId = area.get('properties').parent_area;
@@ -724,7 +725,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
             var coords = _this.localMap.toProjection(event.coordinate, _this.projection);
             if (_this.tempCoords != null){
               _this.localMap.moveMarker(markerId, event.coordinate, { layername: _this.activeType });
-              elGeom.innerHTML = formatCoords(coords);
+              elGeom.innerHTML = utils.formatCoords(coords);
             }
             else{
               addMarker(coords);
@@ -842,13 +843,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
