@@ -46,6 +46,20 @@ define(["backbone", "models/activity", "app-config"],
         this.keyflowId = options.keyflowId;
       },
       
+      /**
+       * filter the collection to find models belonging to an activitygroup with the given id
+       *
+       * @param {string} groupId id of the group
+       *
+       * @returns {Array.<module:models/Activity>} list of all activities belonging to the group
+       */
+      filterGroup: function (groupId) {
+          var filtered = this.filter(function (activity) {
+              return activity.get("activitygroup") == groupId;
+          });
+          return filtered;
+      },
+      
       model: Activity
     });
     

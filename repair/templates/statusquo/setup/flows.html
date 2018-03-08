@@ -4,30 +4,50 @@
 <div id="flows-setup"></div>
 
 <script type="text/template" id="flows-template">
-<div class="row">
-  <div class="col-md-3">
-    <b>{% trans "Keyflow" %}</b>
-    <select name="keyflow" class="form-control">
-      <option disabled selected> {% trans "Select" %} </option>
-      <% keyflows.each(function(keyflow) { %>
-        <option value="<%= keyflow.id %>"> <%= keyflow.get('name') %></option>
-      <% });  %>
-    </select>
-  </div>
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
+  <select name="keyflow" class="form-control" style="max-width: 500px;">
+    <option disabled selected> {% trans "Select" %} </option>
+    <% keyflows.each(function(keyflow) { %>
+      <option value="<%= keyflow.id %>"> <%= keyflow.get('name') %></option>
+    <% });  %>
+  </select>
 </div>
 <div id='flows-setup-content' style="display: none;">
-  <div class="row">
-    <div class="col-md-3">
-      <b>{% trans "Filter" %}</b>
-      <select name="filtertype" class="form-control">
-        <option value='material' selected> {% trans "Material" %} </option>
-        <option> {% trans "Area" %} </option>
-        <option> {% trans "Actor" %} </option>
-      </select>
+  <div class="row bordered" >
+    <div class="row" data-toggle="collapse" data-target=".row.filters" style='cursor: pointer;'>
+      <button class="btn btn-primary square inverted" style="margin-right: 5px; float: left;">
+        <span class="glyphicon glyphicon-eye-open"></span>
+      </button>
+      <h4 style="margin-top: 3px;">{% trans "Filters" %}</h4>
     </div>
-    <div class="col-md-3">
-      <br>
-      <div id='sub-filter'></div>
+    <div class="collapse row filters">
+      <div class="col-md-3">
+        <b>{% trans "Area" %}</b>
+        <select name="area" class="form-control">
+          <option> {% trans "All" %} </option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <b>{% trans "Material" %}</b>
+        <div id='material-filter'></div>
+      </div>
+    </div>
+    <div class="collapse row filters" style="margin-top: 10px">
+      <div class="col-md-3">
+        <b>{% trans "Activity Group" %}</b>
+        <select name="group" class="form-control"></select>
+        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+      </div>
+      <div class="col-md-3">
+        <b>{% trans "Activity" %}</b>
+        <select name="activity" class="form-control"></select>
+        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+      </div>
+      <div class="col-md-3">
+        <b>{% trans "Actor" %}</b>
+        <select name="actor" class="form-control"></select>
+      </div>
     </div>
   </div>
   <div class="row" style="margin-top: 20px;">
@@ -37,8 +57,7 @@
     </ul>
     <div class="tab-content" style="margin-top: 10px;">
       <div class="tab-pane fade in active" id="flow-diagram" style="padding-">
-        {% trans "Level" %}
-        <select name="data-view-type-select" id="data-view-type-select" style="margin-left: 5px; margin-right: 5px;">
+        <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 400px;">
           <option value="activitygroup">{% trans "Activity Group" %}</option>
           <option value="activity">{% trans "Activity" %}</option>
           <option value="actor">{% trans "Actor" %}</option>
