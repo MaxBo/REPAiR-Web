@@ -159,7 +159,9 @@ var FlowsView = Backbone.View.extend(
             _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)]
             _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
             renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
-            if (_this.typeSelect.value == 'activitygroup') _this.renderSankey();
+            //if (_this.typeSelect.value == 'activitygroup')
+            _this.typeSelect.value = 'activitygroup';
+            _this.renderSankey();
         })
         
         activitySelect.addEventListener('change', function(){
@@ -169,7 +171,9 @@ var FlowsView = Backbone.View.extend(
             _this.activitiesFiltered = (activityId < 0) ? null: [_this.activities.get(activityId)]
             _this.actorsFiltered = (activityId < 0) ? null: _this.actors.filterActivity(activityId);
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
-            if (_this.typeSelect.value == 'activity') _this.renderSankey();
+            //if (_this.typeSelect.value == 'activity') 
+            _this.typeSelect.value = 'activity';
+            _this.renderSankey();
         })
         
         actorSelect.addEventListener('change', function(){
@@ -177,7 +181,9 @@ var FlowsView = Backbone.View.extend(
             // set and use filters for selected actor,
             // unset if 'All' (== -1) is selected
             _this.actorsFiltered = (actorId < 0) ? null: [_this.actors.get(actorId)]
-            if (_this.typeSelect.value == 'actor') _this.renderSankey();
+            //if (_this.typeSelect.value == 'actor') 
+            _this.typeSelect.value = 'actor'
+            _this.renderSankey();
         })
     },
 
