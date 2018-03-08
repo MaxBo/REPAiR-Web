@@ -22,7 +22,7 @@ from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
 
 
-class FlowViewSet(RevisionMixin,
+class StockViewSet(RevisionMixin,
                   CasestudyViewSetMixin,
                   ModelPermissionViewSet,
                   ABC):
@@ -33,14 +33,16 @@ class FlowViewSet(RevisionMixin,
         query_params = request.query_params
         filtered = None
         if 'material' in query_params.keys():
+            queryset = filtered or self.queryset
             try:
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
             filtered = filter_by_material(material, self.queryset)
-        if 'node' in query_params.keys():
+        if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
             queryset = filtered or self.queryset
-            nodes = query_params['node']
+            nodes = (query_params.get('nodes', None)
+                     or request.GET.getlist('nodes[]')) 
             filtered = queryset.filter(origin__in=nodes)
         if filtered:
             serializer = SerializerClass(filtered, many=True,
@@ -49,7 +51,7 @@ class FlowViewSet(RevisionMixin,
         return super().list(request, **kwargs)
     
 
-class GroupStockViewSet(FlowViewSet):
+class GroupStockViewSet(StockViewSet):
     add_perm = 'asmfa.add_groupstock'
     change_perm = 'asmfa.change_groupstock'
     delete_perm = 'asmfa.delete_groupstock'
@@ -57,7 +59,7 @@ class GroupStockViewSet(FlowViewSet):
     serializer_class = GroupStockSerializer
 
 
-class ActivityStockViewSet(FlowViewSet):
+class ActivityStockViewSet(StockViewSet):
     add_perm = 'asmfa.add_activitystock'
     change_perm = 'asmfa.change_activitystock'
     delete_perm = 'asmfa.delete_activitystock'
@@ -65,7 +67,7 @@ class ActivityStockViewSet(FlowViewSet):
     serializer_class = ActivityStockSerializer
 
 
-class ActorStockViewSet(FlowViewSet):
+class ActorStockViewSet(StockViewSet):
     add_perm = 'asmfa.add_actorstock'
     change_perm = 'asmfa.change_actorstock'
     delete_perm = 'asmfa.delete_actorstock'
