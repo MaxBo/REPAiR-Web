@@ -42,6 +42,7 @@ var FlowsView = Backbone.View.extend(
         this.keyflows.fetch({ success: function(){
             _this.render();
         }})
+        
     },
 
     /*
@@ -61,6 +62,7 @@ var FlowsView = Backbone.View.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({ keyflows: this.keyflows });
+        this.typeSelect = this.el.querySelector('#data-view-type-select');
     },
 
     refreshMap: function(){
@@ -90,19 +92,32 @@ var FlowsView = Backbone.View.extend(
     },
 
     renderSankey: function(){
-        var type = this.el.querySelector('#data-view-type-select').value;
-        var collection = (type == 'actor') ? this.actorsFiltered || this.actors: 
-            (type == 'activity') ? this.activitiesFiltered || this.activities: 
-            this.activityGroupsFiltered || this.activityGroups;
+        var type = this.typeSelect.value;
+        var collection = (type == 'actor') ? this.actors: 
+            (type == 'activity') ? this.activities: 
+            this.activityGroups;
+        
+        var filtered = (type == 'actor') ? this.actorsFiltered: 
+            (type == 'activity') ? this.activitiesFiltered: 
+            this.activityGroupsFiltered;
+        
+        // if the collections are filtered build matching query params for the flows
+        var filterParams = Object.assign({}, this.filterParams);
+        if (filtered){
+            var nodeIds = [];
+            filtered.forEach(function(node){
+                nodeIds.push(node.id);
+            })
+            if (nodeIds.length > 0) filterParams.nodes = nodeIds;
+        }
+        
         if (this.flowsView != null) this.flowsView.close();
         this.flowsView = new FlowSankeyView({
             el: document.getElementById('sankey-wrapper'),
             collection: collection,
             materials: this.materials,
-            filterParams: this.filterParams,
-            hideUnconnected: true,
-            keyflowId: this.keyflowId,
-            caseStudyId: this.caseStudy.id
+            filterParams: filterParams,
+            hideUnconnected: true
         })
     },
 
@@ -139,18 +154,30 @@ var FlowsView = Backbone.View.extend(
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
+            // set and use filters for selected group, set child activities 
+            // unset if 'All' (== -1) is selected
             _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)]
             _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
             renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
-            _this.renderSankey();
+            if (_this.typeSelect.value == 'activitygroup') _this.renderSankey();
         })
         
         activitySelect.addEventListener('change', function(){
             var activityId = activitySelect.value;
-            _this.activitiesFiltered = (groupId < 0) ? null: [_this.activities.get(groupId)]
+            // set and use filters for selected activity, set child actors 
+            // unset if 'All' (== -1) is selected
+            _this.activitiesFiltered = (activityId < 0) ? null: [_this.activities.get(activityId)]
             _this.actorsFiltered = (activityId < 0) ? null: _this.actors.filterActivity(activityId);
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
-            _this.renderSankey();
+            if (_this.typeSelect.value == 'activity') _this.renderSankey();
+        })
+        
+        actorSelect.addEventListener('change', function(){
+            var actorId = actorSelect.value;
+            // set and use filters for selected actor,
+            // unset if 'All' (== -1) is selected
+            _this.actorsFiltered = (actorId < 0) ? null: [_this.actors.get(actorId)]
+            if (_this.typeSelect.value == 'actor') _this.renderSankey();
         })
     },
 
