@@ -40,11 +40,11 @@ class StockViewSet(RevisionMixin,
                 return Response(status=404)
             filtered = filter_by_material(material, self.queryset)
         if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
-            queryset = filtered or self.queryset
+            queryset = filtered if filtered is not None else self.queryset
             nodes = (query_params.get('nodes', None)
                      or request.GET.getlist('nodes[]')) 
             filtered = queryset.filter(origin__in=nodes)
-        if filtered:
+        if filtered is not None:
             serializer = SerializerClass(filtered, many=True,
                                          context={'request': request, })
             return Response(serializer.data)
