@@ -170,8 +170,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 opacity: 1,
                 zIndex: layer.get('z_index'),
                 visible: layer.get('included'),
-                url: '/proxy/layers/' + layer.id + '/wms',
-                params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
+                url: config.views.layerproxy.format(layer.id),
+                //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
             });
         },
 
@@ -190,17 +190,23 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             })
 
             require('libs/bootstrap-treeview.min');
+            
+            function select(event, node, silent){ 
+              $(_this.layerTree).treeview('selectNode',  [node.nodeId, { silent: silent }]);
+            }
+      
             $(this.layerTree).treeview({
                 data: tree, showTags: true,
                 selectedBackColor: '#aad400',
                 expandIcon: 'glyphicon glyphicon-triangle-right',
                 collapseIcon: 'glyphicon glyphicon-triangle-bottom',
                 onNodeSelected: this.nodeSelected,
-                onNodeUnselected: function(){
-                    $(_this.layerTree).treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
-                },
+                onNodeUnselected: function(event, node){ select(event, node, true) },
                 onNodeChecked: this.nodeChecked,
                 onNodeUnchecked: this.nodeUnchecked,
+                // workaround for misplaced buttons when collapsing parent node -> select the collapsed node
+                onNodeCollapsed: function(event, node){ select(event, node, false) },
+                onNodeExpanded: function(event, node){ select(event, node, false) },
                 showCheckbox: true
             });
             
