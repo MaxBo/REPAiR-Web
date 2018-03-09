@@ -1,11 +1,5 @@
-SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_staged
+SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_prod
 
-python manage.py migrate --run-syncdb
-python manage.py loaddata sandbox_data
-
-goto skip_single_loading_of_fixtures_for_debugging
-python manage.py loaddata sandbox_groups
-python manage.py loaddata sandbox_casestudy
 python manage.py loaddata sandbox_areas
 python manage.py loaddata sandbox_keyflow
 python manage.py loaddata sandbox_materials

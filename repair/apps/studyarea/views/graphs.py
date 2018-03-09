@@ -3,8 +3,10 @@ from django.utils.translation import ugettext as _
 
 from plotly.offline import plot
 from plotly.graph_objs import (Scatter, Marker, Histogram2dContour, Contours,
-                               Layout, Figure, Data)
+                               Layout, Figure, Data, Box)
 import numpy as np
+from repair.apps.asmfa.models import Actor
+from django_pandas.io import read_frame
 
 
 class Testgraph1(TemplateView):
@@ -12,12 +14,14 @@ class Testgraph1(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Testgraph1, self).get_context_data(**kwargs)
-
-        x = [-2, 0, 4, 6, 7]
-        y = [q**2 - q+3 for q in x]
-        trace1 = Scatter(x=x, y=y,
-                         marker={'color': 'red', 'symbol': 104, 'size': "10"},
-                         mode="lines",  name='1st Trace')
+ 
+        actors = read_frame(Actor.objects.all())
+        x = actors.activity
+        y = actors.employees
+        trace1 = Box(x=x, y=y,
+                     marker={'color': 'red', 'symbol': 104, 'size': "10"},
+                     #mode="lines",
+                     name='1st Trace')
 
         data = Data([trace1])
         layout = Layout(title=_("Plotly graph"), xaxis={'title': 'x1'},
