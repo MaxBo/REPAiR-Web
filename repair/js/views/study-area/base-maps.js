@@ -167,8 +167,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 opacity: 1,
                 visible: layer.get('included'),
                 url: '/proxy/layers/' + layer.id + '/wms',
-                params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
-                //projection: 'EPSG:4326'//layer.get('srs') 
+                params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
             });
         },
 
