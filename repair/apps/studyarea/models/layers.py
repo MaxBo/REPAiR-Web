@@ -15,4 +15,5 @@ class Layer(GDSEModel):
     category = models.ForeignKey(LayerCategory, on_delete=models.CASCADE)
     name = models.TextField()
     included = models.BooleanField(default=False)
+    z_index = models.IntegerField(default=1)
     wms_layer = models.ForeignKey(WMSLayer, on_delete=models.CASCADE)

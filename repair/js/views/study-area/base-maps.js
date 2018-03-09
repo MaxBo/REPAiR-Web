@@ -101,7 +101,9 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             'click #remove-layer-button': 'removeLayer',
             'click #edit-layer-button': 'editName',
             'click #remove-confirmation-modal .confirm': 'confirmRemoval',
-            'click #refresh-wms-services-button': 'renderAvailableServices'
+            'click #refresh-wms-services-button': 'renderAvailableServices',
+            'click #move-layer-up-button': 'moveLayerUp',
+            'click #move-layer-down-button': 'moveLayerDown'
         },
 
         /*
@@ -115,6 +117,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
             this.layerTree = document.getElementById('layer-tree');
             this.buttonBox = document.getElementById('layer-tree-buttons');
+            this.zInput = document.getElementById('layer-z-index'),
             
             html = document.getElementById('empty-modal-template').innerHTML;
             var elConfirmation = document.getElementById('remove-confirmation-modal');
@@ -165,6 +168,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         addServiceLayer: function(layer){
             this.map.addServiceLayer(this.layerPrefix + layer.id, { 
                 opacity: 1,
+                zIndex: layer.get('z_index'),
                 visible: layer.get('included'),
                 url: '/proxy/layers/' + layer.id + '/wms',
                 params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
@@ -192,6 +196,9 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 expandIcon: 'glyphicon glyphicon-triangle-right',
                 collapseIcon: 'glyphicon glyphicon-triangle-bottom',
                 onNodeSelected: this.nodeSelected,
+                onNodeUnselected: function(){
+                    $(_this.layerTree).treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                },
                 onNodeChecked: this.nodeChecked,
                 onNodeUnchecked: this.nodeUnchecked,
                 showCheckbox: true
@@ -219,13 +226,25 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         * event for selecting a node in the layer tree
         */
         nodeSelected: function(event, node){
-            var addBtn = document.getElementById('add-layer-button');
-            var removeBtn = document.getElementById('remove-layer-button');
+            if (this.selectedNode)
+                $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+            var addBtn = document.getElementById('add-layer-button'),
+                removeBtn = document.getElementById('remove-layer-button'),
+                downBtn = document.getElementById('move-layer-down-button'),
+                upBtn = document.getElementById('move-layer-up-button');
             this.selectedNode = node;
-            addBtn.style.display = 'inline';
-            removeBtn.style.display = 'inline';
             if (node.layer != null) {
                 addBtn.style.display = 'None';
+                this.zInput.style.display = 'inline';
+                this.zInput.value = node.layer.get('z_index');
+                downBtn.style.display = 'inline';
+                upBtn.style.display = 'inline';
+            }
+            else {
+                addBtn.style.display = 'inline';
+                this.zInput.style.display = 'None';
+                downBtn.style.display = 'None';
+                upBtn.style.display = 'None';
             }
             var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
             if (!li) return;
@@ -427,6 +446,35 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 title: gettext('Edit Name'),
                 onConfirm: onConfirm
             })
+        },
+        
+        moveLayerUp: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) + 1;
+            layer.set('z_index', newVal);
+            this.buttonBox.style.pointerEvents = 'none';
+            layer.save(null, { success: function(){
+                _this.buttonBox.style.pointerEvents = 'auto';
+                _this.zInput.value = newVal;
+                _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+            }});
+        },
+        
+        moveLayerDown: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) - 1;
+            if (newVal > 0){
+                this.zInput.value = newVal;
+                layer.set('z_index', newVal);
+                this.buttonBox.style.pointerEvents = 'none';
+                layer.save(null, { success: function(){
+                    _this.buttonBox.style.pointerEvents = 'auto';
+                    _this.zInput.value = newVal;
+                    _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+                }});
+            }
         },
 
         /*
