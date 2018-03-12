@@ -346,6 +346,11 @@ button.round, .btn.round{
   border-radius: 20px;
 }
 
+button.small, .btn.small{
+  padding: 0px 4px 0px 2px;
+  font-size: 12px;
+}
+
 button.square:hover, button.round:hover, button.square:focus, button.round:focus{
   /*background-color: #aad400 !important;*/
   /*border: none;*/

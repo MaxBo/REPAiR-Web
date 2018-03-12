@@ -1,39 +1,73 @@
 {% load i18n %}
-{% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/colorpicker.css">
 
-<div id="base-map-setup"></div>
-
-<script type="text/template" id="base-map-template">
+<script type="text/template" id="base-maps-template">
 <div class="row">
-  <div class="col-md-3 bordered" style="margin-right: 10px;">
-    <div id="layer-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
-      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="pointer-events: auto;">
+  <div class="col-md-12" style="padding: 0px; position: relative;">
+    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
+      <div id="layer-tree" style="user-select: none; left: 10px; z-index: 1000; float: left; position: absolute; top: 80px;"></div>
+      <div id='legend' class="col-md-2 bordered" style="position: absolute; right: 10px; z-index: 1000; bottom: 30px; max-height: 50%; background: white; overflow: auto; border-radius: 5px; padding: 0px;">
+        <div class="row" data-toggle="collapse" data-target="#legend>.items" style="cursor: pointer; background: #aad400; color: white;">
+          <button class="btn btn-primary square inverted" style="margin-right: 10px; float: left; margin-top: 8px;">
+            <span class="glyphicon glyphicon-eye-open"></span>
+          </button>
+          <h4> {% trans "Legend" %} </h4>
+        </div>
+        <div class="items collapse" style="padding: 5px;">
+          <svg width="30" height="30">
+            <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
+          </svg>
+          <label style="position: relative; top:-10px;">
+            {% trans "Focus Area" %}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="setup-maps-template">
+<div class="row">
+  <div class="col-md-4 bordered" style="margin-right: 10px;">
+    <div id="layer-tree-buttons" style="position: relative; display: None; float: right; margin-right: 10px; z-index: 100;">
+      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="pointer-events: auto; margin-right: 10px; color: black;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
-      <button id='edit-layer-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
+      <button id='move-layer-down-button' class="btn btn-primary round small inverted" title="{% trans "Move down" %}" ">
+        <span class="glyphicon glyphicon-minus"></span>
+      </button>
+      <input id='layer-z-index' disabled style="max-width: 30px; font-size: 10px; text-align: center;" value="10"/>
+      <button id='move-layer-up-button' class="btn btn-primary round small inverted" title="{% trans "Move up" %}" style="margin-right: 10px;">
+        <span class="glyphicon glyphicon-plus"></span>
+      </button>
+      <button id='edit-layer-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}">
         <span class="glyphicon glyphicon-pencil"></span>
       </button>
-      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove" %}" style="pointer-events: auto;">
+      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove" %}">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
     </div>
     <div class="row">
       <h4> {% trans "Layers" %} </h4>
-      <div id="layer-tree"></div>
-      <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
+      <div id="layer-tree" style="user-select: none;"></div>
+      <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
       </button>
     </div>
   </div>
-  <div class="graph col-md-6 bordered" style="margin-right: 10px;">
-    <div id='base-map' style='min-height: 600px'>
+  <div class="col-md-5 bordered" style="margin-right: 10px;">
+    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
     </div>
   </div>
-  <div class="graph col-md-2 bordered">
-    <h4> {% trans "Legend" %} </h4>
+  <div id='legend' class="col-md-2 bordered">
     <div class="row">
+      <button class="btn btn-primary square inverted" style="margin-right: 10px; float: left; margin-top: 8px;">
+        <span class="glyphicon glyphicon-eye-open"></span>
+      </button>
+      <h4> {% trans "Legend" %} </h4>
+    </div>
+    <div class="items" style="padding: 5px;">
       <svg width="30" height="30">
         <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
       </svg>
@@ -116,6 +150,3 @@
 </div>
 <% })  %>
 </script>
-
-
-{% endblock %}

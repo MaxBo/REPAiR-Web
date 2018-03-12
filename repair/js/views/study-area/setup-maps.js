@@ -1,57 +1,24 @@
-define(['backbone', 'underscore', 'collections/layercategories', 
+define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories', 
     'collections/layers', 'models/layer', 'visualizations/map', 
     'utils/loader', 'app-config', 'bootstrap-colorpicker'],
 
-function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
+function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config){
     /**
         *
         * @author Christoph Franke
         * @name module:views/BaseMapsView
         * @augments Backbone.View
         */
-    var BaseMapsView = Backbone.View.extend(
+    var SetupMapsView = BaseMapView.extend(
         /** @lends module:views/BaseMapsView.prototype */
         {
-
-        /**
-        * render view to add layers to casestudy
-        *
-        * @param {Object} options
-        * @param {HTMLElement} options.el                          element the view will be rendered in
-        * @param {string} options.template                         id of the script element containing the underscore template to render this view
-        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
-        *
-        * @constructs
-        * @see http://backbonejs.org/#View
-        */
-        initialize: function(options){
-            var _this = this;
-            _.bindAll(this, 'render');
-            _.bindAll(this, 'nodeSelected');
-            _.bindAll(this, 'nodeChecked');
-            _.bindAll(this, 'nodeUnchecked');
-
-            this.template = options.template;
-            this.caseStudy = options.caseStudy;
-
-            this.projection = 'EPSG:4326'; 
-
-            var WMSResources = Backbone.Collection.extend({ 
-                url: config.api.wmsresources.format(this.caseStudy.id) 
-            })
-
-            this.wmsResources = new WMSResources();
-            this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
-
-            this.categoryTree = {};
-            this.layerPrefix = 'service-layer-';
-
-            var loader = new Loader(this.el, {disable: true});
-            this.layerCategories.fetch({ success: function(){
-                loader.remove();
-                _this.initTree();
-            }})
-        },
+        
+        includedOnly: false,
+        categoryBackColor: 'white',
+        categoryColor: 'black',
+        categoryExpanded: true,
+        selectedBackColor: '#aad400',
+        selectedColor: 'white',
 
         initTree: function(){
             var _this = this;
@@ -101,20 +68,19 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             'click #remove-layer-button': 'removeLayer',
             'click #edit-layer-button': 'editName',
             'click #remove-confirmation-modal .confirm': 'confirmRemoval',
-            'click #refresh-wms-services-button': 'renderAvailableServices'
+            'click #refresh-wms-services-button': 'renderAvailableServices',
+            'click #move-layer-up-button': 'moveLayerUp',
+            'click #move-layer-down-button': 'moveLayerDown'
         },
 
         /*
             * render the view
             */
         render: function(){
-            var _this = this;
-            var html = document.getElementById(this.template).innerHTML,
-                template = _.template(html);
-            this.el.innerHTML = template();
-
-            this.layerTree = document.getElementById('layer-tree');
+            this.renderTemplate();
+            
             this.buttonBox = document.getElementById('layer-tree-buttons');
+            this.zInput = document.getElementById('layer-z-index');
             
             html = document.getElementById('empty-modal-template').innerHTML;
             var elConfirmation = document.getElementById('remove-confirmation-modal');
@@ -123,7 +89,12 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.layerModal = document.getElementById('add-layer-modal');
 
             this.renderMap();
-            this.renderDataTree();
+            
+            // preselect first category
+            categoryIds = Object.keys(this.categoryTree);
+            var preselect = (categoryIds.length > 0) ? categoryIds[0] : null;
+            this.renderDataTree(preselect);
+            
             this.renderAvailableServices();
         },
 
@@ -162,70 +133,30 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.renderDataTree(categoryId);
         },
 
-        addServiceLayer: function(layer){
-            this.map.addServiceLayer(this.layerPrefix + layer.id, { 
-                opacity: 1,
-                visible: layer.get('included'),
-                url: '/proxy/layers/' + layer.id + '/wms',
-                params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
-            });
-        },
-
-        /*
-        * render the hierarchic tree of layers
-        */
-        renderDataTree: function(categoryId){
-            if (Object.keys(this.categoryTree).length == 0) return;
-
-            var _this = this;
-            var dataDict = {};
-            var tree = [];
-
-            _.each(this.categoryTree, function(category){
-                tree.push(category)
-            })
-
-            require('libs/bootstrap-treeview.min');
-            $(this.layerTree).treeview({
-                data: tree, showTags: true,
-                selectedBackColor: '#aad400',
-                expandIcon: 'glyphicon glyphicon-triangle-right',
-                collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-                onNodeSelected: this.nodeSelected,
-                onNodeChecked: this.nodeChecked,
-                onNodeUnchecked: this.nodeUnchecked,
-                showCheckbox: true
-            });
-            
-            var selectNodeId = 0;
-
-            // look for and expand and select node with given category id
-            if (categoryId){
-                // there is no other method to get all nodes or to search for an attribute
-                var nodes = $(this.layerTree).treeview('getEnabled');
-                _.forEach(nodes, function(node){
-                    if (node.category && (node.category.id == categoryId)){
-                        selectNodeId = node.nodeId; 
-                        return false;
-                    }
-                })
-            }
-            // select first one, if no slectID is given
-            $(this.layerTree).treeview('selectNode', selectNodeId);
-            
-        },
 
         /*
         * event for selecting a node in the layer tree
         */
         nodeSelected: function(event, node){
-            var addBtn = document.getElementById('add-layer-button');
-            var removeBtn = document.getElementById('remove-layer-button');
+            if (this.selectedNode)
+                $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+            var addBtn = document.getElementById('add-layer-button'),
+                removeBtn = document.getElementById('remove-layer-button'),
+                downBtn = document.getElementById('move-layer-down-button'),
+                upBtn = document.getElementById('move-layer-up-button');
             this.selectedNode = node;
-            addBtn.style.display = 'inline';
-            removeBtn.style.display = 'inline';
             if (node.layer != null) {
                 addBtn.style.display = 'None';
+                this.zInput.style.display = 'inline';
+                this.zInput.value = node.layer.get('z_index');
+                downBtn.style.display = 'inline';
+                upBtn.style.display = 'inline';
+            }
+            else {
+                addBtn.style.display = 'inline';
+                this.zInput.style.display = 'None';
+                downBtn.style.display = 'None';
+                upBtn.style.display = 'None';
             }
             var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
             if (!li) return;
@@ -233,41 +164,45 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.buttonBox.style.display = 'inline';
         },
         
+        // items are not unselectable
+        nodeUnselected: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+        },
+        
+        // select item on collapsing (workaround for misplaced buttons when collapsing)
+        nodeCollapsed: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        },
+        nodeExpanded: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        },
+        
         nodeChecked: function(event, node){
-            var _this = this;
             // layer checked
             if (node.layer != null){
                 node.layer.set('included', true);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, true);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'inline';
                 //$(this.layerTree).treeview('checkNode', [node.parentId, { silent: true }]);
             }
             // category checked
             else {
-                //node.nodes.forEach(function(child){
-                    //$(_this.layerTree).treeview('checkNode', [child.nodeId]);
-                //})
             }
         },
         
         nodeUnchecked: function(event, node){
-            var _this = this;
             // layer unchecked
             if (node.layer != null){
                 node.layer.set('included', false);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, false);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'none';
             }
-            // category unchecked
+            // category cant't be unchecked
             else {
-                //node.nodes.forEach(function(child){
-                    //console.log(child.nodeId)
-                    //console.log(_this.layerTree)
-                    //$(_this.layerTree).treeview('uncheckNode', [child.nodeId]);
-                //})
-                // checking unchecking the children often produces database locks 
-                // (thanks to sqlite, see code above)
-                // just leaving it always checked now
                 $(this.layerTree).treeview('checkNode', [node.nodeId, { silent: true }]);
             }
         },
@@ -326,7 +261,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var layer = new Layer({ 
                     name: wmsLayerName, 
                     included: true,
-                    wms_layer: wmsLayerId
+                    wms_layer: wmsLayerId,
+                    style: null
                 }, { caseStudyId: _this.caseStudy.id, layerCategoryId: category.id });
                 newLayers.push(layer);
             })
@@ -389,7 +325,10 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     _this.getTreeLayerNode(model, { pop: true })
                     selectCatId = model.get('category');
                     _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
                 }
+                _this.selectedNode = null;
                 _this.rerenderDataTree(selectCatId);
             }});
             
@@ -427,6 +366,35 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 title: gettext('Edit Name'),
                 onConfirm: onConfirm
             })
+        },
+        
+        moveLayerUp: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) + 1;
+            layer.set('z_index', newVal);
+            this.buttonBox.style.pointerEvents = 'none';
+            layer.save(null, { success: function(){
+                _this.buttonBox.style.pointerEvents = 'auto';
+                _this.zInput.value = newVal;
+                _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+            }});
+        },
+        
+        moveLayerDown: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) - 1;
+            if (newVal > 0){
+                this.zInput.value = newVal;
+                layer.set('z_index', newVal);
+                this.buttonBox.style.pointerEvents = 'none';
+                layer.save(null, { success: function(){
+                    _this.buttonBox.style.pointerEvents = 'auto';
+                    _this.zInput.value = newVal;
+                    _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+                }});
+            }
         },
 
         /*
@@ -475,6 +443,6 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
 
     });
-    return BaseMapsView;
+    return SetupMapsView;
 }
 );
