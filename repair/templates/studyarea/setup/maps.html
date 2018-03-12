@@ -1,7 +1,6 @@
 {% load i18n %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/colorpicker.css">
 
 <div id="base-map-setup"></div>
 
@@ -34,13 +33,13 @@
       </button>
     </div>
   </div>
-  <div class="graph col-md-5 bordered" style="margin-right: 10px;">
+  <div class="col-md-5 bordered" style="margin-right: 10px;">
     <div id='base-map' style='min-height: 600px'>
     </div>
   </div>
-  <div class="graph col-md-2 bordered">
-    <h4> {% trans "Legend" %} </h4>
+  <div id='legend' class="col-md-2 bordered">
     <div class="row">
+      <h4> {% trans "Legend" %} </h4>
       <svg width="30" height="30">
         <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
       </svg>

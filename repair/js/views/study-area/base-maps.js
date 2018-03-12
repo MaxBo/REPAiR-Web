@@ -45,6 +45,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
             this.categoryTree = {};
             this.layerPrefix = 'service-layer-';
+            this.legendPrefix = 'layer-legend-';
 
             var loader = new Loader(this.el, {disable: true});
             this.layerCategories.fetch({ success: function(){
@@ -117,7 +118,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 
             this.layerTree = document.getElementById('layer-tree');
             this.buttonBox = document.getElementById('layer-tree-buttons');
-            this.zInput = document.getElementById('layer-z-index'),
+            this.zInput = document.getElementById('layer-z-index');
+            this.legend = document.getElementById('legend');
             
             html = document.getElementById('empty-modal-template').innerHTML;
             var elConfirmation = document.getElementById('remove-confirmation-modal');
@@ -173,6 +175,20 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 url: config.views.layerproxy.format(layer.id),
                 //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
             });
+            var uri = layer.get('legend_uri');
+            if (uri) {
+                var legendDiv = document.createElement('li'),
+                    head = document.createElement('b'),
+                    img = document.createElement('img');
+                legendDiv.id = this.legendPrefix + layer.id;
+                head.innerHTML = layer.get('name');
+                img.src = uri;
+                this.legend.appendChild(legendDiv);
+                legendDiv.appendChild(head);
+                legendDiv.appendChild(img);
+                if (!layer.get('included'))
+                    legendDiv.style.display = 'none';
+            }
         },
 
         /*
@@ -259,12 +275,13 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
         
         nodeChecked: function(event, node){
-            var _this = this;
             // layer checked
             if (node.layer != null){
                 node.layer.set('included', true);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, true);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'inline';
                 //$(this.layerTree).treeview('checkNode', [node.parentId, { silent: true }]);
             }
             // category checked
@@ -276,12 +293,13 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
         
         nodeUnchecked: function(event, node){
-            var _this = this;
             // layer unchecked
             if (node.layer != null){
                 node.layer.set('included', false);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, false);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'none';
             }
             // category unchecked
             else {
@@ -351,7 +369,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var layer = new Layer({ 
                     name: wmsLayerName, 
                     included: true,
-                    wms_layer: wmsLayerId
+                    wms_layer: wmsLayerId,
+                    style: null
                 }, { caseStudyId: _this.caseStudy.id, layerCategoryId: category.id });
                 newLayers.push(layer);
             })
@@ -414,6 +433,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     _this.getTreeLayerNode(model, { pop: true })
                     selectCatId = model.get('category');
                     _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    legendDiv.parentElement.removeChild(legendDiv);
                 }
                 _this.rerenderDataTree(selectCatId);
             }});
