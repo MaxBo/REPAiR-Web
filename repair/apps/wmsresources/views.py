@@ -8,7 +8,7 @@ import requests
 
 from repair.apps.utils.views import ModelReadPermissionMixin
 from repair.apps.wmsresources.models import WMSResourceInCasestudy
-from repair.apps.studyarea.models import Layer
+from repair.apps.studyarea.models import Layer, LayerStyle
 from repair.apps.wmsresources.serializers import (
     WMSResourceInCasestudySerializer,
 )
@@ -35,7 +35,9 @@ class WMSProxyView(View):
         uri = res.uri
         auth = (res.username, res.password) if (res.username) else None
         query_params = request.GET.copy()
-        query_params['layers'] = wms_layer.name
+        query_params['LAYERS'] = wms_layer.name
+        if layer.style:
+            query_params['STYLES'] = layer.style.name
         response = requests.get(uri, params=query_params, auth=auth)
         content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
