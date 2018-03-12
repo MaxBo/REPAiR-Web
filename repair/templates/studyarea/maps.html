@@ -1,10 +1,33 @@
 {% load i18n %}
-{% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
 
-<div id="base-map-setup"></div>
+<script type="text/template" id="base-maps-template">
+<div class="row">
+  <div class="col-md-12" style="padding: 0px; position: relative;">
+    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
+      <div id="layer-tree" style="user-select: none; left: 10px; z-index: 1000; float: left; position: absolute; top: 80px;"></div>
+      <div id='legend' class="col-md-2 bordered" style="position: absolute; right: 10px; z-index: 1000; bottom: 30px; max-height: 50%; background: white; overflow: auto; border-radius: 5px; padding: 0px;">
+        <div class="row" data-toggle="collapse" data-target="#legend>.items" style="cursor: pointer; background: #aad400; color: white;">
+          <button class="btn btn-primary square inverted" style="margin-right: 10px; float: left; margin-top: 8px;">
+            <span class="glyphicon glyphicon-eye-open"></span>
+          </button>
+          <h4> {% trans "Legend" %} </h4>
+        </div>
+        <div class="items collapse" style="padding: 5px;">
+          <svg width="30" height="30">
+            <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
+          </svg>
+          <label style="position: relative; top:-10px;">
+            {% trans "Focus Area" %}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
 
-<script type="text/template" id="base-map-template">
+<script type="text/template" id="setup-maps-template">
 <div class="row">
   <div class="col-md-4 bordered" style="margin-right: 10px;">
     <div id="layer-tree-buttons" style="position: relative; display: None; float: right; margin-right: 10px; z-index: 100;">
@@ -34,7 +57,7 @@
     </div>
   </div>
   <div class="col-md-5 bordered" style="margin-right: 10px;">
-    <div id='base-map' style='min-height: 600px'>
+    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
     </div>
   </div>
   <div id='legend' class="col-md-2 bordered">
@@ -122,6 +145,3 @@
 </div>
 <% })  %>
 </script>
-
-
-{% endblock %}

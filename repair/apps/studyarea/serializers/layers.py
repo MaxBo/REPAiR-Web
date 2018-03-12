@@ -22,5 +22,6 @@ class LayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Layer
-        fields = ('id', 'name', 'included', 'wms_layer', 'category', 'z_index', 'style', 'legend_uri')
+        fields = ('id', 'name', 'included', 'wms_layer', 'category', 'z_index',
+                  'style', 'legend_uri')
 

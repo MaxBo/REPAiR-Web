@@ -28,7 +28,7 @@ class WMSProxyView(View):
     def get(self, request, layer_id):
         try:
             layer = Layer.objects.get(id=layer_id)
-        except:
+        except Layer.DoesNotExist:
             return HttpResponse(status=404)
         wms_layer = layer.wms_layer
         res = wms_layer.wmsresource
