@@ -434,8 +434,9 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     selectCatId = model.get('category');
                     _this.map.removeLayer(_this.layerPrefix + model.id);
                     var legendDiv = document.getElementById(_this.legendPrefix + model.id);
-                    legendDiv.parentElement.removeChild(legendDiv);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
                 }
+                _this.selectedNode = null;
                 _this.rerenderDataTree(selectCatId);
             }});
             
