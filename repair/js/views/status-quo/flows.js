@@ -1,10 +1,10 @@
-define(['backbone', 'underscore', 'visualizations/sankey-map',
+define(['backbone', 'underscore', 'visualizations/flowmap',
     'collections/keyflows', 'collections/materials', 
     'collections/actors', 'collections/activitygroups',
     'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
     'hierarchy-select'],
 
-function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups, 
+function(Backbone, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
     Activities, FlowSankeyView, Loader, utils){
 /**
 *
@@ -122,11 +122,8 @@ var FlowsView = Backbone.View.extend(
     },
 
     renderSankeyMap: function(){
-        this.sankeyMap = new SankeyMap({
-            divid: 'sankey-map', 
-            nodes: '/static/data/nodes.geojson', 
-            links: '/static/data/links.csv'
-        });
+        var flowMap = new FlowMap("flow-map", { width: 1000, height: 600});
+        flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
     },
 
     renderNodeFilters: function(){

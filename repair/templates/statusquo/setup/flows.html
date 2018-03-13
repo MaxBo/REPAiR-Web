@@ -1,6 +1,8 @@
 {% load i18n %}
 {% block content %}
 
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/flowmap.css">
+
 <div id="flows-setup"></div>
 
 <script type="text/template" id="flows-template">
@@ -68,7 +70,7 @@
         </div>
       </div>
       <div class="tab-pane fade in" id="flow-map-panel">
-        <div id="sankey-map" class="col-md-12 sankeymap bordered" style="min-height: 500px; width:100%"></div>
+        <div id="flow-map" class="col-md-12 bordered" style="width:100%"></div>
       </div>
     </div>
   </div>
