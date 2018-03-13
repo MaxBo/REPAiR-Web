@@ -53,12 +53,8 @@
     </div>
   </div>
   <div class="row" style="margin-top: 20px;">
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#flow-diagram">{% trans "Flow Diagram" %}
-      <li><a data-toggle="tab" href="#flow-map-panel">{% trans "Flow Map" %}</a></li>
-    </ul>
-    <div class="tab-content" style="margin-top: 10px;">
-      <div class="tab-pane fade in active" id="flow-diagram" style="padding-">
+    <div class="col-md-6">
+      <div id="flow-diagram">
         <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 400px;">
           <option value="activitygroup">{% trans "Activity Group" %}</option>
           <option value="activity">{% trans "Activity" %}</option>
@@ -69,8 +65,17 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane fade in" id="flow-map-panel">
-        <div id="flow-map" class="col-md-12 bordered" style="width:100%"></div>
+    </div>
+    <div class="col-md-6">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#flow-map-panel">{% trans "Flow Map" %}</a></li>
+        <li><a data-toggle="tab" href="#chloropleth-map-panel">{% trans "Chloropleth Map" %}</a></li>
+      </ul>
+      <div class="tab-pane fade in active" id="flow-map-panel">
+        <div id="flow-map" style="width: 100%"></div>
+      </div>
+      <div class="tab-pane fade in" id="chloropleth-map-panel">
+        <h4>ToDo</h4>
       </div>
     </div>
   </div>

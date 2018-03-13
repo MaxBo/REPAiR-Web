@@ -50,7 +50,6 @@ var FlowsView = Backbone.View.extend(
     */
     events: {
         'change select[name="keyflow"]': 'keyflowChanged',
-        'click a[href="#flow-map-panel"]': 'refreshMap',
         'change #data-view-type-select': 'renderSankey'
     },
 
@@ -72,7 +71,6 @@ var FlowsView = Backbone.View.extend(
     keyflowChanged: function(evt){
         var _this = this;
         this.keyflowId = evt.target.value;
-        this.renderSankeyMap();
         var content = this.el.querySelector('#flows-setup-content');
         content.style.display = 'inline';
         this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
@@ -84,6 +82,7 @@ var FlowsView = Backbone.View.extend(
         var params = { included: 'True' }
         $.when(this.materials.fetch(), this.actors.fetch({ data: params }), 
             this.activities.fetch(), this.activityGroups.fetch()).then(function(){
+            _this.renderSankeyMap();
             _this.renderMatFilter();
             _this.renderNodeFilters();
             _this.renderSankey();
@@ -117,12 +116,13 @@ var FlowsView = Backbone.View.extend(
             collection: collection,
             materials: this.materials,
             filterParams: filterParams,
-            hideUnconnected: true
+            hideUnconnected: true,
+            height: 600
         })
     },
 
     renderSankeyMap: function(){
-        var flowMap = new FlowMap("flow-map", { width: 1000, height: 600});
+        var flowMap = new FlowMap("flow-map");
         flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
     },
 

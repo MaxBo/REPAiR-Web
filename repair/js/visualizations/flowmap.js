@@ -11,9 +11,8 @@ class FlowMap {
         // ToDo: include this projection somehow (d3 geoMercator is used)
         //this.projection = options.projection || 'EPSG:3857';
         
-        this.width = options.width || this.container.offsetWidth;
+        this.width = options.width || this.container.getBoundingClientRect().width;
         this.height = options.height || this.width / 1.5;
-        console.log(d3)
         
         this.projection = d3.geo.mercator()
                             .center([25, 43])
@@ -27,8 +26,6 @@ class FlowMap {
                      .attr("height", this.height)
                      .append("g");
         this.g = this.svg.append("g");
-        
-        
         
     }
     
