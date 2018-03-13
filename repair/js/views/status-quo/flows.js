@@ -1,10 +1,10 @@
-define(['backbone', 'underscore', 'visualizations/sankey-map',
+define(['backbone', 'underscore', 'visualizations/flowmap',
     'collections/keyflows', 'collections/materials', 
     'collections/actors', 'collections/activitygroups',
     'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
     'hierarchy-select'],
 
-function(Backbone, _, SankeyMap, Keyflows, Materials, Actors, ActivityGroups, 
+function(Backbone, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
     Activities, FlowSankeyView, Loader, utils){
 /**
 *
@@ -50,7 +50,6 @@ var FlowsView = Backbone.View.extend(
     */
     events: {
         'change select[name="keyflow"]': 'keyflowChanged',
-        'click a[href="#flow-map-panel"]': 'refreshMap',
         'change #data-view-type-select': 'renderSankey'
     },
 
@@ -72,7 +71,6 @@ var FlowsView = Backbone.View.extend(
     keyflowChanged: function(evt){
         var _this = this;
         this.keyflowId = evt.target.value;
-        this.renderSankeyMap();
         var content = this.el.querySelector('#flows-setup-content');
         content.style.display = 'inline';
         this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
@@ -84,6 +82,7 @@ var FlowsView = Backbone.View.extend(
         var params = { included: 'True' }
         $.when(this.materials.fetch(), this.actors.fetch({ data: params }), 
             this.activities.fetch(), this.activityGroups.fetch()).then(function(){
+            _this.renderSankeyMap();
             _this.renderMatFilter();
             _this.renderNodeFilters();
             _this.renderSankey();
@@ -117,16 +116,14 @@ var FlowsView = Backbone.View.extend(
             collection: collection,
             materials: this.materials,
             filterParams: filterParams,
-            hideUnconnected: true
+            hideUnconnected: true,
+            height: 600
         })
     },
 
     renderSankeyMap: function(){
-        this.sankeyMap = new SankeyMap({
-            divid: 'sankey-map', 
-            nodes: '/static/data/nodes.geojson', 
-            links: '/static/data/links.csv'
-        });
+        var flowMap = new FlowMap("flow-map");
+        flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
     },
 
     renderNodeFilters: function(){

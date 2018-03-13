@@ -20,6 +20,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      *
      * @param {Object} options
      * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
+     * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
      * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
      * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -36,6 +38,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.keyflowId = options.keyflowId || this.collection.keyflowId;
       this.materials = options.materials;
       this.hideUnconnected = options.hideUnconnected;
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
       
       var type = (this.collection instanceof Actors) ? 'actor': 
                  (this.collection instanceof Activities) ? 'activity': 'activitygroup';
@@ -71,9 +75,9 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
       fullscreenBtn.addEventListener('click', this.toggleFullscreen);
       this.el.appendChild(fullscreenBtn);
-      var width = this.el.clientWidth;
-      var height = this.el.classList.contains('fullscreen') ?
-                   this.el.clientHeight: width / 3;
+      var isFullScreen = this.el.classList.contains('fullscreen');
+      var width = (isFullScreen) ? this.el.clientWidth : this.width;
+      var height = (isFullScreen) ? this.el.clientHeight : this.height;
       var div = this.el.querySelector('.sankey');
       if (div == null){
         div = document.createElement('div');

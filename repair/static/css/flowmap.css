@@ -1,0 +1,28 @@
+.country:hover{
+    stroke: #7d7d7d;
+    stroke-width: 0.5px;
+}
+
+#container {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background: #fff;
+}
+
+.gpoint:hover{
+    fill:#c95f64;
+    stroke:#c95f64;
+    stroke-width: 2px;
+}
+
+.gpoint{
+    fill: #c95f64;
+}
+
+.route{
+    fill: none;	
+}
+.route:hover{
+    stroke-width: 4px;
+}
