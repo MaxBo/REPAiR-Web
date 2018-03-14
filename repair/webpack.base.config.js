@@ -51,6 +51,7 @@ module.exports = {
     modules : ['js', 'node_modules', 'bower_components'],
       alias: {
         'spatialsankey': 'libs/spatialsankey',
+        'cyclesankey': 'libs/cycle-sankey',
         jquery: "jquery/src/jquery"
       },
     plugins: [
