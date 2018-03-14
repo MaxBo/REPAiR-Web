@@ -88,9 +88,9 @@ define(['d3', 'libs/cycle-sankey'], function(d3) {
                 .links(data.links)
                 .layout(32);
     
-            var allgraphics = svg.append("g").attr("id", "node-and-link-container" );
+            var allgraphics = svg.append("g").attr("class", "node-and-link-container" );
     
-            var link = allgraphics.append("g").attr("id", "link-container")
+            var link = allgraphics.append("g").attr("class", "link-container")
                 .selectAll(".link")
                 .data(data.links)
             .enter().append("path")
@@ -105,7 +105,7 @@ define(['d3', 'libs/cycle-sankey'], function(d3) {
             link.append("title")
                 .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + _this.format(d.value) + " " + (d.units || "") + "\n" + d.text; });
     
-            var node = allgraphics.append("g").attr("id", "node-container")
+            var node = allgraphics.append("g").attr("class", "node-container")
                 .selectAll(".node")
                 .data(data.nodes)
             .enter().append("g")

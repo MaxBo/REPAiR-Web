@@ -1,7 +1,3 @@
-#chart {
-  height: 800px;
-}
-
 .node rect {
   cursor: move;
   fill-opacity: .9;
