@@ -101,6 +101,13 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.render();
     },
     
+    refresh: function(options){
+      var options = options || {};
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
+      this.render();
+    },
+    
     /*
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
