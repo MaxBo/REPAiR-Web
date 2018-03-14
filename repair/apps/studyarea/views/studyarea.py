@@ -21,5 +21,5 @@ class StudyAreaIndexView(LoginRequiredMixin, ModeView):
                       self.get_context_data())
     
     def render_workshop(self, request):
-        return render(request, 'studyarea/index.html',
-                      self.get_context_data())
+        # same entry point as in setup mode
+        return self.render_setup(request)
