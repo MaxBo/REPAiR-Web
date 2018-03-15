@@ -281,6 +281,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var itemsDiv = this.legend.querySelector('.items');
                 itemsDiv.appendChild(legendDiv);
                 legendDiv.appendChild(head);
+                legendDiv.appendChild(document.createElement('br'));
                 legendDiv.appendChild(img);
                 if (!layer.get('included'))
                     legendDiv.style.display = 'none';

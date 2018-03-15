@@ -89,17 +89,28 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 nodeTooltipOffset = 130;
             
             tipLinks.html(function(d) {
-                return d.source.name + " -> " + d.target.name + "<br>" + _this.format(d.value) + " " + (d.units || "") + "<br>" + d.text;
+                var title = d.source.name + " -> " + d.target.name,
+                    value = _this.format(d.value) + " " + (d.units || "");
+                return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>" + d.text;
               });
           
             tipNodes.html(function(d) {
                 var inSum = 0,
                     outSum = 0;
+                var inUnits, outUnits;
                 for (var i = 0; i < d.targetLinks.length; i++) {
-                    inSum += d.targetLinks[i].value; }
+                    var link = d.targetLinks[i];
+                    inSum += link.value; 
+                    if (!inUnits) inUnits = link.units; // in fact take first occuring unit, ToDo: can there be different units in the future?
+                }
                 for (var i = 0; i < d.sourceLinks.length; i++) {
-                    outSum += d.sourceLinks[i].value; }
-                return d.name + "<br>in: " + inSum + "<br>out: " + outSum; 
+                    var link = d.sourceLinks[i];
+                    outSum += link.value; 
+                    if (!outUnits) outUnits = link.units;
+                }
+                var ins = "in: " + inSum + " " + (inUnits || ""),
+                    out = "out: " + inSum + " " + (outUnits || "");
+                return "<h1>" + d.name + "</h1>" + "<br>" + ins + "<br>" + out; 
             });
     
             var svg = this.div.append("svg")
@@ -127,7 +138,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 .sort(function(a, b) { return b.dy - a.dy; })
                 .on('mousemove', function(event) {
                   tipLinks
-                    .style("top", (d3.event.pageY - linkTooltipOffset) + "px")
+                    .style("top", (d3.event.pageY - linkTooltipOffset) - 40 + "px")
                     .style("left", function () {
                       var left = (Math.max(d3.event.pageX - linkTooltipOffset, 10)); 
                       left = Math.min(left, window.innerWidth - $('.d3-tip').width() - 20)
@@ -137,10 +148,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 .on('mouseout', function(d) { tipLinks.hide(d, this); });
     
             link.filter( function(d) { return !d.causesCycle} )
-                .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-    
-            //link.append("title")
-                //.text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + _this.format(d.value) + " " + (d.units || "") + "\n" + d.text; });
+                .style("stroke-width", function(d) { return Math.max(1, d.dy); });
     
             var node = allgraphics.append("g").attr("class", "node-container")
                 .selectAll(".node")
@@ -154,8 +162,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                   tipNodes
                     .style("top", (d3.event.pageY - $('.d3-tip-nodes').height() - 20) + "px")
                     .style("left", function () {
-                      var left = (Math.max(d3.event.pageX - nodeTooltipOffset, 100)); 
-                      left = Math.min(left, window.innerWidth - $('.d3-tip').width() - 20)
+                      var left = d3.event.pageX - $('.d3-tip').width() / 2
                       return left + "px"; })
                   })
                 .on('mouseover', function(d) { tipNodes.show(d, this); })
@@ -171,16 +178,6 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 .attr("width", this.sankey.nodeWidth())
                 .style("fill", function(d) { return d.color = _this.color(d.name.replace(/ .*/, "")); })
                 .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
-            //.append("title")
-                //.text(function(d) { 
-                    //var inSum = 0,
-                        //outSum = 0;
-                    //for (var i = 0; i < d.targetLinks.length; i++) {
-                        //inSum += d.targetLinks[i].value; }
-                    //for (var i = 0; i < d.sourceLinks.length; i++) {
-                        //outSum += d.sourceLinks[i].value; }
-                    //return d.name + "\nin: " + inSum + "\nout: " + outSum; 
-                //});
     
             node.append("text")
                 .attr("x", -6)

@@ -4,6 +4,12 @@
     height: 100%;
 }
 
+#base-map-content {
+    margin-left: -25px;
+    margin-top: -32px;
+    margin-right: -25px;
+}
+
 #layer-tree.workshop {
     left: 10px; 
     z-index: 1000; 
@@ -21,7 +27,7 @@
     position: absolute; 
     right: 10px; 
     z-index: 1000; 
-    bottom: 5%; 
+    top: 50px; 
     max-height: 50%; 
     background: white; 
     border-radius: 5px; 
@@ -32,12 +38,18 @@
     cursor: pointer; 
     background: #aad400; 
     color: white;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #legend.workshop>.row>button{
     margin-right: 10px; 
     float: left; 
     margin-top: 8px;
+}
+
+#legend.workshop>.row>h4{
+    float: left; 
 }
 
 #layer-tree-buttons {

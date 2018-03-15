@@ -31,10 +31,11 @@
 }
 
 .d3-tip h1 {
-  font-weight: 500;
+  font-weight: bold;
   font-size: 14px;
   padding: 0;
-  margin-bottom: 5px;
+  margin-top: 3px;
+  margin-bottom: 2px;
   width: 100%;
 }
 .d3-tip h2 {
@@ -76,11 +77,12 @@
 .d3-tip {
   line-height: 1;
   font-weight: normal;
-  padding: 4px;
+  padding: 8px;
   background: white;
   color: black;
   border-radius: 2px;
   pointer-events: none;
   background:  white;
   box-shadow: 1px 1px 4px grey;
+  z-index: 99999;
 }
