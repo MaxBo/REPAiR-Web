@@ -394,8 +394,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var _this = this;
       var sourceWrapper = document.createElement('div');
       sourceWrapper.style.float = 'left';
+      sourceWrapper.style.maxWidth = '80%';
       var sourceInput = document.createElement('input');
       sourceInput.name = 'publication';
+      sourceInput.style.maxWidth = '90%';
       if (currentId){
         var publication = this.publications.get(currentId)
         var title = publication.get('title');
@@ -506,6 +508,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         fInput.style = 'text-align: right;';
         fInput.max = 100;
         fInput.min = 0;
+        fInput.style.maxWidth = '80%';
         fInput.style.float = 'left';
         fractionsCell.appendChild(fInput);
         fInput.value = Math.round(fraction.fraction * 1000) / 10;
@@ -542,6 +545,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         var removeBtn = document.createElement('button');
         removeBtn.classList.add('btn', 'btn-warning', 'square');
         removeBtn.title = gettext('remove fraction');
+        removeBtn.style.float = 'right';
         var span = document.createElement('span');
         span.classList.add('glyphicon', 'glyphicon-minus');
         removeBtn.appendChild(span);
