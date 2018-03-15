@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 {% block sidebar %}
   <script>
@@ -10,4 +11,21 @@
     <li><a href="#implementations" data-toggle="pill">{% trans "Implementations" %} <span class="sub-icon glyphicon glyphicon-flag"></span></a></li>
     <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon glyphicon glyphicon-list-alt"></span></a></li>
   </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="solutions">
+    </div>
+    <div class="tab-pane fade" id="implementations">
+      <h2>ToDo</h2>
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2>ToDo</h2>
+    </div>
+  </div>
+
+{% include "changes/solutions.html" %}
+{% render_bundle 'vendors' %}
+{% render_bundle 'Changes' %}
 {% endblock %}
