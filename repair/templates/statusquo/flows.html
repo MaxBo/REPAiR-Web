@@ -3,8 +3,6 @@
 
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/flowmap.css">
 
-<div id="flows-setup"></div>
-
 <script type="text/template" id="flows-template">
 <div class="row bordered">
   <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
@@ -61,7 +59,7 @@
           <option value="actor">{% trans "Actor" %}</option>
         </select>
         <div class="row">
-          <div id="sankey-wrapper">
+          <div id="sankey-wrapper" class="noselect">
           </div>
         </div>
       </div>

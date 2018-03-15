@@ -3,12 +3,12 @@
 
 <script type="text/template" id="base-maps-template">
 <div class="row">
-  <div class="col-md-12" style="padding: 0px; position: relative;">
-    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
-      <div id="layer-tree" style="user-select: none; left: 10px; z-index: 1000; float: left; position: absolute; top: 80px;"></div>
-      <div id='legend' class="col-md-2 bordered" style="position: absolute; right: 10px; z-index: 1000; bottom: 30px; max-height: 50%; background: white; overflow: auto; border-radius: 5px; padding: 0px;">
-        <div class="row" data-toggle="collapse" data-target="#legend>.items" style="cursor: pointer; background: #aad400; color: white;">
-          <button class="btn btn-primary square inverted" style="margin-right: 10px; float: left; margin-top: 8px;">
+  <div class="col-md-12" style="padding: 0px;">
+    <div id='base-map'>
+      <div id="layer-tree" class="noselect workshop"></div>
+      <div id='legend' class="bordered workshop">
+        <div class="row" data-toggle="collapse" data-target="#legend>.items">
+          <button class="btn btn-primary square inverted">
             <span class="glyphicon glyphicon-eye-open"></span>
           </button>
           <h4> {% trans "Legend" %} </h4>
@@ -30,14 +30,14 @@
 <script type="text/template" id="setup-maps-template">
 <div class="row">
   <div class="col-md-4 bordered" style="margin-right: 10px;">
-    <div id="layer-tree-buttons" style="position: relative; display: None; float: right; margin-right: 10px; z-index: 100;">
-      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="pointer-events: auto; margin-right: 10px; color: black;">
+    <div id="layer-tree-buttons">
+      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="margin-right: 10px; color: black;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
       <button id='move-layer-down-button' class="btn btn-primary round small inverted" title="{% trans "Move down" %}" ">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
-      <input id='layer-z-index' disabled style="max-width: 30px; font-size: 10px; text-align: center;" value="10"/>
+      <input id='layer-z-index' disabled value="10"/>
       <button id='move-layer-up-button' class="btn btn-primary round small inverted" title="{% trans "Move up" %}" style="margin-right: 10px;">
         <span class="glyphicon glyphicon-plus"></span>
       </button>
@@ -50,21 +50,18 @@
     </div>
     <div class="row">
       <h4> {% trans "Layers" %} </h4>
-      <div id="layer-tree" style="user-select: none;"></div>
+      <div id="layer-tree" class="noselect"></div>
       <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
       </button>
     </div>
   </div>
   <div class="col-md-5 bordered" style="margin-right: 10px;">
-    <div id='base-map' style='min-height: 600px; width: 100%; height: 100%;'>
+    <div id='base-map'>
     </div>
   </div>
   <div id='legend' class="col-md-2 bordered">
     <div class="row">
-      <button class="btn btn-primary square inverted" style="margin-right: 10px; float: left; margin-top: 8px;">
-        <span class="glyphicon glyphicon-eye-open"></span>
-      </button>
       <h4> {% trans "Legend" %} </h4>
     </div>
     <div class="items" style="padding: 5px;">

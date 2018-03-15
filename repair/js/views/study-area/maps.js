@@ -76,7 +76,6 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             var _this = this;
             var deferred = [],
                 layerList = [];
-            console.log(this.includedOnly)
             queryParams = (this.includedOnly) ? {included: 'True'} : {};
             // put nodes for each category into the tree and prepare fetching the layers
             // per category
@@ -281,6 +280,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var itemsDiv = this.legend.querySelector('.items');
                 itemsDiv.appendChild(legendDiv);
                 legendDiv.appendChild(head);
+                legendDiv.appendChild(document.createElement('br'));
                 legendDiv.appendChild(img);
                 if (!layer.get('included'))
                     legendDiv.style.display = 'none';
