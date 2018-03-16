@@ -1,0 +1,81 @@
+{% load i18n %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
+
+<script type="text/template" id="solutions-template">
+<button class="btn btn-primary add" title="{% trans "add aim" %}">
+  <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
+</button>
+<div id="categories" class="row"><!-- class="row overflow">-->
+</div>
+<div id="solution-modal" class="modal fade" role="dialog"></div>
+</script>
+
+<!-- modal for editing/viewing a solution and its charts -->
+<script type="text/template" id="view-solution-template">
+<div class="modal-dialog modal-lg">
+  <!-- Modal content-->
+  <div class="modal-content col-md-12">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title"><%= category %>: <%= name %></h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        {% trans "Name" %}
+        <input value="<%= name %>" style="width: 100%;">
+      </div>
+      <div class="row">
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
+          <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
+          <li><a data-toggle="tab" href="#stakeholders-tab">{% trans "Stakeholders" %}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="ce-diagrams-tab">
+            <div class="col-md-6 bordered">
+              <div class="row">
+                <h4>{% trans "Current state" %}</h4>
+                <input type="file">
+              </div>
+              <div class="row">
+                <img src='/static/img/example-ce-diagram.png' style="width: 100%">
+              </div>
+            </div>
+            <div class="col-md-6 bordered">
+              <div class="row">
+                <h4>{% trans "Effect of Solution" %}</h4>
+                <input type="file">
+              </div>
+              <div class="row">
+                <img src='/static/img/example-ce-diagram.png' style="width: 100%">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade in" id="activities-tab">
+            <div class="col-md-12 bordered">
+              <div class="row">
+                <h4>{% trans "Activities involved" %}</h4>
+                <input type="file">
+              </div>
+              <div class="row">
+                <img src='/static/img/example-activities.png' style="width: 100%">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade in" id="stakeholders-tab">
+            <div class="row" style="min-height: 500px" id='stakeholder-map'>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+      <button class="btn btn-primary" id="confirm-datasource" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+    </div>
+  </div>
+</div>
+</script>
+
+{% endblock %}

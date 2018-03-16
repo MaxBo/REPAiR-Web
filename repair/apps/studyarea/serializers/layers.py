@@ -18,8 +18,10 @@ class LayerSerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'category__casestudy__id',
                             'layercategory_pk': 'category__id'}
     category = IDRelatedField(read_only=True)
+    style = IDRelatedField(allow_null=True)
 
     class Meta:
         model = Layer
-        fields = ('id', 'name', 'included', 'wms_layer', 'category')
+        fields = ('id', 'name', 'included', 'wms_layer', 'category', 'z_index',
+                  'style', 'legend_uri')
 

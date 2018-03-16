@@ -1,0 +1,149 @@
+{% load i18n %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
+
+<script type="text/template" id="base-maps-template">
+<div class="row">
+  <div class="col-md-12" style="padding: 0px;">
+    <div id='base-map'>
+      <div id="layer-tree" class="noselect workshop"></div>
+      <div id='legend' class="bordered workshop">
+        <div class="row" data-toggle="collapse" data-target="#legend>.items">
+          <button class="btn btn-primary square inverted">
+            <span class="glyphicon glyphicon-eye-open"></span>
+          </button>
+          <h4> {% trans "Legend" %} </h4>
+        </div>
+        <div class="items collapse" style="padding: 5px;">
+          <svg width="30" height="30">
+            <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
+          </svg>
+          <label style="position: relative; top:-10px;">
+            {% trans "Focus Area" %}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="setup-maps-template">
+<div class="row">
+  <div class="col-md-4 bordered" style="margin-right: 10px;">
+    <div id="layer-tree-buttons">
+      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="margin-right: 10px; color: black;">
+        <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
+      </button>
+      <button id='move-layer-down-button' class="btn btn-primary round small inverted" title="{% trans "Move down" %}" ">
+        <span class="glyphicon glyphicon-minus"></span>
+      </button>
+      <input id='layer-z-index' disabled value="10"/>
+      <button id='move-layer-up-button' class="btn btn-primary round small inverted" title="{% trans "Move up" %}" style="margin-right: 10px;">
+        <span class="glyphicon glyphicon-plus"></span>
+      </button>
+      <button id='edit-layer-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}">
+        <span class="glyphicon glyphicon-pencil"></span>
+      </button>
+      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove" %}">
+        <span class="glyphicon glyphicon-minus"></span>
+      </button>
+    </div>
+    <div class="row">
+      <h4> {% trans "Layers" %} </h4>
+      <div id="layer-tree" class="noselect"></div>
+      <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}">
+        <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
+      </button>
+    </div>
+  </div>
+  <div class="col-md-5 bordered" style="margin-right: 10px;">
+    <div id='base-map'>
+    </div>
+  </div>
+  <div id='legend' class="col-md-2 bordered">
+    <div class="row">
+      <h4> {% trans "Legend" %} </h4>
+    </div>
+    <div class="items" style="padding: 5px;">
+      <svg width="30" height="30">
+        <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
+      </svg>
+      <label style="position: relative; top:-10px;">
+        {% trans "Focus Area" %}
+      </label>
+    </div>
+  </div>
+</div>
+<div class="modal fade" role="dialog" id="add-layer-modal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><span class="fa fa-map"></span> {% trans "Add Layer" %} </h4>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#import-wms-tab">{% trans "WMS Services" %}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="row"></div>
+          <div class='row'>
+            <a href="/admin/wms_client/wmsresource/" target="_blank" class="btn btn-primary square" style='float: left;'>
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Add WMS Service" %} 
+            </a>
+            <button id='refresh-wms-services-button' class="btn btn-primary round" title="{% trans "Refresh list of WMS services" %}" style='float: right;'>
+              <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh Services" %}
+            </button>
+          </div>
+          <div class="tab-pane fade in active" id="import-wms-tab">
+            <div class="row">
+              <div id='wms-services'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Add" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="edit-category-modal"></div>
+<div id="remove-confirmation-modal"></div>
+</script>
+
+<script type="text/template" id="wms-services-template">
+<% resources.each(function(resource){ %>
+<div class="row bordered">
+  <div class="row" data-toggle="collapse" data-target="#layers<%= resource.id %>" style="cursor: pointer">
+    <div class="col-md-1">
+      <button class="btn btn-primary square inverted" style="margin-right: 5px;">
+        <span class="glyphicon glyphicon-eye-open"></span>
+      </button>
+    </div>
+    <div class="col-md-4">
+      <%= resource.get('name') %>
+    </div>
+    <div class="col-md-7">
+      <%= resource.get('description') %>
+    </div>
+  </div>
+  <div id="layers<%= resource.id %>" class="collapse row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
+      <table style="margin: 0px;">
+      <% _.each(resource.get('layers'), function(layer){ %>
+        <tr> 
+          <td><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
+          <td> <%= layer.title %> </td>
+          <td> <%= layer.abstract %> </td>
+        </tr>
+      <% }) %>
+      </table></td>
+    </div>
+  </div>
+</div>
+<% })  %>
+</script>

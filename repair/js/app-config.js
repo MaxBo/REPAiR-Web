@@ -35,6 +35,10 @@ define(['browser-cookies'],
         }).then(response => response.json()).then(json => callback(json));
     }
     
+    config.views = {
+      layerproxy: '/proxy/layers/{0}/wms',
+    }
+    
     /** urls to resources in api
      * @name api
      * @memberof module:config

@@ -20,6 +20,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      *
      * @param {Object} options
      * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
+     * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
      * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
      * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -32,10 +34,12 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       _.bindAll(this, 'render');
       _.bindAll(this, 'toggleFullscreen');
       var _this = this;
-      this.caseStudyId = this.collection.caseStudyId;
-      this.keyflowId = this.collection.keyflowId;
+      this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
+      this.keyflowId = options.keyflowId || this.collection.keyflowId;
       this.materials = options.materials;
       this.hideUnconnected = options.hideUnconnected;
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
       
       var type = (this.collection instanceof Actors) ? 'actor': 
                  (this.collection instanceof Activities) ? 'activity': 'activitygroup';
@@ -71,9 +75,9 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
       fullscreenBtn.addEventListener('click', this.toggleFullscreen);
       this.el.appendChild(fullscreenBtn);
-      var width = this.el.clientWidth;
-      var height = this.el.classList.contains('fullscreen') ?
-                   this.el.clientHeight: width / 3;
+      var isFullScreen = this.el.classList.contains('fullscreen');
+      var width = (isFullScreen) ? this.el.clientWidth : this.width;
+      var height = (isFullScreen) ? this.el.clientHeight : this.height;
       var div = this.el.querySelector('.sankey');
       if (div == null){
         div = document.createElement('div');
@@ -97,6 +101,13 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.render();
     },
     
+    refresh: function(options){
+      var options = options || {};
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
+      this.render();
+    },
+    
     /*
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
@@ -107,7 +118,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       var nodeIdxDict = {}
       var i = 0;
       
-      models.each(function(model){
+      models.forEach(function(model){
         var id = model.id;
         var name = model.get('name');
         // ignore nodes with no connections at all (if requested)
@@ -137,12 +148,14 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
         return text || ('no composition defined')
       }
       
-      flows.each(function(flow){
+      flows.forEach(function(flow){
         var value = flow.get('amount');
         var originId = flow.get('origin'),
             destinationId = flow.get('destination'),
             source = nodeIdxDict[originId],
             target = nodeIdxDict[destinationId];
+        // continue if one of the linked nodes does not exist
+        if (source == null || target == null) return false;
         var composition = flow.get('composition');
         links.push({
           value: flow.get('amount'),
@@ -152,10 +165,12 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           text: compositionRepr(composition)
         });
       })
-      stocks.each(function(stock){
+      stocks.forEach(function(stock){
         var id = 'stock-' + stock.id;
         var originId = stock.get('origin'),
             source = nodeIdxDict[originId];
+        // continue if node does not exist
+        if (source == null) return false;
         nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
         var composition = stock.get('composition');
         links.push({

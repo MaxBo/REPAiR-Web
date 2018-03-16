@@ -185,8 +185,13 @@ define([
           transition: 0
         })
       })
+      if (options.zIndex != null) layer.setZIndex(options.zIndex);
       this.layers[name] = layer;
       this.map.addLayer(layer);
+    }
+    
+    setZIndex(layername, zIndex){
+      this.layers[layername].setZIndex(zIndex);
     }
     
     /**
