@@ -4,10 +4,14 @@ from rest_framework_gis.fields import GeoJsonDict
 from django.utils.encoding import force_text
 
 from rest_framework import status
+from django.urls import reverse
 
 from repair.apps.login.factories import UserInCasestudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
+from repair.apps.login.models import User
+from django.test import Client
+from django.test.client import Client as FormClient
 
 
 class CompareAbsURIMixin:
@@ -43,7 +47,7 @@ class LoginTestCase:
     casestudy = None
     keyflow = None
     userincasestudy = 26
-    user = -1
+    user = 99
     permissions = Permission.objects.all()
 
     @classmethod
@@ -249,4 +253,102 @@ class BasicModelWritePermissionTest(BasicModelTest):
 
 class BasicModelPermissionTest(BasicModelReadPermissionTest,
                                BasicModelWritePermissionTest):
-    """Test of read and write permissions"""
+    """
+    Test of read and write permissions
+    """
+
+
+class AdminAreaTest:
+    """
+    Test functions for the admin area
+    """
+    app = 'modelname'
+    model = 'modelname'
+    add_data = {}
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Create a user with admin rights.
+        """
+        super().setUpClass()
+        cls.username = "test_admin"
+        cls.password = User.objects.make_random_password()
+        user, created = User.objects.get_or_create(username=cls.username)
+        user.set_password(cls.password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+        cls.admin_user = user
+        cls.admin_client = FormClient()
+
+    def as_admin(self, function):
+        """
+        Login to client before running 'function()'.
+        """
+        self.admin_client.login(username=self.username, password=self.password)
+        result = function()
+        self.admin_client.logout()
+        return result
+
+    def admin_add(self):
+        """
+        Add a model instance in the admin area.
+        """
+        change_url = reverse('admin:{}_{}_add'.format(self.app, self.model))
+        keyflow = KeyflowInCasestudyFactory()
+        data = self.add_data
+        response = self.admin_client.post(change_url, data)
+        return response
+
+    def test_admin_add(self):
+        """
+        Test if User with admin rights can create a model.
+        """
+        response = self.as_admin(self.admin_add)
+        self.response_200(response)
+
+    def test_admin_add_permission(self):
+        """
+        Test if user without admin rights is redirected when trying to add.
+        """
+        response = self.admin_add()
+        self.response_302(response)
+
+    def admin_read(self):
+        """
+        Access the admin area of a model.
+        """
+        read_url = reverse('admin:{}_{}_changelist'.format(self.app,
+                                                           self.model))
+        response = self.admin_client.get(read_url)
+        return response
+
+    def test_admin_read(self):
+        """
+        Check if an admin user can access the admin area of the model.
+        """
+        response = self.as_admin(self.admin_read)
+        self.assertIs(response.status_code, 200)
+
+    def test_admin_read_permission(self):
+        """
+        Test if user without admin rights is redirected when trying to
+        readlist.
+        """
+        response = self.admin_read()
+        self.response_302(response)
+
+    #def admin_delete(self):
+        #"""
+        #Delete a model in the admin area.
+        #"""
+        #response = self.as_admin(self.admin_add)
+        #response = self.as_admin(self.admin_read)
+        #delete_url = reverse('admin:{}_{}_history'.format(self.app, self.model))
+        #self.admin_client
+
+    #def test_admin_delete(self):
+        #response = self.as_admin(self.admin_delete)
+        #self.response_200(response)

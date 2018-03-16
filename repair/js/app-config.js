@@ -35,6 +35,10 @@ define(['browser-cookies'],
         }).then(response => response.json()).then(json => callback(json));
     }
     
+    config.views = {
+      layerproxy: '/proxy/layers/{0}/wms',
+    }
+    
     /** urls to resources in api
      * @name api
      * @memberof module:config
@@ -70,12 +74,8 @@ define(['browser-cookies'],
       actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
       arealevels:             '/api/casestudies/{0}/levels/',
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
+      wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };
-    
-    config.geoserverApi = {
-      base:   '/geoserver',
-      layers: '/geoserver/layers'
-    }
   
     return config;
   }

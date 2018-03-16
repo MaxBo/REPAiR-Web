@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django_pandas', 
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -68,7 +69,6 @@ INSTALLED_APPS = [
     'repair.apps.statusquo',
     'repair.apps.publications',
     'repair.apps.reversions',
-    'repair.apps.geoserver',
     'repair.apps.wmsresources',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare

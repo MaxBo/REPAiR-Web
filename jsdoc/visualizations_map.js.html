@@ -38,9 +38,11 @@
   class Map {
     
     /**
-     * create the map
+     * create the map and show it inside the HTMLElement with the given id
+     *
      * @param {Object} options
      * @param {string} options.divid                        id of the HTMLElement to render the map into
+     * @param {boolean} [options.renderOSM=true]            render default background map
      * @param {string} [options.projection='EPSG:3857']     projection of the map
      * @param {Array.&lt;number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
      *
@@ -56,17 +58,22 @@
         center: this.center,
         zoom: 10
       });
-      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
       this.layers = {};
-      this.layers.basic = basicLayer;
+      var initlayers = [];
+      
+      // blank map
+      if (options.renderOSM != false){
+        initlayers.push(new ol.layer.Tile({ 
+          source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+      }
+      
+      var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      initlayers.push(basicLayer);
+          
+      this.layers = { basic: basicLayer };
     
       this.map = new ol.Map({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM({crossOrigin: 'anonymous'}),
-          }),
-          basicLayer
-        ],
+        layers: initlayers,
         target: options.divid,
         controls: ol.control.defaults({
           attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
@@ -91,6 +98,11 @@
       var div = document.getElementById(options.divid);
       
       var tooltip = div.querySelector('.tooltip');
+      if (!tooltip){
+        tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        div.appendChild(tooltip);
+      }
       if (tooltip){
         var overlay = new ol.Overlay({
           element: tooltip,
@@ -148,15 +160,27 @@
      * @param {string} name  name of the layer
      * @param {Object=} options
      * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
-     * @param {string} [options.strokeWidth=3]                   color of outline
+     * @param {string} [options.strokeWidth=3]                   width of outline
      * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+     * @param {string=} options.zIndex                           z-index of the layer
+     * @param {Object=} options.source                           source layer
+     * @param {string=} options.source.projection                projection of the source
      *
      */
     addLayer(name, options){
-      var layer = new ol.layer.Vector({ source: new ol.source.Vector() });
+      var options = options || {};
+      var sourceopt = options.source || {};
+      var source;
+      if (sourceopt.url){
+        var source = new ol.source.Vector({
+          format: new ol.format.GeoJSON(),
+          url: sourceopt.url,
+          projection : sourceopt.projection || this.mapProjection,
+        })
+      }
+      var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
-      var options = options || {};
       var style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',
@@ -167,6 +191,30 @@
         })
       });
       layer.setStyle(style);
+      if (options.zIndex) layer.setZIndex(options.zIndex);
+    }
+    
+    setVisible(layername, visible){
+      var layer = this.layers[layername];
+      layer.setVisible(visible);
+    }
+    
+    addServiceLayer(name, options){
+      var options = options || {};
+      var layer = new ol.layer.Tile({
+        opacity: options.opacity || 1,
+        visible: (options.visible != null) ? options.visible: true,
+        //extent: [-13884991, 2870341, -7455066, 6338219],
+        source: new ol.source.TileWMS({
+          url: options.url,
+          params: options.params,
+          serverType: 'geoserver',
+          // Countries have transparency, so do not fade tiles:
+          transition: 0
+        })
+      })
+      this.layers[name] = layer;
+      this.map.addLayer(layer);
     }
     
     /**
@@ -304,14 +352,13 @@
     /**
      * remove all features from a layer
      *
+     * @param {string} layername               the name of the layer
      * @param {Object} options
-     * @param {string} [options.layername='basic']  the name of the layer
-     * @param {Array.&lt;string>=} options.types               types of the features to remove, defaults to all
+     * @param {Array.&lt;string>=} options.types  types of the features to remove, defaults to all
      */
     clearLayer(layername, options){
       var options = options || {};
-      var layername = layername || 'basic',
-          layer = this.layers[layername];
+      var layer = this.layers[layername];
       if (options.types == null){
         layer.getSource().clear();
       }
@@ -323,6 +370,17 @@
             source.removeFeature(feature);
         })
       }
+    }
+    
+    /**
+     * remove layer
+     *
+     * @param {string} layername   the name of the layer to remove
+     */
+    removeLayer(layername){
+      var layer = this.layers[layername];
+      this.map.removeLayer(layer)
+      delete this.layers[layername];
     }
     
     /**
@@ -471,13 +529,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

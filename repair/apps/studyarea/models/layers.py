@@ -1,6 +1,7 @@
 from django.db import models
 
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
+from wms_client.models import WMSLayer, LayerStyle
 
 
 class LayerCategory(GDSEUniqueNameModel):
@@ -13,20 +14,16 @@ class Layer(GDSEModel):
     """"""
     category = models.ForeignKey(LayerCategory, on_delete=models.CASCADE)
     name = models.TextField()
-    description = models.TextField(null=True, blank=True)
+    included = models.BooleanField(default=False)
+    z_index = models.IntegerField(default=1)
+    wms_layer = models.ForeignKey(WMSLayer, on_delete=models.CASCADE)
+    style = models.ForeignKey(LayerStyle, on_delete=models.SET_NULL, null=True)
     
-    #service url
-    url = models.TextField()
-    
-    # authentication for service
-    credentials_needed = models.BooleanField(default=False)
-    user = models.TextField(null=True, blank=True)
-    password = models.TextField(null=True, blank=True)
-    
-    # service query parameters 
-    service_version = models.TextField(null=True, blank=True)
-    service_layers = models.TextField(null=True, blank=True)
-    
-    # is it located on our GDSE geoserver?
-    is_repair_layer = models.BooleanField(default=False)
-    repair_namespace = models.TextField(null=True, blank=True)
+    @property
+    def legend_uri(self):
+        try:
+            style = (self.style if self.style is not None else
+                     self.wms_layer.layerstyle_set.get(name='default'))
+        except LayerStyle.DoesNotExist:
+            return None
+        return style.legend_uri

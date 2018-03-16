@@ -218,14 +218,20 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
           input.type = inputType;
         input.value = flow.get(attribute);
         var cell = row.insertCell(-1);
-        cell.appendChild(input);
         if (unit){
-          cell.style.whiteSpace = "nowrap";
-          input.style.float = 'left';
-          var div = document.createElement('div');
+          var div = document.createElement('div'),
+              wrapper = document.createElement('div');
           div.innerHTML = unit
-          cell.appendChild(div);
+          wrapper.appendChild(input);
+          wrapper.appendChild(div);
+          wrapper.style.whiteSpace = "nowrap";
+          input.style.float = 'left';
+          // need space for units
+          input.style.maxWidth = '70%'; 
+          cell.appendChild(wrapper);
         }
+        
+        else cell.appendChild(input);
 
         input.addEventListener('change', function() {
           flow.set(attribute, input.value);
@@ -388,8 +394,10 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
       var _this = this;
       var sourceWrapper = document.createElement('div');
       sourceWrapper.style.float = 'left';
+      sourceWrapper.style.maxWidth = '80%';
       var sourceInput = document.createElement('input');
       sourceInput.name = 'publication';
+      sourceInput.style.maxWidth = '90%';
       if (currentId){
         var publication = this.publications.get(currentId)
         var title = publication.get('title');
@@ -500,6 +508,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         fInput.style = 'text-align: right;';
         fInput.max = 100;
         fInput.min = 0;
+        fInput.style.maxWidth = '80%';
         fInput.style.float = 'left';
         fractionsCell.appendChild(fInput);
         fInput.value = Math.round(fraction.fraction * 1000) / 10;
@@ -536,6 +545,7 @@ function(Backbone, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
         var removeBtn = document.createElement('button');
         removeBtn.classList.add('btn', 'btn-warning', 'square');
         removeBtn.title = gettext('remove fraction');
+        removeBtn.style.float = 'right';
         var span = document.createElement('span');
         span.classList.add('glyphicon', 'glyphicon-minus');
         removeBtn.appendChild(span);
