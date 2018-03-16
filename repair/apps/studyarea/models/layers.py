@@ -21,9 +21,15 @@ class Layer(GDSEModel):
     
     @property
     def legend_uri(self):
+        style_set = self.wms_layer.layerstyle_set
         try:
+            # try to take default style
             style = (self.style if self.style is not None else
-                     self.wms_layer.layerstyle_set.get(name='default'))
+                     style_set.get(name='default'))
         except LayerStyle.DoesNotExist:
-            return None
+            # try to take first style if no default style is defined
+            if len(style_set.all()) > 0:
+                style = style_set.first()
+            else:
+                return None
         return style.legend_uri
