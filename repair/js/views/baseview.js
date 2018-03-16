@@ -61,7 +61,7 @@ var BaseView = Backbone.View.extend(
     * @param {Backbone.Collection} collection       models of collection will be the items of the hierarchical select
     * @param {HTMLElement}                          the element to append the rendered hierarchical select to
     * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
-    * @param {module:views/BaseView~onSelect=} options.onSelect
+    * @param {module:views/BaseView~onSelect=} options.onSelect  function is called on selection of an item
     * @param {Number=} options.selected             preselects the model with given id 
     */
     hierarchicalSelect: function(collection, parent, options){
