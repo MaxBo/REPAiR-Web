@@ -615,7 +615,7 @@ var EditNodeView = BaseView.extend(
             }
 
             if (errorMsg){
-                this.alert(errorMsg, gettext('Error'));
+                _this.alert(errorMsg, gettext('Error'));
                 return;
             }
 
