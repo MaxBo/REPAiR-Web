@@ -1,14 +1,14 @@
-define(['backbone', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
+define(['views/baseview', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
 
-function(Backbone, _, Material, Loader, utils){
+function(BaseView, _, Material, Loader, utils){
 
 /**
  *
  * @author Christoph Franke
  * @name module:views/MaterialsView
- * @augments Backbone.View
+ * @augments module:views/BaseView
  */
-var MaterialsView = Backbone.View.extend(
+var MaterialsView = BaseView.extend(
     /** @lends module:views/MaterialsView.prototype */
     {
 
@@ -256,52 +256,6 @@ var MaterialsView = Backbone.View.extend(
       
       console.log(modal)
     },
-    
-    /*
-     * open modal dialog to enter a name
-     * options: onConfirm, name, title
-     */
-    getName: function(options){
-      
-      var options = options || {};
-      
-      var div = document.getElementById('edit-material-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || '' });
-      
-      div.innerHTML = html;
-      var modal = div.querySelector('.modal');
-      var body = modal.querySelector('.modal-body');
-      
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
-      
-      modal.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(modal).modal('hide');
-      });
-      
-      $(modal).modal('show');
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
-    },
-
   });
   return MaterialsView;
 }

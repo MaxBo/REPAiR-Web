@@ -1,13 +1,13 @@
-define(['backbone', 'underscore', 'utils/loader'],
+define(['views/baseview', 'underscore', 'utils/loader'],
 
-function(Backbone, _, Loader){
+function(BaseView, _, Loader){
   /**
    *
    * @author Christoph Franke
    * @name module:views/BaseChartsView
-   * @augments Backbone.View
+   * @augments module:views/BaseView
    */
-  var BaseChartsView = Backbone.View.extend(
+  var BaseChartsView = BaseView.extend(
     /** @lends module:views/BaseChartsView.prototype */
     {
 
@@ -140,53 +140,8 @@ function(Backbone, _, Loader){
       if (!category.nodes) category.nodes = [];
       category.nodes.push(chartNode);
       this.rerenderChartTree();
-    },
+    }
     
-    /*
-     * open modal dialog to enter a name
-     * options: onConfirm, name, title
-     */
-    getName: function(options){
-      
-      var options = options || {};
-      
-      var div = document.getElementById('edit-chart-category-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || '' });
-      
-      div.innerHTML = html;
-      var modal = div.querySelector('.modal');
-      var body = modal.querySelector('.modal-body');
-      
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
-      
-      modal.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(modal).modal('hide');
-      });
-      
-      $(modal).modal('show');
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
-    },
-
   });
   return BaseChartsView;
 }
