@@ -4,13 +4,13 @@ define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercat
 
 function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config){
     /**
-        *
-        * @author Christoph Franke
-        * @name module:views/BaseMapsView
-        * @augments Backbone.View
-        */
+    *
+    * @author Christoph Franke
+    * @name module:views/SetupMapsView
+    * @augments Backbone.View
+    */
     var SetupMapsView = BaseMapView.extend(
-        /** @lends module:views/BaseMapsView.prototype */
+        /** @lends module:views/SetupMapsView.prototype */
         {
         
         includedOnly: false,
