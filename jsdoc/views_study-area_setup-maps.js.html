@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: views/study-area/base-maps.js</title>
+    <title>JSDoc: Source: views/study-area/setup-maps.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: views/study-area/base-maps.js</h1>
+    <h1 class="page-title">Source: views/study-area/setup-maps.js</h1>
 
     
 
@@ -26,60 +26,27 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'collections/layercategories', 
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories', 
     'collections/layers', 'models/layer', 'visualizations/map', 
     'utils/loader', 'app-config', 'bootstrap-colorpicker'],
 
-function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
+function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config){
     /**
-        *
-        * @author Christoph Franke
-        * @name module:views/BaseMapsView
-        * @augments Backbone.View
-        */
-    var BaseMapsView = Backbone.View.extend(
-        /** @lends module:views/BaseMapsView.prototype */
+    *
+    * @author Christoph Franke
+    * @name module:views/SetupMapsView
+    * @augments Backbone.View
+    */
+    var SetupMapsView = BaseMapView.extend(
+        /** @lends module:views/SetupMapsView.prototype */
         {
-
-        /**
-        * render view to add layers to casestudy
-        *
-        * @param {Object} options
-        * @param {HTMLElement} options.el                          element the view will be rendered in
-        * @param {string} options.template                         id of the script element containing the underscore template to render this view
-        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
-        *
-        * @constructs
-        * @see http://backbonejs.org/#View
-        */
-        initialize: function(options){
-            var _this = this;
-            _.bindAll(this, 'render');
-            _.bindAll(this, 'nodeSelected');
-            _.bindAll(this, 'nodeChecked');
-            _.bindAll(this, 'nodeUnchecked');
-
-            this.template = options.template;
-            this.caseStudy = options.caseStudy;
-
-            this.projection = 'EPSG:4326'; 
-
-            var WMSResources = Backbone.Collection.extend({ 
-                url: config.api.wmsresources.format(this.caseStudy.id) 
-            })
-
-            this.wmsResources = new WMSResources();
-            this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
-
-            this.categoryTree = {};
-            this.layerPrefix = 'service-layer-';
-
-            var loader = new Loader(this.el, {disable: true});
-            this.layerCategories.fetch({ success: function(){
-                loader.remove();
-                _this.initTree();
-            }})
-        },
+        
+        includedOnly: false,
+        categoryBackColor: 'white',
+        categoryColor: 'black',
+        categoryExpanded: true,
+        selectedBackColor: '#aad400',
+        selectedColor: 'white',
 
         initTree: function(){
             var _this = this;
@@ -129,20 +96,19 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             'click #remove-layer-button': 'removeLayer',
             'click #edit-layer-button': 'editName',
             'click #remove-confirmation-modal .confirm': 'confirmRemoval',
-            'click #refresh-wms-services-button': 'renderAvailableServices'
+            'click #refresh-wms-services-button': 'renderAvailableServices',
+            'click #move-layer-up-button': 'moveLayerUp',
+            'click #move-layer-down-button': 'moveLayerDown'
         },
 
         /*
             * render the view
             */
         render: function(){
-            var _this = this;
-            var html = document.getElementById(this.template).innerHTML,
-                template = _.template(html);
-            this.el.innerHTML = template();
-
-            this.layerTree = document.getElementById('layer-tree');
+            this.renderTemplate();
+            
             this.buttonBox = document.getElementById('layer-tree-buttons');
+            this.zInput = document.getElementById('layer-z-index');
             
             html = document.getElementById('empty-modal-template').innerHTML;
             var elConfirmation = document.getElementById('remove-confirmation-modal');
@@ -151,7 +117,12 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.layerModal = document.getElementById('add-layer-modal');
 
             this.renderMap();
-            this.renderDataTree();
+            
+            // preselect first category
+            categoryIds = Object.keys(this.categoryTree);
+            var preselect = (categoryIds.length > 0) ? categoryIds[0] : null;
+            this.renderDataTree(preselect);
+            
             this.renderAvailableServices();
         },
 
@@ -190,71 +161,30 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.renderDataTree(categoryId);
         },
 
-        addServiceLayer: function(layer){
-            this.map.addServiceLayer(this.layerPrefix + layer.id, { 
-                opacity: 1,
-                visible: layer.get('included'),
-                url: '/proxy/layers/' + layer.id + '/wms',
-                params: {'layers': layer.get('service_layers'), 'TILED': true}//, 'VERSION': '1.1.0'},
-                //projection: 'EPSG:4326'//layer.get('srs') 
-            });
-        },
-
-        /*
-        * render the hierarchic tree of layers
-        */
-        renderDataTree: function(categoryId){
-            if (Object.keys(this.categoryTree).length == 0) return;
-
-            var _this = this;
-            var dataDict = {};
-            var tree = [];
-
-            _.each(this.categoryTree, function(category){
-                tree.push(category)
-            })
-
-            require('libs/bootstrap-treeview.min');
-            $(this.layerTree).treeview({
-                data: tree, showTags: true,
-                selectedBackColor: '#aad400',
-                expandIcon: 'glyphicon glyphicon-triangle-right',
-                collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-                onNodeSelected: this.nodeSelected,
-                onNodeChecked: this.nodeChecked,
-                onNodeUnchecked: this.nodeUnchecked,
-                showCheckbox: true
-            });
-            
-            var selectNodeId = 0;
-
-            // look for and expand and select node with given category id
-            if (categoryId){
-                // there is no other method to get all nodes or to search for an attribute
-                var nodes = $(this.layerTree).treeview('getEnabled');
-                _.forEach(nodes, function(node){
-                    if (node.category &amp;&amp; (node.category.id == categoryId)){
-                        selectNodeId = node.nodeId; 
-                        return false;
-                    }
-                })
-            }
-            // select first one, if no slectID is given
-            $(this.layerTree).treeview('selectNode', selectNodeId);
-            
-        },
 
         /*
         * event for selecting a node in the layer tree
         */
         nodeSelected: function(event, node){
-            var addBtn = document.getElementById('add-layer-button');
-            var removeBtn = document.getElementById('remove-layer-button');
+            if (this.selectedNode)
+                $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+            var addBtn = document.getElementById('add-layer-button'),
+                removeBtn = document.getElementById('remove-layer-button'),
+                downBtn = document.getElementById('move-layer-down-button'),
+                upBtn = document.getElementById('move-layer-up-button');
             this.selectedNode = node;
-            addBtn.style.display = 'inline';
-            removeBtn.style.display = 'inline';
             if (node.layer != null) {
                 addBtn.style.display = 'None';
+                this.zInput.style.display = 'inline';
+                this.zInput.value = node.layer.get('z_index');
+                downBtn.style.display = 'inline';
+                upBtn.style.display = 'inline';
+            }
+            else {
+                addBtn.style.display = 'inline';
+                this.zInput.style.display = 'None';
+                downBtn.style.display = 'None';
+                upBtn.style.display = 'None';
             }
             var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
             if (!li) return;
@@ -262,41 +192,45 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
             this.buttonBox.style.display = 'inline';
         },
         
+        // items are not unselectable
+        nodeUnselected: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+        },
+        
+        // select item on collapsing (workaround for misplaced buttons when collapsing)
+        nodeCollapsed: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        },
+        nodeExpanded: function(event, node){
+            $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        },
+        
         nodeChecked: function(event, node){
-            var _this = this;
             // layer checked
             if (node.layer != null){
                 node.layer.set('included', true);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, true);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'inline';
                 //$(this.layerTree).treeview('checkNode', [node.parentId, { silent: true }]);
             }
             // category checked
             else {
-                //node.nodes.forEach(function(child){
-                    //$(_this.layerTree).treeview('checkNode', [child.nodeId]);
-                //})
             }
         },
         
         nodeUnchecked: function(event, node){
-            var _this = this;
             // layer unchecked
             if (node.layer != null){
                 node.layer.set('included', false);
                 node.layer.save();
                 this.map.setVisible(this.layerPrefix + node.layer.id, false);
+                var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+                if (legendDiv) legendDiv.style.display = 'none';
             }
-            // category unchecked
+            // category cant't be unchecked
             else {
-                //node.nodes.forEach(function(child){
-                    //console.log(child.nodeId)
-                    //console.log(_this.layerTree)
-                    //$(_this.layerTree).treeview('uncheckNode', [child.nodeId]);
-                //})
-                // checking unchecking the children often produces database locks 
-                // (thanks to sqlite, see code above)
-                // just leaving it always checked now
                 $(this.layerTree).treeview('checkNode', [node.nodeId, { silent: true }]);
             }
         },
@@ -355,7 +289,8 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 var layer = new Layer({ 
                     name: wmsLayerName, 
                     included: true,
-                    wms_layer: wmsLayerId
+                    wms_layer: wmsLayerId,
+                    style: null
                 }, { caseStudyId: _this.caseStudy.id, layerCategoryId: category.id });
                 newLayers.push(layer);
             })
@@ -418,7 +353,10 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                     _this.getTreeLayerNode(model, { pop: true })
                     selectCatId = model.get('category');
                     _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
                 }
+                _this.selectedNode = null;
                 _this.rerenderDataTree(selectCatId);
             }});
             
@@ -456,6 +394,35 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
                 title: gettext('Edit Name'),
                 onConfirm: onConfirm
             })
+        },
+        
+        moveLayerUp: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) + 1;
+            layer.set('z_index', newVal);
+            this.buttonBox.style.pointerEvents = 'none';
+            layer.save(null, { success: function(){
+                _this.buttonBox.style.pointerEvents = 'auto';
+                _this.zInput.value = newVal;
+                _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+            }});
+        },
+        
+        moveLayerDown: function(){
+            var _this = this;
+            var layer = this.selectedNode.layer;
+            var newVal = Number(this.zInput.value) - 1;
+            if (newVal > 0){
+                this.zInput.value = newVal;
+                layer.set('z_index', newVal);
+                this.buttonBox.style.pointerEvents = 'none';
+                layer.save(null, { success: function(){
+                    _this.buttonBox.style.pointerEvents = 'auto';
+                    _this.zInput.value = newVal;
+                    _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+                }});
+            }
         },
 
         /*
@@ -504,7 +471,7 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
         },
 
     });
-    return BaseMapsView;
+    return SetupMapsView;
 }
 );</code></pre>
         </article>
@@ -516,13 +483,13 @@ function(Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

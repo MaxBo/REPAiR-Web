@@ -48,6 +48,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      *
      * @param {Object} options
      * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
+     * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
      * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
      * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -60,10 +62,12 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       _.bindAll(this, 'render');
       _.bindAll(this, 'toggleFullscreen');
       var _this = this;
-      this.caseStudyId = this.collection.caseStudyId;
-      this.keyflowId = this.collection.keyflowId;
+      this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
+      this.keyflowId = options.keyflowId || this.collection.keyflowId;
       this.materials = options.materials;
       this.hideUnconnected = options.hideUnconnected;
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
       
       var type = (this.collection instanceof Actors) ? 'actor': 
                  (this.collection instanceof Activities) ? 'activity': 'activitygroup';
@@ -99,9 +103,9 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
       fullscreenBtn.addEventListener('click', this.toggleFullscreen);
       this.el.appendChild(fullscreenBtn);
-      var width = this.el.clientWidth;
-      var height = this.el.classList.contains('fullscreen') ?
-                   this.el.clientHeight: width / 3;
+      var isFullScreen = this.el.classList.contains('fullscreen');
+      var width = (isFullScreen) ? this.el.clientWidth : this.width;
+      var height = (isFullScreen) ? this.el.clientHeight : this.height;
       var div = this.el.querySelector('.sankey');
       if (div == null){
         div = document.createElement('div');
@@ -125,6 +129,13 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.render();
     },
     
+    refresh: function(options){
+      var options = options || {};
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
+      this.render();
+    },
+    
     /*
      * transform the models, their links and the stocks to a json-representation
      * readable by the sankey-diagram
@@ -135,7 +146,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       var nodeIdxDict = {}
       var i = 0;
       
-      models.each(function(model){
+      models.forEach(function(model){
         var id = model.id;
         var name = model.get('name');
         // ignore nodes with no connections at all (if requested)
@@ -165,12 +176,14 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
         return text || ('no composition defined')
       }
       
-      flows.each(function(flow){
+      flows.forEach(function(flow){
         var value = flow.get('amount');
         var originId = flow.get('origin'),
             destinationId = flow.get('destination'),
             source = nodeIdxDict[originId],
             target = nodeIdxDict[destinationId];
+        // continue if one of the linked nodes does not exist
+        if (source == null || target == null) return false;
         var composition = flow.get('composition');
         links.push({
           value: flow.get('amount'),
@@ -180,10 +193,12 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           text: compositionRepr(composition)
         });
       })
-      stocks.each(function(stock){
+      stocks.forEach(function(stock){
         var id = 'stock-' + stock.id;
         var originId = stock.get('origin'),
             source = nodeIdxDict[originId];
+        // continue if node does not exist
+        if (source == null) return false;
         nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
         var composition = stock.get('composition');
         links.push({
@@ -222,13 +237,13 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,18 +1,18 @@
-define(['backbone', 'underscore', 'visualizations/flowmap',
-    'collections/keyflows', 'collections/materials', 
-    'collections/actors', 'collections/activitygroups',
-    'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
-    'hierarchy-select'],
+define(['views/baseview', 'underscore', 'visualizations/flowmap',
+        'collections/keyflows', 'collections/materials', 
+        'collections/actors', 'collections/activitygroups',
+        'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
+        'hierarchy-select'],
 
-function(Backbone, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
+function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
     Activities, FlowSankeyView, Loader, utils){
 /**
 *
 * @author Christoph Franke
 * @name module:views/FlowsView
-* @augments Backbone.View
+* @augments module:views/BaseView
 */
-var FlowsView = Backbone.View.extend(
+var FlowsView = BaseView.extend(
     /** @lends module:views/FlowsView.prototype */
     {
 
@@ -190,120 +190,13 @@ var FlowsView = Backbone.View.extend(
         var matSelect = document.createElement('div');
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
-            callback: function(model){
+            onSelect: function(model){
                 _this.filterParams = (model) ? { material: model.id } : null;
                 _this.renderSankey();
             }
         });
         this.el.querySelector('#material-filter').appendChild(matSelect);
-    },
-
-    // build a hierarchical selection of a collection, 
-    // parent  of the models define tree structure
-    // options.callback(model) is called, when a model from the collection is selected
-    // options.selected preselects the model with given id
-    hierarchicalSelect: function(collection, parent, options){
-        var wrapper = document.createElement("div");
-        var options = options || {};
-        var items = [];
-
-        // list to tree
-        function treeify(list) {
-            var treeList = [];
-            var lookup = {};
-            list.forEach(function(item) {
-                lookup[item['id']] = item;
-            });
-            list.forEach(function(item) {
-                if (item['parent'] != null) {
-                    lookupParent = lookup[item['parent']]
-                    if (!lookupParent['nodes']) lookupParent['nodes'] = [];
-                    lookupParent['nodes'].push(item);
-                } else {
-                    treeList.push(item);
-                }
-            });
-            return treeList;
-        };
-
-        // make a list out of the collection that is understandable by treeify and hierarchySelect
-        collection.each(function(model){
-            var item = {};
-            var name = model.get('name');
-            item.text = name.substring(0, 70);
-            if (name.length > 70) item.text += '...';
-            item.title = model.get('name');
-            item.level = 1;
-            item.id = model.id;
-            item.parent = model.get('parent');
-            item.value = model.id;
-            items.push(item);
-        })
-
-        var treeList = treeify(items);
-
-        // converts tree to list sorted by appearance in tree, 
-        // stores the level inside the tree as an attribute in each node
-        function treeToLevelList(root, level){
-            var children = root['nodes'] || [];
-            children = children.slice();
-            delete root['nodes'];
-            root.level = level;
-            list = [root];
-            children.forEach(function(child){
-                list = list.concat(treeToLevelList(child, level + 1));
-            })
-            return list;
-        };
-
-        var levelList = [];
-        treeList.forEach(function(root){ levelList = levelList.concat(treeToLevelList(root, 1)) });
-
-        // load template and initialize the hierarchySelect plugin
-        var inner = document.getElementById('hierarchical-select-template').innerHTML,
-            template = _.template(inner),
-            html = template({ options: levelList, defaultOption: gettext('All') });
-        wrapper.innerHTML = html;
-        wrapper.name = 'material';
-        parent.appendChild(wrapper);
-        var select = wrapper.querySelector('.hierarchy-select');
-        $(select).hierarchySelect({
-            width: 400
-        });
-
-        // preselect an item
-        if (options.selected){
-            var selection = select.querySelector('.selected-label');
-            var model = collection.get(options.selected);
-            if (model){
-                // unselect the default value
-                var li = select.querySelector('li[data-default-selected]');
-                li.classList.remove('active');
-                selection.innerHTML = model.get('name');
-                var li = select.querySelector('li[data-value="' + options.selected + '"]');
-                li.classList.add('active');
-            }
-        }
-
-        // event click on item
-        var anchors = select.querySelectorAll('a');
-        for (var i = 0; i < anchors.length; i++) {
-            anchors[i].addEventListener('click', function(){
-                var item = this.parentElement;
-                var model = collection.get(item.getAttribute('data-value'));
-                wrapper.title = item.title;
-                if (options.callback) options.callback(model);
-            })
-        }
-    },
-    /*
-    * remove this view from the DOM
-    */
-    close: function(){
-        this.undelegateEvents(); // remove click events
-        this.unbind(); // Unbind all local event bindings
-        this.el.innerHTML = ''; //empty the DOM element
-    },
+    }
 
 });
 return FlowsView;

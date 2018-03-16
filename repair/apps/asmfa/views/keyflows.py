@@ -92,6 +92,14 @@ class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = ProductFilter
+    
+    # DjangoFilterBackend is not able to parse query params in array form
+    # (e.g. ?nace[]=xxx&nace[]=yyy)
+    def list(self, request, **kwargs):
+        if 'nace[]' in request.query_params.keys():
+            nace = request.GET.getlist('nace[]')
+            self.queryset = self.queryset.filter(nace__in=nace)
+        return super().list(request, **kwargs)
 
 
 class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
@@ -103,6 +111,14 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = WasteSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = WasteFilter
+    
+    # DjangoFilterBackend is not able to parse query params in array form
+    # (e.g. ?nace[]=xxx&nace[]=yyy)
+    def list(self, request, **kwargs):
+        if 'nace[]' in request.query_params.keys():
+            nace = request.GET.getlist('nace[]')
+            self.queryset = self.queryset.filter(nace__in=nace)
+        return super().list(request, **kwargs)
 
 
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
