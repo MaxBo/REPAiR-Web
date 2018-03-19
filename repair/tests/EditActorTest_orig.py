@@ -30,7 +30,7 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         driver.find_element_by_xpath("//div[@id='generic-modal']//input").click()
         driver.find_element_by_xpath("//div[@id='generic-modal']//input").clear()
         driver.find_element_by_xpath("//div[@id='generic-modal']//input").send_keys("test123")
-        driver.find_element_by_xpath("(//button[@class='confirm'])").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[13])").click()
         driver.find_element_by_id("add-administrative-button").click()
         driver.find_element_by_xpath("(//input[@name='name'])[2]").click()
         driver.find_element_by_xpath("(//input[@name='name'])[2]").clear()
