@@ -28,6 +28,7 @@ function(Backbone, _,){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            this.mode = options.mode || 0;
 
             this.challenges = [
                 'Recycling rate too low',
@@ -59,6 +60,15 @@ function(Backbone, _,){
                 aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
             this.renderPanel(challengesPanel, this.challenges);
             this.renderPanel(aimsPanel, this.aims);
+            
+            // lazy way to render workshop mode: just hide all buttons for editing
+            // you may make separate views as well
+            if (this.mode == 0){
+                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
+                _.each(btns, function(button){
+                    button.style.display = 'none';
+                });
+            }
         },
 
         renderPanel(panel, items){

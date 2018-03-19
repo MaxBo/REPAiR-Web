@@ -1,13 +1,13 @@
-define(['backbone', 'underscore'],
+define(['views/baseview', 'underscore'],
 
-function(Backbone, _,){
+function(BaseView, _,){
     /**
     *
     * @author Christoph Franke
     * @name module:views/StakeholdersView
-    * @augments Backbone.View
+    * @augments module:views/BaseView
     */
-    var StakeholdersView = Backbone.View.extend(
+    var StakeholdersView = BaseView.extend(
         /** @lends module:views/StakeholdersView.prototype */
         {
 
@@ -17,7 +17,8 @@ function(Backbone, _,){
         * @param {Object} options
         * @param {HTMLElement} options.el                          element the view will be rendered in
         * @param {string} options.template                         id of the script element containing the underscore template to render this view
-        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add stakeholder categories and stakeholders to
+        * @param {Number} [options.mode=0]                         workshop (0, default) or setup mode (1)
+        * @param {module:models/CaseStudy} options.caseStudy       the casestudy of the stakeholder categories and stakeholders
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -28,6 +29,8 @@ function(Backbone, _,){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            
+            this.mode = options.mode || 0;
             
             // ToDo: replace with collections fetched from server
             this.categories = [
@@ -54,6 +57,15 @@ function(Backbone, _,){
             var template = _.template(html);
             this.el.innerHTML = template();
             this.renderCategories();
+            
+            // lazy way to render workshop mode: just hide all buttons for editing
+            // you may make separate views as well
+            if (this.mode == 0){
+                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
+                _.each(btns, function(button){
+                    button.style.display = 'none';
+                });
+            }
         },
 
         renderCategories(){
@@ -65,8 +77,13 @@ function(Backbone, _,){
                     panel = document.createElement('div');
                 div.classList.add('col-md-3', 'bordered');
                 div.style.margin = '5px';
-                var label = document.createElement('label'),
-                    button = document.createElement('button');
+                panelList.appendChild(div);
+                
+                var label = document.createElement('label');
+                div.appendChild(label);
+                div.appendChild(panel);
+                
+                var button = document.createElement('button');
                 label.innerHTML = category.name;
                 
                 button.classList.add("btn", "btn-primary", "square", "add");
@@ -79,9 +96,6 @@ function(Backbone, _,){
                     // ToDo: add functionality for click event (add stakeholder item)
                 })
                 
-                panelList.appendChild(div);
-                div.appendChild(label);
-                div.appendChild(panel);
                 div.appendChild(button);
                 // add the items
                 _this.addPanelItems(panel, category.stakeholders);

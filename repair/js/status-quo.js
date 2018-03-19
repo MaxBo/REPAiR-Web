@@ -37,12 +37,14 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
     var challengesView = new ChallengesAimsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('challenges'),
-      template: 'challenges-aims-template'
+      template: 'challenges-aims-template', 
+      mode: 1
     })
     var targetsView = new TargetsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('targets'),
-      template: 'targets-template'
+      template: 'targets-template', 
+      mode: 1
     })
     var evaluationView = new EvaluationView({ 
       caseStudy: caseStudy,
