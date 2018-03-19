@@ -2,3 +2,4 @@
 public
 static/bundles
 *.json
+!static/data/*.json

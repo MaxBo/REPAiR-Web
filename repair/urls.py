@@ -23,6 +23,7 @@ from django.contrib import admin
 from repair.views import HomeView
 from django.contrib.auth.views import logout
 from django.views.i18n import JavaScriptCatalog
+from repair.apps.wmsresources.views import (WMSProxyView)
 
 
 # Wire up our API using automatic URL routing.
@@ -40,8 +41,9 @@ urlpatterns = [
     # API urls
     url(r'^login/', include('repair.apps.login.urls')),
     url(r'^api/', include('repair.rest_urls')),
-    url(r'^geoserver/', include('repair.apps.geoserver.urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    url(r'^proxy/layers/(?P<layer_id>[0-9]+)/wms', WMSProxyView.as_view(), name='wms_proxy'),
+    url(r'^wms-client/', include('wms_client.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

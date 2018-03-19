@@ -1,14 +1,14 @@
-define(['backbone', 'underscore', "models/material", 'utils/loader'],
+define(['backbone', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
 
-function(Backbone, _, Material, Loader){
+function(Backbone, _, Material, Loader, utils){
 
-  /**
-   *
-   * @author Christoph Franke
-   * @name module:views/MaterialsView
-   * @augments Backbone.View
-   */
-  var MaterialsView = Backbone.View.extend(
+/**
+ *
+ * @author Christoph Franke
+ * @name module:views/MaterialsView
+ * @augments Backbone.View
+ */
+var MaterialsView = Backbone.View.extend(
     /** @lends module:views/MaterialsView.prototype */
     {
 
@@ -75,24 +75,6 @@ function(Backbone, _, Material, Loader){
       var _this = this;
       var expandedIds = expandedIds || []
       
-      // list to tree
-      function treeify(list) {
-        var treeList = [];
-        var lookup = {};
-        list.forEach(function(item) {
-          lookup[item['id']] = item;
-        });
-        list.forEach(function(item) {
-          if (item['parent'] != null) {
-            lookupParent = lookup[item['parent']];
-            if (!lookupParent['nodes']) lookupParent['nodes'] = [];
-            lookupParent['nodes'].push(item);
-          } else {
-            treeList.push(item);
-          }
-        });
-        return treeList;
-      };
       // collection to list, prepare it to treeify
       var materialList = [];
       this.materials.each(function(material){
@@ -111,7 +93,7 @@ function(Backbone, _, Material, Loader){
       var tree = [{
         id: null,
         parent: null,
-        nodes: treeify(materialList), // collection as tree
+        nodes: utils.treeify(materialList), // collection as tree
         text: 'Materials',
         state: { collapsed: false }
       }]
@@ -158,11 +140,6 @@ function(Backbone, _, Material, Loader){
       this.renderDataTree(selectId);
     },
     
-    onError: function(response){
-      document.getElementById('alert-message').innerHTML = response.responseText; 
-      $('#alert-modal').modal('show'); 
-    },
-    
     /*
      * event for selecting a node in the material tree
      */
@@ -175,7 +152,10 @@ function(Backbone, _, Material, Loader){
         editBtn.style.display = 'None'; 
         removeBtn.style.display = 'None'; 
       }
-      else editBtn.style.display = 'inline';
+      else {
+        editBtn.style.display = 'inline';
+        removeBtn.style.display = 'inline'; 
+      }
       var li = this.materialTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
       if (!li) return;
       this.buttonBox.style.top = li.offsetTop + 10 + 'px';

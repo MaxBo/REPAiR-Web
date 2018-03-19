@@ -8,6 +8,7 @@ module.exports = {
     DataEntry: './js/data-entry',
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
+    Changes: './js/changes',
     Base:      './js/base',
   },
   
@@ -50,6 +51,7 @@ module.exports = {
     modules : ['js', 'node_modules', 'bower_components'],
       alias: {
         'spatialsankey': 'libs/spatialsankey',
+        'cyclesankey': 'libs/cycle-sankey',
         jquery: "jquery/src/jquery"
       },
     plugins: [

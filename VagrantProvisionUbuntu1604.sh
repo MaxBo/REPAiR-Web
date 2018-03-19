@@ -22,6 +22,9 @@ apt-get upgrade -y
 echo "Installing pip for Python3.6..."
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 
+echo "Installing compiler extensions for Python3.6..."
+apt-get install -y --allow-unauthenticated python3.6-dev
+
 echo "Installing GDAL 2.1.3..."
 add-apt-repository ppa:ubuntugis/ppa -y
 apt-get update

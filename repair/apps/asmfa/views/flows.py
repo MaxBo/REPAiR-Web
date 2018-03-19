@@ -3,6 +3,8 @@ from abc import ABC
 
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
+from rest_framework.response import Response
+from django.db.models import Q
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -10,6 +12,9 @@ from repair.apps.asmfa.models import (
     Activity2Activity,
     Actor2Actor,
     Group2Group,
+    Material,
+    Composition,
+    ProductFraction
 )
 
 from repair.apps.asmfa.serializers import (
@@ -30,6 +35,22 @@ class ReasonViewSet(RevisionMixin, ModelViewSet):
     queryset = Reason.objects.all()
 
 
+def filter_by_material(material, queryset):
+    """filter queryset by their compositions,
+    their fractions have to contain the given material or children
+    of the material"""
+    # get the children of the given material
+    materials = material.children
+    # fractions have to contain any of given material or its children
+    materials.append(material)
+    fractions = ProductFraction.objects.filter(material__in=materials)
+    # the compositions containing the filtered fractions
+    compositions = fractions.values('composition')
+    # the flows containing the filtered compositions
+    filtered = queryset.filter(composition__in=compositions)
+    return filtered
+
+
 class FlowViewSet(RevisionMixin,
                   CasestudyViewSetMixin,
                   ModelPermissionViewSet,
@@ -41,6 +62,29 @@ class FlowViewSet(RevisionMixin,
     """
     serializer_class = FlowSerializer
     model = Flow
+    
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        SerializerClass = self.get_serializer_class()
+        query_params = request.query_params
+        filtered = None
+        if 'material' in query_params.keys():
+            try:
+                material = Material.objects.get(id=query_params['material'])
+            except Material.DoesNotExist:
+                return Response(status=404)
+            filtered = filter_by_material(material, self.queryset)
+        if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            nodes = (query_params.get('nodes', None)
+                     or request.GET.getlist('nodes[]')) 
+            filtered = queryset.filter(Q(origin__in=nodes) |
+                                       Q(destination__in=nodes))
+        if filtered is not None:
+            serializer = SerializerClass(filtered, many=True,
+                                         context={'request': request, })
+            return Response(serializer.data)
+        return super().list(request, **kwargs)
 
 
 class Group2GroupViewSet(FlowViewSet):

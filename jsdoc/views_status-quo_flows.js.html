@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: views/status-quo/flows.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: views/status-quo/flows.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(['views/baseview', 'underscore', 'visualizations/flowmap',
+        'collections/keyflows', 'collections/materials', 
+        'collections/actors', 'collections/activitygroups',
+        'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
+        'hierarchy-select'],
+
+function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
+    Activities, FlowSankeyView, Loader, utils){
+/**
+*
+* @author Christoph Franke
+* @name module:views/FlowsView
+* @augments module:views/BaseView
+*/
+var FlowsView = BaseView.extend(
+    /** @lends module:views/FlowsView.prototype */
+    {
+
+    /**
+    * render view to show keyflows in casestudy
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                          element the view will be rendered in
+    * @param {string} options.template                         id of the script element containing the underscore template to render this view
+    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
+    initialize: function(options){
+        var _this = this;
+        _.bindAll(this, 'render');
+        _.bindAll(this, 'keyflowChanged');
+        _.bindAll(this, 'refreshMap');
+
+        this.template = options.template;
+        this.caseStudy = options.caseStudy;
+        this.filterParams = null;
+
+        this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
+
+        this.keyflows.fetch({ success: function(){
+            _this.render();
+        }})
+        
+    },
+
+    /*
+    * dom events (managed by jquery)
+    */
+    events: {
+        'change select[name="keyflow"]': 'keyflowChanged',
+        'change #data-view-type-select': 'renderSankey'
+    },
+
+    /*
+    * render the view
+    */
+    render: function(){
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML
+        var template = _.template(html);
+        this.el.innerHTML = template({ keyflows: this.keyflows });
+        this.typeSelect = this.el.querySelector('#data-view-type-select');
+    },
+
+    refreshMap: function(){
+        if (this.sankeyMap) this.sankeyMap.refresh();
+    },
+
+    keyflowChanged: function(evt){
+        var _this = this;
+        this.keyflowId = evt.target.value;
+        var content = this.el.querySelector('#flows-setup-content');
+        content.style.display = 'inline';
+        this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+
+        var loader = new Loader(this.el, {disable: true});
+        var params = { included: 'True' }
+        $.when(this.materials.fetch(), this.actors.fetch({ data: params }), 
+            this.activities.fetch(), this.activityGroups.fetch()).then(function(){
+            _this.renderSankeyMap();
+            _this.renderMatFilter();
+            _this.renderNodeFilters();
+            _this.renderSankey();
+            loader.remove();
+        })
+    },
+
+    renderSankey: function(){
+        var type = this.typeSelect.value;
+        var collection = (type == 'actor') ? this.actors: 
+            (type == 'activity') ? this.activities: 
+            this.activityGroups;
+        
+        var filtered = (type == 'actor') ? this.actorsFiltered: 
+            (type == 'activity') ? this.activitiesFiltered: 
+            this.activityGroupsFiltered;
+        
+        // if the collections are filtered build matching query params for the flows
+        var filterParams = Object.assign({}, this.filterParams);
+        if (filtered){
+            var nodeIds = [];
+            filtered.forEach(function(node){
+                nodeIds.push(node.id);
+            })
+            if (nodeIds.length > 0) filterParams.nodes = nodeIds;
+        }
+        
+        if (this.flowsView != null) this.flowsView.close();
+        this.flowsView = new FlowSankeyView({
+            el: document.getElementById('sankey-wrapper'),
+            collection: collection,
+            materials: this.materials,
+            filterParams: filterParams,
+            hideUnconnected: true,
+            height: 600
+        })
+    },
+
+    renderSankeyMap: function(){
+        var flowMap = new FlowMap("flow-map");
+        flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+    },
+
+    renderNodeFilters: function(){
+        var _this = this;
+        function renderOptions(select, collection){
+            utils.clearSelect(select);
+            option = document.createElement('option');
+            option.value = -1; 
+            option.text = gettext('All');
+            select.appendChild(option);
+            collection.forEach(function(model){
+                var option = document.createElement('option');
+                option.value = model.id;
+                option.text = model.get('name');
+                select.appendChild(option);
+            })
+        }
+        var groupSelect = this.el.querySelector('select[name="group"]'),
+            activitySelect = this.el.querySelector('select[name="activity"]'),
+            actorSelect = this.el.querySelector('select[name="actor"]');
+            
+        renderOptions(groupSelect, this.activityGroups);
+        renderOptions(activitySelect, this.activities);
+        renderOptions(actorSelect, this.actors);
+
+        groupSelect.addEventListener('change', function(){
+            var groupId = groupSelect.value;
+            // set and use filters for selected group, set child activities 
+            // unset if 'All' (== -1) is selected
+            _this.activityGroupsFiltered = (groupId &lt; 0) ? null: [_this.activityGroups.get(groupId)]
+            _this.activitiesFiltered = (groupId &lt; 0) ? null: _this.activities.filterGroup(groupId);
+            renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
+            //if (_this.typeSelect.value == 'activitygroup')
+            _this.typeSelect.value = 'activitygroup';
+            _this.renderSankey();
+        })
+        
+        activitySelect.addEventListener('change', function(){
+            var activityId = activitySelect.value;
+            // set and use filters for selected activity, set child actors 
+            // unset if 'All' (== -1) is selected
+            _this.activitiesFiltered = (activityId &lt; 0) ? null: [_this.activities.get(activityId)]
+            _this.actorsFiltered = (activityId &lt; 0) ? null: _this.actors.filterActivity(activityId);
+            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
+            //if (_this.typeSelect.value == 'activity') 
+            _this.typeSelect.value = 'activity';
+            _this.renderSankey();
+        })
+        
+        actorSelect.addEventListener('change', function(){
+            var actorId = actorSelect.value;
+            // set and use filters for selected actor,
+            // unset if 'All' (== -1) is selected
+            _this.actorsFiltered = (actorId &lt; 0) ? null: [_this.actors.get(actorId)]
+            //if (_this.typeSelect.value == 'actor') 
+            _this.typeSelect.value = 'actor'
+            _this.renderSankey();
+        })
+    },
+
+    renderMatFilter: function(){
+        var _this = this;
+        // select material
+        var matSelect = document.createElement('div');
+        matSelect.classList.add('materialSelect');
+        this.hierarchicalSelect(this.materials, matSelect, {
+            onSelect: function(model){
+                _this.filterParams = (model) ? { material: model.id } : null;
+                _this.renderSankey();
+            }
+        });
+        this.el.querySelector('#material-filter').appendChild(matSelect);
+    }
+
+});
+return FlowsView;
+}
+);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

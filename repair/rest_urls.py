@@ -9,7 +9,9 @@ from repair.apps.studyarea.views import (
     StakeholderCategoryViewSet,
     StakeholderViewSet,
     AdminLevelViewSet,
-    AreaViewSet
+    AreaViewSet,
+    LayerCategoryViewSet,
+    LayerViewSet
 )
 
 from repair.apps.changes.views import (
@@ -31,7 +33,7 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
-    ReasonViewSet, 
+    ReasonViewSet,
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
@@ -48,11 +50,22 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
-    WasteViewSet, 
+    WasteViewSet,
 )
-
+from repair.apps.statusquo.views import (
+    AimViewSet,
+    ChallengeViewSet,
+    TargetViewSet,
+    SustainabilityFieldViewSet,
+    ImpactcategoryViewSet,
+    ImpactCategoryInSustainabilityViewSet,
+    AreaOfProtectionViewSet,
+    TargetValueViewSet,
+    TargetSpatialReferenceViewSet
+)
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
+from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 
 
 ## base routes ##
@@ -65,8 +78,17 @@ router.register(r'products', ProductViewSet)
 router.register(r'wastes', WasteViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
+router.register(r'sustainabilities', SustainabilityFieldViewSet)
+router.register(r'impactcategories', ImpactcategoryViewSet)
+router.register(r'targetvalues', TargetValueViewSet)
+router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
+# / sustainabilities/../
+sus_router = NestedDefaultRouter(router, r'sustainabilities',
+                                 lookup='sustainability')
+sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
+sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
@@ -76,8 +98,17 @@ cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
+cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
+cs_router.register(r'aims', AimViewSet)
+cs_router.register(r'challenges', ChallengeViewSet)
+cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
+
+# /casestudies/*/layercategories/...
+layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
+                                     lookup='layercategory')
+layercat_router.register(r'layers', LayerViewSet)
 
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',
@@ -85,10 +116,12 @@ levels_router = NestedSimpleRouter(cs_router, r'levels',
 levels_router.register(r'areas', AreaViewSet)
 
 
-# /casestudies/*/stakeholdercategories/...
+# /casestudies/*/users/...
 user_router = NestedSimpleRouter(cs_router, r'users',
                                   lookup='user')
 user_router.register(r'implementations', ImplementationOfUserViewSet)
+user_router.register(r'targets', TargetViewSet)
+
 
 
 # /casestudies/*/stakeholdercategories/...
@@ -152,7 +185,6 @@ actors_router.register(r'operationallocations',
                    OperationalLocationsOfActorViewSet)
 
 
-
 ## webhook ##
 
 url(r'^api/payload', include('repair.static.webhook.urls'))
@@ -160,6 +192,7 @@ url(r'^api/payload', include('repair.static.webhook.urls'))
 urlpatterns = [
     url(r'^docs/', include_docs_urls(title='REPAiR API Documentation')),
     url(r'^', include(router.urls)),
+    url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(ag_router.urls)),
     url(r'^', include(ac_router.urls)),
@@ -172,4 +205,5 @@ urlpatterns = [
     url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
+    url(r'^', include(layercat_router.urls)),
 ]

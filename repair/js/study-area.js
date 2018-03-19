@@ -1,73 +1,61 @@
-define([
-  'd3',
-  'models/casestudy',
-  'visualizations/sankey-map',
-  'views/study-area/base-maps',
-  'views/study-area/base-charts',
-  'app-config',
-  'base'
-], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, appConfig) {
+define(['d3', 'models/casestudy', 'visualizations/sankey-map',
+        'views/study-area/maps', 'views/study-area/setup-maps', 
+        'views/study-area/charts',
+        'views/study-area/stakeholders',
+        'app-config', 'base'
+], function(d3, CaseStudy, SankeyMap, BaseMapsView, SetupMapsView, BaseChartsView, 
+            StakeholdersView, appConfig) {
 
-  function renderWorkshop(){
-    NodeHandler = function(){
-      this.id = 0;
-      var callbacks = [];
-      
-      this.add = function(callback){
-        callbacks.push(callback);
-      }
-      
-      this.changeActive = function(id){
-        this.id = id;
-        callbacks.forEach(function(callback){
-          callback(id);
-        });
-      }
-    }
+  function renderWorkshop(caseStudy){
+    var mapsView = new BaseMapsView({
+      template: 'base-maps-template',
+      el: document.getElementById('base-map-content'),
+      caseStudy: caseStudy
+    });
+    var chartsView = new BaseChartsView({
+      template: 'base-charts-template',
+      el: document.getElementById('base-charts-content'),
+      caseStudy: caseStudy
+    });
+    var stakeholdersView = new StakeholdersView({
+      template: 'stakeholders-template',
+      el: document.getElementById('stakeholders-content'),
+      caseStudy: caseStudy
+    });
+  }
   
-    var handler = new NodeHandler();
-    
-    var callbackTest = function(id){
-      document.getElementById('nodeinfo').innerHTML = "Node ID: " + id;
-    }
-    
-    handler.add(callbackTest);
-    
-    var map = new SankeyMap({
-      divid: 'map', 
-      nodes: '/static/data/nodes.geojson', 
-      links: '/static/data/links.csv',
-      nodeHandler: handler
+  function renderSetup(caseStudy){
+    var mapsView = new SetupMapsView({
+      template: 'setup-maps-template',
+      el: document.getElementById('base-map-content'),
+      caseStudy: caseStudy
+    });
+    var chartsView = new BaseChartsView({
+      template: 'base-charts-template',
+      el: document.getElementById('base-charts-content'),
+      caseStudy: caseStudy
+    });
+    var stakeholdersView = new StakeholdersView({
+      template: 'stakeholders-template',
+      el: document.getElementById('stakeholders-content'),
+      caseStudy: caseStudy
     });
   }
   
   var session = appConfig.getSession(
     function(session){
-      var mode = session['mode'];
-      if (Number(mode) == 1) {
-        var caseStudyId = session['casestudy'];
-        caseStudy = new CaseStudy({id: caseStudyId});
-      
-        caseStudy.fetch({success: function(){
-          renderSetup(caseStudy)
-        }});
-      }
-      else
-        renderWorkshop()
-  });
-  
-  function renderSetup(caseStudy){
-    var mapsView = new BaseMapsView({
-      template: 'base-map-template',
-      el: document.getElementById('base-map-setup'),
-      caseStudy: caseStudy
-    });
+      var mode = session['mode'],
+          caseStudyId = session['casestudy'],
+          caseStudy = new CaseStudy({id: caseStudyId});
     
-    var chartsView = new BaseChartsView({
-      template: 'base-charts-template',
-      el: document.getElementById('base-charts-setup'),
-      caseStudy: caseStudy
-    })
-  }
+      caseStudy.fetch({success: function(){
+        if (Number(mode) == 1) {
+          renderSetup(caseStudy);
+        }
+        else {
+          renderWorkshop(caseStudy);
+        }
+      }});
+  });
   
 });
