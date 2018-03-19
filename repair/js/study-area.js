@@ -33,12 +33,14 @@ define(['d3', 'models/casestudy', 'visualizations/sankey-map',
     var chartsView = new BaseChartsView({
       template: 'base-charts-template',
       el: document.getElementById('base-charts-content'),
-      caseStudy: caseStudy
+      caseStudy: caseStudy,
+      mode: 1
     });
     var stakeholdersView = new StakeholdersView({
       template: 'stakeholders-template',
       el: document.getElementById('stakeholders-content'),
-      caseStudy: caseStudy
+      caseStudy: caseStudy,
+      mode: 1
     });
   }
   

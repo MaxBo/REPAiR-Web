@@ -45,7 +45,6 @@ var BaseView = Backbone.View.extend(
         this.el.innerHTML = template();
     },
 
-
     /**
     * callback for selecting items in the hierarchical select
     *
@@ -169,6 +168,50 @@ var BaseView = Backbone.View.extend(
         message = message ? '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>': 
                   gettext('Server does not respond.');
         this.alert(message, gettext('Error'));
+    },
+    
+    /**
+    * callback for confirming user input of name
+    *
+    * @callback module:views/BaseView~onNameConfirm
+    * @param {String} name  the user input
+    */
+    
+    /**
+    * show a modal to enter a name
+    *
+    * @param {Object=} options
+    * @param {module:views/BaseView~onNameConfirm} options.onConfirm  called when user confirms input
+    */
+    getName: function(options){
+      
+      var options = options || {};
+      
+      var el = document.getElementById('generic-modal'),
+          inner = document.getElementById('empty-modal-template').innerHTML;
+          template = _.template(inner),
+          html = template({ header:  options.title || 'Name' });
+      
+      el.innerHTML = html;
+      var body = el.querySelector('.modal-body');
+      
+      var row = document.createElement('div');
+      row.classList.add('row');
+      var label = document.createElement('div');
+      label.innerHTML = gettext('Name');
+      var input = document.createElement('input');
+      input.style.width = '100%';
+      input.value = options.name || '';
+      body.appendChild(row);
+      row.appendChild(label);
+      row.appendChild(input);
+      
+      el.querySelector('.confirm').addEventListener('click', function(){
+        if (options.onConfirm) options.onConfirm(input.value);
+        $(el).modal('hide');
+      });
+      
+      $(el).modal('show');
     },
 
     /**
