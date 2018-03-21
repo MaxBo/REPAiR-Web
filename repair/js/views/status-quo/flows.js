@@ -123,7 +123,20 @@ var FlowsView = BaseView.extend(
 
     renderSankeyMap: function(){
         var flowMap = new FlowMap("flow-map");
+        var collection = this.actors;
+        console.log(this.actors);
         flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+        
+        //function transformNodes(nodes){
+            //var transformed = [];
+            //nodes.forEach(function(node)){
+                //var t = {
+                    //city: node.id,
+                    
+                //};
+                //transformed.append()
+            //}
+        //}
     },
 
     renderNodeFilters: function(){
@@ -153,10 +166,11 @@ var FlowsView = BaseView.extend(
             var groupId = groupSelect.value;
             // set and use filters for selected group, set child activities 
             // unset if 'All' (== -1) is selected
-            _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)]
+            _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
             _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
+            _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
             renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
-            //if (_this.typeSelect.value == 'activitygroup')
+            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             _this.typeSelect.value = 'activitygroup';
             _this.renderSankey();
         })
@@ -168,7 +182,6 @@ var FlowsView = BaseView.extend(
             _this.activitiesFiltered = (activityId < 0) ? null: [_this.activities.get(activityId)]
             _this.actorsFiltered = (activityId < 0) ? null: _this.actors.filterActivity(activityId);
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
-            //if (_this.typeSelect.value == 'activity') 
             _this.typeSelect.value = 'activity';
             _this.renderSankey();
         })
@@ -178,7 +191,6 @@ var FlowsView = BaseView.extend(
             // set and use filters for selected actor,
             // unset if 'All' (== -1) is selected
             _this.actorsFiltered = (actorId < 0) ? null: [_this.actors.get(actorId)]
-            //if (_this.typeSelect.value == 'actor') 
             _this.typeSelect.value = 'actor'
             _this.renderSankey();
         })
@@ -193,7 +205,8 @@ var FlowsView = BaseView.extend(
             onSelect: function(model){
                 _this.filterParams = (model) ? { material: model.id } : null;
                 _this.renderSankey();
-            }
+            },
+            defaultOption: gettext('All materials')
         });
         this.el.querySelector('#material-filter').appendChild(matSelect);
     }
