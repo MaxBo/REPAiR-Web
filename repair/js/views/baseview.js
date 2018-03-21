@@ -68,6 +68,7 @@ var BaseView = Backbone.View.extend(
         var wrapper = document.createElement("div"),
             options = options || {},
             parentAttr = options.parentAttr || 'parent',
+            defaultOption = options.defaultOption || 'All',
             items = [];
 
         // make a list out of the collection that is understandable by treeify and hierarchySelect
@@ -106,7 +107,7 @@ var BaseView = Backbone.View.extend(
         // load template and initialize the hierarchySelect plugin
         var inner = document.getElementById('hierarchical-select-template').innerHTML,
             template = _.template(inner),
-            html = template({ options: levelList, defaultOption: 'Select a material' });
+            html = template({ options: levelList, defaultOption: defaultOption });
         wrapper.innerHTML = html;
         wrapper.name = 'material';
         parent.appendChild(wrapper);

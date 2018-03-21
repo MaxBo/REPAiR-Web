@@ -528,7 +528,8 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
-                selected: fraction.material
+                selected: fraction.material,
+                defaultOption: gettext('Select a material')
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
