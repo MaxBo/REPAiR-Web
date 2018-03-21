@@ -23,7 +23,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
      * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
-     * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
+     * @param {Object=} options.flowFilterParams  parameters to filter the flows with (e.g. {material: 1})
+     * @param {Object=} options.stockFilterParams  parameters to filter the stocks with
      * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
      * @param {module:collections/ActivityGroups|module:collections/ActivityGroups|module:collections/Actors} options.model the nodes to render
      *
@@ -51,7 +52,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
                                     type: type});
                                     
       var loader = new Loader(this.el, {disable: true});
-      $.when(this.stocks.fetch({data: options.filterParams}), this.flows.fetch({data: options.filterParams})).then(function(){
+      $.when(this.stocks.fetch({data: options.stockFilterParams}), this.flows.fetch({data: options.flowFilterParams})).then(function(){
         _this.render();
         loader.remove();
       });

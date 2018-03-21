@@ -50,7 +50,8 @@ var FlowsView = BaseView.extend(
     */
     events: {
         'change select[name="keyflow"]': 'keyflowChanged',
-        'change #data-view-type-select': 'renderSankey'
+        'change input[name="direction"]': 'renderSankey',
+        'change #data-view-type-select': 'renderSankey',
     },
 
     /*
@@ -92,6 +93,7 @@ var FlowsView = BaseView.extend(
 
     renderSankey: function(){
         var type = this.typeSelect.value;
+        var direction = this.el.querySelector('input[name="direction"]:checked').value;
         var collection = (type == 'actor') ? this.actors: 
             (type == 'activity') ? this.activities: 
             this.activityGroups;
@@ -101,13 +103,18 @@ var FlowsView = BaseView.extend(
             this.activityGroupsFiltered;
         
         // if the collections are filtered build matching query params for the flows
-        var filterParams = Object.assign({}, this.filterParams);
+        var flowFilterParams = Object.assign({}, this.filterParams);
+        var stockFilterParams = Object.assign({}, this.filterParams);
         if (filtered){
             var nodeIds = [];
             filtered.forEach(function(node){
                 nodeIds.push(node.id);
             })
-            if (nodeIds.length > 0) filterParams.nodes = nodeIds;
+            if (nodeIds.length > 0) {
+                var queryDirP = (direction == 'both') ? 'nodes': direction;
+                flowFilterParams[queryDirP] = nodeIds;
+                stockFilterParams.nodes = nodeIds;
+            }
         }
         
         if (this.flowsView != null) this.flowsView.close();
@@ -115,7 +122,8 @@ var FlowsView = BaseView.extend(
             el: document.getElementById('sankey-wrapper'),
             collection: collection,
             materials: this.materials,
-            filterParams: filterParams,
+            flowFilterParams: flowFilterParams,
+            stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600
         })
