@@ -1,9 +1,12 @@
-define(['views/baseview', 'underscore'],
+define(['views/baseview', 'underscore', 'models/stakeholdercategory',
+    'collections/stakeholdercategories', 'models/stakeholder',
+    'collections/stakeholders'],
 
-function(BaseView, _,){
+function(BaseView, _, StakeholderCategory, StakeholderCategories, Stakeholder,
+Stakeholders){
     /**
     *
-    * @author Christoph Franke
+    * @author Christoph Franke, Balázs Dukai
     * @name module:views/StakeholdersView
     * @augments module:views/BaseView
     */
@@ -29,9 +32,33 @@ function(BaseView, _,){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
-            
+
             this.mode = options.mode || 0;
-            
+
+            var categories2 = new StakeholderCategories([], {
+                caseStudyId: this.caseStudy.id
+            });
+
+            categories2.fetch({ success: function(category){
+                console.log(category.caseStudyId);
+                categories2.forEach(function(category){
+                    console.log(category.id);
+                    console.log(category.get('name'));
+                    // how do i get the caseStudy ID in here?
+                    console.log(this.caseStudy.id);
+                    var stakeholders = new Stakeholders([], {
+                        caseStudyId: this.caseStudyId,
+                        stakeholderCategoryId: category.id
+                    });
+                    stakeholders.fetch({ success: function (){
+                        stakeholders.forEach(function(stakeholder){
+                            console.log(stakeholder.id);
+                            console.log(stakeholder.get('name'));
+                        });
+                    }});
+                }, this.caseStudy);
+            }});
+
             // ToDo: replace with collections fetched from server
             this.categories = [
                 { name: 'Government', stakeholders: ['City of Amsterdam'] },
@@ -57,7 +84,7 @@ function(BaseView, _,){
             var template = _.template(html);
             this.el.innerHTML = template();
             this.renderCategories();
-            
+
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (this.mode == 0){
@@ -78,14 +105,14 @@ function(BaseView, _,){
                 div.classList.add('col-md-3', 'bordered');
                 div.style.margin = '5px';
                 panelList.appendChild(div);
-                
+
                 var label = document.createElement('label');
                 div.appendChild(label);
                 div.appendChild(panel);
-                
+
                 var button = document.createElement('button');
                 label.innerHTML = category.name;
-                
+
                 button.classList.add("btn", "btn-primary", "square", "add");
                 var span = document.createElement('span');
                 span.classList.add('glyphicon', 'glyphicon-plus');
@@ -94,14 +121,16 @@ function(BaseView, _,){
                 button.insertBefore(span, button.firstChild);
                 button.addEventListener('click', function(){
                     // ToDo: add functionality for click event (add stakeholder item)
+                    // try by adding a browser alert here
+                    alert('add stakeholder item');
                 })
-                
+
                 div.appendChild(button);
                 // add the items
                 _this.addPanelItems(panel, category.stakeholders);
             })
         },
-        
+
         addPanelItems(panel, items){
             // render panel items from template (in templates/common.html)
             var html = document.getElementById('panel-item-template').innerHTML,
