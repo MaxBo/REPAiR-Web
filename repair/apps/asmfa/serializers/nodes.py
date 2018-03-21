@@ -225,7 +225,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activity_pk': 'activity__id',
     }
     activity = IDRelatedField()
-    activitygroup = serializers.IntegerField(source="activity.activitygroup.id")
+    activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
+                                             read_only=True)
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
