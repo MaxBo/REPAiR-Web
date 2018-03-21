@@ -141,7 +141,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
               var material = materials.get(fraction.material);
               text += fraction.fraction * 100 + '% ';
               text += material.get('name');
-              if (i < fractions.length - 1) text += '\n';
+              if (i < fractions.length - 1) text += '<br>';
               i++;
             })
           }
