@@ -165,7 +165,7 @@ var FlowsView = BaseView.extend(
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
             // set and use filters for selected group, set child activities 
-            // unset if 'All' (== -1) is selected
+            // clear filter if 'All' (== -1) is selected
             _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
             _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
             _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
@@ -176,21 +176,48 @@ var FlowsView = BaseView.extend(
         })
         
         activitySelect.addEventListener('change', function(){
-            var activityId = activitySelect.value;
+            var activityId = activitySelect.value,
+                groupId = groupSelect.value;
             // set and use filters for selected activity, set child actors 
-            // unset if 'All' (== -1) is selected
-            _this.activitiesFiltered = (activityId < 0) ? null: [_this.activities.get(activityId)]
-            _this.actorsFiltered = (activityId < 0) ? null: _this.actors.filterActivity(activityId);
+            // clear filter if 'All' (== -1) is selected in both group and activity
+            if (activityId < 0 && groupId < 0){
+                _this.activitiesFiltered = null;
+                _this.actorsFiltered = null;
+            }
+            // 'All' is selected for activity but a specific group is selected
+            else if (activityId < 0){
+                _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
+                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+            }
+            // specific activity is selected
+            else {
+                _this.activitiesFiltered = [_this.activities.get(activityId)];
+                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+            }
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             _this.typeSelect.value = 'activity';
             _this.renderSankey();
         })
         
         actorSelect.addEventListener('change', function(){
-            var actorId = actorSelect.value;
-            // set and use filters for selected actor,
-            // unset if 'All' (== -1) is selected
-            _this.actorsFiltered = (actorId < 0) ? null: [_this.actors.get(actorId)]
+            var activityId = activitySelect.value,
+                groupId = groupSelect.value,
+                actorId = actorSelect.value;
+            // clear filter if 'All' (== -1) is selected in group, activity and 
+            if (groupId < 0 && activityId < 0 && actorId < 0){
+                _this.actorsFiltered = null;
+            }
+            // filter by group if 'All' (== -1) is selected in activity and actor but not group
+            if (activityId < 0  && actorId < 0){
+                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+            }
+            // filter by activity if a specific activity is set and 'All' is selected for actor
+            else if (actorId < 0){
+                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+            }
+            // specific actor
+            else
+                _this.actorsFiltered = [_this.actors.get(actorId)]
             _this.typeSelect.value = 'actor'
             _this.renderSankey();
         })
