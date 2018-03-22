@@ -37,14 +37,13 @@ Stakeholders){
             this.mode = options.mode || 0;
 
             this.categories = [];
-            var stakeholderCategories = new StakeholderCategories([], {
+            this.stakeholderCategories = new StakeholderCategories([], {
                 caseStudyId: caseStudyId
             });
 
-            stakeholderCategories.fetch({
+            this.stakeholderCategories.fetch({
                 success: function(stakeholderCategories){
                     _this.initStakeholders(stakeholderCategories, caseStudyId);
-                    console.log("call render()");
                     _this.render();
                 },
                 error: function(){
@@ -58,6 +57,7 @@ Stakeholders){
         * dom events (managed by jquery)
         */
         events: {
+            'click #add-category-button': 'addCategory'
         },
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
@@ -143,7 +143,6 @@ Stakeholders){
                     // try by adding a browser alert here
                     alert('add stakeholder item');
                 });
-
                 div.appendChild(button);
                 // add the items
                 _this.addPanelItems(panel, category.stakeholders);
@@ -160,6 +159,22 @@ Stakeholders){
                 panelItem.innerHTML = template({ name: item });
                 panel.appendChild(panelItem);
             })
+        },
+
+        addCategory: function(){
+            var _this = this;
+            function onConfirm(name){
+                var category = new _this.stakeholderCategories.model(
+                    { name: name }, { caseStudyId: _this.caseStudy.id })
+                category.save(null, { success: function(){
+                    // _this.categories.push(category);
+                    // _this.render();
+                }});
+            }
+            this.getName({
+                title: gettext('Add Stakeholder Category'),
+                onConfirm: onConfirm
+            });
         },
 
         /*
