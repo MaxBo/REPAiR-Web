@@ -7,9 +7,9 @@
     document.getElementById("data-entry-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <div>
-      <select disabled id="keyflow-select" name="keyflow" style="width: 60%;">
-        <option selected disabled>{% trans "Select type of flow" %} </option>
+    <div class="row">
+      <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
+        <option selected disabled>{% trans "Select keyflow" %} </option>
       {% for keyflow in keyflows %}
         <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
       {% endfor %}
@@ -32,7 +32,7 @@
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/hierarchy-select.min.css" />
   <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
-  <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of flow inside the side-menu." %}</h3>
+  <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
   <div class="tab-content">
     <!-- Flow editor -->
     <div class="tab-pane fade in active" id="flows-edit">
