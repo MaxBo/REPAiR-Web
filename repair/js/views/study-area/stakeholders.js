@@ -44,20 +44,14 @@ Stakeholders){
             stakeholderCategories.fetch({
                 success: function(stakeholderCategories){
                     _this.initStakeholders(stakeholderCategories, caseStudyId);
+                    console.log("call render()");
+                    _this.render();
                 },
                 error: function(){
                     alert("BOOOM!")
                 }
             });
 
-            // ToDo: replace with collections fetched from server
-            // this.categories = [
-            //     { name: 'Government', stakeholders: ['City of Amsterdam'] },
-            //     { name: 'Waste Companies', stakeholders: ['AEB Amsterdam', 'Van Gansewinkel'] },
-            //     { name: 'NGOs', stakeholders: ['Stichting Natuur en Milieu', 'SNV'] }
-            // ]
-
-            // this.render();
         },
 
         /*
@@ -68,28 +62,36 @@ Stakeholders){
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
             var _this = this;
+            var deferred = [];
+            queryParams = (this.includedOnly) ? {included: 'True'} : {};
+
             stakeholderCategories.forEach(function(category){
                 var stakeholderList = [];
                 var stakeholders = new Stakeholders([], {
                     caseStudyId: caseStudyId,
                     stakeholderCategoryId: category.id
                 });
-                stakeholders.fetch({
+
+                deferred.push(stakeholders.fetch({
+                    data: queryParams,
                     success: function (){
                         stakeholders.forEach(function(stakeholder){
                             stakeholderList.push(stakeholder.get('name'));
+                        });
+                        _this.categories.push({
+                            name: category.get('name'),
+                            stakeholders: stakeholderList
                         });
                     },
                     error: function(){
                         stakeholderList.push(null);
                     }
-                });
-                _this.categories.push({
-                    name: category.get('name'),
-                    stakeholders: stakeholderList
-                });
+                }));
             });
-            _this.render();
+
+            $.when.apply($, deferred).then(function(){
+                _this.render();
+            })
         },
 
         /*
@@ -140,12 +142,12 @@ Stakeholders){
                     // ToDo: add functionality for click event (add stakeholder item)
                     // try by adding a browser alert here
                     alert('add stakeholder item');
-                })
+                });
 
                 div.appendChild(button);
                 // add the items
                 _this.addPanelItems(panel, category.stakeholders);
-            })
+            });
         },
 
         addPanelItems(panel, items){
