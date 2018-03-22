@@ -26,20 +26,20 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
+            <pre class="prettyprint source linenums"><code>define(['views/baseview', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
         'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
         'utils/utils', 'bootstrap'],
 
-function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
+function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors, 
          Areas, Area, Map, Loader, utils){
   /**
    *
    * @author Christoph Franke
    * @name module:views/EditActorView
-   * @augments Backbone.View
+   * @augments module:views/BaseView
    */
-  var EditActorView = Backbone.View.extend(
+  var EditActorView = BaseView.extend(
     /** @lends module:views/EditActorView.prototype */
     {
 
@@ -68,10 +68,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      * @see http://backbonejs.org/#View
      */
     initialize: function(options){
-      _.bindAll(this, 'render');
+      EditActorView.__super__.initialize.apply(this, [options]);
       _.bindAll(this, 'renderLocation');
-      
-      this.template = options.template;
+    
       this.keyflow = options.keyflow;
       var keyflowId = this.keyflow.id,
           caseStudyId = this.keyflow.get('casestudy');
@@ -193,9 +192,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var loader = new Loader(this.el, {disable: true});
       
       var onError = function(response){
-        document.getElementById('alert-message').innerHTML = response.responseText; 
         loader.remove();
-        $('#alert-modal').modal('show'); 
+        _this.onError(response);
       };
       
       //actor.save(null, {success: uploadLocations, error: function(model, response){onError(response)}});
@@ -484,7 +482,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
               // proceed recursion with parent select
               _this.setAreaSelects(parentArea, idx-1, options);
             },
-            error: function(model, response){ alert(response); }
+            error: function(model, response){ _this.onError(response); }
           });
         }
     },
@@ -685,7 +683,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           selectIdx++;
         };
         if (selectIdx >= this.areaSelects.length) {
-          alert('no level with id ' + levelId + ' found');
+          _this.alert('no level with id ' + levelId + ' found');
           return;
         }
         var select = this.areaSelects[selectIdx];
@@ -819,16 +817,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     toggleIncluded: function(event){
       var display = (event.target.checked) ? 'none': 'block';
       document.getElementById('reasons').style.display = display;
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
-    },
+    }
 
   });
   return EditActorView;
@@ -843,13 +832,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 15:15:55 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

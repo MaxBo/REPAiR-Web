@@ -80,6 +80,16 @@ class FlowViewSet(RevisionMixin,
                      or request.GET.getlist('nodes[]')) 
             filtered = queryset.filter(Q(origin__in=nodes) |
                                        Q(destination__in=nodes))
+        if 'from' in query_params.keys() or 'from[]' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            nodes = (query_params.get('from', None)
+                     or request.GET.getlist('from[]')) 
+            filtered = queryset.filter(origin__in=nodes)
+        if 'to' in query_params.keys() or 'to[]' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            nodes = (query_params.get('to', None)
+                     or request.GET.getlist('to[]')) 
+            filtered = queryset.filter(destination__in=nodes)
         if filtered is not None:
             serializer = SerializerClass(filtered, many=True,
                                          context={'request': request, })

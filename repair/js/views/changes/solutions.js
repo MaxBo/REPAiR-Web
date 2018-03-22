@@ -29,6 +29,7 @@ function(Backbone, _, Map){
             this.template = options.template;
             this.caseStudy = options.caseStudy;
             this.projection = 'EPSG:4326';
+            this.mode = options.mode || 0;
             
             // ToDo: replace with collections fetched from server
             this.categories = [
@@ -58,6 +59,15 @@ function(Backbone, _, Map){
             $('#solution-modal').on('shown.bs.modal', function () {
                 _this.map.map.updateSize();
             });
+            
+            // lazy way to render workshop mode: just hide all buttons for editing
+            // you may make separate views as well
+            if (this.mode == 0){
+                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
+                _.each(btns, function(button){
+                    button.style.display = 'none';
+                });
+            }
         },
 
         renderCategories(){

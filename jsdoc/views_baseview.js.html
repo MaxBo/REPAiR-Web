@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: views/baseview.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: views/baseview.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'utils/utils'],
+function(Backbone, _, utils){
+/**
+*
+* @author Christoph Franke
+* @name module:views/BaseView
+* @augments Backbone.View
+*/
+var BaseView = Backbone.View.extend(
+    /** @lends module:views/BaseView.prototype */
+    {
+    
+    /**
+    * Basic View with common functions, may be extended by other views
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                   element the view will be rendered in (Backbone.View parameter)
+    * @param {string} options.template                  id of the script element containing the underscore template to render this view
+    * @param {Backbone.Model=} options.model            (Backbone.View parameter)
+    * @param {Backbone.Collection=} options.collection  (Backbone.View parameter)
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
+    initialize: function(options){
+        _.bindAll(this, 'render');
+        _.bindAll(this, 'alert');
+        _.bindAll(this, 'onError');
+        var _this = this;
+        this.template = options.template;
+    },
+    
+    /**
+    * DOM events (jQuery style)
+    */
+    events: {
+    },
+
+    /**
+    * render the view with template into element
+    */
+    render: function(){
+        var html = document.getElementById(this.template).innerHTML,
+            template = _.template(html);
+        this.el.innerHTML = template();
+    },
+
+
+    /**
+    * callback for selecting items in the hierarchical select
+    *
+    * @callback module:views/BaseView~onSelect
+    * @param {Backbone.Model} model  the selected model
+    */
+
+    /**
+    * build a hierarchical selection of a collection, the collection has to be 
+    * of tree structure where the parents of a child are referenced by an attribute (options.parentAttr)
+    * absence of parent indicates a root item
+    *
+    * @param {Backbone.Collection} collection       models of collection will be the items of the hierarchical select
+    * @param {HTMLElement}                          the element to append the rendered hierarchical select to
+    * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
+    * @param {module:views/BaseView~onSelect=} options.onSelect
+    * @param {Number=} options.selected             preselects the model with given id 
+    */
+    hierarchicalSelect: function(collection, parent, options){
+
+        var wrapper = document.createElement("div"),
+            options = options || {},
+            parentAttr = options.parentAttr || 'parent',
+            items = [];
+
+        // make a list out of the collection that is understandable by treeify and hierarchySelect
+        collection.each(function(model){
+            var item = {};
+            var name = model.get('name');
+            item.text = name.substring(0, 70);
+            if (name.length > 70) item.text += '...';
+            item.title = model.get('name');
+            item.level = 1;
+            item.id = model.id;
+            item.parent = model.get(parentAttr);
+            item.value = model.id;
+            items.push(item);
+        })
+
+        var treeList = utils.treeify(items);
+
+        // converts tree to list sorted by appearance in tree, 
+        // stores the level inside the tree as an attribute in each node
+        function treeToLevelList(root, level){
+            var children = root['nodes'] || [];
+            children = children.slice();
+            delete root['nodes'];
+            root.level = level;
+            list = [root];
+            children.forEach(function(child){
+                list = list.concat(treeToLevelList(child, level + 1));
+            })
+            return list;
+        };
+
+        var levelList = [];
+        treeList.forEach(function(root){ levelList = levelList.concat(treeToLevelList(root, 1)) });
+
+        // load template and initialize the hierarchySelect plugin
+        var inner = document.getElementById('hierarchical-select-template').innerHTML,
+            template = _.template(inner),
+            html = template({ options: levelList, defaultOption: 'Select a material' });
+        wrapper.innerHTML = html;
+        wrapper.name = 'material';
+        parent.appendChild(wrapper);
+        require('hierarchy-select');
+        var select = wrapper.querySelector('.hierarchy-select');
+        $(select).hierarchySelect({
+            width: 400
+        });
+
+        // preselect an item
+        if (options.selected){
+            var selection = select.querySelector('.selected-label');
+            var model = collection.get(options.selected);
+            if (model){
+                // unselect the default value
+                var li = select.querySelector('li[data-default-selected]');
+                li.classList.remove('active');
+                selection.innerHTML = model.get('name');
+                var li = select.querySelector('li[data-value="' + options.selected + '"]');
+                li.classList.add('active');
+            }
+        }
+
+        // event click on item
+        var anchors = select.querySelectorAll('a');
+        for (var i = 0; i &lt; anchors.length; i++) {
+            anchors[i].addEventListener('click', function(){
+                var item = this.parentElement;
+                var model = collection.get(item.getAttribute('data-value'));
+                wrapper.title = item.title;
+                if (options.onSelect) options.onSelect(model);
+            })
+        }
+    },
+    
+    /**
+    * show a modal with given alert message
+    *
+    * @param {String} message           html formatted message to show
+    * @param {String} [title='Warning'] title displayed in header of modal
+    */
+    alert: function(message, title){
+        var title = title || gettext('Warning');
+        var el = document.getElementById('alert-modal'),
+            html = document.getElementById('alert-modal-template').innerHTML,
+            template = _.template(html);
+        
+        el.innerHTML = template({ title: title, message: message });
+        $(el).modal('show'); 
+    },
+    
+    /**
+    * show a modal with error message on server error
+    *
+    * @param {Object} response    AJAX response
+    */
+    onError: function(response){
+        var message = response.responseText;
+        message = message ? '&lt;b>' + gettext('The server responded with: ') + '&lt;/b>&lt;br>' + '&lt;i>' + response.responseText + '&lt;/i>': 
+                  gettext('Server does not respond.');
+        this.alert(message, gettext('Error'));
+    },
+
+    /**
+    * unbind the events and remove this view from the DOM and 
+    */
+    close: function(){
+        this.undelegateEvents(); // remove click events
+        this.unbind(); // Unbind all local event bindings
+        this.el.innerHTML = ''; //empty the DOM element
+    }
+
+});
+return BaseView;
+}
+);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
