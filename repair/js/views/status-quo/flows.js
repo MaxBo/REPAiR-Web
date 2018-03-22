@@ -35,7 +35,7 @@ var FlowsView = BaseView.extend(
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
-        this.filterParams = null;
+        this.filterParams = {};
 
         this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
 
@@ -50,6 +50,7 @@ var FlowsView = BaseView.extend(
     */
     events: {
         'change select[name="keyflow"]': 'keyflowChanged',
+        'change select[name="waste"]': 'renderSankey',
         'change input[name="direction"]': 'renderSankey',
         'change #data-view-type-select': 'renderSankey',
     },
@@ -101,6 +102,10 @@ var FlowsView = BaseView.extend(
         var filtered = (type == 'actor') ? this.actorsFiltered: 
             (type == 'activity') ? this.activitiesFiltered: 
             this.activityGroupsFiltered;
+            
+        var waste = this.el.querySelector('select[name="waste"]').value;
+        this.filterParams.waste = waste;
+        if (waste == '') delete this.filterParams.waste
         
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, this.filterParams);
@@ -238,7 +243,9 @@ var FlowsView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                _this.filterParams = (model) ? { material: model.id } : null;
+                 var modelId = (model) ? model.id : null;
+                 _this.filterParams.material = modelId;
+                 if (modelId == null) delete _this.filterParams.material;
                 _this.renderSankey();
             },
             defaultOption: gettext('All materials')
