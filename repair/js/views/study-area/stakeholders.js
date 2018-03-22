@@ -32,47 +32,64 @@ Stakeholders){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            var caseStudyId = this.caseStudy.id;
 
             this.mode = options.mode || 0;
 
-            var categories2 = new StakeholderCategories([], {
-                caseStudyId: this.caseStudy.id
+            this.categories = [];
+            var stakeholderCategories = new StakeholderCategories([], {
+                caseStudyId: caseStudyId
             });
 
-            categories2.fetch({ success: function(category){
-                console.log(category.caseStudyId);
-                categories2.forEach(function(category){
-                    console.log(category.id);
-                    console.log(category.get('name'));
-                    // how do i get the caseStudy ID in here?
-                    console.log(this.caseStudy.id);
-                    var stakeholders = new Stakeholders([], {
-                        caseStudyId: this.caseStudyId,
-                        stakeholderCategoryId: category.id
-                    });
-                    stakeholders.fetch({ success: function (){
-                        stakeholders.forEach(function(stakeholder){
-                            console.log(stakeholder.id);
-                            console.log(stakeholder.get('name'));
-                        });
-                    }});
-                }, this.caseStudy);
-            }});
+            stakeholderCategories.fetch({
+                success: function(stakeholderCategories){
+                    _this.initStakeholders(stakeholderCategories, caseStudyId);
+                },
+                error: function(){
+                    alert("BOOOM!")
+                }
+            });
 
             // ToDo: replace with collections fetched from server
-            this.categories = [
-                { name: 'Government', stakeholders: ['City of Amsterdam'] },
-                { name: 'Waste Companies', stakeholders: ['AEB Amsterdam', 'Van Gansewinkel'] },
-                { name: 'NGOs', stakeholders: ['Stichting Natuur en Milieu', 'SNV'] }
-            ]
+            // this.categories = [
+            //     { name: 'Government', stakeholders: ['City of Amsterdam'] },
+            //     { name: 'Waste Companies', stakeholders: ['AEB Amsterdam', 'Van Gansewinkel'] },
+            //     { name: 'NGOs', stakeholders: ['Stichting Natuur en Milieu', 'SNV'] }
+            // ]
 
-            this.render();
+            // this.render();
         },
 
         /*
         * dom events (managed by jquery)
         */
         events: {
+        },
+
+        initStakeholders: function(stakeholderCategories, caseStudyId){
+            var _this = this;
+            stakeholderCategories.forEach(function(category){
+                var stakeholderList = [];
+                var stakeholders = new Stakeholders([], {
+                    caseStudyId: caseStudyId,
+                    stakeholderCategoryId: category.id
+                });
+                stakeholders.fetch({
+                    success: function (){
+                        stakeholders.forEach(function(stakeholder){
+                            stakeholderList.push(stakeholder.get('name'));
+                        });
+                    },
+                    error: function(){
+                        stakeholderList.push(null);
+                    }
+                });
+                _this.categories.push({
+                    name: category.get('name'),
+                    stakeholders: stakeholderList
+                });
+            });
+            _this.render();
         },
 
         /*
