@@ -40,7 +40,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><span class="fa fa-map"></span> {% trans "Add Chart" %} </h4>
+        <h4 class="modal-title"><span class="fa fa-image"></span> {% trans "Add Chart" %} </h4>
       </div>
       <div class="modal-body">
         <ul class="nav nav-tabs">
@@ -49,7 +49,10 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="import-image-tab">
-            <input type="file" id="image-file" style="margin-top: 30px;">
+            <!--<form id="chart-image-form" enctype="multipart/form-data" action="/upload/image" method="post">-->
+              <input type="file" id="chart-image-input" accept=".gif,.jpg,.jpeg,.png" style="margin-top: 30px; width: 100%;">
+            <!--</form>-->
+            <img id="chart-image-preview" src="#" alt="Preview" style="margin-top: 30px; width: 100%;"/>
           </div>
           <div class="tab-pane fade in" id="import-chart-data-tab">
           </div>

@@ -46,7 +46,8 @@ var BaseChartsView = BaseView.extend(
     events: {
         'click #add-chart-button': 'addChart',
         'click #add-chart-category-button': 'addCategory',
-        'click #add-chart-modal .confirm': 'confirmChart'
+        'click #add-chart-modal .confirm': 'confirmChart',
+        'change #chart-image-input': 'showPreview'
     },
 
     /*
@@ -96,7 +97,7 @@ var BaseChartsView = BaseView.extend(
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,
-            showCheckbox: true
+            //showCheckbox: true
         });
     },
 
@@ -142,6 +143,26 @@ var BaseChartsView = BaseView.extend(
 
     confirmChart: function(){
         var preview = this.el.querySelector('.preview');
+        //this.el.querySelector('#chart-image-form').submit()
+        var input = this.el.querySelector('#chart-image-input');
+        if (input.files && input.files[0]){
+            var formData = new FormData(),
+                image = input.files[0];
+            formData.append('image', image, image.name);
+            // i didn't want to use AJAX when i don't have to
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.onload = function () {
+            if (xhr.status === 200) {
+                uploadButton.innerHTML = 'Upload';
+              } else {
+                alert('An error occurred!');
+              }
+            };
+            xhr.send(formData);
+        }
+        
+        
         preview.style.display = 'inline';
         preview.src = "/static/img/Chart_3.PNG";
         var category = this.categoryTree[this.selectedNode.categoryId];
@@ -149,6 +170,17 @@ var BaseChartsView = BaseView.extend(
         if (!category.nodes) category.nodes = [];
         category.nodes.push(chartNode);
         this.rerenderChartTree();
+    },
+    
+    showPreview: function(event){
+        var input = event.target;
+        if (input.files && input.files[0]){
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('chart-image-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
 });
