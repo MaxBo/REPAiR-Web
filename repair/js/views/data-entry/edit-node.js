@@ -831,6 +831,15 @@ var EditNodeView = BaseView.extend(
             });
         });
     },
+    
+    flowRepr: function(flow){
+        var origin = this.model.collection.get(flow.get('origin')),
+            origName = origin.get('name'),
+            dest = this.model.collection.get(flow.get('destination'));
+            
+        if (!dest) return origName + ' ' + gettext('Stock');
+        return origName + ' -> ' + dest.get('name');
+    },
 
     uploadChanges: function(){
         var _this = this;
@@ -859,8 +868,9 @@ var EditNodeView = BaseView.extend(
         var loader = new Loader(document.getElementById('flows-edit'),
             {disable: true});
 
-        var onError = function(response){
-            _this.onError(response); 
+        var onError = function(model, response){
+            var name = _this.flowRepr(model);
+            _this.onError(response, name); 
             loader.remove();
         };
 
@@ -876,7 +886,7 @@ var EditNodeView = BaseView.extend(
             // upload or destroy current model and upload next model recursively on success
             var params = {
                 success: function(){ uploadModel(models, it+1) },
-                error: function(model, response){ onError(response) }
+                error: function(model, response){ onError(model, response) }
             }
             if (model.markedForDeletion)
                 model.destroy(params);
