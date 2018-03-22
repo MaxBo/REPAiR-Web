@@ -138,7 +138,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 .sort(function(a, b) { return b.dy - a.dy; })
                 .on('mousemove', function(event) {
                   tipLinks
-                    .style("top", (d3.event.pageY - linkTooltipOffset) - 40 + "px")
+                    .style("top", (d3.event.pageY - linkTooltipOffset) - $('.d3-tip').height() - 20 + "px")
                     .style("left", function () {
                       var left = (Math.max(d3.event.pageX - linkTooltipOffset, 10)); 
                       left = Math.min(left, window.innerWidth - $('.d3-tip').width() - 20)
