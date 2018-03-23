@@ -4,35 +4,40 @@
 <script type="text/template" id="base-charts-template">
 <div class="row">
   <div class="row">
-    {% trans "Description of Studyarea" %}
-    <div class="row">
-      <div class="col-md-9">
+    <div class="col-md-9 bordered">
+      {% trans "Description of Studyarea" %}
+      <div class="row">
         <tag autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <textarea rows= "6" style="width: 100%"> 
+        <textarea rows= "6" style="width: 100%; max-width: 100%;"> 
           Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
         </textarea>
       </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
-      <button id='add-chart-button' class="btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
-        <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
-      </button>
-      <button id='remove-cc-button'  class="btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
-        <span class="glyphicon glyphicon-minus"></span>
-      </button>
+  <div class="row" style="margin-top: 20px;">
+    <div class="col-md-3 bordered" style="margin-right: 10px;">
+      <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
+        <button id='add-chart-button' class="btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
+        </button>
+        <button id='edit-cc-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-pencil"></span>
+        </button>
+        <button id='remove-cc-button'  class="btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-minus"></span>
+        </button>
+      </div>
+      <div class="row">
+        <h4> {% trans "Charts" %} </h4>
+        <div id="chart-tree"></div>
+        <button id='add-chart-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
+        </button>
+      </div>
     </div>
-    <div class="row">
-      <h4> {% trans "Charts" %} </h4>
-      <div id="chart-tree"></div>
-      <button id='add-chart-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
-        <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
-      </button>
+    <div class="col-md-6 bordered" style="min-height: 500px;">
+      <img id="chart-view" src="" alt="preview" style="width: 100%; display: None;">
     </div>
-  </div>
-  <div class="col-md-6">
-    <img class="preview" src="" alt="preview" style="width: 100%; display: None">
   </div>
 </div>
 <div class="modal fade" role="dialog" id="add-chart-modal">
@@ -40,7 +45,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><span class="fa fa-map"></span> {% trans "Add Chart" %} </h4>
+        <h4 class="modal-title"><span class="fa fa-image"></span> {% trans "Add Chart" %} </h4>
       </div>
       <div class="modal-body">
         <ul class="nav nav-tabs">
@@ -49,7 +54,12 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="import-image-tab">
-            <input type="file" id="image-file" style="margin-top: 30px;">
+            <label style="margin-top: 30px;"> {% trans "Name" %} </label>
+            <br>
+            <input id="chart-name" style="width: 80%;">
+            <br>
+            <img id="chart-image-preview" src="#" alt="Preview" style="margin-top: 30px; width: 100%;"/>
+            <input type="file" id="chart-image-input" accept=".gif,.jpg,.jpeg,.png" style="margin-top: 30px; width: 100%;">
           </div>
           <div class="tab-pane fade in" id="import-chart-data-tab">
           </div>
@@ -62,7 +72,8 @@
     </div>
   </div>
 </div>
-<div id="edit-chart-category-modal"/>
+<div id="edit-chart-category-modal"></div>
+<div id="remove-cc-modal" class="modal fade" role="dialog"></div>
 </script>
 
 {% endblock %}
