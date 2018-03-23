@@ -109,7 +109,6 @@ Stakeholders){
             this.confirmationModal = document.getElementById('remove-confirmation-modal');
             this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
 
-
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (this.mode == 0){
@@ -151,16 +150,16 @@ Stakeholders){
                 });
                 div.appendChild(button);
                 // add the items
-                _this.addPanelItems(panel, category.stakeholders);
+                _this.addPanelItems(panel, category);
             });
         },
 
-        addPanelItems(panel, items){
+        addPanelItems(panel, category){
             var _this = this;
             // render panel items from template (in templates/common.html)
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
-            items.forEach(function(item){
+            category.stakeholders.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: item });
@@ -169,7 +168,7 @@ Stakeholders){
                 var button_remove = panelItem.getElementsByClassName(
                     "btn btn-warning square remove").item(0);
                 button_edit.addEventListener('click', function(){
-                    _this.editStakeholder();
+                    _this.editStakeholder(item, category);
                 });
                 button_remove.addEventListener('click', function(){
                     _this.removeStakeholder();
@@ -208,13 +207,35 @@ Stakeholders){
             });
         },
 
-        editStakeholder: function(){
+        editStakeholder: function(stakeholder_name, category){
             var _this = this;
             function onConfirm(name){
-
+                // here I'm fetching the Stakeholder because it might have
+                // other attributes than 'name' in the future and I don't want
+                // to keep and pass around the whole Stakeholder Object
+                var stakeholder = new Stakeholder(
+                    { name: stakeholder_name },
+                    { caseStudyId: _this.caseStudy.id,
+                      stakeholderCategoryId: category.categoryId
+                    });
+                stakeholder.fetch({
+                    success: function(){
+                        stakeholder.set('name', name);
+                        stakeholder.save(null, {
+                            success: function(){
+                                var catPos = _this.categories.map(function(e) {
+                                    return e.categoryId;
+                                }).indexOf(category.categoryId);
+                                var stPos = _this.categories[catPos].stakeholders.indexOf(stakeholder_name);
+                                _this.categories[catPos].stakeholders[stPos] = name;
+                                _this.render();
+                            }
+                        });
+                    }
+                });
             }
             this.getName({
-                // name: model.get('name'),
+                name: stakeholder_name,
                 title: gettext('Edit Stakeholder'),
                 onConfirm: onConfirm
             });
