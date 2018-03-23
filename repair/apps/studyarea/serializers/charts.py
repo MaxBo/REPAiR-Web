@@ -17,4 +17,4 @@ class ChartSerializer(ModelSerializer):
     }
     class Meta:
         model = Chart
-        fields = ('id', 'name', 'image', 'chart_category')
+        fields = ('id', 'name', 'image')

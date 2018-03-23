@@ -8,14 +8,14 @@
       {% trans "Description of Studyarea" %}
       <div class="row">
         <tag autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <textarea rows= "6" style="width: 100%"> 
+        <textarea rows= "6" style="width: 100%; max-width: 100%;"> 
           Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
         </textarea>
       </div>
     </div>
   </div>
   <div class="row" style="margin-top: 20px;">
-    <div class="col-md-3 bordered">
+    <div class="col-md-3 bordered" style="margin-right: 10px;">
       <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
         <button id='add-chart-button' class="btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
@@ -32,7 +32,7 @@
         </button>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 bordered" style="min-height: 500px;">
       <img id="chart-view" src="" alt="preview" style="width: 100%; display: None;">
     </div>
   </div>
@@ -51,10 +51,12 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="import-image-tab">
-            <!--<form id="chart-image-form" enctype="multipart/form-data" action="/upload/image" method="post">-->
-              <input type="file" id="chart-image-input" accept=".gif,.jpg,.jpeg,.png" style="margin-top: 30px; width: 100%;">
-            <!--</form>-->
+            <label style="margin-top: 30px;"> {% trans "Name" %} </label>
+            <br>
+            <input id="chart-name" style="width: 80%;">
+            <br>
             <img id="chart-image-preview" src="#" alt="Preview" style="margin-top: 30px; width: 100%;"/>
+            <input type="file" id="chart-image-input" accept=".gif,.jpg,.jpeg,.png" style="margin-top: 30px; width: 100%;">
           </div>
           <div class="tab-pane fade in" id="import-chart-data-tab">
           </div>

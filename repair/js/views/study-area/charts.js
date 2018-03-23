@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'collections/chartcategories', 
-        'collections/charts', 'utils/loader'],
+        'collections/charts', 'models/chart', 'utils/loader', "app-config"],
 
-function(BaseView, _, ChartCategories, Charts, Loader){
+function(BaseView, _, ChartCategories, Charts, Chart, Loader, config){
 /**
 *
 * @author Christoph Franke
@@ -25,11 +25,10 @@ var BaseChartsView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        BaseChartsView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        _.bindAll(this, 'render');
         _.bindAll(this, 'nodeSelected');
 
-        this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.mode = options.mode || 0;
 
@@ -109,16 +108,18 @@ var BaseChartsView = BaseView.extend(
     },
 
 
-    rerenderChartTree: function(selectId){
+    rerenderChartTree: function(categoryId){
+        console.log('reredner')
         this.buttonBox.style.display = 'None';
         $(this.chartTree).treeview('remove');
-        this.renderChartTree(selectId);
+        this.renderChartTree(categoryId);
     },
 
     /*
     * render the hierarchic tree of layers
     */
-    renderChartTree: function(selectId){
+    renderChartTree: function(categoryId){
+        if (Object.keys(this.categoryTree).length == 0) return;
 
         var _this = this;
         var dataDict = {};
@@ -128,6 +129,18 @@ var BaseChartsView = BaseView.extend(
             category.tag = 'category';
             tree.push(category);
         })
+        
+        // items are not unselectable
+        function nodeUnselected(event, node){
+            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+        }
+        // select item on collapsing (workaround for misplaced buttons when collapsing)
+        function nodeCollapsed(event, node){
+            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        }
+        function nodeExpanded(event, node){
+            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        }
 
         require('libs/bootstrap-treeview.min');
         $(this.chartTree).treeview({
@@ -136,14 +149,33 @@ var BaseChartsView = BaseView.extend(
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,
+            onNodeUnselected: nodeUnselected,
+            onNodeCollapsed: nodeCollapsed,
+            onNodeExpanded: nodeExpanded
             //showCheckbox: true
         });
+        
+        // look for and expand and select node with given category id
+        if (categoryId != null){
+            // there is no other method to get all nodes or to search for an attribute
+            var nodes = $(this.chartTree).treeview('getEnabled');
+            _.forEach(nodes, function(node){
+                if (node.category && (node.category.id == categoryId)){
+                    selectNodeId = node.nodeId; 
+                    $(_this.chartTree).treeview('selectNode', selectNodeId);
+                    return false;
+                }
+            })
+        }
     },
 
     /*
     * event for selecting a node in the material tree
     */
     nodeSelected: function(event, node){
+        // unselect previous node (caused by onNodeUnselected)
+        if (this.selectedNode)
+            $(this.chartTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
         var addBtn = document.getElementById('add-chart-button');
         var removeBtn = document.getElementById('remove-cc-button');
         this.selectedNode = node;
@@ -171,14 +203,22 @@ var BaseChartsView = BaseView.extend(
         var modal = document.getElementById('add-chart-modal');
         $(modal).modal('show'); 
     },
-
+    
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var nextId = Math.max(...Object.keys(_this.categoryTree).map(Number)) + 1;
-            var cat = {text: name, categoryId: nextId};
-            _this.categoryTree[nextId] = cat;
-            _this.rerenderChartTree();
+            var category = new _this.chartCategories.model(
+                { name: name }, { caseStudyId: _this.caseStudy.id })
+            category.save(null, { success: function(){
+                var catNode = { 
+                    text: name, 
+                    category: category,
+                    state: { checked: true }
+                };
+                catNode.nodes = [];
+                _this.categoryTree[category.id] = catNode;
+                _this.rerenderChartTree(category.id);
+            }})
         }
         this.getName({ 
             title: gettext('Add Category'),
@@ -187,47 +227,41 @@ var BaseChartsView = BaseView.extend(
     },
 
     confirmChart: function(){
-        var preview = this.el.querySelector('.preview');
+        var preview = this.el.querySelector('.preview'),
+            category = this.selectedNode.category,
+            _this = this;
         
-        function updateCharts(){
-            preview.style.display = 'inline';
-            preview.src = "/static/img/Chart_3.PNG";
-            var category = this.categoryTree[this.selectedNode.categoryId];
-            var chartNode = { text: "Chart_3.PNG" };
-            if (!category.nodes) category.nodes = [];
-            category.nodes.push(chartNode);
-            this.rerenderChartTree();
-        }
+        var imgInput = this.el.querySelector('#chart-image-input');
+        if (imgInput.files && imgInput.files[0]){
         
-        var input = this.el.querySelector('#chart-image-input');
-        if (input.files && input.files[0]){
-            var formData = new FormData(),
-                image = input.files[0];
+            // you have to files via form, Backbone.Models (sends data as json) doesn't work here
+            var image = imgInput.files[0],
+                name = this.el.querySelector('#chart-name').value
+                formData = new FormData();
             formData.append('image', image);
-            // i didn't want to use AJAX when i don't have to
-            //var xhr = new XMLHttpRequest();
-            //xhr.open('POST', '/upload/', true);
-            //xhr.onload = function () {
-            //if (xhr.status === 200) {
-                //uploadButton.innerHTML = 'Upload';
-              //} else {
-                //alert('An error occurred!');
-              //}
-            //};
-            //xhr.send(formData);
+            formData.append('name', name);
+            var url = config.api.charts.format(this.caseStudy.id, category.id);
             $.ajax({
                 type: "POST",
                 timeout: 50000,
-                url: '/upload/',
+                url: url,
                 data: formData,
                 cache: false,
                 dataType: 'json',
                 processData: false,
                 contentType: false,
                 success: function (data, textStatus, jqXHR) {
-                    alert('success');
-                    return false;
-                }
+                    var chart = new Chart({ id: data.id, name: data.name, image: data.image },
+                                          { caseStudyId: _this.caseStudy.id, categoryId: category.id });
+                    
+                    // as we get no model as response rerender everything
+                    var chartNode = { text: chart.get('name'),
+                        icon: 'fa fa-image',
+                        chart: chart };
+                    _this.categoryTree[category.id].nodes.push(chartNode);
+                    _this.rerenderChartTree(category.id);
+                },
+                error: _this.onError
             });
         }
         
