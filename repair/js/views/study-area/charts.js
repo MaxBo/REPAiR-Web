@@ -89,7 +89,9 @@ var BaseChartsView = BaseView.extend(
             var node = { 
                 text: category.get('name'), 
                 category: category,
-                state: { expanded: true }
+                state: { expanded: true },
+                backColor: (_this.mode == 0) ? '#aad400' : 'white',
+                color: (_this.mode == 0) ? 'white' : 'black',
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
@@ -143,10 +145,12 @@ var BaseChartsView = BaseView.extend(
         }
         // select item on collapsing (workaround for misplaced buttons when collapsing)
         function nodeCollapsed(event, node){
-            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+            if (_this.mode == 1)
+                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
         }
         function nodeExpanded(event, node){
-            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+            if (_this.mode == 1)
+                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
         }
 
         require('libs/bootstrap-treeview.min');
@@ -188,12 +192,27 @@ var BaseChartsView = BaseView.extend(
         this.selectedNode = node;
         
         var preview = this.el.querySelector('#chart-view');
-        preview.src = (node.chart) ? node.chart.get('image') : '#'; 
-        preview.style.display = (node.chart) ? 'inline' : 'none';
         
+        if (node.chart){
+            preview.src = node.chart.get('image'); 
+            preview.style.display = 'inline';
+        }
+        // group selected in setup mode -> no image; keep previous one in workshop mode
+        else if (this.mode == 1) {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
         
-        // no buttons in workshop mode
-        if (this.mode == 0) return;
+        if (this.mode == 0) {
+            // unselect node, so that this function is triggered on continued clicking
+            $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
+            if (node.category){
+                var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
+                $(this.chartTree).treeview(f,  node.nodeId);
+            }
+            // no buttons in workshop mode -> return before showing
+            return;
+        }
         
         addBtn.style.display = 'inline';
         removeBtn.style.display = 'inline';
