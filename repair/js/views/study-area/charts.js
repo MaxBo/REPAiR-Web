@@ -53,6 +53,7 @@ var BaseChartsView = BaseView.extend(
         'change #chart-image-input': 'showPreview',
         'click #remove-cc-button': 'removeNode',
         'click #remove-cc-modal .confirm': 'confirmRemoval',
+        'click #edit-cc-button': 'editName',
     },
 
     /*
@@ -257,10 +258,10 @@ var BaseChartsView = BaseView.extend(
                 processData: false,
                 contentType: false,
                 success: function (data, textStatus, jqXHR) {
+                    // make model out of response
                     var chart = new Chart({ id: data.id, name: data.name, image: data.image, chart_category: category.id },
                                           { caseStudyId: _this.caseStudy.id, categoryId: category.id });
                     
-                    // as we get no model as response rerender everything
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',
                         chart: chart };
@@ -309,21 +310,47 @@ var BaseChartsView = BaseView.extend(
             }
             // remove chart from category (if chart was selected)
             else {
-                console.log(model)
+                _this.getTreeChartNode(model, { pop : true })
                 selectCatId = model.get("chart_category");
-                var nodes = _this.categoryTree[selectCatId].nodes;
-                for (var i = 0; i < nodes.length; i++){
-                    var node = nodes[i];
-                    if (node.chart === _this.selectedNode.chart) {
-                        nodes.splice(i, 1);
-                        break;
-                    }
-                }
             }
             _this.selectedNode = null;
             _this.rerenderChartTree(selectCatId);
         }});
         
+    },
+    
+    getTreeChartNode: function(chart, options){
+        var options = options || {};
+        var catNode = this.categoryTree[chart.get('chart_category')];
+        var nodes = catNode.nodes;
+        for (var i = 0; i < nodes.length; i++){
+            var node = nodes[i];
+            if (node.chart === chart) {
+                if (options.pop) nodes.splice(i, 1);
+                return node;
+            }
+        }
+        return;
+    },
+    
+    editName: function(){
+        var _this = this;
+        var model = this.selectedNode.chart || this.selectedNode.category;
+        function onConfirm(name){
+            model.set('name', name);
+            model.save({ name: name }, { patch: true, success: function(){
+                var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                            _this.getTreeChartNode(model);
+                node.text = name;
+                var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
+                _this.rerenderChartTree(selectCatId);
+            }})
+        };
+        this.getName({ 
+            name: model.get('name'), 
+            title: gettext('Edit Name'),
+            onConfirm: onConfirm
+        })
     }
 
 });
