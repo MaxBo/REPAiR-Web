@@ -58,7 +58,6 @@ Stakeholders){
         */
         events: {
             'click #add-category-button': 'addCategory',
-            'click #edit-stakeholder-button': 'editStakeholder'
         },
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
@@ -106,6 +105,11 @@ Stakeholders){
             this.el.innerHTML = template();
             this.renderCategories();
 
+            html = document.getElementById('empty-modal-template').innerHTML;
+            this.confirmationModal = document.getElementById('remove-confirmation-modal');
+            this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
+
+
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (this.mode == 0){
@@ -152,6 +156,7 @@ Stakeholders){
         },
 
         addPanelItems(panel, items){
+            var _this = this;
             // render panel items from template (in templates/common.html)
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
@@ -159,16 +164,18 @@ Stakeholders){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: item });
-                var button_edit = panelItem.getElementsByClassName("btn btn-primary square edit inverted").item(0);
-                var button_remove = panelItem.getElementsByClassName("btn btn-warning square remove").item(0);
+                var button_edit = panelItem.getElementsByClassName(
+                    "btn btn-primary square edit inverted").item(0);
+                var button_remove = panelItem.getElementsByClassName(
+                    "btn btn-warning square remove").item(0);
                 button_edit.addEventListener('click', function(){
-                    alert("edit stakeholder");
-                })
+                    _this.editStakeholder();
+                });
                 button_remove.addEventListener('click', function(){
-                    alert("remove stakeholder");
-                })
+                    _this.removeStakeholder();
+                });
                 panel.appendChild(panelItem);
-            })
+            });
         },
 
         addStakeholder: function(category){
@@ -202,7 +209,22 @@ Stakeholders){
         },
 
         editStakeholder: function(){
-            alert("edit stakeholder");
+            var _this = this;
+            function onConfirm(name){
+
+            }
+            this.getName({
+                // name: model.get('name'),
+                title: gettext('Edit Stakeholder'),
+                onConfirm: onConfirm
+            });
+        },
+
+        removeStakeholder: function(){
+            var _this = this;
+            var message = gettext("Do you want to delete the selected stakeholder?");
+            _this.confirmationModal.querySelector('.modal-body').innerHTML = message;
+            $(_this.confirmationModal).modal('show');
         },
 
         addCategory: function(){
