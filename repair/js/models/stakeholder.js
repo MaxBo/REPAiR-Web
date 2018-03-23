@@ -13,6 +13,7 @@ define(["backbone", "app-config"],
             {
                 idAttribute: "id",
                 tag: 'stakeholder',
+
                 /**
                  * generates an url to the api resource based on the ids given in constructor
                  *
@@ -20,10 +21,11 @@ define(["backbone", "app-config"],
                  */
                 urlRoot: function() {
                     // get all stakeholders in stakeholderCategory
-                    return config.api.stakeholders.format(this.caseStudyId,
+                    return config.api.stakeholders.format(
+                        this.caseStudyId,
                         this.stakeholderCategoryId);
                 },
-
+                
                 /**
                  * model for fetching/putting a stakeholder
                  *

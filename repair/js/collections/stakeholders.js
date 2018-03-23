@@ -18,7 +18,8 @@ define(["backbone", "models/stakeholder", "app-config"],
                  */
                 url: function() {
                     // get all stakeholders in stakeholderCategory
-                    return config.api.stakeholders.format(this.caseStudyId,
+                    return config.api.stakeholders.format(
+                        this.caseStudyId,
                         this.stakeholderCategoryId);
                 },
 

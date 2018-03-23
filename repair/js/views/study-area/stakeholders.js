@@ -80,7 +80,8 @@ Stakeholders){
                         });
                         _this.categories.push({
                             name: category.get('name'),
-                            stakeholders: stakeholderList
+                            stakeholders: stakeholderList,
+                            categoryId: category.id
                         });
                     },
                     error: function(){
@@ -141,7 +142,7 @@ Stakeholders){
                 button.addEventListener('click', function(){
                     // ToDo: add functionality for click event (add stakeholder item)
                     // try by adding a browser alert here
-                    alert('add stakeholder item');
+                    _this.addStakeholder(category);
                 });
                 div.appendChild(button);
                 // add the items
@@ -161,21 +162,55 @@ Stakeholders){
             })
         },
 
+        addStakeholder: function(category){
+            var _this = this;
+            function onConfirm(name){
+                var stakeholder = new Stakeholder(
+                    { name: name },
+                    { caseStudyId: _this.caseStudy.id,
+                      stakeholderCategoryId: category.categoryId
+                    });
+                stakeholder.save(null, {
+                    success: function(){
+                        // remember, _this.categories is an Array of Objects
+                        // created in initStakeholders
+                        // from https://stackoverflow.com/a/16008853
+                        var pos = _this.categories.map(function(e) {
+                            return e.categoryId;
+                        }).indexOf(category.categoryId);
+                        _this.categories[pos].stakeholders.push(name);
+                        _this.render();
+                    },
+                    error: function(){
+                        console.log("cannot PUT Stakeholder");
+                    }
+                });
+            }
+            this.getName({
+                title: gettext('Add Stakeholder'),
+                onConfirm: onConfirm
+            });
+        },
+
         addCategory: function(){
             var _this = this;
             // save category to the database, and render a local copy of it
             // with the same attributes
             function onConfirm(name){
                 var category = new _this.stakeholderCategories.model(
-                    { name: name }, { caseStudyId: _this.caseStudy.id })
+                    { name: name }, { caseStudyId: _this.caseStudy.id });
                 var displayCat = {
                     name: name,
-                    stakeholders: []
+                    stakeholders: [],
+                    categoryId: category.id
                 }
-                category.save(null, { success: function(){
-                    _this.categories.push(displayCat);
-                    _this.render();
-                }});
+                console.log(category);
+                category.save(null, {
+                    success: function(){
+                        _this.categories.push(displayCat);
+                        _this.render();
+                    }
+                });
             }
             this.getName({
                 title: gettext('Add Stakeholder Category'),
