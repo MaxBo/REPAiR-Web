@@ -45,8 +45,7 @@ urlpatterns = [
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     url(r'^proxy/layers/(?P<layer_id>[0-9]+)/wms', WMSProxyView.as_view(), name='wms_proxy'),
-    url(r'^wms-client/', include('wms_client.urls')),
-    url(r'^upload/', include('repair.apps.upload.urls')),
+    url(r'^wms-client/', include('wms_client.urls'))
 ] \
 + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
 + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
