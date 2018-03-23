@@ -50,7 +50,9 @@ var BaseChartsView = BaseView.extend(
         'click #add-chart-button': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
-        'change #chart-image-input': 'showPreview'
+        'change #chart-image-input': 'showPreview',
+        'click #remove-cc-button': 'removeNode',
+        'click #remove-cc-modal .confirm': 'confirmRemoval',
     },
 
     /*
@@ -63,6 +65,10 @@ var BaseChartsView = BaseView.extend(
         this.el.innerHTML = template();
         this.chartTree = document.getElementById('chart-tree');
         this.buttonBox = document.getElementById('chart-tree-buttons');
+        
+        html = document.getElementById('empty-modal-template').innerHTML;
+        this.confirmationModal = document.getElementById('remove-cc-modal');
+        this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
 
         if (this.mode == 0) {
             document.getElementById('add-chart-category-button').style.display = 'none';
@@ -279,6 +285,45 @@ var BaseChartsView = BaseView.extend(
             };
             reader.readAsDataURL(input.files[0]);
         }
+    },
+    
+    removeNode: function(){
+        if (!this.selectedNode) return;
+        var model = this.selectedNode.chart || this.selectedNode.category,
+            message = (this.selectedNode.chart) ? gettext('Do you really want to delete the selected chart?') :
+                      gettext('Do you really want to delete the selected category and all its charts?');
+        this.confirmationModal.querySelector('.modal-body').innerHTML = message; 
+        $(this.confirmationModal).modal('show'); 
+    },
+    
+    confirmRemoval: function(){
+        var _this = this;
+        $(this.confirmationModal).modal('hide'); 
+        var is_category = (this.selectedNode.category != null);
+        var model = this.selectedNode.chart || this.selectedNode.category;
+        model.destroy({ success: function(){
+            var selectCatId = 0;
+            // remove category from tree (if category was selected)
+            if (_this.selectedNode.category) {
+                delete _this.categoryTree[model.id];
+            }
+            // remove chart from category (if chart was selected)
+            else {
+                console.log(model)
+                selectCatId = model.get("chart_category");
+                var nodes = _this.categoryTree[selectCatId].nodes;
+                for (var i = 0; i < nodes.length; i++){
+                    var node = nodes[i];
+                    if (node.chart === _this.selectedNode.chart) {
+                        nodes.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            _this.selectedNode = null;
+            _this.rerenderChartTree(selectCatId);
+        }});
+        
     }
 
 });

@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from repair.apps.studyarea.models import ChartCategory, Chart
+from repair.apps.login.serializers import IDRelatedField
 
 
 class ChartCategorySerializer(ModelSerializer):
@@ -15,6 +16,8 @@ class ChartSerializer(ModelSerializer):
         'casestudy_pk': 'chart_category__casestudy__id', 
         'chartcategory_pk': 'chart_category__id',
     }
+    chart_category = IDRelatedField(read_only=True)
+    
     class Meta:
         model = Chart
-        fields = ('id', 'name', 'image')
+        fields = ('id', 'name', 'image', 'chart_category')
