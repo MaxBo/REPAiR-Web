@@ -257,7 +257,7 @@ var BaseChartsView = BaseView.extend(
                 processData: false,
                 contentType: false,
                 success: function (data, textStatus, jqXHR) {
-                    var chart = new Chart({ id: data.id, name: data.name, image: data.image },
+                    var chart = new Chart({ id: data.id, name: data.name, image: data.image, chart_category: category.id },
                                           { caseStudyId: _this.caseStudy.id, categoryId: category.id });
                     
                     // as we get no model as response rerender everything
