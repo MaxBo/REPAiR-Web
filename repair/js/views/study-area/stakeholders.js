@@ -57,7 +57,8 @@ Stakeholders){
         * dom events (managed by jquery)
         */
         events: {
-            'click #add-category-button': 'addCategory'
+            'click #add-category-button': 'addCategory',
+            'click #edit-stakeholder-button': 'editStakeholder'
         },
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
@@ -158,6 +159,14 @@ Stakeholders){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: item });
+                var button_edit = panelItem.getElementsByClassName("btn btn-primary square edit inverted").item(0);
+                var button_remove = panelItem.getElementsByClassName("btn btn-warning square remove").item(0);
+                button_edit.addEventListener('click', function(){
+                    alert("edit stakeholder");
+                })
+                button_remove.addEventListener('click', function(){
+                    alert("remove stakeholder");
+                })
                 panel.appendChild(panelItem);
             })
         },
@@ -190,6 +199,10 @@ Stakeholders){
                 title: gettext('Add Stakeholder'),
                 onConfirm: onConfirm
             });
+        },
+
+        editStakeholder: function(){
+            alert("edit stakeholder");
         },
 
         addCategory: function(){
