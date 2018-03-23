@@ -163,12 +163,18 @@ Stakeholders){
 
         addCategory: function(){
             var _this = this;
+            // save category to the database, and render a local copy of it
+            // with the same attributes
             function onConfirm(name){
                 var category = new _this.stakeholderCategories.model(
                     { name: name }, { caseStudyId: _this.caseStudy.id })
+                var displayCat = {
+                    name: name,
+                    stakeholders: []
+                }
                 category.save(null, { success: function(){
-                    // _this.categories.push(category);
-                    // _this.render();
+                    _this.categories.push(displayCat);
+                    _this.render();
                 }});
             }
             this.getName({
