@@ -47,6 +47,7 @@ var BaseChartsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
         'click #add-chart-button': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
@@ -91,7 +92,7 @@ var BaseChartsView = BaseView.extend(
                 category: category,
                 state: { expanded: true },
                 backColor: (_this.mode == 0) ? '#aad400' : 'white',
-                color: (_this.mode == 0) ? 'white' : 'black',
+                color: (_this.mode == 0) ? 'white' : 'black'
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
@@ -156,7 +157,8 @@ var BaseChartsView = BaseView.extend(
         require('libs/bootstrap-treeview.min');
         $(this.chartTree).treeview({
             data: tree, showTags: true,
-            selectedBackColor: '#aad400',
+            selectedColor: (_this.mode == 0) ? 'black' : 'white',
+            selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,
@@ -178,6 +180,7 @@ var BaseChartsView = BaseView.extend(
                 }
             })
         }
+        else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
     },
 
     /*
@@ -204,9 +207,9 @@ var BaseChartsView = BaseView.extend(
         }
         
         if (this.mode == 0) {
-            // unselect node, so that this function is triggered on continued clicking
-            $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
             if (node.category){
+                // unselect node, so that selection is triggered on continued clicking
+                $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
                 var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
                 $(this.chartTree).treeview(f,  node.nodeId);
             }
@@ -370,6 +373,10 @@ var BaseChartsView = BaseView.extend(
             title: gettext('Edit Name'),
             onConfirm: onConfirm
         })
+    },
+    
+    toggleFullscreen: function(event){
+        event.target.parentElement.classList.toggle('fullscreen');
     }
 
 });
