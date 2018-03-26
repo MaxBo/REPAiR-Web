@@ -47,7 +47,7 @@ Stakeholders){
                     _this.render();
                 },
                 error: function(){
-                    alert("BOOOM!")
+                    console.error("cannot fetch stakeholderCategories");
                 }
             });
 
@@ -167,7 +167,7 @@ Stakeholders){
                 template = _.template(html);
             category.stakeholders.forEach(function(stakeholder){
                 var panelItem = document.createElement('div');
-                panelItem.classList.add('panel-stakeholder');
+                panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: stakeholder.name });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
@@ -189,8 +189,8 @@ Stakeholders){
                 var stakeholder = new Stakeholder(
                     { name: name },
                     { caseStudyId: _this.caseStudy.id,
-                      stakeholderCategoryId: category.categoryId
-                    });
+                      stakeholderCategoryId: category.categoryId }
+                );
                 stakeholder.save(null, {
                     success: function(){
                         // remember, _this.categories is an Array of Objects
@@ -206,7 +206,7 @@ Stakeholders){
                         _this.render();
                     },
                     error: function(){
-                        console.log("cannot PUT Stakeholder");
+                        console.error("cannot save Stakeholder");
                     }
                 });
             }
@@ -220,14 +220,11 @@ Stakeholders){
             var _this = this;
             var id = stakeholder.id;
             function onConfirm(name){
-                // here I'm fetching the Stakeholder because it might have
-                // other attributes than 'name' in the future and I don't want
-                // to keep and pass around the whole Stakeholder Object
                 var model = new Stakeholder(
-                    {id: id},
+                    { id: id },
                     { caseStudyId: _this.caseStudy.id,
-                      stakeholderCategoryId: category.categoryId
-                    });
+                      stakeholderCategoryId: category.categoryId }
+                );
                 model.fetch({
                     success: function() {
                         model.save({
@@ -294,17 +291,23 @@ Stakeholders){
             // save category to the database, and render a local copy of it
             // with the same attributes
             function onConfirm(name){
-                var category = new _this.stakeholderCategories.model(
-                    { name: name }, { caseStudyId: _this.caseStudy.id });
-                var displayCat = {
-                    name: name,
-                    stakeholders: [],
-                    categoryId: category.id
-                }
-                category.save(null, {
+                var category = new StakeholderCategory(
+                    {name: name},
+                    {caseStudyId: _this.caseStudy.id}
+                );
+                category.save(null,
+                {
                     success: function(){
+                        var displayCat = {
+                            name: name,
+                            stakeholders: [],
+                            categoryId: category.id
+                        };
                         _this.categories.push(displayCat);
                         _this.render();
+                    },
+                    error: function(){
+                        console.error("cannot save StakeholderCategory");
                     }
                 });
             }
