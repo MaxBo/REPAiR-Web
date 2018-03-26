@@ -58,6 +58,7 @@ Stakeholders){
         */
         events: {
             'click #add-category-button': 'addCategory',
+            'click #remove-stakeholder-confirmation-modal .confirm': 'confirmRemoval'
         },
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
@@ -103,11 +104,15 @@ Stakeholders){
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
             this.el.innerHTML = template();
-            this.renderCategories();
 
-            html = document.getElementById('empty-modal-template').innerHTML;
-            this.confirmationModal = document.getElementById('remove-confirmation-modal');
-            this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
+            var html_modal = document.getElementById(
+                'empty-modal-template').innerHTML;
+            this.confirmationModal = document.getElementById(
+                'remove-stakeholder-confirmation-modal');
+            this.confirmationModal.innerHTML = _.template(html_modal)({
+                header: gettext('Remove') });
+
+            this.renderCategories();
 
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
@@ -144,8 +149,6 @@ Stakeholders){
                 button.title = gettext('add stakeholder');
                 button.insertBefore(span, button.firstChild);
                 button.addEventListener('click', function(){
-                    // ToDo: add functionality for click event (add stakeholder item)
-                    // try by adding a browser alert here
                     _this.addStakeholder(category);
                 });
                 div.appendChild(button);
@@ -171,7 +174,7 @@ Stakeholders){
                     _this.editStakeholder(item, category);
                 });
                 button_remove.addEventListener('click', function(){
-                    _this.removeStakeholder();
+                    _this.removeStakeholder(item, category);
                 });
                 panel.appendChild(panelItem);
             });
@@ -241,11 +244,34 @@ Stakeholders){
             });
         },
 
-        removeStakeholder: function(){
+        removeStakeholder: function(stakeholder_name, category){
             var _this = this;
             var message = gettext("Do you want to delete the selected stakeholder?");
-            _this.confirmationModal.querySelector('.modal-body').innerHTML = message;
-            $(_this.confirmationModal).modal('show');
+            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
+            $(this.confirmationModal).modal('show');
+            _this.stakeholder = new Stakeholder(
+                { name: stakeholder_name },
+                { caseStudyId: _this.caseStudy.id,
+                  stakeholderCategoryId: category.categoryId
+                });
+        },
+
+        confirmRemoval: function() {
+            var _this = this;
+            $(this.confirmationModal).modal('hide');
+            var name = _this.stakeholder.get('name');
+            var categoryId = _this.stakeholder.stakeholderCategoryId;
+            _this.stakeholder.destroy({
+                success: function(){
+                    var catPos = _this.categories.map(function(e) {
+                        return e.categoryId;
+                    }).indexOf(categoryId);
+                    var stPos = _this.categories[catPos].stakeholders.indexOf(name);
+                    _this.categories[catPos].stakeholders.splice(stPos, 1);
+                    _this.render();
+                }
+            })
+
         },
 
         addCategory: function(){

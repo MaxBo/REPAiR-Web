@@ -1,5 +1,6 @@
 {% load i18n %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
 
 <script type="text/template" id="stakeholders-template">
 <button id= "add-category-button" class="btn btn-primary add" title="{% trans "add aim" %}">
@@ -7,7 +8,7 @@
 </button>
 <div id="categories" class="row"><!-- "overflow">-->
 </div>
-<div id="remove-confirmation-modal" class="modal fade" role="dialog"></div>
+<div id="remove-stakeholder-confirmation-modal" class="modal fade" role="dialog"></div>
 </script>
 
 {% endblock %}
