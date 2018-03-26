@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'models/stakeholdercategory',
+define(['views/baseview','underscore', 'models/stakeholdercategory',
     'collections/stakeholdercategories', 'models/stakeholder',
     'collections/stakeholders'],
 
@@ -77,7 +77,10 @@ Stakeholders){
                     data: queryParams,
                     success: function (){
                         stakeholders.forEach(function(stakeholder){
-                            stakeholderList.push(stakeholder.get('name'));
+                            stakeholderList.push({
+                                "name": stakeholder.get('name'),
+                                "id": stakeholder.get('id')
+                            });
                         });
                         _this.categories.push({
                             name: category.get('name'),
@@ -162,19 +165,19 @@ Stakeholders){
             // render panel items from template (in templates/common.html)
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
-            category.stakeholders.forEach(function(item){
+            category.stakeholders.forEach(function(stakeholder){
                 var panelItem = document.createElement('div');
-                panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: item });
+                panelItem.classList.add('panel-stakeholder');
+                panelItem.innerHTML = template({ name: stakeholder.name });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
                 var button_remove = panelItem.getElementsByClassName(
                     "btn btn-warning square remove").item(0);
                 button_edit.addEventListener('click', function(){
-                    _this.editStakeholder(item, category);
+                    _this.editStakeholder(stakeholder, category);
                 });
                 button_remove.addEventListener('click', function(){
-                    _this.removeStakeholder(item, category);
+                    _this.removeStakeholder(stakeholder, category);
                 });
                 panel.appendChild(panelItem);
             });
@@ -196,7 +199,10 @@ Stakeholders){
                         var pos = _this.categories.map(function(e) {
                             return e.categoryId;
                         }).indexOf(category.categoryId);
-                        _this.categories[pos].stakeholders.push(name);
+                        _this.categories[pos].stakeholders.push({
+                            "name": stakeholder.get('name'),
+                            "id": stakeholder.get('id')}
+                        );
                         _this.render();
                     },
                     error: function(){
@@ -210,27 +216,34 @@ Stakeholders){
             });
         },
 
-        editStakeholder: function(stakeholder_name, category){
+        editStakeholder: function(stakeholder, category){
+            console.log(stakeholder)
             var _this = this;
+            var id = stakeholder.id;
+            console.log(_this.categories);
             function onConfirm(name){
                 // here I'm fetching the Stakeholder because it might have
                 // other attributes than 'name' in the future and I don't want
                 // to keep and pass around the whole Stakeholder Object
-                var stakeholder = new Stakeholder(
-                    { name: stakeholder_name },
+                var model = new Stakeholder(
+                    {id: id},
                     { caseStudyId: _this.caseStudy.id,
                       stakeholderCategoryId: category.categoryId
                     });
-                stakeholder.fetch({
-                    success: function(){
-                        stakeholder.set('name', name);
-                        stakeholder.save(null, {
+                console.log(model);
+                model.fetch({
+                    success: function() {
+                        console.log(model);
+                        model.save({
+                            name: name
+                        }, {
                             success: function(){
                                 var catPos = _this.categories.map(function(e) {
                                     return e.categoryId;
                                 }).indexOf(category.categoryId);
-                                var stPos = _this.categories[catPos].stakeholders.indexOf(stakeholder_name);
-                                _this.categories[catPos].stakeholders[stPos] = name;
+                                console.log(_this.categories[catPos]);
+                                var stPos = _this.categories[catPos].stakeholders.indexOf(id);
+                                _this.categories[catPos].stakeholders[stPos].name = name;
                                 _this.render();
                             }
                         });
@@ -238,40 +251,46 @@ Stakeholders){
                 });
             }
             this.getName({
-                name: stakeholder_name,
+                name: stakeholder.name,
                 title: gettext('Edit Stakeholder'),
                 onConfirm: onConfirm
             });
         },
 
-        removeStakeholder: function(stakeholder_name, category){
+        removeStakeholder: function(stakeholder, category){
             var _this = this;
             var message = gettext("Do you want to delete the selected stakeholder?");
             this.confirmationModal.querySelector('.modal-body').innerHTML = message;
             $(this.confirmationModal).modal('show');
             _this.stakeholder = new Stakeholder(
-                { name: stakeholder_name },
+                {id: stakeholder.id},
                 { caseStudyId: _this.caseStudy.id,
                   stakeholderCategoryId: category.categoryId
                 });
+            console.log(_this.stakeholder);
         },
 
         confirmRemoval: function() {
             var _this = this;
             $(this.confirmationModal).modal('hide');
-            var name = _this.stakeholder.get('name');
+            var id = _this.stakeholder.get('id');
             var categoryId = _this.stakeholder.stakeholderCategoryId;
-            _this.stakeholder.destroy({
+            _this.stakeholder.fetch({
                 success: function(){
-                    var catPos = _this.categories.map(function(e) {
-                        return e.categoryId;
-                    }).indexOf(categoryId);
-                    var stPos = _this.categories[catPos].stakeholders.indexOf(name);
-                    _this.categories[catPos].stakeholders.splice(stPos, 1);
-                    _this.render();
+                    _this.stakeholder.destroy({
+                        success: function(){
+                            var catPos = _this.categories.map(function(e) {
+                                return e.categoryId;
+                            }).indexOf(categoryId);
+                            var stPos = _this.categories[catPos].stakeholders.map(function(e) {
+                                return e.id;
+                            }).indexOf(id);
+                            _this.categories[catPos].stakeholders.splice(stPos, 1);
+                            _this.render();
+                        }
+                    });
                 }
-            })
-
+            });
         },
 
         addCategory: function(){
@@ -286,7 +305,6 @@ Stakeholders){
                     stakeholders: [],
                     categoryId: category.id
                 }
-                console.log(category);
                 category.save(null, {
                     success: function(){
                         _this.categories.push(displayCat);
