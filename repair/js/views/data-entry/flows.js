@@ -62,7 +62,6 @@ var FlowsView = Backbone.View.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #fullscreen-toggle': 'toggleFullscreen',
         'click #refresh-dataview-btn': 'renderSankey',
         'click a[href="#sankey-tab"]': 'refreshSankey',
         'change #data-view-type-select': 'renderSankey'

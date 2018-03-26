@@ -137,6 +137,7 @@ var SetupMapsView = BaseMapView.extend(
     * event for selecting a node in the layer tree
     */
     nodeSelected: function(event, node){
+        // unselect previous node (caused by onNodeUnselected)
         if (this.selectedNode)
             $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
         var addBtn = document.getElementById('add-layer-button'),

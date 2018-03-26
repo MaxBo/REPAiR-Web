@@ -23,7 +23,8 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
      * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
      * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
-     * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
+     * @param {Object=} options.flowFilterParams  parameters to filter the flows with (e.g. {material: 1})
+     * @param {Object=} options.stockFilterParams  parameters to filter the stocks with
      * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
      * @param {module:collections/ActivityGroups|module:collections/ActivityGroups|module:collections/Actors} options.model the nodes to render
      *
@@ -51,7 +52,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
                                     type: type});
                                     
       var loader = new Loader(this.el, {disable: true});
-      $.when(this.stocks.fetch({data: options.filterParams}), this.flows.fetch({data: options.filterParams})).then(function(){
+      $.when(this.stocks.fetch({data: options.stockFilterParams}), this.flows.fetch({data: options.flowFilterParams})).then(function(){
         _this.render();
         loader.remove();
       });
@@ -62,7 +63,6 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      */
     events: {
       'click a[href="#flow-map-panel"]': 'refreshMap',
-      'click #fullscreen-toggle': 'toggleFullscreen',
       'change #data-view-type-select': 'renderSankey'
     },
  
@@ -134,18 +134,22 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       
       function compositionRepr(composition){
         var text = '';
-          if (composition){
-            var fractions = composition.fractions;
-            var i = 0;
-            fractions.forEach(function(fraction){
-              var material = materials.get(fraction.material);
-              text += fraction.fraction * 100 + '% ';
-              text += material.get('name');
-              if (i < fractions.length - 1) text += '\n';
-              i++;
-            })
-          }
-        return text || ('no composition defined')
+        if (composition){
+          var fractions = composition.fractions;
+          var i = 0;
+          fractions.forEach(function(fraction){
+            var material = materials.get(fraction.material);
+            text += fraction.fraction * 100 + '% ';
+            text += material.get('name');
+            if (i < fractions.length - 1) text += '<br>';
+            i++;
+          })
+        }
+        return text || ('no composition defined');
+      }
+      
+      function typeRepr(flow){
+        return flow.get('waste') ? 'Waste': 'Product';
       }
       
       flows.forEach(function(flow){
@@ -162,7 +166,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           units: gettext('t/year'),
           source: source,
           target: target,
-          text: compositionRepr(composition)
+          text: typeRepr(flow) + '<br>' + compositionRepr(composition)
         });
       })
       stocks.forEach(function(stock){
@@ -178,7 +182,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           units: gettext('t/year'),
           source: source,
           target: i,
-          text: compositionRepr(composition)
+          text: typeRepr(stock) + '<br>' + compositionRepr(composition)
         });
         i += 1;
       });

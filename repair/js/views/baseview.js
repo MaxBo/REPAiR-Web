@@ -68,6 +68,7 @@ var BaseView = Backbone.View.extend(
         var wrapper = document.createElement("div"),
             options = options || {},
             parentAttr = options.parentAttr || 'parent',
+            defaultOption = options.defaultOption || 'All',
             items = [];
 
         // make a list out of the collection that is understandable by treeify and hierarchySelect
@@ -106,7 +107,7 @@ var BaseView = Backbone.View.extend(
         // load template and initialize the hierarchySelect plugin
         var inner = document.getElementById('hierarchical-select-template').innerHTML,
             template = _.template(inner),
-            html = template({ options: levelList, defaultOption: 'Select a material' });
+            html = template({ options: levelList, defaultOption: defaultOption });
         wrapper.innerHTML = html;
         wrapper.name = 'material';
         parent.appendChild(wrapper);
@@ -162,11 +163,14 @@ var BaseView = Backbone.View.extend(
     * show a modal with error message on server error
     *
     * @param {Object} response    AJAX response
+    * @param {String=} header     headline displayed on top of error message
     */
-    onError: function(response){
+    onError: function(response, header){
         var message = response.responseText;
         message = message ? '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>': 
                   gettext('Server does not respond.');
+        if (header)
+            message = '<h4>' + header + '</h4><br>' + message;
         this.alert(message, gettext('Error'));
     },
     

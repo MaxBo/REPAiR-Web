@@ -32,21 +32,36 @@
         <b>{% trans "Material" %}</b>
         <div id='material-filter'></div>
       </div>
+      <div class="col-md-3">
+        <b>{% trans "Flow Type" %}</b>
+        <select name="waste" class="form-control">
+          <option value=''> {% trans "Products and Waste" %} </option>
+          <option value='False'> {% trans "Products" %} </option>
+          <option value='True'> {% trans "Waste" %} </option>
+        </select>
+      </div>
     </div>
-    <div class="collapse row filters" style="margin-top: 10px">
-      <div class="col-md-3">
-        <b>{% trans "Activity Group" %}</b>
-        <select name="group" class="form-control"></select>
-        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+    <div class="collapse row filters" style="margin-top: 20px">
+      <div class="row">
+        <label class="radio-inline"><input type="radio" name="direction" value="both" checked>{% trans "From/To" %}</label>
+        <label class="radio-inline"><input type="radio" name="direction" value="from">{% trans "From" %}</label>
+        <label class="radio-inline"><input type="radio" name="direction" value="to">{% trans "To" %}</label>
       </div>
-      <div class="col-md-3">
-        <b>{% trans "Activity" %}</b>
-        <select name="activity" class="form-control"></select>
-        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
-      </div>
-      <div class="col-md-3">
-        <b>{% trans "Actor" %}</b>
-        <select name="actor" class="form-control"></select>
+      <div class="row">
+        <div class="col-md-3">
+          <b>{% trans "Activity Group" %}</b>
+          <select name="group" class="form-control"></select>
+          <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+        </div>
+        <div class="col-md-3">
+          <b>{% trans "Activity" %}</b>
+          <select name="activity" class="form-control"></select>
+          <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+        </div>
+        <div class="col-md-3">
+          <b>{% trans "Actor" %}</b>
+          <select name="actor" class="form-control"></select>
+        </div>
       </div>
     </div>
   </div>

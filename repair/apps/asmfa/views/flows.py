@@ -74,12 +74,25 @@ class FlowViewSet(RevisionMixin,
             except Material.DoesNotExist:
                 return Response(status=404)
             filtered = filter_by_material(material, self.queryset)
+        if 'waste' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            filtered = queryset.filter(waste=query_params.get('waste'))
         if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
             queryset = filtered if filtered is not None else self.queryset
             nodes = (query_params.get('nodes', None)
                      or request.GET.getlist('nodes[]')) 
             filtered = queryset.filter(Q(origin__in=nodes) |
                                        Q(destination__in=nodes))
+        if 'from' in query_params.keys() or 'from[]' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            nodes = (query_params.get('from', None)
+                     or request.GET.getlist('from[]')) 
+            filtered = queryset.filter(origin__in=nodes)
+        if 'to' in query_params.keys() or 'to[]' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            nodes = (query_params.get('to', None)
+                     or request.GET.getlist('to[]')) 
+            filtered = queryset.filter(destination__in=nodes)
         if filtered is not None:
             serializer = SerializerClass(filtered, many=True,
                                          context={'request': request, })

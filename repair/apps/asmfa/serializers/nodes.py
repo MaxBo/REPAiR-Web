@@ -225,6 +225,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'activity_pk': 'activity__id',
     }
     activity = IDRelatedField()
+    activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
+                                             read_only=True)
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
@@ -238,7 +240,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included', 'nace',
+                  'activitygroup', 'included', 'nace',
                   'reason',
                   )
 
@@ -254,7 +256,7 @@ class AllActorListSerializer(AllActorSerializer):
     class Meta(AllActorSerializer.Meta):
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'included', 'nace', 'reason', )
+                  'activitygroup', 'included', 'nace', 'reason', )
 
 
 class ReasonSerializer(serializers.ModelSerializer):
