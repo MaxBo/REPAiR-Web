@@ -217,10 +217,8 @@ Stakeholders){
         },
 
         editStakeholder: function(stakeholder, category){
-            console.log(stakeholder)
             var _this = this;
             var id = stakeholder.id;
-            console.log(_this.categories);
             function onConfirm(name){
                 // here I'm fetching the Stakeholder because it might have
                 // other attributes than 'name' in the future and I don't want
@@ -230,10 +228,8 @@ Stakeholders){
                     { caseStudyId: _this.caseStudy.id,
                       stakeholderCategoryId: category.categoryId
                     });
-                console.log(model);
                 model.fetch({
                     success: function() {
-                        console.log(model);
                         model.save({
                             name: name
                         }, {
@@ -241,8 +237,9 @@ Stakeholders){
                                 var catPos = _this.categories.map(function(e) {
                                     return e.categoryId;
                                 }).indexOf(category.categoryId);
-                                console.log(_this.categories[catPos]);
-                                var stPos = _this.categories[catPos].stakeholders.indexOf(id);
+                                var stPos = _this.categories[catPos].stakeholders.map(function(e) {
+                                    return e.id;
+                                }).indexOf(id);
                                 _this.categories[catPos].stakeholders[stPos].name = name;
                                 _this.render();
                             }
@@ -267,7 +264,6 @@ Stakeholders){
                 { caseStudyId: _this.caseStudy.id,
                   stakeholderCategoryId: category.categoryId
                 });
-            console.log(_this.stakeholder);
         },
 
         confirmRemoval: function() {
