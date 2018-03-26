@@ -63,7 +63,6 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      */
     events: {
       'click a[href="#flow-map-panel"]': 'refreshMap',
-      'click #fullscreen-toggle': 'toggleFullscreen',
       'change #data-view-type-select': 'renderSankey'
     },
  

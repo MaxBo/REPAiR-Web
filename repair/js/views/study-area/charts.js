@@ -47,6 +47,7 @@ var BaseChartsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
         'click #add-chart-button': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
@@ -372,6 +373,10 @@ var BaseChartsView = BaseView.extend(
             title: gettext('Edit Name'),
             onConfirm: onConfirm
         })
+    },
+    
+    toggleFullscreen: function(event){
+        event.target.parentElement.classList.toggle('fullscreen');
     }
 
 });
