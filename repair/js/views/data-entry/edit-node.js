@@ -840,30 +840,37 @@ var EditNodeView = BaseView.extend(
         if (!dest) return origName + ' ' + gettext('Stock');
         return origName + ' -> ' + dest.get('name');
     },
+    
+    getChangedModels: function(){
+        var changed = [];
+        // update existing models
+        var checkUpdate = function(model){
+            if (model.markedForDeletion || model.changedAttributes() != false)
+                changed.push(model);
+        };
+        this.inFlows.each(checkUpdate);
+        this.outFlows.each(checkUpdate);
+        this.stocks.each(checkUpdate);
+
+        // save added flows only, when they are not marked for deletion
+        var checkCreate = function(model){
+            if (!model.markedForDeletion && Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
+                changed.push(model);
+        }
+        this.newInFlows.each(checkCreate);
+        this.newOutFlows.each(checkCreate);
+        this.newStocks.each(checkCreate);
+        
+        return changed;
+    },
+    
+    hasChanged: function(){
+        return (this.getChangedModels().length > 0)
+    },
 
     uploadChanges: function(){
         var _this = this;
-
-        var models = [];
-
-        // update existing models
-        var update = function(model){
-            if (model.markedForDeletion || model.changedAttributes() != false)
-                models.push(model);
-        };
-        this.inFlows.each(update);
-        this.outFlows.each(update);
-        this.stocks.each(update);
-
-        // save added flows only, when they are not marked for deletion
-        var create = function(model){
-            if (!model.markedForDeletion && Object.keys(model.attributes).length > 0) // sometimes empty models sneak in, not sure why
-                models.push(model);
-        }
-        this.newInFlows.each(create);
-        this.newOutFlows.each(create);
-        this.newStocks.each(create);
-
+        var models = this.getChangedModels();
 
         var loader = new Loader(document.getElementById('flows-edit'),
             {disable: true});

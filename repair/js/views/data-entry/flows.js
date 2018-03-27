@@ -1,18 +1,18 @@
-define(['backbone', 'underscore',
+define(['views/baseview', 'underscore',
     'views/data-entry/edit-node',
     'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
     'visualizations/sankey', 'views/flowsankey', 'utils/loader'],
-function(Backbone, _, EditNodeView, Activities, Actors, Flows, 
+function(BaseView, _, EditNodeView, Activities, Actors, Flows, 
     Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader){
 
 /**
 *
 * @author Christoph Franke
 * @name module:views/FlowsView
-* @augments Backbone.View
+* @augments module:views/BaseView
 */
-var FlowsView = Backbone.View.extend( 
+var FlowsView = BaseView.extend( 
     /** @lends module:views/FlowsView.prototype */
     {
 
@@ -35,7 +35,6 @@ var FlowsView = Backbone.View.extend(
         var _this = this;
         this.template = options.template;
         this.keyflowId = this.model.id;
-        this.selectedModel = null;
         this.caseStudy = options.caseStudy;
 
         this.caseStudyId = this.model.get('casestudy');
@@ -153,8 +152,7 @@ var FlowsView = Backbone.View.extend(
 
         // render view on node on click in data-tree
         var onClick = function(event, node){
-            _this.selectedModel = node.model;
-            _this.renderDataEntry();
+            _this.renderDataEntry(node, true);
         };
         var divid = '#data-tree';
         require('libs/bootstrap-treeview.min');
@@ -171,16 +169,15 @@ var FlowsView = Backbone.View.extend(
     /*
     * render the edit-view on a node
     */
-    renderDataEntry: function(){
-        var model = this.selectedModel;
+    renderDataEntry: function(node, check){
+        var model = node.model;
         if (model == null)
-            return
-        if (this.editNodeView != null){
-            this.editNodeView.close();
-        };
+            return;
         var _this = this;
-
+    
         function renderNode(){
+            if (_this.editNodeView != null) _this.editNodeView.close();
+            _this.selectedNode = node;
             // currently selected keyflow
             _this.editNodeView = new EditNodeView({
                 el: document.getElementById('edit-node'),
@@ -191,20 +188,22 @@ var FlowsView = Backbone.View.extend(
                 keyflowName: _this.model.get('name'),
                 caseStudyId: _this.caseStudyId,
                 publications: _this.publications,
-                onUpload: _this.renderDataEntry // rerender after upload
+                onUpload: function() { _this.renderDataEntry(node) } // rerender after upload
             });
         }
-        renderNode();
-    },
-
-    /**
-    * remove this view from the DOM
-    */
-    close: function(){
-        this.undelegateEvents(); // remove click events
-        this.unbind(); // Unbind all local event bindings
-        this.el.innerHTML = ''; // Remove view from DOM
-    },
+    
+        if (check && this.editNodeView != null && this.editNodeView.hasChanged()){
+            var message = gettext('Attributes of the node have been changed. <br>Do you want to discard the changes?');
+            this.confirm({ 
+                message: message,
+                onConfirm: renderNode,
+                onCancel: function(){
+                    $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                }
+            })
+        }
+        else renderNode();
+    }
 
 });
 return FlowsView;

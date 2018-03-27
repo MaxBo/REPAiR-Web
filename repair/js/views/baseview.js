@@ -237,9 +237,12 @@ var BaseView = Backbone.View.extend(
             template = _.template(html),
             elConfirmation = document.getElementById('confirmation-modal');
         elConfirmation.innerHTML = template({ message: options.message || '' });
-        var confirmBtn = elConfirmation.querySelector('.confirm');
+        var confirmBtn = elConfirmation.querySelector('.confirm'),
+            cancelBtn = elConfirmation.querySelector('.cancel');
         if (options.onConfirm)
             confirmBtn.addEventListener('click', options.onConfirm)
+        if (options.onCancel)
+            cancelBtn.addEventListener('click', options.onCancel)
         $(elConfirmation).modal('show');
     },
 
