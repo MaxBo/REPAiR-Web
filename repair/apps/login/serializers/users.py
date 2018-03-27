@@ -137,7 +137,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   'focusarea',
                   'publications',
                   'aims',
-                  'challenges'
+                  'challenges',
+                  'description'
                   )
 
     def update(self, instance, validated_data):

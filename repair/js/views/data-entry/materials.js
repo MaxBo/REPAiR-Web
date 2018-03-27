@@ -203,9 +203,6 @@ var MaterialsView = BaseView.extend(
         node.model.set('name', name);
         node.model.save(null, { 
           success: function(){
-            console.log(node.id)
-            
-            console.log(node.nodeId)
             _this.rerender(node.id);
           },
           error: _this.onError
@@ -225,8 +222,6 @@ var MaterialsView = BaseView.extend(
       var node = this.selectedNode;
       if (node == null) return;
       var _this = this;
-      
-      console.log('begin')
       var elConfirmation = document.getElementById('delete-material-modal'),
           html = document.getElementById('confirmation-template').innerHTML,
           template = _.template(html);
@@ -253,8 +248,6 @@ var MaterialsView = BaseView.extend(
       
       var modal = elConfirmation.querySelector('.modal');
       $(modal).modal('show'); 
-      
-      console.log(modal)
     },
   });
   return MaterialsView;

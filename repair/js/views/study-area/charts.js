@@ -55,6 +55,7 @@ var BaseChartsView = BaseView.extend(
         'click #remove-cc-button': 'removeNode',
         'click #remove-cc-modal .confirm': 'confirmRemoval',
         'click #edit-cc-button': 'editName',
+        'click #upload-description': 'uploadDescription'
     },
 
     /*
@@ -71,10 +72,28 @@ var BaseChartsView = BaseView.extend(
         html = document.getElementById('empty-modal-template').innerHTML;
         this.confirmationModal = document.getElementById('remove-cc-modal');
         this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
+        
+        this.editor = document.getElementById('casestudy-description-editor');
+        var descView = document.getElementById('casestudy-description-view'),
+            description = this.caseStudy.get('properties').description;
 
         if (this.mode == 0) {
             document.getElementById('add-chart-category-button').style.display = 'none';
+            document.getElementById('upload-description').style.display = 'none';
+            this.editor.style.display = 'none';
+            descView.innerHTML = description;
         }
+        else {
+            require('summernote');
+            $(this.editor).summernote({
+                height: 800,
+                maxHeight: null,
+                //tooltip: false
+            });
+            $(this.editor).summernote('code', description);
+            descView.style.display = 'none';
+        }
+        
         this.renderChartTree();
     },
     
@@ -119,7 +138,6 @@ var BaseChartsView = BaseView.extend(
 
 
     rerenderChartTree: function(categoryId){
-        console.log('reredner')
         this.buttonBox.style.display = 'None';
         $(this.chartTree).treeview('remove');
         this.renderChartTree(categoryId);
@@ -377,6 +395,15 @@ var BaseChartsView = BaseView.extend(
     
     toggleFullscreen: function(event){
         event.target.parentElement.classList.toggle('fullscreen');
+    },
+    
+    uploadDescription: function(){
+        var markup = $(this.editor).summernote('code');
+        console.log(markup)
+        this.caseStudy.get('properties').description = markup;
+        var propToSave = { description: markup };
+        this.caseStudy.save({ properties: propToSave }, { patch: true, error: this.onError });
+        
     }
 
 });

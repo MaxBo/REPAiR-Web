@@ -137,7 +137,6 @@ var FlowsView = BaseView.extend(
     renderSankeyMap: function(){
         var flowMap = new FlowMap("flow-map");
         var collection = this.actors;
-        console.log(this.actors);
         flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
         
         //function transformNodes(nodes){

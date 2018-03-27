@@ -12,6 +12,7 @@ class CaseStudy(GDSEModel):
     name = models.TextField()
     geom = geomodels.MultiPolygonField(null=True)
     focusarea = geomodels.MultiPolygonField(null=True)
+    description = models.TextField(blank=True, null=True)
 
     @property
     def solution_categories(self):

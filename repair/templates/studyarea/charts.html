@@ -1,5 +1,7 @@
 {% load i18n %}
 {% block content %}
+<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote.css" rel="stylesheet">
+<!--<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/summernote.css">-->
 
 <script type="text/template" id="base-charts-template">
 <div class="row">
@@ -7,10 +9,14 @@
     <div class="col-md-9 bordered">
       {% trans "Description of Studyarea" %}
       <div class="row">
-        <tag autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-        <textarea rows= "6" style="width: 100%; max-width: 100%;"> 
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-        </textarea>
+        <div id='casestudy-description-editor' style='height:300px;'>
+        </div>
+        <div id='casestudy-description-view' style='height:300px; overflow: auto; resize: both;'>
+        </div>
+        <button id='upload-description' class="btn btn-primary square" title="{% trans "Upload description" %}" style="float: right;">
+          <span class="glyphicon glyphicon-upload"></span>
+          {% trans "Upload" %}
+        </button>
       </div>
     </div>
   </div>
