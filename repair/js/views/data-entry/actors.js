@@ -27,6 +27,7 @@ var ActorsView = BaseView.extend(
     */
     initialize: function(options){
         _.bindAll(this, 'render');
+        _.bindAll(this, 'removeActor');
         var _this = this;
 
         this.template = options.template;
@@ -63,7 +64,6 @@ var ActorsView = BaseView.extend(
     */
     events: {
         'click #remove-actor-button': 'showRemoveModal',
-        'click #confirm-button': 'removeActorEvent',
         'click #add-actor-button': 'addActorEvent',
         'change #included-filter-select': 'changeFilter'
     },
@@ -77,12 +77,6 @@ var ActorsView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
             keyflow: this.model.get('name')});
-
-        // confirmation modal for deletion of actor
-        html = document.getElementById('confirmation-template').innerHTML
-        template = _.template(html);
-        this.elConfirmation = document.getElementById('confirmation-modal');
-        this.elConfirmation.innerHTML = template({message: ''});
 
         this.filterSelect = this.el.querySelector('#included-filter-select');
         this.table = this.el.querySelector('#actors-table');
@@ -231,17 +225,14 @@ var ActorsView = BaseView.extend(
     */
     showRemoveModal: function(){
         if (this.activeActor == null) return;
-        var modal = this.elConfirmation.querySelector('.modal');
-        // ToDo: translation
         var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
-        document.getElementById('confirmation-message').innerHTML = message; 
-        $(modal).modal('show'); 
+        this.confirm({ message: message, onConfirm: this.removeActor });
     },
 
     /* 
     * remove selected actor on button click in modal
     */
-    removeActorEvent: function(){
+    removeActor: function(){
         var _this = this;
         this.activeActor.destroy({success: function(){
             _this.actorView.close();

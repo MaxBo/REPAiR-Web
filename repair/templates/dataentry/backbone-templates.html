@@ -367,7 +367,6 @@
     </div>
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
-  <div id="confirmation-modal"></div>
   <div id="actor-name-modal"> </div>
 </script>
 
@@ -580,26 +579,4 @@
   <div id="delete-material-modal"></div>
   <div id="edit-material-modal"> </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
-</script>
-
-<!-- general modal for confirmations -->
-
-<script type="text/template" id="confirmation-template">
-  <div class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title"><span class="glyphicon glyphicon-question-sign"></span> {% trans "Confirmation" %} </h4>
-        </div>
-        <div class="modal-body">
-          <p id="confirmation-message"><%= message %></p>
-        </div>
-        <div class="modal-footer">
-          <button id="confirm-button" type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
-          <button type="button" class="btn btn-basic" data-dismiss="modal">{% trans "No" %}</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </script>
