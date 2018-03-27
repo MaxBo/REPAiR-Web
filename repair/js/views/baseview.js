@@ -174,6 +174,13 @@ var BaseView = Backbone.View.extend(
         this.alert(message, gettext('Error'));
     },
     
+    
+    /**
+    * callback for confirming a confirmation modal
+    *
+    * @callback module:views/BaseView~onConfirm
+    */
+    
     /**
     * callback for confirming user input of name
     *
@@ -216,6 +223,27 @@ var BaseView = Backbone.View.extend(
       });
       
       $(el).modal('show');
+    },
+    
+    /**
+    * show a modal to enter a name
+    *
+    * @param {Object=} options
+    * @param {module:views/BaseView~onConfirm} options.onConfirm  called when user confirmed dialog
+    */
+    confirm: function(options){
+        var options = options || {},
+            html = document.getElementById('confirmation-template').innerHTML,
+            template = _.template(html),
+            elConfirmation = document.getElementById('confirmation-modal');
+        elConfirmation.innerHTML = template({ message: options.message || '' });
+        var confirmBtn = elConfirmation.querySelector('.confirm'),
+            cancelBtn = elConfirmation.querySelector('.cancel');
+        if (options.onConfirm)
+            confirmBtn.addEventListener('click', options.onConfirm)
+        if (options.onCancel)
+            cancelBtn.addEventListener('click', options.onCancel)
+        $(elConfirmation).modal('show');
     },
 
     /**

@@ -199,7 +199,6 @@ var BaseMapsView = BaseView.extend(
         if (node.layer){
             this.map.setVisible(this.layerPrefix + node.layer.id, true);
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
-            console.log(legendDiv)
             if (legendDiv) legendDiv.style.display = 'block';
         }
         // check all layers in category

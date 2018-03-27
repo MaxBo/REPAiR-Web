@@ -27,6 +27,7 @@ var ActorsView = BaseView.extend(
     */
     initialize: function(options){
         _.bindAll(this, 'render');
+        _.bindAll(this, 'removeActor');
         var _this = this;
 
         this.template = options.template;
@@ -63,7 +64,6 @@ var ActorsView = BaseView.extend(
     */
     events: {
         'click #remove-actor-button': 'showRemoveModal',
-        'click #confirm-button': 'removeActorEvent',
         'click #add-actor-button': 'addActorEvent',
         'change #included-filter-select': 'changeFilter'
     },
@@ -77,12 +77,6 @@ var ActorsView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
             keyflow: this.model.get('name')});
-
-        // confirmation modal for deletion of actor
-        html = document.getElementById('confirmation-template').innerHTML
-        template = _.template(html);
-        this.elConfirmation = document.getElementById('confirmation-modal');
-        this.elConfirmation.innerHTML = template({message: ''});
 
         this.filterSelect = this.el.querySelector('#included-filter-select');
         this.table = this.el.querySelector('#actors-table');
@@ -154,9 +148,19 @@ var ActorsView = BaseView.extend(
             activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
         };
         setRowValues(actor);
+        
+        function selectRow(r){
+            _.each(_this.actorRows, function(row){
+                row.classList.remove('selected');
+            });
+            r.classList.add('selected');
+        }
 
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
+            selectRow(row);
+            _this.activeActor = actor;
+            _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
             _this.actorView = new EditActorView({
                 el: document.getElementById('edit-actor'),
@@ -174,14 +178,15 @@ var ActorsView = BaseView.extend(
         // row is clicked -> open view and remember that this actor is "active"
         row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
-            _.each(_this.actorRows, function(row){
-                row.classList.remove('selected');
-            });
-            row.classList.add('selected');
             if (_this.activeActor != actor || actor.id == null){
-                _this.activeActor = actor;
-                _this.activeRow = row;
-                showActor(actor);
+                if (_this.actorView != null && _this.actorView.hasChanged()){
+                    var message = gettext('Attributes of the actor have been changed but not uploaded. <br><br>Do you want to discard the changes?');
+                    _this.confirm({ 
+                        message: message,
+                        onConfirm: function() { showActor(actor) }
+                    })
+                }
+                else showActor(actor);
             }
         });
 
@@ -231,17 +236,14 @@ var ActorsView = BaseView.extend(
     */
     showRemoveModal: function(){
         if (this.activeActor == null) return;
-        var modal = this.elConfirmation.querySelector('.modal');
-        // ToDo: translation
         var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
-        document.getElementById('confirmation-message').innerHTML = message; 
-        $(modal).modal('show'); 
+        this.confirm({ message: message, onConfirm: this.removeActor });
     },
 
     /* 
     * remove selected actor on button click in modal
     */
-    removeActorEvent: function(){
+    removeActor: function(){
         var _this = this;
         this.activeActor.destroy({success: function(){
             _this.actorView.close();

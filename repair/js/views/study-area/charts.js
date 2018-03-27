@@ -54,7 +54,7 @@ var BaseChartsView = BaseView.extend(
         'change #chart-image-input': 'showPreview',
         'click #remove-cc-button': 'removeNode',
         'click #remove-cc-modal .confirm': 'confirmRemoval',
-        'click #edit-cc-button': 'editName',
+        'click #edit-cc-button': 'editName'
     },
 
     /*
@@ -71,10 +71,11 @@ var BaseChartsView = BaseView.extend(
         html = document.getElementById('empty-modal-template').innerHTML;
         this.confirmationModal = document.getElementById('remove-cc-modal');
         this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
-
+        
         if (this.mode == 0) {
             document.getElementById('add-chart-category-button').style.display = 'none';
         }
+        
         this.renderChartTree();
     },
     
@@ -119,7 +120,6 @@ var BaseChartsView = BaseView.extend(
 
 
     rerenderChartTree: function(categoryId){
-        console.log('reredner')
         this.buttonBox.style.display = 'None';
         $(this.chartTree).treeview('remove');
         this.renderChartTree(categoryId);
