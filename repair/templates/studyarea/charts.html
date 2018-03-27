@@ -41,14 +41,14 @@
         </button>
       </div>
     </div>
-    <div class="col-md-6 bordered" style="min-height: 500px;">
+    <div class="col-md-6 bordered" style="min-height: 500px;" style="overflow: auto;">
       <img id="chart-view" src="" alt="chart" style="width: 100%; display: None;">
       <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
     </div>
   </div>
 </div>
-<div class="modal fade" role="dialog" id="add-chart-modal">
-  <div class="modal-dialog">
+<div class="modal fade" role="dialog" id="add-chart-modal" style="z-index: 10000;">
+  <div class="modal-dialog" style='-webkit-transform: none; transform: none;'>
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -65,7 +65,12 @@
             <br>
             <input id="chart-name" style="width: 80%;">
             <br>
-            <img id="chart-image-preview" src="#" alt="Preview" style="margin-top: 30px; width: 100%;"/>
+            <div style="position: relative; margin-top: 30px;">
+              <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                <img id="chart-image-preview" src="#" alt="Preview" style="width: 100%;"/>
+              </div>
+            </div>
             <input type="file" id="chart-image-input" accept=".gif,.jpg,.jpeg,.png" style="margin-top: 30px; width: 100%;">
           </div>
           <div class="tab-pane fade in" id="import-chart-data-tab">

@@ -369,12 +369,16 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .fullscreen-toggle{
     position: absolute;
-    top: 40px;
+    top: 20px;
     right: 20px;
     font-size: 1em;
     opacity: 0.8;
     padding: 3px 7px 3px 7px;
 }
+
+/*div.fullscreen > .fullscreen-toggle{*/
+    /*top: 20px;*/
+/*}*/
 
 .item-panel{
   /*min-height: 500px;*/
