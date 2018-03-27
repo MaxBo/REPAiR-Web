@@ -193,7 +193,7 @@ var FlowsView = BaseView.extend(
         }
     
         if (check && this.editNodeView != null && this.editNodeView.hasChanged()){
-            var message = gettext('Attributes of the node have been changed. <br>Do you want to discard the changes?');
+            var message = gettext('Attributes of the node have been changed but not uploaded. <br><br>Do you want to discard the changes?');
             this.confirm({ 
                 message: message,
                 onConfirm: renderNode,

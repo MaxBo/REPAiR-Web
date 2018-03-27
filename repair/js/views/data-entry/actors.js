@@ -148,9 +148,19 @@ var ActorsView = BaseView.extend(
             activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
         };
         setRowValues(actor);
+        
+        function selectRow(r){
+            _.each(_this.actorRows, function(row){
+                row.classList.remove('selected');
+            });
+            r.classList.add('selected');
+        }
 
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
+            selectRow(row);
+            _this.activeActor = actor;
+            _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
             _this.actorView = new EditActorView({
                 el: document.getElementById('edit-actor'),
@@ -168,14 +178,15 @@ var ActorsView = BaseView.extend(
         // row is clicked -> open view and remember that this actor is "active"
         row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
-            _.each(_this.actorRows, function(row){
-                row.classList.remove('selected');
-            });
-            row.classList.add('selected');
             if (_this.activeActor != actor || actor.id == null){
-                _this.activeActor = actor;
-                _this.activeRow = row;
-                showActor(actor);
+                if (_this.actorView != null && _this.actorView.hasChanged()){
+                    var message = gettext('Attributes of the actor have been changed but not uploaded. <br><br>Do you want to discard the changes?');
+                    _this.confirm({ 
+                        message: message,
+                        onConfirm: function() { showActor(actor) }
+                    })
+                }
+                else showActor(actor);
             }
         });
 
