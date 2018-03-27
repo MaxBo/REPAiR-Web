@@ -138,7 +138,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 .sort(function(a, b) { return b.dy - a.dy; })
                 .on('mousemove', function(event) {
                   tipLinks
-                    .style("top", (d3.event.pageY - linkTooltipOffset) - 40 + "px")
+                    .style("top", (d3.event.pageY - linkTooltipOffset) - Math.max($('.d3-tip').height() + 20, 80) + "px")
                     .style("left", function () {
                       var left = (Math.max(d3.event.pageX - linkTooltipOffset, 10)); 
                       left = Math.min(left, window.innerWidth - $('.d3-tip').width() - 20)
@@ -160,7 +160,7 @@ define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
                 })
                 .on('mousemove', function(event) {
                   tipNodes
-                    .style("top", (d3.event.pageY - $('.d3-tip-nodes').height() - 20) + "px")
+                    .style("top", d3.event.pageY - Math.max($('.d3-tip-nodes').height() + 20, 60) + "px")
                     .style("left", function () {
                       var left = d3.event.pageX - $('.d3-tip').width() / 2
                       return left + "px"; })

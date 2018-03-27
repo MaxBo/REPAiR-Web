@@ -14,7 +14,8 @@ require(['models/casestudy', 'views/changes/solutions',
     var solutionsView = new SolutionsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('solutions'),
-      template: 'solutions-template'
+      template: 'solutions-template',
+      mode: 1
     })
   };
   

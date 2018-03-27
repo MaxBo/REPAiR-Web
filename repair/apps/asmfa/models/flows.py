@@ -33,7 +33,7 @@ class Group2Group(Flow):
     origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
                                related_name='outputs')
     composition = models.ForeignKey(Composition, on_delete=models.SET_NULL,
-                                    related_name='group2group', null=True, 
+                                    related_name='group2group', null=True,
                                     )
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='Group2GroupData')
@@ -48,7 +48,7 @@ class Activity2Activity(Flow):
                                related_name='outputs',
                                )
     composition = models.ForeignKey(Composition, on_delete=models.SET_NULL,
-                               related_name='activity2activity', null=True, 
+                               related_name='activity2activity', null=True,
                                )
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='Activity2ActivityData')
@@ -61,7 +61,7 @@ class Actor2Actor(Flow):
     origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
                                related_name='outputs')
     composition = models.ForeignKey(Composition, on_delete=models.SET_NULL,
-                                    related_name='actor2actor', null=True, 
+                                    related_name='actor2actor', null=True,
                                     )
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='Actor2ActorData')

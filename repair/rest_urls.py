@@ -11,7 +11,9 @@ from repair.apps.studyarea.views import (
     AdminLevelViewSet,
     AreaViewSet,
     LayerCategoryViewSet,
-    LayerViewSet
+    LayerViewSet,
+    ChartCategoryViewSet,
+    ChartViewSet
 )
 
 from repair.apps.changes.views import (
@@ -95,6 +97,7 @@ cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
+cs_router.register(r'chartcategories', ChartCategoryViewSet)
 cs_router.register(r'implementations', ImplementationViewSet)
 cs_router.register(r'strategies', StrategyViewset)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
@@ -115,14 +118,16 @@ levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
 levels_router.register(r'areas', AreaViewSet)
 
-
 # /casestudies/*/users/...
 user_router = NestedSimpleRouter(cs_router, r'users',
                                   lookup='user')
 user_router.register(r'implementations', ImplementationOfUserViewSet)
 user_router.register(r'targets', TargetViewSet)
 
-
+# /casestudies/*/chartcategories/...
+chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
+                                  lookup='chartcategory')
+chart_router.register(r'charts', ChartViewSet)
 
 # /casestudies/*/stakeholdercategories/...
 shcat_router = NestedSimpleRouter(cs_router, r'stakeholdercategories',
@@ -198,6 +203,7 @@ urlpatterns = [
     url(r'^', include(ac_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
+    url(r'^', include(chart_router.urls)),
     url(r'^', include(sol_router.urls)),
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),

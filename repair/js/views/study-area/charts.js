@@ -1,193 +1,385 @@
-define(['backbone', 'underscore', 'utils/loader'],
+define(['views/baseview', 'underscore', 'collections/chartcategories', 
+        'collections/charts', 'models/chart', 'utils/loader', "app-config"],
 
-function(Backbone, _, Loader){
-  /**
-   *
-   * @author Christoph Franke
-   * @name module:views/BaseChartsView
-   * @augments Backbone.View
-   */
-  var BaseChartsView = Backbone.View.extend(
+function(BaseView, _, ChartCategories, Charts, Chart, Loader, config){
+/**
+*
+* @author Christoph Franke
+* @name module:views/BaseChartsView
+* @augments module:views/BaseView
+*/
+var BaseChartsView = BaseView.extend(
     /** @lends module:views/BaseChartsView.prototype */
     {
 
     /**
-     * render view to add charts to casestudy
-     *
-     * @param {Object} options
-     * @param {HTMLElement} options.el                          element the view will be rendered in
-     * @param {string} options.template                         id of the script element containing the underscore template to render this view
-     * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
-     *
-     * @constructs
-     * @see http://backbonejs.org/#View
-     */
+    * render view to add charts to casestudy
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                          element the view will be rendered in
+    * @param {string} options.template                         id of the script element containing the underscore template to render this view
+    * @param {Number} [options.mode=0]                         workshop (0, default) or setup mode (1)
+    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
     initialize: function(options){
-      var _this = this;
-      _.bindAll(this, 'render');
-      _.bindAll(this, 'nodeSelected');
-      
-      this.template = options.template;
-      this.caseStudy = options.caseStudy;
-      
-      this.categoryTree = {
-        1: {text: 'Group 1', categoryId: 1}, 
-        2: {text: 'Group 2', categoryId: 2}
-      }
-      
-      this.render();
+        BaseChartsView.__super__.initialize.apply(this, [options]);
+        var _this = this;
+        _.bindAll(this, 'nodeSelected');
+
+        this.caseStudy = options.caseStudy;
+        this.mode = options.mode || 0;
+
+        this.categoryTree = {}
+        
+        this.chartCategories = new ChartCategories([], { caseStudyId: this.caseStudy.id });
+
+        var loader = new Loader(this.el, {disable: true});
+        this.chartCategories.fetch({ success: function(){
+            loader.remove();
+            _this.initTree();
+        }})
     },
 
     /*
-      * dom events (managed by jquery)
-      */
+    * dom events (managed by jquery)
+    */
     events: {
-      'click #add-chart-button': 'addChart',
-      'click #add-chart-category-button': 'addCategory',
-      'click #add-chart-modal .confirm': 'confirmChart'
+        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
+        'click #add-chart-button': 'addChart',
+        'click #add-chart-category-button': 'addCategory',
+        'click #add-chart-modal .confirm': 'confirmChart',
+        'change #chart-image-input': 'showPreview',
+        'click #remove-cc-button': 'removeNode',
+        'click #remove-cc-modal .confirm': 'confirmRemoval',
+        'click #edit-cc-button': 'editName'
     },
 
     /*
-      * render the view
-      */
+    * render the view
+    */
     render: function(){
-      var _this = this;
-      var html = document.getElementById(this.template).innerHTML
-      var template = _.template(html);
-      this.el.innerHTML = template();
-      
-      this.chartTree = document.getElementById('chart-tree');
-      this.buttonBox = document.getElementById('chart-tree-buttons');
-      
-      this.renderChartTree();
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML
+        var template = _.template(html);
+        this.el.innerHTML = template();
+        this.chartTree = document.getElementById('chart-tree');
+        this.buttonBox = document.getElementById('chart-tree-buttons');
+        
+        html = document.getElementById('empty-modal-template').innerHTML;
+        this.confirmationModal = document.getElementById('remove-cc-modal');
+        this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
+        
+        if (this.mode == 0) {
+            document.getElementById('add-chart-category-button').style.display = 'none';
+        }
+        
+        this.renderChartTree();
     },
     
-    
-    rerenderChartTree: function(selectId){
-      this.buttonBox.style.display = 'None';
-      $(this.chartTree).treeview('remove');
-      this.renderChartTree(selectId);
+    initTree: function(){
+        var _this = this;
+        var deferred = [],
+            chartList = [];
+        // put nodes for each category into the tree and prepare fetching the layers
+        // per category
+        this.chartCategories.each(function(category){
+            var charts = new Charts([], { caseStudyId: _this.caseStudy.id, 
+                                          chartCategoryId: category.id });
+            var node = { 
+                text: category.get('name'), 
+                category: category,
+                state: { expanded: true },
+                backColor: (_this.mode == 0) ? '#aad400' : 'white',
+                color: (_this.mode == 0) ? 'white' : 'black'
+            };
+            _this.categoryTree[category.id] = node;
+            chartList.push(charts);
+            deferred.push(charts.fetch());
+        });
+        // fetch prepared layers and put informations into the tree nodes
+        $.when.apply($, deferred).then(function(){
+            chartList.forEach(function(charts){
+                var catNode = _this.categoryTree[charts.chartCategoryId];
+                var children = [];
+                charts.each(function(chart){
+                    var node = { 
+                        chart: chart, 
+                        text: chart.get('name'),
+                        icon: 'fa fa-image'
+                        } 
+                    children.push(node);
+                });
+                catNode.nodes = children;
+            });
+            _this.render();
+        })
     },
-    
+
+
+    rerenderChartTree: function(categoryId){
+        this.buttonBox.style.display = 'None';
+        $(this.chartTree).treeview('remove');
+        this.renderChartTree(categoryId);
+    },
+
     /*
-     * render the hierarchic tree of layers
-     */
-    renderChartTree: function(selectId){
-    
-      var _this = this;
-      var dataDict = {};
-      var tree = [];
-      
-      _.each(this.categoryTree, function(category){
-        category.tag = 'category';
-        tree.push(category);
-      })
-      
-      require('libs/bootstrap-treeview.min');
-      $(this.chartTree).treeview({
-        data: tree, showTags: true,
-        selectedBackColor: '#aad400',
-        expandIcon: 'glyphicon glyphicon-triangle-right',
-        collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-        onNodeSelected: this.nodeSelected,
-        showCheckbox: true
-      });
+    * render the hierarchic tree of layers
+    */
+    renderChartTree: function(categoryId){
+        if (Object.keys(this.categoryTree).length == 0) return;
+
+        var _this = this;
+        var dataDict = {};
+        var tree = [];
+
+        _.each(this.categoryTree, function(category){
+            category.tag = 'category';
+            tree.push(category);
+        })
+        
+        // items are not unselectable
+        function nodeUnselected(event, node){
+            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+        }
+        // select item on collapsing (workaround for misplaced buttons when collapsing)
+        function nodeCollapsed(event, node){
+            if (_this.mode == 1)
+                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        }
+        function nodeExpanded(event, node){
+            if (_this.mode == 1)
+                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        }
+
+        require('libs/bootstrap-treeview.min');
+        $(this.chartTree).treeview({
+            data: tree, showTags: true,
+            selectedColor: (_this.mode == 0) ? 'black' : 'white',
+            selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
+            expandIcon: 'glyphicon glyphicon-triangle-right',
+            collapseIcon: 'glyphicon glyphicon-triangle-bottom',
+            onNodeSelected: this.nodeSelected,
+            onNodeUnselected: nodeUnselected,
+            onNodeCollapsed: nodeCollapsed,
+            onNodeExpanded: nodeExpanded
+            //showCheckbox: true
+        });
+        
+        // look for and expand and select node with given category id
+        if (categoryId != null){
+            // there is no other method to get all nodes or to search for an attribute
+            var nodes = $(this.chartTree).treeview('getEnabled');
+            _.forEach(nodes, function(node){
+                if (node.category && (node.category.id == categoryId)){
+                    selectNodeId = node.nodeId; 
+                    $(_this.chartTree).treeview('selectNode', selectNodeId);
+                    return false;
+                }
+            })
+        }
+        else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
     },
-    
+
     /*
-     * event for selecting a node in the material tree
-     */
+    * event for selecting a node in the material tree
+    */
     nodeSelected: function(event, node){
-      var addBtn = document.getElementById('add-chart-button');
-      var removeBtn = document.getElementById('remove-cc-button');
-      this.selectedNode = node;
-      addBtn.style.display = 'inline';
-      removeBtn.style.display = 'inline';
-      if (node.layer != null) {
-        addBtn.style.display = 'None';
-      }
-      var li = this.chartTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
-      if (!li) return;
-      this.buttonBox.style.top = li.offsetTop + 10 + 'px';
-      this.buttonBox.style.display = 'inline';
+        // unselect previous node (caused by onNodeUnselected)
+        if (this.selectedNode)
+            $(this.chartTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+        var addBtn = document.getElementById('add-chart-button');
+        var removeBtn = document.getElementById('remove-cc-button');
+        this.selectedNode = node;
+        
+        var preview = this.el.querySelector('#chart-view');
+        
+        if (node.chart){
+            preview.src = node.chart.get('image'); 
+            preview.style.display = 'inline';
+        }
+        // group selected in setup mode -> no image; keep previous one in workshop mode
+        else if (this.mode == 1) {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
+        
+        if (this.mode == 0) {
+            if (node.category){
+                // unselect node, so that selection is triggered on continued clicking
+                $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
+                var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
+                $(this.chartTree).treeview(f,  node.nodeId);
+            }
+            // no buttons in workshop mode -> return before showing
+            return;
+        }
+        
+        addBtn.style.display = 'inline';
+        removeBtn.style.display = 'inline';
+        if (node.chart != null) {
+            addBtn.style.display = 'None';
+        }
+        var li = this.chartTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
+        if (!li) return;
+        this.buttonBox.style.top = li.offsetTop + 'px';
+        this.buttonBox.style.display = 'inline';
     },
-    
+
     addChart: function(){
-      var modal = document.getElementById('add-chart-modal');
-      $(modal).modal('show'); 
+        var modal = document.getElementById('add-chart-modal');
+        $(modal).modal('show'); 
     },
     
     addCategory: function(){
-      var _this = this;
-      function onConfirm(name){
-        var nextId = Math.max(...Object.keys(_this.categoryTree).map(Number)) + 1;
-        var cat = {text: name, categoryId: nextId};
-        _this.categoryTree[nextId] = cat;
-        _this.rerenderChartTree();
-      }
-      this.getName({ 
-        title: gettext('Add Category'),
-        onConfirm: onConfirm
-      });
-    },
-    
-    confirmChart: function(){
-      var preview = this.el.querySelector('.preview');
-      preview.style.display = 'inline';
-      preview.src = "/static/img/Chart_3.PNG";
-      var category = this.categoryTree[this.selectedNode.categoryId];
-      var chartNode = { text: "Chart_3.PNG" };
-      if (!category.nodes) category.nodes = [];
-      category.nodes.push(chartNode);
-      this.rerenderChartTree();
-    },
-    
-    /*
-     * open modal dialog to enter a name
-     * options: onConfirm, name, title
-     */
-    getName: function(options){
-      
-      var options = options || {};
-      
-      var div = document.getElementById('edit-chart-category-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || '' });
-      
-      div.innerHTML = html;
-      var modal = div.querySelector('.modal');
-      var body = modal.querySelector('.modal-body');
-      
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
-      
-      modal.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(modal).modal('hide');
-      });
-      
-      $(modal).modal('show');
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
+        var _this = this;
+        function onConfirm(name){
+            var category = new _this.chartCategories.model(
+                { name: name }, { caseStudyId: _this.caseStudy.id })
+            category.save(null, { success: function(){
+                var catNode = { 
+                    text: name, 
+                    category: category,
+                    state: { checked: true }
+                };
+                catNode.nodes = [];
+                _this.categoryTree[category.id] = catNode;
+                _this.rerenderChartTree(category.id);
+            }})
+        }
+        this.getName({ 
+            title: gettext('Add Category'),
+            onConfirm: onConfirm
+        });
     },
 
-  });
-  return BaseChartsView;
+    confirmChart: function(){
+        var preview = this.el.querySelector('.preview'),
+            category = this.selectedNode.category,
+            _this = this;
+        
+        var imgInput = this.el.querySelector('#chart-image-input');
+        if (imgInput.files && imgInput.files[0]){
+        
+            // you have to files via form, Backbone.Models (sends data as json) doesn't work here
+            var image = imgInput.files[0],
+                name = this.el.querySelector('#chart-name').value
+                formData = new FormData();
+            formData.append('image', image);
+            formData.append('name', name);
+            var url = config.api.charts.format(this.caseStudy.id, category.id);
+            $.ajax({
+                type: "POST",
+                timeout: 50000,
+                url: url,
+                data: formData,
+                cache: false,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function (data, textStatus, jqXHR) {
+                    // make model out of response
+                    var chart = new Chart({ id: data.id, name: data.name, image: data.image, chart_category: category.id },
+                                          { caseStudyId: _this.caseStudy.id, categoryId: category.id });
+                    
+                    var chartNode = { text: chart.get('name'),
+                        icon: 'fa fa-image',
+                        chart: chart };
+                    _this.categoryTree[category.id].nodes.push(chartNode);
+                    _this.rerenderChartTree(category.id);
+                },
+                error: _this.onError
+            });
+        }
+        
+        else {
+            this.alert('No file selected. Canceling upload...')
+        }
+    },
+    
+    showPreview: function(event){
+        var input = event.target;
+        if (input.files && input.files[0]){
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('chart-image-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    },
+    
+    removeNode: function(){
+        if (!this.selectedNode) return;
+        var model = this.selectedNode.chart || this.selectedNode.category,
+            message = (this.selectedNode.chart) ? gettext('Do you really want to delete the selected chart?') :
+                      gettext('Do you really want to delete the selected category and all its charts?');
+        this.confirmationModal.querySelector('.modal-body').innerHTML = message; 
+        $(this.confirmationModal).modal('show'); 
+    },
+    
+    confirmRemoval: function(){
+        var _this = this;
+        $(this.confirmationModal).modal('hide'); 
+        var is_category = (this.selectedNode.category != null);
+        var model = this.selectedNode.chart || this.selectedNode.category;
+        model.destroy({ success: function(){
+            var selectCatId = 0;
+            // remove category from tree (if category was selected)
+            if (_this.selectedNode.category) {
+                delete _this.categoryTree[model.id];
+            }
+            // remove chart from category (if chart was selected)
+            else {
+                _this.getTreeChartNode(model, { pop : true })
+                selectCatId = model.get("chart_category");
+            }
+            _this.selectedNode = null;
+            _this.rerenderChartTree(selectCatId);
+        }});
+        
+    },
+    
+    getTreeChartNode: function(chart, options){
+        var options = options || {};
+        var catNode = this.categoryTree[chart.get('chart_category')];
+        var nodes = catNode.nodes;
+        for (var i = 0; i < nodes.length; i++){
+            var node = nodes[i];
+            if (node.chart === chart) {
+                if (options.pop) nodes.splice(i, 1);
+                return node;
+            }
+        }
+        return;
+    },
+    
+    editName: function(){
+        var _this = this;
+        var model = this.selectedNode.chart || this.selectedNode.category;
+        function onConfirm(name){
+            model.set('name', name);
+            model.save({ name: name }, { patch: true, success: function(){
+                var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                            _this.getTreeChartNode(model);
+                node.text = name;
+                var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
+                _this.rerenderChartTree(selectCatId);
+            }})
+        };
+        this.getName({ 
+            name: model.get('name'), 
+            title: gettext('Edit Name'),
+            onConfirm: onConfirm
+        })
+    },
+    
+    toggleFullscreen: function(event){
+        event.target.parentElement.classList.toggle('fullscreen');
+    }
+
+});
+return BaseChartsView;
 }
 );

@@ -28,6 +28,7 @@ function(Backbone, _,){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            this.mode = options.mode || 0;
             
             this.aims = [
                 'Higher Recycling rate',
@@ -75,6 +76,15 @@ function(Backbone, _,){
             var template = _.template(html);
             this.el.innerHTML = template();
             this.renderRows();
+            
+            // lazy way to render workshop mode: just hide all buttons for editing
+            // you may make separate views as well
+            if (this.mode == 0){
+                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
+                _.each(btns, function(button){
+                    button.style.display = 'none';
+                });
+            }
         },
 
         renderRows(){
