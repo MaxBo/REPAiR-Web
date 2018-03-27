@@ -50,6 +50,11 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
                                     keyflowId: this.keyflowId,
                                     type: type});
+
+      var fullscreenBtn = document.createElement('button');
+      fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
+      fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+      this.el.appendChild(fullscreenBtn);
                                     
       var loader = new Loader(this.el, {disable: true});
       $.when(this.stocks.fetch({data: options.stockFilterParams}), this.flows.fetch({data: options.flowFilterParams})).then(function(){
@@ -71,10 +76,6 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      */
     render: function(){
       this.sankeyData = this.transformData(this.collection, this.flows, this.stocks, this.materials);
-      var fullscreenBtn = document.createElement('button');
-      fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
-      fullscreenBtn.addEventListener('click', this.toggleFullscreen);
-      this.el.appendChild(fullscreenBtn);
       var isFullScreen = this.el.classList.contains('fullscreen');
       var width = (isFullScreen) ? this.el.clientWidth : this.width;
       var height = (isFullScreen) ? this.el.clientHeight : this.height;
