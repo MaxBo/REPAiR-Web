@@ -74,6 +74,9 @@ class FlowViewSet(RevisionMixin,
             except Material.DoesNotExist:
                 return Response(status=404)
             filtered = filter_by_material(material, self.queryset)
+        if 'waste' in query_params.keys():
+            queryset = filtered if filtered is not None else self.queryset
+            filtered = queryset.filter(waste=query_params.get('waste'))
         if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
             queryset = filtered if filtered is not None else self.queryset
             nodes = (query_params.get('nodes', None)

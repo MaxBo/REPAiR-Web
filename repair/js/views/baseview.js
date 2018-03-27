@@ -163,11 +163,14 @@ var BaseView = Backbone.View.extend(
     * show a modal with error message on server error
     *
     * @param {Object} response    AJAX response
+    * @param {String=} header     headline displayed on top of error message
     */
-    onError: function(response){
+    onError: function(response, header){
         var message = response.responseText;
         message = message ? '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>': 
                   gettext('Server does not respond.');
+        if (header)
+            message = '<h4>' + header + '</h4><br>' + message;
         this.alert(message, gettext('Error'));
     },
     

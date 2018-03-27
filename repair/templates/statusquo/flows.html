@@ -32,6 +32,14 @@
         <b>{% trans "Material" %}</b>
         <div id='material-filter'></div>
       </div>
+      <div class="col-md-3">
+        <b>{% trans "Flow Type" %}</b>
+        <select name="waste" class="form-control">
+          <option value=''> {% trans "Products and Waste" %} </option>
+          <option value='False'> {% trans "Products" %} </option>
+          <option value='True'> {% trans "Waste" %} </option>
+        </select>
+      </div>
     </div>
     <div class="collapse row filters" style="margin-top: 20px">
       <div class="row">

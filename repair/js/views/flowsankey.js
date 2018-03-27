@@ -63,7 +63,6 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      */
     events: {
       'click a[href="#flow-map-panel"]': 'refreshMap',
-      'click #fullscreen-toggle': 'toggleFullscreen',
       'change #data-view-type-select': 'renderSankey'
     },
  
@@ -135,18 +134,22 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       
       function compositionRepr(composition){
         var text = '';
-          if (composition){
-            var fractions = composition.fractions;
-            var i = 0;
-            fractions.forEach(function(fraction){
-              var material = materials.get(fraction.material);
-              text += fraction.fraction * 100 + '% ';
-              text += material.get('name');
-              if (i < fractions.length - 1) text += '<br>';
-              i++;
-            })
-          }
-        return text || ('no composition defined')
+        if (composition){
+          var fractions = composition.fractions;
+          var i = 0;
+          fractions.forEach(function(fraction){
+            var material = materials.get(fraction.material);
+            text += fraction.fraction * 100 + '% ';
+            text += material.get('name');
+            if (i < fractions.length - 1) text += '<br>';
+            i++;
+          })
+        }
+        return text || ('no composition defined');
+      }
+      
+      function typeRepr(flow){
+        return flow.get('waste') ? 'Waste': 'Product';
       }
       
       flows.forEach(function(flow){
@@ -163,7 +166,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           units: gettext('t/year'),
           source: source,
           target: target,
-          text: compositionRepr(composition)
+          text: typeRepr(flow) + '<br>' + compositionRepr(composition)
         });
       })
       stocks.forEach(function(stock){
@@ -179,7 +182,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
           units: gettext('t/year'),
           source: source,
           target: i,
-          text: compositionRepr(composition)
+          text: typeRepr(stock) + '<br>' + compositionRepr(composition)
         });
         i += 1;
       });
