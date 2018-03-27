@@ -39,7 +39,7 @@ class Material(GDSEModel):
     level = models.IntegerField()
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
-    
+
     @property
     def children(self):
         """ all children of the material (deep traversal) """
@@ -60,7 +60,7 @@ class Composition(GDSEModel):
     def is_custom(self):
         """
         returns true, if composition is neither product or waste
-        
+
         Returns
         -------
         bool
@@ -92,6 +92,7 @@ class ProductFraction(GDSEModel):
                                     related_name='fractions', null=True)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='fractions')
+    avoidable = models.BooleanField(default=True)
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)

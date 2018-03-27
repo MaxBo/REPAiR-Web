@@ -87,8 +87,29 @@ class Actor(Node):
     description = models.TextField(max_length=510, blank=True, null=True)
     BvDii = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
-    employees = models.IntegerField(default=1)
-    turnover = MoneyField(max_digits=10, decimal_places=2,
-                          default_currency='EUR')
+    employees = models.IntegerField(blank=True, null=True)
+    turnover = MoneyField(max_digits=20, decimal_places=2,
+                          default_currency='EUR', blank=True, null=True)
 
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+
+# class ActivityPerKeyflow(Node):
+#
+#     nace = models.CharField(max_length=255)
+#     activity_id = models.ForeignKey(Activity, on_delete=models.DO_NOTHING)
+#     keyflow_id = models.ForeignKey(ActivityGroup, on_delete=models.DO_NOTHING)
+#
+#     class Meta:
+#         managed = False
+#         db_table = asmfa_activityview
+#
+# class ActorPerKeyflow(Node):
+#
+#     BvDid = models.CharField(max_length=255)
+#     actor_id = models.ForeignKey(Actor, on_delete=models.DO_NOTHING)
+#     activity_id = models.ForeignKey(Activity, on_delete=models.DO_NOTHING)
+#     keyflow_id = models.ForeignKey(ActivityGroup, on_delete=models.DO_NOTHING)
+# 
+#     class Meta:
+#         managed = False
+#         db_table = asmfa_actorview
