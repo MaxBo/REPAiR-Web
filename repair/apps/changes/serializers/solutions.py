@@ -164,5 +164,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'one_unit_equals', 'solution_category',
                   'solutionquantity_set',
                   'solutionratiooneunit_set',
+                  'activities', 'activities_image',
+                  'currentstate_image', 'effect_image'
                   )
         read_only_fields = ('url', 'id', )

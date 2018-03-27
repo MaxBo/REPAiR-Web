@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       UserInCasestudy)
+from repair.apps.asmfa.models import Activity
 
 
 class Unit(GDSEModel):
@@ -25,6 +26,10 @@ class Solution(GDSEUniqueNameModel):
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
+    currentstate_image = models.ImageField(upload_to='charts', null=True)
+    effect_image = models.ImageField(upload_to='charts', null=True)
+    activities = models.ManyToManyField(Activity)
+    activities_image = models.ImageField(upload_to='charts', null=True)
 
     @property
     def casestudy(self):
