@@ -1,21 +1,43 @@
-<!-- backbone/underscore templates used in different views -->
+<!-- backbone/underscore templates used in different views (e.g. js/views/baseview) -->
 {% load i18n %}
+
+<!-- divs to put the modals in -->
+<div id="alert-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
+<div id="generic-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
+<div id="confirmation-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
+
+<!-- template for alerts -->
+
+<script type="text/template" id="alert-modal-template">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><span class="glyphicon glyphicon-warning-sign" style="margin-right: 15px;"></span><%= title %></h4>
+      </div>
+      <div class="modal-body">
+        <%= message %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+      </div>
+    </div>
+  </div>
+</script>
 
 <!-- template for an empty modal -->
 
 <script type="text/template" id="empty-modal-template">
-  <div class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title"> <%= header %> </h4>
-        </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
-          <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
-        </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> <%= header %> </h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn cancel" data-dismiss="modal">{% trans "Cancel"%}</button>
+        <button type="button" class="btn btn-primary confirm">{% trans "OK"%}</button>
       </div>
     </div>
   </div>
@@ -49,13 +71,33 @@
 </script>
 
 <script type="text/template" id="panel-item-template">
-<label> <%= name %> </label>
-<div class="button-box">
-  <button class="btn btn-primary square edit inverted" title="{% trans "edit item" %}">
-    <span class="glyphicon glyphicon-pencil"></span>
-  </button>
-  <button class="btn btn-warning square remove" title="{% trans "remove item" %}">
-    <span class="glyphicon glyphicon-minus"></span>
-  </button>
-</div>
+  <label> <%= name %> </label>
+  <div class="button-box">
+    <button class="btn btn-primary square edit inverted" title="{% trans "edit item" %}">
+      <span class="glyphicon glyphicon-pencil"></span>
+    </button>
+    <button class="btn btn-warning square remove" title="{% trans "remove item" %}">
+      <span class="glyphicon glyphicon-minus"></span>
+    </button>
+  </div>
+</script>
+
+<!-- general modal for confirmations -->
+
+<script type="text/template" id="confirmation-template">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><span class="glyphicon glyphicon-question-sign"></span> {% trans "Confirmation" %} </h4>
+      </div>
+      <div class="modal-body">
+        <p><%= message %></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "Yes" %}</button>
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "No" %}</button>
+      </div>
+    </div>
+  </div>
 </script>

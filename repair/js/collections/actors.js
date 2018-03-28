@@ -26,6 +26,34 @@ define(["backbone", "models/actor", "app-config"],
         else
           return config.api.actors.format(this.caseStudyId, this.keyflowId);
       },
+      
+      /**
+       * filter the collection to find models belonging to an activity with the given id
+       *
+       * @param {string} activityId   id of the activity
+       *
+       * @returns {Array.<module:models/Actor>} list of all actors belonging to the activity
+       */
+      filterActivity: function (activityId) {
+          var filtered = this.filter(function (actor) {
+              return actor.get("activity") == activityId;
+          });
+          return filtered;
+      },
+      
+      /**
+       * filter the collection to find models belonging to an activitygroup with the given id
+       *
+       * @param {string} groupId   id of the activitygroup
+       *
+       * @returns {Array.<module:models/Actor>} list of all actors belonging to the activitygroup
+       */
+      filterGroup: function (groupId) {
+          var filtered = this.filter(function (actor) {
+              return actor.get("activitygroup") == groupId;
+          });
+          return filtered;
+      },
    
     /**
      * collection of module:models/Actor

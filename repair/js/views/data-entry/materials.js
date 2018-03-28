@@ -1,14 +1,14 @@
-define(['backbone', 'underscore', "models/material", 'utils/loader'],
+define(['views/baseview', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
 
-function(Backbone, _, Material, Loader){
+function(BaseView, _, Material, Loader, utils){
 
-  /**
-   *
-   * @author Christoph Franke
-   * @name module:views/MaterialsView
-   * @augments Backbone.View
-   */
-  var MaterialsView = Backbone.View.extend(
+/**
+ *
+ * @author Christoph Franke
+ * @name module:views/MaterialsView
+ * @augments module:views/BaseView
+ */
+var MaterialsView = BaseView.extend(
     /** @lends module:views/MaterialsView.prototype */
     {
 
@@ -75,24 +75,6 @@ function(Backbone, _, Material, Loader){
       var _this = this;
       var expandedIds = expandedIds || []
       
-      // list to tree
-      function treeify(list) {
-        var treeList = [];
-        var lookup = {};
-        list.forEach(function(item) {
-          lookup[item['id']] = item;
-        });
-        list.forEach(function(item) {
-          if (item['parent'] != null) {
-            lookupParent = lookup[item['parent']];
-            if (!lookupParent['nodes']) lookupParent['nodes'] = [];
-            lookupParent['nodes'].push(item);
-          } else {
-            treeList.push(item);
-          }
-        });
-        return treeList;
-      };
       // collection to list, prepare it to treeify
       var materialList = [];
       this.materials.each(function(material){
@@ -111,7 +93,7 @@ function(Backbone, _, Material, Loader){
       var tree = [{
         id: null,
         parent: null,
-        nodes: treeify(materialList), // collection as tree
+        nodes: utils.treeify(materialList), // collection as tree
         text: 'Materials',
         state: { collapsed: false }
       }]
@@ -156,11 +138,6 @@ function(Backbone, _, Material, Loader){
       this.buttonBox.style.display = 'None';
       $(this.materialTree).treeview('remove');
       this.renderDataTree(selectId);
-    },
-    
-    onError: function(response){
-      document.getElementById('alert-message').innerHTML = response.responseText; 
-      $('#alert-modal').modal('show'); 
     },
     
     /*
@@ -226,9 +203,6 @@ function(Backbone, _, Material, Loader){
         node.model.set('name', name);
         node.model.save(null, { 
           success: function(){
-            console.log(node.id)
-            
-            console.log(node.nodeId)
             _this.rerender(node.id);
           },
           error: _this.onError
@@ -248,8 +222,6 @@ function(Backbone, _, Material, Loader){
       var node = this.selectedNode;
       if (node == null) return;
       var _this = this;
-      
-      console.log('begin')
       var elConfirmation = document.getElementById('delete-material-modal'),
           html = document.getElementById('confirmation-template').innerHTML,
           template = _.template(html);
@@ -276,55 +248,7 @@ function(Backbone, _, Material, Loader){
       
       var modal = elConfirmation.querySelector('.modal');
       $(modal).modal('show'); 
-      
-      console.log(modal)
     },
-    
-    /*
-     * open modal dialog to enter a name
-     * options: onConfirm, name, title
-     */
-    getName: function(options){
-      
-      var options = options || {};
-      
-      var div = document.getElementById('edit-material-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || '' });
-      
-      div.innerHTML = html;
-      var modal = div.querySelector('.modal');
-      var body = modal.querySelector('.modal-body');
-      
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
-      
-      modal.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(modal).modal('hide');
-      });
-      
-      $(modal).modal('show');
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
-    },
-
   });
   return MaterialsView;
 }

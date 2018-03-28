@@ -1,3 +1,13 @@
+  /* prevent selection of content, some browsers try to select sth. on touch */
+.noselect {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none; 
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none; 
+            user-select: none;
+}
+
 body {
   position: absolute;
   width: 100%;
@@ -346,6 +356,11 @@ button.round, .btn.round{
   border-radius: 20px;
 }
 
+button.small, .btn.small{
+  padding: 0px 4px 0px 2px;
+  font-size: 12px;
+}
+
 button.square:hover, button.round:hover, button.square:focus, button.round:focus{
   /*background-color: #aad400 !important;*/
   /*border: none;*/
@@ -354,12 +369,16 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .fullscreen-toggle{
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 20px;
     font-size: 1em;
     opacity: 0.8;
     padding: 3px 7px 3px 7px;
 }
+
+/*div.fullscreen > .fullscreen-toggle{*/
+    /*top: 20px;*/
+/*}*/
 
 .item-panel{
   /*min-height: 500px;*/

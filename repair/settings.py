@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django_pandas', 
     'djmoney',
     'rest_framework',
     'rest_framework_gis',

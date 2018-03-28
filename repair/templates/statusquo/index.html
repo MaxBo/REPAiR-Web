@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block sidebar %}
+  <script>
+    document.getElementById("status-quo-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
+    <li><a href="#challenges" data-toggle="pill">{% trans "Challenges/Aims" %} <span class="sub-icon glyphicon glyphicon-blackboard"></span></a></li>
+    <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-align-right gly-rotate-90"></span></a></li>
+    <li><a href="#targets" data-toggle="pill">{% trans "Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{STATIC_URL}}css/leaflet.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/map.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/hierarchy-select.min.css" />
+
+<div class="tab-content">
+  <div class="tab-pane fade in active" id="flows"></div>
+  <div class="tab-pane fade" id="challenges"></div>
+  <div class="tab-pane fade" id="evaluation"></div>
+  <div class="tab-pane fade" id="targets"></div>
+</div>
+  
+{% include "statusquo/flows.html" %}
+{% include "statusquo/challenges-aims.html" %}
+{% include "statusquo/evaluation.html" %}
+{% include "statusquo/targets.html" %}
+  
+{% render_bundle 'vendors' %}
+{% render_bundle 'StatusQuo' %}
+
+{% endblock %}

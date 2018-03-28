@@ -1,17 +1,17 @@
-define(['backbone', 'underscore', 'models/actor', 'collections/geolocations', 
+define(['views/baseview', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
         'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
         'utils/utils', 'bootstrap'],
 
-function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors, 
+function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors, 
          Areas, Area, Map, Loader, utils){
   /**
    *
    * @author Christoph Franke
    * @name module:views/EditActorView
-   * @augments Backbone.View
+   * @augments module:views/BaseView
    */
-  var EditActorView = Backbone.View.extend(
+  var EditActorView = BaseView.extend(
     /** @lends module:views/EditActorView.prototype */
     {
 
@@ -40,10 +40,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
      * @see http://backbonejs.org/#View
      */
     initialize: function(options){
-      _.bindAll(this, 'render');
+      EditActorView.__super__.initialize.apply(this, [options]);
       _.bindAll(this, 'renderLocation');
-      
-      this.template = options.template;
+    
       this.keyflow = options.keyflow;
       var keyflowId = this.keyflow.id,
           caseStudyId = this.keyflow.get('casestudy');
@@ -53,6 +52,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.focusarea = options.focusarea;
       this.areaLevels = options.areaLevels;
       this.reasons = options.reasons;
+      
+      this.hasChangedVal = false;
       
       this.layers = {
         operational: {
@@ -117,7 +118,9 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       'click #upload-actor-button': 'uploadChanges',
       'click #confirm-location': 'locationConfirmed',
       'click #add-operational-button,  #add-administrative-button': 'createLocationEvent',
-      'change #included-check': 'toggleIncluded'
+      'change #included-check': 'toggleIncluded',
+      'change input': 'triggerChange',
+      'change select': 'triggerChange'
     },
 
     /*
@@ -139,6 +142,14 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       this.initMap();
       this.renderLocations(true);
       this.setupAreaInput();
+    },
+    
+    triggerChange: function(){
+      this.hasChangedVal = true;
+    },
+    
+    hasChanged: function(){
+      return this.hasChangedVal;
     },
 
     /* 
@@ -165,9 +176,8 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
       var loader = new Loader(this.el, {disable: true});
       
       var onError = function(response){
-        document.getElementById('alert-message').innerHTML = response.responseText; 
         loader.remove();
-        $('#alert-modal').modal('show'); 
+        _this.onError(response);
       };
       
       //actor.save(null, {success: uploadLocations, error: function(model, response){onError(response)}});
@@ -306,6 +316,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           onDrag: function(coords){
             loc.get('geometry').set("coordinates", coords);
             coordDiv.innerHTML = '(' + utils.formatCoords(coords) + ')';
+            _this.triggerChange();
           },
           layername: layername
         });
@@ -456,7 +467,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
               // proceed recursion with parent select
               _this.setAreaSelects(parentArea, idx-1, options);
             },
-            error: function(model, response){ alert(response); }
+            error: function(model, response){ _this.onError(response); }
           });
         }
     },
@@ -629,11 +640,13 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
         addMarker(center);
         _this.localMap.centerOnPoint(center, {projection: _this.projection});
         setPointButtons('remove');
+        _this.triggerChange();
       });
       removePointBtn.addEventListener('click', function(){
         _this.localMap.clearLayer(_this.activeType, { types: ['Point'] });
         _this.localMap.removeInteractions();
         removeMarkerCallback();
+        _this.triggerChange();
       });
       
       // initially set marker depending on existing geometry
@@ -657,7 +670,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
           selectIdx++;
         };
         if (selectIdx >= this.areaSelects.length) {
-          alert('no level with id ' + levelId + ' found');
+          _this.alert('no level with id ' + levelId + ' found');
           return;
         }
         var select = this.areaSelects[selectIdx];
@@ -791,16 +804,7 @@ function(Backbone, _, Actor, Locations, Geolocation, Activities, Actors,
     toggleIncluded: function(event){
       var display = (event.target.checked) ? 'none': 'block';
       document.getElementById('reasons').style.display = display;
-    },
-    
-    /*
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
-    },
+    }
 
   });
   return EditActorView;

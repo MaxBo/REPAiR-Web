@@ -1,6 +1,6 @@
 define(['browser-cookies'],
   function (cookies) {
-  
+
     /**
      * global configuration file
      * @module config
@@ -8,24 +8,24 @@ define(['browser-cookies'],
     var config = {
       URL: '/' // base application URL
     };
-    
+
     /**
      * callback for session
      *
      * @callback module:config~onSuccess
      * @param {Object} json -  fetched session object
      */
-    
-    /** 
-     * fetch the current session object from the server 
+
+    /**
+     * fetch the current session object from the server
      *
      * @param {module:config~onSuccess} callback - called when session object is successfully fetched
-     * 
+     *
      * @method getSession
      * @memberof module:config
      */
     config.getSession = function(callback){
-    
+
       fetch('/login/session', {
           headers: {
             'Accept': 'application/json',
@@ -34,7 +34,11 @@ define(['browser-cookies'],
           credentials: 'include'
         }).then(response => response.json()).then(json => callback(json));
     }
-    
+
+    config.views = {
+      layerproxy: '/proxy/layers/{0}/wms',
+    }
+
     /** urls to resources in api
      * @name api
      * @memberof module:config
@@ -49,6 +53,8 @@ define(['browser-cookies'],
       keyflows:               '/api/keyflows/',
       qualities:              '/api/qualities/',
       reasons:                '/api/reasons/',
+      chartCategories:        '/api/casestudies/{0}/chartcategories/',
+      charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
       stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
       stakeholders:           '/api/casestudies/{0}/stakeholdercategories/{1}/stakeholders/',
       layerCategories:        '/api/casestudies/{0}/layercategories',
@@ -72,7 +78,7 @@ define(['browser-cookies'],
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
       wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };
-  
+
     return config;
   }
 );
