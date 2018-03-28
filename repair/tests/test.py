@@ -307,11 +307,12 @@ class AdminAreaTest:
         response = self.admin_client.post(change_url, self.add_data)
         return response
 
-    def add_management_form_data(self):
-        form_data = {'wmslayer_set-TOTAL_FORMS': ['3'],
-                     'wmslayer_set-INITIAL_FORMS': ['0'],
-                     'wmsresourceincasestudy_set-TOTAL_FORMS': ['3'],
-                     'wmsresourceincasestudy_set-INITIAL_FORMS': ['0']}
+    def add_management_form_data(self, form_data=None):
+        if not form_data:
+            form_data = {'wmslayer_set-TOTAL_FORMS': ['3'],
+                         'wmslayer_set-INITIAL_FORMS': ['0'],
+                         'wmsresourceincasestudy_set-TOTAL_FORMS': ['3'],
+                         'wmsresourceincasestudy_set-INITIAL_FORMS': ['0']}
         self.add_data.update(form_data)
 
 
