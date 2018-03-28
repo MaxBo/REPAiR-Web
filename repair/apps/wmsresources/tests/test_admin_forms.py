@@ -9,21 +9,22 @@ from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from repair.apps.login.factories import CaseStudyFactory
 from repair.apps.wmsresources.factories import WMSResourceFactory
 from wms_client.admin import WMSForm
+from repair.tests.test import AdminAreaTest
 
-class WMSResourceAdminTest(TestCase):
+class WMSResourceAdminTest(AdminAreaTest, TestCase):
     """
     Test the admin area of WMSResources.
     """
     app = 'wms_client'
     model = 'wmsresource'
 
-    #@classmethod
-    #def setUpClass(cls):
-        #super().setUpClass()
-        #wmsresource = WMSResourceFactory()
-        #casestudy = CaseStudyFactory()
-        #cls.add_data = dict(name = 'WMSResource30000',
-                            #uri = 'https://www.wms.nrw.de/gd/bohrungen')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        wmsresource = WMSResourceFactory()
+        casestudy = CaseStudyFactory()
+        cls.add_data = dict(name = 'WMSResource30000',
+                            uri = 'https://www.wms.nrw.de/gd/bohrungen')
 
     def test_form(self):
         add_data = dict(name = 'WMSResource300sff00',

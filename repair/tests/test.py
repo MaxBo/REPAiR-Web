@@ -298,9 +298,37 @@ class AdminAreaTest:
         """
         change_url = reverse('admin:{}_{}_add'.format(self.app, self.model))
         keyflow = KeyflowInCasestudyFactory()
+        form_data = self.get_formset(change_url)
         data = self.add_data
-        response = self.admin_client.post(change_url, data)
+        form_data.update(data)
+        response = self.admin_client.post(change_url, form_data)
         return response
+
+    def get_formset(self, url):
+        """
+        Get the formset
+        """
+        response = self.admin_client.get(url)
+        # data will receive all the forms field names
+        # key will be the field name (as "formx-fieldname"), value will be the string representation.
+        data = {}
+
+        # global information, some additional fields may go there
+        data['csrf_token'] = response.context['csrf_token']
+        # management form information, needed because of the formset
+        management_form = response.context['adminform'].management_form
+        for i in 'TOTAL_FORMS', 'INITIAL_FORMS', 'MIN_NUM_FORMS', 'MAX_NUM_FORMS':
+            data['%s-%s' % (management_form.prefix, i)] = management_form[i].value()
+
+        for i in range(response.context['adminform'].total_form_count()):
+            # get form index 'i'
+            current_form = response.context['adminform'].forms[i]
+
+            # retrieve all the fields
+            for field_name in current_form.fields:
+                value = current_form[field_name].value()
+                data['%s-%s' % (current_form.prefix, field_name)] = value if value is not None else ''
+        return data
 
     def test_admin_add(self):
         """
