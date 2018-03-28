@@ -11,7 +11,7 @@ from repair.apps.asmfa.factories import (ActivityFactory,
 
 
 
-class ActivitygroupNaceCodeTest(AdminAreaTest, LoginTestCase, APITestCase):
+class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
 
     casestudy = 17
     activitygroup = 90

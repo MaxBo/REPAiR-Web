@@ -12,6 +12,7 @@ from django.contrib.auth.models import Permission
 from repair.apps.login.models import User
 from django.test import Client
 from django.test.client import Client as FormClient
+from wms_client.models import WMSResource
 
 
 class CompareAbsURIMixin:
@@ -265,6 +266,10 @@ class AdminAreaTest:
     app = 'modelname'
     model = 'modelname'
     add_data = {}
+    form_class = None
+    model_class = None
+    check_feature = None
+    incomplete_data = None
 
     @classmethod
     def setUpClass(cls):
@@ -298,51 +303,37 @@ class AdminAreaTest:
         """
         change_url = reverse('admin:{}_{}_add'.format(self.app, self.model))
         keyflow = KeyflowInCasestudyFactory()
-        form_data = self.get_formset(change_url)
-        data = self.add_data
-        form_data.update(data)
-        response = self.admin_client.post(change_url, form_data)
+        self.add_management_form_data()
+        response = self.admin_client.post(change_url, self.add_data)
         return response
 
-    def get_formset(self, url):
-        """
-        Get the formset
-        """
-        response = self.admin_client.get(url)
-        # data will receive all the forms field names
-        # key will be the field name (as "formx-fieldname"), value will be the string representation.
-        data = {}
+    def add_management_form_data(self):
+        form_data = {'wmslayer_set-TOTAL_FORMS': ['3'],
+                     'wmslayer_set-INITIAL_FORMS': ['0'],
+                     'wmsresourceincasestudy_set-TOTAL_FORMS': ['3'],
+                     'wmsresourceincasestudy_set-INITIAL_FORMS': ['0']}
+        self.add_data.update(form_data)
 
-        # global information, some additional fields may go there
-        data['csrf_token'] = response.context['csrf_token']
-        # management form information, needed because of the formset
-        management_form = response.context['adminform'].management_form
-        for i in 'TOTAL_FORMS', 'INITIAL_FORMS', 'MIN_NUM_FORMS', 'MAX_NUM_FORMS':
-            data['%s-%s' % (management_form.prefix, i)] = management_form[i].value()
-
-        for i in range(response.context['adminform'].total_form_count()):
-            # get form index 'i'
-            current_form = response.context['adminform'].forms[i]
-
-            # retrieve all the fields
-            for field_name in current_form.fields:
-                value = current_form[field_name].value()
-                data['%s-%s' % (current_form.prefix, field_name)] = value if value is not None else ''
-        return data
 
     def test_admin_add(self):
         """
         Test if User with admin rights can create a model.
         """
+        old_objects = self.model_class.objects.all().count()
         response = self.as_admin(self.admin_add)
-        self.response_200(response)
-
-    def test_admin_add_permission(self):
-        """
-        Test if user without admin rights is redirected when trying to add.
-        """
-        response = self.admin_add()
-        self.response_302(response)
+        new_objects = self.model_class.objects.all().count()
+        # test if one more object exsists
+        assert new_objects - old_objects == 1
+        # check if the feature is present (for example name)
+        if self.check_feature:
+            assert self.model_class.objects.filter(
+                name=self.add_data[self.check_feature][0]).exists()
+        # test if an object is created although the data is incomplete
+        if self.incomplete_data:
+            old_objects = self.model_class.objects.all().count()
+            response = self.as_admin(self.admin_add)
+            new_objects = self.model_class.objects.all().count()
+            assert new_objects - old_objects == 0
 
     def admin_read(self):
         """
@@ -359,14 +350,6 @@ class AdminAreaTest:
         """
         response = self.as_admin(self.admin_read)
         self.assertIs(response.status_code, 200)
-
-    def test_admin_read_permission(self):
-        """
-        Test if user without admin rights is redirected when trying to
-        readlist.
-        """
-        response = self.admin_read()
-        self.response_302(response)
 
     #def admin_delete(self):
         #"""
