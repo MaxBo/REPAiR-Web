@@ -58,15 +58,19 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
             this.el.innerHTML = template({ keyflows: this.keyflows });
+            var deferreds = [];
             this.categories.forEach(function(category){
                 category.solutions = new Solutions([], { 
                     caseStudyId: _this.caseStudy.id, 
                     solutionCategoryId: category.id
                 })
-                category.solutions.fetch({
-                    success: function(){ _this.renderCategory(category); },
-                    error: _this.onError
-                })
+                deferreds.push(category.solutions.fetch());
+            });
+            // fetch all before rendering to keep the order
+            $.when.apply($, deferreds).then(function(){
+                _this.categories.forEach(function(category){
+                    _this.renderCategory(category);
+                });
             });
             $('#solution-modal').on('shown.bs.modal', function () {
                 _this.map.map.updateSize();
@@ -88,8 +92,7 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             // create the panel (ToDo: use template for panels instead?)
             var div = document.createElement('div'),
                 panel = document.createElement('div');
-            div.classList.add('col-md-3', 'bordered');
-            div.style.margin = '5px';
+            div.classList.add('item-panel', 'bordered');
             var label = document.createElement('label'),
                 button = document.createElement('button');
             label.innerHTML = category.get('name');
