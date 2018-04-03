@@ -21,10 +21,12 @@
       <h4 class="modal-title"><%= category %>: <%= name %></h4>
     </div>
     <div class="modal-body">
-      <div class="row">
-        {% trans "Name" %}
-        <input value="<%= name %>" style="width: 100%;">
-      </div>
+      <% if (mode == 1) { %>
+        <div class="row">
+          {% trans "Name" %}
+          <input value="<%= name %>" style="width: 100%;">
+        </div>
+      <% } %>
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
@@ -36,19 +38,25 @@
             <div class="col-md-6 bordered">
               <div class="row">
                 <h4>{% trans "Current state" %}</h4>
-                <input type="file">
+                <% if (mode == 1) { %>
+                  <input type="file">
+                <% } %>
               </div>
               <div class="row">
                 <img src='/static/img/example-ce-diagram.png' style="width: 100%">
+                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
               </div>
             </div>
             <div class="col-md-6 bordered">
               <div class="row">
                 <h4>{% trans "Effect of Solution" %}</h4>
-                <input type="file">
+                <% if (mode == 1) { %>
+                  <input type="file">
+                <% } %>
               </div>
               <div class="row">
                 <img src='/static/img/example-ce-diagram.png' style="width: 100%">
+                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
               </div>
             </div>
           </div>
@@ -56,10 +64,13 @@
             <div class="col-md-12 bordered">
               <div class="row">
                 <h4>{% trans "Activities involved" %}</h4>
-                <input type="file">
+                <% if (mode == 1) { %>
+                  <input type="file">
+                <% } %>
               </div>
               <div class="row">
                 <img src='/static/img/example-activities.png' style="width: 100%">
+                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
               </div>
             </div>
           </div>
@@ -71,7 +82,9 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+      <% if (mode == 1) { %>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+      <% } %>
       <button class="btn btn-primary" id="confirm-datasource" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
     </div>
   </div>

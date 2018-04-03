@@ -1,13 +1,13 @@
-define(['backbone', 'underscore', 'visualizations/map', 'bootstrap'],
+define(['views/baseview', 'underscore', 'visualizations/map', 'bootstrap'],
 
-function(Backbone, _, Map){
+function(BaseView, _, Map){
     /**
     *
     * @author Christoph Franke
     * @name module:views/SolutionsView
-    * @augments Backbone.View
+    * @augments BaseView
     */
-    var SolutionsView = Backbone.View.extend(
+    var SolutionsView = BaseView.extend(
         /** @lends module:views/SolutionsView.prototype */
         {
 
@@ -23,8 +23,8 @@ function(Backbone, _, Map){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            SolutionsView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -45,6 +45,7 @@ function(Backbone, _, Map){
         * dom events (managed by jquery)
         */
         events: {
+            'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
         },
 
         /*
@@ -111,9 +112,10 @@ function(Backbone, _, Map){
                 panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: item });
                 panel.appendChild(panelItem);
-                var button = panelItem.querySelector('.edit');
+                // in workshop mode show solution on click on panel, else on click on edit
+                var button = (_this.mode == 0) ? panelItem: panelItem.querySelector('.edit');
                 button.addEventListener('click', function(){
-                    _this.showSolution(item, category.name)
+                    _this.showSolution(item, category.name);
                 })
             })
         },
@@ -122,7 +124,7 @@ function(Backbone, _, Map){
             var html = document.getElementById('view-solution-template').innerHTML,
                 template = _.template(html);
             var modal = this.el.querySelector('#solution-modal');
-            modal.innerHTML = template({ name: solution, category: category });
+            modal.innerHTML = template({ name: solution, category: category, mode: this.mode });
             this.renderMap('stakeholder-map');
             $(modal).modal('show');
         },
@@ -153,16 +155,10 @@ function(Backbone, _, Map){
                 this.map.centerOnPolygon(poly, { projection: this.projection });
             };
         },
-
-        /*
-        * remove this view from the DOM
-        */
-        close: function(){
-            this.undelegateEvents(); // remove click events
-            this.unbind(); // Unbind all local event bindings
-            this.el.innerHTML = ''; //empty the DOM element
-        },
-
+    
+        toggleFullscreen: function(event){
+            event.target.parentElement.classList.toggle('fullscreen');
+        }
     });
     return SolutionsView;
 }
