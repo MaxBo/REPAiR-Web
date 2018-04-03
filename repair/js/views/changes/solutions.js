@@ -71,19 +71,19 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
                 _this.categories.forEach(function(category){
                     _this.renderCategory(category);
                 });
+            
+                // lazy way to render workshop mode: just hide all buttons for editing
+                // you may make separate views as well
+                if (_this.mode == 0){
+                    var btns = _this.el.querySelectorAll('button.add, button.edit, button.remove');
+                    _.each(btns, function(button){
+                        button.style.display = 'none';
+                    });
+                }
             });
             $('#solution-modal').on('shown.bs.modal', function () {
                 _this.map.map.updateSize();
             });
-            
-            // lazy way to render workshop mode: just hide all buttons for editing
-            // you may make separate views as well
-            if (this.mode == 0){
-                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
-                _.each(btns, function(button){
-                    button.style.display = 'none';
-                });
-            }
         },
 
         renderCategory: function(category){
@@ -94,13 +94,31 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
                 panel = document.createElement('div');
             div.classList.add('item-panel', 'bordered');
             var label = document.createElement('label'),
-                button = document.createElement('button');
+                button = document.createElement('button'),
+                removeBtn = document.createElement('button');
             label.innerHTML = category.get('name');
+            label.style.marginRight = '10px';
+            
+            removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+            var span = document.createElement('span');
+            removeBtn.title = gettext('Remove category')
+            span.classList.add('glyphicon', 'glyphicon-minus');
+            removeBtn.appendChild(span);
+            removeBtn.addEventListener('click', function(){
+                var message = gettext('Do you really want to delete the category and all its solutions?');
+                _this.confirm({ message: message, onConfirm: function(){
+                    category.destroy({
+                        success: function() { panelList.removeChild(div); },
+                        error: _this.onError
+                    })
+                }});
+            })
             
             button.classList.add("btn", "btn-primary", "square", "add");
-            var span = document.createElement('span');
+            span = document.createElement('span');
             span.classList.add('glyphicon', 'glyphicon-plus');
             button.innerHTML = gettext('Solution');
+            button.title = gettext('Add solution to category');
             button.insertBefore(span, button.firstChild);
             button.addEventListener('click', function(){
                 _this.addSolution(panel, category);
@@ -108,13 +126,15 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             
             panelList.appendChild(div);
             div.appendChild(label);
+            div.appendChild(removeBtn);
             div.appendChild(panel);
             div.appendChild(button);
             // add the items
-            if (category.solutions)
+            if (category.solutions){
                 category.solutions.forEach(function(solution){
                     _this.addSolutionItem(panel, solution);
                 });
+            }
         },
         
         addSolutionItem: function(panel, solution){
@@ -127,7 +147,8 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             panelItem.innerHTML = template({ name: solution.get('name') });
             panel.appendChild(panelItem);
             // in workshop mode show solution on click on panel, else on click on edit
-            var button = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit');
+            var editBtn = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit'),
+                removeBtn = panelItem.querySelector('.remove');
             function onConfirm(callback){
                 solution.save(null, {
                     success: function(){
@@ -136,8 +157,17 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
                     error: function(model, response) { _this.onError(response) }
                 })
             }
-            button.addEventListener('click', function(){
+            editBtn.addEventListener('click', function(){
                 _this.showSolution(solution, onConfirm);
+            })
+            removeBtn.addEventListener('click', function(){
+                var message = gettext('Do you really want to delete the solution?');
+                _this.confirm({ message: message, onConfirm: function(){
+                    solution.destroy({
+                        success: function() { panel.removeChild(panelItem); },
+                        error: _this.onError
+                    })
+                }});
             })
         },
         
@@ -157,23 +187,27 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
                 mode: this.mode 
             });
             this.renderMap('stakeholder-map');
-            var okBtn = modal.querySelector('.confirm'),
-                nameInput = modal.querySelector('input[name="name"]'),
-                unitInput = modal.querySelector('input[name="unit"]'),
-                descriptionArea = modal.querySelector('textarea[name="description"]');
+            var okBtn = modal.querySelector('.confirm');
             
-            nameInput.addEventListener('change', function(){
-                solution.set('name', this.value);
-            })
-            descriptionArea.addEventListener('change', function(){
-                solution.set('description', this.value);
-            })
-            unitInput.addEventListener('change', function(){
-                solution.set('one_unit_equals', this.value);
-            })
-            okBtn.addEventListener('click', function(){
-                onConfirm(function(){ $(modal).modal('hide') });
-            });
+            if (this.mode == 1){
+                var nameInput = modal.querySelector('input[name="name"]'),
+                    unitInput = modal.querySelector('input[name="unit"]'),
+                    descriptionArea = modal.querySelector('textarea[name="description"]')
+                
+                nameInput.addEventListener('change', function(){
+                    solution.set('name', this.value);
+                })
+                descriptionArea.addEventListener('change', function(){
+                    solution.set('description', this.value);
+                })
+                unitInput.addEventListener('change', function(){
+                    solution.set('one_unit_equals', this.value);
+                })
+                okBtn.addEventListener('click', function(){
+                    onConfirm(function(){ $(modal).modal('hide') });
+                });
+            }
+            else okBtn.addEventListener('click', function(){ $(modal).modal('hide') });
             $(modal).modal('show');
         },
         
@@ -215,12 +249,16 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
                             solutionCategoryId: category.id
                         })
                         _this.categories.add(category);
-                        _this.renderCategory();
+                        _this.renderCategory(category);
                     },
                     error: function(model, response) { _this.onError(response) }
                 })
             }
             _this.getName({ onConfirm: onConfirm });
+        },
+        
+        removeCategory: function(){
+            
         },
         
         addSolution: function(panel, category){
