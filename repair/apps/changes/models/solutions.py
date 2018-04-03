@@ -26,10 +26,13 @@ class Solution(GDSEUniqueNameModel):
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()
-    currentstate_image = models.ImageField(upload_to='charts', null=True)
-    effect_image = models.ImageField(upload_to='charts', null=True)
+    currentstate_image = models.ImageField(upload_to='charts', null=True,
+                                           blank=True)
+    effect_image = models.ImageField(upload_to='charts', null=True,
+                                     blank=True)
     activities = models.ManyToManyField(Activity)
-    activities_image = models.ImageField(upload_to='charts', null=True)
+    activities_image = models.ImageField(upload_to='charts', null=True,
+                                         blank=True)
 
     @property
     def casestudy(self):

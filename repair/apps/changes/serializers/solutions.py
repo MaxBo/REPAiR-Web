@@ -13,7 +13,8 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            UserInCasestudyField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
-                                           CreateWithUserInCasestudyMixin)
+                                           CreateWithUserInCasestudyMixin,
+                                           IDRelatedField)
 
 
 class UnitSerializer(serializers.HyperlinkedModelSerializer):
@@ -76,7 +77,7 @@ class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
         read_only=True,
     )
     user = UserInCasestudyField(
-        view_name='userincasestudy-detail',
+        view_name='userincasestudy-detail', read_only=True
     )
 
     class Meta:
@@ -144,20 +145,24 @@ class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
         fields = ('url', 'id', 'name', 'value', 'unit', 'solution')
 
 
-class SolutionSerializer(NestedHyperlinkedModelSerializer):
+class SolutionSerializer(CreateWithUserInCasestudyMixin,
+                         NestedHyperlinkedModelSerializer):
 
     parent_lookup_kwargs = {
         'casestudy_pk': 'user__casestudy__id',
         'solutioncategory_pk': 'solution_category__id',
     }
-    user = UserInCasestudyField(view_name='userincasestudy-detail')
-    solution_category = SolutionCategoryField(
-        view_name='solutioncategory-detail')
+    user = UserInCasestudyField(view_name='userincasestudy-detail',
+                                read_only=True)
+    solution_category = IDRelatedField()
     solutionquantity_set = SolutionDetailListField(
         view_name='solutionquantity-list')
     solutionratiooneunit_set = SolutionDetailListField(
         view_name='solutionratiooneunit-list')
     activities = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Activity.objects.all())
+    currentstate_image = serializers.ImageField(required=False)
+    activities_image = serializers.ImageField(required=False)
+    effect_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Solution
