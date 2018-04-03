@@ -6,6 +6,7 @@ from repair.apps.changes.models import (Unit,
                                         Solution,
                                         SolutionQuantity,
                                         SolutionRatioOneUnit,
+                                        Activity
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -143,8 +144,7 @@ class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
         fields = ('url', 'id', 'name', 'value', 'unit', 'solution')
 
 
-class SolutionSerializer(CreateWithUserInCasestudyMixin,
-                         NestedHyperlinkedModelSerializer):
+class SolutionSerializer(NestedHyperlinkedModelSerializer):
 
     parent_lookup_kwargs = {
         'casestudy_pk': 'user__casestudy__id',
@@ -157,6 +157,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         view_name='solutionquantity-list')
     solutionratiooneunit_set = SolutionDetailListField(
         view_name='solutionratiooneunit-list')
+    activities = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Activity.objects.all())
 
     class Meta:
         model = Solution
