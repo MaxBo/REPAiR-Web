@@ -160,9 +160,9 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     solutionratiooneunit_set = SolutionDetailListField(
         view_name='solutionratiooneunit-list')
     activities = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Activity.objects.all())
-    currentstate_image = serializers.ImageField(required=False)
-    activities_image = serializers.ImageField(required=False)
-    effect_image = serializers.ImageField(required=False)
+    currentstate_image = serializers.ImageField(required=False, allow_null=True)
+    activities_image = serializers.ImageField(required=False, allow_null=True)
+    effect_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Solution

@@ -103,6 +103,7 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             button.innerHTML = gettext('Solution');
             button.insertBefore(span, button.firstChild);
             button.addEventListener('click', function(){
+                _this.addSolution(panel, category);
             })
             
             panelList.appendChild(div);
@@ -113,7 +114,7 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             if (category.solutions)
                 category.solutions.forEach(function(solution){
                     _this.addSolutionItem(panel, solution);
-                })
+                });
         },
         
         addSolutionItem: function(panel, solution){
@@ -127,22 +128,52 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             panel.appendChild(panelItem);
             // in workshop mode show solution on click on panel, else on click on edit
             var button = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit');
+            function onConfirm(callback){
+                solution.save(null, {
+                    success: function(){
+                        callback();
+                    },
+                    error: function(model, response) { _this.onError(response) }
+                })
+            }
             button.addEventListener('click', function(){
-                _this.showSolution(solution);
+                _this.showSolution(solution, onConfirm);
             })
         },
         
-        showSolution: function(solution){
+        showSolution: function(solution, onConfirm){
             var category = this.categories.get(solution.get('solution_category'));
             var html = document.getElementById('view-solution-template').innerHTML,
                 template = _.template(html);
             var modal = this.el.querySelector('#solution-modal');
             modal.innerHTML = template({ 
-                name: solution.get('name'), 
+                name: solution.get('name'),
+                description: solution.get('description'),
+                unit: solution.get('one_unit_equals'),
+                effectSrc: solution.get('effect_image'),
+                stateSrc: solution.get('currentstate_image'),
+                activitiesSrc: solution.get('activities_image'),
                 category: category.get('name'), 
                 mode: this.mode 
             });
             this.renderMap('stakeholder-map');
+            var okBtn = modal.querySelector('.confirm'),
+                nameInput = modal.querySelector('input[name="name"]'),
+                unitInput = modal.querySelector('input[name="unit"]'),
+                descriptionArea = modal.querySelector('textarea[name="description"]');
+            
+            nameInput.addEventListener('change', function(){
+                solution.set('name', this.value);
+            })
+            descriptionArea.addEventListener('change', function(){
+                solution.set('description', this.value);
+            })
+            unitInput.addEventListener('change', function(){
+                solution.set('one_unit_equals', this.value);
+            })
+            okBtn.addEventListener('click', function(){
+                onConfirm(function(){ $(modal).modal('hide') });
+            });
             $(modal).modal('show');
         },
         
@@ -178,11 +209,38 @@ function(BaseView, _, SolutionCategories, Solutions, Map){
             function onConfirm(name){
                 var category = new _this.categories.model({ name: name }, { caseStudyId: _this.caseStudy.id });
                 category.save(null, {
-                    success: _this.renderCategory,
+                    success: function(){
+                        category.solutions = new Solutions([], { 
+                            caseStudyId: _this.caseStudy.id, 
+                            solutionCategoryId: category.id
+                        })
+                        _this.categories.add(category);
+                        _this.renderCategory();
+                    },
                     error: function(model, response) { _this.onError(response) }
                 })
             }
             _this.getName({ onConfirm: onConfirm });
+        },
+        
+        addSolution: function(panel, category){
+            var _this = this;
+            var solutions = category.solutions,
+                solution = new solutions.model(
+                    { name: name, solution_category: category.id }, 
+                    { caseStudyId: _this.caseStudy.id, solutionCategoryId: category.id }
+                );
+            function onConfirm(callback){
+                solution.save(null, {
+                    success: function(){
+                        solutions.add(solution);
+                        _this.addSolutionItem(panel, solution);
+                        callback();
+                    },
+                    error: function(model, response) { _this.onError(response) }
+                })
+            }
+            _this.showSolution(solution, onConfirm);
         },
     
         toggleFullscreen: function(event){
