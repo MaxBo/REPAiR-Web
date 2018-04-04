@@ -19,6 +19,11 @@ var SetupMapsView = BaseMapView.extend(
     categoryExpanded: true,
     selectedBackColor: '#aad400',
     selectedColor: 'white',
+    
+    initialize: function(options){
+        SetupMapsView.__super__.initialize.apply(this, [options]);
+        _.bindAll(this, 'confirmRemoval');
+    }, 
 
     initTree: function(){
         var _this = this;
@@ -67,7 +72,6 @@ var SetupMapsView = BaseMapView.extend(
         'click #add-layer-modal .confirm': 'confirmLayer',
         'click #remove-layer-button': 'removeLayer',
         'click #edit-layer-button': 'editName',
-        'click #remove-confirmation-modal .confirm': 'confirmRemoval',
         'click #refresh-wms-services-button': 'renderAvailableServices',
         'click #move-layer-up-button': 'moveLayerUp',
         'click #move-layer-down-button': 'moveLayerDown'
@@ -82,9 +86,6 @@ var SetupMapsView = BaseMapView.extend(
         this.buttonBox = document.getElementById('layer-tree-buttons');
         this.zInput = document.getElementById('layer-z-index');
         
-        html = document.getElementById('empty-modal-template').innerHTML;
-        this.confirmationModal = document.getElementById('remove-confirmation-modal');
-        this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
         this.layerModal = document.getElementById('add-layer-modal');
 
         this.renderMap();
@@ -137,6 +138,7 @@ var SetupMapsView = BaseMapView.extend(
     * event for selecting a node in the layer tree
     */
     nodeSelected: function(event, node){
+        // unselect previous node (caused by onNodeUnselected)
         if (this.selectedNode)
             $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
         var addBtn = document.getElementById('add-layer-button'),
@@ -301,8 +303,7 @@ var SetupMapsView = BaseMapView.extend(
         var model = this.selectedNode.layer || this.selectedNode.category,
             message = (this.selectedNode.layer) ? gettext('Do you really want to delete the selected layer?') :
                       gettext('Do you really want to delete the selected category?');
-        this.confirmationModal.querySelector('.modal-body').innerHTML = message; 
-        $(this.confirmationModal).modal('show'); 
+        this.confirm({ message: message, onConfirm: this.confirmRemoval });
     },
     
     confirmRemoval: function(){

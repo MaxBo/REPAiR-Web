@@ -33,7 +33,8 @@ class StakeholderSerializer(NestedHyperlinkedModelSerializer):
         'stakeholdercategory_pk': 'stakeholder_category__id',
     }
     stakeholder_category = StakeholderCategoryField(
-        view_name='stakeholdercategory-detail'
+        view_name='stakeholdercategory-detail',
+        read_only=True
     )
 
     class Meta:

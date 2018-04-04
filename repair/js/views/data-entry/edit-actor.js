@@ -53,6 +53,8 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
       this.areaLevels = options.areaLevels;
       this.reasons = options.reasons;
       
+      this.hasChangedVal = false;
+      
       this.layers = {
         operational: {
           pin: '/static/img/simpleicon-places/svg/map-marker-red.svg',
@@ -116,7 +118,9 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
       'click #upload-actor-button': 'uploadChanges',
       'click #confirm-location': 'locationConfirmed',
       'click #add-operational-button,  #add-administrative-button': 'createLocationEvent',
-      'change #included-check': 'toggleIncluded'
+      'change #included-check': 'toggleIncluded',
+      'change input': 'triggerChange',
+      'change select': 'triggerChange'
     },
 
     /*
@@ -138,6 +142,14 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
       this.initMap();
       this.renderLocations(true);
       this.setupAreaInput();
+    },
+    
+    triggerChange: function(){
+      this.hasChangedVal = true;
+    },
+    
+    hasChanged: function(){
+      return this.hasChangedVal;
     },
 
     /* 
@@ -304,6 +316,7 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
           onDrag: function(coords){
             loc.get('geometry').set("coordinates", coords);
             coordDiv.innerHTML = '(' + utils.formatCoords(coords) + ')';
+            _this.triggerChange();
           },
           layername: layername
         });
@@ -627,11 +640,13 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
         addMarker(center);
         _this.localMap.centerOnPoint(center, {projection: _this.projection});
         setPointButtons('remove');
+        _this.triggerChange();
       });
       removePointBtn.addEventListener('click', function(){
         _this.localMap.clearLayer(_this.activeType, { types: ['Point'] });
         _this.localMap.removeInteractions();
         removeMarkerCallback();
+        _this.triggerChange();
       });
       
       // initially set marker depending on existing geometry
