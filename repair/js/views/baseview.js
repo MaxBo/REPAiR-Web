@@ -166,12 +166,12 @@ var BaseView = Backbone.View.extend(
     * @param {String=} header     headline displayed on top of error message
     */
     onError: function(response, header){
-        var message = response.responseText;
-        message = message ? '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>': 
-                  gettext('Server does not respond.');
+        message = response.statusText + '<br><br>';
+        if (response.responseText)
+            message += '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>';
         if (header)
             message = '<h4>' + header + '</h4><br>' + message;
-        this.alert(message, gettext('Error'));
+        this.alert(message, gettext('Error <b>' + response.status + '</b>'));
     },
     
     
