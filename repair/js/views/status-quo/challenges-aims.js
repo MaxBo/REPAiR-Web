@@ -1,6 +1,7 @@
-define(['backbone', 'underscore'],
+define(['backbone', 'underscore', 'models/challenge', 'collections/challenges',
+'models/aim', 'collections/aims'],
 
-function(Backbone, _,){
+function(Backbone, _, Challenge, Challenges, Aim, Aims){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -28,16 +29,45 @@ function(Backbone, _,){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            var caseStudyId = this.caseStudy.id;
             this.mode = options.mode || 0;
 
-            this.challenges = [
-                'Recycling rate too low',
-                'Missing facilities for treatment'
-            ]
-            this.aims = [
-                'Higher Recycling rate',
-                'Less non recyclable garbage'
-            ]
+            // this.challenges = [
+            //     'Recycling rate too low',
+            //     'Missing facilities for treatment'
+            // ]
+            this.challenges = new Challenges([], {
+                caseStudyId: caseStudyId
+            });
+            this.aims = new Aims([], {
+                caseStudyId: caseStudyId
+            });
+
+            this.challenges.fetch({
+                success: function(challenges){
+                    challenges.forEach(function(challenge){
+                        console.log(challenge);
+                        var text = challenge.get('text');
+                        console.log(text);
+                    });
+                },
+                error: function(){
+                    console.error("cannot fetch challenges");
+                }
+            })
+            this.aims.fetch({
+                success: function(aims){
+                    aims.forEach(function(aim){
+                        console.log(aim);
+                        var text = aim.get('text');
+                        console.log(text);
+                    });
+                },
+                error: function(){
+                    console.error("cannot fetch aims");
+                }
+            })
+
             this.render();
         },
 
