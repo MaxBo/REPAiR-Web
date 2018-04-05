@@ -10,10 +10,12 @@ from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer,
     ActivitySerializer,
     ActorSerializer,
-    AllActivitySerializer,
-    AllActorSerializer,
-    AllActorListSerializer,
+    ActivityListSerializer,
+    ActorListSerializer,
+    ActivityGroupListSerializer
 )
+
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 
 from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
@@ -25,7 +27,8 @@ class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
     change_perm = 'asmfa.change_activitygroup'
     delete_perm = 'asmfa.delete_activitygroup'
     serializer_class = ActivityGroupSerializer
-    queryset = ActivityGroup.objects.all()
+    queryset = ActivityGroup.objects.order_by('id')
+    serializers = {'list': ActivityGroupListSerializer}
 
 
 class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -34,22 +37,17 @@ class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
     change_perm = 'asmfa.change_activity'
     delete_perm = 'asmfa.delete_activity'
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.order_by('id')
+    serializers = {'list': ActivityListSerializer}
 
 
 class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
                    ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_actor'
     change_perm = 'asmfa.change_actor'
     delete_perm = 'asmfa.delete_actor'
     serializer_class = ActorSerializer
-    queryset = Actor.objects.all()
+    queryset = Actor.objects.order_by('id')
+    serializers = {'list': ActorListSerializer}
 
-
-class AllActivityViewSet(ActivityViewSet):
-    serializer_class = AllActivitySerializer
-
-
-class AllActorViewSet(ActorViewSet):
-    serializer_class = AllActorSerializer
-    serializers = {'list': AllActorListSerializer, }

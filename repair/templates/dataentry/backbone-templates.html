@@ -313,25 +313,24 @@
   <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Actors" %}</h3>
   </br>
   <div class="row">
-    {% trans "Filter table" %}
-    <select name="included-filter" id="included-filter-select">
-      <option value="0">{% trans "show all" %}</option>
-      <option value="1">{% trans "show included only" %}</option>
-    </select>
-  </div>
-  <div class="row">
     <div class='col-md-3 bordered' style="margin-right: 20px; resize: horizontal; overflow: auto">
+      <div class="row">
+        {% trans "Activity" %}
+        <select class="form-control" name="activity-filter">
+          <% activities.forEach(function(activity) { %>
+            <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
+          <% });  %>
+        </select>
+      </div>
+      <div class="row">
+        {% trans "Inclusion in Casestudy" %} 
+        <select class="form-control" name="included-filter" id="included-filter-select">
+          <option value="0">{% trans "show all" %}</option>
+          <option value="1">{% trans "show included only" %}</option>
+        </select>
+      </div>
       <div class="row" style="overflow-x:auto;">
-        <table id='actors-table' class='tablesorter'>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Activity" %}</th>
-            </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
-        </table>
+        <div id='actors-table'></div>
       </div>
       <div class="row">
         <button id='add-actor-button' class="btn btn-primary" title="{% trans "add new actor" %}">
@@ -368,6 +367,20 @@
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
   <div id="actor-name-modal"> </div>
+</script>
+
+<!-- actors table -->
+<script type="text/template" id="actor-table-template">
+  <table class='tablesorter'>
+    <thead>
+      <tr>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Activity" %}</th>
+      </tr>
+    </thead> 
+    <tbody> 
+    </tbody> 
+  </table>
 </script>
 
 <!-- edit actor -->

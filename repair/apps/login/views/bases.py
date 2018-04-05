@@ -26,6 +26,7 @@ class CasestudyReadOnlyViewSetMixin(ABC):
     additional_filters = {}
     serializer_class = None
     serializers = {}
+    pagination_class = None
 
     def get_serializer_class(self):
         return self.serializers.get(self.action,
@@ -63,10 +64,17 @@ class CasestudyReadOnlyViewSetMixin(ABC):
                                 SerializerClass=SerializerClass)
         if queryset is None:
             return Response(status=400)
+        if self.pagination_class:
+            paginator = self.pagination_class()
+            queryset = paginator.paginate_queryset(queryset, request)
+            
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
+            
         data = self.filter_fields(serializer, request)
-        return Response(serializer.data)
+        if self.pagination_class:
+            return paginator.get_paginated_response(data)
+        return Response(data)
 
     def retrieve(self, request, **kwargs):
         """

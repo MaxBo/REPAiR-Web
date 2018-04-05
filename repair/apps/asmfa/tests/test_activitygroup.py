@@ -3,7 +3,7 @@
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import LoginTestCase
+from repair.tests.test import LoginTestCase, AdminAreaTest
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
