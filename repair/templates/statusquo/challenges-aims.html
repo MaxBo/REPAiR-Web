@@ -7,7 +7,7 @@
   <div id='challenges' class="col-md-12 bordered">
     <div class='item-panel'>
     </div>
-    <button class="btn btn-primary square add" title="{% trans "add challenge" %}">
+    <button id="add-challenge-button" class="btn btn-primary square add" title="{% trans "add challenge" %}">
       <span class="glyphicon glyphicon-plus"></span> {% trans "Challenge" %}
     </button>
   </div>
@@ -17,11 +17,12 @@
   <div id='aims' class="col-md-12 bordered">
     <div class='item-panel'>
     </div>
-    <button class="btn btn-primary square add" title="{% trans "add aim" %}">
+    <button id="add-aim-button" class="btn btn-primary square add" title="{% trans "add aim" %}">
       <span class="glyphicon glyphicon-plus"></span> {% trans "Aim" %}
     </button>
   </div>
 </div>
+<div id="remove-ch-aim-confirmation-modal" class="modal fade" role="dialog"></div>
 </script>
 
 {% endblock %}

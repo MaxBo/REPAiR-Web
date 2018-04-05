@@ -3,7 +3,7 @@ define(['backbone', 'underscore'],
 function(Backbone, _,){
     /**
     *
-    * @author Christoph Franke
+    * @author Christoph Franke, Balázs Dukai
     * @name module:views/ChallengesAimsView
     * @augments Backbone.View
     */
@@ -45,6 +45,8 @@ function(Backbone, _,){
         * dom events (managed by jquery)
         */
         events: {
+            'click #add-challenge-button': 'addChallenge',
+            'click #add-aim-button': 'addAim'
         },
 
         /*
@@ -60,7 +62,7 @@ function(Backbone, _,){
                 aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
             this.renderPanel(challengesPanel, this.challenges);
             this.renderPanel(aimsPanel, this.aims);
-            
+
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (this.mode == 0){
@@ -72,14 +74,42 @@ function(Backbone, _,){
         },
 
         renderPanel(panel, items){
+            var _this = this;
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
             items.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
                 panelItem.innerHTML = template({ name: item });
+                var button_edit = panelItem.getElementsByClassName(
+                    "btn btn-primary square edit inverted").item(0);
+                var button_remove = panelItem.getElementsByClassName(
+                    "btn btn-warning square remove").item(0);
+                button_edit.addEventListener('click', function(){
+                    _this.editPanelItem(item, items);
+                });
+                button_remove.addEventListener('click', function(){
+                    _this.removePanelItem(item, items);
+                });
                 panel.appendChild(panelItem);
             })
+        },
+
+        addChallenge: function(){
+            alert("add challenge");
+        },
+
+        addAim: function(){
+            alert("add aim");
+        },
+
+        editPanelItem: function(item, items){
+            console.log("edit", item);
+            console.log(items);
+        },
+
+        removePanelItem: function(item, items){
+            console.log("remove", item);
         },
 
         /*
