@@ -38,7 +38,7 @@ var ActorsView = BaseView.extend(
         this.actors = new Actors([], { 
             caseStudyId: caseStudyId, keyflowId: keyflowId,
             state: {
-                pageSize: 10,
+                pageSize: 1000000,
                 firstPage: 1,
                 currentPage: 1
             } 
@@ -48,8 +48,6 @@ var ActorsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.caseStudyId = this.model.get('casestudy');
 
-        this.actorRows = [];
-
         var loader = new Loader(document.getElementById('actors-edit'),
             {disable: true});
 
@@ -58,12 +56,14 @@ var ActorsView = BaseView.extend(
         var Reasons = Backbone.Collection.extend({url: config.api.reasons});
         this.reasons = new Reasons([]);
 
-        $.when(this.activities.fetch(), this.actors.fetch(), 
-            this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
-            _this.areaLevels.sort();
-            loader.remove();
-            _this.render();
-        });
+        $.when(
+            this.activities.fetch(), 
+            this.areaLevels.fetch(), 
+            this.reasons.fetch()).then(function() {
+                _this.areaLevels.sort();
+                loader.remove();
+                _this.render();
+            });
     },
 
     /*
@@ -72,7 +72,8 @@ var ActorsView = BaseView.extend(
     events: {
         'click #remove-actor-button': 'showRemoveModal',
         'click #add-actor-button': 'addActorEvent',
-        'change #included-filter-select': 'changeFilter'
+        'change #included-filter-select': 'changeFilter',
+        'change select[name="activity-filter"]': 'renderActors'
     },
 
     /*
@@ -82,16 +83,34 @@ var ActorsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
-            keyflow: this.model.get('name')});
-
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name'),
+            activities: this.activities
+        });
         this.filterSelect = this.el.querySelector('#included-filter-select');
-        this.table = this.el.querySelector('#actors-table');
 
-        // render inFlows
-        this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-
-        this.setupTable();
+        this.renderActors();
+    },
+    
+    renderActors: function(){
+        var _this = this;
+        var activityId = this.el.querySelector('select[name="activity-filter"]').value;
+        this.actorRows = [];
+        this.actors.fetch({ 
+            data: { activity: activityId },
+            success: function(){
+                _this.clearTable();
+                _this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+                _this.setupTable();
+            }
+        });
+    },
+    
+    clearTable: function(){
+        var el = this.el.querySelector('#actors-table');
+        el.innerHTML = document.getElementById('actor-table-template').innerHTML;
+        this.table = el.querySelector('table');
     },
 
     /* 
