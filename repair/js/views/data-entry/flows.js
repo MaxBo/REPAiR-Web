@@ -42,18 +42,26 @@ var FlowsView = BaseView.extend(
 
         // collections of nodes associated to the casestudy
         this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
+        this.actors = new Actors([], { 
+            caseStudyId: this.caseStudyId, keyflowId: this.keyflowId,
+            state: {
+                pageSize: 10000000,
+                firstPage: 1,
+                currentPage: 1
+            } 
+        });
+        this.activities = new Activities([], { caseStudyId: this.caseStudyId, keyflowId: this.keyflowId });
         this.publications = new Publications([], { caseStudyId: this.caseStudyId });
 
         var loader = new Loader(document.getElementById('flows-edit'),
             {disable: true});
 
-        $.when(this.actors.fetch({data: 'included=True'}, 
+        $.when(
+            this.actors.fetch(), 
             this.activityGroups.fetch(), this.activities.fetch(), 
-            this.publications.fetch())).then(function(){
-        _this.render();
-        loader.remove();
+            this.publications.fetch()).then(function(){
+                _this.render();
+                loader.remove();
         });
     },
 
@@ -178,18 +186,22 @@ var FlowsView = BaseView.extend(
         function renderNode(){
             if (_this.editNodeView != null) _this.editNodeView.close();
             _this.selectedNode = node;
-            // currently selected keyflow
-            _this.editNodeView = new EditNodeView({
-                el: document.getElementById('edit-node'),
-                template: 'edit-node-template',
-                model: model,
-                materials: _this.materials,
-                keyflowId: _this.keyflowId,
-                keyflowName: _this.model.get('name'),
-                caseStudyId: _this.caseStudyId,
-                publications: _this.publications,
-                onUpload: function() { _this.renderDataEntry(node) } // rerender after upload
-            });
+            model.caseStudyId = _this.caseStudy.id;
+            model.keyflowId = _this.keyflowId;
+            model.fetch({ success: function(){
+                // currently selected keyflow
+                _this.editNodeView = new EditNodeView({
+                    el: document.getElementById('edit-node'),
+                    template: 'edit-node-template',
+                    model: model,
+                    materials: _this.materials,
+                    keyflowId: _this.keyflowId,
+                    keyflowName: _this.model.get('name'),
+                    caseStudyId: _this.caseStudyId,
+                    publications: _this.publications,
+                    onUpload: function() { _this.renderDataEntry(node) } // rerender after upload
+                });
+            }})
         }
     
         if (check && this.editNodeView != null && this.editNodeView.hasChanged()){

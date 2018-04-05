@@ -20,31 +20,10 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
 
 
-class ActivitySetField(InCasestudyField):
-    lookup_url_kwarg = 'activitygroup_pk'
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk': 'activitygroup__keyflow__id',
-                            'activitygroup_pk': 'activitygroup__id', }
-
-
-class ActivityListField(IdentityFieldMixin, ActivitySetField):
-    """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'keyflow__casestudy__id',
-                            'keyflow_pk': 'keyflow__id',
-                            'activitygroup_pk': 'id', }
-
-
 class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
                               NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'keyflow__casestudy__id',
                             'keyflow_pk': 'keyflow__id', }
-    activity_list = ActivityListField(
-        source='activity_set',
-        view_name='activity-list')
-    activity_set = ActivitySetField(many=True,
-                                    view_name='activity-detail',
-                                    read_only=True)
     inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
@@ -53,8 +32,13 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = ActivityGroup
-        fields = ('url', 'id', 'code', 'name', 'activity_set', 'activity_list',
+        fields = ('url', 'id', 'code', 'name',
                   'inputs', 'outputs', 'stocks', 'keyflow', 'nace')
+
+
+class ActivityGroupListSerializer(ActivityGroupSerializer):
+    class Meta(ActivityGroupSerializer.Meta):
+        fields = ('id', 'code', 'name')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -65,27 +49,7 @@ class ActivityGroupField(InCasestudyField):
 class ActorField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
-        'keyflow_pk': 'activity__activitygroup__keyflow__id',
-        'activitygroup_pk': 'activity__activitygroup__id',
-        'activity_pk': 'activity__id', }
-
-
-class ActorSetField(InCasestudyField):
-    lookup_url_kwarg = 'activity_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
-        'keyflow_pk': 'activity__activitygroup__keyflow__id',
-        'activitygroup_pk': 'activity__activitygroup__id',
-        'activity_pk': 'activity__id', }
-
-
-class ActorListField(IdentityFieldMixin, ActorSetField):
-    """"""
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk': 'activitygroup__keyflow__id',
-                            'activitygroup_pk': 'activitygroup__id',
-                            'activity_pk': 'id', }
+        'keyflow_pk': 'activity__activitygroup__keyflow__id'}
 
 
 class ActorIDField(serializers.RelatedField):
@@ -114,37 +78,29 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
-        'keyflow_pk': 'activitygroup__keyflow__id',
-        'activitygroup_pk': 'activitygroup__id',
+        'keyflow_pk': 'activitygroup__keyflow__id'
     }
     activitygroup = IDRelatedField()
     activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
                                            source='activitygroup',
                                            read_only=True)
-    actor_list = ActorListField(source='actor_set',
-                                view_name='actor-list')
-    actor_set = ActorSetField(many=True,
-                              view_name='actor-detail',
-                              read_only=True)
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_url', 'actor_set',
-                  'actor_list')
+                  'activitygroup_url')
 
 
-class AllActivitySerializer(ActivitySerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk': 'activitygroup__keyflow__id', }
+class ActivityListSerializer(ActivitySerializer):
+    class Meta(ActivitySerializer.Meta):
+        fields = ('id', 'name', 'activitygroup')
 
 
 class ActivityField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk':
                             'activitygroup__keyflow__casestudy__id',
                             'keyflow_pk': 'activitygroup__keyflow__id',
-                            'activitygroup_pk': 'activitygroup__id', }
+                            }
 
 
 class GeolocationInCasestudyField(InCasestudyField):
@@ -221,8 +177,6 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
     parent_lookup_kwargs = {
         'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
         'keyflow_pk': 'activity__activitygroup__keyflow__id',
-        'activitygroup_pk': 'activity__activitygroup__id',
-        'activity_pk': 'activity__id',
     }
     activity = IDRelatedField()
     activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
@@ -245,18 +199,9 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                   )
 
 
-class AllActorSerializer(ActorSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'activity__activitygroup__keyflow__casestudy__id',
-                            'keyflow_pk':
-                            'activity__activitygroup__keyflow__id', }
-
-
-class AllActorListSerializer(AllActorSerializer):
-    class Meta(AllActorSerializer.Meta):
-        fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
-                  'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'activitygroup', 'included', 'nace', 'reason', )
+class ActorListSerializer(ActorSerializer):
+    class Meta(ActorSerializer.Meta):
+        fields = ('id', 'activity', 'name', 'included')
 
 
 class ReasonSerializer(serializers.ModelSerializer):

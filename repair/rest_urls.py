@@ -43,9 +43,7 @@ from repair.apps.asmfa.views import (
     KeyflowInCasestudyViewSet,
     GroupStockViewSet,
     ActivityStockViewSet,
-    ActorStockViewSet,
-    AllActivityViewSet,
-    AllActorViewSet,
+    ActorStockViewSet, 
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
@@ -167,19 +165,10 @@ kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
-kf_router.register(r'activities', AllActivityViewSet)
-kf_router.register(r'actors', AllActorViewSet)
+kf_router.register(r'activities', ActivityViewSet)
+kf_router.register(r'actors', ActorViewSet)
 kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 kf_router.register(r'operationallocations', OperationalLocationViewSet)
-
-# /casestudies/*/keyflows/*/activitygroups/...
-ag_router = NestedSimpleRouter(kf_router, r'activitygroups',
-                               lookup='activitygroup')
-ag_router.register(r'activities', ActivityViewSet)
-
-# /casestudies/*/keyflows/*/activitygroups/*/activities/...
-ac_router = NestedSimpleRouter(ag_router, r'activities', lookup='activity')
-ac_router.register(r'actors', ActorViewSet)
 
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',
@@ -188,7 +177,6 @@ actors_router.register(r'administrativelocation',
                    AdministrativeLocationOfActorViewSet)
 actors_router.register(r'operationallocations',
                    OperationalLocationsOfActorViewSet)
-
 
 ## webhook ##
 
@@ -199,8 +187,6 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
-    url(r'^', include(ag_router.urls)),
-    url(r'^', include(ac_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(scat_router.urls)),
     url(r'^', include(chart_router.urls)),
