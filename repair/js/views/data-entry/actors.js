@@ -35,7 +35,14 @@ var ActorsView = BaseView.extend(
             caseStudyId = this.model.get('casestudy');
 
         this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-        this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+        this.actors = new Actors([], { 
+            caseStudyId: caseStudyId, keyflowId: keyflowId,
+            state: {
+                pageSize: 10,
+                firstPage: 1,
+                currentPage: 1
+            } 
+        });
         this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
         this.showAll = true;
         this.caseStudy = options.caseStudy;
@@ -53,9 +60,9 @@ var ActorsView = BaseView.extend(
 
         $.when(this.activities.fetch(), this.actors.fetch(), 
             this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
-        _this.areaLevels.sort();
-        loader.remove();
-        _this.render();
+            _this.areaLevels.sort();
+            loader.remove();
+            _this.render();
         });
     },
 
@@ -159,20 +166,24 @@ var ActorsView = BaseView.extend(
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
             selectRow(row);
+            actor.caseStudyId = _this.caseStudy.id;
+            actor.keyflowId = _this.model.id;
             _this.activeActor = actor;
             _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
-            _this.actorView = new EditActorView({
-                el: document.getElementById('edit-actor'),
-                template: 'edit-actor-template',
-                model: actor,
-                activities: _this.activities,
-                keyflow: _this.model,
-                onUpload: function(a) { setRowValues(a); showActor(a); },
-                focusarea: _this.caseStudy.get('properties').focusarea,
-                areaLevels: _this.areaLevels,
-                reasons: _this.reasons
-            });
+            actor.fetch({ success: function(){
+                _this.actorView = new EditActorView({
+                    el: document.getElementById('edit-actor'),
+                    template: 'edit-actor-template',
+                    model: actor,
+                    activities: _this.activities,
+                    keyflow: _this.model,
+                    onUpload: function(a) { setRowValues(a); showActor(a); },
+                    focusarea: _this.caseStudy.get('properties').focusarea,
+                    areaLevels: _this.areaLevels,
+                    reasons: _this.reasons
+                });
+            }})
         }
 
         // row is clicked -> open view and remember that this actor is "active"

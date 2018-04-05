@@ -1,6 +1,6 @@
 define(["backbone-pageable", "app-config"],
 
-  function(PageableCollection , config) {
+  function(PageableCollection, config) {
 
    /**
     * collection for fetching/putting products
