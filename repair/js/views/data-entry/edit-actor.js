@@ -106,7 +106,7 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
       var topLevel = this.areaLevels.first();
       if (topLevel) {
         this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id });
-        deferreds.push(topLevelAreas.fetch());
+        deferreds.push(this.topLevelAreas.fetch());
       } 
         
        $.when.apply($, deferreds).then(function(){
