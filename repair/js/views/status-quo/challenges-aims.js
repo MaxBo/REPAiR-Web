@@ -42,7 +42,7 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
 
             this.challengesModel.fetch({
                 success: function(challenges){
-                    _this.initItems(challenges, _this.challenges);
+                    _this.initItems(challenges, _this.challenges, "Challenge");
                     _this.render();
                 },
                 error: function(){
@@ -51,7 +51,7 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
             });
             this.aimsModel.fetch({
                 success: function(aims){
-                    _this.initItems(aims, _this.aims);
+                    _this.initItems(aims, _this.aims, "Aim");
                     _this.render();
                 },
                 error: function(){
@@ -68,11 +68,12 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
             'click #add-aim-button': 'addAim'
         },
 
-        initItems: function(items, list){
+        initItems: function(items, list, type){
             items.forEach(function(item){
                 list.push({
                     "text": item.get('text'),
-                    "id": item.get('id')
+                    "id": item.get('id'),
+                    "type": type
                 });
             });
         },
@@ -132,9 +133,6 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                 );
                 challenge.save(null, {
                     success: function(){
-                        // var pos = _this.categories.map(function(e) {
-                        //     return e.categoryId;
-                        // }).indexOf(category.categoryId);
                         _this.challenges.push({
                             "text": challenge.get('text'),
                             "id": challenge.get('id')}
@@ -161,9 +159,6 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                 );
                 aim.save(null, {
                     success: function(){
-                        // var pos = _this.categories.map(function(e) {
-                        //     return e.categoryId;
-                        // }).indexOf(category.categoryId);
                         _this.aims.push({
                             "text": aim.get('text'),
                             "id": aim.get('id')}
@@ -182,8 +177,38 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         },
 
         editPanelItem: function(item, items){
-            console.log("edit", item);
-            console.log(items);
+            var _this = this;
+            var id = item.id;
+            var title = "Edit " + item.type
+            function onConfirm(name){
+                if (item.type == "Challenge") {
+                    var model = new Challenge(
+                        { id: id },
+                        { caseStudyId: _this.caseStudy.id}
+                    );
+                } else {
+                    var model = new Aim(
+                        { id: id },
+                        { caseStudyId: _this.caseStudy.id}
+                    );
+                }
+                model.save({
+                    text: name
+                }, {
+                    success: function(){
+                        var pos = items.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        items[pos].text = name;
+                        _this.render();
+                    }
+                });
+            }
+            this.getName({
+                name: item.text,
+                title: gettext(title),
+                onConfirm: onConfirm
+            });
         },
 
         removePanelItem: function(item, items){
