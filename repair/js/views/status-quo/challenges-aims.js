@@ -65,7 +65,8 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         */
         events: {
             'click #add-challenge-button': 'addChallenge',
-            'click #add-aim-button': 'addAim'
+            'click #add-aim-button': 'addAim',
+            'click #remove-ch-aim-confirmation-modal .confirm': 'confirmRemoval'
         },
 
         initItems: function(items, list, type){
@@ -91,6 +92,13 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                 aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
             this.renderPanel(challengesPanel, this.challenges);
             this.renderPanel(aimsPanel, this.aims);
+
+            var html_modal = document.getElementById(
+                'empty-modal-template').innerHTML;
+            this.confirmationModal = document.getElementById(
+                'remove-ch-aim-confirmation-modal');
+            this.confirmationModal.innerHTML = _.template(html_modal)({
+                header: gettext('Remove') });
 
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
@@ -212,7 +220,45 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         },
 
         removePanelItem: function(item, items){
-            console.log("remove", item);
+            var _this = this;
+            var message = gettext("Do you want to delete the selected item?");
+            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
+            $(this.confirmationModal).modal('show');
+            if (item.type == "Challenge") {
+                _this.model = new Challenge(
+                    { id: item.id },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+            } else {
+                _this.model = new Aim(
+                    { id: item.id },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+            }
+            _this.removeType = item.type;
+        },
+
+        confirmRemoval: function(items) {
+            var _this = this;
+            $(this.confirmationModal).modal('hide');
+            var id = _this.model.get('id');
+            _this.model.destroy({
+                success: function(){
+                    if (_this.removeType == "Challenge") {
+                        var pos = _this.challenges.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        _this.challenges.splice(pos, 1);
+                        _this.render();
+                    } else {
+                        var pos = _this.aims.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        _this.aims.splice(pos, 1);
+                        _this.render();
+                    }
+                }
+            });
         },
 
         /*
