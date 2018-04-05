@@ -1,14 +1,14 @@
-define(['backbone', 'underscore', 'models/challenge', 'collections/challenges',
+define(['underscore','views/baseview', 'models/challenge', 'collections/challenges',
 'models/aim', 'collections/aims'],
 
-function(Backbone, _, Challenge, Challenges, Aim, Aims){
+function(_, BaseView, Challenge, Challenges, Aim, Aims){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
     * @name module:views/ChallengesAimsView
     * @augments Backbone.View
     */
-    var ChallengesAimsView = Backbone.View.extend(
+    var ChallengesAimsView = BaseView.extend(
         /** @lends module:views/ChallengesAimsView.prototype */
         {
 
@@ -28,47 +28,36 @@ function(Backbone, _, Challenge, Challenges, Aim, Aims){
             _.bindAll(this, 'render');
 
             this.template = options.template;
-            this.caseStudy = options.caseStudy;
-            var caseStudyId = this.caseStudy.id;
+            _this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
 
-            // this.challenges = [
-            //     'Recycling rate too low',
-            //     'Missing facilities for treatment'
-            // ]
-            this.challenges = new Challenges([], {
-                caseStudyId: caseStudyId
+            _this.challenges = [];
+            this.challengesModel = new Challenges([], {
+                caseStudyId: _this.caseStudy.id
             });
-            this.aims = new Aims([], {
-                caseStudyId: caseStudyId
+            _this.aims = [];
+            this.aimsModel = new Aims([], {
+                caseStudyId: _this.caseStudy.id
             });
 
-            this.challenges.fetch({
+            this.challengesModel.fetch({
                 success: function(challenges){
-                    challenges.forEach(function(challenge){
-                        console.log(challenge);
-                        var text = challenge.get('text');
-                        console.log(text);
-                    });
+                    _this.initItems(challenges, _this.challenges);
+                    _this.render();
                 },
                 error: function(){
                     console.error("cannot fetch challenges");
                 }
-            })
-            this.aims.fetch({
+            });
+            this.aimsModel.fetch({
                 success: function(aims){
-                    aims.forEach(function(aim){
-                        console.log(aim);
-                        var text = aim.get('text');
-                        console.log(text);
-                    });
+                    _this.initItems(aims, _this.aims);
+                    _this.render();
                 },
                 error: function(){
                     console.error("cannot fetch aims");
                 }
-            })
-
-            this.render();
+            });
         },
 
         /*
@@ -77,6 +66,15 @@ function(Backbone, _, Challenge, Challenges, Aim, Aims){
         events: {
             'click #add-challenge-button': 'addChallenge',
             'click #add-aim-button': 'addAim'
+        },
+
+        initItems: function(items, list){
+            items.forEach(function(item){
+                list.push({
+                    "text": item.get('text'),
+                    "id": item.get('id')
+                });
+            });
         },
 
         /*
@@ -110,7 +108,7 @@ function(Backbone, _, Challenge, Challenges, Aim, Aims){
             items.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: item });
+                panelItem.innerHTML = template({ name: item.text });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
                 var button_remove = panelItem.getElementsByClassName(
@@ -122,15 +120,65 @@ function(Backbone, _, Challenge, Challenges, Aim, Aims){
                     _this.removePanelItem(item, items);
                 });
                 panel.appendChild(panelItem);
-            })
+            });
         },
 
         addChallenge: function(){
-            alert("add challenge");
+            var _this = this;
+            function onConfirm(text){
+                var challenge = new Challenge(
+                    { text: text },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+                challenge.save(null, {
+                    success: function(){
+                        // var pos = _this.categories.map(function(e) {
+                        //     return e.categoryId;
+                        // }).indexOf(category.categoryId);
+                        _this.challenges.push({
+                            "text": challenge.get('text'),
+                            "id": challenge.get('id')}
+                        );
+                        _this.render();
+                    },
+                    error: function(){
+                        console.error("cannot save Challenge");
+                    }
+                });
+            }
+            this.getName({
+                title: gettext('Add Challenge'),
+                onConfirm: onConfirm
+            });
         },
 
         addAim: function(){
-            alert("add aim");
+            var _this = this;
+            function onConfirm(text){
+                var aim = new Aim(
+                    { text: text },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+                aim.save(null, {
+                    success: function(){
+                        // var pos = _this.categories.map(function(e) {
+                        //     return e.categoryId;
+                        // }).indexOf(category.categoryId);
+                        _this.aims.push({
+                            "text": aim.get('text'),
+                            "id": aim.get('id')}
+                        );
+                        _this.render();
+                    },
+                    error: function(){
+                        console.error("cannot save Aim");
+                    }
+                });
+            }
+            this.getName({
+                title: gettext('Add Aim'),
+                onConfirm: onConfirm
+            });
         },
 
         editPanelItem: function(item, items){
