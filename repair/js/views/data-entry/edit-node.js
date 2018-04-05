@@ -112,13 +112,15 @@ var EditNodeView = BaseView.extend(
             nace = nace.join()
 
         // fetch inFlows and outFlows with different query parameters
-        $.when(this.inFlows.fetch({ data: { destination: this.model.id } }),
+        $.when(
+            this.model.fetch(),
+            this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
             this.outProducts.getFirstPage({ data: { nace: nace } }),
             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
-        loader.remove();
-        _this.render();
+            loader.remove();
+            _this.render();
         });
     },
 

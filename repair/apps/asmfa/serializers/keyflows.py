@@ -302,3 +302,8 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Material
         fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')
+
+
+class MaterialListSerializer(MaterialSerializer):
+    class Meta(MaterialSerializer.Meta):
+        fields = ('id', 'name', 'level', 'parent')

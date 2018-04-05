@@ -35,13 +35,18 @@ var ActorsView = BaseView.extend(
             caseStudyId = this.model.get('casestudy');
 
         this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-        this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
+        this.actors = new Actors([], { 
+            caseStudyId: caseStudyId, keyflowId: keyflowId,
+            state: {
+                pageSize: 1000000,
+                firstPage: 1,
+                currentPage: 1
+            } 
+        });
         this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
         this.showAll = true;
         this.caseStudy = options.caseStudy;
         this.caseStudyId = this.model.get('casestudy');
-
-        this.actorRows = [];
 
         var loader = new Loader(document.getElementById('actors-edit'),
             {disable: true});
@@ -51,12 +56,14 @@ var ActorsView = BaseView.extend(
         var Reasons = Backbone.Collection.extend({url: config.api.reasons});
         this.reasons = new Reasons([]);
 
-        $.when(this.activities.fetch(), this.actors.fetch(), 
-            this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
-        _this.areaLevels.sort();
-        loader.remove();
-        _this.render();
-        });
+        $.when(
+            this.activities.fetch(), 
+            this.areaLevels.fetch(), 
+            this.reasons.fetch()).then(function() {
+                _this.areaLevels.sort();
+                loader.remove();
+                _this.render();
+            });
     },
 
     /*
@@ -65,7 +72,8 @@ var ActorsView = BaseView.extend(
     events: {
         'click #remove-actor-button': 'showRemoveModal',
         'click #add-actor-button': 'addActorEvent',
-        'change #included-filter-select': 'changeFilter'
+        'change #included-filter-select': 'changeFilter',
+        'change select[name="activity-filter"]': 'renderActors'
     },
 
     /*
@@ -75,16 +83,34 @@ var ActorsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
-            keyflow: this.model.get('name')});
-
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name'),
+            activities: this.activities
+        });
         this.filterSelect = this.el.querySelector('#included-filter-select');
-        this.table = this.el.querySelector('#actors-table');
 
-        // render inFlows
-        this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-
-        this.setupTable();
+        this.renderActors();
+    },
+    
+    renderActors: function(){
+        var _this = this;
+        var activityId = this.el.querySelector('select[name="activity-filter"]').value;
+        this.actorRows = [];
+        this.actors.fetch({ 
+            data: { activity: activityId },
+            success: function(){
+                _this.clearTable();
+                _this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+                _this.setupTable();
+            }
+        });
+    },
+    
+    clearTable: function(){
+        var el = this.el.querySelector('#actors-table');
+        el.innerHTML = document.getElementById('actor-table-template').innerHTML;
+        this.table = el.querySelector('table');
     },
 
     /* 
@@ -159,20 +185,24 @@ var ActorsView = BaseView.extend(
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
             selectRow(row);
+            actor.caseStudyId = _this.caseStudy.id;
+            actor.keyflowId = _this.model.id;
             _this.activeActor = actor;
             _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
-            _this.actorView = new EditActorView({
-                el: document.getElementById('edit-actor'),
-                template: 'edit-actor-template',
-                model: actor,
-                activities: _this.activities,
-                keyflow: _this.model,
-                onUpload: function(a) { setRowValues(a); showActor(a); },
-                focusarea: _this.caseStudy.get('properties').focusarea,
-                areaLevels: _this.areaLevels,
-                reasons: _this.reasons
-            });
+            actor.fetch({ success: function(){
+                _this.actorView = new EditActorView({
+                    el: document.getElementById('edit-actor'),
+                    template: 'edit-actor-template',
+                    model: actor,
+                    activities: _this.activities,
+                    keyflow: _this.model,
+                    onUpload: function(a) { setRowValues(a); showActor(a); },
+                    focusarea: _this.caseStudy.get('properties').focusarea,
+                    areaLevels: _this.areaLevels,
+                    reasons: _this.reasons
+                });
+            }})
         }
 
         // row is clicked -> open view and remember that this actor is "active"
