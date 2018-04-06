@@ -222,14 +222,7 @@ var MaterialsView = BaseView.extend(
       var node = this.selectedNode;
       if (node == null) return;
       var _this = this;
-      var elConfirmation = document.getElementById('delete-material-modal'),
-          html = document.getElementById('confirmation-template').innerHTML,
-          template = _.template(html);
-      elConfirmation.innerHTML = template({ 
-        message: gettext("Do you really want to delete the selected material and all of its children from the database?")
-      });
-      
-      elConfirmation.querySelector('.confirm').addEventListener('click', function(){
+      function destroy(){
         node.model.destroy( { success: function(){
           // fetch the materials again because all children of this node will be removed in backend
           var loader = new Loader(_this.el, { disable: true });
@@ -244,10 +237,14 @@ var MaterialsView = BaseView.extend(
             }
           });
         }, error: _this.onError});
-      });
+      }
       
-      var modal = elConfirmation.querySelector('.modal');
-      $(modal).modal('show'); 
+      var message = gettext("Do you really want to delete the selected material and all of its children from the database?");
+      _this.confirm({ 
+          message: message,
+          onConfirm: destroy
+      })
+      
     },
   });
   return MaterialsView;

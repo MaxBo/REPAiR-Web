@@ -18,6 +18,7 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
     MaterialSerializer,
+    MaterialListSerializer, 
     WasteSerializer
 )
 
@@ -126,7 +127,8 @@ class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
     add_perm = 'asmfa.add_material'
     change_perm = 'asmfa.change_material'
     delete_perm = 'asmfa.delete_material'
-    queryset = Material.objects.all()
+    queryset = Material.objects.order_by('id')
     serializer_class = MaterialSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = MaterialFilter
+    serializers = {'list': MaterialListSerializer}

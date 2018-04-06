@@ -62,6 +62,12 @@ The REPAiR-Web root folder (on host) is mapped to the `/home/vagrant/REPAiR-Web`
 
 See the details on how the vm is provisioned in `VagrantProvisionUbuntu1604.sh`
 
+# Using Vagrant for development
+
+The provisioning script starts both the node and django servers, thus the content is served on `localhost:8081` on the host. However, after stopping the VM (`vagrant halt`) at the end of the day for example, both servers stop and need to be manually started after `vagrant up` is issued again.
+
+From the `REPAiR-Web` directory in the vagrant machine, use the `vagrant_start-node.sh` and `vagrant_start-django.sh` scripts to start the servers. The Node server need to be restarted every time a change is made to the JS files. For this use CTRL-C and start the server again. The Django server restarts itself automatically, but if you need to stop it, also use CTRL-C.
+
 **Acknowledgement**
 
 The majority of this description was taken from the [Hootenanny project](https://github.com/ngageoint/hootenanny/blob/master/VAGRANT.md)

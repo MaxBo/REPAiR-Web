@@ -99,13 +99,18 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
         
       this.projection = 'EPSG:4326'; 
       
+      var deferreds = [
+        this.adminLocations.fetch({ data: { actor: this.model.id } }), 
+        this.opLocations.fetch({ data: { actor: this.model.id } })
+      ]
       var topLevel = this.areaLevels.first();
-      this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id })
+      if (topLevel) {
+        this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id });
+        deferreds.push(this.topLevelAreas.fetch());
+      } 
         
-      $.when(this.adminLocations.fetch({ data: { actor: this.model.id } }), 
-             this.opLocations.fetch({ data: { actor: this.model.id } }),
-             this.topLevelAreas.fetch()).then(function() {
-          _this.topLevelAreas.sort();
+       $.when.apply($, deferreds).then(function(){
+          if (_this.topLevelAreas) _this.topLevelAreas.sort();
           loader.remove();
           _this.render();
       });

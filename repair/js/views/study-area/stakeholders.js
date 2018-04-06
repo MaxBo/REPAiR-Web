@@ -225,22 +225,18 @@ Stakeholders){
                     { caseStudyId: _this.caseStudy.id,
                       stakeholderCategoryId: category.categoryId }
                 );
-                model.fetch({
-                    success: function() {
-                        model.save({
-                            name: name
-                        }, {
-                            success: function(){
-                                var catPos = _this.categories.map(function(e) {
-                                    return e.categoryId;
-                                }).indexOf(category.categoryId);
-                                var stPos = _this.categories[catPos].stakeholders.map(function(e) {
-                                    return e.id;
-                                }).indexOf(id);
-                                _this.categories[catPos].stakeholders[stPos].name = name;
-                                _this.render();
-                            }
-                        });
+                model.save({
+                    name: name
+                }, {
+                    success: function(){
+                        var catPos = _this.categories.map(function(e) {
+                            return e.categoryId;
+                        }).indexOf(category.categoryId);
+                        var stPos = _this.categories[catPos].stakeholders.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        _this.categories[catPos].stakeholders[stPos].name = name;
+                        _this.render();
                     }
                 });
             }
@@ -268,20 +264,16 @@ Stakeholders){
             $(this.confirmationModal).modal('hide');
             var id = _this.stakeholder.get('id');
             var categoryId = _this.stakeholder.stakeholderCategoryId;
-            _this.stakeholder.fetch({
+            _this.stakeholder.destroy({
                 success: function(){
-                    _this.stakeholder.destroy({
-                        success: function(){
-                            var catPos = _this.categories.map(function(e) {
-                                return e.categoryId;
-                            }).indexOf(categoryId);
-                            var stPos = _this.categories[catPos].stakeholders.map(function(e) {
-                                return e.id;
-                            }).indexOf(id);
-                            _this.categories[catPos].stakeholders.splice(stPos, 1);
-                            _this.render();
-                        }
-                    });
+                    var catPos = _this.categories.map(function(e) {
+                        return e.categoryId;
+                    }).indexOf(categoryId);
+                    var stPos = _this.categories[catPos].stakeholders.map(function(e) {
+                        return e.id;
+                    }).indexOf(id);
+                    _this.categories[catPos].stakeholders.splice(stPos, 1);
+                    _this.render();
                 }
             });
         },
