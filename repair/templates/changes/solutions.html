@@ -85,7 +85,7 @@
                   <% keyflows.forEach(function(keyflow){ %>
                     <label> <%= keyflow.get('name') %> </label> <br>
                     <% keyflow.activities.forEach(function(activity){ %>
-                      <input type='checkbox' value="<%= activity.id %>"> <%= activity.name %><br>
+                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.name %><br>
                     <% }) %>
                   <% }) %>
               </div>

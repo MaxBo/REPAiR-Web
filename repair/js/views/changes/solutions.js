@@ -217,6 +217,7 @@ var SolutionsView = BaseView.extend(
             effectSrc: solution.get('effect_image'),
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
+            checkedActivities: solution.get('activities'),
             category: category.get('name'), 
             mode: this.mode,
             keyflows: this.keyflows
@@ -230,7 +231,8 @@ var SolutionsView = BaseView.extend(
                 stateImgInput = modal.querySelector('input[name="state-file"]'),
                 effectImgInput = modal.querySelector('input[name="effect-file"]'),
                 activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
-                descriptionArea = modal.querySelector('textarea[name="description"]');
+                descriptionArea = modal.querySelector('textarea[name="description"]'),
+                activityInputs = modal.querySelectorAll('input[name="activity"]');
             
             stateImgInput.addEventListener('change', function(){
                 swapImage(stateImgInput, 'state-image', 'currentstate_image');
@@ -242,21 +244,30 @@ var SolutionsView = BaseView.extend(
                 swapImage(activitiesImgInput, 'activities-image', 'activities_image');
             })
             okBtn.addEventListener('click', function(){
+                var activities = [];
+                for (i = 0; i < activityInputs.length; i++) {
+                    var input = activityInputs[i];
+                    if (input.checked) activities.push(input.value)
+                }
+                console.log(activities)
                 var data = {
                     name: nameInput.value,
                     one_unit_equals: unitInput.value,
                     description: descriptionArea.value,
                     solution_category: solution.get('solution_category'),
+                    activities: activities
                 }
                 for (file in changedImages){
                   data[file] = changedImages[file];
                 }
                 solution.save(data, { 
                     success: function(){
+                        console.log('ad'); 
                         $(modal).modal('hide');
                         if (onConfirm) onConfirm();
                     },
-                    error: _this.onError
+                    error: _this.onError,
+                    patch: true
                 })
             });
         }

@@ -64,7 +64,7 @@ define(["backbone", "app-config", 'utils/utils'],
               error: options.error
           })
         }
-        else Solution.__super__.save.apply(this, [data], [options]);
+        else Solution.__super__.save.apply(this, [data, options]);
       },
 
     /**
