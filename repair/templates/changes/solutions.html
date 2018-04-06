@@ -81,15 +81,16 @@
           <div class="tab-pane fade in" id="activities-tab">
             <h4>{% trans "Activities involved" %}</h4>
             <% if (mode == 1) { %> 
-              <div class="col-md-6">
+              <div class="col-md-4">
                   <% keyflows.forEach(function(keyflow){ %>
+                    <label> <%= keyflow.get('name') %> </label> <br>
                     <% keyflow.activities.forEach(function(activity){ %>
-                      <input type='checkbox' value="<%= activity.id %>"> <%= activity.name %>
+                      <input type='checkbox' value="<%= activity.id %>"> <%= activity.name %><br>
                     <% }) %>
                   <% }) %>
               </div>
             <% } %>
-            <div <% if (mode == 1) { %> class="col-md-6"  <% } %>>
+            <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
               <div class="row">
                 <% if (mode == 1) { %>
                   <input type="file" name="activities-file">

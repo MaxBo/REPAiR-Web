@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'collections/solutioncategories',
-        'collections/solutions', 'collections/activities', 
-        'visualizations/map', 'app-config', 'bootstrap'],
+        'collections/solutions', 'collections/keyflows', 'visualizations/map', 
+        'app-config', 'utils/loader', 'bootstrap'],
 
-function(BaseView, _, SolutionCategories, Solutions, Activities, Map, config){
+function(BaseView, _, SolutionCategories, Solutions, Keyflows, Map, config, Loader){
 /**
 *
 * @author Christoph Franke
@@ -37,12 +37,36 @@ var SolutionsView = BaseView.extend(
         // ToDo: replace with collections fetched from server
         this.categories = new SolutionCategories([], { caseStudyId: this.caseStudy.id })
         
-        //this.keyflows = new Activities([], { caseStudyId: this.caseStudy.id })
-        
-        this.categories.fetch({
-            success: _this.render,
-            error: _this.onError
-        })
+        if (this.mode == 1){
+            var loader = new Loader(this.el, {disable: true});
+            this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
+                deferreds = [];
+            this.keyflows.fetch({
+                success: function(){
+                    deferreds.push(_this.categories.fetch());
+                    _this.keyflows.forEach(function(keyflow){
+                        var activityUrl = config.api.activities.format(_this.caseStudy.id, keyflow.id);
+                        deferreds.push(
+                            $.ajax({
+                                url: activityUrl,
+                                type: "GET",
+                                dataType: "json",
+                                success: function(response){
+                                    keyflow.activities = response;
+                                }
+                            })
+                        )
+                    })
+                    
+                    $.when.apply($, deferreds).then(function(){
+                        _this.render();
+                        loader.remove();
+                    });
+                },
+                error: _this.onError
+            })
+        }
+        else this.categories.fetch({ success: _this.render })
     },
 
     /*
@@ -60,7 +84,7 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({ keyflows: this.keyflows });
+        this.el.innerHTML = template();
         var deferreds = [];
         this.categories.forEach(function(category){
             category.solutions = new Solutions([], { 
@@ -195,7 +219,7 @@ var SolutionsView = BaseView.extend(
             activitiesSrc: solution.get('activities_image'),
             category: category.get('name'), 
             mode: this.mode,
-            activities: []//this.activities
+            keyflows: this.keyflows
         });
         this.renderMap('stakeholder-map');
         var okBtn = modal.querySelector('.confirm');
