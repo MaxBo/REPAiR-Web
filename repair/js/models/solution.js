@@ -1,6 +1,6 @@
-define(["backbone", "app-config"],
+define(["backbone", "app-config", 'utils/utils'],
 
-  function(Backbone, config) {
+  function(Backbone, config, utils) {
 
    /**
     *
@@ -12,6 +12,8 @@ define(["backbone", "app-config"],
       /** @lends module:models/Solution.prototype */
       {
       idAttribute: "id",
+      
+      fileAttributes: ['activities_image', 'currentstate_image', 'effect_image'],
       
       defaults: {
         name: '-----',
@@ -30,7 +32,39 @@ define(["backbone", "app-config"],
        * @returns {string} the url string
        */
       urlRoot: function(){
+        if ((this.caseStudyId == null || this.solutionCategoryId == null) && this.collection )
+          return this.collection.url()
         return config.api.solutions.format(this.caseStudyId, this.solutionCategoryId);
+      },
+      
+      save: function(data, options){
+        var _this = this,
+            uploadAsForm = false,
+            data = data || {};
+        this.fileAttributes.forEach(function(attr){
+          if (attr in data) uploadAsForm = true;
+        });
+        
+        // if file is passed in data: upload as form
+        if (uploadAsForm){
+          // remove trailing slash if there is one
+          var url = this.urlRoot().replace(/\/$/, "");
+          // post to resource if already existing (indicated by id) else create by posting to list view
+          if (this.id != null) url += '/' + this.id;
+          url += '/';
+          utils.uploadForm(data, url, {
+              method: (this.id != null) ? 'PUT': 'POST',
+              success: function(resData, textStatus, jqXHR){
+                  // set attributes corresponding to response
+                  for(key in resData){
+                      _this.attributes[key] = resData[key];
+                  }
+                  if (options.success) options.success(_this);
+              },
+              error: options.error
+          })
+        }
+        else Solution.__super__.save.apply(this, [data], [options]);
       },
 
     /**

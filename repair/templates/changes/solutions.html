@@ -8,12 +8,12 @@
 </button>
 <div id="categories" class="row overflow">
 </div>
-<div id="solution-modal" class="modal fade" role="dialog"></div>
+<div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </script>
 
 <!-- modal for editing/viewing a solution and its charts -->
 <script type="text/template" id="view-solution-template">
-<div class="modal-dialog modal-lg" style="width: 80%;">
+<div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
   <!-- Modal content-->
   <div class="modal-content col-md-12">
     <div class="modal-header">
@@ -44,47 +44,62 @@
           <div class="tab-pane fade in active" id="description-tab">
             <div class="col-md-12 bordered">
               <div class="row">
-                <textarea name="description" rows="4" cols="50" style="max-width: 100%; width: 100%;"><%= description %></textarea>
+                <textarea name="description" rows="4" cols="50" style="max-width: 100%; width: 100%;" <% if (mode == 0) { %> disabled <% } %>><%= description %></textarea>
               </div>
             </div>
           </div>
           <div class="tab-pane fade in" id="ce-diagrams-tab">
-            <div class="col-md-6 bordered">
+            <div class="col-md-6">
               <div class="row">
                 <h4>{% trans "Current state" %}</h4>
                 <% if (mode == 1) { %>
-                  <input type="file">
+                  <input type="file" name="state-file">
                 <% } %>
               </div>
-              <div class="row">
-                <img src='<%= stateSrc %>' style="width: 100%">
-                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+              <div style="position: relative; margin-top: 30px;">
+                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                  <img id="state-image" src='<%= stateSrc %>' style="width: 100%">
+                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                </div>
               </div>
             </div>
-            <div class="col-md-6 bordered">
+            <div class="col-md-6">
               <div class="row">
                 <h4>{% trans "Effect of Solution" %}</h4>
                 <% if (mode == 1) { %>
-                  <input type="file">
+                  <input type="file" name="effect-file">
                 <% } %>
               </div>
-              <div class="row">
-                <img src='<%= effectSrc %>' style="width: 100%">
-                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+              <div style="position: relative; margin-top: 30px;">
+                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                  <img id="effect-image" src='<%= effectSrc %>' style="width: 100%">
+                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                </div>
               </div>
             </div>
           </div>
           <div class="tab-pane fade in" id="activities-tab">
-            <div class="col-md-12 bordered">
+            <h4>{% trans "Activities involved" %}</h4>
+            <% if (mode == 1) { %> 
+              <div class="col-md-6">
+                  <% keyflows.forEach(function(keyflow){ %>
+                    <% keyflow.activities.forEach(function(activity){ %>
+                      <input type='checkbox' value="<%= activity.id %>"> <%= activity.name %>
+                    <% }) %>
+                  <% }) %>
+              </div>
+            <% } %>
+            <div <% if (mode == 1) { %> class="col-md-6"  <% } %>>
               <div class="row">
-                <h4>{% trans "Activities involved" %}</h4>
                 <% if (mode == 1) { %>
-                  <input type="file">
+                  <input type="file" name="activities-file">
                 <% } %>
               </div>
-              <div class="row">
-                <img src='<%= activitiesSrc %>' style="width: 100%">
-                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+              <div style="position: relative; margin-top: 30px;">
+                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                  <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%">
+                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                </div>
               </div>
             </div>
           </div>
