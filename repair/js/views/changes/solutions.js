@@ -221,7 +221,7 @@ var SolutionsView = BaseView.extend(
             mode: this.mode,
             keyflows: this.keyflows
         });
-        this.renderMap('stakeholder-map');
+        this.renderMap('actors-map');
         var okBtn = modal.querySelector('.confirm');
         
         if (this.mode == 1){
