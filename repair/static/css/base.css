@@ -380,8 +380,16 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
     /*top: 20px;*/
 /*}*/
 
+.flipped {
+    transform:rotateX(180deg);
+    -ms-transform:rotateX(180deg); /* IE 9 */
+    -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+
 .item-panel{
-  /*min-height: 500px;*/
+  min-width: 300px;
+  margin: 5px;
+  vertical-align: top;
 }
 
 .panel-item {
@@ -444,4 +452,5 @@ div.panel-item:hover label{
 }
 .row.overflow>div{
   display: inline-block;
+  position: relative;
 }

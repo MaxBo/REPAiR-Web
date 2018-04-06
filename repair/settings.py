@@ -88,6 +88,7 @@ REST_FRAMEWORK = {
     ),
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
 }
 
 MIDDLEWARE = [
