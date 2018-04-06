@@ -42,13 +42,15 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
 
             this.challengesModel.fetch({
                 success: function(challenges){
-                    _this.initItems(challenges, _this.challenges, "Challenge");
+                    _this.initItems(challenges, _this.challenges,
+                         "Challenge");
                     _this.render();
                 },
                 error: function(){
                     console.error("cannot fetch challenges");
                 }
             });
+
             this.aimsModel.fetch({
                 success: function(aims){
                     _this.initItems(aims, _this.aims, "Aim");
@@ -139,12 +141,14 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                     { text: text },
                     { caseStudyId: _this.caseStudy.id}
                 );
+                console.log(challenge);
                 challenge.save(null, {
                     success: function(){
                         _this.challenges.push({
                             "text": challenge.get('text'),
-                            "id": challenge.get('id')}
-                        );
+                            "id": challenge.get('id'),
+                            "type": "Challenge"
+                        });
                         _this.render();
                     },
                     error: function(){
@@ -169,8 +173,9 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                     success: function(){
                         _this.aims.push({
                             "text": aim.get('text'),
-                            "id": aim.get('id')}
-                        );
+                            "id": aim.get('id'),
+                            "type": "Aim"
+                        });
                         _this.render();
                     },
                     error: function(){
@@ -200,6 +205,7 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                         { caseStudyId: _this.caseStudy.id}
                     );
                 }
+
                 model.save({
                     text: name
                 }, {
