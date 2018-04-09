@@ -1,13 +1,14 @@
-define(['backbone', 'underscore'],
+define(['underscore','views/baseview','models/aim', 'collections/aims',
+ 'collections/targetvalues'],
 
-function(Backbone, _,){
+function(_, BaseView, Aim, Aims, TargetValues){
     /**
     *
-    * @author Christoph Franke
+    * @author Christoph Franke, Balázs Dukai
     * @name module:views/TargetsView
     * @augments Backbone.View
     */
-    var TargetsView = Backbone.View.extend(
+    var TargetsView = BaseView.extend(
         /** @lends module:views/TargetsView.prototype */
         {
 
@@ -29,12 +30,12 @@ function(Backbone, _,){
             this.template = options.template;
             this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
-            
-            this.aims = [
-                'Higher Recycling rate',
-                'Less non recyclable garbage'
-            ]
-            
+
+            _this.aims = [];
+            this.aimsModel = new Aims([], {
+                caseStudyId: _this.caseStudy.id
+            });
+
             this.indicators = {
                 'Higher Recycling rate': [
                     'Indicator AB',
@@ -42,22 +43,43 @@ function(Backbone, _,){
                 ],
                 'Less non recyclable garbage': []
             };
-            
-            this.targets = [
-                'reduce by 50%',
-                'reduce by 30%',
-                'reduce by 15%',
-                'reduce by 10%',
-                'reduce by 5%',
-                'increase by 5%',
-                'increase by 10%',
-                'increase by 15%',
-                'increase by 30%',
-                'increase by 50%',
-            ];
-            
+
+            _this.targets = [];
+            this.targetsModel = new TargetValues([], {
+            });
+
             this.spatial = [ 'Focus Area', 'Study Area' ]
-            
+
+            this.aimsModel.fetch({
+                success: function(aims){
+                    _this.initItems(aims, _this.aims, "Aim");
+                    _this.render();
+                },
+                error: function(){
+                    console.error("cannot fetch aims");
+                }
+            });
+
+            this.targetsModel.fetch({
+                success: function(targets){
+                    targets.forEach(function(t){
+                        var targets_array = t.attributes.results;
+                        targets_array.forEach(function(target){
+                            _this.targets.push({
+                                "text": target.text,
+                                "id": target.id,
+                                "number": target.number,
+                                "factor": target.factor
+                            });
+                        });
+                    });
+                    _this.render();
+                },
+                error: function(){
+                    console.error("cannot fetch targetvalues");
+                }
+            });
+
             this.render();
         },
 
@@ -65,6 +87,16 @@ function(Backbone, _,){
         * dom events (managed by jquery)
         */
         events: {
+        },
+
+        initItems: function(items, list, type){
+            items.forEach(function(item){
+                list.push({
+                    "text": item.get('text'),
+                    "id": item.get('id'),
+                    "type": type
+                });
+            });
         },
 
         /*
@@ -76,7 +108,7 @@ function(Backbone, _,){
             var template = _.template(html);
             this.el.innerHTML = template();
             this.renderRows();
-            
+
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (this.mode == 0){
@@ -94,29 +126,29 @@ function(Backbone, _,){
                 row.classList.add('row', 'overflow', 'bordered');
                 var html = document.getElementById('target-row-template').innerHTML
                 var template = _.template(html);
-                row.innerHTML = template({ aim: aim });
+                row.innerHTML = template({ aim: aim.text });
                 _this.el.appendChild(row);
                 var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                     targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                     spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
                     html = document.getElementById('panel-item-template').innerHTML
                     template = _.template(html);
-                var indicators = _this.indicators[aim];
+                var indicators = _this.indicators[aim.text];
                 indicators.forEach(function(indicator){
                     var panelItem = document.createElement('div');
                     panelItem.classList.add('panel-item');
                     panelItem.innerHTML = template({ name: indicator });
                     indicatorPanel.appendChild(panelItem);
-                    
+
                     var targetSelect = document.createElement('select');
                     targetSelect.classList.add('panel-item', 'form-control');
                     _this.targets.forEach(function(target){
                         var option = document.createElement('option');
-                        option.text = target;
+                        option.text = target.text;
                         targetSelect.appendChild(option);
                     })
                     targetPanel.appendChild(targetSelect);
-                    
+
                     var spatialSelect = document.createElement('select');
                     spatialSelect.classList.add('panel-item', 'form-control');
                     _this.spatial.forEach(function(s){
