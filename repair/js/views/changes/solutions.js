@@ -59,8 +59,8 @@ var SolutionsView = BaseView.extend(
                     })
                     
                     $.when.apply($, deferreds).then(function(){
-                        _this.render();
                         loader.remove();
+                        _this.render();
                     });
                 },
                 error: _this.onError
@@ -222,7 +222,7 @@ var SolutionsView = BaseView.extend(
             mode: this.mode,
             keyflows: this.keyflows
         });
-        this.renderMap('actors-map');
+        this.renderMap('actors-map', solution.get('activities'));
         var okBtn = modal.querySelector('.confirm');
         
         if (this.mode == 1){
@@ -249,12 +249,11 @@ var SolutionsView = BaseView.extend(
                     var input = activityInputs[i];
                     if (input.checked) activities.push(input.value)
                 }
-                console.log(activities)
                 var data = {
                     name: nameInput.value,
                     one_unit_equals: unitInput.value,
                     description: descriptionArea.value,
-                    solution_category: solution.get('solution_category'),
+                    solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
                 }
                 for (file in changedImages){
@@ -262,7 +261,6 @@ var SolutionsView = BaseView.extend(
                 }
                 solution.save(data, { 
                     success: function(){
-                        console.log('ad'); 
                         $(modal).modal('hide');
                         if (onConfirm) onConfirm();
                     },
@@ -275,7 +273,9 @@ var SolutionsView = BaseView.extend(
         $(modal).modal('show');
     },
     
-    renderMap: function(divid){
+    renderMap: function(divid, activities){
+        var _this = this;
+        // remove old map
         if (this.map){
             this.map.map.setTarget(null);
             this.map.map = null;
@@ -300,6 +300,54 @@ var SolutionsView = BaseView.extend(
             this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
+        var deferreds = [];
+        
+        // search for the keyflow of an activity
+        function getKeyflow(activityId){
+            var keyflow = _this.keyflows.find(function(keyflow){ 
+                var found = _.find(keyflow.activities, function(activity){
+                    return activity.id == activityId;
+                }); 
+                return found != null;
+            })
+            return keyflow;
+        }
+        
+        activities.forEach(function(activityId){
+            var keyflowId = getKeyflow(activityId).id,
+                actorUrl = config.api.actors.format(_this.caseStudy.id, keyflowId);
+            //deferreds.push(
+                $.ajax({
+                    url: actorUrl,
+                    type: "GET",
+                    dataType: "json",
+                    data: { activity: activityId, page_size: 100000, included: "True" },
+                    success: function(response){
+                        var actorIds = [];
+                        response.results.forEach(function(actor){ actorIds.push(actor.id) });
+                        var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
+                        adminLocUrl += '?actor__in=' + actorIds.toString();
+                        _this.map.addLayer('actors' + activityId, {
+                            source: {
+                                url: adminLocUrl
+                            }
+                        })
+                        //var geojson = $.ajax({
+                            //url: adminLocUrl,
+                            //type: "GET",
+                            //dataType: "json",
+                            //data: { actor__in: actorIds.toString() },
+                            //success: console.log
+                        //});
+                    }
+                })
+            //)
+        })
+        //$.when.apply($, deferreds).then(function(){
+            //var actorIds = [];
+            //actors.forEach(function(actor){ actorIds.push(actor.id) });
+            //var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id)
+        //})
     },
     
     addCategory: function(){
@@ -319,10 +367,6 @@ var SolutionsView = BaseView.extend(
             })
         }
         _this.getName({ onConfirm: onConfirm });
-    },
-    
-    removeCategory: function(){
-        
     },
     
     addSolution: function(panel, category){
