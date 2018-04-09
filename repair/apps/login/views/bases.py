@@ -124,7 +124,7 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         filter_args.update(self.get_filter_args(queryset=self.queryset,
                                                 query_params=query_params)
                            )
-        queryset = self.queryset.model.objects.filter(**filter_args)
+        queryset = self.queryset.filter(**filter_args)
 
         return queryset
 

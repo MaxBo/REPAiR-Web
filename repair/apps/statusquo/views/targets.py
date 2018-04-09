@@ -41,6 +41,22 @@ class TargetViewSet(CasestudyViewSetMixin,
     queryset = Target.objects.all()
     serializer_class = TargetSerializer
 
+    def list(self, request, *args, **kwargs):
+        if (request.user.id and 'user' not in request.query_params and
+            'user__in' not in request.query_params):
+            self.queryset = self.queryset.filter(user=request.user.id)
+        
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request, **kwargs):
+        """set the """
+        if 'user' not in request.POST:
+            mutable = request.POST._mutable
+            request.POST._mutable = True
+            request.POST['user'] = request.user.id
+            request.POST._mutable = mutable
+        return super().create(request, **kwargs)
+
 
 class SustainabilityFieldViewSet(ModelPermissionViewSet):
     queryset = SustainabilityField.objects.all()
