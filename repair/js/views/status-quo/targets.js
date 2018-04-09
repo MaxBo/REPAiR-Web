@@ -60,25 +60,34 @@ function(_, BaseView, Aim, Aims, TargetValues){
                 }
             });
 
-            this.targetsModel.fetch({
-                success: function(targets){
-                    targets.forEach(function(t){
-                        var targets_array = t.attributes.results;
-                        targets_array.forEach(function(target){
-                            _this.targets.push({
-                                "text": target.text,
-                                "id": target.id,
-                                "number": target.number,
-                                "factor": target.factor
-                            });
-                        });
-                    });
-                    _this.render();
-                },
-                error: function(){
-                    console.error("cannot fetch targetvalues");
-                }
-            });
+
+            console.log(this.targetsModel.hasNextPage());
+            this.targetsModel.getFirstPage();
+            console.log(this.targetsModel.hasNextPage());
+            console.log(this.targetsModel);
+            this.targetsModel.getNextPage();
+            console.log(this.targetsModel);
+
+            // this.targetsModel.fetch({
+            //     success: function(targets){
+            //         console.log(targets);
+            //         // for each page?
+            //         targets.forEach(function(target){
+            //             // for each object
+            //             console.log(target);
+            //             _this.targets.push({
+            //                 "text": target.get('text'),
+            //                 "id": target.get('id'),
+            //                 "number": target.get('number'),
+            //                 "factor": target.get('factor')
+            //             });
+            //         });
+            //         _this.render();
+            //     },
+            //     error: function(){
+            //         console.error("cannot fetch targetvalues");
+            //     }
+            // });
 
             this.render();
         },
