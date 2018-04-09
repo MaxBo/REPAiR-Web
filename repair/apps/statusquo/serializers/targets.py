@@ -75,14 +75,12 @@ class SustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
 
 class TargetSerializer(CreateWithUserInCasestudyMixin,
                        NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'user_pk': 'user__id',}
+    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
     aim = IDRelatedField()
     impact_category = IDRelatedField()
     target_value = IDRelatedField()
     spatial_reference = IDRelatedField()
-    user = UserInCasestudyField(
-        view_name='userincasestudy-detail')
+    user = IDRelatedField(read_only=True)
 
     class Meta:
         model = Target

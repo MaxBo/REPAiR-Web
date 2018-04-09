@@ -105,6 +105,7 @@ cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
+cs_router.register(r'targets', TargetViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
@@ -120,7 +121,6 @@ levels_router.register(r'areas', AreaViewSet)
 user_router = NestedSimpleRouter(cs_router, r'users',
                                   lookup='user')
 user_router.register(r'implementations', ImplementationOfUserViewSet)
-user_router.register(r'targets', TargetViewSet)
 
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
