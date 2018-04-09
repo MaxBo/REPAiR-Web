@@ -153,7 +153,15 @@ define([
       var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
       this.layers[name] = layer;
       this.map.addLayer(layer);
+      
+      var image = new ol.style.Circle({
+        radius: 5,
+        fill: new ol.style.Fill({ color: 'blue' }),
+        stroke: new ol.style.Stroke({color: 'blue', width: 1})
+      });
+      
       var style = new ol.style.Style({
+        image: image,
         stroke: new ol.style.Stroke({
           color: options.stroke || 'rgb(255, 255, 255)',
           width: options.strokeWidth || 3

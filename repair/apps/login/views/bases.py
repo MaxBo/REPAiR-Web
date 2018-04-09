@@ -145,6 +145,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
                     cmp = key_cmp[-1]
                     if cmp not in QUERY_TERMS:
                         continue
+                    if cmp == 'in':
+                        v = v.strip('[]').split(',')
                 filter_args[k] = v
         return filter_args
 

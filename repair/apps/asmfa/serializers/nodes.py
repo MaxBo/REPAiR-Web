@@ -201,7 +201,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
 class ActorListSerializer(ActorSerializer):
     class Meta(ActorSerializer.Meta):
-        fields = ('id', 'activity', 'name', 'included')
+        fields = ('id', 'activity', 'activitygroup', 'name', 'included')
 
 
 class ReasonSerializer(serializers.ModelSerializer):
