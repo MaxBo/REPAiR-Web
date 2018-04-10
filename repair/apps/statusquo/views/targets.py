@@ -53,16 +53,19 @@ class TargetViewSet(CasestudyViewSetMixin,
 class SustainabilityFieldViewSet(ModelPermissionViewSet):
     queryset = SustainabilityField.objects.all()
     serializer_class = SustainabilityFieldSerializer
+    pagination_class = None
 
 
 class ImpactcategoryViewSet(ModelPermissionViewSet):
     queryset = ImpactCategory.objects.all()
     serializer_class = ImpactCategorySerializer
+    pagination_class = None
 
 
 class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
     queryset = ImpactCategory.objects.all()
     serializer_class = ImpactCategorySerializer
+    pagination_class = None
 
     def list(self, request, *args, **kwargs):
         super().check_permission(request, 'view')
@@ -86,13 +89,16 @@ class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
 class AreaOfProtectionViewSet(ModelPermissionViewSet):
     queryset = AreaOfProtection.objects.all()
     serializer_class = AreaOfProtectionSerializer
+    pagination_class = None
 
 
 class TargetValueViewSet(ModelPermissionViewSet):
     queryset = TargetValue.objects.all()
     serializer_class = TargetValueSerializer
+    pagination_class = None
 
 
 class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
     queryset = TargetSpatialReference.objects.all()
     serializer_class = TargetSpatialReferenceSerializer
+    pagination_class = None
