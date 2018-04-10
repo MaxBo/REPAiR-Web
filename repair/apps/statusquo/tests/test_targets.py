@@ -182,9 +182,9 @@ class ImpactCategoriesAndAreasOfProtectionTest(LoginTestCase, APITestCase):
 
     def test_list(self):
         response = self.get_check_200(self.url_key + '-list', **self.url_pks_1)
-        assert len(response.data['results']) == 3
+        assert len(response.data) == 3
         response = self.get_check_200(self.url_key + '-list', **self.url_pks_2)
-        assert len(response.data['results']) == 1
+        assert len(response.data) == 1
 
 
 class TargetTest(BasicModelPermissionTest, APITestCase):
