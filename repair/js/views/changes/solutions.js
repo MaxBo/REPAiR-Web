@@ -153,8 +153,8 @@ var SolutionsView = BaseView.extend(
         })
         
         panelList.appendChild(div);
-        div.appendChild(label);
         div.appendChild(removeBtn);
+        div.appendChild(label);
         div.appendChild(panel);
         div.appendChild(button);
         // add the items
