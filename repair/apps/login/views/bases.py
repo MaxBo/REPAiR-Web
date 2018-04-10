@@ -124,7 +124,7 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         filter_args.update(self.get_filter_args(queryset=self.queryset,
                                                 query_params=query_params)
                            )
-        queryset = self.queryset.model.objects.filter(**filter_args)
+        queryset = self.queryset.filter(**filter_args)
 
         return queryset
 
@@ -145,6 +145,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
                     cmp = key_cmp[-1]
                     if cmp not in QUERY_TERMS:
                         continue
+                    if cmp == 'in':
+                        v = v.strip('[]').split(',')
                 filter_args[k] = v
         return filter_args
 

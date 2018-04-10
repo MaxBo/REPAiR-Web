@@ -32,5 +32,29 @@ module.exports = {
             }
         });
         return treeList;
+    },
+    // success: function (data, textStatus, jqXHR)
+    // error: function(response)
+    uploadForm(data, url, options){
+        var options = options || {},
+            method = options.method || 'POST',
+            success = options.success || function(){},
+            error = options.error || function(){};
+        var formData = new FormData();
+        for (var key in data){
+            formData.append(key, data[key]);
+        }
+        $.ajax({
+            type: method,
+            timeout: 50000,
+            url: url,
+            data: formData,
+            cache: false,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            success: success,
+            error: error
+        });
     }
 }
