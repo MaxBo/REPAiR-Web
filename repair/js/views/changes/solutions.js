@@ -325,13 +325,15 @@ var SolutionsView = BaseView.extend(
                     success: function(response){
                         var actorIds = [];
                         response.results.forEach(function(actor){ actorIds.push(actor.id) });
-                        var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
-                        adminLocUrl += '?actor__in=' + actorIds.toString();
-                        _this.map.addLayer('actors' + activityId, {
-                            source: {
-                                url: adminLocUrl
-                            }
-                        })
+                        if (actorIds.length > 0){
+                            var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
+                            adminLocUrl += '?actor__in=' + actorIds.toString();
+                            _this.map.addLayer('actors' + activityId, {
+                                source: {
+                                    url: adminLocUrl
+                                }
+                            })
+                        }
                         //var geojson = $.ajax({
                             //url: adminLocUrl,
                             //type: "GET",
