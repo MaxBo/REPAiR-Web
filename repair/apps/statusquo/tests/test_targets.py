@@ -182,9 +182,9 @@ class ImpactCategoriesAndAreasOfProtectionTest(LoginTestCase, APITestCase):
 
     def test_list(self):
         response = self.get_check_200(self.url_key + '-list', **self.url_pks_1)
-        assert len(response.data['results']) == 3
+        assert len(response.data) == 3
         response = self.get_check_200(self.url_key + '-list', **self.url_pks_2)
-        assert len(response.data['results']) == 1
+        assert len(response.data) == 1
 
 
 class TargetTest(BasicModelPermissionTest, APITestCase):
@@ -206,14 +206,12 @@ class TargetTest(BasicModelPermissionTest, APITestCase):
                            kwargs=dict(pk=cls.userincasestudy,
                                        casestudy_pk=cls.casestudy))
         cls.url_key = "target"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           user_pk=cls.userincasestudy)
+        cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.target)
         cls.post_data = dict(aim=cls.aim,
                              impact_category=cls.impact_category,
                              target_value=cls.target_value,
-                             spatial_reference=cls.spatial_reference,
-                             user=user_url)
+                             spatial_reference=cls.spatial_reference)
         cls.put_data = cls.post_data
         cls.patch_data = cls.post_data
 
