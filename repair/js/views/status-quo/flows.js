@@ -76,14 +76,21 @@ var FlowsView = BaseView.extend(
         var content = this.el.querySelector('#flows-setup-content');
         content.style.display = 'inline';
         this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
+            state: {
+                pageSize: 1000000,
+                firstPage: 1,
+                currentPage: 1
+            } });
         this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
         this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
 
         var loader = new Loader(this.el, {disable: true});
         var params = { included: 'True' }
-        $.when(this.materials.fetch(), this.actors.fetch({ data: params }), 
-            this.activities.fetch(), this.activityGroups.fetch()).then(function(){
+        $.when(this.materials.fetch(), 
+               this.actors.fetch({ data: params }), 
+               this.activities.fetch(), this.activityGroups.fetch()
+            ).then(function(){
             _this.renderSankeyMap();
             _this.renderMatFilter();
             _this.renderNodeFilters();

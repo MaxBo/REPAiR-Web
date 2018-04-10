@@ -42,7 +42,13 @@ module.exports = {
             error = options.error || function(){};
         var formData = new FormData();
         for (var key in data){
-            formData.append(key, data[key]);
+            if (data[key] instanceof Array){
+                data[key].forEach(function(d){
+                     formData.append(key, d);
+                })
+            }
+            else
+                formData.append(key, data[key]);
         }
         $.ajax({
             type: method,
