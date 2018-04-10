@@ -1,7 +1,7 @@
 define(['underscore','views/baseview','models/aim', 'collections/aims',
- 'collections/targetvalues'],
+ 'collections/targetvalues', 'collections/targetspatialreference'],
 
-function(_, BaseView, Aim, Aims, TargetValues){
+function(_, BaseView, Aim, Aims, TargetValues, TargetSpatialReference){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -48,7 +48,9 @@ function(_, BaseView, Aim, Aims, TargetValues){
             this.targetsModel = new TargetValues([], {
             });
 
-            this.spatial = [ 'Focus Area', 'Study Area' ]
+            _this.spatial = [];
+            this.spatialModel = new TargetSpatialReference([], {
+            });
 
             this.aimsModel.fetch({
                 success: function(aims){
@@ -74,6 +76,22 @@ function(_, BaseView, Aim, Aims, TargetValues){
                 },
                 error: function(){
                     console.error("cannot fetch targetvalues");
+                }
+            });
+
+            this.spatialModel.fetch({
+                success: function(areas){
+                    areas.forEach(function(area){
+                        _this.spatial.push({
+                            "text": area.get('text'),
+                            "name": area.get('name'),
+                            "id": area.get('id')
+                        });
+                    });
+                    _this.render();
+                },
+                error: function(){
+                    console.log("cannot fetch targetspatialreference");
                 }
             });
 
@@ -119,6 +137,7 @@ function(_, BaseView, Aim, Aims, TargetValues){
         renderRows(){
             var _this = this;
             this.aims.forEach(function(aim){
+                console.log("aim", aim);
                 var row = document.createElement('div');
                 row.classList.add('row', 'overflow', 'bordered');
                 var html = document.getElementById('target-row-template').innerHTML
@@ -150,7 +169,7 @@ function(_, BaseView, Aim, Aims, TargetValues){
                     spatialSelect.classList.add('panel-item', 'form-control');
                     _this.spatial.forEach(function(s){
                         var option = document.createElement('option');
-                        option.text = s;
+                        option.text = s.text;
                         spatialSelect.appendChild(option);
                     })
                     spatialPanel.appendChild(spatialSelect);
