@@ -1,8 +1,9 @@
-define(['views/baseview', 'underscore', 'collections/solutioncategories',
+define(['views/baseview', 'backbone', 'underscore', 'collections/solutioncategories',
         'collections/solutions', 'collections/keyflows', 'visualizations/map', 
-        'app-config', 'utils/loader', 'bootstrap'],
+        'app-config', 'utils/loader', 'utils/utils', 'bootstrap'],
 
-function(BaseView, _, SolutionCategories, Solutions, Keyflows, Map, config, Loader){
+function(BaseView, Backbone, _, SolutionCategories, Solutions, Keyflows, 
+         Map, config, Loader, utils){
 /**
 *
 * @author Christoph Franke
@@ -28,6 +29,8 @@ var SolutionsView = BaseView.extend(
         SolutionsView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'renderCategory');
+        _.bindAll(this, 'addSolutionQuanitityRow');
+        _.bindAll(this, 'addSolutionRatioOneUnitRow');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -41,9 +44,12 @@ var SolutionsView = BaseView.extend(
             var loader = new Loader(this.el, {disable: true});
             this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
                 deferreds = [];
+            var Units = Backbone.Collection.extend({ url: config.api.units });
+            this.units = new Units();
             this.keyflows.fetch({
                 success: function(){
                     deferreds.push(_this.categories.fetch());
+                    deferreds.push(_this.units.fetch());
                     _this.keyflows.forEach(function(keyflow){
                         var activityUrl = config.api.activities.format(_this.caseStudy.id, keyflow.id);
                         deferreds.push(
@@ -153,8 +159,8 @@ var SolutionsView = BaseView.extend(
         })
         
         panelList.appendChild(div);
-        div.appendChild(label);
         div.appendChild(removeBtn);
+        div.appendChild(label);
         div.appendChild(panel);
         div.appendChild(button);
         // add the items
@@ -191,6 +197,79 @@ var SolutionsView = BaseView.extend(
         })
     },
     
+    addSolutionQuanitityRow: function(squantity){
+        var table = document.getElementById('required-ratios'),
+            row = table.insertRow(-1);
+        
+        var nameInput = document.createElement('input');
+        row.insertCell(-1).appendChild(nameInput);
+        nameInput.value = squantity.get('name');
+        nameInput.classList.add('form-control');
+        nameInput.addEventListener('change', function(){ squantity.set('name', nameInput.value); })
+        
+        var unitSelect = document.createElement('select');
+        row.insertCell(-1).appendChild(unitSelect);
+        this.units.forEach(function(unit){
+            var option = document.createElement('option');
+            option.value = unit.id;
+            option.text = unit.get('name');
+            unitSelect.appendChild(option);
+        })
+        unitSelect.value = squantity.get('unit');
+        unitSelect.classList.add('form-control');
+        unitSelect.addEventListener('change', function(){ squantity.set('unit', unitSelect.value); })
+        
+        var checkbox = document.createElement("input");
+        checkbox.type = 'checkbox';
+        row.insertCell(-1).appendChild(checkbox);
+
+        checkbox.addEventListener('change', function() {
+            row.classList.toggle('strikeout');
+            row.classList.toggle('dsbld');
+            squantity.markedForDeletion = checkbox.checked;
+        });
+    },
+    
+    addSolutionRatioOneUnitRow: function(sratio){
+        var table = document.getElementById('one-unit-ratios'),
+            row = table.insertRow(-1);
+        
+        var nameInput = document.createElement('input');
+        row.insertCell(-1).appendChild(nameInput);
+        nameInput.value = sratio.get('name');
+        nameInput.classList.add('form-control');
+        nameInput.addEventListener('change', function(){ sratio.set('name', nameInput.value); })
+        
+        var valueInput = document.createElement('input');
+        valueInput.type = 'number';
+        row.insertCell(-1).appendChild(valueInput);
+        valueInput.value = sratio.get('value');
+        valueInput.classList.add('form-control');
+        valueInput.addEventListener('change', function(){ sratio.set('value', valueInput.value); })
+        
+        var unitSelect = document.createElement('select');
+        row.insertCell(-1).appendChild(unitSelect);
+        this.units.forEach(function(unit){
+            var option = document.createElement('option');
+            option.value = unit.id;
+            option.text = unit.get('name');
+            unitSelect.appendChild(option);
+        })
+        unitSelect.value = sratio.get('unit');
+        unitSelect.classList.add('form-control');
+        unitSelect.addEventListener('change', function(){ sratio.set('unit', unitSelect.value); })
+        
+        var checkbox = document.createElement("input");
+        checkbox.type = 'checkbox';
+        row.insertCell(-1).appendChild(checkbox);
+
+        checkbox.addEventListener('change', function() {
+            row.classList.toggle('strikeout');
+            row.classList.toggle('dsbld');
+            sratio.markedForDeletion = checkbox.checked;
+        });
+    },
+    
     showSolution: function(solution, onConfirm){
         var _this = this,
             changedImages = {};
@@ -205,6 +284,19 @@ var SolutionsView = BaseView.extend(
                 changedImages[field] = input.files[0];
             }
         };
+        var Quantities = Backbone.Collection.extend({ 
+            url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+        var squantities = new Quantities();
+        squantities.fetch({success: function(){
+            squantities.forEach(_this.addSolutionQuanitityRow)
+        }});
+        
+        var Ratios = Backbone.Collection.extend({ 
+            url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+        var sratios = new Ratios();
+        sratios.fetch({success: function(){
+            sratios.forEach(_this.addSolutionRatioOneUnitRow)
+        }});
     
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
@@ -232,7 +324,9 @@ var SolutionsView = BaseView.extend(
                 effectImgInput = modal.querySelector('input[name="effect-file"]'),
                 activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
                 descriptionArea = modal.querySelector('textarea[name="description"]'),
-                activityInputs = modal.querySelectorAll('input[name="activity"]');
+                activityInputs = modal.querySelectorAll('input[name="activity"]'),
+                addRatioBtn = modal.querySelector('#add-one-unit-ratio'),
+                addQuantityBtn = modal.querySelector('#add-required-ratio');
             
             stateImgInput.addEventListener('change', function(){
                 swapImage(stateImgInput, 'state-image', 'currentstate_image');
@@ -243,7 +337,38 @@ var SolutionsView = BaseView.extend(
             activitiesImgInput.addEventListener('change', function(){
                 swapImage(activitiesImgInput, 'activities-image', 'activities_image');
             })
+            
+            addQuantityBtn.addEventListener('click', function(){
+                squantity = new squantities.model({ 
+                    name: '', unit: _this.units.first().id
+                })
+                squantities.add(squantity);
+                _this.addSolutionQuanitityRow(squantity);
+            })
+            addRatioBtn.addEventListener('click', function(){
+                sratio = new sratios.model({ 
+                    name: '', unit: _this.units.first().id, value: 0
+                })
+                sratios.add(sratio);
+                _this.addSolutionRatioOneUnitRow(sratio);
+            })
+            
+            for(var i = 0; i < activityInputs.length; i++){
+                var checkbox = activityInputs[i];
+                checkbox.addEventListener('change', function(event){
+                    var id = event.target.value;
+                    if (event.target.checked)
+                        _this.renderActivityOnMap(id);
+                    else 
+                        _this.removeActivityFromMap(id);
+                })
+            }
+            
             okBtn.addEventListener('click', function(){
+                var ratioModels = [];
+                squantities.forEach(function(m) {ratioModels.push(m)});
+                sratios.forEach(function(m) {ratioModels.push(m)});
+                
                 var activities = [];
                 for (i = 0; i < activityInputs.length; i++) {
                     var input = activityInputs[i];
@@ -261,8 +386,13 @@ var SolutionsView = BaseView.extend(
                 }
                 solution.save(data, { 
                     success: function(){
-                        $(modal).modal('hide');
-                        if (onConfirm) onConfirm();
+                        utils.queuedUpload(ratioModels, {
+                            success: function(){
+                                $(modal).modal('hide');
+                                if (onConfirm) onConfirm();
+                            },
+                            error: _this.onError
+                        });
                     },
                     error: _this.onError,
                     patch: true
@@ -291,8 +421,7 @@ var SolutionsView = BaseView.extend(
             fill: 'rgba(170, 212, 0, 0.1)',
             strokeWidth: 1,
             zIndex: 0
-        },
-        );
+        });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
@@ -302,54 +431,51 @@ var SolutionsView = BaseView.extend(
         };
         var deferreds = [];
         
-        // search for the keyflow of an activity
-        function getKeyflow(activityId){
-            var keyflow = _this.keyflows.find(function(keyflow){ 
-                var found = _.find(keyflow.activities, function(activity){
-                    return activity.id == activityId;
-                }); 
-                return found != null;
-            })
-            return keyflow;
-        }
-        
         activities.forEach(function(activityId){
-            var keyflowId = getKeyflow(activityId).id,
-                actorUrl = config.api.actors.format(_this.caseStudy.id, keyflowId);
-            //deferreds.push(
-                $.ajax({
-                    url: actorUrl,
-                    type: "GET",
-                    dataType: "json",
-                    data: { activity: activityId, page_size: 100000, included: "True" },
-                    success: function(response){
-                        var actorIds = [];
-                        response.results.forEach(function(actor){ actorIds.push(actor.id) });
-                        if (actorIds.length > 0){
-                            var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
-                            adminLocUrl += '?actor__in=' + actorIds.toString();
-                            _this.map.addLayer('actors' + activityId, {
-                                source: {
-                                    url: adminLocUrl
-                                }
-                            })
-                        }
-                        //var geojson = $.ajax({
-                            //url: adminLocUrl,
-                            //type: "GET",
-                            //dataType: "json",
-                            //data: { actor__in: actorIds.toString() },
-                            //success: console.log
-                        //});
-                    }
-                })
-            //)
+            _this.renderActivityOnMap(activityId);
         })
-        //$.when.apply($, deferreds).then(function(){
-            //var actorIds = [];
-            //actors.forEach(function(actor){ actorIds.push(actor.id) });
-            //var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id)
-        //})
+    },
+        
+    // search for the keyflow of an activity
+    getKeyflow: function(activityId){
+        var keyflow = this.keyflows.find(function(keyflow){ 
+            var found = _.find(keyflow.activities, function(activity){
+                return activity.id == activityId;
+            }); 
+            return found != null;
+        })
+        return keyflow;
+    },
+    
+    renderActivityOnMap: function(activityId){
+        var _this = this;
+        var keyflowId = this.getKeyflow(activityId).id,
+            actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
+        var loader = new Loader(document.getElementById('activities-checks'), {disable: true});
+        $.ajax({
+            url: actorUrl,
+            type: "GET",
+            dataType: "json",
+            data: { activity: activityId, page_size: 100000, included: "True" },
+            success: function(response){
+                loader.remove();
+                var actorIds = [];
+                response.results.forEach(function(actor){ actorIds.push(actor.id) });
+                if (actorIds.length > 0){
+                    var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
+                    adminLocUrl += '?actor__in=' + actorIds.toString();
+                    _this.map.addLayer('actors' + activityId, {
+                        source: {
+                            url: adminLocUrl
+                        }
+                    })
+                }
+            }
+        })
+    },
+    
+    removeActivityFromMap: function(activityId){
+        this.map.removeLayer('actors' + activityId);
     },
     
     addCategory: function(){

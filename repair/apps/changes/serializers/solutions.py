@@ -108,8 +108,8 @@ class SolutionDetailCreateMixin:
 
 class SolutionQuantitySerializer(SolutionDetailCreateMixin,
                                  NestedHyperlinkedModelSerializer):
-    unit = UnitField(view_name='unit-detail')
-    solution = SolutionField(view_name='solution-detail', read_only=True)
+    unit = IDRelatedField()
+    solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__user__casestudy__id',
         'solutioncategory_pk': 'solution__solution_category__id',
@@ -131,8 +131,8 @@ class SolutionDetailListField(InCaseStudyIdentityField):
 
 class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
                                      NestedHyperlinkedModelSerializer):
-    unit = UnitField(view_name='unit-detail')
-    solution = SolutionField(view_name='solution-detail', read_only=True)
+    unit = IDRelatedField()
+    solution = IDRelatedField(read_only=True)
     value = serializers.DecimalField(max_digits=10, decimal_places=3)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__user__casestudy__id',

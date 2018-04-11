@@ -5,7 +5,6 @@ from repair.apps.utils.views import ReadUpdateViewSet
 from repair.apps.changes.models import (
     Implementation,
     SolutionInImplementation,
-    SolutionInImplementationNote,
     SolutionInImplementationQuantity,
     SolutionInImplementationGeometry,
 
@@ -14,7 +13,6 @@ from repair.apps.changes.models import (
 from repair.apps.changes.serializers import (
     ImplementationSerializer,
     SolutionInImplementationSerializer,
-    SolutionInImplementationNoteSerializer,
     SolutionInImplementationQuantitySerializer,
     SolutionInImplementationGeometrySerializer,
     ImplementationOfUserSerializer,
@@ -39,12 +37,6 @@ class SolutionInImplementationViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
-
-
-class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
-                                          ModelPermissionViewSet):
-    serializer_class = SolutionInImplementationNoteSerializer
-    queryset = SolutionInImplementationNote.objects.all()
 
 
 class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
