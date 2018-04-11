@@ -3,7 +3,6 @@ from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
 from repair.apps.changes.models import (Implementation,
                                         SolutionInImplementation,
-                                        SolutionInImplementationNote,
                                         SolutionInImplementationQuantity,
                                         SolutionInImplementationGeometry,
                                         )
@@ -171,7 +170,7 @@ class SolutionInImplementationDetailCreateMixin:
         return obj
 
 
-class SolutionInImplementationNoteSerializer(SolutionInImplementationDetailCreateMixin,
+class SolutionInImplementationChildSerializer(SolutionInImplementationDetailCreateMixin,
                                              NestedHyperlinkedModelSerializer):
     sii = SolutionInImplementationField(
         view_name='solutioninimplementation-detail',
@@ -181,10 +180,6 @@ class SolutionInImplementationNoteSerializer(SolutionInImplementationDetailCreat
         'implementation_pk': 'sii__implementation__id',
         'solution_pk': 'sii__id', }
 
-    class Meta:
-        model = SolutionInImplementationNote
-        fields = ('url', 'id', 'note', 'sii')
-
 
 class SolutionQuantityField(InSolutionField):
     parent_lookup_kwargs = {'casestudy_pk':
@@ -193,7 +188,7 @@ class SolutionQuantityField(InSolutionField):
                             'solution_pk': 'solution__id', }
 
 
-class SolutionInImplementationQuantitySerializer(SolutionInImplementationNoteSerializer):
+class SolutionInImplementationQuantitySerializer(SolutionInImplementationChildSerializer):
     quantity = SolutionQuantityField(view_name='solutionquantity-detail',
                                      help_text=_('the quantity to define'),
                                      label=_('Solution Quantity'),
@@ -205,7 +200,7 @@ class SolutionInImplementationQuantitySerializer(SolutionInImplementationNoteSer
         read_only_fields = ('quantity', 'sii')
 
 
-class SolutionInImplementationGeometrySerializer(SolutionInImplementationNoteSerializer):
+class SolutionInImplementationGeometrySerializer(SolutionInImplementationChildSerializer):
     class Meta:
         model = SolutionInImplementationGeometry
         fields = ('url', 'id', 'name', 'geom', 'sii')
