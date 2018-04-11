@@ -86,13 +86,6 @@ class ImplementationWithTwoSolutionsFactory(UserFactory):
                                         'solution', solution__name='MySolution2')
 
 
-class SolutionInImplementationNoteFactory(DjangoModelFactory):
-    class Meta:
-        model = models.SolutionInImplementationNote
-    sii = factory.SubFactory(SolutionInImplementationFactory)
-    note = 'Note1'
-
-
 class SolutionInImplementationQuantityFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionInImplementationQuantity

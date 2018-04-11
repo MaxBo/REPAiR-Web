@@ -15,7 +15,6 @@ from repair.apps.changes.factories import (
     ImplementationFactory,
     SolutionInImplementationFactory,
     SolutionInImplementationGeometryFactory,
-    SolutionInImplementationNoteFactory,
     SolutionInImplementationQuantityFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -232,41 +231,6 @@ class GeometryInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest
             sii__solution__solution_category__id=self.solutioncategory,
             sii__id=self.solution_implementation,
             id=self.geometry)
-
-
-class NoteInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
-                                                    APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    note = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationnote"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.note)
-        cls.post_data = dict(note="test note")
-        cls.put_data = dict(note="test note")
-        cls.patch_data = dict(note="test note")
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInImplementationNoteFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.note)
 
 
 class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,
