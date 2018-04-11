@@ -353,6 +353,16 @@ var SolutionsView = BaseView.extend(
                 _this.addSolutionRatioOneUnitRow(sratio);
             })
             
+            for(var i = 0; i < activityInputs.length; i++){
+                var checkbox = activityInputs[i];
+                checkbox.addEventListener('change', function(event){
+                    var id = event.target.value;
+                    if (event.target.checked)
+                        _this.renderActivityOnMap(id);
+                    else 
+                        _this.removeActivityFromMap(id);
+                })
+            }
             
             okBtn.addEventListener('click', function(){
                 var ratioModels = [];
@@ -411,8 +421,7 @@ var SolutionsView = BaseView.extend(
             fill: 'rgba(170, 212, 0, 0.1)',
             strokeWidth: 1,
             zIndex: 0
-        },
-        );
+        });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
@@ -422,40 +431,49 @@ var SolutionsView = BaseView.extend(
         };
         var deferreds = [];
         
-        // search for the keyflow of an activity
-        function getKeyflow(activityId){
-            var keyflow = _this.keyflows.find(function(keyflow){ 
-                var found = _.find(keyflow.activities, function(activity){
-                    return activity.id == activityId;
-                }); 
-                return found != null;
-            })
-            return keyflow;
-        }
-        
         activities.forEach(function(activityId){
-            var keyflowId = getKeyflow(activityId).id,
-                actorUrl = config.api.actors.format(_this.caseStudy.id, keyflowId);
-                $.ajax({
-                    url: actorUrl,
-                    type: "GET",
-                    dataType: "json",
-                    data: { activity: activityId, page_size: 100000, included: "True" },
-                    success: function(response){
-                        var actorIds = [];
-                        response.results.forEach(function(actor){ actorIds.push(actor.id) });
-                        if (actorIds.length > 0){
-                            var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
-                            adminLocUrl += '?actor__in=' + actorIds.toString();
-                            _this.map.addLayer('actors' + activityId, {
-                                source: {
-                                    url: adminLocUrl
-                                }
-                            })
-                        }
-                    }
-                })
+            _this.renderActivityOnMap(activityId);
         })
+    },
+        
+    // search for the keyflow of an activity
+    getKeyflow: function(activityId){
+        var keyflow = this.keyflows.find(function(keyflow){ 
+            var found = _.find(keyflow.activities, function(activity){
+                return activity.id == activityId;
+            }); 
+            return found != null;
+        })
+        return keyflow;
+    },
+    
+    renderActivityOnMap: function(activityId){
+        var _this = this;
+        var keyflowId = this.getKeyflow(activityId).id,
+            actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
+        $.ajax({
+            url: actorUrl,
+            type: "GET",
+            dataType: "json",
+            data: { activity: activityId, page_size: 100000, included: "True" },
+            success: function(response){
+                var actorIds = [];
+                response.results.forEach(function(actor){ actorIds.push(actor.id) });
+                if (actorIds.length > 0){
+                    var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
+                    adminLocUrl += '?actor__in=' + actorIds.toString();
+                    _this.map.addLayer('actors' + activityId, {
+                        source: {
+                            url: adminLocUrl
+                        }
+                    })
+                }
+            }
+        })
+    },
+    
+    removeActivityFromMap: function(activityId){
+        this.map.removeLayer('actors' + activityId);
     },
     
     addCategory: function(){
