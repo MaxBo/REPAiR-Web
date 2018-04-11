@@ -81,8 +81,12 @@ module.exports = {
                 success: function(){ uploadModel(models, it+1) },
                 error: options.error
             }
-            if (model.markedForDeletion)
-                model.destroy(params);
+            if (model.markedForDeletion){
+                // only already existing models can be destroyed (indicated by id)
+                if (model.id) 
+                    model.destroy(params);
+                else uploadModel(models, it+1)
+            }
             else {
                 model.save(null, params);
             }

@@ -218,6 +218,16 @@ var SolutionsView = BaseView.extend(
         unitSelect.value = squantity.get('unit');
         unitSelect.classList.add('form-control');
         unitSelect.addEventListener('change', function(){ squantity.set('unit', unitSelect.value); })
+        
+        var checkbox = document.createElement("input");
+        checkbox.type = 'checkbox';
+        row.insertCell(-1).appendChild(checkbox);
+
+        checkbox.addEventListener('change', function() {
+            row.classList.toggle('strikeout');
+            row.classList.toggle('dsbld');
+            squantity.markedForDeletion = checkbox.checked;
+        });
     },
     
     addSolutionRatioOneUnitRow: function(sratio){
@@ -248,6 +258,16 @@ var SolutionsView = BaseView.extend(
         unitSelect.value = sratio.get('unit');
         unitSelect.classList.add('form-control');
         unitSelect.addEventListener('change', function(){ sratio.set('unit', unitSelect.value); })
+        
+        var checkbox = document.createElement("input");
+        checkbox.type = 'checkbox';
+        row.insertCell(-1).appendChild(checkbox);
+
+        checkbox.addEventListener('change', function() {
+            row.classList.toggle('strikeout');
+            row.classList.toggle('dsbld');
+            sratio.markedForDeletion = checkbox.checked;
+        });
     },
     
     showSolution: function(solution, onConfirm){
