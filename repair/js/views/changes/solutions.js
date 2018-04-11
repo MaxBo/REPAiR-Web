@@ -153,8 +153,8 @@ var SolutionsView = BaseView.extend(
         })
         
         panelList.appendChild(div);
-        div.appendChild(label);
         div.appendChild(removeBtn);
+        div.appendChild(label);
         div.appendChild(panel);
         div.appendChild(button);
         // add the items
@@ -316,7 +316,6 @@ var SolutionsView = BaseView.extend(
         activities.forEach(function(activityId){
             var keyflowId = getKeyflow(activityId).id,
                 actorUrl = config.api.actors.format(_this.caseStudy.id, keyflowId);
-            //deferreds.push(
                 $.ajax({
                     url: actorUrl,
                     type: "GET",
@@ -334,22 +333,9 @@ var SolutionsView = BaseView.extend(
                                 }
                             })
                         }
-                        //var geojson = $.ajax({
-                            //url: adminLocUrl,
-                            //type: "GET",
-                            //dataType: "json",
-                            //data: { actor__in: actorIds.toString() },
-                            //success: console.log
-                        //});
                     }
                 })
-            //)
         })
-        //$.when.apply($, deferreds).then(function(){
-            //var actorIds = [];
-            //actors.forEach(function(actor){ actorIds.push(actor.id) });
-            //var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id)
-        //})
     },
     
     addCategory: function(){
