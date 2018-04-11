@@ -43,14 +43,6 @@ ImpactCategories, Target, Targets){
                 caseStudyId: _this.caseStudy.id
             });
 
-            // this.indicators = {
-            //     'Higher Recycling rate': [
-            //         'Indicator AB',
-            //         'Indicator XY',
-            //     ],
-            //     'Less non recyclable garbage': []
-            // };
-
             // there is a spelling or conceptual error here, because
             // impactcategories == indicators
             _this.impactcategories = []
@@ -218,9 +210,19 @@ ImpactCategories, Target, Targets){
                         template = _.template(html);
                 }
 
-                var panelItem = document.createElement('div');
-                panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: impactcategory.name });
+                var panelItem = document.createElement('select');
+                panelItem.classList.add('panel-item', 'form-control');
+                _this.impactcategories.forEach(function(impactcategory){
+                    var option = document.createElement('option');
+                    option.text = impactcategory.name;
+                    panelItem.appendChild(option);
+                });
+                for(var k, j = 0; k = panelItem.options[j]; j++) {
+                    if(k.text == impactcategory.name) {
+                        panelItem.selectedIndex = j;
+                        break;
+                    }
+                }
                 indicatorPanel.appendChild(panelItem);
 
                 var targetSelect = document.createElement('select');
@@ -230,6 +232,12 @@ ImpactCategories, Target, Targets){
                     option.text = target.text;
                     targetSelect.appendChild(option);
                 });
+                for(var k, j = 0; k = targetSelect.options[j]; j++) {
+                    if(k.text == targetValue.text) {
+                        targetSelect.selectedIndex = j;
+                        break;
+                    }
+                }
                 targetPanel.appendChild(targetSelect);
 
                 var spatialSelect = document.createElement('select');
@@ -239,6 +247,12 @@ ImpactCategories, Target, Targets){
                     option.text = s.text;
                     spatialSelect.appendChild(option);
                 });
+                for(var k, j = 0; k = spatialSelect.options[j]; j++) {
+                    if(k.text == spatial.text) {
+                        spatialSelect.selectedIndex = j;
+                        break;
+                    }
+                }
                 spatialPanel.appendChild(spatialSelect);
             }
         },
