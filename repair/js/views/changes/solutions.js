@@ -1,9 +1,9 @@
 define(['views/baseview', 'backbone', 'underscore', 'collections/solutioncategories',
         'collections/solutions', 'collections/keyflows', 'visualizations/map', 
-        'app-config', 'utils/loader', 'bootstrap', 'app-config'],
+        'app-config', 'utils/loader', 'utils/utils', 'bootstrap'],
 
 function(BaseView, Backbone, _, SolutionCategories, Solutions, Keyflows, 
-         Map, config, Loader){
+         Map, config, Loader, utils){
 /**
 *
 * @author Christoph Franke
@@ -235,7 +235,7 @@ var SolutionsView = BaseView.extend(
         row.insertCell(-1).appendChild(valueInput);
         valueInput.value = sratio.get('value');
         valueInput.classList.add('form-control');
-        valueInput.addEventListener('change', function(){ sratio.set('name', valueInput.value); })
+        valueInput.addEventListener('change', function(){ sratio.set('value', valueInput.value); })
         
         var unitSelect = document.createElement('select');
         row.insertCell(-1).appendChild(unitSelect);
@@ -322,16 +322,23 @@ var SolutionsView = BaseView.extend(
                 squantity = new squantities.model({ 
                     name: '', unit: _this.units.first().id
                 })
+                squantities.add(squantity);
                 _this.addSolutionQuanitityRow(squantity);
             })
             addRatioBtn.addEventListener('click', function(){
                 sratio = new sratios.model({ 
                     name: '', unit: _this.units.first().id, value: 0
                 })
+                sratios.add(sratio);
                 _this.addSolutionRatioOneUnitRow(sratio);
             })
             
+            
             okBtn.addEventListener('click', function(){
+                var ratioModels = [];
+                squantities.forEach(function(m) {ratioModels.push(m)});
+                sratios.forEach(function(m) {ratioModels.push(m)});
+                
                 var activities = [];
                 for (i = 0; i < activityInputs.length; i++) {
                     var input = activityInputs[i];
@@ -349,8 +356,13 @@ var SolutionsView = BaseView.extend(
                 }
                 solution.save(data, { 
                     success: function(){
-                        $(modal).modal('hide');
-                        if (onConfirm) onConfirm();
+                        utils.queuedUpload(ratioModels, {
+                            success: function(){
+                                $(modal).modal('hide');
+                                if (onConfirm) onConfirm();
+                            },
+                            error: _this.onError
+                        });
                     },
                     error: _this.onError,
                     patch: true
