@@ -451,12 +451,14 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var keyflowId = this.getKeyflow(activityId).id,
             actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
+        var loader = new Loader(document.getElementById('activities-checks'), {disable: true});
         $.ajax({
             url: actorUrl,
             type: "GET",
             dataType: "json",
             data: { activity: activityId, page_size: 100000, included: "True" },
             success: function(response){
+                loader.remove();
                 var actorIds = [];
                 response.results.forEach(function(actor){ actorIds.push(actor.id) });
                 if (actorIds.length > 0){
