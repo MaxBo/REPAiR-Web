@@ -7,10 +7,10 @@
     <b>{% trans "Aim" %}</b>
   </div>
   <div class="col-md-3">
-    <b>{% trans "Indicator" %}</b>
+    <b>{% trans "Target value" %}</b>
   </div>
   <div class="col-md-3">
-    <b>{% trans "Target" %}</b>
+    <b>{% trans "Indicator" %}</b>
   </div>
   <div class="col-md-3">
     <b>{% trans "Spatial reference" %}</b>
@@ -24,14 +24,14 @@
     <label> <%= aim %> </label>
   </div>
 </div>
-<div id="indicator-panel" class="col-md-3 indicators">
+<div class="col-md-3 targets">
   <div class="item-panel" style="min-height: 25px;">
   </div>
-  <button class="btn btn-primary square add" title="{% trans "add indicator" %}">
-    <span class="glyphicon glyphicon-plus"></span> {% trans "Indicator" %}
+  <button class="btn btn-primary square add" title="{% trans "add target" %}">
+    <span class="glyphicon glyphicon-plus"></span> {% trans "Target" %}
   </button>
 </div>
-<div class="col-md-3 targets">
+<div id="indicator-panel" class="col-md-3 indicators">
   <div class="item-panel" style="min-height: 25px;">
   </div>
 </div>
