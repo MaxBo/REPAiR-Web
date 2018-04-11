@@ -145,6 +145,7 @@ ImpactCategories, Target, Targets){
         * dom events (managed by jquery)
         */
         events: {
+            'click #add-target-button': 'addTarget'
         },
 
         initItems: function(items, list, type){
@@ -168,13 +169,6 @@ ImpactCategories, Target, Targets){
             this.renderRows();
         },
 
-        getObject(list, id){
-            var pos = list.map(function(e) {
-                return e.id;
-            }).indexOf(id);
-            return list[pos];
-        },
-
         renderRows(){
             var _this = this;
             for (var i = 0; i < this.targets.length; i++){
@@ -191,7 +185,7 @@ ImpactCategories, Target, Targets){
                     row.classList.add('row', 'overflow', 'bordered');
                     var html = document.getElementById('target-row-template').innerHTML
                     var template = _.template(html);
-                    row.innerHTML = template({ aim: aim.text });
+                    row.innerHTML = template({ aim: aim.text, aimId: aim.id });
                     _this.el.appendChild(row);
 
                     var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
@@ -246,6 +240,46 @@ ImpactCategories, Target, Targets){
                 }
                 spatialPanel.appendChild(spatialSelect);
             }
+        },
+
+        getObject(list, id){
+            var pos = list.map(function(e) {
+                return e.id;
+            }).indexOf(id);
+            return list[pos];
+        },
+
+        addTarget: function(e){
+            var _this = this;
+            var aimId = $(e.currentTarget).attr("aimId");
+            // just create a default Target
+            var target = new Target(
+                {
+                "aim": aimId,
+                "impact_category": _this.impactcategories[0].id,
+                "target_value": _this.targetvalues[0].id,
+                "spatial_reference": _this.spatial[0].id
+                },
+                { caseStudyId: _this.caseStudy.id}
+            );
+            target.save(null, {
+                success: function(){
+                    var temp = _this.targets;
+                    temp.push({
+                        "id": target.get('id'),
+                        "aim": target.get('aim'),
+                        "impact_category": target.get('impact_category'),
+                        "target_value": target.get('target_value'),
+                        "spatial_reference": target.get('spatial_reference'),
+                        "user": target.get('user')
+                    });
+                    _this.targets = _.sortBy(temp, 'aim' );
+                    _this.render();
+                },
+                error: function(){
+                    console.error("cannot addTarget");
+                }
+            });
         },
 
         /*
