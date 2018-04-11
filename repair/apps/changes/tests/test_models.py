@@ -8,7 +8,6 @@ from repair.apps.changes.models import (
     SolutionCategory,
     SolutionInImplementation,
     SolutionInImplementationGeometry,
-    SolutionInImplementationNote,
     SolutionInImplementationQuantity,
     SolutionQuantity,
     SolutionRatioOneUnit,
@@ -50,13 +49,6 @@ class TestModelRepresentation(TestCase):
             geom=LineString([(1, 1), (2, 2)]),
         )
         target = 'location Altona (LineString)'
-        self.assertEqual(str(model), target)
-
-        model = SolutionInImplementationNote(
-            sii=solution_in_impl,
-            note='An important Note'
-        )
-        target = 'Note for Sol1 in Impl2:\nAn important Note'
         self.assertEqual(str(model), target)
 
         unit = Unit(name='tons')

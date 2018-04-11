@@ -133,8 +133,6 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
     implementation = ImplementationField(
         view_name='implementation-detail')
     solution = SolutionField(view_name='solution-detail')
-    solutioninimplementationnote_set = SolutionInImplementationDetailListField(
-        view_name='solutioninimplementationnote-list')
     solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
         view_name='solutioninimplementationquantity-list')
     solutioninimplementationgeometry_set = SolutionInImplementationDetailListField(
@@ -145,9 +143,9 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id',
                   'implementation',
                   'solution',
-                  'solutioninimplementationnote_set',
                   'solutioninimplementationquantity_set',
                   'solutioninimplementationgeometry_set',
+                  'note'
                   )
 
 
