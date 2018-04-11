@@ -22,6 +22,7 @@ from repair.apps.utils.views import ModelPermissionViewSet
 class UnitViewSet(ModelPermissionViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
+    pagination_class = None
 
 
 class SolutionCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
