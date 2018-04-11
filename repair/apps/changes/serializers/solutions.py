@@ -109,7 +109,7 @@ class SolutionDetailCreateMixin:
 class SolutionQuantitySerializer(SolutionDetailCreateMixin,
                                  NestedHyperlinkedModelSerializer):
     unit = IDRelatedField()
-    solution = IDRelatedField()
+    solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__user__casestudy__id',
         'solutioncategory_pk': 'solution__solution_category__id',
