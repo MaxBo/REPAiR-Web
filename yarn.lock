@@ -467,6 +467,12 @@ bootstrap-colorpicker@^2.5.2:
   dependencies:
     jquery ">=1.10"
 
+bootstrap-select@^1.12.4:
+  version "1.12.4"
+  resolved "https://registry.yarnpkg.com/bootstrap-select/-/bootstrap-select-1.12.4.tgz#7f15d3c0ce978868d9c09c70f96624f55fa02ee1"
+  dependencies:
+    jquery ">=1.8"
+
 bootstrap@3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-3.3.7.tgz#5a389394549f23330875a3b150656574f8a9eb71"
@@ -2765,7 +2771,7 @@ jasmine@^2.9.0:
     glob "^7.0.6"
     jasmine-core "~2.9.0"
 
-jquery@>=1.10, jquery@^3.0.0:
+jquery@>=1.10, jquery@>=1.8, jquery@^3.0.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 

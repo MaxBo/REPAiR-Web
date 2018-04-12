@@ -15,7 +15,7 @@ var SolutionsView = BaseView.extend(
     {
 
     /**
-    * render setup view on solutions
+    * render setup and workshop view on solutions
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                          element the view will be rendered in
