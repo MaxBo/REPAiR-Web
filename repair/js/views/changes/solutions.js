@@ -69,7 +69,7 @@ var SolutionsView = BaseView.extend(
                         _this.render();
                     });
                 },
-                error: _this.onError
+                error: function(m, r){ _this.onError(r) }
             })
         }
         else this.categories.fetch({ success: _this.render })
@@ -391,10 +391,10 @@ var SolutionsView = BaseView.extend(
                                 $(modal).modal('hide');
                                 if (onConfirm) onConfirm();
                             },
-                            error: _this.onError
+                            error: function(m, r){ _this.onError(r) }
                         });
                     },
-                    error: _this.onError,
+                    error: function(m, r){ _this.onError(r) },
                     patch: true
                 })
             });

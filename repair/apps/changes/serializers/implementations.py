@@ -12,7 +12,8 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            InSolutionField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
-                                           CreateWithUserInCasestudyMixin)
+                                           CreateWithUserInCasestudyMixin,
+                                           IDRelatedField)
 
 
 from .solutions import SolutionField
@@ -57,10 +58,8 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         view_name='solutioninimplementation-detail',
         many=True,
         read_only=True)
-    coordinating_stakeholder = StakeholderOfImplementationField(
-        view_name='stakeholder-detail')
-    user = UserInCasestudyField(
-        view_name='userincasestudy-detail', read_only=True)
+    coordinating_stakeholder = IDRelatedField()
+    user = IDRelatedField(read_only=True)
 
     class Meta:
         model = Implementation

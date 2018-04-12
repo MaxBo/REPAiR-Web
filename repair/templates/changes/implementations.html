@@ -25,7 +25,7 @@
             <td> {% trans "Coordinator" %} </td>
             <td> 
               <select id="coordinator-select" class="selectpicker" style="width: 100%;">
-              <% categories.forEach(function(category){ %>
+              <% stakeholderCategories.forEach(function(category){ %>
                 <optgroup label="<%= category.get('name') %>">
                   <% category.stakeholders.forEach(function(stakeholder){ %>
                   <option value="<%= stakeholder.id %>"> <%= stakeholder.get('name') %></option>
@@ -48,6 +48,22 @@
 
 <!-- modal for an implementation item -->
 <script type="text/template" id="implementation-item-template">
+<div class="row bordered" style="margin-top: 15px;">
+  <button class="btn btn-warning square remove" title="Remove implementation" style="float: right;">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
+  <button class="btn btn-primary square edit" title="Edit implementation" style="float: right; margin-right: 5px;">
+    <span class="glyphicon glyphicon-pencil"></span>
+  </button>
+  <h3 class='title'> <%= implementation.get('name') %> </h3>
+  {% trans "Coordinated by" %}:&nbsp;
+  <label class='coordinator'><%= stakeholder.get('name') %></label>
+  <div class="row solutions">
+  </div>
+  <button class="btn btn-primary add" title="{% trans "Add solution" %}">
+    <span class="glyphicon glyphicon-plus"></span> {% trans "Solution" %}
+  </button>
+</div>
 </script>
 
 {% endblock %}
