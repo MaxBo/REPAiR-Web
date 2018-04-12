@@ -3,9 +3,11 @@
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
 
 <script type="text/template" id="solutions-template">
+<% if (mode == 1) { %>
 <button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">
   <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
 </button>
+<% } %>
 <div id="categories" class="row overflow">
 </div>
 <div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>

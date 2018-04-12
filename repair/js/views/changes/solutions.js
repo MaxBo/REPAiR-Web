@@ -90,7 +90,7 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ mode: this.mode });
         var deferreds = [];
         this.categories.forEach(function(category){
             category.solutions = new Solutions([], { 
