@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
 
 {% block sidebar %}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
   <script>
     document.getElementById("changes-link").classList.add('active');
   </script>
