@@ -57,20 +57,15 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         view_name='solutioninimplementation-detail',
         many=True,
         read_only=True)
-    solution_set = SolutionIISetField(
-        source='solutions',
-        view_name='solution-detail',
-        many=True)
     coordinating_stakeholder = StakeholderOfImplementationField(
         view_name='stakeholder-detail')
     user = UserInCasestudyField(
-        view_name='userincasestudy-detail')
+        view_name='userincasestudy-detail', read_only=True)
 
     class Meta:
         model = Implementation
         fields = ('url', 'id', 'name', 'user',
                   'coordinating_stakeholder',
-                  'solution_set',
                   'solution_list',
                   'sii_set',
                   )
@@ -102,12 +97,6 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
             setattr(instance, attr, value)
         instance.save()
         return instance
-
-
-class ImplementationOfUserSerializer(ImplementationSerializer):
-    """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'user_pk': 'user__id', }
 
 
 class ImplementationField(InCasestudyField):
