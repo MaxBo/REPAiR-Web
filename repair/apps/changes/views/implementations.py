@@ -14,8 +14,7 @@ from repair.apps.changes.serializers import (
     ImplementationSerializer,
     SolutionInImplementationSerializer,
     SolutionInImplementationQuantitySerializer,
-    SolutionInImplementationGeometrySerializer,
-    ImplementationOfUserSerializer,
+    SolutionInImplementationGeometrySerializer
     )
 
 from repair.apps.utils.views import (ModelPermissionViewSet,
@@ -26,11 +25,14 @@ class ImplementationViewSet(CasestudyViewSetMixin,
                             ModelPermissionViewSet):
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
-
-
-class ImplementationOfUserViewSet(ImplementationViewSet):
-    # TODO: find th permissions
-    serializer_class = ImplementationOfUserSerializer
+    
+    def list(self, request, *args, **kwargs):
+        
+        if (request.user.id and 'user' not in request.query_params and
+            'user__in' not in request.query_params):
+            self.queryset = self.queryset.filter(user__user__user_id=request.user.id)
+        
+        return super().list(request, *args, **kwargs)
 
 
 class SolutionInImplementationViewSet(CasestudyViewSetMixin,

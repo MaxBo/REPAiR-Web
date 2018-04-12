@@ -48,13 +48,13 @@ class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.implementation)
         cls.post_data = dict(name="Test Implementation",
-                             user=cls.usr_url,
+                             user=cls.userincasestudy,
                              solution_set=cls.sol_set,
-                             coordinating_stakeholder=cls.stakeholder_url)
+                             coordinating_stakeholder=cls.stakeholder)
         cls.put_data = dict(name="Test Implementation",
-                            user=cls.usr_url,
+                            user=cls.userincasestudy,
                             solution_set=cls.sol_set,
-                            coordinating_stakeholder=cls.stakeholder_url)
+                            coordinating_stakeholder=cls.stakeholder)
         cls.patch_data = dict(name="Test New Implementation")
 
     def setUp(self):

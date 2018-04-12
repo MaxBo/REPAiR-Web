@@ -15,7 +15,7 @@ var SolutionsView = BaseView.extend(
     {
 
     /**
-    * render setup view on solutions
+    * render setup and workshop view on solutions
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                          element the view will be rendered in
@@ -69,7 +69,7 @@ var SolutionsView = BaseView.extend(
                         _this.render();
                     });
                 },
-                error: _this.onError
+                error: function(m, r){ _this.onError(r) }
             })
         }
         else this.categories.fetch({ success: _this.render })
@@ -90,7 +90,7 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ mode: this.mode });
         var deferreds = [];
         this.categories.forEach(function(category){
             category.solutions = new Solutions([], { 
@@ -287,16 +287,19 @@ var SolutionsView = BaseView.extend(
         var Quantities = Backbone.Collection.extend({ 
             url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
         var squantities = new Quantities();
-        squantities.fetch({success: function(){
-            squantities.forEach(_this.addSolutionQuanitityRow)
-        }});
         
         var Ratios = Backbone.Collection.extend({ 
             url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
         var sratios = new Ratios();
-        sratios.fetch({success: function(){
-            sratios.forEach(_this.addSolutionRatioOneUnitRow)
-        }});
+        
+        if (solution.id){
+            squantities.fetch({success: function(){
+                squantities.forEach(_this.addSolutionQuanitityRow)
+            }});
+            sratios.fetch({success: function(){
+                sratios.forEach(_this.addSolutionRatioOneUnitRow)
+            }});
+        }
     
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
@@ -365,9 +368,6 @@ var SolutionsView = BaseView.extend(
             }
             
             okBtn.addEventListener('click', function(){
-                var ratioModels = [];
-                squantities.forEach(function(m) {ratioModels.push(m)});
-                sratios.forEach(function(m) {ratioModels.push(m)});
                 
                 var activities = [];
                 for (i = 0; i < activityInputs.length; i++) {
@@ -386,15 +386,22 @@ var SolutionsView = BaseView.extend(
                 }
                 solution.save(data, { 
                     success: function(){
+                        var ratioModels = [];
+                        // workaround for missing id
+                        squantities.url = config.api.solutionQuantities.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
+                        sratios.url = config.api.solutionRatioOneUnits.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
+                        squantities.forEach(function(m) {ratioModels.push(m)});
+                        sratios.forEach(function(m) {ratioModels.push(m)});
+                        
                         utils.queuedUpload(ratioModels, {
                             success: function(){
                                 $(modal).modal('hide');
                                 if (onConfirm) onConfirm();
                             },
-                            error: _this.onError
+                            error: function(m, r){ _this.onError(r) }
                         });
                     },
-                    error: _this.onError,
+                    error: function(m, r){ _this.onError(r) },
                     patch: true
                 })
             });
