@@ -119,8 +119,8 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
                             'implementation_pk': 'implementation__id',
                             }
     implementation = ImplementationField(
-        view_name='implementation-detail')
-    solution = SolutionField(view_name='solution-detail')
+        view_name='implementation-detail', read_only=True)
+    solution = IDRelatedField()
     solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
         view_name='solutioninimplementationquantity-list')
     solutioninimplementationgeometry_set = SolutionInImplementationDetailListField(
