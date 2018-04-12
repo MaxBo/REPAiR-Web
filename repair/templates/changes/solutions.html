@@ -28,7 +28,9 @@
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
+          <% if (mode == 1) { %>
           <li><a data-toggle="tab" href="#units-tab">{% trans "Units/Ratios" %}</a></li>
+          <% } %>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
           <li><a data-toggle="tab" href="#actors-tab">{% trans "Actors" %}</a></li>

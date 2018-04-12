@@ -39,40 +39,37 @@ var SolutionsView = BaseView.extend(
         
         // ToDo: replace with collections fetched from server
         this.categories = new SolutionCategories([], { caseStudyId: this.caseStudy.id })
-        
-        if (this.mode == 1){
-            var loader = new Loader(this.el, {disable: true});
-            this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
-                deferreds = [];
-            var Units = Backbone.Collection.extend({ url: config.api.units });
-            this.units = new Units();
-            this.keyflows.fetch({
-                success: function(){
-                    deferreds.push(_this.categories.fetch());
-                    deferreds.push(_this.units.fetch());
-                    _this.keyflows.forEach(function(keyflow){
-                        var activityUrl = config.api.activities.format(_this.caseStudy.id, keyflow.id);
-                        deferreds.push(
-                            $.ajax({
-                                url: activityUrl,
-                                type: "GET",
-                                dataType: "json",
-                                success: function(response){
-                                    keyflow.activities = response;
-                                }
-                            })
-                        )
-                    })
-                    
-                    $.when.apply($, deferreds).then(function(){
-                        loader.remove();
-                        _this.render();
-                    });
-                },
-                error: function(m, r){ _this.onError(r) }
-            })
-        }
-        else this.categories.fetch({ success: _this.render })
+    
+        var loader = new Loader(this.el, {disable: true});
+        this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
+            deferreds = [];
+        var Units = Backbone.Collection.extend({ url: config.api.units });
+        this.units = new Units();
+        this.keyflows.fetch({
+            success: function(){
+                deferreds.push(_this.categories.fetch());
+                deferreds.push(_this.units.fetch());
+                _this.keyflows.forEach(function(keyflow){
+                    var activityUrl = config.api.activities.format(_this.caseStudy.id, keyflow.id);
+                    deferreds.push(
+                        $.ajax({
+                            url: activityUrl,
+                            type: "GET",
+                            dataType: "json",
+                            success: function(response){
+                                keyflow.activities = response;
+                            }
+                        })
+                    )
+                })
+                
+                $.when.apply($, deferreds).then(function(){
+                    loader.remove();
+                    _this.render();
+                });
+            },
+            error: function(m, r){ _this.onError(r) }
+        })
     },
 
     /*
@@ -458,14 +455,16 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var keyflowId = this.getKeyflow(activityId).id,
             actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
-        var loader = new Loader(document.getElementById('activities-checks'), {disable: true});
+        var checkList = document.getElementById('activities-checks');
+        if (checkList)
+            var loader = new Loader(document.getElementById('activities-checks'), {disable: true});
         $.ajax({
             url: actorUrl,
             type: "GET",
             dataType: "json",
             data: { activity: activityId, page_size: 100000, included: "True" },
             success: function(response){
-                loader.remove();
+                if (checkList) loader.remove();
                 var actorIds = [];
                 response.results.forEach(function(actor){ actorIds.push(actor.id) });
                 if (actorIds.length > 0){
