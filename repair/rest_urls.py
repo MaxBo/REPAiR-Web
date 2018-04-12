@@ -26,7 +26,6 @@ from repair.apps.changes.views import (
     SolutionRatioOneUnitViewSet,
     SolutionInImplementationQuantityViewSet,
     SolutionInImplementationGeometryViewSet,
-    ImplementationOfUserViewSet,
     StrategyViewset,
 )
 
@@ -116,11 +115,6 @@ levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
 levels_router.register(r'areas', AreaViewSet)
 
-# /casestudies/*/users/...
-user_router = NestedSimpleRouter(cs_router, r'users',
-                                  lookup='user')
-user_router.register(r'implementations', ImplementationOfUserViewSet)
-
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
                                   lookup='chartcategory')
@@ -192,7 +186,6 @@ urlpatterns = [
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
     url(r'^', include(kf_router.urls)),
-    url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
     url(r'^', include(layercat_router.urls)),

@@ -118,7 +118,6 @@ class CaseStudySerializer(ForceMultiMixin,
         view_name='stakeholdercategory-list')
     solution_categories = InCasestudyListField(
         view_name='solutioncategory-list')
-    implementations = InCasestudyListField(view_name='implementation-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
@@ -131,7 +130,6 @@ class CaseStudySerializer(ForceMultiMixin,
         geo_field = 'geom'
         fields = ('url', 'id', 'name', 'userincasestudy_set',
                   'solution_categories', 'stakeholder_categories',
-                  'implementations',
                   'keyflows',
                   'levels',
                   'focusarea',
@@ -171,11 +169,10 @@ class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     role = serializers.CharField(required=False, allow_blank=True)
     user = IDRelatedField()
-    implementations = InUICSetField(view_name='implementation-list')
 
     class Meta:
         model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name', 'role', 'implementations')
+        fields = ('url', 'id', 'user', 'name', 'role')
         read_only_fields = ['name']
 
 
