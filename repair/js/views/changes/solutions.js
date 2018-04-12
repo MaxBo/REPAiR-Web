@@ -287,16 +287,19 @@ var SolutionsView = BaseView.extend(
         var Quantities = Backbone.Collection.extend({ 
             url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
         var squantities = new Quantities();
-        squantities.fetch({success: function(){
-            squantities.forEach(_this.addSolutionQuanitityRow)
-        }});
         
         var Ratios = Backbone.Collection.extend({ 
             url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
         var sratios = new Ratios();
-        sratios.fetch({success: function(){
-            sratios.forEach(_this.addSolutionRatioOneUnitRow)
-        }});
+        
+        if (solution.id){
+            squantities.fetch({success: function(){
+                squantities.forEach(_this.addSolutionQuanitityRow)
+            }});
+            sratios.fetch({success: function(){
+                sratios.forEach(_this.addSolutionRatioOneUnitRow)
+            }});
+        }
     
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
@@ -365,9 +368,6 @@ var SolutionsView = BaseView.extend(
             }
             
             okBtn.addEventListener('click', function(){
-                var ratioModels = [];
-                squantities.forEach(function(m) {ratioModels.push(m)});
-                sratios.forEach(function(m) {ratioModels.push(m)});
                 
                 var activities = [];
                 for (i = 0; i < activityInputs.length; i++) {
@@ -386,6 +386,13 @@ var SolutionsView = BaseView.extend(
                 }
                 solution.save(data, { 
                     success: function(){
+                        var ratioModels = [];
+                        // workaround for missing id
+                        squantities.url = config.api.solutionQuantities.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
+                        sratios.url = config.api.solutionRatioOneUnits.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
+                        squantities.forEach(function(m) {ratioModels.push(m)});
+                        sratios.forEach(function(m) {ratioModels.push(m)});
+                        
                         utils.queuedUpload(ratioModels, {
                             success: function(){
                                 $(modal).modal('hide');
