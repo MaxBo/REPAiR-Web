@@ -328,7 +328,6 @@ var ImplementationsView = BaseView.extend(
         this.renderEditorMap('editor-map', solutionImpl);
         $(modal).off();
         $(modal).on('shown.bs.modal', function () {
-            console.log('sdsd')
             _this.editorMap.map.updateSize();
         });
         $(modal).modal('show');
@@ -343,13 +342,13 @@ var ImplementationsView = BaseView.extend(
              });
             var geoJSON = new ol.format.GeoJSON(),
                 geoJSONText = geoJSON.writeGeometry(multiPolygon);
-            console.log(multiPolygon);
-            console.log(geoJSONText);
             var notes = modal.querySelector('textarea[name="description"]').value
             solutionImpl.set('notes', notes);
             solutionImpl.set('geom', geoJSONText);
             solutionImpl.save(null, {
                 success: function(){
+                    _this.renderSolutionPreviewMap(solutionImpl, item);
+                    item.querySelector('textarea[name="notes"]').value = notes;
                     $(modal).modal('hide');
                 },
                 error: function(m, r){ _this.onError(r) }
@@ -361,11 +360,11 @@ var ImplementationsView = BaseView.extend(
         var divid = 'solutionImpl' + solutionImpl.id;
         var mapDiv = item.querySelector('.map');
         mapDiv.id = divid;
+        mapDiv.innerHTML = '';
         previewMap = new Map({
             divid: divid, 
         });
         var geom = solutionImpl.get('geom');
-        console.log(geom)
         //previewMap.addLayer('geometry', {
             //stroke: 'rgb(252, 195, 25)',
             //fill: 'rgba(252, 195, 25, 0.2)',
