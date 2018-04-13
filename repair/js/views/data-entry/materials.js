@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
+define(['views/baseview', 'underscore', "models/material", 'utils/loader', 'utils/utils', 'libs/bootstrap-treeview.min'],
 
 function(BaseView, _, Material, Loader, utils){
 
@@ -102,7 +102,6 @@ var MaterialsView = BaseView.extend(
         $(_this.materialTree).treeview('selectNode', node.nodeId);
       }
       
-      require('libs/bootstrap-treeview.min');
       $(this.materialTree).treeview({
         data: tree, showTags: true,
         selectedBackColor: '#aad400',

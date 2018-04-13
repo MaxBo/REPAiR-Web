@@ -447,3 +447,9 @@ div.panel-item:hover label{
   display: inline-block;
   position: relative;
 }
+.ui-select-choices {
+  position: fixed;
+  top: auto;
+  left: auto;
+  width: inherit;
+}

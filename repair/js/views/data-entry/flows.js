@@ -2,7 +2,8 @@ define(['views/baseview', 'underscore',
     'views/data-entry/edit-node',
     'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
-    'visualizations/sankey', 'views/flowsankey', 'utils/loader'],
+    'visualizations/sankey', 'views/flowsankey', 'utils/loader', 
+    'libs/bootstrap-treeview.min'],
 function(BaseView, _, EditNodeView, Activities, Actors, Flows, 
     Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader){
 
@@ -164,7 +165,6 @@ var FlowsView = BaseView.extend(
             _this.renderDataEntry(node, true);
         };
         var divid = '#data-tree';
-        require('libs/bootstrap-treeview.min');
         $(divid).treeview({data: dataTree, showTags: true,
             selectedBackColor: '#aad400',
             onNodeSelected: onClick,

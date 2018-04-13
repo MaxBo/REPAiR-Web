@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'tablesorter'],
+    'utils/loader', 'bootstrap-select', 'tablesorter', 'libs/jquery.tablesorter.pager'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
@@ -152,7 +152,6 @@ var EditNodeView = BaseView.extend(
             html: true,
             content: this.attrTableInner
         }
-        require('bootstrap');
         this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
         // render inFlows
@@ -248,7 +247,6 @@ var EditNodeView = BaseView.extend(
             // select input for target (origin resp. destination of flow)
 
             var nodeSelect = document.createElement("select");
-            var ids = [];
             var targetId = flow.get(targetIdentifier);
             this.model.collection.each(function(model){
                 // no flow to itself allowed
@@ -257,12 +255,13 @@ var EditNodeView = BaseView.extend(
                     option.text = model.get('name');
                     option.value = model.id;
                     nodeSelect.add(option);
-                    ids.push(model.id);
                 };
             });
-            var idx = ids.indexOf(targetId);
-            nodeSelect.selectedIndex = idx.toString();
+            nodeSelect.value = targetId;
             row.insertCell(-1).appendChild(nodeSelect);
+            //nodeSelect.classList.add('selectpicker');
+            //nodeSelect.setAttribute('data-live-search', 'true');
+            //$(nodeSelect).selectpicker();
 
             nodeSelect.addEventListener('change', function() {
                 flow.set(targetIdentifier, nodeSelect.value);
@@ -765,7 +764,6 @@ var EditNodeView = BaseView.extend(
         * prepare the table of publications
         */
     setupDsTable: function(){
-        require('libs/jquery.tablesorter.pager');
         $(this.dsTable).tablesorter({
             widgets: ['filter'],
             widgetOptions : {
