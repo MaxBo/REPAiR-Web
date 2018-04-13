@@ -141,7 +141,6 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                     { text: text },
                     { caseStudyId: _this.caseStudy.id}
                 );
-                console.log(challenge);
                 challenge.save(null, {
                     success: function(){
                         _this.challenges.push({
