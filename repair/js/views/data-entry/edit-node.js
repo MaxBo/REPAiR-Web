@@ -5,7 +5,6 @@ define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
-* tdgjhjhjhvvhjvh
 *
 * @author Christoph Franke
 * @name module:views/EditNodeView
