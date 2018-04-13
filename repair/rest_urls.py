@@ -25,7 +25,6 @@ from repair.apps.changes.views import (
     SolutionQuantityViewSet,
     SolutionRatioOneUnitViewSet,
     SolutionInImplementationQuantityViewSet,
-    SolutionInImplementationGeometryViewSet,
     StrategyViewset,
 )
 
@@ -144,8 +143,7 @@ imp_router.register(r'solutions', SolutionInImplementationViewSet)
 # /casestudies/*/implementations/*/solutions...
 sii_router = NestedSimpleRouter(imp_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
-sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
+sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
 
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')

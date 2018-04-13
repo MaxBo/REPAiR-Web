@@ -1,10 +1,10 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from rest_framework import serializers
 
 from repair.apps.changes.models import (Implementation,
                                         SolutionInImplementation,
                                         SolutionInImplementationQuantity,
-                                        SolutionInImplementationGeometry,
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -119,12 +119,10 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
                             'implementation_pk': 'implementation__id',
                             }
     implementation = ImplementationField(
-        view_name='implementation-detail')
-    solution = SolutionField(view_name='solution-detail')
+        view_name='implementation-detail', read_only=True)
+    solution = IDRelatedField()
     solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
         view_name='solutioninimplementationquantity-list')
-    solutioninimplementationgeometry_set = SolutionInImplementationDetailListField(
-        view_name='solutioninimplementationgeometry-list')
 
     class Meta:
         model = SolutionInImplementation
@@ -132,8 +130,7 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
                   'implementation',
                   'solution',
                   'solutioninimplementationquantity_set',
-                  'solutioninimplementationgeometry_set',
-                  'note'
+                  'note', 'geom'
                   )
 
 
@@ -179,14 +176,11 @@ class SolutionInImplementationQuantitySerializer(SolutionInImplementationChildSe
                                      help_text=_('the quantity to define'),
                                      label=_('Solution Quantity'),
                                      read_only=True)
+    name = serializers.CharField(source='quantity.name', read_only=True)
+    unit = serializers.CharField(source='quantity.unit.name', read_only=True)
 
     class Meta:
         model = SolutionInImplementationQuantity
-        fields = ('url', 'id', 'quantity', 'value', 'sii')
+        fields = ('url', 'id', 'name', 'unit', 'quantity', 'value', 'sii')
         read_only_fields = ('quantity', 'sii')
 
-
-class SolutionInImplementationGeometrySerializer(SolutionInImplementationChildSerializer):
-    class Meta:
-        model = SolutionInImplementationGeometry
-        fields = ('url', 'id', 'name', 'geom', 'sii')

@@ -51,24 +51,14 @@ class SolutionInImplementationQuantityAdmin(VersionAdmin):
     """"""
 
 
-@admin.register(models.SolutionInImplementationGeometry)
-class SolutionInImplementationGeometryAdmin(VersionAdmin):
-    """"""
-
-
 class SolutionInImplementationQuantityInline(admin.StackedInline):
     model = models.SolutionInImplementationQuantity
-
-
-class SolutionInImplementationGeometryInline(admin.StackedInline):
-    model = models.SolutionInImplementationGeometry
 
 
 @admin.register(models.SolutionInImplementation)
 class SolutionInImplementationAdmin(VersionAdmin):
     """SolutionInImplementation Admin"""
     inlines = (SolutionInImplementationQuantityInline,
-               SolutionInImplementationGeometryInline
                )
 
 
