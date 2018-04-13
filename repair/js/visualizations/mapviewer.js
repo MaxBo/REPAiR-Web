@@ -1,6 +1,7 @@
 define([
+  'jquery',
   'leaflet',
-], function()
+], function($)
 {
   require('esri-leaflet');
   var Map = function(options){

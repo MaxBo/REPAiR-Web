@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
     'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 'tablesorter', 'libs/jquery.tablesorter.pager'],
+    'utils/loader', 'app-config', 'tablesorter'],
 function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
     Loader, config){
 /**
@@ -117,6 +117,7 @@ var ActorsView = BaseView.extend(
     * set up the actors table (tablesorter)
     */
     setupTable: function(){
+        require('libs/jquery.tablesorter.pager');
         $(this.table).tablesorter({
             widgets: ['filter'], //, 'zebra']
             widgetOptions : {

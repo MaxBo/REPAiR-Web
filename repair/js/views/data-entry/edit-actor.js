@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/geolocations', 
         'models/geolocation', 'collections/activities', 'collections/actors', 
-        'collections/areas', 'models/area', 'visualizations/map', 'utils/loader', 
-        'utils/utils'],
+        'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
+        'utils/utils', 'bootstrap'],
 
 function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors, 
          Areas, Area, Map, Loader, utils){

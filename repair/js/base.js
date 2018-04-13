@@ -1,5 +1,5 @@
-define(['document-ready', 'bootstrap', 'utils/overrides'],
-function (ready) {  
+define(['jquery', 'document-ready', 'bootstrap', 'utils/overrides'],
+function ($, ready) {  
   /**
    * EITHER LOAD THIS IN TEMPLATE OR MAKE AN OWN ENTRY POINT IMPORTING THIS!!!!
    *
