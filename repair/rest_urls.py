@@ -144,7 +144,7 @@ imp_router.register(r'solutions', SolutionInImplementationViewSet)
 # /casestudies/*/implementations/*/solutions...
 sii_router = NestedSimpleRouter(imp_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
+sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
 sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
 
 # /casestudies/*/keyflows/...

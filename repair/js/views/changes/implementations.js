@@ -38,8 +38,11 @@ var ImplementationsView = BaseView.extend(
         this.solutionCategories = new SolutionCategories([], { caseStudyId: this.caseStudy.id });
         this.stakeholders = [];
         this.solutions = [];
+        this.projection = 'EPSG:4326';
+        var Units = Backbone.Collection.extend({ url: config.api.units });
+        this.units = new Units();
         $.when(this.implementations.fetch(), this.stakeholderCategories.fetch(), 
-               this.solutionCategories.fetch()).then(function(){
+               this.solutionCategories.fetch(), this.units.fetch()).then(function(){
             var deferreds = [];
             _this.stakeholderCategories.forEach(function(category){
                 var stakeholders = new Stakeholders([], { 
@@ -135,11 +138,12 @@ var ImplementationsView = BaseView.extend(
         solutionsInImpl.fetch({
             success: function(){ 
                 solutionsInImpl.forEach(function(solInImpl){
-                    _this.renderSolution(solInImpl, el);
+                    _this.renderSolution(solInImpl, implementation, el);
                 })
             }
         });
         
+        var addModal = this.el.querySelector('#add-solution-modal');
         addBtn.addEventListener('click', function(){
             _this.confirmSolution = function(){
                 var solutionId = _this.el.querySelector('#solution-select').value;
@@ -150,17 +154,26 @@ var ImplementationsView = BaseView.extend(
                     { 
                         wait: true,
                         success: function(){
-                            _this.renderSolution(solInImpl, el)
+                            $(addModal).modal('hide');
+                            var solItem = _this.renderSolution(solInImpl, implementation, el);
+                            _this.editSolution(solInImpl, implementation, solItem);
                         },
                         error: function(model, response) { _this.onError(response) }
                     },
                 )
             };
-            _this.addSolution();
+            
+        
+            var solutionSelect = addModal.querySelector('#solution-select');
+            
+            solutionSelect.selectedIndex = 0;
+            $(solutionSelect).selectpicker('refresh');
+            
+            $(addModal).modal('show');
         })
     },
     
-    renderSolution: function(solutionInImpl, implementationItem){
+    renderSolution: function(solutionInImpl, implementation, implementationItem){
         var html = document.getElementById('solution-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
@@ -176,6 +189,25 @@ var ImplementationsView = BaseView.extend(
         }
         
         el.innerHTML = template({ solutionInImpl: solutionInImpl, solution: solution });
+        
+        var editBtn = el.querySelector('.edit'),
+            removeBtn = el.querySelector('.remove');
+        
+        editBtn.addEventListener('click', function(){
+            _this.editSolution(solutionInImpl, implementation, el);
+        })
+        
+        removeBtn.addEventListener('click', function(){
+            var message = gettext('Do you really want to delete your solution?');
+            _this.confirm({ message: message, onConfirm: function(){
+                solutionInImpl.destroy({
+                    success: function() { solDiv.removeChild(el); },
+                    error: _this.onError
+                })
+            }});
+        })
+        this.renderSolutionPreviewMap(solutionInImpl, el);
+        return el;
     },
     
     editImplementation: function(implementation, item){
@@ -239,48 +271,138 @@ var ImplementationsView = BaseView.extend(
         $(modal).modal('show');
     },
     
-    addSolution: function(){
-        
-        var modal = this.el.querySelector('#add-solution-modal'),
-            solutionSelect = modal.querySelector('#solution-select'),
-            _this = this;
-        
-        solutionSelect.selectedIndex = 0;
-        $(solutionSelect).selectpicker('refresh');
-        
-        $(modal).modal('show');
-    },
-    
-    editSolution: function(implementation, solution, onConfirm){
+    editSolution: function(solutionImpl, implementation, item, onConfirm){
         var _this = this;
         var html = document.getElementById('view-solution-implementation-template').innerHTML,
             template = _.template(html);
         var modal = this.el.querySelector('#solution-implementation-modal');
+        
+        var solution = null,
+            solId = solutionImpl.get('solution');
+        
+        for (var i = 0; i < this.solutionCategories.length; i++){
+            solution = this.solutionCategories.at(i).solutions.get(solId);
+            if (solution != null) break;
+        }
+        
         modal.innerHTML = template({ 
             solutionCategories: this.solutionCategories,
             implementation: implementation,
-            solutionImpl: solution
+            solutionImpl: solutionImpl,
+            solution: solution,
+            stakeholderCategories: this.stakeholderCategories
         });
-        var select = modal.querySelector('#solution-select');
+        
+        var select = modal.querySelector('.selectpicker');
         $(select).selectpicker();
         
-        
         var Quantities = Backbone.Collection.extend({ 
-            url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+            url: config.api.quantitiesInImplementedSolution.format(this.caseStudy.id, implementation.id, solutionImpl.id) })
         var squantities = new Quantities();
         
         var Ratios = Backbone.Collection.extend({ 
             url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
         var sratios = new Ratios();
+        
         squantities.fetch({success: function(){
-            squantities.forEach(_this.addSolutionQuanitityRow)
+            var table = modal.querySelector('#implemented-quantities');
+            squantities.forEach(function(quantity){
+                var row = table.insertRow(-1);
+                row.insertCell(-1).innerHTML = quantity.get('name');
+                var input = document.createElement('input');
+                input.type = 'number';
+                input.value = quantity.get('value');
+                input.classList.add('form-control');
+                row.insertCell(-1).appendChild(input);
+                row.insertCell(-1).innerHTML = quantity.get('unit');
+            });
         }});
         sratios.fetch({success: function(){
-            sratios.forEach(_this.addSolutionRatioOneUnitRow)
+            var div = modal.querySelector('#ratios');
+            sratios.forEach(function(ratio){
+                var li = document.createElement('li');
+                li.innerHTML = ratio.get('name') + ': ' + ratio.get('value') + ' ' + (_this.units.get(ratio.get('unit')).get('name'));
+                div.appendChild(li);
+            });
         }});
-        
+        this.renderEditorMap('editor-map');
+        $(modal).off();
+        $(modal).on('shown.bs.modal', function () {
+            console.log('sdsd')
+            _this.editorMap.map.updateSize();
+        });
         $(modal).modal('show');
-    }
+    },
+    
+    renderSolutionPreviewMap: function(solutionImpl, item){
+        var divid = 'solutionImpl' + solutionImpl.id;
+        var mapDiv = item.querySelector('.map');
+        mapDiv.id = divid;
+        previewMap = new Map({
+            divid: divid, 
+        });
+        var focusarea = this.caseStudy.get('properties').focusarea;
+
+        previewMap.addLayer('background', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
+        // add polygon of focusarea to both maps and center on their centroid
+        if (focusarea != null){
+            var poly = previewMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            previewMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.centroid = previewMap.centerOnPolygon(poly, { projection: this.projection });
+            previewMap.centerOnPolygon(poly, { projection: this.projection });
+        };
+        
+    },
+    
+    renderEditorMap: function(divid, activities){
+        var _this = this;
+        // remove old map
+        if (this.editorMap){
+            this.editorMap.map.setTarget(null);
+            this.editorMap.map = null;
+            this.editorMap = null;
+        }
+        this.editorMap = new Map({
+            divid: divid, 
+        });
+        var focusarea = this.caseStudy.get('properties').focusarea;
+
+        this.editorMap.addLayer('background', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
+        // add polygon of focusarea to both maps and center on their centroid
+        if (focusarea != null){
+            var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.centroid = this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+            this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+        };
+        //var deferreds = [];
+        
+        //activities.forEach(function(activityId){
+            //_this.renderActivityOnMap(activityId);
+        //})
+        var ol = require('openlayers');
+        var map = this.editorMap.map;
+        var source = new ol.source.Vector({wrapX: false});
+        var vector = new ol.layer.Vector({
+            source: source
+        });
+        map.addLayer(vector);
+        var draw = new ol.interaction.Draw({
+          source: source,
+          type: 'Polygon'
+        });
+        map.addInteraction(draw);
+    },
 
 });
 return ImplementationsView;
