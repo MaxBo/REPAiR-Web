@@ -209,41 +209,47 @@ ImpactCategories, Target, Targets){
 
         renderRows(){
             var _this = this;
-            for (var i = 0; i < this.targets.length; i++){
-                var target = this.targets[i];
-                var aim = _this.getObject(_this.aims, target.aim),
-                    impactCategory = _this.getObject(_this.impactcategories,
-                        target.impact_category),
-                    targetValue = _this.getObject(_this.targetvalues,
-                        target.target_value),
-                    spatial = _this.getObject(_this.spatial,
-                        target.spatial_reference);
-                if (i == 0 || this.targets[i-1].aim != target.aim) {
-                    var row = document.createElement('div');
-                    row.classList.add('row', 'overflow', 'bordered');
-                    var html = document.getElementById('target-row-template').innerHTML
-                    var template = _.template(html);
-                    row.innerHTML = template({ aim: aim.text, aimId: aim.id });
-                    _this.el.appendChild(row);
+            _this.aims.forEach(function(aim){
+                var row = document.createElement('div');
+                row.classList.add('row', 'overflow', 'bordered');
+                var html = document.getElementById('target-row-template').innerHTML
+                var template = _.template(html);
+                row.innerHTML = template({ aim: aim.text, aimId: aim.id });
+                row.setAttribute("rowAimId", aim.id);
+                _this.el.appendChild(row);
+            });
+            if (this.targets.length > 0) {
+                for (var i = 0; i < this.targets.length; i++){
+                    var target = this.targets[i];
+                    var aim = _this.getObject(_this.aims, target.aim),
+                        impactCategory = _this.getObject(_this.impactcategories,
+                            target.impact_category),
+                        targetValue = _this.getObject(_this.targetvalues,
+                            target.target_value),
+                        spatial = _this.getObject(_this.spatial,
+                            target.spatial_reference);
+                    if (i == 0 || this.targets[i-1].aim != target.aim) {
+                        var row = _this.el.querySelector("[rowaimid=" + CSS.escape(target.aim) + "]");
 
-                    var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
-                        targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
-                        spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
-                        html = document.getElementById('panel-item-template').innerHTML
-                        template = _.template(html);
+                        var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
+                            targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
+                            spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
+                            html = document.getElementById('panel-item-template').innerHTML
+                            template = _.template(html);
+                    }
+
+                    var targetSelect = _this.createSelect("targetvalue", targetValue,
+                     _this.targetvalues, target);
+                    targetPanel.appendChild(targetSelect);
+
+                    var panelItem = _this.createSelect("impact", impactCategory,
+                    _this.impactcategories, target);
+                    indicatorPanel.appendChild(panelItem);
+
+                    var spatialSelect = _this.createSelect("spatial", spatial,
+                    _this.spatial, target);
+                    spatialPanel.appendChild(spatialSelect);
                 }
-
-                var targetSelect = _this.createSelect("targetvalue", targetValue,
-                 _this.targetvalues, target);
-                targetPanel.appendChild(targetSelect);
-
-                var panelItem = _this.createSelect("impact", impactCategory,
-                _this.impactcategories, target);
-                indicatorPanel.appendChild(panelItem);
-
-                var spatialSelect = _this.createSelect("spatial", spatial,
-                _this.spatial, target);
-                spatialPanel.appendChild(spatialSelect);
             }
         },
 
