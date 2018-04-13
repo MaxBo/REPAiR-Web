@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from rest_framework import serializers
 
 from repair.apps.changes.models import (Implementation,
                                         SolutionInImplementation,
@@ -179,10 +180,12 @@ class SolutionInImplementationQuantitySerializer(SolutionInImplementationChildSe
                                      help_text=_('the quantity to define'),
                                      label=_('Solution Quantity'),
                                      read_only=True)
+    name = serializers.CharField(source='quantity.name', read_only=True)
+    unit = serializers.CharField(source='quantity.unit.name', read_only=True)
 
     class Meta:
         model = SolutionInImplementationQuantity
-        fields = ('url', 'id', 'quantity', 'value', 'sii')
+        fields = ('url', 'id', 'name', 'unit', 'quantity', 'value', 'sii')
         read_only_fields = ('quantity', 'sii')
 
 
