@@ -175,11 +175,11 @@ class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestC
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            implementation_pk=cls.implementation)
         cls.url_pk = dict(pk=cls.solution)
-        cls.post_data = dict(solution=cls.solution_url,
+        cls.post_data = dict(solution=cls.solution,
                              implementation=cls.implementation_url)
-        cls.put_data = dict(solution=cls.solution_url,
+        cls.put_data = dict(solution=cls.solution,
                             implementation=cls.implementation_url)
-        cls.patch_data = dict(solution=cls.solution_url,
+        cls.patch_data = dict(solution=cls.solution,
                               implementation=cls.implementation_url)
 
     def setUp(self):
