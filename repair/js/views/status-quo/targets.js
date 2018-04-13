@@ -169,12 +169,50 @@ ImpactCategories, Target, Targets){
             this.renderRows();
         },
 
+        createSelect(type, typeObject, typeList, target){
+            var _this = this;
+            var select = document.createElement('select');
+            // var type = "targetvalue";
+            var selectId = type + typeObject.id;
+            select.classList.add('panel-item', 'form-control');
+            typeList.forEach(function(target){
+                var option = document.createElement('option');
+                if (type == "impact") {
+                    option.text = target.name;
+                } else {
+                    option.text = target.text;
+                }
+                option.setAttribute("id", target.id);
+                select.appendChild(option);
+            });
+            for(var k, j = 0; k = select.options[j]; j++) {
+                if (type == "impact") {
+                    if(k.text == typeObject.name) {
+                        select.selectedIndex = j;
+                        break;
+                    }
+                } else {
+                    if(k.text == typeObject.text) {
+                        select.selectedIndex = j;
+                        break;
+                    }
+                }
+            }
+            select.setAttribute("type", type);
+            select.setAttribute("id", selectId);
+            select.setAttribute("targetId", target.id);
+            select.addEventListener("change", function(e){
+                _this.editTarget(e, target);
+            });
+            return select;
+        },
+
         renderRows(){
             var _this = this;
             for (var i = 0; i < this.targets.length; i++){
                 var target = this.targets[i];
                 var aim = _this.getObject(_this.aims, target.aim),
-                    impactcategory = _this.getObject(_this.impactcategories,
+                    impactCategory = _this.getObject(_this.impactcategories,
                         target.impact_category),
                     targetValue = _this.getObject(_this.targetvalues,
                         target.target_value),
@@ -195,49 +233,16 @@ ImpactCategories, Target, Targets){
                         template = _.template(html);
                 }
 
-                var panelItem = document.createElement('select');
-                panelItem.classList.add('panel-item', 'form-control');
-                _this.impactcategories.forEach(function(impactcategory){
-                    var option = document.createElement('option');
-                    option.text = impactcategory.name;
-                    panelItem.appendChild(option);
-                });
-                for(var k, j = 0; k = panelItem.options[j]; j++) {
-                    if(k.text == impactcategory.name) {
-                        panelItem.selectedIndex = j;
-                        break;
-                    }
-                }
-                indicatorPanel.appendChild(panelItem);
-
-                var targetSelect = document.createElement('select');
-                targetSelect.classList.add('panel-item', 'form-control');
-                _this.targetvalues.forEach(function(target){
-                    var option = document.createElement('option');
-                    option.text = target.text;
-                    targetSelect.appendChild(option);
-                });
-                for(var k, j = 0; k = targetSelect.options[j]; j++) {
-                    if(k.text == targetValue.text) {
-                        targetSelect.selectedIndex = j;
-                        break;
-                    }
-                }
+                var targetSelect = _this.createSelect("targetvalue", targetValue,
+                 _this.targetvalues, target);
                 targetPanel.appendChild(targetSelect);
 
-                var spatialSelect = document.createElement('select');
-                spatialSelect.classList.add('panel-item', 'form-control');
-                _this.spatial.forEach(function(s){
-                    var option = document.createElement('option');
-                    option.text = s.text;
-                    spatialSelect.appendChild(option);
-                });
-                for(var k, j = 0; k = spatialSelect.options[j]; j++) {
-                    if(k.text == spatial.text) {
-                        spatialSelect.selectedIndex = j;
-                        break;
-                    }
-                }
+                var panelItem = _this.createSelect("impact", impactCategory,
+                _this.impactcategories, target);
+                indicatorPanel.appendChild(panelItem);
+
+                var spatialSelect = _this.createSelect("spatial", spatial,
+                _this.spatial, target);
                 spatialPanel.appendChild(spatialSelect);
             }
         },
@@ -280,6 +285,50 @@ ImpactCategories, Target, Targets){
                     console.error("cannot addTarget");
                 }
             });
+        },
+
+        editTarget: function(e){
+            var _this = this;
+            var select = $(e)[0].target;
+            var type = select.getAttribute("type");
+            var targetId = parseInt(select.getAttribute("targetId"));
+            var idx = select.options.selectedIndex;
+            var optionId = parseInt(select.options[idx].getAttribute("id"));
+            var target = new Target(
+                {id: targetId},
+                {caseStudyId: _this.caseStudy.id}
+            );
+            // console.log(target);
+            if (type == "targetvalue") {
+                target.save({
+                    target_value: optionId
+                }, {
+                    patch: true,
+                    error: function(){
+                        console.error("cannot update targetvalue");
+                    }
+                });
+            } else if (type == "impact") {
+                console.log("save impact");
+                target.save({
+                    "impact_category": optionId
+                }, {
+                    patch: true,
+                    error: function(){
+                        console.error("cannot update impact");
+                    }
+                });
+            } else {
+                console.log("save spatial");
+                target.save({
+                    "spatial_reference": optionId
+                }, {
+                    patch: true,
+                    error: function(){
+                        console.error("cannot update spatial");
+                    }
+                });
+            }
         },
 
         /*
