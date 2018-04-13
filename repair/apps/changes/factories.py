@@ -94,14 +94,6 @@ class SolutionInImplementationQuantityFactory(DjangoModelFactory):
     value = 24.3
 
 
-class SolutionInImplementationGeometryFactory(DjangoModelFactory):
-    class Meta:
-        model = models.SolutionInImplementationGeometry
-    sii = factory.SubFactory(SolutionInImplementationFactory)
-    name = 'Hier'
-    geom = Point(9.3, 10.4, srid=4326)
-
-
 class StrategyFactory(DjangoModelFactory):
     class Meta:
         model = models.Strategy

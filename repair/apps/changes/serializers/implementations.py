@@ -5,7 +5,6 @@ from rest_framework import serializers
 from repair.apps.changes.models import (Implementation,
                                         SolutionInImplementation,
                                         SolutionInImplementationQuantity,
-                                        SolutionInImplementationGeometry,
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -124,8 +123,6 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
     solution = IDRelatedField()
     solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
         view_name='solutioninimplementationquantity-list')
-    solutioninimplementationgeometry_set = SolutionInImplementationDetailListField(
-        view_name='solutioninimplementationgeometry-list')
 
     class Meta:
         model = SolutionInImplementation
@@ -133,8 +130,7 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
                   'implementation',
                   'solution',
                   'solutioninimplementationquantity_set',
-                  'solutioninimplementationgeometry_set',
-                  'note'
+                  'note', 'geom'
                   )
 
 
@@ -188,8 +184,3 @@ class SolutionInImplementationQuantitySerializer(SolutionInImplementationChildSe
         fields = ('url', 'id', 'name', 'unit', 'quantity', 'value', 'sii')
         read_only_fields = ('quantity', 'sii')
 
-
-class SolutionInImplementationGeometrySerializer(SolutionInImplementationChildSerializer):
-    class Meta:
-        model = SolutionInImplementationGeometry
-        fields = ('url', 'id', 'name', 'geom', 'sii')

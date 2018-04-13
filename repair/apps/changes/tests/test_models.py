@@ -7,7 +7,6 @@ from repair.apps.changes.models import (
     Solution,
     SolutionCategory,
     SolutionInImplementation,
-    SolutionInImplementationGeometry,
     SolutionInImplementationQuantity,
     SolutionQuantity,
     SolutionRatioOneUnit,
@@ -43,21 +42,13 @@ class TestModelRepresentation(TestCase):
             implementation=implementation)
         self.assertEqual(str(solution_in_impl), 'Sol1 in Impl2')
 
-        model = SolutionInImplementationGeometry(
-            sii=solution_in_impl,
-            name='Altona',
-            geom=LineString([(1, 1), (2, 2)]),
-        )
-        target = 'location Altona (LineString)'
-        self.assertEqual(str(model), target)
-
         unit = Unit(name='tons')
         quantity = SolutionQuantity(name='bins', unit=unit)
         self.assertEqual(str(quantity), 'bins [tons]')
 
         model = SolutionInImplementationQuantity(
             sii=solution_in_impl,
-            quantity=quantity,
+            quantity=quantity, 
             value=42,
         )
         self.assertEqual(str(model), '42 bins [tons]')
