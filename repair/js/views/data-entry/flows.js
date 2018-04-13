@@ -104,7 +104,8 @@ var FlowsView = BaseView.extend(
             el: this.el.querySelector('#sankey-wrapper'),
             collection: collection,
             materials: this.materials,
-            width: this.el.offsetWidth - 20
+            width: this.el.offsetWidth - 20,
+            hideUnconnected: true
         })
     },
 

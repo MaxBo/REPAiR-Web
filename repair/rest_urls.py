@@ -24,10 +24,8 @@ from repair.apps.changes.views import (
     SolutionInImplementationViewSet,
     SolutionQuantityViewSet,
     SolutionRatioOneUnitViewSet,
-    SolutionInImplementationNoteViewSet,
     SolutionInImplementationQuantityViewSet,
     SolutionInImplementationGeometryViewSet,
-    ImplementationOfUserViewSet,
     StrategyViewset,
 )
 
@@ -105,6 +103,7 @@ cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
+cs_router.register(r'targets', TargetViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
@@ -115,12 +114,6 @@ layercat_router.register(r'layers', LayerViewSet)
 levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
 levels_router.register(r'areas', AreaViewSet)
-
-# /casestudies/*/users/...
-user_router = NestedSimpleRouter(cs_router, r'users',
-                                  lookup='user')
-user_router.register(r'implementations', ImplementationOfUserViewSet)
-user_router.register(r'targets', TargetViewSet)
 
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
@@ -151,8 +144,7 @@ imp_router.register(r'solutions', SolutionInImplementationViewSet)
 # /casestudies/*/implementations/*/solutions...
 sii_router = NestedSimpleRouter(imp_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'note', SolutionInImplementationNoteViewSet)
-sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
+sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
 sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
 
 # /casestudies/*/keyflows/...
@@ -194,7 +186,6 @@ urlpatterns = [
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
     url(r'^', include(kf_router.urls)),
-    url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
     url(r'^', include(layercat_router.urls)),

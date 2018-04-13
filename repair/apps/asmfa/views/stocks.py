@@ -33,17 +33,16 @@ class StockViewSet(RevisionMixin,
         query_params = request.query_params
         filtered = None
         if 'material' in query_params.keys():
-            queryset = filtered or self.queryset
             try:
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
-            filtered = filter_by_material(material, self.queryset)
+            filtered = filter_by_material(material, self.get_queryset())
         if 'waste' in query_params.keys():
-            queryset = filtered if filtered is not None else self.queryset
+            queryset = filtered if filtered is not None else self.get_queryset()
             filtered = queryset.filter(waste=query_params.get('waste'))
         if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
-            queryset = filtered if filtered is not None else self.queryset
+            queryset = filtered if filtered is not None else self.get_queryset()
             nodes = (query_params.get('nodes', None)
                      or request.GET.getlist('nodes[]')) 
             filtered = queryset.filter(origin__in=nodes)
@@ -52,6 +51,15 @@ class StockViewSet(RevisionMixin,
                                          context={'request': request, })
             return Response(serializer.data)
         return super().list(request, **kwargs)
+    
+    def get_queryset(self):
+        model = self.serializer_class.Meta.model
+        return model.objects.\
+               select_related('keyflow__casestudy').\
+               select_related('publication').\
+               select_related("origin").\
+               prefetch_related("composition__fractions").\
+               all()
     
 
 class GroupStockViewSet(StockViewSet):
