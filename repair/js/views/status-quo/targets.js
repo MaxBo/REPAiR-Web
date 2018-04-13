@@ -337,6 +337,10 @@ ImpactCategories, Target, Targets){
             }
         },
 
+        deleteTarget: function(){
+
+        },
+
         /*
         * remove this view from the DOM
         */
