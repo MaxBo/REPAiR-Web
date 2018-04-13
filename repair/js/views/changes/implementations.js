@@ -335,23 +335,30 @@ var ImplementationsView = BaseView.extend(
         var okBtn = modal.querySelector('.confirm');
         okBtn.addEventListener('click', function(){
             var features = _this.drawingSource.getFeatures();
-            var multiPolygon = new ol.geom.MultiPolygon();
-            features.forEach(function(feature) {
-                var polygon = new ol.geom.Polygon(feature.getGeometry().getCoordinates());
-                multiPolygon.appendPolygon(polygon);
-             });
-            var geoJSON = new ol.format.GeoJSON(),
-                geoJSONText = geoJSON.writeGeometry(multiPolygon);
-            var notes = modal.querySelector('textarea[name="description"]').value
-            solutionImpl.set('notes', notes);
-            solutionImpl.set('geom', geoJSONText);
+            if (features.length > 0){
+                var multiPolygon = new ol.geom.MultiPolygon();
+                features.forEach(function(feature) {
+                    var coordinates = feature.getGeometry().getCoordinates();
+                    // flatten if necessary
+                    if (coordinates[0] instanceof Array && coordinates[0].length == 1)
+                        coordinates = coordinates[0];
+                    var polygon = new ol.geom.Polygon(coordinates);
+                    multiPolygon.appendPolygon(polygon);
+                 });
+                var geoJSON = new ol.format.GeoJSON(),
+                    geoJSONText = geoJSON.writeGeometry(multiPolygon);
+                var notes = modal.querySelector('textarea[name="description"]').value
+                solutionImpl.set('geom', geoJSONText);
+            }
+            solutionImpl.set('note', notes);
             solutionImpl.save(null, {
                 success: function(){
                     _this.renderSolutionPreviewMap(solutionImpl, item);
                     item.querySelector('textarea[name="notes"]').value = notes;
                     $(modal).modal('hide');
                 },
-                error: function(m, r){ _this.onError(r) }
+                error: function(m, r){ _this.onError(r) },
+                patch: true
             })
         })
     },
