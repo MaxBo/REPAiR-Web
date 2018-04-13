@@ -1,11 +1,12 @@
 {% load i18n %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
 
 <script type="text/template" id="solutions-template">
+<% if (mode == 1) { %>
 <button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">
   <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
 </button>
+<% } %>
 <div id="categories" class="row overflow">
 </div>
 <div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
@@ -22,20 +23,14 @@
     </div>
     <div class="modal-body">
       <% if (mode == 1) { %>
-        <table>
-          <tr>
-            <td style="width: 150px;"> {% trans "Name" %} </td>
-            <td> <input name="name" value="<%= name %>" style="width: 100%;"> </td>
-          </tr>
-          <tr>
-            <td> {% trans "One unit equals" %} </td>
-            <td> <input name="unit" value="<%= unit %>" style="width: 100%;"></td>
-          </tr>
-        </table>
+          {% trans "Name" %} <input name="name" value="<%= name %>" style="width: 70%; margin-bottom: 10px; margin-left: 5px;">
       <% } %>
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
+          <% if (mode == 1) { %>
+          <li><a data-toggle="tab" href="#units-tab">{% trans "Units/Ratios" %}</a></li>
+          <% } %>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
           <li><a data-toggle="tab" href="#actors-tab">{% trans "Actors" %}</a></li>
@@ -45,6 +40,38 @@
             <div class="col-md-12 bordered">
               <div class="row">
                 <textarea name="description" rows="4" cols="50" style="max-width: 100%; width: 100%;" <% if (mode == 0) { %> disabled <% } %>><%= description %></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade in" id="units-tab">
+            <div class="col-md-12">
+              <br>
+              <div class="row bordered">
+                <label>{% trans "Ratios defining one unit" %} </label>
+                <div class="row"> 
+                  {% trans "One unit equals" %} 
+                  <input name="unit" value="<%= unit %>" style="width: 50%; margin-left: 5px;">
+                </div>
+                <table id="one-unit-ratios">
+                  <tr> 
+                    <td>{% trans "Name"  %}</td> <td>{% trans "Value"  %}</td> <td>{% trans "Unit"  %}</td> <td>{% trans "delete"  %}</td>
+                  </tr>
+                </table>
+                <button id="add-one-unit-ratio" class="btn btn-primary add square" title="{% trans "Add ratio defining one unit" %}">
+                  <span class="glyphicon glyphicon-plus"></span> {% trans "Ratio" %}
+                </button>
+              </div>
+              <br>
+              <div class="row bordered">
+                <label>{% trans "Ratios to be set when implementing this solution" %} </label>
+                <table id="required-ratios">
+                  <tr> 
+                    <td>{% trans "Name"  %}</td> <td>{% trans "Unit"  %}</td> <td>{% trans "delete"  %}</td>
+                  </tr>
+                </table>
+                <button id="add-required-ratio" class="btn btn-primary add square" title="{% trans "Add ratio for implementation" %}">
+                  <span class="glyphicon glyphicon-plus"></span> {% trans "Ratio" %}
+                </button>
               </div>
             </div>
           </div>
@@ -81,7 +108,7 @@
           <div class="tab-pane fade in" id="activities-tab">
             <h4>{% trans "Activities involved" %}</h4>
             <% if (mode == 1) { %> 
-              <div class="col-md-4">
+              <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
                   <% keyflows.forEach(function(keyflow){ %>
                     <label> <%= keyflow.get('name') %> </label> <br>
                     <% keyflow.activities.forEach(function(activity){ %>
@@ -105,7 +132,7 @@
             </div>
           </div>
           <div class="tab-pane fade in" id="actors-tab">
-            <div class="row" style="min-height: 500px; width: 100%; height: 100%;" id='actors-map'>
+            <div style="min-height: 500px; width: 100%; height: 100%;" id='actors-map'>
             </div>
           </div>
         </div>

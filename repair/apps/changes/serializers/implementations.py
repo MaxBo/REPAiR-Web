@@ -1,9 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from rest_framework import serializers
 
 from repair.apps.changes.models import (Implementation,
                                         SolutionInImplementation,
-                                        SolutionInImplementationNote,
                                         SolutionInImplementationQuantity,
                                         SolutionInImplementationGeometry,
                                         )
@@ -13,7 +13,8 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            InSolutionField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
-                                           CreateWithUserInCasestudyMixin)
+                                           CreateWithUserInCasestudyMixin,
+                                           IDRelatedField)
 
 
 from .solutions import SolutionField
@@ -58,20 +59,13 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         view_name='solutioninimplementation-detail',
         many=True,
         read_only=True)
-    solution_set = SolutionIISetField(
-        source='solutions',
-        view_name='solution-detail',
-        many=True)
-    coordinating_stakeholder = StakeholderOfImplementationField(
-        view_name='stakeholder-detail')
-    user = UserInCasestudyField(
-        view_name='userincasestudy-detail')
+    coordinating_stakeholder = IDRelatedField()
+    user = IDRelatedField(read_only=True)
 
     class Meta:
         model = Implementation
         fields = ('url', 'id', 'name', 'user',
                   'coordinating_stakeholder',
-                  'solution_set',
                   'solution_list',
                   'sii_set',
                   )
@@ -105,12 +99,6 @@ class ImplementationSerializer(CreateWithUserInCasestudyMixin,
         return instance
 
 
-class ImplementationOfUserSerializer(ImplementationSerializer):
-    """"""
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'user_pk': 'user__id', }
-
-
 class ImplementationField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
     extra_lookup_kwargs = {'casestudy_pk':
@@ -132,10 +120,8 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
                             'implementation_pk': 'implementation__id',
                             }
     implementation = ImplementationField(
-        view_name='implementation-detail')
-    solution = SolutionField(view_name='solution-detail')
-    solutioninimplementationnote_set = SolutionInImplementationDetailListField(
-        view_name='solutioninimplementationnote-list')
+        view_name='implementation-detail', read_only=True)
+    solution = IDRelatedField()
     solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
         view_name='solutioninimplementationquantity-list')
     solutioninimplementationgeometry_set = SolutionInImplementationDetailListField(
@@ -146,9 +132,9 @@ class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id',
                   'implementation',
                   'solution',
-                  'solutioninimplementationnote_set',
                   'solutioninimplementationquantity_set',
                   'solutioninimplementationgeometry_set',
+                  'note'
                   )
 
 
@@ -171,7 +157,7 @@ class SolutionInImplementationDetailCreateMixin:
         return obj
 
 
-class SolutionInImplementationNoteSerializer(SolutionInImplementationDetailCreateMixin,
+class SolutionInImplementationChildSerializer(SolutionInImplementationDetailCreateMixin,
                                              NestedHyperlinkedModelSerializer):
     sii = SolutionInImplementationField(
         view_name='solutioninimplementation-detail',
@@ -181,10 +167,6 @@ class SolutionInImplementationNoteSerializer(SolutionInImplementationDetailCreat
         'implementation_pk': 'sii__implementation__id',
         'solution_pk': 'sii__id', }
 
-    class Meta:
-        model = SolutionInImplementationNote
-        fields = ('url', 'id', 'note', 'sii')
-
 
 class SolutionQuantityField(InSolutionField):
     parent_lookup_kwargs = {'casestudy_pk':
@@ -193,19 +175,21 @@ class SolutionQuantityField(InSolutionField):
                             'solution_pk': 'solution__id', }
 
 
-class SolutionInImplementationQuantitySerializer(SolutionInImplementationNoteSerializer):
+class SolutionInImplementationQuantitySerializer(SolutionInImplementationChildSerializer):
     quantity = SolutionQuantityField(view_name='solutionquantity-detail',
                                      help_text=_('the quantity to define'),
                                      label=_('Solution Quantity'),
                                      read_only=True)
+    name = serializers.CharField(source='quantity.name', read_only=True)
+    unit = serializers.CharField(source='quantity.unit.name', read_only=True)
 
     class Meta:
         model = SolutionInImplementationQuantity
-        fields = ('url', 'id', 'quantity', 'value', 'sii')
+        fields = ('url', 'id', 'name', 'unit', 'quantity', 'value', 'sii')
         read_only_fields = ('quantity', 'sii')
 
 
-class SolutionInImplementationGeometrySerializer(SolutionInImplementationNoteSerializer):
+class SolutionInImplementationGeometrySerializer(SolutionInImplementationChildSerializer):
     class Meta:
         model = SolutionInImplementationGeometry
         fields = ('url', 'id', 'name', 'geom', 'sii')

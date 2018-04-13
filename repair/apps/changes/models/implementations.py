@@ -33,6 +33,7 @@ class SolutionInImplementation(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
     implementation = models.ForeignKey(Implementation, on_delete=models.CASCADE)
     participants = models.ManyToManyField(Stakeholder)
+    note = models.TextField(blank=True, null=True)
 
     def __str__(self):
         text = '{s} in {i}'
@@ -86,16 +87,6 @@ signals.post_save.connect(
     sender=SolutionQuantity,
     weak=False,
     dispatch_uid='models.trigger_solutioninimplementationquantity_quantity')
-
-
-class SolutionInImplementationNote(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation,
-                            on_delete=models.CASCADE)
-    note = models.TextField()
-
-    def __str__(self):
-        text = 'Note for {s}:\n{n}'
-        return text.format(s=self.sii, n=self.note)
 
 
 class SolutionInImplementationQuantity(GDSEModel):

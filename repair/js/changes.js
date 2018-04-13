@@ -1,12 +1,17 @@
-require(['models/casestudy', 'views/changes/solutions', 
-         'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, appConfig) {
+require(['models/casestudy', 'views/changes/solutions',
+         'views/changes/implementations', 'app-config', 'utils/overrides', 'base'
+], function (CaseStudy, SolutionsView, ImplementationsView, appConfig) {
 
   renderWorkshop = function(caseStudy){
     var solutionsView = new SolutionsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('solutions'),
       template: 'solutions-template'
+    });
+    var implementationsView = new ImplementationsView({ 
+      caseStudy: caseStudy,
+      el: document.getElementById('implementations'),
+      template: 'implementations-template'
     })
   }
   

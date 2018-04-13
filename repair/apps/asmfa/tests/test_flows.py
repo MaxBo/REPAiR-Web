@@ -113,7 +113,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                               destination=cls.destination,
                               composition=cls.comp_data,
                               )
-        cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+        #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
         super().setUp()
