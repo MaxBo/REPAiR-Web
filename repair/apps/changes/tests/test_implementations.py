@@ -14,7 +14,6 @@ from repair.apps.changes.factories import (
     SolutionQuantityFactory,
     ImplementationFactory,
     SolutionInImplementationFactory,
-    SolutionInImplementationGeometryFactory,
     SolutionInImplementationQuantityFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -192,45 +191,6 @@ class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestC
             implementation__id=self.implementation,
             solution__solution_category__id=self.solutioncategory,
             id=self.solution_implementation)
-
-
-class GeometryInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
-                                                        APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    geometry = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationgeometry"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.geometry)
-        cls.post_data = dict(name="test name",
-                             geom=Point(5, 6, srid=4326).geojson)
-        cls.put_data = dict(name="test name",
-                            geom=MultiPoint([Point(5, 6, srid=4326),
-                                             Point(7, 8, srid=4326)]).geojson)
-        cls.patch_data = dict(name="test name",
-                              geom=LineString([(1, 1), (2, 2)]).geojson)
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInImplementationGeometryFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.geometry)
 
 
 class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,

@@ -7,7 +7,6 @@ from repair.apps.changes.models import (
     Solution,
     SolutionCategory,
     SolutionInImplementation,
-    SolutionInImplementationGeometry,
     SolutionInImplementationQuantity,
     SolutionQuantity,
     SolutionRatioOneUnit,
@@ -42,12 +41,6 @@ class TestModelRepresentation(TestCase):
             solution=solution,
             implementation=implementation)
         self.assertEqual(str(solution_in_impl), 'Sol1 in Impl2')
-
-        model = SolutionInImplementationGeometry(
-            sii=solution_in_impl,
-            name='Altona',
-            geom=LineString([(1, 1), (2, 2)]),
-        )
         target = 'location Altona (LineString)'
         self.assertEqual(str(model), target)
 
