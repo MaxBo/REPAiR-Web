@@ -366,19 +366,28 @@ var ImplementationsView = BaseView.extend(
         });
         var geom = solutionImpl.get('geom');
         console.log(geom)
-        previewMap.addLayer('geometry', {
-            stroke: 'rgb(252, 195, 25)',
-            fill: 'rgba(252, 195, 25, 0.2)',
-            strokeWidth: 1,
-            zIndex: 0
-        });
+        //previewMap.addLayer('geometry', {
+            //stroke: 'rgb(252, 195, 25)',
+            //fill: 'rgba(252, 195, 25, 0.2)',
+            //strokeWidth: 1,
+            //zIndex: 1
+        //});
         // add polygon of focusarea to both maps and center on their centroid
         if (geom != null){
-            var poly = previewMap.addPolygon(geom.coordinates, { projection: this.projection, layername: 'geometry', type: 'MultiPolygon'});
-            console.log(poly)
-            previewMap.centerOnPolygon(poly, { projection: this.projection });
-        };
+            //var poly = previewMap.addPolygon(geom.coordinates, { projection: this.projection, layername: 'geometry', type: 'MultiPolygon'});
+            //console.log(poly)
+            //previewMap.centerOnPolygon(poly, { projection: this.projection });
         
+            var feature = new ol.Feature({ geometry: new ol.geom.MultiPolygon(geom.coordinates) });
+            
+            var source = new ol.source.Vector({wrapX: false});
+            source.addFeature(feature);
+            var vector = new ol.layer.Vector({
+                source: source
+            });
+            previewMap.map.addLayer(vector);
+            previewMap.map.getView().fit(source.getExtent(), previewMap.map.getSize());
+        };
     },
     
     renderEditorMap: function(divid, solutionImpl, activities){
@@ -403,7 +412,6 @@ var ImplementationsView = BaseView.extend(
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.centroid = this.editorMap.centerOnPolygon(poly, { projection: this.projection });
             this.editorMap.centerOnPolygon(poly, { projection: this.projection });
         };
         //var deferreds = [];
@@ -413,9 +421,11 @@ var ImplementationsView = BaseView.extend(
         //})
         var map = this.editorMap.map;
         var geom = solutionImpl.get('geom');
-        var feature = new ol.Feature({ geometry: new ol.geom.MultiPolygon(geom.coordinates) });
         this.drawingSource = new ol.source.Vector({wrapX: false});
-        this.drawingSource.addFeature(feature);
+        if (geom){
+            var feature = new ol.Feature({ geometry: new ol.geom.MultiPolygon(geom.coordinates) });
+            this.drawingSource.addFeature(feature);
+        }
         var vector = new ol.layer.Vector({
             source: this.drawingSource
         });
