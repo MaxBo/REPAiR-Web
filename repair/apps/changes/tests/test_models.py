@@ -41,8 +41,6 @@ class TestModelRepresentation(TestCase):
             solution=solution,
             implementation=implementation)
         self.assertEqual(str(solution_in_impl), 'Sol1 in Impl2')
-        target = 'location Altona (LineString)'
-        self.assertEqual(str(model), target)
 
         unit = Unit(name='tons')
         quantity = SolutionQuantity(name='bins', unit=unit)
@@ -50,7 +48,7 @@ class TestModelRepresentation(TestCase):
 
         model = SolutionInImplementationQuantity(
             sii=solution_in_impl,
-            quantity=quantity,
+            quantity=quantity, 
             value=42,
         )
         self.assertEqual(str(model), '42 bins [tons]')
