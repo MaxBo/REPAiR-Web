@@ -29,7 +29,7 @@ var ImplementationsView = BaseView.extend(
     initialize: function(options){
         ImplementationsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderImplementation');
-        
+        _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
         this.stakeholderCategories = new StakeholderCategories([], { caseStudyId: this.caseStudy.id });
@@ -69,7 +69,7 @@ var ImplementationsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #add-implementation': 'addImplementation'
+        'click #add-implementation': 'addImplementation',
     },
 
     /*
@@ -80,12 +80,17 @@ var ImplementationsView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
-        this.el.innerHTML = template({ stakeholderCategories: this.stakeholderCategories });
+        this.el.innerHTML = template({ 
+            stakeholderCategories: this.stakeholderCategories,
+            solutionCategories: this.solutionCategories
+        });
         $('#coordinator-select').selectpicker();
+        $('#solution-select').selectpicker();
         
         this.implementations.forEach(this.renderImplementation);
         
         document.querySelector('#implementation-modal .confirm').addEventListener('click', function(){ _this.confirmImplementation() })
+        document.querySelector('#add-solution-modal .confirm').addEventListener('click', function(){ _this.confirmSolution() })
     },
     
     renderImplementation: function(implementation){
@@ -94,7 +99,7 @@ var ImplementationsView = BaseView.extend(
             template = _.template(html),
             stakeholder = null,
             coordId = implementation.get('coordinating_stakeholder'),
-            implDiv = this.el.querySelector('#implementations');
+            implDiv = this.el.querySelector('#implementations'),
             _this = this;
         
         implDiv.appendChild(el);
@@ -105,7 +110,8 @@ var ImplementationsView = BaseView.extend(
         el.innerHTML = template({ implementation: implementation, stakeholder: stakeholder });
         
         var editBtn = el.querySelector('.edit'),
-            removeBtn = el.querySelector('.remove');
+            removeBtn = el.querySelector('.remove'),
+            addBtn = el.querySelector('.add');
         
         editBtn.addEventListener('click', function(){
             _this.editImplementation(implementation, el);
@@ -120,6 +126,56 @@ var ImplementationsView = BaseView.extend(
                 })
             }});
         })
+        
+        var SolutionsInImpl = Backbone.Collection.extend({
+                url: config.api.solutionsInImplementation.format(this.caseStudy.id, implementation.id)
+            }),
+            solutionsInImpl = new SolutionsInImpl();
+        
+        solutionsInImpl.fetch({
+            success: function(){ 
+                solutionsInImpl.forEach(function(solInImpl){
+                    _this.renderSolution(solInImpl, el);
+                })
+            }
+        });
+        
+        addBtn.addEventListener('click', function(){
+            _this.confirmSolution = function(){
+                var solutionId = _this.el.querySelector('#solution-select').value;
+                var solInImpl = solutionsInImpl.create(
+                    {
+                        solution: solutionId
+                    }, 
+                    { 
+                        wait: true,
+                        success: function(){
+                            _this.renderSolution(solInImpl, el)
+                        },
+                        error: function(model, response) { _this.onError(response) }
+                    },
+                )
+            };
+            _this.addSolution();
+        })
+    },
+    
+    renderSolution: function(solutionInImpl, implementationItem){
+        var html = document.getElementById('solution-item-template').innerHTML,
+            el = document.createElement('div'),
+            template = _.template(html),
+            solDiv = implementationItem.querySelector('.solutions'),
+            solId = solutionInImpl.get('solution'),
+            _this = this;
+        
+        solDiv.appendChild(el);
+        var solution;
+        for (var i = 0; i < this.solutionCategories.length; i++){
+            solution = this.solutionCategories.at(i).solutions.get(solId);
+            if (solution != null) break;
+        }
+        
+        el.innerHTML = template({ solutionInImpl: solutionInImpl, solution: solution });
     },
     
     editImplementation: function(implementation, item){
@@ -179,6 +235,49 @@ var ImplementationsView = BaseView.extend(
                 },
             )
         };
+        
+        $(modal).modal('show');
+    },
+    
+    addSolution: function(){
+        
+        var modal = this.el.querySelector('#add-solution-modal'),
+            solutionSelect = modal.querySelector('#solution-select'),
+            _this = this;
+        
+        solutionSelect.selectedIndex = 0;
+        $(solutionSelect).selectpicker('refresh');
+        
+        $(modal).modal('show');
+    },
+    
+    editSolution: function(implementation, solution, onConfirm){
+        var _this = this;
+        var html = document.getElementById('view-solution-implementation-template').innerHTML,
+            template = _.template(html);
+        var modal = this.el.querySelector('#solution-implementation-modal');
+        modal.innerHTML = template({ 
+            solutionCategories: this.solutionCategories,
+            implementation: implementation,
+            solutionImpl: solution
+        });
+        var select = modal.querySelector('#solution-select');
+        $(select).selectpicker();
+        
+        
+        var Quantities = Backbone.Collection.extend({ 
+            url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+        var squantities = new Quantities();
+        
+        var Ratios = Backbone.Collection.extend({ 
+            url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+        var sratios = new Ratios();
+        squantities.fetch({success: function(){
+            squantities.forEach(_this.addSolutionQuanitityRow)
+        }});
+        sratios.fetch({success: function(){
+            sratios.forEach(_this.addSolutionRatioOneUnitRow)
+        }});
         
         $(modal).modal('show');
     }

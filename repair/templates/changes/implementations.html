@@ -44,6 +44,33 @@
     </div>
   </div>
 </div>
+
+<div id="add-solution-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Add solution" %}</h4>
+      </div>
+      <div class="modal-body">
+        {% trans "Solution" %}
+        <select id="solution-select" class="selectpicker" style="width: 100%; margin-left: 10px;">
+          <% solutionCategories.forEach(function(category){ %>
+            <optgroup label="<%= category.get('name') %>">
+              <% category.solutions.forEach(function(solution){ %>
+              <option value="<%= solution.id %>"> <%= solution.get('name') %></option>
+              <% }) %>
+            </optgroup>
+          <% }) %>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      </div>
+    </div>
+  </div>
+</div>
 </script>
 
 <!-- modal for an implementation item -->
@@ -63,6 +90,73 @@
   <button class="btn btn-primary add" title="{% trans "Add solution" %}">
     <span class="glyphicon glyphicon-plus"></span> {% trans "Solution" %}
   </button>
+  <div class="solutions row">
+</div>
+<div id="solution-implementation-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
+</script>
+
+<!-- modal for a solution item -->
+<script type="text/template" id="solution-item-template">
+<div class="row bordered" style="margin-top: 15px;">
+  <button class="btn btn-warning square remove" title="Remove solution" style="float: right;">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
+  <button class="btn btn-primary square edit" title="Edit solution" style="float: right; margin-right: 5px;">
+    <span class="glyphicon glyphicon-pencil"></span>
+  </button>
+  <div class="col-md-6">
+    <h4 class='title'> <%= solution.get('name') %> </h4>
+    {% trans "Quantity: " %}:&nbsp; <br>
+    {% trans "Implemented by: " %}:&nbsp; <br>
+    {% trans "Notes: " %}:&nbsp; <%= solutionInImpl.get('note') %> <br>
+  </div>
+  <div class="col-md-6">
+    <div class='map'>
+    </div>
+  </div>
+</div>
+<div id="solution-implementation-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
+</script>
+
+<!-- modal for editing/viewing a solution-->
+<script type="text/template" id="view-solution-implementation-template">
+<div class="modal-dialog modal-lg" style="width: 80%;">
+  <!-- Modal content-->
+  <div class="modal-content col-md-12">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">{% trans "Add solution to implementation" %} <%= implementation.get('name') %></h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#solution-tab">{% trans "Solution" %}</a></li>
+          <li><a data-toggle="tab" href="#implementation-area-tab">{% trans "Implementation Area" %}</a></li>
+          <li><a data-toggle="tab" href="#implementation-by-tab">{% trans "Implementation by" %}</a></li>
+          <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes" %}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="solution-tab">
+            <div class="row">
+            </div>
+            {% trans "In the implementation area, this quantity shall be implemented" %}
+            <table id="implemented-quantities"></table>
+          </div>
+          <div class="tab-pane fade in" id="implementation-area-tab">
+          </div>
+          <div class="tab-pane fade in" id="implementation-by-tab">
+          </div>
+          <div class="tab-pane fade in" id="notes-tab">
+            <textarea name="description" rows="4" cols="50" style="max-width: 100%; width: 100%;" ><%= solutionImpl.get('note') %></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+    </div>
+  </div>
 </div>
 </script>
 
