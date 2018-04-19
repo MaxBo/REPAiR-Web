@@ -1,10 +1,10 @@
 define(['views/baseview', 'backbone', 'underscore', 'collections/stakeholders',
         'collections/stakeholdercategories', 'collections/solutioncategories',
         'collections/solutions', 'visualizations/map', 
-        'app-config', 'utils/loader', 'utils/utils', 'bootstrap', 'bootstrap-select'],
+        'app-config', 'utils/loader', 'utils/utils', 'openlayers', 'bootstrap', 'bootstrap-select'],
 
 function(BaseView, Backbone, _, Stakeholders, StakeholderCategories, 
-         SolutionCategories, Solutions, Map, config, Loader, utils){
+         SolutionCategories, Solutions, Map, config, Loader, utils, ol){
 /**
 *
 * @author Christoph Franke
@@ -93,7 +93,7 @@ var ImplementationsView = BaseView.extend(
         this.implementations.forEach(this.renderImplementation);
         
         document.querySelector('#implementation-modal .confirm').addEventListener('click', function(){ _this.confirmImplementation() })
-        document.querySelector('#add-solution-modal .confirm').addEventListener('click', function(){ _this.confirmSolution() })
+        document.querySelector('#add-solution-modal .confirm').addEventListener('click', function(){ _this.confirmNewSolution() })
     },
     
     renderImplementation: function(implementation){
@@ -145,7 +145,7 @@ var ImplementationsView = BaseView.extend(
         
         var addModal = this.el.querySelector('#add-solution-modal');
         addBtn.addEventListener('click', function(){
-            _this.confirmSolution = function(){
+            _this.confirmNewSolution = function(){
                 var solutionId = _this.el.querySelector('#solution-select').value;
                 var solInImpl = solutionsInImpl.create(
                     {
@@ -325,41 +325,78 @@ var ImplementationsView = BaseView.extend(
                 div.appendChild(li);
             });
         }});
-        this.renderEditorMap('editor-map');
+        this.renderEditorMap('editor-map', solutionImpl);
         $(modal).off();
         $(modal).on('shown.bs.modal', function () {
-            console.log('sdsd')
             _this.editorMap.map.updateSize();
         });
         $(modal).modal('show');
+        
+        var okBtn = modal.querySelector('.confirm');
+        okBtn.addEventListener('click', function(){
+            var features = _this.drawingSource.getFeatures();
+            if (features.length > 0){
+                var multiPolygon = new ol.geom.MultiPolygon();
+                features.forEach(function(feature) {
+                    var coordinates = feature.getGeometry().getCoordinates();
+                    // flatten if necessary
+                    if (coordinates[0] instanceof Array && coordinates[0].length == 1)
+                        coordinates = coordinates[0];
+                    var polygon = new ol.geom.Polygon(coordinates);
+                    multiPolygon.appendPolygon(polygon);
+                 });
+                var geoJSON = new ol.format.GeoJSON(),
+                    geoJSONText = geoJSON.writeGeometry(multiPolygon);
+                var notes = modal.querySelector('textarea[name="description"]').value
+                solutionImpl.set('geom', geoJSONText);
+            }
+            solutionImpl.set('note', notes);
+            solutionImpl.save(null, {
+                success: function(){
+                    _this.renderSolutionPreviewMap(solutionImpl, item);
+                    item.querySelector('textarea[name="notes"]').value = notes;
+                    $(modal).modal('hide');
+                },
+                error: function(m, r){ _this.onError(r) },
+                patch: true
+            })
+        })
     },
     
     renderSolutionPreviewMap: function(solutionImpl, item){
         var divid = 'solutionImpl' + solutionImpl.id;
         var mapDiv = item.querySelector('.map');
         mapDiv.id = divid;
+        mapDiv.innerHTML = '';
         previewMap = new Map({
             divid: divid, 
         });
-        var focusarea = this.caseStudy.get('properties').focusarea;
-
-        previewMap.addLayer('background', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1,
-            zIndex: 0
-        });
+        var geom = solutionImpl.get('geom');
+        //previewMap.addLayer('geometry', {
+            //stroke: 'rgb(252, 195, 25)',
+            //fill: 'rgba(252, 195, 25, 0.2)',
+            //strokeWidth: 1,
+            //zIndex: 1
+        //});
         // add polygon of focusarea to both maps and center on their centroid
-        if (focusarea != null){
-            var poly = previewMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            previewMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.centroid = previewMap.centerOnPolygon(poly, { projection: this.projection });
-            previewMap.centerOnPolygon(poly, { projection: this.projection });
-        };
+        if (geom != null){
+            //var poly = previewMap.addPolygon(geom.coordinates, { projection: this.projection, layername: 'geometry', type: 'MultiPolygon'});
+            //console.log(poly)
+            //previewMap.centerOnPolygon(poly, { projection: this.projection });
         
+            var feature = new ol.Feature({ geometry: new ol.geom.MultiPolygon(geom.coordinates) });
+            
+            var source = new ol.source.Vector({wrapX: false});
+            source.addFeature(feature);
+            var vector = new ol.layer.Vector({
+                source: source
+            });
+            previewMap.map.addLayer(vector);
+            previewMap.map.getView().fit(source.getExtent(), previewMap.map.getSize());
+        };
     },
     
-    renderEditorMap: function(divid, activities){
+    renderEditorMap: function(divid, solutionImpl, activities){
         var _this = this;
         // remove old map
         if (this.editorMap){
@@ -381,8 +418,6 @@ var ImplementationsView = BaseView.extend(
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.centroid = this.editorMap.centerOnPolygon(poly, { projection: this.projection });
             this.editorMap.centerOnPolygon(poly, { projection: this.projection });
         };
         //var deferreds = [];
@@ -390,15 +425,19 @@ var ImplementationsView = BaseView.extend(
         //activities.forEach(function(activityId){
             //_this.renderActivityOnMap(activityId);
         //})
-        var ol = require('openlayers');
         var map = this.editorMap.map;
-        var source = new ol.source.Vector({wrapX: false});
+        var geom = solutionImpl.get('geom');
+        this.drawingSource = new ol.source.Vector({wrapX: false});
+        if (geom){
+            var feature = new ol.Feature({ geometry: new ol.geom.MultiPolygon(geom.coordinates) });
+            this.drawingSource.addFeature(feature);
+        }
         var vector = new ol.layer.Vector({
-            source: source
+            source: this.drawingSource
         });
         map.addLayer(vector);
         var draw = new ol.interaction.Draw({
-          source: source,
+          source: this.drawingSource,
           type: 'Polygon'
         });
         map.addInteraction(draw);
