@@ -14,12 +14,6 @@
           <h4> {% trans "Legend" %} </h4>
         </div>
         <div class="items collapse" style="padding: 5px;">
-          <svg width="30" height="30">
-            <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
-          </svg>
-          <label style="position: relative; top:-10px;">
-            {% trans "Focus Area" %}
-          </label>
         </div>
       </div>
     </div>
@@ -65,12 +59,6 @@
       <h4> {% trans "Legend" %} </h4>
     </div>
     <div class="items" style="padding: 5px;">
-      <svg width="30" height="30">
-        <rect width="30" height="30" style="stroke: #aad400; fill: rgba(170, 212, 0, 0.1)" />
-      </svg>
-      <label style="position: relative; top:-10px;">
-        {% trans "Focus Area" %}
-      </label>
     </div>
   </div>
 </div>
@@ -89,7 +77,7 @@
           <div class="row"></div>
           <div class='row'>
             <a href="/admin/wms_client/wmsresource/" target="_blank" class="btn btn-primary square" style='float: left;'>
-              <span class="glyphicon glyphicon-plus"></span> {% trans "Add WMS Service" %} 
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Add WMS Service" %}
             </a>
             <button id='refresh-wms-services-button' class="btn btn-primary round" title="{% trans "Refresh list of WMS services" %}" style='float: right;'>
               <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh Services" %}
@@ -134,7 +122,7 @@
       <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
       <table style="margin: 0px;">
       <% _.each(resource.get('layers'), function(layer){ %>
-        <tr> 
+        <tr>
           <td><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
           <td> <%= layer.title %> </td>
           <td> <%= layer.abstract %> </td>
