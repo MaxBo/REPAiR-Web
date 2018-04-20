@@ -310,26 +310,42 @@ ImpactCategories, Target, Targets){
                     target_value: optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].target_value = optionId;
+                    },
                     error: function(){
                         console.error("cannot update targetvalue");
                     }
                 });
             } else if (type == "impact") {
-                console.log("save impact");
                 target.save({
                     "impact_category": optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].impact_category = optionId;
+                    },
                     error: function(){
                         console.error("cannot update impact");
                     }
                 });
             } else {
-                console.log("save spatial");
                 target.save({
                     "spatial_reference": optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].spatial_reference = optionId;
+                    },
                     error: function(){
                         console.error("cannot update spatial");
                     }
