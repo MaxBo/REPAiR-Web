@@ -1,10 +1,10 @@
   /* prevent selection of content, some browsers try to select sth. on touch */
 .noselect {
   -webkit-touch-callout: none;
-    -webkit-user-select: none; 
+    -webkit-user-select: none;
      -khtml-user-select: none;
        -moz-user-select: none;
-        -ms-user-select: none; 
+        -ms-user-select: none;
             user-select: none;
 }
 
@@ -406,6 +406,8 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .panel-item label{
   font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .panel-item .button-box{

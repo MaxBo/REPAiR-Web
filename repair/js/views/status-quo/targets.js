@@ -228,12 +228,15 @@ ImpactCategories, Target, Targets){
                             target.target_value),
                         spatial = _this.getObject(_this.spatial,
                             target.spatial_reference);
+                    var removeBtn = document.createElement('button');
+
                     if (i == 0 || this.targets[i-1].aim != target.aim) {
                         var row = _this.el.querySelector("[rowaimid=" + CSS.escape(target.aim) + "]");
 
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.button-panel'),
                             html = document.getElementById('panel-item-template').innerHTML
                             template = _.template(html);
                     }
@@ -249,6 +252,22 @@ ImpactCategories, Target, Targets){
                     var spatialSelect = _this.createSelect("spatial", spatial,
                     _this.spatial, target);
                     spatialPanel.appendChild(spatialSelect);
+
+                    removeBtn.classList.add("btn", "btn-warning", "square",
+                     "remove", "remove-target");
+                    // removeBtn.style.float = 'right';
+                    var span = document.createElement('span');
+                    removeBtn.title = gettext('Remove target')
+                    span.classList.add('glyphicon', 'glyphicon-minus');
+                    removeBtn.appendChild(span);
+                    removeBtn.setAttribute("targetId", target.id);
+                    removeBtn.addEventListener('click', function(e){
+                        _this.deleteTarget(e);
+                    })
+                    var btnDiv = document.createElement('div');
+                    btnDiv.classList.add("remove-item");
+                    btnDiv.appendChild(removeBtn);
+                    removePanel.appendChild(btnDiv);
                 }
             }
         },
@@ -310,26 +329,42 @@ ImpactCategories, Target, Targets){
                     target_value: optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].target_value = optionId;
+                    },
                     error: function(){
                         console.error("cannot update targetvalue");
                     }
                 });
             } else if (type == "impact") {
-                console.log("save impact");
                 target.save({
                     "impact_category": optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].impact_category = optionId;
+                    },
                     error: function(){
                         console.error("cannot update impact");
                     }
                 });
             } else {
-                console.log("save spatial");
                 target.save({
                     "spatial_reference": optionId
                 }, {
                     patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].spatial_reference = optionId;
+                    },
                     error: function(){
                         console.error("cannot update spatial");
                     }
@@ -337,8 +372,26 @@ ImpactCategories, Target, Targets){
             }
         },
 
-        deleteTarget: function(){
-
+        deleteTarget: function(e){
+            var _this = this;
+            var select = $(e)[0].target;
+            var targetId = parseInt(select.getAttribute("targetId"));
+            var message = gettext('Do you really want to delete the target?');
+            _this.confirm({ message: message, onConfirm: function(){
+                var target = new Target(
+                    {id: targetId},
+                    {caseStudyId: _this.caseStudy.id}
+                );
+                target.destroy({
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(targetId);
+                        _this.targets.splice(pos, 1);
+                        _this.render();
+                    }
+                });
+            }});
         },
 
         /*
