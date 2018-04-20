@@ -91,7 +91,7 @@ var FlowsView = BaseView.extend(
                this.actors.fetch({ data: params }), 
                this.activities.fetch(), this.activityGroups.fetch()
             ).then(function(){
-            _this.renderSankeyMap();
+            //_this.renderSankeyMap();
             _this.renderMatFilter();
             _this.renderNodeFilters();
             _this.renderSankey();

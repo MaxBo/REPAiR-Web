@@ -24,10 +24,7 @@ from repair.apps.changes.views import (
     SolutionInImplementationViewSet,
     SolutionQuantityViewSet,
     SolutionRatioOneUnitViewSet,
-    SolutionInImplementationNoteViewSet,
     SolutionInImplementationQuantityViewSet,
-    SolutionInImplementationGeometryViewSet,
-    ImplementationOfUserViewSet,
     StrategyViewset,
 )
 
@@ -117,11 +114,6 @@ levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
 levels_router.register(r'areas', AreaViewSet)
 
-# /casestudies/*/users/...
-user_router = NestedSimpleRouter(cs_router, r'users',
-                                  lookup='user')
-user_router.register(r'implementations', ImplementationOfUserViewSet)
-
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
                                   lookup='chartcategory')
@@ -151,9 +143,7 @@ imp_router.register(r'solutions', SolutionInImplementationViewSet)
 # /casestudies/*/implementations/*/solutions...
 sii_router = NestedSimpleRouter(imp_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'note', SolutionInImplementationNoteViewSet)
-sii_router.register(r'quantity', SolutionInImplementationQuantityViewSet)
-sii_router.register(r'geometry', SolutionInImplementationGeometryViewSet)
+sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
 
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
@@ -194,7 +184,6 @@ urlpatterns = [
     url(r'^', include(imp_router.urls)),
     url(r'^', include(sii_router.urls)),
     url(r'^', include(kf_router.urls)),
-    url(r'^', include(user_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
     url(r'^', include(layercat_router.urls)),

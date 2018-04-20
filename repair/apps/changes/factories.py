@@ -86,27 +86,12 @@ class ImplementationWithTwoSolutionsFactory(UserFactory):
                                         'solution', solution__name='MySolution2')
 
 
-class SolutionInImplementationNoteFactory(DjangoModelFactory):
-    class Meta:
-        model = models.SolutionInImplementationNote
-    sii = factory.SubFactory(SolutionInImplementationFactory)
-    note = 'Note1'
-
-
 class SolutionInImplementationQuantityFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionInImplementationQuantity
     sii = factory.SubFactory(SolutionInImplementationFactory)
     quantity = factory.SubFactory(SolutionQuantityFactory)
     value = 24.3
-
-
-class SolutionInImplementationGeometryFactory(DjangoModelFactory):
-    class Meta:
-        model = models.SolutionInImplementationGeometry
-    sii = factory.SubFactory(SolutionInImplementationFactory)
-    name = 'Hier'
-    geom = Point(9.3, 10.4, srid=4326)
 
 
 class StrategyFactory(DjangoModelFactory):
