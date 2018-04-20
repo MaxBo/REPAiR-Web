@@ -228,12 +228,15 @@ ImpactCategories, Target, Targets){
                             target.target_value),
                         spatial = _this.getObject(_this.spatial,
                             target.spatial_reference);
+                    var removeBtn = document.createElement('button');
+
                     if (i == 0 || this.targets[i-1].aim != target.aim) {
                         var row = _this.el.querySelector("[rowaimid=" + CSS.escape(target.aim) + "]");
 
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.item-panel'),
                             html = document.getElementById('panel-item-template').innerHTML
                             template = _.template(html);
                     }
@@ -249,6 +252,26 @@ ImpactCategories, Target, Targets){
                     var spatialSelect = _this.createSelect("spatial", spatial,
                     _this.spatial, target);
                     spatialPanel.appendChild(spatialSelect);
+
+                    removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+                    // removeBtn.style.float = 'right';
+                    var span = document.createElement('span');
+                    removeBtn.title = gettext('Remove target')
+                    span.classList.add('glyphicon', 'glyphicon-minus');
+                    removeBtn.appendChild(span);
+                    removeBtn.addEventListener('click', function(){
+                        var message = gettext('Do you really want to delete the target?');
+                        _this.confirm({ message: message, onConfirm: function(){
+                            // category.destroy({
+                            //     success: function() { panelList.removeChild(div); },
+                            //     error: _this.onError
+                            // })
+                            console.log("removed target");
+                        }});
+                    })
+                    var btnDiv = document.createElement('div');
+                    btnDiv.appendChild(removeBtn);
+                    removePanel.appendChild(btnDiv);
                 }
             }
         },
