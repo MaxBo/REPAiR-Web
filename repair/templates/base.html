@@ -12,9 +12,9 @@
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-select.min.css" />
-    
+
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
-    
+
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
@@ -42,7 +42,7 @@
             <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
             <li id="changes-link"><div class='menu-arrow'>></div><a href="/changes/">{% trans "Changes" %}</a></li>
             <li id="impacts-link"><div class='menu-arrow'>></div><a href="/impacts">{% trans "Impacts" %}</a></li>
-            <li id="decisions-link"><div class='menu-arrow'>></div><a href="/decisions">{% trans "Decisions" %}</a></li>
+            <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
           </ul>
         </div>
         <div class="container-fluid" style='float: right;'>
@@ -61,15 +61,15 @@
                   <div class="dropdown-content">
                     <!-- BaseView has property 'casestudies' -->
                     {% if view.casestudies|length > 0 %}
-                    {% for casestudy in view.casestudies %} 
-                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    {% for casestudy in view.casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
                     onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
-                     <!-- if not this view is not inherited from BaseView or rendered with 'get', 
+                     <!-- if not this view is not inherited from BaseView or rendered with 'get',
                      casestudies have to be passed in the context, does actually the same thing -->
                     {% else %}
-                    {% for casestudy in casestudies %} 
-                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    {% for casestudy in casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
                     onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
                     {% endif %}
@@ -156,8 +156,8 @@
         </div>
       </div>
     </div>
-  </div> 
-  
+  </div>
+
 {% include 'common.html' %}
 </body>
 </html>
