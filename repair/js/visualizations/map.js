@@ -45,60 +45,16 @@ define([
       this.layers = { basic: basicLayer }; /**
        * Define a namespace for the application.
        */
-      window.app = {};
-      var app = window.app;
-
-
-      //
-      // Define rotate to north control.
-      //
-
-
-      /**
-       * @constructor
-       * @extends {ol.control.Control}
-       * @param {Object=} opt_options Control options.
-       */
-      app.RotateNorthControl = function(opt_options) {
-
-        var options = opt_options || {};
-
-        var button = document.createElement('button');
-        button.innerHTML = 'N';
-
-        var this_ = this;
-        var handleRotateNorth = function() {
-          this_.getMap().getView().setRotation(0);
-        };
-
-        button.addEventListener('click', handleRotateNorth, false);
-        button.addEventListener('touchstart', handleRotateNorth, false);
-
-        var element = document.createElement('div');
-        element.className = 'rotate-north ol-unselectable ol-control';
-        element.appendChild(button);
-
-        ol.control.Control.call(this, {
-          element: element,
-          target: options.target
-        });
-
-      };
-      ol.inherits(app.RotateNorthControl, ol.control.Control);
 
       this.map = new ol.Map({
         layers: initlayers,
         target: options.divid,
         controls: ol.control.defaults({
-          attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+          attributionOptions: ({
             collapsible: false
           })
         }).extend([
-          new ol.control.FullScreen({source: options.divid}),
-          new app.RotateNorthControl()
-        ]),
-        interactions: ol.interaction.defaults().extend([
-          new ol.interaction.DragRotateAndZoom()
+          new ol.control.FullScreen({source: options.divid})
         ]),
         view: this.view
       });

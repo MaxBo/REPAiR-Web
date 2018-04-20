@@ -34,11 +34,6 @@
 .sankeymap * .leaflet-top, .sankeymap * .leaflet-bottom {
   z-index: 5 !IMPORTANT;
 }
-.rotate-north {
-  top: 7px;
-  left: 3em;
-  visibility: visible;
-}
-.ol-touch .rotate-north {
-  top: 23px;
+.ol-rotate {
+  right: 3em !important;
 }
