@@ -1,0 +1,17 @@
+.button-panel{
+    min-width: 30px;
+    vertical-align: top;
+}
+
+.remove-item{
+    height: 65px;
+    vertical-align: middle;
+    text-align: center;
+    margin: auto;
+    padding-top: 60%;
+}
+
+.btn.remove-target{
+    float: none;
+    display: inline-block;
+}

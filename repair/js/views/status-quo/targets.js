@@ -236,7 +236,7 @@ ImpactCategories, Target, Targets){
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
-                            removePanel = row.querySelector('.remove').querySelector('.item-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.button-panel'),
                             html = document.getElementById('panel-item-template').innerHTML
                             template = _.template(html);
                     }
@@ -253,7 +253,8 @@ ImpactCategories, Target, Targets){
                     _this.spatial, target);
                     spatialPanel.appendChild(spatialSelect);
 
-                    removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+                    removeBtn.classList.add("btn", "btn-warning", "square",
+                     "remove", "remove-target");
                     // removeBtn.style.float = 'right';
                     var span = document.createElement('span');
                     removeBtn.title = gettext('Remove target')
@@ -264,6 +265,7 @@ ImpactCategories, Target, Targets){
                         _this.deleteTarget(e);
                     })
                     var btnDiv = document.createElement('div');
+                    btnDiv.classList.add("remove-item");
                     btnDiv.appendChild(removeBtn);
                     removePanel.appendChild(btnDiv);
                 }
