@@ -259,15 +259,9 @@ ImpactCategories, Target, Targets){
                     removeBtn.title = gettext('Remove target')
                     span.classList.add('glyphicon', 'glyphicon-minus');
                     removeBtn.appendChild(span);
-                    removeBtn.addEventListener('click', function(){
-                        var message = gettext('Do you really want to delete the target?');
-                        _this.confirm({ message: message, onConfirm: function(){
-                            // category.destroy({
-                            //     success: function() { panelList.removeChild(div); },
-                            //     error: _this.onError
-                            // })
-                            console.log("removed target");
-                        }});
+                    removeBtn.setAttribute("targetId", target.id);
+                    removeBtn.addEventListener('click', function(e){
+                        _this.deleteTarget(e);
                     })
                     var btnDiv = document.createElement('div');
                     btnDiv.appendChild(removeBtn);
@@ -376,8 +370,26 @@ ImpactCategories, Target, Targets){
             }
         },
 
-        deleteTarget: function(){
-
+        deleteTarget: function(e){
+            var _this = this;
+            var select = $(e)[0].target;
+            var targetId = parseInt(select.getAttribute("targetId"));
+            var message = gettext('Do you really want to delete the target?');
+            _this.confirm({ message: message, onConfirm: function(){
+                var target = new Target(
+                    {id: targetId},
+                    {caseStudyId: _this.caseStudy.id}
+                );
+                target.destroy({
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(targetId);
+                        _this.targets.splice(pos, 1);
+                        _this.render();
+                    }
+                });
+            }});
         },
 
         /*
