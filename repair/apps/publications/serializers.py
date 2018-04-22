@@ -1,16 +1,12 @@
 import datetime
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
-from django.core.validators import URLValidator
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.exceptions import ValidationError
-
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.publications.models import (PublicationInCasestudy,
                                              Publication,
                                              PublicationType,
-                                            )
+                                             )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudySerializerMixin,)
@@ -25,15 +21,15 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
     type = serializers.CharField(source='publication.type', required=False,
                                  default='Article')
     citekey = serializers.CharField(source='publication.citekey',
-                                 allow_blank=True, required=False)
+                                    allow_blank=True, required=False)
     title = serializers.CharField(source='publication.title',
-                                 allow_blank=True, required=False)
+                                  allow_blank=True, required=False)
     authors = serializers.CharField(source='publication.authors',
-                                 allow_blank=True, required=False)
+                                    allow_blank=True, required=False)
     year = serializers.IntegerField(source='publication.year', required=False,
                                     default=datetime.datetime.now().year)
     doi = serializers.CharField(source='publication.doi',
-                                 allow_blank=True, required=False)
+                                allow_blank=True, required=False)
     casestudy = serializers.IntegerField(required=False, write_only=True)
     publication_url = serializers.CharField(source='publication.url',
                                             allow_blank=True, required=False)
@@ -50,7 +46,7 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                   'authors',
                   'year',
                   'doi',
-                  'publication_url', 
+                  'publication_url',
                   'casestudy',
                   )
 
