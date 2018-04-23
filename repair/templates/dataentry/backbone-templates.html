@@ -197,14 +197,17 @@
       <div class="modal-body">
         <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
         <select name="items"></select>
-        <table id="fractions-edit-table">
-          <tr>
-            <th>{% trans "Fraction" %}</th>
-            <th>{% trans "Material" %}</th>
-            <th>{% trans "Data Source" %}</th>
-            <th>{% trans "Remove" %}</th>
-          </tr>
-        </table>
+        <div class="row" style="overflow: auto">
+          <table id="fractions-edit-table">
+            <tr>
+              <th>{% trans "Fraction" %}</th>
+              <th>{% trans "Material" %}</th>
+              <th>{% trans "avoidable" %}</th>
+              <th>{% trans "Data Source" %}</th>
+              <th>{% trans "Remove" %}</th>
+            </tr>
+          </table>
+        </div>
         <button id='add-fraction-button' class="btn btn-primary square" title="{% trans "add new fraction" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add Fraction" %}
         </button>

@@ -5,7 +5,6 @@ define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
-* tdgjhjhjhvvhjvh
 *
 * @author Christoph Franke
 * @name module:views/EditNodeView
@@ -353,6 +352,7 @@ var EditNodeView = BaseView.extend(
 
         var rawCheckbox = document.createElement("input");
         rawCheckbox.type = 'checkbox';
+        rawCheckbox.checked = flow.get('raw');
         row.insertCell(-1).appendChild(rawCheckbox);
 
         rawCheckbox.addEventListener('change', function() {
@@ -501,7 +501,10 @@ var EditNodeView = BaseView.extend(
 
             // input for fraction percentage
             var row = table.insertRow(-1);
-            var fractionsCell = row.insertCell(-1);
+            var fractionsCell = row.insertCell(-1),
+                fractionWrapper = document.createElement("div");
+            fractionsCell.appendChild(fractionWrapper);
+            fractionWrapper.style.whiteSpace = 'nowrap';
             var fInput = document.createElement("input");
             fInput.type = 'number';
             fInput.name = 'fraction';
@@ -510,15 +513,14 @@ var EditNodeView = BaseView.extend(
             fInput.min = 0;
             fInput.style.maxWidth = '80%';
             fInput.style.float = 'left';
-            fractionsCell.appendChild(fInput);
+            fractionWrapper.appendChild(fInput);
             fInput.value = Math.round(fraction.fraction * 1000) / 10;
             fInput.addEventListener('change', setCustom);
 
             var perDiv = document.createElement('div');
             perDiv.innerHTML = '%';
-            perDiv.style.float = 'left';
             perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
-            fractionsCell.appendChild(perDiv);
+            fractionWrapper.appendChild(perDiv);
 
             // select material
             var matSelect = document.createElement('div');
@@ -530,12 +532,20 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
+                width: 200,
                 selected: fraction.material,
                 defaultOption: gettext('Select a material')
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
-
+            
+            var avoidCheck = document.createElement('input');
+            avoidCheck.type = 'checkbox';
+            avoidCheck.name = 'avoidable';
+            console.log(fraction)
+            avoidCheck.checked = fraction.avoidable;
+            row.insertCell(-1).appendChild(avoidCheck);
+        
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -633,12 +643,14 @@ var EditNodeView = BaseView.extend(
                 var row = table.rows[i];
                 var fInput = row.querySelector('input[name="fraction"]');
                 var matSelect = row.querySelector('.materialSelect');
+                var avoidCheck = row.querySelector('input[name="avoidable"]')
                 var pubInput = row.querySelector('input[name="publication"]');
                 var f = fInput.value / 100;
                 var fraction = { 
                     'fraction': Number(Math.round(f+'e3')+'e-3'),
                     'material': matSelect.getAttribute('data-material-id'),
-                    'publication': pubInput.getAttribute('data-publication-id')
+                    'publication': pubInput.getAttribute('data-publication-id'),
+                    'avoidable': avoidCheck.checked
                 };
                 composition.fractions.push(fraction);
             }
