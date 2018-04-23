@@ -1,5 +1,6 @@
 {% load i18n %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/targets.css">
 
 <script type="text/template" id="targets-template">
 <div class="row overflow">
@@ -40,6 +41,19 @@
   <div class="item-panel" style="min-height: 25px;">
   </div>
 </div>
+<div class="remove">
+    <div class="button-panel" style="min-height: 25px;">
+    </div>
+</div>
 </script>
+
+
+
+<!-- <div>
+    <button id="remove-target-button" class="btn btn-warning square remove"
+     title="{% trans "remove target" %}" aimId="<%= aimId %>">
+     <span class="glyphicon glyphicon-minus"></span>
+    </button>
+</div> -->
 
 {% endblock %}
