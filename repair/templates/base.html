@@ -21,9 +21,34 @@
 
 <body>
   <nav class="navbar navbar-default">
-    <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="navbar-collapse">
-      <div class="container-fluid" style='float: right;'>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#top-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-collapse" style="padding: 6px 15px;">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="glyphicon glyphicon-leaf"></span>
+      </button>
+      <a class="navbar-brand" href="/">
+        <img src="{{STATIC_URL}}img/repair-logo-wo-text.png">
+      </a>
+      <div class="container-fluid" style="float: left;">
+        <div class="collapse navbar-collapse" id="main-collapse">
+          <ul class="nav navbar-nav navbar-bottom">
+            <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
+            <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
+            <li id="changes-link"><div class='menu-arrow'>></div><a href="/changes/">{% trans "Changes" %}</a></li>
+            <li id="impacts-link"><div class='menu-arrow'>></div><a href="/impacts">{% trans "Impacts" %}</a></li>
+            <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="collapse navbar-collapse" id="top-collapse">
+      <div id="top-links" class="container-fluid">
         <ul class="nav navbar-nav navbar-top">
           {% if request.user.is_authenticated %}
           <li>
@@ -109,27 +134,6 @@
             </form>
           </li>
         </ul>
-      </div>
-    </div>
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">
-          <img src="{{STATIC_URL}}img/repair-logo-wo-text.png">
-        </a>
-        <div class="container-fluid" style="float: left;">
-          <ul class="nav navbar-nav navbar-bottom">
-            <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
-            <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
-            <li id="changes-link"><div class='menu-arrow'>></div><a href="/changes/">{% trans "Changes" %}</a></li>
-            <li id="impacts-link"><div class='menu-arrow'>></div><a href="/impacts">{% trans "Impacts" %}</a></li>
-            <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
-          </ul>
-        </div>
       </div>
     </div>
   </nav>

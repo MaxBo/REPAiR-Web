@@ -181,6 +181,9 @@
 .btn.btn-circle { border-radius: 50px; }
 .btn.btn-outline { background-color: transparent; }
 
+#top-links {
+    float: right;
+}
 
 @media screen and (max-width: 767px) {
     .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-left: 15px; padding-right: 15px; }
@@ -189,4 +192,17 @@
     .navbar .nav-collapse .navbar-form { margin: 0; }
     .nav-collapse>li { float: none; }
     .menu-arrow{ visibility: hidden; }
+
+    .navbar-top {
+        position: relative;
+        top: auto;
+    }
+    
+    #top-links {
+        float: none;
+    }
+    
+    .navbar-bottom > li:hover > a {
+        font-size: 1.5em;
+    }
 }
