@@ -90,21 +90,8 @@ var ActorsView = BaseView.extend(
             activities: this.activities
         });
         this.filterSelect = this.el.querySelector('#included-filter-select');
-        this.setupTable();
+        this.datatable = $('#actors-table').DataTable();
         this.renderActors();
-    },
-    
-    setupTable: function(){
-        $('#actors-table tbody').on( 'click', 'tr', function () {
-            if ( $(this).hasClass('selected') ) {
-                $(this).removeClass('selected');
-            }
-            else {
-                table.$('tr.selected').removeClass('selected');
-                $(this).addClass('selected');
-            }
-        } );
-         this.datatable = $('#actors-table').DataTable();
     },
     
     renderActors: function(){

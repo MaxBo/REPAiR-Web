@@ -141,8 +141,6 @@ var EditNodeView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
 
-        this.dsTable = document.getElementById('publications-table');
-
         var popOverSettings = {
             placement: 'right',
             container: 'body',
@@ -163,9 +161,23 @@ var EditNodeView = BaseView.extend(
         this.stocks.each(function(stock){
             _this.addFlowRow('stock-table', stock, 'origin', true);
         });
-
+        
+        var table = this.el.querySelector('#publications-table');
+        this.datatable = $(table).DataTable({
+            "columnDefs": [{
+                "render": function ( data, type, row ) {
+                    var wrapper = document.createElement('a'),
+                        anchor = document.createElement('a');
+                    wrapper.appendChild(anchor);
+                    anchor.href = data;
+                    anchor.innerHTML = data;
+                    anchor.target = '_blank';
+                    return wrapper.innerHTML;
+                },
+                "targets": 4
+            }]
+        });
         this.renderDatasources(this.publications);
-        this.setupDsTable();
     },
 
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -401,7 +413,7 @@ var EditNodeView = BaseView.extend(
         var pencil = document.createElement('span');
         editBtn.classList.add('btn', 'btn-primary', 'square');
         editBtn.appendChild(pencil);
-        editBtn.title = gettext('Edit publication');
+        editBtn.title = gettext('Edit data source');
         pencil.classList.add('glyphicon', 'glyphicon-pencil');
 
         function onConfirm(publication){
@@ -765,21 +777,12 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * prepare the table of publications
-        */
-    setupDsTable: function(){
-    },
-
-    /*
         * refresh the table of publications
         */
     refreshDatasources(){
         var _this = this;
         this.publications.fetch({ success: function(){
-            // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
-            $(_this.dsTable).trigger("destroy");
             _this.renderDatasources(_this.publications);
-            _this.setupDsTable();
         }});
     },
 
@@ -788,30 +791,20 @@ var EditNodeView = BaseView.extend(
         */
     renderDatasources: function(publications){
         var _this = this;
-        var table = this.dsTable;
+        this.datatable.clear();
+        
         this.dsRows = [];
-        // avoid error message if not initialized with tablesorter yet
-        try {
-            $.tablesorter.clearTableBody($(table)[0]);
-        }
-        catch (err) { }
         publications.each(function(publication){
-            var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
+            var dataRow = _this.datatable.row.add([
+                    publication.get('title'),
+                    publication.get('type'),
+                    publication.get('authors'),
+                    publication.get('doi'),
+                    publication.get('publication_url')
+                ]).draw(),
+                row = dataRow.node();
             row.style.cursor = 'pointer';
             _this.dsRows.push(row);
-            row.insertCell(-1).innerHTML = publication.get('title');
-            row.insertCell(-1).innerHTML = publication.get('type');
-            row.insertCell(-1).innerHTML = publication.get('authors');
-            row.insertCell(-1).innerHTML = publication.get('doi');
-            var anchor = document.createElement('a');
-            var url = publication.get('publication_url');
-            anchor.href = url;
-            anchor.innerHTML = url;
-            anchor.target = '_blank';
-            row.insertCell(-1).appendChild(anchor);
-
-            // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
-            //$(table).trigger('addRows', [$(row), true]);
 
             row.addEventListener('click', function() {
                 _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });

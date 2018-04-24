@@ -78,7 +78,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
       <button id='add-input-button' class="btn btn-primary square" title="{% trans "add input" %}">
@@ -96,7 +96,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
       </table>
@@ -114,7 +114,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
       <button id='add-stock-button' class="btn btn-primary square" title="{% trans "add stock" %}">
@@ -123,7 +123,7 @@
     </div>
   </div>
   <div id="datasource-modal" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
       <!-- Modal content-->
       <div class="modal-content col-md-12">
         <div class="modal-header">
@@ -139,7 +139,7 @@
               <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh List" %}
             </button>
           </div>
-          <div class='row'>
+          <div class='row' style="overflow: auto;">
             <table id='publications-table' class='tablesorter'>
               <thead>
                 <tr>
