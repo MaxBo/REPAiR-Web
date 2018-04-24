@@ -281,7 +281,6 @@ var EditNodeView = BaseView.extend(
                 dropupAuto: false,
                 container: this.el
             });
-            console.log(nodeSelect)
             nodeSelect.style.height = '0px';
             nodeSelect.addEventListener('change', function() {
                 flow.set(targetIdentifier, nodeSelect.value);
