@@ -188,11 +188,11 @@
 
 @media screen and (max-width: 1100px) {
     .navbar-bottom > li > a{
-        font-size: 1em;
+        font-size: 1.2em;
     }
     
     .navbar-bottom > li.active > a, .navbar-bottom > li:hover > a{
-        font-size: 1em;
+        font-size: 1.2em;
     }
     
     .menu-arrow{ display: none; }
