@@ -138,12 +138,11 @@ Stakeholders){
                 div.style.margin = '5px';
                 panelList.appendChild(div);
 
-                var label = document.createElement('label');
-                div.appendChild(label);
-                div.appendChild(panel);
-
-                var button = document.createElement('button');
+                var label = document.createElement('label'),
+                    button = document.createElement('button'),
+                    removeBtn = document.createElement('button');
                 label.innerHTML = category.name;
+                label.style.marginBottom = '20px';
 
                 button.classList.add("btn", "btn-primary", "square", "add");
                 var span = document.createElement('span');
@@ -154,7 +153,22 @@ Stakeholders){
                 button.addEventListener('click', function(){
                     _this.addStakeholder(category);
                 });
+
+                removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+                removeBtn.style.float = 'right';
+                var span = document.createElement('span');
+                removeBtn.title = gettext('Remove category')
+                span.classList.add('glyphicon', 'glyphicon-minus');
+                removeBtn.appendChild(span);
+                removeBtn.addEventListener('click', function(){
+                    _this.removeCategory(category);
+                })
+
+                div.appendChild(removeBtn);
+                div.appendChild(label);
+                div.appendChild(panel);
                 div.appendChild(button);
+
                 // add the items
                 _this.addPanelItems(panel, category);
             });
@@ -307,6 +321,26 @@ Stakeholders){
                 title: gettext('Add Stakeholder Category'),
                 onConfirm: onConfirm
             });
+        },
+
+        removeCategory: function(cat){
+            var _this = this;
+            var message = gettext('Do you really want to delete the stakeholder category?');
+            _this.confirm({ message: message, onConfirm: function(){
+                var category = new StakeholderCategory(
+                    {id: cat.categoryId},
+                    {caseStudyId: _this.caseStudy.id}
+                );
+                category.destroy({
+                    success: function(){
+                        var pos = _this.categories.map(function(e) {
+                            return e.categoryId;
+                        }).indexOf(cat.categoryId);
+                        _this.categories.splice(pos, 1);
+                        _this.render();
+                    }
+                });
+            }});
         },
 
         /*
