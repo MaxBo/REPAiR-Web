@@ -153,24 +153,6 @@
               <tbody> 
               </tbody> 
             </table>
-            <!-- pager -->
-            <div id="pager" class="dspager">
-              <form>
-                <img src="{{STATIC_URL}}img/first.png" class="first"/>
-                <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-                <!-- the "pagedisplay" can be any element, including an input -->
-                <input disabled type="text" class="pagedisplay"/>
-                <img src="{{STATIC_URL}}img/next.png" class="next"/>
-                <img src="{{STATIC_URL}}img/last.png" class="last"/>
-                <select id="dspagesize" class="pagesize">
-                  <option value="20">20</option>
-                  <option value="40">40</option>
-                  <option value="60">60</option>
-                  <option value="100">100</option>
-                  <option value="1000">1000</option>
-                </select>
-              </form>
-            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -329,7 +311,7 @@
           <option value="1">{% trans "show included only" %}</option>
         </select>
       </div>
-      <div class="row" style="overflow-x:auto;">
+      <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
         <div id='actors-table'></div>
       </div>
       <div class="row">

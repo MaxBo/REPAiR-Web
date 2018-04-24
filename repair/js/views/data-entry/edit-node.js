@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'tablesorter'],
+    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
@@ -768,22 +768,6 @@ var EditNodeView = BaseView.extend(
         * prepare the table of publications
         */
     setupDsTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.dsTable).tablesorter({
-            widgets: ['filter'],
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
-            }
-        });
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.dsTable).find('tr').length > 1)
-            $(this.dsTable).tablesorterPager({container: $("#dspager")});
-
-        ////workaround for a bug in tablesorter-pager by triggering
-        ////event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('dspagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
     },
 
     /*

@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
     'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 'tablesorter'],
+    'utils/loader', 'app-config', 'datatables.net'],
 function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
     Loader, config){
 /**
@@ -117,26 +117,7 @@ var ActorsView = BaseView.extend(
     * set up the actors table (tablesorter)
     */
     setupTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.table).tablesorter({
-            sortReset: true,
-            sortRestart: true,
-            widgets: ['filter'], //, 'zebra']
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
-            }
-        });
-        
-         
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.table).find('tr').length > 1)
-            $(this.table).tablesorterPager({container: $("#pager")});
-
-        //workaround for a bug in tablesorter-pager by triggering
-        //event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('pagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
+        this.datatable = $(this.table).DataTable();
     },
 
     changeFilter: function(event){
@@ -251,11 +232,7 @@ var ActorsView = BaseView.extend(
             actor.save({}, {success: function(){
                 _this.actors.add(actor);
                 var row = _this.addActorRow(actor);
-                // let tablesorter know, that there is a new row
-                $(_this.table).trigger('addRows', [$(row)]);
-                // workaround for going to last page by emulating click (thats where new row is added)
-                document.getElementById('goto-last-page').click();
-                // click row to show details of new actor in edit view
+                _this.datatable.columns.adjust().draw();
                 row.click();
             }});
         }
