@@ -36,18 +36,16 @@ def import_bibtex(request):
         return response
 
 
-
-
 class PublicationInCasestudyInline(admin.StackedInline):
     model = PublicationInCasestudy
     can_delete = False
     verbose_name_plural = 'PublicationInCasestudies'
     fk_name = 'publication'
 
+
 class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
     inlines = PublicationAdmin.inlines + [PublicationInCasestudyInline]
     change_list_template = 'publications/publication_change_list.html'
-
 
     def get_urls(self):
         urls = [url(r'^import_bibtex/$',
@@ -67,6 +65,7 @@ class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
             pic = PublicationInCasestudy.objects.get_or_create(
                 casestudy=casestudy,
                 publication=obj)
+
 
 admin.site.unregister(Publication)
 admin.site.register(Publication, CustomPublicationAdmin)
