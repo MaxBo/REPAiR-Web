@@ -50,6 +50,7 @@
 .navbar-bottom > li{
     z-index: 10;
     background-size:cover;
+    overflow: hidden;
 }
 
 .navbar-bottom > li > a {
@@ -185,24 +186,36 @@
     float: right;
 }
 
+@media screen and (max-width: 1100px) {
+    .navbar-bottom > li > a{
+        font-size: 1em;
+    }
+    
+    .navbar-bottom > li.active > a, .navbar-bottom > li:hover > a{
+        font-size: 1em;
+    }
+    
+    .menu-arrow{ display: none; }
+}
+
 @media screen and (max-width: 767px) {
-    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-left: 15px; padding-right: 15px; }
+    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-right: 15px; }
 
     .navbar .nav-collapse { margin: 7.5px auto; padding: 0; }
     .navbar .nav-collapse .navbar-form { margin: 0; }
     .nav-collapse>li { float: none; }
-    .menu-arrow{ visibility: hidden; }
 
     .navbar-top {
         position: relative;
         top: auto;
+        float: right;
+    }
+    .navbar-top > li {
+        float: right;
     }
     
     #top-links {
         float: none;
     }
     
-    .navbar-bottom > li:hover > a {
-        font-size: 1.5em;
-    }
 }

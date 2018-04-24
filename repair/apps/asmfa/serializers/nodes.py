@@ -207,9 +207,7 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
             if (field in data and data[field] == ''):
                 data[field] = None
         return super().to_internal_value(data)
-        
-        
-    
+
 
 class ActorListSerializer(ActorSerializer):
     class Meta(ActorSerializer.Meta):
