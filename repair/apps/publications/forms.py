@@ -1,3 +1,3 @@
 from django import forms
-from .models import Flow
+from .models import Publication, PublicationInCasestudy, PublicationType
 

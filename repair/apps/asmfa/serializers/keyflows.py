@@ -206,7 +206,8 @@ class ProductFractionSerializer(serializers.ModelSerializer):
                   'composition',
                   'material',
                   'fraction',
-                  'publication')
+                  'publication',
+                  'avoidable')
         read_only_fields = ['id', 'composition']
 
 

@@ -76,10 +76,9 @@
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Item" %}</th>
-          <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Data Source" %}</th>
+          <th>{% trans "Publication" %}</th>
         </tr>
       </table>
       <button id='add-input-button' class="btn btn-primary square" title="{% trans "add input" %}">
@@ -95,10 +94,9 @@
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Destination" %}</th>
           <th>{% trans "Item" %}</th>
-          <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Data Source" %}</th>
+          <th>{% trans "Publication" %}</th>
         </tr>
         <tr>
       </table>
@@ -114,10 +112,9 @@
           <th>{% trans "Remove" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Item" %}</th>
-          <th>{% trans "Raw" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Data Source" %}</th>
+          <th>{% trans "Publication" %}</th>
         </tr>
       </table>
       <button id='add-stock-button' class="btn btn-primary square" title="{% trans "add stock" %}">
@@ -197,14 +194,17 @@
       <div class="modal-body">
         <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
         <select name="items"></select>
-        <table id="fractions-edit-table">
-          <tr>
-            <th>{% trans "Fraction" %}</th>
-            <th>{% trans "Material" %}</th>
-            <th>{% trans "Data Source" %}</th>
-            <th>{% trans "Remove" %}</th>
-          </tr>
-        </table>
+        <div class="row" style="overflow-x: auto; overflow-y: -webkit-paged-y;">
+          <table id="fractions-edit-table">
+            <tr>
+              <th>{% trans "Fraction" %}</th>
+              <th>{% trans "Material" %}</th>
+              <th>{% trans "avoidable" %}</th>
+              <th>{% trans "Publication" %}</th>
+              <th>{% trans "Remove" %}</th>
+            </tr>
+          </table>
+        </div>
         <button id='add-fraction-button' class="btn btn-primary square" title="{% trans "add new fraction" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add Fraction" %}
         </button>

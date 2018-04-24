@@ -5,7 +5,6 @@ define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
-* tdgjhjhjhvvhjvh
 *
 * @author Christoph Franke
 * @name module:views/EditNodeView
@@ -113,7 +112,6 @@ var EditNodeView = BaseView.extend(
 
         // fetch inFlows and outFlows with different query parameters
         $.when(
-            this.model.fetch(),
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
@@ -316,14 +314,18 @@ var EditNodeView = BaseView.extend(
                         currentPage: 1
                     }
                 };
-                var nace = origin.get('nace') || 'None';
-                var loader = new Loader(document.getElementById('flows-edit'),
-                    {disable: true});
-                var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
-                items.getFirstPage({ data: { nace: nace } }).then( 
-                    function(){ _this.editFractions(flow, items); loader.remove(); }
-                )
-
+                // ToDo: removce this after collection/model rework
+                origin.caseStudyId = _this.caseStudyId;
+                origin.keyflowId = _this.keyflowId;
+                origin.fetch({success: function(){
+                    var nace = origin.get('nace') || 'None';
+                    var loader = new Loader(document.getElementById('flows-edit'),
+                        {disable: true});
+                    var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+                    items.getFirstPage({ data: { nace: nace } }).then( 
+                        function(){ _this.editFractions(flow, items); loader.remove(); }
+                    )
+                }})
             }
         })
 
@@ -347,17 +349,6 @@ var EditNodeView = BaseView.extend(
         }
 
         $(editFractionsBtn).popover(popOverFractionsSettings);
-
-
-        // raw checkbox
-
-        var rawCheckbox = document.createElement("input");
-        rawCheckbox.type = 'checkbox';
-        row.insertCell(-1).appendChild(rawCheckbox);
-
-        rawCheckbox.addEventListener('change', function() {
-            flow.set('raw', rawCheckbox.checked);
-        });
 
         var year = addInput('year', 'number');
         year.min = 0;
@@ -410,7 +401,7 @@ var EditNodeView = BaseView.extend(
         var pencil = document.createElement('span');
         editBtn.classList.add('btn', 'btn-primary', 'square');
         editBtn.appendChild(pencil);
-        editBtn.title = gettext('edit datasource');
+        editBtn.title = gettext('Edit publication');
         pencil.classList.add('glyphicon', 'glyphicon-pencil');
 
         function onConfirm(publication){
@@ -501,7 +492,10 @@ var EditNodeView = BaseView.extend(
 
             // input for fraction percentage
             var row = table.insertRow(-1);
-            var fractionsCell = row.insertCell(-1);
+            var fractionsCell = row.insertCell(-1),
+                fractionWrapper = document.createElement("div");
+            fractionsCell.appendChild(fractionWrapper);
+            fractionWrapper.style.whiteSpace = 'nowrap';
             var fInput = document.createElement("input");
             fInput.type = 'number';
             fInput.name = 'fraction';
@@ -510,15 +504,14 @@ var EditNodeView = BaseView.extend(
             fInput.min = 0;
             fInput.style.maxWidth = '80%';
             fInput.style.float = 'left';
-            fractionsCell.appendChild(fInput);
+            fractionWrapper.appendChild(fInput);
             fInput.value = Math.round(fraction.fraction * 1000) / 10;
             fInput.addEventListener('change', setCustom);
 
             var perDiv = document.createElement('div');
             perDiv.innerHTML = '%';
-            perDiv.style.float = 'left';
             perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
-            fractionsCell.appendChild(perDiv);
+            fractionWrapper.appendChild(perDiv);
 
             // select material
             var matSelect = document.createElement('div');
@@ -530,12 +523,20 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
+                width: 300,
                 selected: fraction.material,
                 defaultOption: gettext('Select a material')
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
-
+            
+            var avoidCheck = document.createElement('input');
+            avoidCheck.type = 'checkbox';
+            avoidCheck.name = 'avoidable';
+            console.log(fraction)
+            avoidCheck.checked = fraction.avoidable;
+            row.insertCell(-1).appendChild(avoidCheck);
+        
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -633,12 +634,14 @@ var EditNodeView = BaseView.extend(
                 var row = table.rows[i];
                 var fInput = row.querySelector('input[name="fraction"]');
                 var matSelect = row.querySelector('.materialSelect');
+                var avoidCheck = row.querySelector('input[name="avoidable"]')
                 var pubInput = row.querySelector('input[name="publication"]');
                 var f = fInput.value / 100;
                 var fraction = { 
                     'fraction': Number(Math.round(f+'e3')+'e-3'),
                     'material': matSelect.getAttribute('data-material-id'),
-                    'publication': pubInput.getAttribute('data-publication-id')
+                    'publication': pubInput.getAttribute('data-publication-id'),
+                    'avoidable': avoidCheck.checked
                 };
                 composition.fractions.push(fraction);
             }
