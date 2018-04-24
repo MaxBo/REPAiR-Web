@@ -1,7 +1,8 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js'],
+    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js',
+    'bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
@@ -257,9 +258,10 @@ var EditNodeView = BaseView.extend(
         if (!isStock){
             // select input for target (origin resp. destination of flow)
 
-            var nodeSelect = document.createElement("select");
-            var ids = [];
-            var targetId = flow.get(targetIdentifier);
+            var nodeSelect = document.createElement("select"),
+                ids = [];
+                targetId = flow.get(targetIdentifier);
+                
             this.model.collection.each(function(model){
                 // no flow to itself allowed
                 if (model.id != _this.model.id){
@@ -273,7 +275,14 @@ var EditNodeView = BaseView.extend(
             var idx = ids.indexOf(targetId);
             nodeSelect.selectedIndex = idx.toString();
             row.insertCell(-1).appendChild(nodeSelect);
-
+            $(nodeSelect).selectpicker({
+                liveSearch: true,
+                size: 8,
+                dropupAuto: false,
+                container: this.el
+            });
+            console.log(nodeSelect)
+            nodeSelect.style.height = '0px';
             nodeSelect.addEventListener('change', function() {
                 flow.set(targetIdentifier, nodeSelect.value);
             });

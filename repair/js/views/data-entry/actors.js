@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
     'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 'datatables.net'],
+    'utils/loader', 'app-config', 'datatables.net', 'bootstrap-select'],
 function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
     Loader, config){
 
