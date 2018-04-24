@@ -328,24 +328,6 @@
         <button id='remove-actor-button'  class="btn btn-warning" title="{% trans "remove selected actor" %}">
           <span class="glyphicon glyphicon-minus"></span> {% trans "Remove" %}
         </button>
-        <!-- pager -->
-        <div id="pager" class="pager">
-          <form>
-            <img src="{{STATIC_URL}}img/first.png" id="goto-first-page" class="first"/>
-            <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-            <!-- the "pagedisplay" can be any element, including an input -->
-            <input disabled type="text" class="pagedisplay"/>
-            <img src="{{STATIC_URL}}img/next.png" class="next"/>
-            <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
-            <select id="pagesize" class="pagesize">
-              <option value="20">20</option>
-              <option value="40">40</option>
-              <option value="60">60</option>
-              <option value="100">100</option>
-              <option value="1000">1000</option>
-            </select>
-          </form>
-        </div>
       </div>
     </div>
     <div class='col-md-8'>
