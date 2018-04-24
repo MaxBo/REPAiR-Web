@@ -3,6 +3,7 @@ define(['views/baseview', 'underscore', 'models/actor', 'collections/activities'
     'utils/loader', 'app-config', 'datatables.net'],
 function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
     Loader, config){
+
 /**
     *
     * @author Christoph Franke
@@ -109,6 +110,7 @@ var ActorsView = BaseView.extend(
     renderActors: function(){
         var _this = this;
         var activityId = this.el.querySelector('select[name="activity-filter"]').value;
+        this.datatable.clear();
         this.actorRows = [];
         this.actors.fetch({ 
             data: { activity: activityId },
@@ -207,7 +209,7 @@ var ActorsView = BaseView.extend(
             }
         });
 
-        return row;
+        return dataRow;
     },
 
     /* 
@@ -234,8 +236,7 @@ var ActorsView = BaseView.extend(
             actor.save({}, {success: function(){
                 _this.actors.add(actor);
                 var row = _this.addActorRow(actor);
-                _this.datatable.columns.adjust().draw();
-                row.click();
+                row.node().click();
             }});
         }
         this.getName({ 
