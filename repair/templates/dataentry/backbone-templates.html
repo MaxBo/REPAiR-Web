@@ -312,7 +312,14 @@
         </select>
       </div>
       <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
-        <div id='actors-table'></div>
+        <table id='actors-table'>
+          <thead>
+            <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Activity" %}</th>
+            </tr>
+          </thead> 
+        </table>
       </div>
       <div class="row">
         <button id='add-actor-button' class="btn btn-primary" title="{% trans "add new actor" %}">
@@ -349,20 +356,6 @@
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
   <div id="actor-name-modal"> </div>
-</script>
-
-<!-- actors table -->
-<script type="text/template" id="actor-table-template">
-  <table class='tablesorter'>
-    <thead>
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Activity" %}</th>
-      </tr>
-    </thead> 
-    <tbody> 
-    </tbody> 
-  </table>
 </script>
 
 <!-- edit actor -->

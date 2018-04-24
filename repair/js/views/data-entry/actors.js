@@ -89,8 +89,21 @@ var ActorsView = BaseView.extend(
             activities: this.activities
         });
         this.filterSelect = this.el.querySelector('#included-filter-select');
-
+        this.setupTable();
         this.renderActors();
+    },
+    
+    setupTable: function(){
+        $('#actors-table tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+         this.datatable = $('#actors-table').DataTable();
     },
     
     renderActors: function(){
@@ -100,34 +113,24 @@ var ActorsView = BaseView.extend(
         this.actors.fetch({ 
             data: { activity: activityId },
             success: function(){
-                _this.clearTable();
                 _this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-                _this.setupTable();
             }
         });
     },
-    
-    clearTable: function(){
-        var el = this.el.querySelector('#actors-table');
-        el.innerHTML = document.getElementById('actor-table-template').innerHTML;
-        this.table = el.querySelector('table');
-    },
-
-    /* 
-    * set up the actors table (tablesorter)
-    */
-    setupTable: function(){
-        this.datatable = $(this.table).DataTable();
-    },
 
     changeFilter: function(event){
+        var _this = this;
         this.showAll = event.target.value == '0';
-        for (var i = 1, row; row = this.actorRows[i]; i++) {
-            if (!this.showAll && row.classList.contains('dsbld'))
-                row.style.display = "none";
-            else
-                row.style.display = "table-row";
+        if (!this.showAll){
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    console.log($(_this.datatable.row(dataIndex).node()).attr('data-included'))
+                    return $(_this.datatable.row(dataIndex).node()).attr('data-included') == 'true';
+                  }
+              );
         }
+        else $.fn.dataTable.ext.search.pop();
+        this.datatable.draw();
     },
 
     /* 
@@ -136,14 +139,20 @@ var ActorsView = BaseView.extend(
     addActorRow: function(actor){
         var _this = this;
 
-        var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
+        var activity = _this.activities.get(actor.get('activity'));
+        var dataRow = this.datatable.row.add([actor.get('name'), activity.get('name')]).draw(),
+            row = dataRow.node();
+        row.setAttribute('data-included', actor.get('included'));
         this.actorRows.push(row);
-
-        var nameCell = row.insertCell(-1);
-        var activityCell = row.insertCell(-1);
-
-        // fill the row with the attributes of the actor and change it's style depending on status of actor
-        function setRowValues(actor){
+        
+        function selectRow(r){
+            _.each(_this.actorRows, function(row){
+                row.classList.remove('selected');
+            });
+            r.classList.add('selected');
+        }
+        
+        function setIncluded(actor){
             var included = actor.get('included');
             if (!included){
                 row.classList.add('dsbld');
@@ -153,27 +162,16 @@ var ActorsView = BaseView.extend(
                 row.classList.remove('dsbld')
                 row.style.display = "table-row";
             }
-
-            nameCell.innerHTML = actor.get('name');
-            var activity = _this.activities.get(actor.get('activity'));
-            activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
+            row.setAttribute('data-included', included);
         };
-        setRowValues(actor);
+        setIncluded(actor);
         
-        function selectRow(r){
-            _.each(_this.actorRows, function(row){
-                row.classList.remove('selected');
-            });
-            r.classList.add('selected');
-        }
-
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
             selectRow(row);
             actor.caseStudyId = _this.caseStudy.id;
             actor.keyflowId = _this.model.id;
             _this.activeActor = actor;
-            _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
             actor.fetch({ success: function(){
                 _this.actorView = new EditActorView({
@@ -182,7 +180,11 @@ var ActorsView = BaseView.extend(
                     model: actor,
                     activities: _this.activities,
                     keyflow: _this.model,
-                    onUpload: function(a) { setRowValues(a); showActor(a); },
+                    onUpload: function(a) { 
+                        setIncluded(a); 
+                        dataRow.data([actor.get('name'), activity.get('name')]);
+                        showActor(a); 
+                    },
                     focusarea: _this.caseStudy.get('properties').focusarea,
                     areaLevels: _this.areaLevels,
                     reasons: _this.reasons
@@ -258,13 +260,8 @@ var ActorsView = BaseView.extend(
         var _this = this;
         this.activeActor.destroy({success: function(){
             _this.actorView.close();
-            _this.activeRow.style.display = 'none';
-            //_this.activeRow.parentNode.removeChild(_this.activeRow);
-            //document.getElementById('goto-first-page').click();
-            //$(_this.table).trigger('update');
-            //$(_this.table).trigger("appendCache");
             _this.activeActor = null;
-            _this.activeRow = null;
+            _this.datatable.row('.selected').remove().draw( false );
         }});
     }
 
