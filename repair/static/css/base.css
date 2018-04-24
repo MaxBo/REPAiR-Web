@@ -181,7 +181,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    background-color: rgb(240, 255, 179) !IMPORTANT;
     border-bottom: 2px solid #aad400;
     border-top: 2px solid #aad400;
 }

@@ -78,7 +78,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
       <button id='add-input-button' class="btn btn-primary square" title="{% trans "add input" %}">
@@ -96,7 +96,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
         <tr>
       </table>
@@ -114,7 +114,7 @@
           <th>{% trans "Item" %}</th>
           <th>{% trans "Year" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Publication" %}</th>
+          <th>{% trans "Data Source" %}</th>
         </tr>
       </table>
       <button id='add-stock-button' class="btn btn-primary square" title="{% trans "add stock" %}">
@@ -123,7 +123,7 @@
     </div>
   </div>
   <div id="datasource-modal" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
       <!-- Modal content-->
       <div class="modal-content col-md-12">
         <div class="modal-header">
@@ -139,7 +139,7 @@
               <span class="glyphicon glyphicon-refresh"></span> {% trans "Refresh List" %}
             </button>
           </div>
-          <div class='row'>
+          <div class='row' style="overflow: auto;">
             <table id='publications-table' class='tablesorter'>
               <thead>
                 <tr>
@@ -153,24 +153,6 @@
               <tbody> 
               </tbody> 
             </table>
-            <!-- pager -->
-            <div id="pager" class="dspager">
-              <form>
-                <img src="{{STATIC_URL}}img/first.png" class="first"/>
-                <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-                <!-- the "pagedisplay" can be any element, including an input -->
-                <input disabled type="text" class="pagedisplay"/>
-                <img src="{{STATIC_URL}}img/next.png" class="next"/>
-                <img src="{{STATIC_URL}}img/last.png" class="last"/>
-                <select id="dspagesize" class="pagesize">
-                  <option value="20">20</option>
-                  <option value="40">40</option>
-                  <option value="60">60</option>
-                  <option value="100">100</option>
-                  <option value="1000">1000</option>
-                </select>
-              </form>
-            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -329,8 +311,15 @@
           <option value="1">{% trans "show included only" %}</option>
         </select>
       </div>
-      <div class="row" style="overflow-x:auto;">
-        <div id='actors-table'></div>
+      <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
+        <table id='actors-table'>
+          <thead>
+            <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Activity" %}</th>
+            </tr>
+          </thead> 
+        </table>
       </div>
       <div class="row">
         <button id='add-actor-button' class="btn btn-primary" title="{% trans "add new actor" %}">
@@ -339,24 +328,6 @@
         <button id='remove-actor-button'  class="btn btn-warning" title="{% trans "remove selected actor" %}">
           <span class="glyphicon glyphicon-minus"></span> {% trans "Remove" %}
         </button>
-        <!-- pager -->
-        <div id="pager" class="pager">
-          <form>
-            <img src="{{STATIC_URL}}img/first.png" id="goto-first-page" class="first"/>
-            <img src="{{STATIC_URL}}img/prev.png" class="prev"/>
-            <!-- the "pagedisplay" can be any element, including an input -->
-            <input disabled type="text" class="pagedisplay"/>
-            <img src="{{STATIC_URL}}img/next.png" class="next"/>
-            <img src="{{STATIC_URL}}img/last.png" id="goto-last-page" class="last"/>
-            <select id="pagesize" class="pagesize">
-              <option value="20">20</option>
-              <option value="40">40</option>
-              <option value="60">60</option>
-              <option value="100">100</option>
-              <option value="1000">1000</option>
-            </select>
-          </form>
-        </div>
       </div>
     </div>
     <div class='col-md-8'>
@@ -367,20 +338,6 @@
   </div>
   <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
   <div id="actor-name-modal"> </div>
-</script>
-
-<!-- actors table -->
-<script type="text/template" id="actor-table-template">
-  <table class='tablesorter'>
-    <thead>
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Activity" %}</th>
-      </tr>
-    </thead> 
-    <tbody> 
-    </tbody> 
-  </table>
 </script>
 
 <!-- edit actor -->
