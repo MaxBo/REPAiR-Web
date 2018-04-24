@@ -1,5 +1,5 @@
 from .stakeholders import *
 from .areas import *
-from .studyarea import *
-from .graphs import *
+from .views import *
 from .layers import *
+from .charts import *

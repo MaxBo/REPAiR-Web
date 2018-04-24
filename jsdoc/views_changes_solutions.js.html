@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: views/changes/solutions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: views/changes/solutions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore', 'visualizations/map', 'bootstrap'],
+
+function(Backbone, _, Map){
+    /**
+    *
+    * @author Christoph Franke
+    * @name module:views/SolutionsView
+    * @augments Backbone.View
+    */
+    var SolutionsView = Backbone.View.extend(
+        /** @lends module:views/SolutionsView.prototype */
+        {
+
+        /**
+        * render setup view on solutions
+        *
+        * @param {Object} options
+        * @param {HTMLElement} options.el                          element the view will be rendered in
+        * @param {string} options.template                         id of the script element containing the underscore template to render this view
+        * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add solutions to
+        *
+        * @constructs
+        * @see http://backbonejs.org/#View
+        */
+        initialize: function(options){
+            var _this = this;
+            _.bindAll(this, 'render');
+
+            this.template = options.template;
+            this.caseStudy = options.caseStudy;
+            this.projection = 'EPSG:4326';
+            
+            // ToDo: replace with collections fetched from server
+            this.categories = [
+                { name: 'Political', solutions: ['Forbid Plastic Bags in Supermarkets'] },
+                { name: 'Economic', solutions: ['Raise Fees on Garbage Disposal'] },
+                { name: 'Technical', solutions: ['Wood and Insulation Materials', 'Underfloor Collectors'] }
+            ]
+
+            this.render();
+        },
+
+        /*
+        * dom events (managed by jquery)
+        */
+        events: {
+        },
+
+        /*
+        * render the view
+        */
+        render: function(){
+            var _this = this;
+            var html = document.getElementById(this.template).innerHTML
+            var template = _.template(html);
+            this.el.innerHTML = template({ keyflows: this.keyflows });
+            this.renderCategories();
+            $('#solution-modal').on('shown.bs.modal', function () {
+                _this.map.map.updateSize();
+            });
+        },
+
+        renderCategories(){
+            var _this = this;
+            var panelList = this.el.querySelector('#categories');
+            this.categories.forEach(function(category){
+                // create the panel (ToDo: use template for panels instead?)
+                var div = document.createElement('div'),
+                    panel = document.createElement('div');
+                div.classList.add('col-md-3', 'bordered');
+                div.style.margin = '5px';
+                var label = document.createElement('label'),
+                    button = document.createElement('button');
+                label.innerHTML = category.name;
+                
+                button.classList.add("btn", "btn-primary", "square", "add");
+                var span = document.createElement('span');
+                span.classList.add('glyphicon', 'glyphicon-plus');
+                button.innerHTML = gettext('Solution');
+                button.insertBefore(span, button.firstChild);
+                button.addEventListener('click', function(){
+                })
+                
+                panelList.appendChild(div);
+                div.appendChild(label);
+                div.appendChild(panel);
+                div.appendChild(button);
+                // add the items
+                _this.addPanelItems(panel, category);
+            })
+        },
+        
+        addPanelItems(panel, category){
+            var _this = this;
+            var items = category.solutions;
+            // render panel items from template (in templates/common.html)
+            var html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html);
+            items.forEach(function(item){
+                var panelItem = document.createElement('div');
+                panelItem.classList.add('panel-item');
+                panelItem.innerHTML = template({ name: item });
+                panel.appendChild(panelItem);
+                var button = panelItem.querySelector('.edit');
+                button.addEventListener('click', function(){
+                    _this.showSolution(item, category.name)
+                })
+            })
+        },
+        
+        showSolution(solution, category){
+            var html = document.getElementById('view-solution-template').innerHTML,
+                template = _.template(html);
+            var modal = this.el.querySelector('#solution-modal');
+            modal.innerHTML = template({ name: solution, category: category });
+            this.renderMap('stakeholder-map');
+            $(modal).modal('show');
+        },
+        
+        renderMap: function(divid){
+            if (this.map){
+                this.map.map.setTarget(null);
+                this.map.map = null;
+                this.map = null;
+            }
+            this.map = new Map({
+                divid: divid, 
+            });
+            var focusarea = this.caseStudy.get('properties').focusarea;
+
+            this.map.addLayer('background', {
+                stroke: '#aad400',
+                fill: 'rgba(170, 212, 0, 0.1)',
+                strokeWidth: 1,
+                zIndex: 0
+            },
+            );
+            // add polygon of focusarea to both maps and center on their centroid
+            if (focusarea != null){
+                var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+                this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+                this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
+                this.map.centerOnPolygon(poly, { projection: this.projection });
+            };
+        },
+
+        /*
+        * remove this view from the DOM
+        */
+        close: function(){
+            this.undelegateEvents(); // remove click events
+            this.unbind(); // Unbind all local event bindings
+            this.el.innerHTML = ''; //empty the DOM element
+        },
+
+    });
+    return SolutionsView;
+}
+);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

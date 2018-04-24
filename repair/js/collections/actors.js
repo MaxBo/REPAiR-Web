@@ -1,14 +1,16 @@
-define(["backbone", "models/actor", "app-config"],
+define(["backbone-pageable",  "models/actor", "app-config"],
 
-  function(Backbone, Actor, config) {
+  function(PageableCollection, Actor, config) {
   
    /**
     *
     * @author Christoph Franke
     * @name module:collections/Actors
-    * @augments Backbone.Collection
+    * @augments Backbone.PageableCollection
+    *
+    * @see https://github.com/backbone-paginator/backbone.paginator
     */
-    var Actors = Backbone.Collection.extend(
+    var Actors = PageableCollection.extend(
       /** @lends module:collections/Actors.prototype */
       {
       /**
@@ -17,14 +19,43 @@ define(["backbone", "models/actor", "app-config"],
        * @returns {string} the url string
        */
       url: function(){
-        // if an activity is given, take the route that retrieves all actors 
-        // of the activity
-        if (this.activityId != null)
-          return config.api.actorsInGroup.format(
-            this.caseStudyId, this.keyflowId, this.activityGroupCode, this.activityId);
-        // if no activity is given, get all activities in the casestudy
-        else
           return config.api.actors.format(this.caseStudyId, this.keyflowId);
+      },
+      
+      /**
+       * filter the collection to find models belonging to an activity with the given id
+       *
+       * @param {string} activityId   id of the activity
+       *
+       * @returns {Array.<module:models/Actor>} list of all actors belonging to the activity
+       */
+      filterActivity: function (activityId) {
+          var filtered = this.filter(function (actor) {
+              return actor.get("activity") == activityId;
+          });
+          return filtered;
+      },
+      
+      /**
+       * filter the collection to find models belonging to an activitygroup with the given id
+       *
+       * @param {string} groupId   id of the activitygroup
+       *
+       * @returns {Array.<module:models/Actor>} list of all actors belonging to the activitygroup
+       */
+      filterGroup: function (groupId) {
+          var filtered = this.filter(function (actor) {
+              return actor.get("activitygroup") == groupId;
+          });
+          return filtered;
+      },
+      
+      queryParams: {
+        pageSize: "page_size"
+      },
+      
+      parseRecords: function (response) {
+        return response.results;
       },
    
     /**
@@ -42,8 +73,6 @@ define(["backbone", "models/actor", "app-config"],
      */
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
-        this.activityId = options.activityId;
-        this.activityGroupCode = options.activityGroupCode;
         this.keyflowId = options.keyflowId;
       },
       model: Actor

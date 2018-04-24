@@ -53,7 +53,7 @@
 
 
 <div class="description">
-    create the map
+    create the map and show it inside the HTMLElement with the given id
 </div>
 
 
@@ -164,6 +164,45 @@
             
 
             <td class="description last">id of the HTMLElement to render the map into</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>renderOSM</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last">render default background map</td>
         </tr>
 
     
@@ -451,7 +490,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line350">line 350</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line413">line 413</a>
     </li></ul></dd>
     
 
@@ -696,7 +735,7 @@
                 </td>
             
 
-            <td class="description last">color of outline</td>
+            <td class="description last">width of outline</td>
         </tr>
 
     
@@ -736,6 +775,141 @@
             
 
             <td class="description last">color of filling</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>zIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">z-index of the layer</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>source</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">source layer
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>projection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">projection of the source</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -783,7 +957,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line127">line 127</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line142">line 142</a>
     </li></ul></dd>
     
 
@@ -1236,7 +1410,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line192">line 192</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line245">line 245</a>
     </li></ul></dd>
     
 
@@ -1596,7 +1770,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line157">line 157</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line210">line 210</a>
     </li></ul></dd>
     
 
@@ -1903,7 +2077,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line392">line 392</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line455">line 455</a>
     </li></ul></dd>
     
 
@@ -2155,7 +2329,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line421">line 421</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line484">line 484</a>
     </li></ul></dd>
     
 
@@ -2189,7 +2363,7 @@
     
 
     
-    <h4 class="name" id="clearLayer"><span class="type-signature"></span>clearLayer<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="clearLayer"><span class="type-signature"></span>clearLayer<span class="signature">(layername, options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2233,6 +2407,29 @@
 
         <tr>
             
+                <td class="name"><code>layername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the name of the layer</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>options</code></td>
             
 
@@ -2267,53 +2464,12 @@
         
 
         
-        <th>Default</th>
-        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>layername</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    'basic'
-                
-                </td>
-            
-
-            <td class="description last">the name of the layer</td>
-        </tr>
-
     
 
         <tr>
@@ -2342,10 +2498,6 @@
                 </td>
             
 
-            
-                <td class="default">
-                
-                </td>
             
 
             <td class="description last">types of the features to remove, defaults to all</td>
@@ -2396,7 +2548,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line283">line 283</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line336">line 336</a>
     </li></ul></dd>
     
 
@@ -2683,7 +2835,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line267">line 267</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -2769,7 +2921,142 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line304">line 304</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line367">line 367</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeLayer"><span class="type-signature"></span>removeLayer<span class="signature">(layername)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    remove layer
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>layername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the name of the layer to remove</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line357">line 357</a>
     </li></ul></dd>
     
 
@@ -2927,7 +3214,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line100">line 100</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -3107,7 +3394,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line113">line 113</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -3319,7 +3606,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line334">line 334</a>
+        <a href="visualizations_map.js.html">visualizations/map.js</a>, <a href="visualizations_map.js.html#line397">line 397</a>
     </li></ul></dd>
     
 
@@ -3368,13 +3655,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stakeholders.html">collections/Stakeholders</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-visualizations_Sankey.html">visualizations/Sankey</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 08 2018 16:21:03 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

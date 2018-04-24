@@ -5,19 +5,14 @@ from repair.apps.utils.views import ReadUpdateViewSet
 from repair.apps.changes.models import (
     Implementation,
     SolutionInImplementation,
-    SolutionInImplementationNote,
     SolutionInImplementationQuantity,
-    SolutionInImplementationGeometry,
 
     )
 
 from repair.apps.changes.serializers import (
     ImplementationSerializer,
     SolutionInImplementationSerializer,
-    SolutionInImplementationNoteSerializer,
     SolutionInImplementationQuantitySerializer,
-    SolutionInImplementationGeometrySerializer,
-    ImplementationOfUserSerializer,
     )
 
 from repair.apps.utils.views import (ModelPermissionViewSet,
@@ -28,23 +23,20 @@ class ImplementationViewSet(CasestudyViewSetMixin,
                             ModelPermissionViewSet):
     serializer_class = ImplementationSerializer
     queryset = Implementation.objects.all()
-
-
-class ImplementationOfUserViewSet(ImplementationViewSet):
-    # TODO: find th permissions
-    serializer_class = ImplementationOfUserSerializer
+    
+    def list(self, request, *args, **kwargs):
+        
+        if (request.user.id and 'user' not in request.query_params and
+            'user__in' not in request.query_params):
+            self.queryset = self.queryset.filter(user__user__user_id=request.user.id)
+        
+        return super().list(request, *args, **kwargs)
 
 
 class SolutionInImplementationViewSet(CasestudyViewSetMixin,
                                       ModelPermissionViewSet):
     serializer_class = SolutionInImplementationSerializer
     queryset = SolutionInImplementation.objects.all()
-
-
-class SolutionInImplementationNoteViewSet(CasestudyViewSetMixin,
-                                          ModelPermissionViewSet):
-    serializer_class = SolutionInImplementationNoteSerializer
-    queryset = SolutionInImplementationNote.objects.all()
 
 
 class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
@@ -56,9 +48,3 @@ class SolutionInImplementationQuantityViewSet(CasestudyViewSetMixin,
     """
     serializer_class = SolutionInImplementationQuantitySerializer
     queryset = SolutionInImplementationQuantity.objects.all()
-
-
-class SolutionInImplementationGeometryViewSet(CasestudyViewSetMixin,
-                                              ModelPermissionViewSet):
-    serializer_class = SolutionInImplementationGeometrySerializer
-    queryset = SolutionInImplementationGeometry.objects.all()

@@ -18,6 +18,7 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
     MaterialSerializer,
+    MaterialListSerializer, 
     WasteSerializer
 )
 
@@ -76,6 +77,13 @@ class WasteFilter(FilterSet):
         fields = ('nace', 'hazardous', 'wastetype', 'ewc')
 
 
+class MaterialFilter(FilterSet):
+
+    class Meta:
+        model = Material
+        fields = ('parent', )
+
+
 class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_product'
@@ -85,6 +93,14 @@ class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = ProductFilter
+    
+    # DjangoFilterBackend is not able to parse query params in array form
+    # (e.g. ?nace[]=xxx&nace[]=yyy)
+    def list(self, request, **kwargs):
+        if 'nace[]' in request.query_params.keys():
+            nace = request.GET.getlist('nace[]')
+            self.queryset = self.queryset.filter(nace__in=nace)
+        return super().list(request, **kwargs)
 
 
 class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
@@ -96,6 +112,14 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = WasteSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = WasteFilter
+    
+    # DjangoFilterBackend is not able to parse query params in array form
+    # (e.g. ?nace[]=xxx&nace[]=yyy)
+    def list(self, request, **kwargs):
+        if 'nace[]' in request.query_params.keys():
+            nace = request.GET.getlist('nace[]')
+            self.queryset = self.queryset.filter(nace__in=nace)
+        return super().list(request, **kwargs)
 
 
 class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -103,5 +127,8 @@ class MaterialViewSet(RevisionMixin, CasestudyViewSetMixin,
     add_perm = 'asmfa.add_material'
     change_perm = 'asmfa.change_material'
     delete_perm = 'asmfa.delete_material'
-    queryset = Material.objects.all()
+    queryset = Material.objects.order_by('id')
     serializer_class = MaterialSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = MaterialFilter
+    serializers = {'list': MaterialListSerializer}

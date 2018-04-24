@@ -253,7 +253,7 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
                 fraction = ProductFraction.objects.update_or_create(
-                    fraction=new_fraction.get('fraction'), 
+                    fraction=new_fraction.get('fraction'),
                     composition=composition,
                     material=material)[0]
 
@@ -283,7 +283,7 @@ class WasteSerializer(CompositionSerializer):
 
     class Meta:
         model = Waste
-        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous', 
+        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
                   'fractions',
                   )
 
@@ -302,3 +302,8 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Material
         fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')
+
+
+class MaterialListSerializer(MaterialSerializer):
+    class Meta(MaterialSerializer.Meta):
+        fields = ('id', 'name', 'level', 'parent')

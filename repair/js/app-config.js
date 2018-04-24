@@ -1,6 +1,6 @@
 define(['browser-cookies'],
   function (cookies) {
-  
+
     /**
      * global configuration file
      * @module config
@@ -8,24 +8,24 @@ define(['browser-cookies'],
     var config = {
       URL: '/' // base application URL
     };
-    
+
     /**
      * callback for session
      *
      * @callback module:config~onSuccess
      * @param {Object} json -  fetched session object
      */
-    
-    /** 
-     * fetch the current session object from the server 
+
+    /**
+     * fetch the current session object from the server
      *
      * @param {module:config~onSuccess} callback - called when session object is successfully fetched
-     * 
+     *
      * @method getSession
      * @memberof module:config
      */
     config.getSession = function(callback){
-    
+
       fetch('/login/session', {
           headers: {
             'Accept': 'application/json',
@@ -34,7 +34,11 @@ define(['browser-cookies'],
           credentials: 'include'
         }).then(response => response.json()).then(json => callback(json));
     }
-    
+
+    config.views = {
+      layerproxy: '/proxy/layers/{0}/wms',
+    }
+
     /** urls to resources in api
      * @name api
      * @memberof module:config
@@ -49,8 +53,24 @@ define(['browser-cookies'],
       keyflows:               '/api/keyflows/',
       qualities:              '/api/qualities/',
       reasons:                '/api/reasons/',
+      targets:                '/api/casestudies/{0}/targets',
+      targetvalues:           '/api/targetvalues',
+      targetspatialreference: '/api/targetspecialreference/',
+      impactcategories:       '/api/impactcategories/',
+      units:                  '/api/units/',
+      challenges:             '/api/casestudies/{0}/challenges',
+      aims:                   '/api/casestudies/{0}/aims',
+      chartCategories:        '/api/casestudies/{0}/chartcategories/',
+      charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
       stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
       stakeholders:           '/api/casestudies/{0}/stakeholdercategories/{1}/stakeholders/',
+      solutionCategories:     '/api/casestudies/{0}/solutioncategories/',
+      solutions:              '/api/casestudies/{0}/solutioncategories/{1}/solutions/',
+      solutionQuantities:     '/api/casestudies/{0}/solutioncategories/{1}/solutions/{2}/solutionquantities',
+      solutionRatioOneUnits:  '/api/casestudies/{0}/solutioncategories/{1}/solutions/{2}/solutionratiooneunits',
+      implementations:        '/api/casestudies/{0}/implementations/',
+      solutionsInImplementation: '/api/casestudies/{0}/implementations/{1}/solutions/',
+      quantitiesInImplementedSolution: '/api/casestudies/{0}/implementations/{1}/solutions/{2}/quantities',
       layerCategories:        '/api/casestudies/{0}/layercategories',
       layers:                 '/api/casestudies/{0}/layercategories/{1}/layers',
       keyflowsInCaseStudy:    '/api/casestudies/{0}/keyflows',
@@ -59,8 +79,6 @@ define(['browser-cookies'],
       actors:                 '/api/casestudies/{0}/keyflows/{1}/actors/',
       adminLocations:         '/api/casestudies/{0}/keyflows/{1}/administrativelocations/',
       opLocations:            '/api/casestudies/{0}/keyflows/{1}/operationallocations/',
-      activitiesInGroup:      '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities/',
-      actorsInActivity:       '/api/casestudies/{0}/keyflows/{1}/activitygroups/{2}/activities/{3}/actors/',
       materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
       activityToActivity:     '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
       groupToGroup:           '/api/casestudies/{0}/keyflows/{1}/group2group/',
@@ -70,13 +88,9 @@ define(['browser-cookies'],
       actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
       arealevels:             '/api/casestudies/{0}/levels/',
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
+      wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };
-    
-    config.geoserverApi = {
-      base:   '/geoserver',
-      layers: '/geoserver/layers'
-    }
-  
+
     return config;
   }
 );

@@ -1,0 +1,6 @@
+id,source,target,value,type
+1,LOD,HAM,300,organic
+2,HAM,AMS,150,organic
+3,HAM,BRU,150,organic
+4,AMS,BRU,100,organic
+5,NEA,LOD,300,organic

@@ -17,14 +17,6 @@ define(["backbone", "models/activity", "app-config"],
        * @returns {string} the url string
        */
       url: function(){
-        // if a group is given, take the route that retrieves all activities 
-        // of the group
-        if (this.activityGroupCode != null)
-          return config.api.activitiesInGroup.format(this.caseStudyId, 
-                                                     this.keyflowId,
-                                                     this.activityGroupCode);
-        // if no group is given, get all activities in the casestudy
-        else
           return config.api.activities.format(this.caseStudyId, this.keyflowId);
       },
       
@@ -42,8 +34,21 @@ define(["backbone", "models/activity", "app-config"],
      */
       initialize: function (attrs, options) {
         this.caseStudyId = options.caseStudyId;
-        this.activityGroupCode = options.activityGroupCode;
         this.keyflowId = options.keyflowId;
+      },
+      
+      /**
+       * filter the collection to find models belonging to an activitygroup with the given id
+       *
+       * @param {string} groupId id of the group
+       *
+       * @returns {Array.<module:models/Activity>} list of all activities belonging to the group
+       */
+      filterGroup: function (groupId) {
+          var filtered = this.filter(function (activity) {
+              return activity.get("activitygroup") == groupId;
+          });
+          return filtered;
       },
       
       model: Activity

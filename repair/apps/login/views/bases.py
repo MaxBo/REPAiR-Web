@@ -12,7 +12,7 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
 
 
-class CasestudyViewSetMixin(ABC):
+class CasestudyReadOnlyViewSetMixin(ABC):
     """
     This Mixin provides general list and create methods filtering by
     lookup arguments and query-parameters matching fields of the requested objects
@@ -26,6 +26,7 @@ class CasestudyViewSetMixin(ABC):
     additional_filters = {}
     serializer_class = None
     serializers = {}
+    pagination_class = None
 
     def get_serializer_class(self):
         return self.serializers.get(self.action,
@@ -63,27 +64,17 @@ class CasestudyViewSetMixin(ABC):
                                 SerializerClass=SerializerClass)
         if queryset is None:
             return Response(status=400)
+        if self.pagination_class:
+            paginator = self.pagination_class()
+            queryset = paginator.paginate_queryset(queryset, request)
+            
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
+            
         data = self.filter_fields(serializer, request)
-        return Response(serializer.data)
-
-    def create(self, request, **kwargs):
-        """set the """
-        if self.casestudy_only:
-            self.check_casestudy(kwargs, request)
-        return super().create(request, **kwargs)
-
-    def perform_create(self, serializer):
-        url_pks = serializer.context['request'].session['url_pks']
-        new_kwargs = {}
-        for k, v in url_pks.items():
-            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
-            if '__' in key:
-                continue
-            new_kwargs[key] = v
-        serializer.save(**new_kwargs)
-
+        if self.pagination_class:
+            return paginator.get_paginated_response(data)
+        return Response(data)
 
     def retrieve(self, request, **kwargs):
         """
@@ -130,10 +121,10 @@ class CasestudyViewSetMixin(ABC):
                        in SerializerClass.parent_lookup_kwargs.items()}
 
         # filter additional expressions
-        filter_args.update(self.get_filter_args(queryset=self.queryset,
+        filter_args.update(self.get_filter_args(queryset=self.get_queryset(),
                                                 query_params=query_params)
                            )
-        queryset = self.queryset.model.objects.filter(**filter_args)
+        queryset = self.get_queryset().filter(**filter_args)
 
         return queryset
 
@@ -154,5 +145,35 @@ class CasestudyViewSetMixin(ABC):
                     cmp = key_cmp[-1]
                     if cmp not in QUERY_TERMS:
                         continue
+                    if cmp == 'in':
+                        v = v.strip('[]').split(',')
                 filter_args[k] = v
         return filter_args
+
+
+class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
+    """
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
+    """
+    def create(self, request, **kwargs):
+        """set the """
+        if self.casestudy_only:
+            self.check_casestudy(kwargs, request)
+        return super().create(request, **kwargs)
+
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+

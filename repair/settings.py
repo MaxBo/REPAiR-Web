@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django_pandas', 
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -68,12 +69,13 @@ INSTALLED_APPS = [
     'repair.apps.statusquo',
     'repair.apps.publications',
     'repair.apps.reversions',
-    'repair.apps.geoserver',
+    'repair.apps.wmsresources',
     'reversion',
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'publications_bootstrap',
     'webpack_loader',
-    'django_filters'
+    'django_filters',
+    'wms_client',
 ]
 
 ADD_REVERSION_ADMIN=True
@@ -86,6 +88,7 @@ REST_FRAMEWORK = {
     ),
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
 }
 
 MIDDLEWARE = [
@@ -211,3 +214,60 @@ STATICFILES_FINDERS = (
 FIXTURE_DIRS = (
     os.path.join(PROJECT_DIR, "fixtures"),
 )
+
+LOGGING = {
+    'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse',
+                },
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+                },
+            },
+        'formatters': {
+            'django.server': {
+                '()': 'django.utils.log.ServerFormatter',
+                'format': '[%(server_time)s] %(message)s',
+            }
+            },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+                },
+            'console_debug_false': {
+                'level': 'ERROR',
+                    'filters': ['require_debug_false'],
+                    'class': 'logging.StreamHandler',
+                    },
+            'django.server': {
+                'level': 'INFO',
+                    'class': 'logging.StreamHandler',
+                    'formatter': 'django.server',
+                    },
+                #'mail_admins': {
+                    #'level': 'ERROR',
+                        #'filters': ['require_debug_false'],
+                        #'class': 'django.utils.log.AdminEmailHandler'
+                #}
+                },
+        'loggers': {
+            'django': {
+                'handlers': ['console', 'console_debug_false'],  # , 'mail_admins'],
+                # 'level': 'INFO',
+                },
+            'django.server': {
+                'handlers': ['django.server'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+        
+            #'django.db.backends': {
+                #'level': 'DEBUG',
+                #'handlers': ['console'],
+            #}
+        }
+}

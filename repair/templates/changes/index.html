@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block sidebar %}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
+  <script>
+    document.getElementById("changes-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon glyphicon glyphicon-wrench"></span></a></li>
+    {% if request.session.mode == 0 %}
+    <li><a href="#implementations" data-toggle="pill">{% trans "Implementations" %} <span class="sub-icon glyphicon glyphicon-flag"></span></a></li>
+    <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon glyphicon glyphicon-list-alt"></span></a></li>
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="solutions">
+    </div>
+    {% if request.session.mode == 0 %}
+    <div class="tab-pane fade" id="implementations">
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2>ToDo</h2>
+    </div>
+    {% endif %}
+  </div>
+
+{% include "changes/solutions.html" %}
+{% if request.session.mode == 0 %}
+{% include "changes/implementations.html" %}
+{% include "changes/strategies.html" %}
+{% endif %}
+{% render_bundle 'vendors' %}
+{% render_bundle 'Changes' %}
+{% endblock %}

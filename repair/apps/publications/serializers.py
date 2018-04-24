@@ -51,7 +51,7 @@ class PublicationInCasestudySerializer(InCasestudySerializerMixin,
                   )
 
     def create(self, validated_data):
-        """Create a new keyflow in casestury"""
+        """Create a new publication in casestury"""
         casestudy_id = validated_data.pop('casestudy_id', None)
         if casestudy_id:
             casestudy = CaseStudy.objects.get(pk=casestudy_id)

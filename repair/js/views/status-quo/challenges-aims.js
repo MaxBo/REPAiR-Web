@@ -1,13 +1,14 @@
-define(['backbone', 'underscore'],
+define(['underscore','views/baseview', 'models/challenge', 'collections/challenges',
+'models/aim', 'collections/aims'],
 
-function(Backbone, _,){
+function(_, BaseView, Challenge, Challenges, Aim, Aims){
     /**
     *
-    * @author Christoph Franke
+    * @author Christoph Franke, Balázs Dukai
     * @name module:views/ChallengesAimsView
     * @augments Backbone.View
     */
-    var ChallengesAimsView = Backbone.View.extend(
+    var ChallengesAimsView = BaseView.extend(
         /** @lends module:views/ChallengesAimsView.prototype */
         {
 
@@ -27,23 +28,57 @@ function(Backbone, _,){
             _.bindAll(this, 'render');
 
             this.template = options.template;
-            this.caseStudy = options.caseStudy;
+            _this.caseStudy = options.caseStudy;
+            this.mode = options.mode || 0;
 
-            this.challenges = [
-                'Recycling rate too low',
-                'Missing facilities for treatment'
-            ]
-            this.aims = [
-                'Higher Recycling rate',
-                'Less non recyclable garbage'
-            ]
-            this.render();
+            _this.challenges = [];
+            this.challengesModel = new Challenges([], {
+                caseStudyId: _this.caseStudy.id
+            });
+            _this.aims = [];
+            this.aimsModel = new Aims([], {
+                caseStudyId: _this.caseStudy.id
+            });
+
+            this.challengesModel.fetch({
+                success: function(challenges){
+                    _this.initItems(challenges, _this.challenges,
+                         "Challenge");
+                    _this.render();
+                },
+                error: function(){
+                    console.error("cannot fetch challenges");
+                }
+            });
+
+            this.aimsModel.fetch({
+                success: function(aims){
+                    _this.initItems(aims, _this.aims, "Aim");
+                    _this.render();
+                },
+                error: function(){
+                    console.error("cannot fetch aims");
+                }
+            });
         },
 
         /*
         * dom events (managed by jquery)
         */
         events: {
+            'click #add-challenge-button': 'addChallenge',
+            'click #add-aim-button': 'addAim',
+            'click #remove-ch-aim-confirmation-modal .confirm': 'confirmRemoval'
+        },
+
+        initItems: function(items, list, type){
+            items.forEach(function(item){
+                list.push({
+                    "text": item.get('text'),
+                    "id": item.get('id'),
+                    "type": type
+                });
+            });
         },
 
         /*
@@ -59,17 +94,176 @@ function(Backbone, _,){
                 aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
             this.renderPanel(challengesPanel, this.challenges);
             this.renderPanel(aimsPanel, this.aims);
+
+            var html_modal = document.getElementById(
+                'empty-modal-template').innerHTML;
+            this.confirmationModal = document.getElementById(
+                'remove-ch-aim-confirmation-modal');
+            this.confirmationModal.innerHTML = _.template(html_modal)({
+                header: gettext('Remove') });
+
+            // lazy way to render workshop mode: just hide all buttons for editing
+            // you may make separate views as well
+            if (this.mode == 0){
+                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
+                _.each(btns, function(button){
+                    button.style.display = 'none';
+                });
+            }
         },
 
         renderPanel(panel, items){
+            var _this = this;
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
             items.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: item });
+                panelItem.innerHTML = template({ name: item.text });
+                var button_edit = panelItem.getElementsByClassName(
+                    "btn btn-primary square edit inverted").item(0);
+                var button_remove = panelItem.getElementsByClassName(
+                    "btn btn-warning square remove").item(0);
+                button_edit.addEventListener('click', function(){
+                    _this.editPanelItem(item, items);
+                });
+                button_remove.addEventListener('click', function(){
+                    _this.removePanelItem(item, items);
+                });
                 panel.appendChild(panelItem);
-            })
+            });
+        },
+
+        addChallenge: function(){
+            var _this = this;
+            function onConfirm(text){
+                var challenge = new Challenge(
+                    { text: text },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+                challenge.save(null, {
+                    success: function(){
+                        _this.challenges.push({
+                            "text": challenge.get('text'),
+                            "id": challenge.get('id'),
+                            "type": "Challenge"
+                        });
+                        _this.render();
+                    },
+                    error: function(){
+                        console.error("cannot save Challenge");
+                    }
+                });
+            }
+            this.getName({
+                title: gettext('Add Challenge'),
+                onConfirm: onConfirm
+            });
+        },
+
+        addAim: function(){
+            var _this = this;
+            function onConfirm(text){
+                var aim = new Aim(
+                    { text: text },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+                aim.save(null, {
+                    success: function(){
+                        _this.aims.push({
+                            "text": aim.get('text'),
+                            "id": aim.get('id'),
+                            "type": "Aim"
+                        });
+                        _this.render();
+                    },
+                    error: function(){
+                        console.error("cannot save Aim");
+                    }
+                });
+            }
+            this.getName({
+                title: gettext('Add Aim'),
+                onConfirm: onConfirm
+            });
+        },
+
+        editPanelItem: function(item, items){
+            var _this = this;
+            var id = item.id;
+            var title = "Edit " + item.type
+            function onConfirm(name){
+                if (item.type == "Challenge") {
+                    var model = new Challenge(
+                        { id: id },
+                        { caseStudyId: _this.caseStudy.id}
+                    );
+                } else {
+                    var model = new Aim(
+                        { id: id },
+                        { caseStudyId: _this.caseStudy.id}
+                    );
+                }
+
+                model.save({
+                    text: name
+                }, {
+                    success: function(){
+                        var pos = items.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        items[pos].text = name;
+                        _this.render();
+                    }
+                });
+            }
+            this.getName({
+                name: item.text,
+                title: gettext(title),
+                onConfirm: onConfirm
+            });
+        },
+
+        removePanelItem: function(item, items){
+            var _this = this;
+            var message = gettext("Do you want to delete the selected item?");
+            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
+            $(this.confirmationModal).modal('show');
+            if (item.type == "Challenge") {
+                _this.model = new Challenge(
+                    { id: item.id },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+            } else {
+                _this.model = new Aim(
+                    { id: item.id },
+                    { caseStudyId: _this.caseStudy.id}
+                );
+            }
+            _this.removeType = item.type;
+        },
+
+        confirmRemoval: function(items) {
+            var _this = this;
+            $(this.confirmationModal).modal('hide');
+            var id = _this.model.get('id');
+            _this.model.destroy({
+                success: function(){
+                    if (_this.removeType == "Challenge") {
+                        var pos = _this.challenges.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        _this.challenges.splice(pos, 1);
+                        _this.render();
+                    } else {
+                        var pos = _this.aims.map(function(e) {
+                            return e.id;
+                        }).indexOf(id);
+                        _this.aims.splice(pos, 1);
+                        _this.render();
+                    }
+                }
+            });
         },
 
         /*

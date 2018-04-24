@@ -1,0 +1,100 @@
+{% load i18n %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/flowmap.css">
+
+<script type="text/template" id="flows-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
+  <select name="keyflow" class="form-control" style="max-width: 500px;">
+    <option disabled selected> {% trans "Select" %} </option>
+    <% keyflows.each(function(keyflow) { %>
+      <option value="<%= keyflow.id %>"> <%= keyflow.get('name') %></option>
+    <% });  %>
+  </select>
+</div>
+<div id='flows-setup-content' style="display: none;">
+  <div class="row bordered" >
+    <div class="row" data-toggle="collapse" data-target=".row.filters" style='cursor: pointer;'>
+      <button class="btn btn-primary square inverted" style="margin-right: 5px; float: left;">
+        <span class="glyphicon glyphicon-eye-open"></span>
+      </button>
+      <h4 style="margin-top: 3px;">{% trans "Filters" %}</h4>
+    </div>
+    <div class="collapse row filters">
+      <div class="col-md-3">
+        <b>{% trans "Area" %}</b>
+        <select name="area" class="form-control">
+          <option> {% trans "All" %} </option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <b>{% trans "Material" %}</b>
+        <div id='material-filter'></div>
+      </div>
+      <div class="col-md-3">
+        <b>{% trans "Flow Type" %}</b>
+        <select name="waste" class="form-control">
+          <option value=''> {% trans "Products and Waste" %} </option>
+          <option value='False'> {% trans "Products" %} </option>
+          <option value='True'> {% trans "Waste" %} </option>
+        </select>
+      </div>
+    </div>
+    <div class="collapse row filters" style="margin-top: 20px">
+      <div class="row">
+        <label class="radio-inline"><input type="radio" name="direction" value="both" checked>{% trans "From/To" %}</label>
+        <label class="radio-inline"><input type="radio" name="direction" value="from">{% trans "From" %}</label>
+        <label class="radio-inline"><input type="radio" name="direction" value="to">{% trans "To" %}</label>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <b>{% trans "Activity Group" %}</b>
+          <select name="group" class="form-control"></select>
+          <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+        </div>
+        <div class="col-md-3">
+          <b>{% trans "Activity" %}</b>
+          <select name="activity" class="form-control"></select>
+          <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
+        </div>
+        <div class="col-md-3">
+          <b>{% trans "Actor" %}</b>
+          <select name="actor" class="form-control"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 20px;">
+    <div class="col-md-6">
+      <div id="flow-diagram">
+        <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 400px;">
+          <option value="activitygroup">{% trans "Activity Group" %}</option>
+          <option value="activity">{% trans "Activity" %}</option>
+          <option value="actor">{% trans "Actor" %}</option>
+        </select>
+        <div class="row" style="position: relative;">
+          <div id="sankey-wrapper" class="noselect">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#flow-map-panel">{% trans "Flow Map" %}</a></li>
+        <li><a data-toggle="tab" href="#chloropleth-map-panel">{% trans "Chloropleth Map" %}</a></li>
+      </ul>
+      <div class="tab-pane fade in active" id="flow-map-panel">
+        <div id="flow-map" style="width: 100%">
+          <img src='/static/img/flow-sankey-preview.png'>
+        </div>
+      </div>
+      <div class="tab-pane fade in" id="chloropleth-map-panel">
+        <h4>ToDo</h4>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+{% endblock %}

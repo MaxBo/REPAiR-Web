@@ -168,39 +168,3 @@ class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.obj = ActivityGroupFactory(keyflow=self.kic)
-
-
-class ActivityInActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
-
-    casestudy = 17
-    activity = 5
-    activitygroup = 90
-    keyflow = 23
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.ag_url = cls.baseurl + reverse(
-            'activitygroup-detail',
-            kwargs=dict(pk=cls.activity,
-                        casestudy_pk=cls.casestudy,
-                        keyflow_pk=cls.keyflow))
-        cls.url_key = "activity"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           keyflow_pk=cls.keyflow,
-                           activitygroup_pk=cls.activitygroup)
-        cls.url_pk = dict(pk=cls.activity)
-        cls.post_data = dict(nace="Test Nace",
-                             name="Test Name",
-                             activitygroup=cls.activitygroup)
-        cls.put_data = dict(nace="Test Nace",
-                            name="Test Name",
-                            activitygroup=cls.activitygroup)
-        cls.patch_data = dict(name='Test Name')
-
-    def setUp(self):
-        super().setUp()
-        self.obj = ActivityFactory(
-            activitygroup__keyflow=self.kic,
-            activitygroup__keyflow__casestudy=self.uic.casestudy,
-            activitygroup__id=self.activitygroup)

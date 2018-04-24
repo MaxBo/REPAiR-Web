@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: views/flowsankey.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: views/flowsankey.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define(['backbone', 'underscore','collections/flows',
+        'collections/stocks', 'visualizations/sankey', 
+        'collections/activities', 'collections/actors',
+        'utils/loader'],
+
+function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
+
+  /**
+   *
+   * @author Christoph Franke
+   * @name module:views/FlowsView
+   * @augments Backbone.View
+   */
+  var FlowSankeyView = Backbone.View.extend( 
+    /** @lends module:views/FlowsView.prototype */
+    {
+
+    /**
+     * render view to edit flows of a single keyflow
+     *
+     * @param {Object} options
+     * @param {HTMLElement} options.el                          element the view will be rendered in
+     * @param {Number=} options.width   width of sankey diagram (defaults to width of el)
+     * @param {Number=} options.height  height of sankey diagram (defaults to 1/3 of width)
+     * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
+     * @param {Object=} options.filterParams  parameters to filter the flows and stocks with (e.g. {material: 1})
+     * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
+     * @param {module:collections/ActivityGroups|module:collections/ActivityGroups|module:collections/Actors} options.model the nodes to render
+     *
+     * @constructs
+     * @see http://backbonejs.org/#View
+     */
+    initialize: function(options){
+      _.bindAll(this, 'render');
+      _.bindAll(this, 'toggleFullscreen');
+      var _this = this;
+      this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
+      this.keyflowId = options.keyflowId || this.collection.keyflowId;
+      this.materials = options.materials;
+      this.hideUnconnected = options.hideUnconnected;
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
+      
+      var type = (this.collection instanceof Actors) ? 'actor': 
+                 (this.collection instanceof Activities) ? 'activity': 'activitygroup';
+      this.flows = new Flows([], {caseStudyId: this.caseStudyId,
+                                  keyflowId: this.keyflowId,
+                                  type: type});
+      this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
+                                    keyflowId: this.keyflowId,
+                                    type: type});
+                                    
+      var loader = new Loader(this.el, {disable: true});
+      $.when(this.stocks.fetch({data: options.filterParams}), this.flows.fetch({data: options.filterParams})).then(function(){
+        _this.render();
+        loader.remove();
+      });
+    },
+
+    /*
+     * dom events (managed by jquery)
+     */
+    events: {
+      'click a[href="#flow-map-panel"]': 'refreshMap',
+      'click #fullscreen-toggle': 'toggleFullscreen',
+      'change #data-view-type-select': 'renderSankey'
+    },
+ 
+    /*
+     * render the view
+     */
+    render: function(){
+      this.sankeyData = this.transformData(this.collection, this.flows, this.stocks, this.materials);
+      var fullscreenBtn = document.createElement('button');
+      fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
+      fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+      this.el.appendChild(fullscreenBtn);
+      var isFullScreen = this.el.classList.contains('fullscreen');
+      var width = (isFullScreen) ? this.el.clientWidth : this.width;
+      var height = (isFullScreen) ? this.el.clientHeight : this.height;
+      var div = this.el.querySelector('.sankey');
+      if (div == null){
+        div = document.createElement('div');
+        div.classList.add('sankey', 'bordered');
+        this.el.appendChild(div);
+      }
+      var sankey = new Sankey({
+        height: height,
+        width: width,
+        el: div,
+        title: ''
+      })
+      sankey.render(this.sankeyData);
+    },
+  
+    /*
+     * render sankey-diagram in fullscreen
+     */
+    toggleFullscreen: function(){
+      this.el.classList.toggle('fullscreen');
+      this.render();
+    },
+    
+    refresh: function(options){
+      var options = options || {};
+      this.width = options.width || this.el.clientWidth;
+      this.height = options.height || this.width / 3;
+      this.render();
+    },
+    
+    /*
+     * transform the models, their links and the stocks to a json-representation
+     * readable by the sankey-diagram
+     */
+    transformData: function(models, flows, stocks, materials){
+      var _this = this;
+      var nodes = [];
+      var nodeIdxDict = {}
+      var i = 0;
+      
+      models.forEach(function(model){
+        var id = model.id;
+        var name = model.get('name');
+        // ignore nodes with no connections at all (if requested)
+        if (_this.hideUnconnected) {
+          if (flows.nConnections(id) == 0 &amp;&amp; stocks.nConnections(id) == 0)
+            return;
+        }
+        nodes.push({ id: id, name: name });
+        nodeIdxDict[id] = i;
+        i += 1;
+      });
+      var links = [];
+      
+      function compositionRepr(composition){
+        var text = '';
+          if (composition){
+            var fractions = composition.fractions;
+            var i = 0;
+            fractions.forEach(function(fraction){
+              var material = materials.get(fraction.material);
+              text += fraction.fraction * 100 + '% ';
+              text += material.get('name');
+              if (i &lt; fractions.length - 1) text += '\n';
+              i++;
+            })
+          }
+        return text || ('no composition defined')
+      }
+      
+      flows.forEach(function(flow){
+        var value = flow.get('amount');
+        var originId = flow.get('origin'),
+            destinationId = flow.get('destination'),
+            source = nodeIdxDict[originId],
+            target = nodeIdxDict[destinationId];
+        // continue if one of the linked nodes does not exist
+        if (source == null || target == null) return false;
+        var composition = flow.get('composition');
+        links.push({
+          value: flow.get('amount'),
+          units: gettext('t/year'),
+          source: source,
+          target: target,
+          text: compositionRepr(composition)
+        });
+      })
+      stocks.forEach(function(stock){
+        var id = 'stock-' + stock.id;
+        var originId = stock.get('origin'),
+            source = nodeIdxDict[originId];
+        // continue if node does not exist
+        if (source == null) return false;
+        nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
+        var composition = stock.get('composition');
+        links.push({
+          value: stock.get('amount'),
+          units: gettext('t/year'),
+          source: source,
+          target: i,
+          text: compositionRepr(composition)
+        });
+        i += 1;
+      });
+      
+      var transformed = {nodes: nodes, links: links};
+      return transformed;
+    },
+
+    /*
+     * remove this view from the DOM
+     */
+    close: function(){
+      this.undelegateEvents(); // remove click events
+      this.unbind(); // Unbind all local event bindings
+      this.el.innerHTML = ''; //empty the DOM element
+    },
+
+  });
+  return FlowSankeyView;
+}
+);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Base.html">Base</a></li><li><a href="module-config.html">config</a></li><li><a href="module-DataEntry.html">DataEntry</a></li></ul><h3>Classes</h3><ul><li><a href="Map.html">Map</a></li><li><a href="module-collections_Activities.html">collections/Activities</a></li><li><a href="module-collections_ActivityGroups.html">collections/ActivityGroups</a></li><li><a href="module-collections_Actors.html">collections/Actors</a></li><li><a href="module-collections_AreaLevels.html">collections/AreaLevels</a></li><li><a href="module-collections_Areas.html">collections/Areas</a></li><li><a href="module-collections_CaseStudies.html">collections/CaseStudies</a></li><li><a href="module-collections_Flows.html">collections/Flows</a></li><li><a href="module-collections_Keyflows.html">collections/Keyflows</a></li><li><a href="module-collections_LayerCategories.html">collections/LayerCategories</a></li><li><a href="module-collections_Layers.html">collections/Layers</a></li><li><a href="module-collections_Locations.html">collections/Locations</a></li><li><a href="module-collections_Materials.html">collections/Materials</a></li><li><a href="module-collections_Products.html">collections/Products</a></li><li><a href="module-collections_Stocks.html">collections/Stocks</a></li><li><a href="module-collections_Wastes.html">collections/Wastes</a></li><li><a href="module-models_Activity.html">models/Activity</a></li><li><a href="module-models_ActivityGroup.html">models/ActivityGroup</a></li><li><a href="module-models_Actor.html">models/Actor</a></li><li><a href="module-models_Area.html">models/Area</a></li><li><a href="module-models_CaseStudy.html">models/CaseStudy</a></li><li><a href="module-models_Layer.html">models/Layer</a></li><li><a href="module-models_LayerCategory.html">models/LayerCategory</a></li><li><a href="module-models_Location.html">models/Location</a></li><li><a href="module-models_Material.html">models/Material</a></li><li><a href="module-views_ActorsView.html">views/ActorsView</a></li><li><a href="module-views_BaseChartsView.html">views/BaseChartsView</a></li><li><a href="module-views_BaseMapsView.html">views/BaseMapsView</a></li><li><a href="module-views_BaseView.html">views/BaseView</a></li><li><a href="module-views_ChallengesAimsView.html">views/ChallengesAimsView</a></li><li><a href="module-views_EditActorView.html">views/EditActorView</a></li><li><a href="module-views_EditNodeView.html">views/EditNodeView</a></li><li><a href="module-views_EvaluationView.html">views/EvaluationView</a></li><li><a href="module-views_FlowsView.html">views/FlowsView</a></li><li><a href="module-views_MaterialsView.html">views/MaterialsView</a></li><li><a href="module-views_SolutionsView.html">views/SolutionsView</a></li><li><a href="module-views_StakeholdersView.html">views/StakeholdersView</a></li><li><a href="module-views_TargetsView.html">views/TargetsView</a></li><li><a href="Sankey.html">Sankey</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 16 2018 14:32:34 GMT+0100 (Mitteleuropäische Zeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

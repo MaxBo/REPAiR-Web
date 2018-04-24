@@ -40,12 +40,15 @@ class Material(GDSEModel):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
                                related_name='submaterials')
 
-    #def clean(self):
-        ## Check if parent class is exactly one level higher
-        #if self.level - 1 != parent.level and self.level != 1:
-            #raise ValidationError(_('Parent material must be one level higher'))
-        #elif self.level == 1 and self.parent is not None:
-            #raise ValidationError(_('Materials in level I do not have parents'))
+    @property
+    def children(self):
+        """ all children of the material (deep traversal) """
+        deep_children = []
+        children = Material.objects.filter(parent=self.id)
+        for child in children:
+            deep_children.append(child)
+            deep_children.extend(child.children)
+        return deep_children
 
 
 class Composition(GDSEModel):
@@ -57,7 +60,7 @@ class Composition(GDSEModel):
     def is_custom(self):
         """
         returns true, if composition is neither product or waste
-        
+
         Returns
         -------
         bool
@@ -89,6 +92,7 @@ class ProductFraction(GDSEModel):
                                     related_name='fractions', null=True)
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
                                     related_name='fractions')
+    avoidable = models.BooleanField(default=True)
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)

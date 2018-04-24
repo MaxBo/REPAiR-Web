@@ -75,10 +75,11 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITes
                                      kwargs=dict(pk=cls.uic.id,
                                                  casestudy_pk=cls.casestudy))
         cls.post_data = dict(name='posttestname',
+                             activities=[], 
                              user=user,
                              description="This is a description",
                              one_unit_equals='20',
-                             solution_category=cls.solutioncategory_url,
+                             solution_category=cls.solutioncategory,
                              )
         cls.put_data = cls.post_data
         cls.patch_data = dict(name="test name")
@@ -116,7 +117,7 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
                            solution_pk=cls.solution)
         cls.url_pk = dict(pk=cls.solutionquantity)
         cls.post_data = dict(name='posttestname',
-                             unit=cls.unit_url,
+                             unit=cls.unit,
                              )
         cls.put_data = cls.post_data
         cls.patch_data = dict(name="test name")
@@ -157,7 +158,7 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModel
         cls.url_pk = dict(pk=cls.solutionratiooneunit)
         cls.post_data = dict(name='posttestname',
                              value=345,
-                             unit=cls.unit_url,
+                             unit=cls.unit,
                              )
         cls.put_data = cls.post_data
         cls.patch_data = dict(name="test name")
