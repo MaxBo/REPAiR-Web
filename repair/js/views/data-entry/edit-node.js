@@ -523,7 +523,7 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
-                width: 200,
+                width: 300,
                 selected: fraction.material,
                 defaultOption: gettext('Select a material')
             });

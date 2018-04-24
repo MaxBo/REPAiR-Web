@@ -194,7 +194,7 @@
       <div class="modal-body">
         <% if(waste == 'true') { %> {% trans "Waste" %} <% } else  { %> {% trans "Product" %} <% } %>
         <select name="items"></select>
-        <div class="row" style="overflow: auto">
+        <div class="row" style="overflow-x: auto; overflow-y: -webkit-paged-y;">
           <table id="fractions-edit-table">
             <tr>
               <th>{% trans "Fraction" %}</th>
