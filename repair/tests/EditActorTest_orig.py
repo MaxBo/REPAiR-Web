@@ -84,6 +84,7 @@ class EditActorTest(SeleniumBasic, unittest.TestCase):
         finally: self.accept_next_alert = True
 
     def tearDown(self):
+        return
         super().tearDown()
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)

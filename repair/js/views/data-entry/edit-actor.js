@@ -140,7 +140,6 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
                                     reasons: this.reasons});
 
       this.filterSelect = this.el.querySelector('#included-filter-select');
-      this.table = this.el.querySelector('#actors-table');
       this.adminTable = this.el.querySelector('#adminloc-table').getElementsByTagName('tbody')[0];
       this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 

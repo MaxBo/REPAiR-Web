@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
-    url(r'^decisions/', include('repair.apps.decisions.urls')),
+    url(r'^recommendations/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
     url(r'^login/', include('repair.apps.login.urls')),

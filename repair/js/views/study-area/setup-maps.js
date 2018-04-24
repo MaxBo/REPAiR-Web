@@ -106,12 +106,6 @@ var SetupMapsView = BaseMapView.extend(
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
-        this.map.addLayer('focus', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1,
-            zIndex: 1000
-        });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = new ol.geom.Polygon(focusarea.coordinates[0]);

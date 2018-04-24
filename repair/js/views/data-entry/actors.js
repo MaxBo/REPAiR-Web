@@ -119,11 +119,15 @@ var ActorsView = BaseView.extend(
     setupTable: function(){
         require('libs/jquery.tablesorter.pager');
         $(this.table).tablesorter({
+            sortReset: true,
+            sortRestart: true,
             widgets: ['filter'], //, 'zebra']
             widgetOptions : {
                 filter_placeholder: { search : gettext('Search') + '...' }
             }
         });
+        
+         
         // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
         if ($(this.table).find('tr').length > 1)
             $(this.table).tablesorterPager({container: $("#pager")});
@@ -236,9 +240,9 @@ var ActorsView = BaseView.extend(
                 "BvDid": "-",
                 "name": name || "-----",
                 "consCode": "-",
-                "year": 0,
-                "turnover": 0,
-                "employees": 0,
+                "year": null,
+                "turnover": null,
+                "employees": null,
                 "BvDii": "-",
                 "website": "www.website.org",
                 "activity": _this.activities.first().id,
@@ -248,7 +252,7 @@ var ActorsView = BaseView.extend(
                 _this.actors.add(actor);
                 var row = _this.addActorRow(actor);
                 // let tablesorter know, that there is a new row
-                $('table').trigger('addRows', [$(row)]);
+                $(_this.table).trigger('addRows', [$(row)]);
                 // workaround for going to last page by emulating click (thats where new row is added)
                 document.getElementById('goto-last-page').click();
                 // click row to show details of new actor in edit view

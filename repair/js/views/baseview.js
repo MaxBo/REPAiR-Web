@@ -62,11 +62,13 @@ var BaseView = Backbone.View.extend(
     * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
     * @param {module:views/BaseView~onSelect=} options.onSelect  function is called on selection of an item
     * @param {Number=} options.selected             preselects the model with given id 
+    * @param {Number} [options.selected=400]        preselects the model with given id 
     */
     hierarchicalSelect: function(collection, parent, options){
 
         var wrapper = document.createElement("div"),
             options = options || {},
+            width = options.width || 400,
             parentAttr = options.parentAttr || 'parent',
             defaultOption = options.defaultOption || 'All',
             items = [];
@@ -114,7 +116,7 @@ var BaseView = Backbone.View.extend(
         require('hierarchy-select');
         var select = wrapper.querySelector('.hierarchy-select');
         $(select).hierarchySelect({
-            width: 400
+            width: width
         });
 
         // preselect an item
