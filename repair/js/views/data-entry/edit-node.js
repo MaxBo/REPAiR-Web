@@ -1,7 +1,8 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'tablesorter'],
+    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js',
+    'bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
@@ -141,8 +142,6 @@ var EditNodeView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
 
-        this.dsTable = document.getElementById('publications-table');
-
         var popOverSettings = {
             placement: 'right',
             container: 'body',
@@ -163,9 +162,23 @@ var EditNodeView = BaseView.extend(
         this.stocks.each(function(stock){
             _this.addFlowRow('stock-table', stock, 'origin', true);
         });
-
+        
+        var table = this.el.querySelector('#publications-table');
+        this.datatable = $(table).DataTable({
+            "columnDefs": [{
+                "render": function ( data, type, row ) {
+                    var wrapper = document.createElement('a'),
+                        anchor = document.createElement('a');
+                    wrapper.appendChild(anchor);
+                    anchor.href = data;
+                    anchor.innerHTML = data;
+                    anchor.target = '_blank';
+                    return wrapper.innerHTML;
+                },
+                "targets": 4
+            }]
+        });
         this.renderDatasources(this.publications);
-        this.setupDsTable();
     },
 
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -245,9 +258,10 @@ var EditNodeView = BaseView.extend(
         if (!isStock){
             // select input for target (origin resp. destination of flow)
 
-            var nodeSelect = document.createElement("select");
-            var ids = [];
-            var targetId = flow.get(targetIdentifier);
+            var nodeSelect = document.createElement("select"),
+                ids = [];
+                targetId = flow.get(targetIdentifier);
+                
             this.model.collection.each(function(model){
                 // no flow to itself allowed
                 if (model.id != _this.model.id){
@@ -261,7 +275,14 @@ var EditNodeView = BaseView.extend(
             var idx = ids.indexOf(targetId);
             nodeSelect.selectedIndex = idx.toString();
             row.insertCell(-1).appendChild(nodeSelect);
-
+            $(nodeSelect).selectpicker({
+                liveSearch: true,
+                size: 8,
+                dropupAuto: false,
+                container: this.el
+            });
+            console.log(nodeSelect)
+            nodeSelect.style.height = '0px';
             nodeSelect.addEventListener('change', function() {
                 flow.set(targetIdentifier, nodeSelect.value);
             });
@@ -401,7 +422,7 @@ var EditNodeView = BaseView.extend(
         var pencil = document.createElement('span');
         editBtn.classList.add('btn', 'btn-primary', 'square');
         editBtn.appendChild(pencil);
-        editBtn.title = gettext('Edit publication');
+        editBtn.title = gettext('Edit data source');
         pencil.classList.add('glyphicon', 'glyphicon-pencil');
 
         function onConfirm(publication){
@@ -765,37 +786,12 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * prepare the table of publications
-        */
-    setupDsTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.dsTable).tablesorter({
-            widgets: ['filter'],
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
-            }
-        });
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.dsTable).find('tr').length > 1)
-            $(this.dsTable).tablesorterPager({container: $("#dspager")});
-
-        ////workaround for a bug in tablesorter-pager by triggering
-        ////event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('dspagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
-    },
-
-    /*
         * refresh the table of publications
         */
     refreshDatasources(){
         var _this = this;
         this.publications.fetch({ success: function(){
-            // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
-            $(_this.dsTable).trigger("destroy");
             _this.renderDatasources(_this.publications);
-            _this.setupDsTable();
         }});
     },
 
@@ -804,30 +800,20 @@ var EditNodeView = BaseView.extend(
         */
     renderDatasources: function(publications){
         var _this = this;
-        var table = this.dsTable;
+        this.datatable.clear();
+        
         this.dsRows = [];
-        // avoid error message if not initialized with tablesorter yet
-        try {
-            $.tablesorter.clearTableBody($(table)[0]);
-        }
-        catch (err) { }
         publications.each(function(publication){
-            var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
+            var dataRow = _this.datatable.row.add([
+                    publication.get('title'),
+                    publication.get('type'),
+                    publication.get('authors'),
+                    publication.get('doi'),
+                    publication.get('publication_url')
+                ]).draw(),
+                row = dataRow.node();
             row.style.cursor = 'pointer';
             _this.dsRows.push(row);
-            row.insertCell(-1).innerHTML = publication.get('title');
-            row.insertCell(-1).innerHTML = publication.get('type');
-            row.insertCell(-1).innerHTML = publication.get('authors');
-            row.insertCell(-1).innerHTML = publication.get('doi');
-            var anchor = document.createElement('a');
-            var url = publication.get('publication_url');
-            anchor.href = url;
-            anchor.innerHTML = url;
-            anchor.target = '_blank';
-            row.insertCell(-1).appendChild(anchor);
-
-            // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
-            //$(table).trigger('addRows', [$(row), true]);
 
             row.addEventListener('click', function() {
                 _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
