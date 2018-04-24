@@ -112,7 +112,6 @@ var EditNodeView = BaseView.extend(
 
         // fetch inFlows and outFlows with different query parameters
         $.when(
-            this.model.fetch(),
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
@@ -315,14 +314,18 @@ var EditNodeView = BaseView.extend(
                         currentPage: 1
                     }
                 };
-                var nace = origin.get('nace') || 'None';
-                var loader = new Loader(document.getElementById('flows-edit'),
-                    {disable: true});
-                var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
-                items.getFirstPage({ data: { nace: nace } }).then( 
-                    function(){ _this.editFractions(flow, items); loader.remove(); }
-                )
-
+                // ToDo: removce this after collection/model rework
+                origin.caseStudyId = _this.caseStudyId;
+                origin.keyflowId = _this.keyflowId;
+                origin.fetch({success: function(){
+                    var nace = origin.get('nace') || 'None';
+                    var loader = new Loader(document.getElementById('flows-edit'),
+                        {disable: true});
+                    var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+                    items.getFirstPage({ data: { nace: nace } }).then( 
+                        function(){ _this.editFractions(flow, items); loader.remove(); }
+                    )
+                }})
             }
         })
 
@@ -346,18 +349,6 @@ var EditNodeView = BaseView.extend(
         }
 
         $(editFractionsBtn).popover(popOverFractionsSettings);
-
-
-        // raw checkbox
-
-        var rawCheckbox = document.createElement("input");
-        rawCheckbox.type = 'checkbox';
-        rawCheckbox.checked = flow.get('raw');
-        row.insertCell(-1).appendChild(rawCheckbox);
-
-        rawCheckbox.addEventListener('change', function() {
-            flow.set('raw', rawCheckbox.checked);
-        });
 
         var year = addInput('year', 'number');
         year.min = 0;
@@ -410,7 +401,7 @@ var EditNodeView = BaseView.extend(
         var pencil = document.createElement('span');
         editBtn.classList.add('btn', 'btn-primary', 'square');
         editBtn.appendChild(pencil);
-        editBtn.title = gettext('edit datasource');
+        editBtn.title = gettext('Edit publication');
         pencil.classList.add('glyphicon', 'glyphicon-pencil');
 
         function onConfirm(publication){
