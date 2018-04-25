@@ -4,6 +4,7 @@ from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       UserInCasestudy)
 from repair.apps.asmfa.models import Activity
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Unit(GDSEModel):
@@ -20,9 +21,9 @@ class SolutionCategory(GDSEUniqueNameModel):
 
 
 class Solution(GDSEUniqueNameModel):
-    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserInCasestudy, on_delete=PROTECT_CASCADE)
     solution_category = models.ForeignKey(SolutionCategory,
-                                          on_delete=models.CASCADE)
+                                          on_delete=PROTECT_CASCADE)
     name = models.TextField()
     description = models.TextField()
     one_unit_equals = models.TextField()

@@ -1,9 +1,14 @@
 from rest_framework import viewsets, exceptions, mixins
 from django.views import View
+from django.http import (HttpResponseRedirect,
+                         JsonResponse,
+                         HttpResponseBadRequest,
+                         HttpResponseForbidden,
+                         )
+from django.db.models import ProtectedError
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
-from django.http import (HttpResponseRedirect, JsonResponse,
-                         HttpResponseBadRequest)
+from repair.apps.utils.context_environment import set_env
 
 
 class CheckPermissionMixin:
@@ -17,7 +22,8 @@ class CheckPermissionMixin:
         app_label = self.serializer_class.Meta.model._meta.app_label
         view_name = self.serializer_class.Meta.model._meta.object_name
         permission = '{}.{}_{}'.format(app_label.lower(),
-                                     permission_name, view_name.lower())
+                                       permission_name,
+                                       view_name.lower())
         # check if user has the required permission
         if not request.user.has_perm(permission):
             raise exceptions.PermissionDenied()
@@ -54,7 +60,12 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         Check if user is permitted to destroy the object.
         """
         self.check_permission(request, 'delete')
-        return super().destroy(request, **kwargs)
+        try:
+            with set_env(PROTECT_FOREIGN_KEY='True'):
+                response = super().destroy(request, **kwargs)
+        except ProtectedError as err:
+            return HttpResponseForbidden(content=err)
+        return response
 
     def update(self, request, **kwargs):
         """
@@ -69,7 +80,6 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         """
         self.check_permission(request, 'change')
         return super().partial_update(request, **kwargs)
-
 
 
 class ModelPermissionViewSet(ModelReadPermissionMixin,
@@ -107,7 +117,7 @@ class SessionView(View):
         return HttpResponseRedirect(next)
 
     def get(self, request):
-        response =  {
+        response = {
             'casestudy': request.session.get('casestudy'),
             'mode': request.session.get('mode') or self.modes['Workshop']
         }
@@ -130,6 +140,7 @@ class ReadUpdateViewSet(mixins.RetrieveModelMixin,
     No `create()` or `destroy()`
     """
 
+
 class ReadUpdatePermissionViewSet(mixins.RetrieveModelMixin,
                                   mixins.UpdateModelMixin,
                                   mixins.ListModelMixin,
@@ -147,7 +158,7 @@ class ReadUpdatePermissionViewSet(mixins.RetrieveModelMixin,
         app_label = self.serializer_class.Meta.model._meta.app_label
         view_name = self.serializer_class.Meta.model._meta.object_name
         permission = '{}.{}_{}'.format(app_label.lower(),
-                                     permission_name, view_name.lower())
+                                       permission_name, view_name.lower())
         # check if user has the required permission
         if not request.user.has_perm(permission):
             raise exceptions.PermissionDenied()

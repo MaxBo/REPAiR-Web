@@ -9,6 +9,7 @@ from repair.apps.changes.factories import (
     SolutionQuantityFactory,
     SolutionRatioOneUnitFactory,
 )
+from repair.apps.changes.models import Solution
 from repair.apps.login.factories import UserInCasestudyFactory
 
 
@@ -51,8 +52,42 @@ class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
                                                   solcat2,
                                                   solcat3})
 
+    def test_protection_of_deletion(self):
+        """
+        Test if the protection of objects, that are referred to
+        by a foreign key using the view works and if the deletion on the model
+        with cascade works too.
+        """
+        # generate a new solution category with 2 solutions
+        solcat_id = 44
+        solcat2 = SolutionCategoryFactory(id=solcat_id)
+        solution2 = SolutionFactory(solution_category=solcat2,
+                                    name='Protected Solution')
+        solution3 = SolutionFactory(solution_category=solcat2,
+                                    name='Another Solution')
 
-class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
+        # try to delete using the view
+        url = self.url_key + '-detail'
+        kwargs = {**self.url_pks, 'pk': solcat2.pk, }
+        response = self.delete(url, **kwargs)
+
+        # this should raise an ProtectedError
+        self.response_403()
+        assert b'Cannot delete some instances of model' in response.content
+        assert b'<Solution: Protected Solution>' in response.content
+        assert b'<Solution: Another Solution>' in response.content
+
+        # deletion on the model will delete the solution category and
+        # cascadedly the referencing solution
+        qs = Solution.objects.filter(solution_category__id=solcat_id)
+        assert len(qs) == 2
+        solcat2.delete()
+        qs = Solution.objects.filter(solution_category__id=solcat_id)
+        assert not qs
+
+
+class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest,
+                                                APITestCase):
 
     casestudy = 17
     solutioncategory = 21
@@ -75,7 +110,7 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITes
                                      kwargs=dict(pk=cls.uic.id,
                                                  casestudy_pk=cls.casestudy))
         cls.post_data = dict(name='posttestname',
-                             activities=[], 
+                             activities=[],
                              user=user,
                              description="This is a description",
                              one_unit_equals='20',
@@ -134,7 +169,8 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
             )
 
 
-class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
+class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(
+    BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     solutioncategory = 21
