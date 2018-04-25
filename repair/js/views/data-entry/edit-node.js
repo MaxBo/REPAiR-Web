@@ -213,6 +213,7 @@ var EditNodeView = BaseView.extend(
         var table = this.el.querySelector('#' + tableId);
         var row = table.insertRow(-1);
         var editFractionsBtn = document.createElement('button');
+        var typeSelect = document.createElement("select");
         // checkbox for marking deletion
 
         var checkbox = document.createElement("input");
@@ -291,6 +292,24 @@ var EditNodeView = BaseView.extend(
             nodeSelect.addEventListener('change', function() {
                 var id = nodeSelect.value
                 flow.set(targetIdentifier, id);
+                // in flows set the comp. to their default product
+                if (targetIdentifier == 'origin' && typeSelect.value != 'true'){
+                    var origin = _this.model.collection.get(flow.get('origin'));
+                    _this.getDefaultComposition(origin, function(product){
+                        var composition = null;
+                        if(product){
+                            composition = {
+                                id: product.id,
+                                name: product.get('name'),
+                                fractions: product.fractions
+                            }
+                            toggleBtnClass(editFractionsBtn, 'btn-warning');
+                        }
+                        else toggleBtnClass(editFractionsBtn, 'btn-danger');
+                        flow.set('composition', composition);
+                        
+                    });
+                };
             });
         };
 
@@ -300,7 +319,6 @@ var EditNodeView = BaseView.extend(
         row.insertCell(-1).appendChild(itemWrapper); 
 
         // input for product
-        var typeSelect = document.createElement("select");
         var wasteOption = document.createElement("option")
         wasteOption.value = 'true'; wasteOption.text = gettext('Waste');
         typeSelect.appendChild(wasteOption);
@@ -319,14 +337,17 @@ var EditNodeView = BaseView.extend(
             else {
                 var origin = _this.model.collection.get(flow.get('origin'));
                 _this.getDefaultComposition(origin, function(product){
-                    console.log(product)
-                    var composition = {
-                        id: product.id,
-                        name: product.get('name'),
-                        fractions: product.fractions
+                    var composition = null;
+                    if(product){
+                        composition = {
+                            id: product.id,
+                            name: product.get('name'),
+                            fractions: product.fractions
+                        }
+                        toggleBtnClass(editFractionsBtn, 'btn-warning');
                     }
+                    else toggleBtnClass(editFractionsBtn, 'btn-danger');
                     flow.set('composition', composition);
-                    if (product) toggleBtnClass(editFractionsBtn, 'btn-warning');
                 });
             }
         //this.getDefaultComposition(origin, function(product){
