@@ -12,6 +12,11 @@ function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
 * @augments module:views/BaseView
 */
 
+function toggleBtnClass(button, cls){
+    button.classList.remove('btn-primary', 'btn-warning', 'btn-danger');
+    button.classList.add(cls);
+};
+
 var EditNodeView = BaseView.extend(
     /** @lends module:views/EditNodeView.prototype */
     {
@@ -207,7 +212,7 @@ var EditNodeView = BaseView.extend(
 
         var table = this.el.querySelector('#' + tableId);
         var row = table.insertRow(-1);
-
+        var editFractionsBtn = document.createElement('button');
         // checkbox for marking deletion
 
         var checkbox = document.createElement("input");
@@ -259,9 +264,12 @@ var EditNodeView = BaseView.extend(
             // select input for target (origin resp. destination of flow)
 
             var nodeSelect = document.createElement("select"),
-                ids = [];
                 targetId = flow.get(targetIdentifier);
-                
+            var defaultOption = document.createElement("option");
+            defaultOption.value = -1;
+            defaultOption.text = gettext('Select Node');
+            defaultOption.disabled = true;
+            nodeSelect.add(defaultOption);
             this.model.collection.each(function(model){
                 // no flow to itself allowed
                 if (model.id != _this.model.id){
@@ -269,11 +277,9 @@ var EditNodeView = BaseView.extend(
                     option.text = model.get('name');
                     option.value = model.id;
                     nodeSelect.add(option);
-                    ids.push(model.id);
                 };
             });
-            var idx = ids.indexOf(targetId);
-            nodeSelect.selectedIndex = idx.toString();
+            nodeSelect.value = targetId || -1;
             row.insertCell(-1).appendChild(nodeSelect);
             $(nodeSelect).selectpicker({
                 liveSearch: true,
@@ -283,7 +289,8 @@ var EditNodeView = BaseView.extend(
             });
             nodeSelect.style.height = '0px';
             nodeSelect.addEventListener('change', function() {
-                flow.set(targetIdentifier, nodeSelect.value);
+                var id = nodeSelect.value
+                flow.set(targetIdentifier, id);
             });
         };
 
@@ -303,14 +310,37 @@ var EditNodeView = BaseView.extend(
         typeSelect.value = flow.get('waste');
 
         typeSelect.addEventListener('change', function() {
-            flow.set('waste', typeSelect.value);
+            var isWaste = typeSelect.value
+            flow.set('waste', isWaste);
+            if (isWaste == 'true') {
+                flow.set('composition', null);
+                toggleBtnClass(editFractionsBtn, 'btn-danger');
+            } 
+            else {
+                var origin = _this.model.collection.get(flow.get('origin'));
+                _this.getDefaultComposition(origin, function(product){
+                    console.log(product)
+                    var composition = {
+                        id: product.id,
+                        name: product.get('name'),
+                        fractions: product.fractions
+                    }
+                    flow.set('composition', composition);
+                    if (product) toggleBtnClass(editFractionsBtn, 'btn-warning');
+                });
+            }
+        //this.getDefaultComposition(origin, function(product){
+            
+            //_this.addFlowRow(tableId, flow, targetIdentifier, isStock);
+        //});
         });
 
         itemWrapper.appendChild(typeSelect);
-
-        var editFractionsBtn = document.createElement('button');
-        var pencil = document.createElement('span');
-        editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
+        var pencil = document.createElement('span'),
+            btnClass = (flow.get('composition')) ? 'btn-primary' : 'btn-danger';
+        
+        editFractionsBtn.classList.add('btn', 'square');
+        toggleBtnClass(editFractionsBtn, btnClass);
         editFractionsBtn.appendChild(pencil);
         editFractionsBtn.innerHTML = gettext('Composition');
 
@@ -343,7 +373,10 @@ var EditNodeView = BaseView.extend(
                         {disable: true});
                     var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
                     items.getFirstPage({ data: { nace: nace } }).then( 
-                        function(){ _this.editFractions(flow, items); loader.remove(); }
+                        function(){ 
+                            _this.editFractions(flow, items, editFractionsBtn); 
+                            loader.remove(); 
+                        }
                     )
                 }})
             }
@@ -466,7 +499,7 @@ var EditNodeView = BaseView.extend(
         * open modal dialog for editing the fractions of a flow 
         * items are the available products/wastes the user can select from
         */
-    editFractions: function(flow, items){
+    editFractions: function(flow, items, button){
 
         var _this = this;
         var modal = document.getElementById('fractions-modal');
@@ -666,6 +699,7 @@ var EditNodeView = BaseView.extend(
                 composition.fractions.push(fraction);
             }
             flow.set('composition', composition);
+            toggleBtnClass(button, 'btn-primary');
             $(modal).modal('hide');
         })
 
@@ -675,11 +709,10 @@ var EditNodeView = BaseView.extend(
 
     // on click add row button
     addFlowEvent: function(event){
-        var buttonId = event.currentTarget.id;
-        var tableId;
-        var flow;
-        var targetIdentifier;
-        var isStock = false;
+        var _this = this,
+            buttonId = event.currentTarget.id,
+            tableId, flow, targetIdentifier,
+            isStock = false;
         if (buttonId == 'add-input-button'){
             tableId = 'input-table';
             flow = this.newInFlows.add({});
@@ -688,7 +721,8 @@ var EditNodeView = BaseView.extend(
                 'amount': 0,
                 'origin': null,
                 'destination': this.model.id,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
         }
         else if (buttonId == 'add-output-button'){
@@ -698,7 +732,8 @@ var EditNodeView = BaseView.extend(
                 'amount': 0,
                 'origin': this.model.id,
                 'destination': null,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
         }
         else if (buttonId == 'add-stock-button'){
@@ -707,11 +742,13 @@ var EditNodeView = BaseView.extend(
             flow = this.newStocks.add({
                 'amount': 0,
                 'origin': this.model.id,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
             isStock = true;
         }
-        this.addFlowRow(tableId, flow, targetIdentifier, isStock);
+        flow.set('description', '');
+        _this.addFlowRow(tableId, flow, targetIdentifier, isStock);
 
     },
 
@@ -856,6 +893,28 @@ var EditNodeView = BaseView.extend(
     
     hasChanged: function(){
         return (this.getChangedModels().length > 0)
+    },
+    
+    getDefaultComposition: function(model, onSuccess){
+        // activity groups have no default
+        if(model == null || model.tag == 'activitygroup'){
+            onSuccess(null);
+            return;
+        }
+        
+        // ToDo: removce this after collection/model rework
+        model.caseStudyId = this.caseStudyId;
+        model.keyflowId = this.keyflowId;
+        model.fetch({success: function(){
+            var nace = model.get('nace') || 'None';
+            var items = new Products();
+            items.getFirstPage({ data: { nace: nace } }).then( 
+                function(){ 
+                    var item = (items.length > 0) ? items.first() : null;
+                    onSuccess(item); 
+                }
+            )
+        }})
     },
 
     uploadChanges: function(){

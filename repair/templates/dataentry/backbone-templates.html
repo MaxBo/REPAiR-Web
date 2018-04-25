@@ -299,6 +299,7 @@
       <div class="row">
         {% trans "Activity" %}
         <select class="form-control" name="activity-filter">
+          <!--<option value="-1"> {% trans "All Activities" %}</option>-->
           <% activities.forEach(function(activity) { %>
             <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
           <% });  %>
