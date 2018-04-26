@@ -74,8 +74,8 @@ class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
         # this should raise an ProtectedError
         self.response_403()
         assert b'Cannot delete some instances of model' in response.content
-        assert b'<Solution: Protected Solution>' in response.content
-        assert b'<Solution: Another Solution>' in response.content
+        assert b'Solution: Protected Solution' in response.content
+        assert b'Solution: Another Solution' in response.content
 
         # deletion on the model will delete the solution category and
         # cascadedly the referencing solution

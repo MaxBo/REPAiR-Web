@@ -6,6 +6,7 @@ from django.http import (HttpResponseRedirect,
                          HttpResponseForbidden,
                          )
 from django.db.models import ProtectedError
+from django.utils.translation import ugettext as _
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
 from repair.apps.utils.context_environment import set_env
@@ -64,7 +65,16 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
             with set_env(PROTECT_FOREIGN_KEY='True'):
                 response = super().destroy(request, **kwargs)
         except ProtectedError as err:
-            return HttpResponseForbidden(content=err)
+            qs = err.protected_objects
+            show = 5
+            n_objects = qs.count()
+            msg_n_referenced = _('{} Referencing Object(s):').format(n_objects)
+            msg = '<br/>'.join(list(err.args[:1]) +
+                               [msg_n_referenced] +
+                               [repr(row).strip('<>') for row in qs[:show]] +
+                               ['...' if n_objects > show else '']
+                               )
+            return HttpResponseForbidden(content=msg)
         return response
 
     def update(self, request, **kwargs):
