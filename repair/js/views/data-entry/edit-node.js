@@ -289,27 +289,10 @@ var EditNodeView = BaseView.extend(
                 container: this.el
             });
             nodeSelect.style.height = '0px';
+            // user changes product/waste
             nodeSelect.addEventListener('change', function() {
-                var id = nodeSelect.value
+                var id = nodeSelect.value;
                 flow.set(targetIdentifier, id);
-                // in flows set the comp. to their default product
-                if (targetIdentifier == 'origin' && typeSelect.value != 'true'){
-                    var origin = _this.model.collection.get(flow.get('origin'));
-                    _this.getDefaultComposition(origin, function(product){
-                        var composition = null;
-                        if(product){
-                            composition = {
-                                id: product.id,
-                                name: product.get('name'),
-                                fractions: product.fractions
-                            }
-                            toggleBtnClass(editFractionsBtn, 'btn-warning');
-                        }
-                        else toggleBtnClass(editFractionsBtn, 'btn-danger');
-                        flow.set('composition', composition);
-                        
-                    });
-                };
             });
         };
 
@@ -330,30 +313,8 @@ var EditNodeView = BaseView.extend(
         typeSelect.addEventListener('change', function() {
             var isWaste = typeSelect.value
             flow.set('waste', isWaste);
-            if (isWaste == 'true') {
-                flow.set('composition', null);
-                toggleBtnClass(editFractionsBtn, 'btn-danger');
-            } 
-            else {
-                var origin = _this.model.collection.get(flow.get('origin'));
-                _this.getDefaultComposition(origin, function(product){
-                    var composition = null;
-                    if(product){
-                        composition = {
-                            id: product.id,
-                            name: product.get('name'),
-                            fractions: product.fractions
-                        }
-                        toggleBtnClass(editFractionsBtn, 'btn-warning');
-                    }
-                    else toggleBtnClass(editFractionsBtn, 'btn-danger');
-                    flow.set('composition', composition);
-                });
-            }
-        //this.getDefaultComposition(origin, function(product){
-            
-            //_this.addFlowRow(tableId, flow, targetIdentifier, isStock);
-        //});
+            // remove the composition on type change
+            flow.set('composition', null);
         });
 
         itemWrapper.appendChild(typeSelect);
