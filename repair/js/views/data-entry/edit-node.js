@@ -527,6 +527,7 @@ var EditNodeView = BaseView.extend(
 
             // input for fraction percentage
             var row = table.insertRow(-1);
+            row.setAttribute('data-id', fraction.id || null);
             var fractionsCell = row.insertCell(-1),
                 fractionWrapper = document.createElement("div");
             fractionsCell.appendChild(fractionWrapper);
@@ -613,7 +614,7 @@ var EditNodeView = BaseView.extend(
         // button for adding the fraction
         var addBtn = modal.querySelector('#add-fraction-button');
         addBtn.addEventListener('click', function(){
-            addFractionRow( { fraction: 0, material: '', publication: null } );
+            addFractionRow( { fraction: 0, material: '', publication: null, id: null } );
             setCustom();
         });
 
@@ -638,18 +639,12 @@ var EditNodeView = BaseView.extend(
             } else {
                 // if sum test is passed check materials
                 var matSelects = modal.querySelectorAll('.materialSelect');
-                var matIds = []
                 for (i = 0; i < matSelects.length; i++) {
                     var matId = matSelects[i].getAttribute('data-material-id');
                     if (!matId) {
                         errorMsg = gettext('All materials have to be set!');
                         break;
                     }
-                    if (matIds.includes(matId)){
-                        errorMsg = gettext('Multiple fractions with the same material are not allowed!');
-                        break;
-                    }
-                    matIds.push(matId);
                 }
             }
 
@@ -667,12 +662,16 @@ var EditNodeView = BaseView.extend(
             composition.fractions = [];
             for (var i = 1; i < table.rows.length; i++) {
                 var row = table.rows[i];
-                var fInput = row.querySelector('input[name="fraction"]');
-                var matSelect = row.querySelector('.materialSelect');
-                var avoidCheck = row.querySelector('input[name="avoidable"]')
-                var pubInput = row.querySelector('input[name="publication"]');
-                var f = fInput.value / 100;
+                    fInput = row.querySelector('input[name="fraction"]'),
+                    matSelect = row.querySelector('.materialSelect'),
+                    avoidCheck = row.querySelector('input[name="avoidable"]'),
+                    pubInput = row.querySelector('input[name="publication"]'),
+                    f = fInput.value / 100,
+                    id = row.getAttribute('data-id');
+                if (id == "null") id = null;
+                
                 var fraction = { 
+                    'id': id,
                     'fraction': Number(Math.round(f+'e3')+'e-3'),
                     'material': matSelect.getAttribute('data-material-id'),
                     'publication': pubInput.getAttribute('data-publication-id'),
@@ -682,6 +681,7 @@ var EditNodeView = BaseView.extend(
             }
             flow.set('composition', composition);
             toggleBtnClass(button, 'btn-primary');
+            //flow.fractionsChanged = true;
             $(modal).modal('hide');
         })
 
