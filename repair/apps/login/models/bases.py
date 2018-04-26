@@ -39,7 +39,9 @@ class GDSEUniqueNameModel(GDSEModel):
 
         if qs.exists():
             for row in qs:
-                if row.casestudy == self.casestudy:
+                # if object's unique field already exists
+                # for other object in the same casestudy
+                if (row.casestudy == self.casestudy) and (row.pk != self.pk):
                     msg = '{cl} {n} already exists in casestudy {c}'
                     raise ValidationError(msg.format(
                         cl=self.__class__.__name__,
