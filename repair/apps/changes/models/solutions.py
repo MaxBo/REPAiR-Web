@@ -42,7 +42,7 @@ class Solution(GDSEUniqueNameModel):
 
 class SolutionQuantity(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, on_delete=PROTECT_CASCADE)
     name = models.TextField()
 
     def __str__(self):
@@ -54,4 +54,4 @@ class SolutionRatioOneUnit(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
     name = models.TextField()
     value = models.FloatField()
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, on_delete=PROTECT_CASCADE)

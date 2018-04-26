@@ -68,7 +68,9 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
             qs = err.protected_objects
             show = 5
             n_objects = qs.count()
-            msg_n_referenced = _('{} Referencing Object(s):').format(n_objects)
+            msg_n_referenced = '{} {}:'.format(n_objects,
+                                               _('Referencing Object(s)')
+                                               )
             msg = '<br/>'.join(list(err.args[:1]) +
                                [msg_n_referenced] +
                                [repr(row).strip('<>') for row in qs[:show]] +
