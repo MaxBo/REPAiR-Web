@@ -140,7 +140,7 @@ var SolutionsView = BaseView.extend(
             _this.confirm({ message: message, onConfirm: function(){
                 category.destroy({
                     success: function() { panelList.removeChild(div); },
-                    error: _this.onError
+                    error: function(m, res) { _this.onError(res) }
                 })
             }});
         })
