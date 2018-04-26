@@ -197,6 +197,16 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                   'activitygroup', 'included', 'nace',
                   'reason',
                   )
+        extra_kwargs = {'year': {'allow_null': True},
+                        'turnover': {'allow_null': True},
+                        'employees': {'allow_null': True}}
+    
+    def to_internal_value(self, data):
+        allow_blank_numbers = ['year', 'turnover', 'employees']
+        for field in allow_blank_numbers:
+            if (field in data and data[field] == ''):
+                data[field] = None
+        return super().to_internal_value(data)
 
 
 class ActorListSerializer(ActorSerializer):

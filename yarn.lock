@@ -1354,6 +1354,34 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
+datatables.net-bs@^1.10.15, datatables.net-bs@^1.10.16:
+  version "1.10.16"
+  resolved "https://registry.yarnpkg.com/datatables.net-bs/-/datatables.net-bs-1.10.16.tgz#b0854f5b374f713ae3db4156c7cea8a760c3de76"
+  dependencies:
+    datatables.net "1.10.16"
+    jquery ">=1.7"
+
+datatables.net-buttons-bs@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons-bs/-/datatables.net-buttons-bs-1.5.1.tgz#6d1b02bd3403a55f773620733275bb0b874e91cc"
+  dependencies:
+    datatables.net-bs "^1.10.15"
+    datatables.net-buttons "1.5.1"
+    jquery ">=1.7"
+
+datatables.net-buttons@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons/-/datatables.net-buttons-1.5.1.tgz#cdb35c0c8b0260cd45b0df6b39f6da815357febb"
+  dependencies:
+    datatables.net "^1.10.15"
+    jquery ">=1.7"
+
+datatables.net@1.10.16, datatables.net@^1.10.15, datatables.net@^1.10.16:
+  version "1.10.16"
+  resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.10.16.tgz#4b052d1082824261b68eed9d22741b711d3d2469"
+  dependencies:
+    jquery ">=1.7"
+
 date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
@@ -2771,13 +2799,9 @@ jasmine@^2.9.0:
     glob "^7.0.6"
     jasmine-core "~2.9.0"
 
-jquery@>=1.10, jquery@>=1.8, jquery@^3.0.0:
+jquery@>=1.10, jquery@>=1.7, jquery@>=1.8, jquery@^3.0.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
-
-jquery@>=1.2.6:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 
 js-base64@^2.1.9:
   version "2.4.3"
@@ -4997,12 +5021,6 @@ svgo@^0.7.0:
 symbol-tree@^3.2.1:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.2.tgz#ae27db38f660a7ae2e1c3b7d1bc290819b8519e6"
-
-tablesorter@^2.29.2:
-  version "2.29.2"
-  resolved "https://registry.yarnpkg.com/tablesorter/-/tablesorter-2.29.2.tgz#88b062f270d1825a1c83341ee9b451bf24a5063f"
-  dependencies:
-    jquery ">=1.2.6"
 
 taffydb@2.6.2:
   version "2.6.2"

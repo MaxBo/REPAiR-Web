@@ -1,7 +1,8 @@
 define(['views/baseview', 'backbone', 'underscore', 'collections/stakeholders',
         'collections/stakeholdercategories', 'collections/solutioncategories',
         'collections/solutions', 'visualizations/map', 
-        'app-config', 'utils/loader', 'utils/utils', 'openlayers', 'bootstrap', 'bootstrap-select'],
+        'app-config', 'utils/loader', 'utils/utils', 'openlayers', 'bootstrap', 
+        'bootstrap-select'],
 
 function(BaseView, Backbone, _, Stakeholders, StakeholderCategories, 
          SolutionCategories, Solutions, Map, config, Loader, utils, ol){

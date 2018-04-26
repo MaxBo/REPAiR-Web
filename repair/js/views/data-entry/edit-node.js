@@ -1,11 +1,11 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'tablesorter'],
+    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js',
+    'bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
     Wastes, Loader){
 /**
-* tdgjhjhjhvvhjvh
 *
 * @author Christoph Franke
 * @name module:views/EditNodeView
@@ -113,7 +113,6 @@ var EditNodeView = BaseView.extend(
 
         // fetch inFlows and outFlows with different query parameters
         $.when(
-            this.model.fetch(),
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
@@ -143,8 +142,6 @@ var EditNodeView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
 
-        this.dsTable = document.getElementById('publications-table');
-
         var popOverSettings = {
             placement: 'right',
             container: 'body',
@@ -165,9 +162,23 @@ var EditNodeView = BaseView.extend(
         this.stocks.each(function(stock){
             _this.addFlowRow('stock-table', stock, 'origin', true);
         });
-
+        
+        var table = this.el.querySelector('#publications-table');
+        this.datatable = $(table).DataTable({
+            "columnDefs": [{
+                "render": function ( data, type, row ) {
+                    var wrapper = document.createElement('a'),
+                        anchor = document.createElement('a');
+                    wrapper.appendChild(anchor);
+                    anchor.href = data;
+                    anchor.innerHTML = data;
+                    anchor.target = '_blank';
+                    return wrapper.innerHTML;
+                },
+                "targets": 4
+            }]
+        });
         this.renderDatasources(this.publications);
-        this.setupDsTable();
     },
 
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -247,9 +258,10 @@ var EditNodeView = BaseView.extend(
         if (!isStock){
             // select input for target (origin resp. destination of flow)
 
-            var nodeSelect = document.createElement("select");
-            var ids = [];
-            var targetId = flow.get(targetIdentifier);
+            var nodeSelect = document.createElement("select"),
+                ids = [];
+                targetId = flow.get(targetIdentifier);
+                
             this.model.collection.each(function(model){
                 // no flow to itself allowed
                 if (model.id != _this.model.id){
@@ -263,7 +275,14 @@ var EditNodeView = BaseView.extend(
             var idx = ids.indexOf(targetId);
             nodeSelect.selectedIndex = idx.toString();
             row.insertCell(-1).appendChild(nodeSelect);
-
+            $(nodeSelect).selectpicker({
+                liveSearch: true,
+                size: 8,
+                dropupAuto: false,
+                container: this.el
+            });
+            console.log(nodeSelect)
+            nodeSelect.style.height = '0px';
             nodeSelect.addEventListener('change', function() {
                 flow.set(targetIdentifier, nodeSelect.value);
             });
@@ -316,14 +335,18 @@ var EditNodeView = BaseView.extend(
                         currentPage: 1
                     }
                 };
-                var nace = origin.get('nace') || 'None';
-                var loader = new Loader(document.getElementById('flows-edit'),
-                    {disable: true});
-                var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
-                items.getFirstPage({ data: { nace: nace } }).then( 
-                    function(){ _this.editFractions(flow, items); loader.remove(); }
-                )
-
+                // ToDo: removce this after collection/model rework
+                origin.caseStudyId = _this.caseStudyId;
+                origin.keyflowId = _this.keyflowId;
+                origin.fetch({success: function(){
+                    var nace = origin.get('nace') || 'None';
+                    var loader = new Loader(document.getElementById('flows-edit'),
+                        {disable: true});
+                    var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+                    items.getFirstPage({ data: { nace: nace } }).then( 
+                        function(){ _this.editFractions(flow, items); loader.remove(); }
+                    )
+                }})
             }
         })
 
@@ -347,17 +370,6 @@ var EditNodeView = BaseView.extend(
         }
 
         $(editFractionsBtn).popover(popOverFractionsSettings);
-
-
-        // raw checkbox
-
-        var rawCheckbox = document.createElement("input");
-        rawCheckbox.type = 'checkbox';
-        row.insertCell(-1).appendChild(rawCheckbox);
-
-        rawCheckbox.addEventListener('change', function() {
-            flow.set('raw', rawCheckbox.checked);
-        });
 
         var year = addInput('year', 'number');
         year.min = 0;
@@ -410,7 +422,7 @@ var EditNodeView = BaseView.extend(
         var pencil = document.createElement('span');
         editBtn.classList.add('btn', 'btn-primary', 'square');
         editBtn.appendChild(pencil);
-        editBtn.title = gettext('edit datasource');
+        editBtn.title = gettext('Edit data source');
         pencil.classList.add('glyphicon', 'glyphicon-pencil');
 
         function onConfirm(publication){
@@ -501,7 +513,10 @@ var EditNodeView = BaseView.extend(
 
             // input for fraction percentage
             var row = table.insertRow(-1);
-            var fractionsCell = row.insertCell(-1);
+            var fractionsCell = row.insertCell(-1),
+                fractionWrapper = document.createElement("div");
+            fractionsCell.appendChild(fractionWrapper);
+            fractionWrapper.style.whiteSpace = 'nowrap';
             var fInput = document.createElement("input");
             fInput.type = 'number';
             fInput.name = 'fraction';
@@ -510,15 +525,14 @@ var EditNodeView = BaseView.extend(
             fInput.min = 0;
             fInput.style.maxWidth = '80%';
             fInput.style.float = 'left';
-            fractionsCell.appendChild(fInput);
+            fractionWrapper.appendChild(fInput);
             fInput.value = Math.round(fraction.fraction * 1000) / 10;
             fInput.addEventListener('change', setCustom);
 
             var perDiv = document.createElement('div');
             perDiv.innerHTML = '%';
-            perDiv.style.float = 'left';
             perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
-            fractionsCell.appendChild(perDiv);
+            fractionWrapper.appendChild(perDiv);
 
             // select material
             var matSelect = document.createElement('div');
@@ -530,12 +544,20 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
+                width: 300,
                 selected: fraction.material,
                 defaultOption: gettext('Select a material')
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
-
+            
+            var avoidCheck = document.createElement('input');
+            avoidCheck.type = 'checkbox';
+            avoidCheck.name = 'avoidable';
+            console.log(fraction)
+            avoidCheck.checked = fraction.avoidable;
+            row.insertCell(-1).appendChild(avoidCheck);
+        
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -633,12 +655,14 @@ var EditNodeView = BaseView.extend(
                 var row = table.rows[i];
                 var fInput = row.querySelector('input[name="fraction"]');
                 var matSelect = row.querySelector('.materialSelect');
+                var avoidCheck = row.querySelector('input[name="avoidable"]')
                 var pubInput = row.querySelector('input[name="publication"]');
                 var f = fInput.value / 100;
                 var fraction = { 
                     'fraction': Number(Math.round(f+'e3')+'e-3'),
                     'material': matSelect.getAttribute('data-material-id'),
-                    'publication': pubInput.getAttribute('data-publication-id')
+                    'publication': pubInput.getAttribute('data-publication-id'),
+                    'avoidable': avoidCheck.checked
                 };
                 composition.fractions.push(fraction);
             }
@@ -762,37 +786,12 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * prepare the table of publications
-        */
-    setupDsTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.dsTable).tablesorter({
-            widgets: ['filter'],
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
-            }
-        });
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.dsTable).find('tr').length > 1)
-            $(this.dsTable).tablesorterPager({container: $("#dspager")});
-
-        ////workaround for a bug in tablesorter-pager by triggering
-        ////event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('dspagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
-    },
-
-    /*
         * refresh the table of publications
         */
     refreshDatasources(){
         var _this = this;
         this.publications.fetch({ success: function(){
-            // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
-            $(_this.dsTable).trigger("destroy");
             _this.renderDatasources(_this.publications);
-            _this.setupDsTable();
         }});
     },
 
@@ -801,30 +800,20 @@ var EditNodeView = BaseView.extend(
         */
     renderDatasources: function(publications){
         var _this = this;
-        var table = this.dsTable;
+        this.datatable.clear();
+        
         this.dsRows = [];
-        // avoid error message if not initialized with tablesorter yet
-        try {
-            $.tablesorter.clearTableBody($(table)[0]);
-        }
-        catch (err) { }
         publications.each(function(publication){
-            var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
+            var dataRow = _this.datatable.row.add([
+                    publication.get('title'),
+                    publication.get('type'),
+                    publication.get('authors'),
+                    publication.get('doi'),
+                    publication.get('publication_url')
+                ]).draw(),
+                row = dataRow.node();
             row.style.cursor = 'pointer';
             _this.dsRows.push(row);
-            row.insertCell(-1).innerHTML = publication.get('title');
-            row.insertCell(-1).innerHTML = publication.get('type');
-            row.insertCell(-1).innerHTML = publication.get('authors');
-            row.insertCell(-1).innerHTML = publication.get('doi');
-            var anchor = document.createElement('a');
-            var url = publication.get('publication_url');
-            anchor.href = url;
-            anchor.innerHTML = url;
-            anchor.target = '_blank';
-            row.insertCell(-1).appendChild(anchor);
-
-            // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
-            //$(table).trigger('addRows', [$(row), true]);
 
             row.addEventListener('click', function() {
                 _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });

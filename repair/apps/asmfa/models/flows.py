@@ -13,7 +13,7 @@ from repair.apps.asmfa.models.nodes import (
 from repair.apps.login.models.bases import GDSEModel
 
 
-class Flow(GDSEModel):
+class Flow(GDSEModel): 
 
     amount = models.PositiveIntegerField(blank=True, default=0)
 
