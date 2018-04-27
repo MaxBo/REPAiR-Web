@@ -380,7 +380,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 }
 
 .item-panel{
-  min-width: 300px;
+  min-width: 100px;
   margin: 5px;
   vertical-align: top;
 }

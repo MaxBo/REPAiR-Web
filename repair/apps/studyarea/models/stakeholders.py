@@ -1,6 +1,7 @@
 
 from django.db import models
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class StakeholderCategory(GDSEUniqueNameModel):
@@ -10,7 +11,7 @@ class StakeholderCategory(GDSEUniqueNameModel):
 
 class Stakeholder(GDSEUniqueNameModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory,
-                                             on_delete=models.CASCADE)
+                                             on_delete=PROTECT_CASCADE)
     name = models.TextField()
 
     @property

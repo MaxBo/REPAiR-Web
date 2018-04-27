@@ -471,7 +471,7 @@ function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors,
               // proceed recursion with parent select
               _this.setAreaSelects(parentArea, idx-1, options);
             },
-            error: function(model, response){ _this.onError(response); }
+            error: _this.onError
           });
         }
     },
