@@ -26,8 +26,8 @@ ImpactCategories, Target, Targets){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            TargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -371,7 +371,7 @@ ImpactCategories, Target, Targets){
                         _this.targets.splice(pos, 1);
                         _this.render();
                     },
-                    error: function(m, r){ _this.onError(r) }
+                    error: _this.onError
                 });
             }});
         },

@@ -159,7 +159,7 @@ var ImplementationsView = BaseView.extend(
                             var solItem = _this.renderSolution(solInImpl, implementation, el);
                             _this.editSolution(solInImpl, implementation, solItem);
                         },
-                        error: function(model, response) { _this.onError(response) }
+                        error: _this.onError
                     },
                 )
             };
@@ -233,7 +233,7 @@ var ImplementationsView = BaseView.extend(
                         item.querySelector('.coordinator').innerHTML = coordSelect[coordSelect.selectedIndex].text;
                         $(modal).modal('hide');
                 },
-                error: function(m, r){ _this.onError(r) }
+                error: _this.onError
             })
         };
         
@@ -264,7 +264,7 @@ var ImplementationsView = BaseView.extend(
                         _this.renderImplementation(implementation);
                         $(modal).modal('hide');
                     },
-                    error: function(model, response) { _this.onError(response) }
+                    error: _this.onError
                 },
             )
         };
@@ -358,7 +358,7 @@ var ImplementationsView = BaseView.extend(
                     item.querySelector('textarea[name="notes"]').value = notes;
                     $(modal).modal('hide');
                 },
-                error: function(m, r){ _this.onError(r) },
+                error: _this.onError,
                 patch: true
             })
         })

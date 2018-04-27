@@ -23,6 +23,7 @@ var BaseView = Backbone.View.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+    console.log(this)
         _.bindAll(this, 'render');
         _.bindAll(this, 'alert');
         _.bindAll(this, 'onError');
@@ -163,16 +164,16 @@ var BaseView = Backbone.View.extend(
     
     /**
     * show a modal with error message on server error
+    * you may pass the model and response or response only
     *
-    * @param {Object} response    AJAX response
-    * @param {String=} header     headline displayed on top of error message
+    * @param {Object} arg1        model or AJAX response
+    * @param {Object=} arg2       AJAX response (if arg1 is model)
     */
-    onError: function(response, header){
+    onError: function(arg1, arg2){
+        var response = (arg1.status) ? arg1 : arg2;
         message = response.statusText + '<br><br>';
         if (response.responseText)
             message += '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>';
-        if (header)
-            message = '<h4>' + header + '</h4><br>' + message;
         this.alert(message, gettext('Error <b>' + response.status + '</b>'));
     },
     

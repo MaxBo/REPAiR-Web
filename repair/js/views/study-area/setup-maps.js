@@ -22,6 +22,7 @@ var SetupMapsView = BaseMapView.extend(
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
+        console.log('????')
         _.bindAll(this, 'confirmRemoval');
     },
 
@@ -303,26 +304,29 @@ var SetupMapsView = BaseMapView.extend(
         $(this.confirmationModal).modal('hide');
         var is_category = (this.selectedNode.category != null);
         var model = this.selectedNode.layer || this.selectedNode.category;
-        model.destroy({ success: function(){
-            var selectCatId = 0;
-            // remove category from tree (if category was selected)
-            if (_this.selectedNode.category) {
-                _this.selectedNode.nodes.forEach(function(node){
-                    _this.map.removeLayer(_this.layerPrefix + node.layer.id);
-                })
-                delete _this.categoryTree[model.id];
-            }
-            // remove layer from category (if layer was selected)
-            else {
-                _this.getTreeLayerNode(model, { pop: true })
-                selectCatId = model.get('category');
-                _this.map.removeLayer(_this.layerPrefix + model.id);
-                var legendDiv = document.getElementById(_this.legendPrefix + model.id);
-                if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
-            }
-            _this.selectedNode = null;
-            _this.rerenderDataTree(selectCatId);
-        }});
+        model.destroy({ 
+            success: function(){
+                var selectCatId = 0;
+                // remove category from tree (if category was selected)
+                if (_this.selectedNode.category) {
+                    _this.selectedNode.nodes.forEach(function(node){
+                        _this.map.removeLayer(_this.layerPrefix + node.layer.id);
+                    })
+                    delete _this.categoryTree[model.id];
+                }
+                // remove layer from category (if layer was selected)
+                else {
+                    _this.getTreeLayerNode(model, { pop: true })
+                    selectCatId = model.get('category');
+                    _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
+                }
+                _this.selectedNode = null;
+                _this.rerenderDataTree(selectCatId);
+            },
+            error: _this.onError
+        });
 
     },
 
