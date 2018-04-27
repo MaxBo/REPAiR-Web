@@ -56,8 +56,10 @@ ImpactCategories, Target, Targets){
             _this.spatial = [];
             this.spatialModel = new TargetSpatialReference([], {
             });
+            
+            var deferreds = [];
 
-            this.targetsModel.fetch({
+            deferreds.push(this.targetsModel.fetch({
                 success: function(targets){
                     var temp = [];
                     targets.forEach(function(target){
@@ -71,24 +73,18 @@ ImpactCategories, Target, Targets){
                         });
                     });
                     _this.targets = _.sortBy(temp, 'aim' );
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targets");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.aimsModel.fetch({
+            deferreds.push(this.aimsModel.fetch({
                 success: function(aims){
                     _this.initItems(aims, _this.aims, "Aim");
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch aims");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.impactCategoriesModel.fetch({
+            deferreds.push(this.impactCategoriesModel.fetch({
                 success: function(impactcategories){
                     impactcategories.forEach(function(impact){
                         _this.impactcategories.push({
@@ -98,14 +94,11 @@ ImpactCategories, Target, Targets){
                             "spatial_differentiation": impact.get('spatial_differentiation')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch impactcategories");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.targetValuesModel.fetch({
+            deferreds.push(this.targetValuesModel.fetch({
                 success: function(targets){
                     targets.forEach(function(target){
                         _this.targetvalues.push({
@@ -115,14 +108,11 @@ ImpactCategories, Target, Targets){
                             "factor": target.get('factor')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targetvalues");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.spatialModel.fetch({
+            deferreds.push(this.spatialModel.fetch({
                 success: function(areas){
                     areas.forEach(function(area){
                         _this.spatial.push({
@@ -131,14 +121,11 @@ ImpactCategories, Target, Targets){
                             "id": area.get('id')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targetspatialreference");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.render();
+            $.when.apply($, deferreds).then(this.render);
         },
 
         /*
@@ -389,7 +376,8 @@ ImpactCategories, Target, Targets){
                         }).indexOf(targetId);
                         _this.targets.splice(pos, 1);
                         _this.render();
-                    }
+                    },
+                    error: function(m, r){ _this.onError(r) }
                 });
             }});
         },
