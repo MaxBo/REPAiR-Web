@@ -1,6 +1,7 @@
 # API View
 from reversion.views import RevisionMixin
-from rest_framework import serializers, pagination
+from rest_framework import serializers
+from rest_framework_datatables import pagination
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 
@@ -26,7 +27,7 @@ from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
 
 
-class UnlimitedResultsSetPagination(pagination.PageNumberPagination):
+class UnlimitedResultsSetPagination(pagination.DatatablesPageNumberPagination):
     page_size = 100
     page_size_query_param = 'page_size'
 

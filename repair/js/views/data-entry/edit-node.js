@@ -1,10 +1,10 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'datatables.net', 'datatables.net-buttons/js/buttons.html5.js',
-    'bootstrap-select'],
+    'utils/loader', 'app-config', 'datatables.net', 
+    'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
-    Wastes, Loader){
+    Wastes, Loader, config){
 /**
 *
 * @author Christoph Franke
@@ -184,6 +184,7 @@ var EditNodeView = BaseView.extend(
             }]
         });
         this.renderDatasources(this.publications);
+        this.setupNodeTable();
     },
 
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -210,10 +211,10 @@ var EditNodeView = BaseView.extend(
     addFlowRow: function(tableId, flow, targetIdentifier, isStock){
         var _this = this;
 
-        var table = this.el.querySelector('#' + tableId);
-        var row = table.insertRow(-1);
-        var editFractionsBtn = document.createElement('button');
-        var typeSelect = document.createElement("select");
+        var table = this.el.querySelector('#' + tableId),
+            row = table.insertRow(-1),
+            editFractionsBtn = document.createElement('button'),
+            typeSelect = document.createElement("select");
         // checkbox for marking deletion
 
         var checkbox = document.createElement("input");
@@ -262,38 +263,28 @@ var EditNodeView = BaseView.extend(
         // origin respectively destination (skipped at stocks)
 
         if (!isStock){
-            // select input for target (origin resp. destination of flow)
-
-            var nodeSelect = document.createElement("select"),
-                targetId = flow.get(targetIdentifier);
-            var defaultOption = document.createElement("option");
-            defaultOption.value = -1;
-            defaultOption.text = gettext('Select Node');
-            defaultOption.disabled = true;
-            nodeSelect.add(defaultOption);
-            this.model.collection.each(function(model){
-                // no flow to itself allowed
-                if (model.id != _this.model.id){
-                    var option = document.createElement("option");
-                    option.text = model.get('name');
-                    option.value = model.id;
-                    nodeSelect.add(option);
-                };
-            });
-            nodeSelect.value = targetId || -1;
-            row.insertCell(-1).appendChild(nodeSelect);
-            $(nodeSelect).selectpicker({
-                liveSearch: true,
-                size: 8,
-                dropupAuto: false,
-                container: this.el
-            });
-            nodeSelect.style.height = '0px';
-            // user changes product/waste
-            nodeSelect.addEventListener('change', function() {
-                var id = nodeSelect.value;
-                flow.set(targetIdentifier, id);
-            });
+            var targetCell = row.insertCell(-1),
+                targetId = flow.get(targetIdentifier),
+                target = this.model.collection.get(targetId),
+                targetButton = document.createElement('button');
+                
+            targetButton.name = 'publication';
+            targetButton.style.width = '100%';
+            targetButton.style.overflow = 'hidden';
+            targetButton.style.textOverflow = 'ellipsis';
+            targetButton.style.color = 'black';
+            targetButton.style.maxWidth = '200px';
+            var btnClass = (target) ? 'btn-primary': 'btn-danger';
+            targetButton.classList.add('btn', 'inverted', 'square', btnClass);
+            targetButton.innerHTML = (target) ? target.get('name'): 'None';
+            
+            targetCell.appendChild(targetButton);
+            
+            targetButton.addEventListener('click', function(){
+                //_this.selectActor(onConfirm);
+                $('#flow-nodes-modal').modal('show'); 
+            })
+           
         };
 
         var itemWrapper = document.createElement("span");
@@ -401,11 +392,9 @@ var EditNodeView = BaseView.extend(
             flow.set('description', description.value);
         });
 
-        // general datasource
+        // datasource of flow
 
         var sourceCell = row.insertCell(-1);
-        // prevent breaking 
-        sourceCell.setAttribute("style", "white-space: nowrap");
         this.addPublicationInput(sourceCell, flow.get('publication'), 
             function(id){ flow.set('publication', id) })
 
@@ -418,63 +407,61 @@ var EditNodeView = BaseView.extend(
         */
     addPublicationInput: function(cell, currentId, onChange, container){
         var _this = this;
-        var sourceWrapper = document.createElement('div');
-        sourceWrapper.style.float = 'left';
-        sourceWrapper.style.maxWidth = '80%';
-        var sourceInput = document.createElement('input');
-        sourceInput.name = 'publication';
-        sourceInput.style.maxWidth = '90%';
+        var sourceButton = document.createElement('button');
+        sourceButton.name = 'publication';
+        sourceButton.style.width = '100%';
+        sourceButton.style.overflow = 'hidden';
+        sourceButton.style.textOverflow = 'ellipsis';
+        sourceButton.style.color = 'black';
+        sourceButton.style.maxWidth = '200px';
+        var btnClass = (currentId) ? 'btn-primary': 'btn-warning';
+        sourceButton.classList.add('btn', 'inverted', 'square', btnClass);
         if (currentId){
             var publication = this.publications.get(currentId)
             var title = publication.get('title');
-            sourceInput.value = title;
-            sourceInput.setAttribute('data-publication-id', currentId)
+            sourceButton.innerHTML = title;
+            sourceButton.setAttribute('data-publication-id', currentId)
         }
-        sourceInput.disabled = true;
-        sourceInput.style.cursor = 'pointer';
-        var editBtn = document.createElement('button');
-        var pencil = document.createElement('span');
-        editBtn.classList.add('btn', 'btn-primary', 'square');
-        editBtn.appendChild(pencil);
-        editBtn.title = gettext('Edit data source');
-        pencil.classList.add('glyphicon', 'glyphicon-pencil');
+        else sourceButton.innerHTML = gettext('None');
 
         function onConfirm(publication){
             if (publication != null){
                 var title = publication.get('title');
-                sourceInput.value = title;
-                sourceInput.setAttribute('data-publication-id', publication.id)
-                onChange(publication.id)
-                sourceInput.dispatchEvent(new Event('change'));
+                sourceButton.value = title;
+                sourceButton.innerHTML = title;
+                sourceButton.setAttribute('data-publication-id', publication.id)
+                onChange(publication.id);
+                toggleBtnClass(sourceButton, 'btn-primary');
             }
+            else {
+                sourceButton.innerHTML = gettext('None');
+                toggleBtnClass(sourceButton, 'btn-warning');
+            } 
         };
-        editBtn.addEventListener('click', function(){
+        sourceButton.addEventListener('click', function(){
             _this.editDatasource(onConfirm);
         });
 
-        sourceWrapper.appendChild(sourceInput);
-        cell.appendChild(sourceWrapper);
-        cell.appendChild(editBtn);
+        cell.appendChild(sourceButton);
 
         // information popup for source
 
         var popOverSettingsSource = {
             placement: 'left',
             container: container || 'body',
-            trigger: 'manual',
             html: true,
             content: function () {
-                var pubId = sourceInput.getAttribute('data-publication-id');
-                var publication = _this.publications.get(pubId);
+                var pubId = sourceButton.getAttribute('data-publication-id'),
+                    publication = _this.publications.get(pubId);
                 if (publication == null) return '';
-                var html = document.getElementById('popover-source-template').innerHTML;
-                var template = _.template(html);
-                var content = template({ publication: publication });
+                var html = document.getElementById('popover-source-template').innerHTML,
+                    template = _.template(html),
+                    content = template({ publication: publication });
                 return content;
             }
         }
 
-        this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
+        this.setupPopover($(sourceButton).popover(popOverSettingsSource));
     },
 
     /*
@@ -483,15 +470,15 @@ var EditNodeView = BaseView.extend(
         */
     editFractions: function(flow, items, button){
 
-        var _this = this;
-        var modal = document.getElementById('fractions-modal');
-        var inner = document.getElementById('fractions-modal-template').innerHTML;
-        var template = _.template(inner);
-        var html = template({waste: flow.get('waste')});
+        var _this = this,
+            modal = document.getElementById('fractions-modal'),
+            inner = document.getElementById('fractions-modal-template').innerHTML,
+            template = _.template(inner),
+            html = template({waste: flow.get('waste')});
         modal.innerHTML = html;
 
-        var itemSelect = modal.querySelector('select[name="items"]');
-        var customOption = document.createElement("option");
+        var itemSelect = modal.querySelector('select[name="items"]'),
+            customOption = document.createElement("option");
         customOption.text = customOption.title = gettext('custom');
         customOption.value = -1;
         customOption.disabled = true;
@@ -788,6 +775,17 @@ var EditNodeView = BaseView.extend(
             employees: this.model.get('employees'),
             turnover: this.model.get('turnover')
         });
+    },
+    
+    setupNodeTable: function(){
+        var table = $('#flow-nodes-modal table').DataTable({
+              "serverSide": true,
+              "ajax": this.model.collection.url() + "?format=datatables",
+              "columns": [
+                  {"data": "id"},
+                  {"data": "name"},
+              ]
+          });
     },
 
     // open modal for setting the datasource
