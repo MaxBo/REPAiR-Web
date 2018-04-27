@@ -3,6 +3,7 @@
 from django.db import models
 from repair.apps.login.models import (UserInCasestudy, CaseStudy, GDSEModel)
 from repair.apps.statusquo.models import Aim
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class SustainabilityField(GDSEModel):
@@ -12,19 +13,19 @@ class SustainabilityField(GDSEModel):
 class AreaOfProtection(GDSEModel):
     name = models.CharField(max_length=255)
     sustainability_field = models.ForeignKey(SustainabilityField,
-                                             on_delete=models.CASCADE)
+                                             on_delete=PROTECT_CASCADE)
 
 
 class ImpactCategory(GDSEModel):
     name = models.CharField(max_length=255)
     area_of_protection = models.ForeignKey(AreaOfProtection,
-                                           on_delete=models.CASCADE)
+                                           on_delete=PROTECT_CASCADE)
     spatial_differentiation = models.BooleanField()
 
 
 class ImpactCategoryInSustainability(GDSEModel):
     impact_category = models.ForeignKey(ImpactCategory,
-                                        on_delete=models.CASCADE)
+                                        on_delete=PROTECT_CASCADE)
 
 
 class TargetSpatialReference(GDSEModel):
@@ -46,9 +47,9 @@ class TargetValue(GDSEModel):
 
 class Target(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
-    aim = models.ForeignKey(Aim, on_delete=models.CASCADE)
+    aim = models.ForeignKey(Aim, on_delete=PROTECT_CASCADE)
     impact_category = models.ForeignKey(ImpactCategory,
-                                        on_delete=models.CASCADE)
+                                        on_delete=PROTECT_CASCADE)
     target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
     spatial_reference = models.ForeignKey(TargetSpatialReference,
                                           on_delete=models.CASCADE)

@@ -4,11 +4,15 @@
 }
 
 .remove-item{
-    height: 65px;
-    vertical-align: middle;
-    text-align: center;
-    margin: auto;
-    padding-top: 60%;
+    /*height: 65px;*/
+    /*vertical-align: middle;*/
+    /*text-align: center;*/
+    /*margin: auto;*/
+    /*padding-top: 60%;*/
+    margin-bottom: 15px;
+    list-style-type: none;
+    height: 50px;
+    line-height: 50px;
 }
 
 .btn.remove-target{

@@ -27,8 +27,8 @@ Stakeholders){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            StakeholdersView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -288,7 +288,8 @@ Stakeholders){
                     }).indexOf(id);
                     _this.categories[catPos].stakeholders.splice(stPos, 1);
                     _this.render();
-                }
+                },
+                error: _this.onError
             });
         },
 
@@ -338,7 +339,8 @@ Stakeholders){
                         }).indexOf(cat.categoryId);
                         _this.categories.splice(pos, 1);
                         _this.render();
-                    }
+                    },
+                    error:  _this.onError
                 });
             }});
         },
