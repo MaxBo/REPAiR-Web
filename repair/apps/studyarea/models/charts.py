@@ -1,6 +1,7 @@
 
 from django.db import models
 from repair.apps.login.models import GDSEModel, CaseStudy
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class ChartCategory(GDSEModel):
@@ -10,6 +11,6 @@ class ChartCategory(GDSEModel):
 
 class Chart(GDSEModel):
     chart_category = models.ForeignKey(ChartCategory,
-                                       on_delete=models.CASCADE)
+                                       on_delete=PROTECT_CASCADE)
     name = models.CharField(max_length=255)
     image = models.ImageField(upload_to='charts')

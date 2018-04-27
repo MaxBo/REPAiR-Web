@@ -32,10 +32,10 @@ var BaseMapsView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        BaseMapsView.__super__.initialize.apply(this, [options]);
         var _this = this;
         // make sure 'this' references to this view when functions are called
         // from different context
-        _.bindAll(this, 'render');
         _.bindAll(this, 'nodeSelected');
         _.bindAll(this, 'nodeUnselected');
         _.bindAll(this, 'nodeChecked');

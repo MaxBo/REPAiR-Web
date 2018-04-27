@@ -6,13 +6,14 @@ from repair.apps.login.models import (GDSEModel,
 
 from repair.apps.studyarea.models import Stakeholder
 from .solutions import Solution, SolutionQuantity
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Implementation(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder,
-                                                 on_delete=models.CASCADE)
+                                                 on_delete=PROTECT_CASCADE)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
 
@@ -30,8 +31,9 @@ class Implementation(GDSEModel):
 
 
 class SolutionInImplementation(GDSEModel):
-    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
-    implementation = models.ForeignKey(Implementation, on_delete=models.CASCADE)
+    solution = models.ForeignKey(Solution, on_delete=PROTECT_CASCADE)
+    implementation = models.ForeignKey(Implementation,
+                                       on_delete=PROTECT_CASCADE)
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
     geom = models.MultiPolygonField(verbose_name='geom', null=True)

@@ -906,7 +906,7 @@ var EditNodeView = BaseView.extend(
 
         var onError = function(model, response){
             var name = _this.flowRepr(model);
-            _this.onError(response, name); 
+            _this.onError(response); 
             loader.remove();
         };
 

@@ -27,7 +27,7 @@ var ActorsView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        ActorsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'removeActor');
         var _this = this;
 
@@ -247,11 +247,14 @@ var ActorsView = BaseView.extend(
     */
     removeActor: function(){
         var _this = this;
-        this.activeActor.destroy({success: function(){
-            _this.actorView.close();
-            _this.activeActor = null;
-            _this.datatable.row('.selected').remove().draw( false );
-        }});
+        this.activeActor.destroy({
+            success: function(){
+                _this.actorView.close();
+                _this.activeActor = null;
+                _this.datatable.row('.selected').remove().draw( false );
+            },
+            error: _this.onError
+        });
     }
 
 });

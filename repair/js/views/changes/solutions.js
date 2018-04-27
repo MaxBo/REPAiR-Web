@@ -68,7 +68,7 @@ var SolutionsView = BaseView.extend(
                     _this.render();
                 });
             },
-            error: function(m, r){ _this.onError(r) }
+            error: _this.onError
         })
     },
 
@@ -123,6 +123,7 @@ var SolutionsView = BaseView.extend(
         var div = document.createElement('div'),
             panel = document.createElement('div');
         div.classList.add('item-panel', 'bordered');
+        div.style.minWidth = '300px';
         var label = document.createElement('label'),
             button = document.createElement('button'),
             removeBtn = document.createElement('button');
@@ -398,7 +399,7 @@ var SolutionsView = BaseView.extend(
                             error: function(m, r){ _this.onError(r) }
                         });
                     },
-                    error: function(m, r){ _this.onError(r) },
+                    error: _this.onError,
                     patch: true
                 })
             });
@@ -497,7 +498,7 @@ var SolutionsView = BaseView.extend(
                     _this.categories.add(category);
                     _this.renderCategory(category);
                 },
-                error: function(model, response) { _this.onError(response) }
+                error: _this.onError
             })
         }
         _this.getName({ onConfirm: onConfirm });

@@ -26,8 +26,8 @@ ImpactCategories, Target, Targets){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            TargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -56,8 +56,10 @@ ImpactCategories, Target, Targets){
             _this.spatial = [];
             this.spatialModel = new TargetSpatialReference([], {
             });
+            
+            var deferreds = [];
 
-            this.targetsModel.fetch({
+            deferreds.push(this.targetsModel.fetch({
                 success: function(targets){
                     var temp = [];
                     targets.forEach(function(target){
@@ -71,24 +73,18 @@ ImpactCategories, Target, Targets){
                         });
                     });
                     _this.targets = _.sortBy(temp, 'aim' );
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targets");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.aimsModel.fetch({
+            deferreds.push(this.aimsModel.fetch({
                 success: function(aims){
                     _this.initItems(aims, _this.aims, "Aim");
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch aims");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.impactCategoriesModel.fetch({
+            deferreds.push(this.impactCategoriesModel.fetch({
                 success: function(impactcategories){
                     impactcategories.forEach(function(impact){
                         _this.impactcategories.push({
@@ -98,14 +94,11 @@ ImpactCategories, Target, Targets){
                             "spatial_differentiation": impact.get('spatial_differentiation')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch impactcategories");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.targetValuesModel.fetch({
+            deferreds.push(this.targetValuesModel.fetch({
                 success: function(targets){
                     targets.forEach(function(target){
                         _this.targetvalues.push({
@@ -115,14 +108,11 @@ ImpactCategories, Target, Targets){
                             "factor": target.get('factor')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targetvalues");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.spatialModel.fetch({
+            deferreds.push(this.spatialModel.fetch({
                 success: function(areas){
                     areas.forEach(function(area){
                         _this.spatial.push({
@@ -131,14 +121,11 @@ ImpactCategories, Target, Targets){
                             "id": area.get('id')
                         });
                     });
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch targetspatialreference");
-                }
-            });
+                error: _this.onError
+            }));
 
-            this.render();
+            $.when.apply($, deferreds).then(this.render);
         },
 
         /*
@@ -236,7 +223,7 @@ ImpactCategories, Target, Targets){
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
-                            removePanel = row.querySelector('.remove').querySelector('.button-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.item-panel'),
                             html = document.getElementById('panel-item-template').innerHTML
                             template = _.template(html);
                     }
@@ -254,18 +241,21 @@ ImpactCategories, Target, Targets){
                     spatialPanel.appendChild(spatialSelect);
 
                     removeBtn.classList.add("btn", "btn-warning", "square",
-                     "remove", "remove-target");
+                     "remove");
                     // removeBtn.style.float = 'right';
                     var span = document.createElement('span');
                     removeBtn.title = gettext('Remove target')
                     span.classList.add('glyphicon', 'glyphicon-minus');
+                    // make span unclickable (caused problems when trying to 
+                    // delete row, as the span has no id attached)
+                    span.style.pointerEvents = 'none';
                     removeBtn.appendChild(span);
                     removeBtn.setAttribute("targetId", target.id);
                     removeBtn.addEventListener('click', function(e){
                         _this.deleteTarget(e);
                     })
                     var btnDiv = document.createElement('div');
-                    btnDiv.classList.add("remove-item");
+                    btnDiv.classList.add("row", "remove-item");
                     btnDiv.appendChild(removeBtn);
                     removePanel.appendChild(btnDiv);
                 }
@@ -306,9 +296,7 @@ ImpactCategories, Target, Targets){
                     _this.targets = _.sortBy(temp, 'aim' );
                     _this.render();
                 },
-                error: function(){
-                    console.error("cannot addTarget");
-                }
+                error: _this.onError
             });
         },
 
@@ -323,7 +311,6 @@ ImpactCategories, Target, Targets){
                 {id: targetId},
                 {caseStudyId: _this.caseStudy.id}
             );
-            // console.log(target);
             if (type == "targetvalue") {
                 target.save({
                     target_value: optionId
@@ -335,9 +322,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].target_value = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update targetvalue");
-                    }
+                    error: _this.onError
                 });
             } else if (type == "impact") {
                 target.save({
@@ -350,9 +335,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].impact_category = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update impact");
-                    }
+                    error: _this.onError
                 });
             } else {
                 target.save({
@@ -365,9 +348,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].spatial_reference = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update spatial");
-                    }
+                    error: _this.onError
                 });
             }
         },
@@ -389,7 +370,8 @@ ImpactCategories, Target, Targets){
                         }).indexOf(targetId);
                         _this.targets.splice(pos, 1);
                         _this.render();
-                    }
+                    },
+                    error: _this.onError
                 });
             }});
         },
