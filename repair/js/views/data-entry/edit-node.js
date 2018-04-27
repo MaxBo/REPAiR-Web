@@ -129,18 +129,19 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * dom events (managed by jquery)
-        */
+    * dom events (managed by jquery)
+    */
     events: {
         'click #upload-flows-button': 'uploadChanges',
         'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
         'click #confirm-datasource': 'confirmDatasource',
-        'click #refresh-publications-button': 'refreshDatasources'
+        'click #refresh-publications-button': 'refreshDatasources',
+        'click #flow-nodes-modal .confirm': 'confirmNodeSelection'
     },
 
     /*
-        * render the view
-        */
+    * render the view
+    */
     render: function(){
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
@@ -276,13 +277,20 @@ var EditNodeView = BaseView.extend(
             targetButton.style.maxWidth = '200px';
             var btnClass = (target) ? 'btn-primary': 'btn-danger';
             targetButton.classList.add('btn', 'inverted', 'square', btnClass);
-            targetButton.innerHTML = (target) ? target.get('name'): 'None';
+            var targetLabel = (target) ? target.get('name'): '-';
+            targetButton.innerHTML = targetLabel;
+            targetButton.title = targetLabel;
             
             targetCell.appendChild(targetButton);
             
             targetButton.addEventListener('click', function(){
                 //_this.selectActor(onConfirm);
-                $('#flow-nodes-modal').modal('show'); 
+                _this.onConfirmNode = function(id, name){
+                    targetButton.innerHTML = name;
+                    targetButton.title = name;
+                    flow.set(targetIdentifier, id);
+                }
+                $('#flow-nodes-modal').modal('show');
             })
            
         };
@@ -402,9 +410,9 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * add input for publication to given cell, value is set to currentId
-        * onChange(publicationId) is called when publication is confirmed by user
-        */
+    * add input for publication to given cell, value is set to currentId
+    * onChange(publicationId) is called when publication is confirmed by user
+    */
     addPublicationInput: function(cell, currentId, onChange, container){
         var _this = this;
         var sourceButton = document.createElement('button');
@@ -651,7 +659,7 @@ var EditNodeView = BaseView.extend(
                     fInput = row.querySelector('input[name="fraction"]'),
                     matSelect = row.querySelector('.materialSelect'),
                     avoidCheck = row.querySelector('input[name="avoidable"]'),
-                    pubInput = row.querySelector('input[name="publication"]'),
+                    pubInput = row.querySelector('button[name="publication"]'),
                     f = fInput.value / 100,
                     id = row.getAttribute('data-id');
                 if (id == "null") id = null;
@@ -777,14 +785,44 @@ var EditNodeView = BaseView.extend(
     },
     
     setupNodeTable: function(){
-        var table = $('#flow-nodes-modal table').DataTable({
-              "serverSide": true,
-              "ajax": this.model.collection.url() + "?format=datatables",
-              "columns": [
-                  {"data": "id"},
-                  {"data": "name"},
-              ]
-          });
+        var _this = this;
+        var columns = [
+            {data: 'id', title: 'ID', visible: false},
+            {data: 'name', title: gettext('Name')}
+        ];
+        if (this.model.tag == 'actor')
+            columns = columns.concat([
+                {data: 'activity_name', title: gettext('Activity'), name: 'activity__name'},
+                {data: 'activitygroup_name', title: gettext('Activity Group'), name: 'activity__activitygroup__name'},
+                {data: 'city', title: gettext('City'), name: 'administrative_location.city'},
+                {data: 'address', title: gettext('Address'), name: 'administrative_location.address'},
+            ]);
+        var table = this.el.querySelector('#flow-nodes-modal table');
+        
+        this.nodeDatatable = $(table).DataTable({
+            serverSide: true,
+            ajax: this.model.collection.url() + "?format=datatables",
+            columns: columns,
+            rowId: 'id'
+        });
+        var body = table.querySelector('tbody');
+        $(body).on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                _this.nodeDatatable.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+    },
+    
+    confirmNodeSelection: function(){
+        var selected = this.nodeDatatable.row('.selected');
+        this.nodeDatatable.$('tr.selected').removeClass('selected');
+        if (!selected) return;
+        var data = selected.data();
+        this.onConfirmNode(data.id, data.name);
     },
 
     // open modal for setting the datasource
