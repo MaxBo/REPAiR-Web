@@ -223,7 +223,7 @@ ImpactCategories, Target, Targets){
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
-                            removePanel = row.querySelector('.remove').querySelector('.button-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.item-panel'),
                             html = document.getElementById('panel-item-template').innerHTML
                             template = _.template(html);
                     }
@@ -241,18 +241,21 @@ ImpactCategories, Target, Targets){
                     spatialPanel.appendChild(spatialSelect);
 
                     removeBtn.classList.add("btn", "btn-warning", "square",
-                     "remove", "remove-target");
+                     "remove");
                     // removeBtn.style.float = 'right';
                     var span = document.createElement('span');
                     removeBtn.title = gettext('Remove target')
                     span.classList.add('glyphicon', 'glyphicon-minus');
+                    // make span unclickable (caused problems when trying to 
+                    // delete row, as the span has no id attached)
+                    span.style.pointerEvents = 'none';
                     removeBtn.appendChild(span);
                     removeBtn.setAttribute("targetId", target.id);
                     removeBtn.addEventListener('click', function(e){
                         _this.deleteTarget(e);
                     })
                     var btnDiv = document.createElement('div');
-                    btnDiv.classList.add("remove-item");
+                    btnDiv.classList.add("row", "remove-item");
                     btnDiv.appendChild(removeBtn);
                     removePanel.appendChild(btnDiv);
                 }
@@ -293,9 +296,7 @@ ImpactCategories, Target, Targets){
                     _this.targets = _.sortBy(temp, 'aim' );
                     _this.render();
                 },
-                error: function(){
-                    console.error("cannot addTarget");
-                }
+                error: _this.onError
             });
         },
 
@@ -310,7 +311,6 @@ ImpactCategories, Target, Targets){
                 {id: targetId},
                 {caseStudyId: _this.caseStudy.id}
             );
-            // console.log(target);
             if (type == "targetvalue") {
                 target.save({
                     target_value: optionId
@@ -322,9 +322,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].target_value = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update targetvalue");
-                    }
+                    error: _this.onError
                 });
             } else if (type == "impact") {
                 target.save({
@@ -337,9 +335,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].impact_category = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update impact");
-                    }
+                    error: _this.onError
                 });
             } else {
                 target.save({
@@ -352,9 +348,7 @@ ImpactCategories, Target, Targets){
                         }).indexOf(target.get('id'));
                         _this.targets[pos].spatial_reference = optionId;
                     },
-                    error: function(){
-                        console.error("cannot update spatial");
-                    }
+                    error: _this.onError
                 });
             }
         },
