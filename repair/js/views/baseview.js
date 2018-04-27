@@ -23,7 +23,6 @@ var BaseView = Backbone.View.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-    console.log(this)
         _.bindAll(this, 'render');
         _.bindAll(this, 'alert');
         _.bindAll(this, 'onError');

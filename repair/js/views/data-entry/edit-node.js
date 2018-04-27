@@ -556,7 +556,6 @@ var EditNodeView = BaseView.extend(
             var avoidCheck = document.createElement('input');
             avoidCheck.type = 'checkbox';
             avoidCheck.name = 'avoidable';
-            console.log(fraction)
             avoidCheck.checked = fraction.avoidable;
             row.insertCell(-1).appendChild(avoidCheck);
         
