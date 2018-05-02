@@ -23,7 +23,6 @@ var BaseView = Backbone.View.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-    console.log(this)
         _.bindAll(this, 'render');
         _.bindAll(this, 'alert');
         _.bindAll(this, 'onError');
@@ -130,7 +129,7 @@ var BaseView = Backbone.View.extend(
                 li.classList.remove('active');
                 selection.innerHTML = model.get('name');
                 var li = select.querySelector('li[data-value="' + options.selected + '"]');
-                li.classList.add('active');
+                if (li) li.classList.add('active');
             }
         }
 

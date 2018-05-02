@@ -3,3 +3,4 @@ public
 static/bundles
 *.json
 !static/data/*.json
+/settings_dev_local_pg.py
