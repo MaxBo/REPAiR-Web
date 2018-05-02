@@ -86,6 +86,10 @@ var MaterialsView = BaseView.extend(
                 model: material,
                 state: { collapsed: true }
             };
+            if (material.get('keyflow') == null){
+                mat.backColor = "#C6C6C6";
+                mat.text += ' (' + gettext('read only') + ')';
+            }
             materialList.push(mat);
         });
 

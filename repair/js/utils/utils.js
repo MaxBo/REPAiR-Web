@@ -24,9 +24,11 @@ module.exports = {
         });
         list.forEach(function(item) {
             if (item[parentAttr] != null) {
-                lookupParent = lookup[item[parentAttr]]
-                if (!lookupParent['nodes']) lookupParent['nodes'] = [];
-                lookupParent['nodes'].push(item);
+                lookupParent = lookup[item[parentAttr]];
+                if (lookupParent != null){
+                    if (!lookupParent['nodes']) lookupParent['nodes'] = [];
+                    lookupParent['nodes'].push(item);
+                }
             } else {
                 treeList.push(item);
             }
