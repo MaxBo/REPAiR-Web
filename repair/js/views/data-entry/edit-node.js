@@ -136,7 +136,7 @@ var EditNodeView = BaseView.extend(
         'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
         'click #confirm-datasource': 'confirmDatasource',
         'click #refresh-publications-button': 'refreshDatasources',
-        'click #flow-nodes-modal .confirm': 'confirmNodeSelection'
+        'click #flow-nodes-modal .confirm': 'confirmActorSelection'
     },
 
     /*
@@ -269,7 +269,7 @@ var EditNodeView = BaseView.extend(
                 target = this.model.collection.get(targetId),
                 targetButton = document.createElement('button');
                 
-            targetButton.name = 'publication';
+            targetButton.name = 'target';
             targetButton.style.width = '100%';
             targetButton.style.overflow = 'hidden';
             targetButton.style.textOverflow = 'ellipsis';
@@ -801,7 +801,7 @@ var EditNodeView = BaseView.extend(
         
         this.nodeDatatable = $(table).DataTable({
             serverSide: true,
-            ajax: this.model.collection.url() + "?format=datatables",
+            ajax: this.model.urlRoot() + "?format=datatables",
             columns: columns,
             rowId: 'id'
         });
@@ -876,15 +876,6 @@ var EditNodeView = BaseView.extend(
         });
     },
     
-    flowRepr: function(flow){
-        var origin = this.model.collection.get(flow.get('origin')),
-            origName = origin.get('name'),
-            dest = this.model.collection.get(flow.get('destination'));
-            
-        if (!dest) return origName + ' ' + gettext('Stock');
-        return origName + ' -> ' + dest.get('name');
-    },
-    
     getChangedModels: function(){
         var changed = [];
         // update existing models
@@ -942,7 +933,6 @@ var EditNodeView = BaseView.extend(
             {disable: true});
 
         var onError = function(model, response){
-            var name = _this.flowRepr(model);
             _this.onError(response); 
             loader.remove();
         };
