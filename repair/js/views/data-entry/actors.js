@@ -129,8 +129,11 @@ var ActorsView = BaseView.extend(
     addActorRow: function(actor){
         var _this = this;
 
-        var activity = _this.activities.get(actor.get('activity'));
-        var dataRow = this.datatable.row.add([actor.get('name'), activity.get('name')]).draw(),
+        var dataRow = this.datatable.row.add([
+                actor.get('name'), 
+                actor.get('city'),
+                actor.get('address'),
+            ]).draw(),
             row = dataRow.node();
         row.setAttribute('data-included', actor.get('included'));
         this.actorRows.push(row);
@@ -172,7 +175,11 @@ var ActorsView = BaseView.extend(
                     keyflow: _this.model,
                     onUpload: function(a) { 
                         setIncluded(a); 
-                        dataRow.data([actor.get('name'), activity.get('name')]);
+                        dataRow.data([
+                            actor.get('name'), 
+                            actor.get('city'),
+                            actor.get('address')
+                        ]);
                         showActor(a); 
                     },
                     focusarea: _this.caseStudy.get('properties').focusarea,
@@ -183,7 +190,6 @@ var ActorsView = BaseView.extend(
         }
 
         // row is clicked -> open view and remember that this actor is "active"
-        row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
             if (_this.activeActor != actor || actor.id == null){
                 if (_this.actorView != null && _this.actorView.hasChanged()){
