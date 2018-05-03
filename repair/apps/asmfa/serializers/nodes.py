@@ -84,11 +84,13 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
     activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
                                            source='activitygroup',
                                            read_only=True)
+    activitygroup_name = serializers.CharField(
+        source='activitygroup.name', read_only=True)
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_url')
+                  'activitygroup_name', 'activitygroup_url')
 
 
 class ActivityListSerializer(ActivitySerializer):
@@ -179,8 +181,12 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'keyflow_pk': 'activity__activitygroup__keyflow__id',
     }
     activity = IDRelatedField()
+    activity_name = serializers.CharField(source='activity.name', read_only=True)
+    activitygroup_name = serializers.CharField(source='activity.activitygroup.name', read_only=True)
     activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
                                              read_only=True)
+    address = serializers.CharField(source='administrative_location.address', read_only=True)
+    city = serializers.CharField(source='administrative_location.city', read_only=True)
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
@@ -194,7 +200,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'activitygroup', 'included', 'nace',
+                  'activity_name', 'activitygroup', 'activitygroup_name', 
+                  'included', 'nace', 'city', 'address', 
                   'reason',
                   )
         extra_kwargs = {'year': {'allow_null': True},
@@ -211,7 +218,8 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
 
 class ActorListSerializer(ActorSerializer):
     class Meta(ActorSerializer.Meta):
-        fields = ('id', 'activity', 'activitygroup', 'name', 'included')
+        fields = ('id', 'activity',  'activity_name', 'activitygroup',
+                  'activitygroup_name', 'name', 'included', 'city', 'address')
 
 
 class ReasonSerializer(serializers.ModelSerializer):

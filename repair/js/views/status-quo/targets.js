@@ -158,10 +158,12 @@ ImpactCategories, Target, Targets){
 
         createSelect(type, typeObject, typeList, target){
             var _this = this;
-            var select = document.createElement('select');
+            var select = document.createElement('select'),
+                wrapper = document.createElement('div');
             // var type = "targetvalue";
             var selectId = type + typeObject.id;
-            select.classList.add('panel-item', 'form-control');
+            wrapper.classList.add('fake-cell');
+            select.classList.add('form-control');
             typeList.forEach(function(target){
                 var option = document.createElement('option');
                 if (type == "impact") {
@@ -191,7 +193,8 @@ ImpactCategories, Target, Targets){
             select.addEventListener("change", function(e){
                 _this.editTarget(e, target);
             });
-            return select;
+            wrapper.appendChild(select);
+            return wrapper;
         },
 
         renderRows(){
@@ -255,7 +258,7 @@ ImpactCategories, Target, Targets){
                         _this.deleteTarget(e);
                     })
                     var btnDiv = document.createElement('div');
-                    btnDiv.classList.add("row", "remove-item");
+                    btnDiv.classList.add("row", "fake-cell");
                     btnDiv.appendChild(removeBtn);
                     removePanel.appendChild(btnDiv);
                 }

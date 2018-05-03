@@ -10,7 +10,9 @@
     <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
     <li><a href="#challenges" data-toggle="pill">{% trans "Challenges/Aims" %} <span class="sub-icon glyphicon glyphicon-blackboard"></span></a></li>
     <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-align-right gly-rotate-90"></span></a></li>
+    {% if request.session.mode != 1 %}
     <li><a href="#targets" data-toggle="pill">{% trans "Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
+    {% endif %}
   </ul>
 {% endblock %}
 
@@ -24,13 +26,17 @@
   <div class="tab-pane fade in active" id="flows"></div>
   <div class="tab-pane fade" id="challenges"></div>
   <div class="tab-pane fade" id="evaluation"></div>
+  {% if request.session.mode != 1 %}
   <div class="tab-pane fade" id="targets"></div>
+  {% endif %}
 </div>
   
 {% include "statusquo/flows.html" %}
 {% include "statusquo/challenges-aims.html" %}
 {% include "statusquo/evaluation.html" %}
+{% if request.session.mode != 1 %}
 {% include "statusquo/targets.html" %}
+{% endif %}
   
 {% render_bundle 'vendors' %}
 {% render_bundle 'StatusQuo' %}

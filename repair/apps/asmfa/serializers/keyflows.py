@@ -199,6 +199,8 @@ class ProductInKeyflowInCasestudyField(InCasestudyField):
 
 class ProductFractionSerializer(serializers.ModelSerializer):
     publication = IDRelatedField(allow_null=True, required=False)
+    id = serializers.IntegerField(label='ID', read_only=False, required=False,
+                                  allow_null=True)
 
     class Meta:
         model = ProductFraction
@@ -208,7 +210,7 @@ class ProductFractionSerializer(serializers.ModelSerializer):
                   'fraction',
                   'publication',
                   'avoidable')
-        read_only_fields = ['id', 'composition']
+        read_only_fields = ['composition']
 
 
 class CompositionSerializer(NestedHyperlinkedModelSerializer):
@@ -242,24 +244,24 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
             product_fractions = ProductFraction.objects.filter(
                 composition=composition)
             # delete existing rows not needed any more
-            fraction_materials = (
-                getattr(fraction.get('material'), 'id')
-                for fraction in new_fractions
-                if getattr(fraction.get('material'), 'id') is not None)
-            to_delete = product_fractions.exclude(
-                material__id__in=fraction_materials)
+            ids = [fraction.get('id') for fraction in new_fractions if fraction.get('id') is not None]
+            to_delete = product_fractions.exclude(id__in=ids)
             to_delete.delete()
             # add or update new fractions
             for new_fraction in new_fractions:
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
-                fraction = ProductFraction.objects.update_or_create(
-                    fraction=new_fraction.get('fraction'),
-                    composition=composition,
-                    material=material)[0]
+                fraction_id = new_fraction.get('id')
+                # create new fraction
+                if (fraction_id is None or
+                    len(product_fractions.filter(id=fraction_id)) == 0):
+                    fraction = ProductFraction(composition=composition)
+                # change existing fraction
+                else:
+                    fraction = product_fractions.get(id=fraction_id)
 
                 for attr, value in new_fraction.items():
-                    if attr in ('product', 'material'):
+                    if attr in ('composition', 'id'):
                         continue
                     setattr(fraction, attr, value)
                 fraction.save()
