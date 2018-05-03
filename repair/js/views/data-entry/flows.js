@@ -204,6 +204,13 @@ var FlowsView = BaseView.extend(
         // add individual search fields for all columns
         $(table).append('<tfoot><tr></tr></tfoot>');
         var footer = $('tfoot tr', table);
+        var delay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+                clearTimeout (timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
         this.actorsDatatable.columns().every( function () {
             var column = this;
             if (column.visible()){
@@ -216,8 +223,11 @@ var FlowsView = BaseView.extend(
                 searchInput.autocomplete = "off";
                 footer.append(th);
                 $(searchInput).on( 'keyup change', function () {
-                    if ( column.search() !== this.value ) {
-                        column.search(this.value).draw();
+                    var input = this;
+                    if ( column.search() !== input.value ) {
+                        delay(function(){
+                            column.search(input.value).draw();
+                        }, 400 );
                     }
                 });
             }
