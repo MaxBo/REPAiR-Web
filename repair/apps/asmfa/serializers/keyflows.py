@@ -288,22 +288,32 @@ class WasteSerializer(CompositionSerializer):
                   )
 
 
-class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
-                         NestedHyperlinkedModelSerializer):
-    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      read_only=True)
+class AllMaterialSerializer(serializers.ModelSerializer):
+    keyflow = IDRelatedField(allow_null=True)
     parent = IDRelatedField(allow_null=True)
     level = serializers.IntegerField(required=False, default=0)
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
 
     class Meta:
         model = Material
         fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')
 
 
+class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
+                         AllMaterialSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    # keyflow filtering is done by "get_queryset"
+    parent_lookup_kwargs = {}
+        #'casestudy_pk': 'keyflow__casestudy__id',
+        #'keyflow_pk': 'keyflow__id',
+    #}
+
+
+class AllMaterialListSerializer(AllMaterialSerializer):
+    class Meta(AllMaterialSerializer.Meta):
+        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+
+
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent')
+        fields = ('id', 'name', 'level', 'parent', 'keyflow')

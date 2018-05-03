@@ -129,7 +129,7 @@ var BaseView = Backbone.View.extend(
                 li.classList.remove('active');
                 selection.innerHTML = model.get('name');
                 var li = select.querySelector('li[data-value="' + options.selected + '"]');
-                li.classList.add('active');
+                if (li) li.classList.add('active');
             }
         }
 
