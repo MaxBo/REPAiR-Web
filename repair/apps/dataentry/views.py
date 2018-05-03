@@ -8,7 +8,7 @@ from django.shortcuts import render
 from plotly import offline
 from plotly.graph_objs import Figure, Data, Layout
 from repair.apps.login.models import CaseStudy
-from repair.apps.asmfa.models import Material, KeyflowInCasestudy
+from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.views import BaseView
 from django.contrib.auth.mixins import LoginRequiredMixin
 

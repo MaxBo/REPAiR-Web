@@ -1,19 +1,19 @@
 define(['views/baseview', 'underscore',
-    'views/data-entry/edit-node',
+    'views/data-entry/edit-node', 'views/status-quo/flows',
     'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
     'visualizations/sankey', 'views/flowsankey', 'utils/loader', 'app-config'],
-function(BaseView, _, EditNodeView, Activities, Actor, Flows, 
+function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
     Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader, config){
 
 /**
 *
 * @author Christoph Franke
-* @name module:views/FlowsView
+* @name module:views/FlowsEditView
 * @augments module:views/BaseView
 */
-var FlowsView = BaseView.extend( 
-    /** @lends module:views/FlowsView.prototype */
+var FlowsEditView = BaseView.extend( 
+    /** @lends module:views/FlowsEditView.prototype */
     {
 
     /**
@@ -60,9 +60,6 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #refresh-dataview-btn': 'renderSankey',
-        'click a[href="#sankey-tab"]': 'refreshSankey',
-        'change #data-view-type-select': 'renderSankey',
         'click #actor-select-modal .confirm': 'confirmActorSelection'
     },
 
@@ -82,23 +79,12 @@ var FlowsView = BaseView.extend(
         this.setupActorsTable();
     },
 
-    refreshSankey: function(){
-        if (this.flowsView) 
-            this.flowsView.refresh({ width: this.el.offsetWidth - 20});
-    },
-
     renderSankey: function(){
-        var type = this.el.querySelector('#data-view-type-select').value;
-        var collection = (type == 'actor') ? this.actors: 
-            (type == 'activity') ? this.activities: 
-            this.activityGroups;
-        if (this.flowsView != null) this.flowsView.close();
-        this.flowsView = new FlowSankeyView({
-            el: this.el.querySelector('#sankey-wrapper'),
-            collection: collection,
-            materials: this.materials,
-            width: this.el.offsetWidth - 20,
-            hideUnconnected: true
+        var flowsView = new FlowsView({ 
+            caseStudy: this.caseStudy,
+            el: this.el.querySelector('#sankey-tab'),
+            template: 'flows-template',
+            keyflowId: this.keyflowId
         })
     },
 
@@ -123,7 +109,7 @@ var FlowsView = BaseView.extend(
             var id = activity.get('id');
             var actorPlaceholder  = {
                 model: null,
-                parentId: id,
+                parentActivityId: id,
                 text: [gettext('Select Actor')],
                 tag: 'actorSelect',
                 icon: 'fa fa-users'
@@ -248,8 +234,9 @@ var FlowsView = BaseView.extend(
                 node.model = model;
                 onConfirm();
             }
+            console.log(node)
             var modal = $('#actor-select-modal'),
-                activity = _this.activities.get(node.parentId),
+                activity = _this.activities.get(node.parentActivityId),
                 activityInput = $('input[name="activity_name"]', modal);
             activityInput.val(activity.get('name'));
             activityInput.trigger('change'); 
@@ -294,5 +281,5 @@ var FlowsView = BaseView.extend(
     },
 
 });
-return FlowsView;
+return FlowsEditView;
 });

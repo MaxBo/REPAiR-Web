@@ -4,13 +4,24 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
         'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
              EvaluationView, MapViewer, appConfig) {
-
-  renderWorkshop = function(caseStudy){
-    var flowsView = new FlowsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flows'),
-      template: 'flows-template'
+             
+      
+  renderFlowsView = function(caseStudy){
+    var keyflowSelect = document.querySelector('select[name="keyflow"]'),
+        flowsView;
+    keyflowSelect.addEventListener('change', function(){
+      if (flowsView) flowsView.close();
+      flowsView = new FlowsView({ 
+        caseStudy: caseStudy,
+        el: document.getElementById('flows-content'),
+        template: 'flows-template',
+        keyflowId: keyflowSelect.value
+      })
     })
+  };
+      
+  renderWorkshop = function(caseStudy){
+    renderFlowsView(caseStudy);
     var challengesView = new ChallengesAimsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('challenges'),
@@ -29,6 +40,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
   };
 
   renderSetup = function(caseStudy){
+    renderFlowsView(caseStudy);
     var flowsView = new FlowsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('flows'),

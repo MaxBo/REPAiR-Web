@@ -32,19 +32,6 @@
           </div>
         </div>
         <div class="tab-pane fade in" id="sankey-tab">
-          {% trans "Level" %}
-          <select name="data-view-type-select" id="data-view-type-select" style="margin-left: 5px; margin-top: 10px; margin-right: 5px;">
-            <option value="activitygroup">{% trans "Activity Group" %}</option>
-            <option value="activity">{% trans "Activity" %}</option>
-            <option value="actor">{% trans "Actor" %}</option>
-          </select>
-          <button title="{% trans "Refresh Sankey-Diagram" %}" type="button" id="refresh-dataview-btn" class="btn btn-primary round">
-            <span class="glyphicon glyphicon-refresh"></span>
-          </button>
-          <div class="row" style="position: relative;">
-            <div id="sankey-wrapper">
-            </div>
-          </div>
         </div>
         <div class="tab-pane fade in" id="verification">
           {% include "dataentry/verification.html" %}
@@ -60,7 +47,7 @@
           <h4 class="modal-title">{% trans "Select Actor" %}</h4>
         </div>
         <div class="modal-body">
-          <table class="table table-striped table-bordered" style="width:100%">
+          <table class="table table-striped" style="width:100%">
           </table>
         </div>
         <div class="modal-footer">
@@ -190,7 +177,7 @@
           <h4 class="modal-title"></h4>
         </div>
         <div class="modal-body">
-          <table class="table table-striped table-bordered" style="width:100%">
+          <table class="table table-striped" style="width:100%">
           </table>
         </div>
         <div class="modal-footer">
@@ -358,11 +345,12 @@
         </select>
       </div>
       <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
-        <table id='actors-table'>
+        <table id='actors-table' class="table-striped" style="overflow: auto">
           <thead>
             <tr>
               <th>{% trans "Name" %}</th>
-              <th>{% trans "Activity" %}</th>
+              <th>{% trans "City" %}</th>
+              <th>{% trans "Address" %}</th>
             </tr>
           </thead> 
         </table>

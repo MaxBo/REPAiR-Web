@@ -198,10 +198,6 @@ tfoot th {
   color: black;
 }
 
-#actor-select-modal td{
-  cursor: pointer;
-}
-
 .loader {
   position: absolute;
   left: 50%;
