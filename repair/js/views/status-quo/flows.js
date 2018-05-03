@@ -20,9 +20,9 @@ var FlowsView = BaseView.extend(
     * render view to show keyflows in casestudy
     *
     * @param {Object} options
-    * @param {HTMLElement} options.el                          element the view will be rendered in
-    * @param {string} options.template                         id of the script element containing the underscore template to render this view
-    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
+    * @param {HTMLElement} options.el                     element the view will be rendered in
+    * @param {string} options.template                    id of the script element containing the underscore template to render this view
+    * @param {module:models/CaseStudy} options.caseStudy  the casestudy to add layers to
     *
     * @constructs
     * @see http://backbonejs.org/#View
@@ -30,50 +30,12 @@ var FlowsView = BaseView.extend(
     initialize: function(options){
         var _this = this;
         _.bindAll(this, 'render');
-        _.bindAll(this, 'keyflowChanged');
         _.bindAll(this, 'refreshMap');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
         this.filterParams = {};
-
-        this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
-
-        this.keyflows.fetch({ success: function(){
-            _this.render();
-        }})
-        
-    },
-
-    /*
-    * dom events (managed by jquery)
-    */
-    events: {
-        'change select[name="keyflow"]': 'keyflowChanged',
-        'change select[name="waste"]': 'renderSankey',
-        'change input[name="direction"]': 'renderSankey',
-        'change #data-view-type-select': 'renderSankey',
-    },
-
-    /*
-    * render the view
-    */
-    render: function(){
-        var _this = this;
-        var html = document.getElementById(this.template).innerHTML
-        var template = _.template(html);
-        this.el.innerHTML = template({ keyflows: this.keyflows });
-        this.typeSelect = this.el.querySelector('#data-view-type-select');
-    },
-
-    refreshMap: function(){
-        if (this.sankeyMap) this.sankeyMap.refresh();
-    },
-
-    keyflowChanged: function(evt){
-        var _this = this;
-        this.keyflowId = evt.target.value;
-        var content = this.el.querySelector('#flows-setup-content');
         content.style.display = 'inline';
         this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
         this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
@@ -91,12 +53,37 @@ var FlowsView = BaseView.extend(
                this.actors.fetch({ data: params }), 
                this.activities.fetch(), this.activityGroups.fetch()
             ).then(function(){
-            //_this.renderSankeyMap();
-            _this.renderMatFilter();
-            _this.renderNodeFilters();
-            _this.renderSankey();
             loader.remove();
+            _this.render();
         })
+        
+    },
+
+    /*
+    * dom events (managed by jquery)
+    */
+    events: {
+        'change select[name="waste"]': 'renderSankey',
+        'change input[name="direction"]': 'renderSankey',
+        'change #data-view-type-select': 'renderSankey',
+    },
+
+    /*
+    * render the view
+    */
+    render: function(){
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML
+        var template = _.template(html);
+        this.el.innerHTML = template();
+        this.typeSelect = this.el.querySelector('#data-view-type-select');
+        this.renderMatFilter();
+        this.renderNodeFilters();
+        this.renderSankey();
+    },
+
+    refreshMap: function(){
+        if (this.sankeyMap) this.sankeyMap.refresh();
     },
 
     renderSankey: function(){
@@ -236,7 +223,7 @@ var FlowsView = BaseView.extend(
             }
             // specific actor
             else
-                _this.actorsFiltered = [_this.actors.get(actorId)]
+                _this.actorsFiltered = [_this.actors.get(actorId)];
             _this.typeSelect.value = 'actor'
             _this.renderSankey();
         })

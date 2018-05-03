@@ -23,7 +23,19 @@
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/hierarchy-select.min.css" />
 
 <div class="tab-content">
-  <div class="tab-pane fade in active" id="flows"></div>
+  <div class="tab-pane fade in active" id="flows">
+    
+    <div class="row bordered">
+      <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
+      <select name="keyflow" class="form-control" style="max-width: 500px;">
+        <option disabled selected> {% trans "Select" %} </option>
+        {% for keyflow in keyflows %}
+          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div id="flows-content"></div>
+  </div>
   <div class="tab-pane fade" id="challenges"></div>
   <div class="tab-pane fade" id="evaluation"></div>
   {% if request.session.mode != 1 %}
