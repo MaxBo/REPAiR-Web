@@ -49,8 +49,8 @@
         <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
       </div>
       <div class="col-md-3">
-        <b>{% trans "Actor" %}</b>
-        <select name="actor" class="form-control"></select>
+        <b>{% trans "Actor" %}</b> (temporarily disabled)
+        <select name="actor" class="form-control" disabled></select>
       </div>
     </div>
   </div>
@@ -61,7 +61,7 @@
       <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 400px;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
-        <option value="actor">{% trans "Actor" %}</option>
+        <option value="actor" disabled>{% trans "Actor" %} (temporarily disabled)</option>
       </select>
       <div class="row" style="position: relative;">
         <div id="sankey-wrapper" class="noselect">
