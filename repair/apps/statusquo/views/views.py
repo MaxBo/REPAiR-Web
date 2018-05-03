@@ -6,14 +6,21 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 import numpy as np
 from repair.apps.login.views import  CasestudyViewSetMixin
+from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.utils.views import (ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
 
 
 class StatusQuoView(LoginRequiredMixin, ModeView):
     def render_setup(self, request):
+        casestudy = request.session.get('casestudy')
+        keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
+        
+        context = self.get_context_data()
+
+        context['keyflows'] = keyflows
         return render(request, 'statusquo/index.html',
-                      self.get_context_data())
+                      context)
 
     def render_workshop(self, request):
         # same entry point as in setup mode

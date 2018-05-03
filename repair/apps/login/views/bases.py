@@ -54,6 +54,11 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
+        
+        # special format requested -> let the plugin handle that
+        if ('format' in request.query_params):
+            return super().list(request, **kwargs)
+        
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:

@@ -1,7 +1,8 @@
 # API View
 from reversion.views import RevisionMixin
 from django.db.models import Q
-from rest_framework import serializers, pagination, exceptions
+from rest_framework import serializers, exceptions
+from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
@@ -30,7 +31,7 @@ from repair.apps.login.views import CasestudyViewSetMixin
 from repair.apps.utils.views import ModelPermissionViewSet
 
 
-class UnlimitedResultsSetPagination(pagination.PageNumberPagination):
+class UnlimitedResultsSetPagination(pagination.DatatablesPageNumberPagination):
     page_size = 100
     page_size_query_param = 'page_size'
 

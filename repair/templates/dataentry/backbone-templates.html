@@ -17,8 +17,8 @@
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade in active" id="data-entry-tab">
-          <div class="row" style="margin-left: 15px;">  
-           <span class="fa fa-cubes"></span>  {% trans "Activity Groups" %} / <span class="fa fa-cube"></span> {% trans "Activities" %} / <span class="glyphicon glyphicon-user"></span> {% trans "Actors" %}
+          <div class="row" style="margin-left: 15px; margin-top: 10px;">  
+           <span class="fa fa-cubes"></span>  {% trans "Activity Groups" %} / <span class="fa fa-cube"></span> {% trans "Activities" %} / <span class="fa fa-users"></span> {% trans "Actors" %}
           </div>
           <div class="row">  
             <div class="col-md-3">
@@ -32,22 +32,27 @@
           </div>
         </div>
         <div class="tab-pane fade in" id="sankey-tab">
-          {% trans "Level" %}
-          <select name="data-view-type-select" id="data-view-type-select" style="margin-left: 5px; margin-right: 5px;">
-            <option value="activitygroup">{% trans "Activity Group" %}</option>
-            <option value="activity">{% trans "Activity" %}</option>
-            <option value="actor">{% trans "Actor" %}</option>
-          </select>
-          <button title="{% trans "Refresh Sankey-Diagram" %}" type="button" id="refresh-dataview-btn" class="btn btn-primary round">
-            <span class="glyphicon glyphicon-refresh"></span>
-          </button>
-          <div class="row" style="position: relative;">
-            <div id="sankey-wrapper">
-            </div>
-          </div>
         </div>
         <div class="tab-pane fade in" id="verification">
           {% include "dataentry/verification.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="actor-select-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Select Actor" %}</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-striped" style="width:100%">
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
         </div>
       </div>
     </div>
@@ -58,10 +63,12 @@
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12 dashed" style="font-size: 12px;">
     <div class="row">
-      <h3>
+      <h3 id='node-info-popover' style='float: left; cursor: pointer;'>
         <%= name %> 
-        <div id='node-info-popover' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
+        <div class="glyphicon glyphicon-info-sign" style="margin-left: 5px;"></div>
       </h3>
+    </div>
+    <div class="row">
       <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger btn-upload">
         <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
       </button>
@@ -162,6 +169,24 @@
       </div>
     </div>
   </div>
+  <div id="flow-nodes-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-striped" style="width:100%">
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+          <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="fractions-modal" class="modal fade" role="dialog" style='z-index: 1100;'> <!-- has to behind datasource modal -->
   </div>
 </script>
@@ -212,78 +237,85 @@
   <div class='row'><b> <%= publication.get('title') %> </b></div>
   <div class='row'> <%= publication.get('authors') %></div>
   <div class='row'> <%= publication.get('doi') %></div>
-  <div class='row'> <%= publication.get('publication_url') %></div>
+  <div class='row'> <a href="<%= publication.get('publication_url') %>" target="_blank"><%= publication.get('publication_url') %></div>
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
-  <h4>{% trans "Activitygroup" %}</h4>
+  <span class="fa fa-cubes" style="float: left;"></span>
+  <h4 style="float: left;">{% trans "Activitygroup" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
-    </tr>
-    <tr>
-      <td>{% trans "Flow" %}</td>
-      <td><%= keyflow %></td>
+      <td><b><%= model.get('name') %></b></td>
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
-      <td><%= code %></td>
+      <td><%= model.get('code') %></td>
     </tr>
   </table>
 </script>
 
 <!-- template for view on attributes of an activity-node -->
 <script type="text/template" id="activity-attributes-template">
-  <h4>{% trans "Activity" %}</h4>
+  <span class="fa fa-cube" style="float: left;"></span>
+  <h4 style="float: left;">{% trans "Activity" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
+      <td><b><%= model.get('name') %></b></td>
     </tr>
     <tr>
-      <td>{% trans "Keyflow" %}</td>
-      <td><%= keyflow %></td>
+      <td>{% trans "Activity Group" %}</td>
+      <td><%= model.get('activitygroup_name') %></td>
     </tr>
     <tr>
       <td>{% trans "NACE Code" %}</td>
-      <td><%= nace %></td>
+      <td><%= model.get('nace') %></td>
     </tr>
   </table>
 </script>
 
 <!-- template for view on attributes of an actor-node -->
 <script type="text/template" id="actor-attributes-template">
-  <h4>{% trans "Actor" %}</h4>
+  <span class="fa fa-user" style="float: left;"></span>
+  <h4 style="float: left;">{% trans "Actor" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
+      <td><b><%= model.get('name') %></b></td>
     </tr>
     <tr>
-      <td>{% trans "Keyflow" %}</td>
-      <td><%= keyflow %></td>
+      <td>{% trans "Activity" %}</td>
+      <td><%= model.get('activity_name') %></td>
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>
-      <td><%= bvdid %></td>
+      <td><%= model.get('bvdid') %></td>
     </tr>
     <tr>
       <td>{% trans "Year" %}</td>
-      <td><%= year %></td>
+      <td><%= model.get('year') %></td>
     </tr>
     <tr>
       <td>{% trans "Employees" %}</td>
-      <td><%= employees %></td>
+      <td><%= model.get('employees') %></td>
     </tr>
     <tr>
       <td>{% trans "Turnover" %}</td>
-      <td><%= turnover %></td>
+      <td><%= model.get('turnover') %></td>
+    </tr>
+    <tr>
+      <td>{% trans "City" %}</td>
+      <td><%= model.get('city') %></td>
+    </tr>
+    <tr>
+      <td>{% trans "Address" %}</td>
+      <td><%= model.get('address') %></td>
     </tr>
     <tr>
       <td>{% trans "Website" %}</td>
-      <td><a target="_blank" href="http://<%= url %>"><%= url %></a></td>
+      <td><a target="_blank" href="http://<%= model.get('website') %>"><%= model.get('website') %></a></td>
     </tr>
   </table>
 </script>
@@ -299,6 +331,7 @@
       <div class="row">
         {% trans "Activity" %}
         <select class="form-control" name="activity-filter">
+          <!--<option value="-1"> {% trans "All Activities" %}</option>-->
           <% activities.forEach(function(activity) { %>
             <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
           <% });  %>
@@ -312,11 +345,12 @@
         </select>
       </div>
       <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
-        <table id='actors-table'>
+        <table id='actors-table' class="table-striped" style="overflow: auto">
           <thead>
             <tr>
               <th>{% trans "Name" %}</th>
-              <th>{% trans "Activity" %}</th>
+              <th>{% trans "City" %}</th>
+              <th>{% trans "Address" %}</th>
             </tr>
           </thead> 
         </table>

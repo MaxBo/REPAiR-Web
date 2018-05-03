@@ -52,6 +52,7 @@ class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
     serializers = {'list': ActorListSerializer}
     
     def get_queryset(self):
-        return Actor.objects.select_related(
-            "activity__activitygroup").order_by('id')
+        return Actor.objects.\
+               select_related("activity__activitygroup").\
+               prefetch_related('administrative_location').order_by('id')
 

@@ -20,3 +20,4 @@ class PublicationInCasestudyViewSet(RevisionMixin,
                                     ModelPermissionViewSet):
     queryset = PublicationInCasestudy.objects.all()
     serializer_class = PublicationInCasestudySerializer
+    pagination_class = None

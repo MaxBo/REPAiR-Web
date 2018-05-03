@@ -189,8 +189,13 @@ tr.selected td{
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
-  background-color:  #aad400;
+  background-color: #aad400;
   color: white;
+}
+
+tfoot th {
+  background-color: #f9f9f9;
+  color: black;
 }
 
 .loader {
@@ -336,6 +341,18 @@ button.square, button.round, .btn.square, .btn.round {
   color: #aad400;
 }
 
+.btn-warning.inverted {
+  background-color: white;
+  border: solid 1px #d58512;
+  color: #d58512;
+}
+
+.btn-danger.inverted {
+  background-color: white;
+  border: solid 1px #ac2925;
+  color: #ac2925;
+}
+
 .btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
   border-color: #93b700 !important;
   background-color: #f9ffe2 !important;
@@ -343,6 +360,24 @@ button.square, button.round, .btn.square, .btn.round {
 
 .btn-primary.inverted:active {
   color: #93b700;
+}
+
+.btn-warning.inverted:focus, .btn-warning.inverted:hover, .btn-warning.inverted:active {
+  border-color: #b75e00 !important;
+  background-color: #fff0e2 !important;
+}
+
+.btn-warning.inverted:active {
+  color: #b75e00;
+}
+
+.btn-danger.inverted:focus, .btn-danger.inverted:hover, .btn-danger.inverted:active {
+  border-color: #b70000 !important;
+  background-color: #ffefef !important;
+}
+
+.btn-danger.inverted:active {
+  color: #b70000;
 }
 
 button.round, .btn.round{
