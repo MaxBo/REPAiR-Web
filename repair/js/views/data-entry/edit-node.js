@@ -433,7 +433,7 @@ var EditNodeView = BaseView.extend(
             sourceButton.innerHTML = title;
             sourceButton.setAttribute('data-publication-id', currentId)
         }
-        else sourceButton.innerHTML = gettext('None');
+        else sourceButton.innerHTML = '-';
 
         function onConfirm(publication){
             if (publication != null){
@@ -445,7 +445,7 @@ var EditNodeView = BaseView.extend(
                 toggleBtnClass(sourceButton, 'btn-primary');
             }
             else {
-                sourceButton.innerHTML = gettext('None');
+                sourceButton.innerHTML = '-';
                 toggleBtnClass(sourceButton, 'btn-warning');
             } 
         };
