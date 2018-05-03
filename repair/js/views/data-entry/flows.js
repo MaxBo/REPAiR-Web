@@ -123,7 +123,7 @@ var FlowsView = BaseView.extend(
             var id = activity.get('id');
             var actorPlaceholder  = {
                 model: null,
-                parentId: id,
+                parentActivityId: id,
                 text: [gettext('Select Actor')],
                 tag: 'actorSelect',
                 icon: 'fa fa-users'
@@ -248,8 +248,9 @@ var FlowsView = BaseView.extend(
                 node.model = model;
                 onConfirm();
             }
+            console.log(node)
             var modal = $('#actor-select-modal'),
-                activity = _this.activities.get(node.parentId),
+                activity = _this.activities.get(node.parentActivityId),
                 activityInput = $('input[name="activity_name"]', modal);
             activityInput.val(activity.get('name'));
             activityInput.trigger('change'); 
