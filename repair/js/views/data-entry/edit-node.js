@@ -56,39 +56,26 @@ var EditNodeView = BaseView.extend(
 
         this.onUpload = options.onUpload;
 
-        var flowType = '';
-        this.attrTableInner = '';
-        if (this.model.tag == 'activity'){
-            this.attrTableInner = this.getActivityAttrTable();
-            flowType = 'activity';
-        }
-        else if (this.model.tag == 'activitygroup'){
-            this.attrTableInner = this.getGroupAttrTable();
-            flowType = 'activitygroup';
-        }
-        else if (this.model.tag == 'actor'){
-            this.attrTableInner = this.getActorAttrTable();
-            flowType = 'actor';
-        }
+        this.flowType = this.model.tag;
 
         this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
 
         this.outProducts = new Products([], {
             state: {
@@ -136,7 +123,7 @@ var EditNodeView = BaseView.extend(
         'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
         'click #confirm-datasource': 'confirmDatasource',
         'click #refresh-publications-button': 'refreshDatasources',
-        'click #flow-nodes-modal .confirm': 'confirmActorSelection'
+        'click #flow-nodes-modal .confirm': 'confirmNodeSelection'
     },
 
     /*
@@ -147,14 +134,16 @@ var EditNodeView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
+        
+        var content = this.nodePopoverContent(this.model);
 
         var popOverSettings = {
             placement: 'right',
             container: 'body',
-            trigger: 'manual',
             html: true,
-            content: this.attrTableInner
+            content: content
         }
+        
         require('bootstrap');
         this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
@@ -266,29 +255,50 @@ var EditNodeView = BaseView.extend(
         if (!isStock){
             var targetCell = row.insertCell(-1),
                 targetId = flow.get(targetIdentifier),
-                target = this.model.collection.get(targetId),
+                Target = Backbone.Model.extend({ urlRoot: this.model.urlRoot() }),
+                target,
                 targetButton = document.createElement('button');
-                
+            
+            targetCell.appendChild(targetButton);
             targetButton.name = 'target';
             targetButton.style.width = '100%';
             targetButton.style.overflow = 'hidden';
             targetButton.style.textOverflow = 'ellipsis';
             targetButton.style.color = 'black';
             targetButton.style.maxWidth = '200px';
-            var btnClass = (target) ? 'btn-primary': 'btn-danger';
-            targetButton.classList.add('btn', 'inverted', 'square', btnClass);
-            var targetLabel = (target) ? target.get('name'): '-';
-            targetButton.innerHTML = targetLabel;
-            targetButton.title = targetLabel;
+            targetButton.classList.add('btn', 'inverted', 'square', 'btn-danger');
+            targetButton.innerHTML = '-';
             
-            targetCell.appendChild(targetButton);
+            function setTarget(id){
+                target = new Target({ id : id });
+                target.fetch({
+                    success: function(){
+                        toggleBtnClass(targetButton, 'btn-primary');
+                        targetButton.innerHTML = target.get('name');
+                        
+                    }, error: this.onError 
+                })
+            }
+            
+            if (targetId) setTarget(targetId);
+    
+            var popOverSettings = {
+                placement: 'right',
+                container: 'body',
+                html: true,
+                title: '',
+                content: function(){
+                    return _this.nodePopoverContent(target);
+                }
+            }
+            
+            this.setupPopover($(targetButton).popover(popOverSettings));
             
             targetButton.addEventListener('click', function(){
                 //_this.selectActor(onConfirm);
                 _this.onConfirmNode = function(id, name){
-                    targetButton.innerHTML = name;
-                    targetButton.title = name;
                     flow.set(targetIdentifier, id);
+                    setTarget(id);
                 }
                 $('#flow-nodes-modal').modal('show');
             })
@@ -332,11 +342,11 @@ var EditNodeView = BaseView.extend(
             // the nace of this node determines the items for stocks and outputs
             if (targetIdentifier == 'destination' || isStock == true){
                 var items = (flow.get('waste') == 'true') ? _this.outWastes : _this.outProducts;
-                _this.editFractions(flow, items);
+                _this.editFractions(flow, items, editFractionsBtn);
             }
             // take nace of origin node in case of inputs
             else {
-                var origin = _this.model.collection.get(flow.get('origin'));
+                var origin = target;
                 if (origin == null) return;
                 var options = { 
                     state: {
@@ -345,21 +355,16 @@ var EditNodeView = BaseView.extend(
                         currentPage: 1
                     }
                 };
-                // ToDo: removce this after collection/model rework
-                origin.caseStudyId = _this.caseStudyId;
-                origin.keyflowId = _this.keyflowId;
-                origin.fetch({success: function(){
-                    var nace = origin.get('nace') || 'None';
-                    var loader = new Loader(document.getElementById('flows-edit'),
-                        {disable: true});
-                    var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
-                    items.getFirstPage({ data: { nace: nace } }).then( 
-                        function(){ 
-                            _this.editFractions(flow, items, editFractionsBtn); 
-                            loader.remove(); 
-                        }
-                    )
-                }})
+                var nace = origin.get('nace') || 'None';
+                var loader = new Loader(document.getElementById('flows-edit'),
+                    {disable: true});
+                var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+                items.getFirstPage({ data: { nace: nace } }).then( 
+                    function(){ 
+                        _this.editFractions(flow, items, editFractionsBtn); 
+                        loader.remove(); 
+                    }
+                )
             }
         })
 
@@ -749,38 +754,17 @@ var EditNodeView = BaseView.extend(
             }
         }
     },
-
-    getGroupAttrTable: function(){
-        var html = document.getElementById('group-attributes-template').innerHTML
-        var template = _.template(html);
+    
+    nodePopoverContent: function(model){
+        if (!model) return '-';
+        var templateId = (this.flowType == 'activitygroup') ? 'group-attributes-template' : 
+                         (this.flowType == 'activity') ? 'activity-attributes-template' :
+                         'actor-attributes-template';
+        var html = document.getElementById(templateId).innerHTML,
+            template = _.template(html);
         return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            code: this.model.get('code')
-        });
-    },
-
-    getActivityAttrTable: function(){
-        var html = document.getElementById('activity-attributes-template').innerHTML
-        var template = _.template(html);
-        return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            nace: this.model.get('nace')
-        });
-    },
-
-    getActorAttrTable: function(){
-        var html = document.getElementById('actor-attributes-template').innerHTML
-        var template = _.template(html);
-        return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            bvdid: this.model.get('BvDid'),
-            url: this.model.get('website'),
-            year: this.model.get('year'),
-            employees: this.model.get('employees'),
-            turnover: this.model.get('turnover')
+            model: model,
+            keyflow: this.keyflowName
         });
     },
     
@@ -839,8 +823,8 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * refresh the table of publications
-        */
+    * refresh the table of publications
+    */
     refreshDatasources(){
         var _this = this;
         this.publications.fetch({ success: function(){
@@ -849,8 +833,8 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * prerender the table for publications inside a modal
-        */
+    * prerender the table for publications inside a modal
+    */
     renderDatasources: function(publications){
         var _this = this;
         this.datatable.clear();

@@ -257,7 +257,7 @@
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
+      <td><b><%= model.get('name') %></b></td>
     </tr>
     <tr>
       <td>{% trans "Flow" %}</td>
@@ -265,7 +265,7 @@
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
-      <td><%= code %></td>
+      <td><%= model.get('code') %></td>
     </tr>
   </table>
 </script>
@@ -276,7 +276,11 @@
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
+      <td><b><%= model.get('name') %></b></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity Group" %}</td>
+      <td><%= model.get('activitygroup_name') %></td>
     </tr>
     <tr>
       <td>{% trans "Keyflow" %}</td>
@@ -284,7 +288,7 @@
     </tr>
     <tr>
       <td>{% trans "NACE Code" %}</td>
-      <td><%= nace %></td>
+      <td><%= model.get('nace') %></td>
     </tr>
   </table>
 </script>
@@ -295,7 +299,11 @@
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
-      <td><b><%= name %></b></td>
+      <td><b><%= model.get('name') %></b></td>
+    </tr>
+    <tr>
+      <td>{% trans "Activity" %}</td>
+      <td><%= model.get('activity_name') %></td>
     </tr>
     <tr>
       <td>{% trans "Keyflow" %}</td>
@@ -303,23 +311,23 @@
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>
-      <td><%= bvdid %></td>
+      <td><%= model.get('bvdid') %></td>
     </tr>
     <tr>
       <td>{% trans "Year" %}</td>
-      <td><%= year %></td>
+      <td><%= model.get('year') %></td>
     </tr>
     <tr>
       <td>{% trans "Employees" %}</td>
-      <td><%= employees %></td>
+      <td><%= model.get('employees') %></td>
     </tr>
     <tr>
       <td>{% trans "Turnover" %}</td>
-      <td><%= turnover %></td>
+      <td><%= model.get('turnover') %></td>
     </tr>
     <tr>
       <td>{% trans "Website" %}</td>
-      <td><a target="_blank" href="http://<%= url %>"><%= url %></a></td>
+      <td><a target="_blank" href="http://<%= model.get('website') %>"><%= model.get('website') %></a></td>
     </tr>
   </table>
 </script>

@@ -84,11 +84,13 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
     activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
                                            source='activitygroup',
                                            read_only=True)
+    activitygroup_name = serializers.CharField(
+        source='activitygroup.name', read_only=True)
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_url')
+                  'activitygroup_name', 'activitygroup_url')
 
 
 class ActivityListSerializer(ActivitySerializer):

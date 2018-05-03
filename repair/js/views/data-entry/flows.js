@@ -241,8 +241,8 @@ var FlowsView = BaseView.extend(
                 }, error: _this.onError
             })
         }
-        // initial rendering -> check and warn if previous view was changed
-        if (node.tag == 'actorSelect'){
+        
+        if (node.tag == 'actorSelect' && !options.rerender){
             selectActor(render);
         }
         else render();
