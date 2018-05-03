@@ -76,10 +76,12 @@
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12 dashed" style="font-size: 12px;">
     <div class="row">
-      <h3>
+      <h3 id='node-info-popover' style='float: left; cursor: pointer;'>
         <%= name %> 
-        <div id='node-info-popover' title="{% trans "Details" %}" class="glyphicon glyphicon-info-sign" style="cursor: pointer; margin-left: 5px;"></div>
+        <div class="glyphicon glyphicon-info-sign" style="margin-left: 5px;"></div>
       </h3>
+    </div>
+    <div class="row">
       <button id='upload-flows-button' title="{% trans "upload changes made to the flows" %}" class="btn btn-danger btn-upload">
         <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
       </button>
@@ -253,15 +255,12 @@
 
 <!-- template for view on attributes of an activitygroup-node -->
 <script type="text/template" id="group-attributes-template">
+  <span class="fa fa-cubes" style="float: left;"></span>
   <h4>{% trans "Activitygroup" %}</h4>
   <table>
     <tr>
       <td>{% trans "Name" %}</td>
       <td><b><%= model.get('name') %></b></td>
-    </tr>
-    <tr>
-      <td>{% trans "Flow" %}</td>
-      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "Code" %}</td>
@@ -272,6 +271,7 @@
 
 <!-- template for view on attributes of an activity-node -->
 <script type="text/template" id="activity-attributes-template">
+  <span class="fa fa-cube" style="float: left;"></span>
   <h4>{% trans "Activity" %}</h4>
   <table>
     <tr>
@@ -283,10 +283,6 @@
       <td><%= model.get('activitygroup_name') %></td>
     </tr>
     <tr>
-      <td>{% trans "Keyflow" %}</td>
-      <td><%= keyflow %></td>
-    </tr>
-    <tr>
       <td>{% trans "NACE Code" %}</td>
       <td><%= model.get('nace') %></td>
     </tr>
@@ -295,6 +291,7 @@
 
 <!-- template for view on attributes of an actor-node -->
 <script type="text/template" id="actor-attributes-template">
+  <span class="fa fa-user" style="float: left;"></span>
   <h4>{% trans "Actor" %}</h4>
   <table>
     <tr>
@@ -304,10 +301,6 @@
     <tr>
       <td>{% trans "Activity" %}</td>
       <td><%= model.get('activity_name') %></td>
-    </tr>
-    <tr>
-      <td>{% trans "Keyflow" %}</td>
-      <td><%= keyflow %></td>
     </tr>
     <tr>
       <td>{% trans "BvDid" %}</td>

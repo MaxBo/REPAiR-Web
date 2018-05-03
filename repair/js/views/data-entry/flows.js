@@ -233,7 +233,6 @@ var FlowsView = BaseView.extend(
                         model: model,
                         materials: _this.materials,
                         keyflowId: _this.keyflowId,
-                        keyflowName: _this.model.get('name'),
                         caseStudyId: _this.caseStudyId,
                         publications: _this.publications,
                         onUpload: function() { _this.renderNodeView(node, { rerender: true }) } // rerender after upload

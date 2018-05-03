@@ -37,7 +37,6 @@ var EditNodeView = BaseView.extend(
     * @param {module:models/Actor|module:models/Activity|module:models/ActivityGroup} options.model the node to edit
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
-    * @param {string} options.keyflowName                            the name of the keyflow
     * @param {module:collections/Materials} options.materials        the available materials
     * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
@@ -49,7 +48,6 @@ var EditNodeView = BaseView.extend(
         _.bindAll(this, 'render');
         this.template = options.template;
         this.keyflowId = options.keyflowId;
-        this.keyflowName = options.keyflowName;
         this.caseStudyId = options.caseStudyId;
         this.materials = options.materials;
         this.publications = options.publications;
@@ -763,8 +761,7 @@ var EditNodeView = BaseView.extend(
         var html = document.getElementById(templateId).innerHTML,
             template = _.template(html);
         return template({
-            model: model,
-            keyflow: this.keyflowName
+            model: model
         });
     },
     
