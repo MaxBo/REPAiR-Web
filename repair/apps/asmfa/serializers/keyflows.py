@@ -252,8 +252,11 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
                 material_id = getattr(new_fraction.get('material'), 'id')
                 material = Material.objects.get(id=material_id)
                 fraction_id = new_fraction.get('id')
-                if fraction_id is None:
+                # create new fraction
+                if (fraction_id is None or
+                    len(product_fractions.filter(id=fraction_id)) == 0):
                     fraction = ProductFraction(composition=composition)
+                # change existing fraction
                 else:
                     fraction = product_fractions.get(id=fraction_id)
 
