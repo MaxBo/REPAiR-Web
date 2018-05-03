@@ -200,6 +200,28 @@ var FlowsView = BaseView.extend(
                 $(this).addClass('selected');
             }
         } );
+        
+        // add individual search fields for all columns
+        $(table).append('<tfoot><tr></tr></tfoot>');
+        var footer = $('tfoot tr', table);
+        this.actorsDatatable.columns().every( function () {
+            var column = this;
+            if (column.visible()){
+                var searchInput = document.createElement('input'),
+                    th = document.createElement('th');
+                searchInput.placeholder = gettext('Search');
+                th.appendChild(searchInput);
+                searchInput.name = columns[column.index()].data;
+                searchInput.style.width = '100%';
+                searchInput.autocomplete = "off";
+                footer.append(th);
+                $(searchInput).on( 'keyup change', function () {
+                    if ( column.search() !== this.value ) {
+                        column.search(this.value).draw();
+                    }
+                });
+            }
+        });
     },
 
     /*
@@ -216,7 +238,13 @@ var FlowsView = BaseView.extend(
                 node.model = model;
                 onConfirm();
             }
-            $('#actor-select-modal').modal('show');
+            var modal = $('#actor-select-modal'),
+                activity = _this.activities.get(node.parentId),
+                activityInput = $('input[name="activity_name"]', modal);
+            activityInput.val(activity.get('name'));
+            activityInput.trigger('change'); 
+            //_this.actorsDatatable.search( activity.get('name') ).draw();
+            modal.modal('show');
         }
     
         function render(){

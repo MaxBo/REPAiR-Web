@@ -189,8 +189,17 @@ tr.selected td{
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
-  background-color:  #aad400;
+  background-color: #aad400;
   color: white;
+}
+
+tfoot th {
+  background-color: #f9f9f9;
+  color: black;
+}
+
+#actor-select-modal td{
+  cursor: pointer;
 }
 
 .loader {
