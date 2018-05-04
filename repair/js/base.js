@@ -1,9 +1,5 @@
 define(['jquery', 'document-ready', 'bootstrap', 
-        'bootstrap/dist/css/bootstrap.css',
         'bootstrap-select/dist/css/bootstrap-select.css',
-        'static/css/font-awesome.min.css',
-        'static/css/base.css', 'static/css/main-navbar.css', 
-        'static/css/sidebar.css',
         'utils/overrides'],
 function ($, ready) {
   /**
