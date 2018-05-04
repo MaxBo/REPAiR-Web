@@ -2,7 +2,8 @@ define(['views/baseview', 'underscore',
     'views/data-entry/edit-node', 'views/status-quo/flows',
     'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
-    'utils/loader', 'app-config'],
+    'utils/loader', 'app-config', 'libs/bootstrap-treeview.min',
+    'static/css/bootstrap-treeview.min.css'],
 function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
     Stocks, ActivityGroups, Publications, Loader, config){
 
@@ -146,7 +147,6 @@ var FlowsEditView = BaseView.extend(
             else _this.renderNodeView(node);
         };
         var divid = '#data-tree';
-        require('libs/bootstrap-treeview.min');
         $(divid).treeview({data: dataTree, showTags: true,
             selectedBackColor: '#aad400',
             onNodeSelected: onClick,
