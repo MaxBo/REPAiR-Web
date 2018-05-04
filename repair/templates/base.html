@@ -2,6 +2,7 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -15,6 +16,7 @@
 
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 
+    {% render_bundle 'commons' %}
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
