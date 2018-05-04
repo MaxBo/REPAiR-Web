@@ -40,17 +40,22 @@ module.exports = {
           fallback: "style-loader",
           use: "css-loader"
         })
+      },
+      { 
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/, 
+        loader: 'url-loader?limit=100000' 
       }
     ],
   },
 
   resolve: {
     modules : ['js', 'node_modules', 'bower_components'],
-      alias: {
-        'spatialsankey': 'libs/spatialsankey',
-        'cyclesankey': 'libs/cycle-sankey',
-        jquery: "jquery/src/jquery"
-      },
+    alias: {
+      'static': path.resolve('./repair/static'),
+      'spatialsankey': 'libs/spatialsankey',
+      'cyclesankey': 'libs/cycle-sankey',
+      jquery: "jquery/src/jquery"
+    },
     plugins: [
       new webpack.ProvidePlugin({
         _: 'loadash',

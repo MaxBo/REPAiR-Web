@@ -1,6 +1,6 @@
 define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories',
     'collections/layers', 'models/layer', 'visualizations/map',
-    'utils/loader', 'app-config', 'openlayers'],
+    'utils/loader', 'app-config', 'openlayers', 'openlayers/css/ol.css'],
 
 function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config, ol){
 /**
