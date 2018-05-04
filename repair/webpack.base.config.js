@@ -1,6 +1,7 @@
 var path = require('path');
-var webpack = require('webpack');
-var BundleTracker = require('webpack-bundle-tracker');
+var webpack = require('webpack'),
+    BundleTracker = require('webpack-bundle-tracker'),
+    ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   context: __dirname,
@@ -20,6 +21,7 @@ module.exports = {
 
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendors.js' }),
+    new ExtractTextPlugin('style.css')
   ],
   
   node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true }, 
@@ -34,7 +36,10 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: "css-loader"
+        })
       }
     ],
   },
@@ -52,7 +57,7 @@ module.exports = {
         d3: 'd3',
         $: "jquery",
         jQuery: "jquery"
-      })
+      }),
     ]
   },
 }
