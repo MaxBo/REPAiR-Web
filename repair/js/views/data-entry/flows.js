@@ -2,9 +2,9 @@ define(['views/baseview', 'underscore',
     'views/data-entry/edit-node', 'views/status-quo/flows',
     'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
-    'visualizations/sankey', 'views/flowsankey', 'utils/loader', 'app-config'],
+    'utils/loader', 'app-config'],
 function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
-    Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader, config){
+    Stocks, ActivityGroups, Publications, Loader, config){
 
 /**
 *

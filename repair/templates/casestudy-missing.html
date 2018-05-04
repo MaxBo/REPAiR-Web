@@ -3,7 +3,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block content %}
-{% render_bundle 'vendors' %}
+{% render_bundle 'commons' %}
 {% render_bundle 'Base' %}
 <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
 {% endblock %}

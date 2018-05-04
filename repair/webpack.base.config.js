@@ -1,27 +1,34 @@
 var path = require('path');
 var webpack = require('webpack'),
-    BundleTracker = require('webpack-bundle-tracker'),
-    ExtractTextPlugin = require("extract-text-webpack-plugin");
+    BundleTracker = require('webpack-bundle-tracker');
+    //ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+var entryPoints = {
+      DataEntry: './js/data-entry',
+      StudyArea: './js/study-area',
+      StatusQuo: './js/status-quo',
+      Changes:   './js/changes',
+      Base:      './js/base',
+    };
 
 module.exports = {
   context: __dirname,
-  entry: {
-    DataEntry: './js/data-entry',
-    StudyArea: './js/study-area',
-    StatusQuo: './js/status-quo',
-    Changes:   './js/changes',
-    Base:      './js/base',
-  },
+  
+  entry: entryPoints,
   
   output: {
     path: path.resolve('./repair/static/bundles/local/'),
     publicPath: '/static/bundles/local/',
-    filename: "[name]-[hash].js"
+    filename: '[name]-[hash].js'
   },
 
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendors', filename: 'vendors.js' }),
-    new ExtractTextPlugin('style.css')
+    new webpack.optimize.CommonsChunkPlugin({
+        name: 'commons',
+        minChunks: 2
+    }),
+    //new ExtractTextPlugin('[name]-[hash].css', { allChunks: true 
+    //})
   ],
   
   node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true }, 
@@ -36,10 +43,11 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
-        })
+        //use: ExtractTextPlugin.extract({
+          //fallback: "style-loader",
+          //use: "css-loader"
+        //})
+        use: ["style-loader", "css-loader"]
       },
       { 
         test: /\.(png|woff|woff2|eot|ttf|svg)$/, 

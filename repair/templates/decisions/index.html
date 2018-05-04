@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block content %}
-  {% render_bundle 'vendors' %}
-  {% render_bundle 'Base' %}
   <div class="tab-content">
     <div class="tab-pane fade in active" id="flows">
       {% include "decisions/decisions.html" %}
     </div>
+  {% render_bundle 'commons' %}
+  {% render_bundle 'Base' %}
 </html>
 {% endblock %}

@@ -1,7 +1,7 @@
 define(['backbone', 'underscore','collections/flows',
         'collections/stocks', 'visualizations/sankey', 
         'collections/activities', 'collections/actors',
-        'utils/loader'],
+        'utils/loader', 'static/css/sankey.css'],
 
 function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
 
