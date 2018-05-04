@@ -1,9 +1,6 @@
 {% load i18n %}
 
-<!-- Backbone templates (Underscore template engine) for rendering dynamic views in dataentry area -->
-
-
-<!-- Flows  -->
+<!-- template for main flow view  -->
 
 <script type="text/template" id="flows-edit-template">
   <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Flows" %}</h3>
@@ -34,7 +31,7 @@
         <div class="tab-pane fade in" id="sankey-tab">
         </div>
         <div class="tab-pane fade in" id="verification">
-          {% include "dataentry/verification.html" %}
+          <h3>ToDo</h3>
         </div>
       </div>
     </div>
@@ -59,7 +56,8 @@
   </div>
 </script>
 
-<!-- template for view on editing a node -->
+<!-- template for view on editing a node inside the flows view -->
+
 <script type="text/template" id="edit-node-template">
   <div class="col-md-12 dashed" style="font-size: 12px;">
     <div class="row">
@@ -192,6 +190,7 @@
 </script>
 
 <!-- fractions modal -->
+
 <script type="text/template" id="fractions-modal-template">
   <div class="modal-dialog modal-lg">
     <div class="modal-content col-md-12">
@@ -226,6 +225,7 @@
 </script>
 
 <!--- popover templates -->
+
 <script type="text/template" id="popover-fractions-template">
   <b> <%= title %> </b>
   <% if (fractions) {_.each(fractions, function(fraction){ %>
@@ -241,6 +241,7 @@
 </script>
 
 <!-- template for view on attributes of an activitygroup-node -->
+
 <script type="text/template" id="group-attributes-template">
   <span class="fa fa-cubes" style="float: left;"></span>
   <h4 style="float: left;">{% trans "Activitygroup" %}</h4>
@@ -257,6 +258,7 @@
 </script>
 
 <!-- template for view on attributes of an activity-node -->
+
 <script type="text/template" id="activity-attributes-template">
   <span class="fa fa-cube" style="float: left;"></span>
   <h4 style="float: left;">{% trans "Activity" %}</h4>
@@ -277,6 +279,7 @@
 </script>
 
 <!-- template for view on attributes of an actor-node -->
+
 <script type="text/template" id="actor-attributes-template">
   <span class="fa fa-user" style="float: left;"></span>
   <h4 style="float: left;">{% trans "Actor" %}</h4>
@@ -318,269 +321,4 @@
       <td><a target="_blank" href="http://<%= model.get('website') %>"><%= model.get('website') %></a></td>
     </tr>
   </table>
-</script>
-
-
-<!-- Actors -->
-
-<script type="text/template" id="actors-template">
-  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Actors" %}</h3>
-  </br>
-  <div class="row">
-    <div class='col-md-3 bordered' style="margin-right: 20px; resize: horizontal; overflow: auto">
-      <div class="row">
-        {% trans "Activity" %}
-        <select class="form-control" name="activity-filter">
-          <!--<option value="-1"> {% trans "All Activities" %}</option>-->
-          <% activities.forEach(function(activity) { %>
-            <option value="<%= activity.id %>"> <%= activity.get('name') %></option>
-          <% });  %>
-        </select>
-      </div>
-      <div class="row">
-        {% trans "Inclusion in Casestudy" %} 
-        <select class="form-control" name="included-filter" id="included-filter-select">
-          <option value="0">{% trans "show all" %}</option>
-          <option value="1">{% trans "show included only" %}</option>
-        </select>
-      </div>
-      <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
-        <table id='actors-table' class="table-striped" style="overflow: auto">
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "City" %}</th>
-              <th>{% trans "Address" %}</th>
-            </tr>
-          </thead> 
-        </table>
-      </div>
-      <div class="row">
-        <button id='add-actor-button' class="btn btn-primary" title="{% trans "add new actor" %}">
-          <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
-        </button>
-        <button id='remove-actor-button'  class="btn btn-warning" title="{% trans "remove selected actor" %}">
-          <span class="glyphicon glyphicon-minus"></span> {% trans "Remove" %}
-        </button>
-      </div>
-    </div>
-    <div class='col-md-8'>
-      <div id="edit-actor"> 
-        <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select an actor by clicking its row." %}</h3>
-      </div>
-    </div>
-  </div>
-  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
-  <div id="actor-name-modal"> </div>
-</script>
-
-<!-- edit actor -->
-<script type="text/template" id="edit-actor-template">
-  <div class="col-md-12 dashed">
-    <div class='col-md-5'>
-      <h3 class="row"> <%= actor.get('name') %> </h3>
-      <div class="row">
-        <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
-          <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
-        </button>
-      </div>
-      <table id="actor-edit-table">
-        <tr>
-          <td>{% trans "Included" %}</td>
-          <td>
-            <input id="included-check" type="checkbox" name="included" <% if(actor.get('included')) { %> checked <% } %>"></input>
-            <form id="reasons" style="display: <%= actor.get('included') == true ? 'none' : 'block' %>;" >
-              {% trans "Reason for exclusion" %}
-              </br>
-              <% reasons.each(function(reason) { %>
-                <span style="white-space: nowrap;">
-                  <input name="reason" type="radio" style="margin-right: 2px;" value="<%= reason.id %>" <% if(actor.get('reason') == reason.id) { %> checked <% } %>></input>
-                  <%= reason.get('reason') %>
-                </span>
-                </br>
-              <% });  %>
-            </form>
-          <td>
-        </tr>
-        <tr>
-          <td>{% trans "Name" %}</td>
-          <td><input type="text" name="name" value="<%= actor.get('name') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "Activity" %}</td>
-          <td>
-            <select name="activity" class="form-control">
-              <% activities.each(function(activity) { %>
-                <option value="<%= activity.id %>" <% if(actor.get('activity') == activity.id) { %> selected="selected" <% } %>> <%= activity.get('name') %></option>
-              <% });  %>
-             </select>
-          </td>
-        </tr>
-        <tr>
-          <td>{% trans "Website" %}</td>
-          <td><input type="text" name="website" value="<%= actor.get('website') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "Year" %}</td>
-          <td><input type="number" min="1900" max="3000" name="year" value="<%= actor.get('year') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "Turnover" %}</td>
-          <td><input type="number" name="turnover" value="<%= actor.get('turnover') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "Employees" %}</td>
-          <td><input type="number" min="0" name="employees" value="<%= actor.get('employees') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "BvDid" %}</td>
-          <td><input type="text" name="BvDid" value="<%= actor.get('BvDid') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "BvDii" %}</td>
-          <td><input type="text" name="BvDii" value="<%= actor.get('BvDii') %>"></td>
-        </tr>
-        <tr>
-          <td>{% trans "ConsCode" %}</td>
-          <td><input type="text" name="consCode" value="<%= actor.get('consCode') %>"></td>
-        </tr>
-      </table>
-    </div>
-    <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>
-      <h4 class="row"> {% trans "Locations" %} </h4>
-      <div id="actors-map" style="min-height: 400px" class="map row">
-         <div class="tooltip"></div>
-      </div>
-      </br>
-      <div class="bordered" class="row">
-        <table id="adminloc-table">
-          <b>Administrative Location</b>
-          <thead>
-              <tr>
-                <th>{% trans "Remove " %}</th>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Marker" %}</th>
-                <th>{% trans "Area" %}</th>
-                <th style="text-align: right;">{% trans "Edit" %}</th>
-              </tr>
-            </thead> 
-            <tbody> 
-            </tbody> 
-        </table>
-        <button id='add-administrative-button' class="btn btn-primary square" title="{% trans "add administrative location" %}">
-          <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
-        </button>
-      </div>
-      </br>
-      <div class="bordered" class="row">
-        <table id="oploc-table">
-          <b>Operational Locations</b>
-          <thead>
-            <tr>
-              <th>{% trans "Remove " %}</th>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Marker" %}</th>
-              <th>{% trans "Area" %}</th>
-              <th style="text-align: right;">{% trans "Edit" %}</th>
-            </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
-        </table>
-        <button id='add-operational-button' class="btn btn-primary square" title="{% trans "add operational location" %}">
-          <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
-        </button>
-      </div>
-    </div>
-    <div id="location-modal" class="modal fade" role="dialog">
-      <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content col-md-12">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">{% trans "Edit Location" %}</h4>
-          </div>
-          <div class="modal-body">
-            <div class='row'>
-              <div class="col-md-6" >
-                <div id='edit-location-map' style="min-height: 400px; min-width: 400px; width: 100%; height: 100%;"></div>
-              </div>
-              <div  class="col-md-6"> 
-                <div id='location-modal-content'> </div <!-- this is the only part we rerender everytime an actor is clicked -->
-                </br>
-                <b>{% trans "Area (optional)" %}</b>
-                <table id="location-area-table"></table>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-            <button class="btn btn-primary" id="confirm-location" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</script>
-
-<!-- edit location -->
-<script type="text/template" id="location-modal-template">
-  <br>
-  <b>{% trans "Name" %} </b> <input type="text" name="name" value="<%= properties.name %>" style='margin-left: 20px;'>
-  <br><br><br>
-  <b>{% trans "Address (optional)" %}</b>
-  <table id="location-edit-table">
-    <tr>
-      <td>{% trans "City" %}</td>
-      <td><input type="text" name="city" value="<%= properties.city %>"></td>
-    </tr>
-    <tr>
-      <td>{% trans "Postcode" %}</td>
-      <td><input type="text" name="postcode" value="<%= properties.postcode %>"></td>
-    </tr>
-    <tr>
-      <td>{% trans "Street" %}</td>
-      <td><input type="text" name="address" value="<%= properties.address %>"></td>
-    </tr>
-    <tr>
-      <td>{% trans "Marker" %}</td>
-      <td>
-        <span style="white-space: nowrap;">
-          <div id="coordinates" style="float:left; margin-right: 5px;"></div>
-          <button id='add-point' class="btn btn-primary square" title="{% trans "add marker" %}">
-            <span class="glyphicon glyphicon-plus"></span>
-          </button>
-          <button id='remove-point' class="btn btn-warning square" title="{% trans "remove marker" %}">
-            <span class="glyphicon glyphicon-minus"></span>
-          </button>
-        </span>
-      </td>
-    </tr>
-  </table>
-</script>
-
-<!-- Materials -->
-
-<script type="text/template" id="materials-edit-template">
-  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Materials" %}</h3>
-  <div class="row">
-    <div class="col-md-6">
-      <div id="material-tree"></div>
-    </div>
-    <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
-      <button id='edit-material-button' class="btn btn-primary square inverted" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
-        <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
-      </button>
-      <button id='add-material-button' class="btn btn-primary square inverted" title="{% trans "add child material" %}" style="pointer-events: auto;">
-        <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
-      </button>
-        <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
-          <span class="glyphicon glyphicon-minus"></span> <!--{% trans "Remove Material" %}-->
-        </button>
-      </div>
-    </div>
-  </div>
-  <div id="delete-material-modal"></div>
-  <div id="edit-material-modal"> </div>
-  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
 </script>

@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<script type="text/template" id="materials-edit-template">
+  <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Materials" %}</h3>
+  <div class="row">
+    <div class="col-md-6">
+      <div id="material-tree"></div>
+    </div>
+    <div id="material-tree-buttons" style="position: relative; display: None; pointer-events: none; left: -130px">
+      <button id='edit-material-button' class="btn btn-primary square inverted" title="{% trans "edit material" %}" style="pointer-events: auto; margin-right: 10px;">
+        <span class="glyphicon glyphicon-pencil"></span> <!--{% trans "Edit Material" %}-->
+      </button>
+      <button id='add-material-button' class="btn btn-primary square inverted" title="{% trans "add child material" %}" style="pointer-events: auto;">
+        <span class="glyphicon glyphicon-plus"></span> <!--{% trans "Add Material" %}-->
+      </button>
+        <button id='remove-material-button'  class="btn btn-warning square" title="{% trans "remove material" %}" style="pointer-events: auto;">
+          <span class="glyphicon glyphicon-minus"></span> <!--{% trans "Remove Material" %}-->
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="delete-material-modal"></div>
+  <div id="edit-material-modal"> </div>
+  <a href="#content" id="to-top-anchor">to top &#x2BC5</a>
+</script>
