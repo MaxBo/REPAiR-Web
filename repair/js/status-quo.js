@@ -10,6 +10,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
     var keyflowSelect = document.querySelector('select[name="keyflow"]'),
         flowsView;
     keyflowSelect.addEventListener('change', function(){
+      console.log()
       if (flowsView) flowsView.close();
       flowsView = new FlowsView({ 
         caseStudy: caseStudy,
@@ -41,11 +42,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
 
   renderSetup = function(caseStudy){
     renderFlowsView(caseStudy);
-    var flowsView = new FlowsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flows'),
-      template: 'flows-template'
-    })
     var challengesView = new ChallengesAimsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('challenges'),
