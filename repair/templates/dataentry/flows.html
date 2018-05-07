@@ -317,6 +317,10 @@
       <td><%= model.get('address') %></td>
     </tr>
     <tr>
+      <td>{% trans "Description" %}</td>
+      <td><%= model.get('description') %></td>
+    </tr>
+    <tr>
       <td>{% trans "Website" %}</td>
       <td><a target="_blank" href="http://<%= model.get('website') %>"><%= model.get('website') %></a></td>
     </tr>
