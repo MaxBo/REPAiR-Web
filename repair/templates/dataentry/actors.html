@@ -124,6 +124,10 @@
           <td>{% trans "ConsCode" %}</td>
           <td><input type="text" name="consCode" value="<%= actor.get('consCode') %>"></td>
         </tr>
+        <tr>
+          <td>{% trans "Description" %}</td>
+          <td><textarea rows="3" type="text" name="description" style="width: 100%" ><%= actor.get('description') %></textarea></td>
+        </tr>
       </table>
     </div>
     <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>

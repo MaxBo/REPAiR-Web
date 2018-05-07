@@ -202,12 +202,14 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'activity_name', 'activitygroup', 'activitygroup_name', 
                   'included', 'nace', 'city', 'address', 
-                  'reason',
+                  'reason', 'description'
                   )
         extra_kwargs = {'year': {'allow_null': True},
                         'turnover': {'allow_null': True},
                         'employees': {'allow_null': True}}
     
+    # normally you can't upload empty strings for number fields, but we want to
+    # allow some of them to be blank -> set to None when receiving empty string
     def to_internal_value(self, data):
         allow_blank_numbers = ['year', 'turnover', 'employees']
         for field in allow_blank_numbers:

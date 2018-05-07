@@ -216,16 +216,17 @@ var ActorsView = BaseView.extend(
 
         function onChange(name){
             var actor = new Actor({
-                "BvDid": "-",
-                "name": name || "-----",
-                "consCode": "-",
-                "year": null,
-                "turnover": null,
-                "employees": null,
-                "BvDii": "-",
-                "website": "www.website.org",
-                "activity": _this.activities.first().id,
-                'reason': null
+                    "BvDid": "-",
+                    "name": name || "-----",
+                    "consCode": "-",
+                    "year": null,
+                    "turnover": null,
+                    "employees": null,
+                    "BvDii": "-",
+                    "website": "www.website.org",
+                    "activity": _this.activities.first().id,
+                    'reason': null,
+                    'description': ''
                 }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
             actor.save({}, {success: function(){
                 _this.actors.add(actor);
