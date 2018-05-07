@@ -236,8 +236,9 @@ var FlowsEditView = BaseView.extend(
                 model = new Actor({id: id}, { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId });
                 node.model = model;
                 onConfirm();
+                // select "Select Actor" node when confirmed
+                $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
             }
-            console.log(node)
             var modal = $('#actor-select-modal'),
                 activity = _this.activities.get(node.parentActivityId),
                 activityInput = $('input[name="activity_name"]', modal);
@@ -270,6 +271,8 @@ var FlowsEditView = BaseView.extend(
         }
         
         if (node.tag == 'actorSelect' && !options.rerender){
+            // select previous node (so that "Select Actor" is not highlighted on cancel)
+            $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
             selectActor(render);
         }
         else render();
