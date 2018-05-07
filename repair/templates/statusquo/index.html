@@ -8,8 +8,9 @@
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
-    <li><a href="#challenges" data-toggle="pill">{% trans "Challenges/Aims" %} <span class="sub-icon glyphicon glyphicon-blackboard"></span></a></li>
-    <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-align-right gly-rotate-90"></span></a></li>
+    <li><a href="#challenges" data-toggle="pill">{% trans "Challenges/Aims" %} <span class="sub-icon glyphicon glyphicon-list-alt"></span></a></li>
+    <li><a href="#flow-assessment" data-toggle="pill">{% trans "Flow Assessment" %} <span class="sub-icon fas fa-chart-bar"></span></a></li>
+    <li><a href="#sustainability-assessment" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
     {% if request.session.mode != 1 %}
     <li><a href="#targets" data-toggle="pill">{% trans "Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
     {% endif %}
@@ -34,7 +35,10 @@
     <div id="flows-content"></div>
   </div>
   <div class="tab-pane fade" id="challenges"></div>
-  <div class="tab-pane fade" id="evaluation"></div>
+  <div class="tab-pane fade" id="flow-assessment">
+    <h2> ToDo </h2>
+  </div>
+  <div class="tab-pane fade" id="sustainability-assessment"></div>
   {% if request.session.mode != 1 %}
   <div class="tab-pane fade" id="targets"></div>
   {% endif %}
@@ -42,7 +46,7 @@
   
 {% include "statusquo/flows.html" %}
 {% include "statusquo/challenges-aims.html" %}
-{% include "statusquo/evaluation.html" %}
+{% include "statusquo/sustainability.html" %}
 {% if request.session.mode != 1 %}
 {% include "statusquo/targets.html" %}
 {% endif %}

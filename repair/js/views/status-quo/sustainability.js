@@ -4,15 +4,15 @@ function(Backbone, _, Map, utils){
     /**
     *
     * @author Christoph Franke
-    * @name module:views/EvaluationView
+    * @name module:views/SustainabilityView
     * @augments Backbone.View
     */
-    var EvaluationView = Backbone.View.extend(
-        /** @lends module:views/EvaluationView.prototype */
+    var SustainabilityView = Backbone.View.extend(
+        /** @lends module:views/SustainabilityView.prototype */
         {
 
         /**
-        * render setup view on the evaluation
+        * render setup view on the assessment of sustainability
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                      element the view will be rendered in
@@ -109,6 +109,6 @@ function(Backbone, _, Map, utils){
         },
 
     });
-    return EvaluationView;
+    return SustainabilityView;
 }
 );

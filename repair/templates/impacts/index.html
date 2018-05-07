@@ -8,18 +8,22 @@
     document.getElementById("impacts-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
-    <li><a href="#evaluation" data-toggle="pill">{% trans "Evaluation" %} <span class="sub-icon glyphicon glyphicon-repeat"></span></a></li>
+    <li class="active"><a href="#flows" data-toggle="pill"> {% trans "Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
+    <li><a href="#flow-assessment" data-toggle="pill">{% trans "Flow Assessment" %} <span class="sub-icon fas fa-chart-bar"></span></a></li>
+    <li><a href="#sustainability-assessment" data-toggle="pill"> {% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   </ul>
 {% endblock %}
 
 {% block content %}
   <div class="tab-content">
     <div class="tab-pane fade in active" id="flows">
-      {% include "impacts/flows.html" %}
+      <h2> ToDo </h2>
     </div>
-    <div class="tab-pane fade" id="evaluation">
-      {% include "impacts/evaluation.html" %}
+    <div class="tab-pane fade" id="flow-assessment">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="sustainability-assessment">
+      <h2> ToDo </h2>
     </div>
   </div>
 </html>
