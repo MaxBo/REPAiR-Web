@@ -1,5 +1,7 @@
 define([
-  'openlayers', 'ol-contextmenu'
+  'openlayers', 'ol-contextmenu', 'openlayers/css/ol.css', 
+  'ol-contextmenu/dist/ol-contextmenu.min.css',
+  'static/css/map.css'
 ], function(ol, ContextMenu)
 {
   /**

@@ -1,4 +1,5 @@
-define(['backbone', 'underscore', 'utils/utils'],
+define(['backbone', 'underscore', 'utils/utils', 'hierarchy-select', 
+        'hierarchy-select/dist/hierarchy-select.min.css'],
 function(Backbone, _, utils){
 /**
 *
@@ -113,7 +114,6 @@ var BaseView = Backbone.View.extend(
         wrapper.innerHTML = html;
         wrapper.name = 'material';
         parent.appendChild(wrapper);
-        require('hierarchy-select');
         var select = wrapper.querySelector('.hierarchy-select');
         $(select).hierarchySelect({
             width: width

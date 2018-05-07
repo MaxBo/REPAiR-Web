@@ -1,4 +1,5 @@
-define(['d3', 'd3-tip', 'cyclesankey'], function(d3, d3tip) {
+define(['d3', 'd3-tip', 'cyclesankey'], 
+function(d3, d3tip) {
     /**
     *
     * sankey diagram of nodes and links between those nodes, supports cycles

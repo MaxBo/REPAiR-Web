@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/keyflows', 'collections/materials', 
         'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
-        'hierarchy-select'],
+        'collections/activities', 'views/flowsankey', 'utils/loader', 
+        'utils/utils'],
 
 function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
     Activities, FlowSankeyView, Loader, utils){

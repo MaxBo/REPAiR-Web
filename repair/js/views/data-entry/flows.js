@@ -2,9 +2,13 @@ define(['views/baseview', 'underscore',
     'views/data-entry/edit-node', 'views/status-quo/flows',
     'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
-    'visualizations/sankey', 'views/flowsankey', 'utils/loader', 'app-config'],
+    'utils/loader', 'app-config', 'libs/bootstrap-treeview.min', 
+    'datatables.net-bs',
+    'datatables.net-bs/css/dataTables.bootstrap.css',
+    'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+    'static/css/bootstrap-treeview.min.css'],
 function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
-    Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader, config){
+    Stocks, ActivityGroups, Publications, Loader, config){
 
 /**
 *
@@ -146,7 +150,6 @@ var FlowsEditView = BaseView.extend(
             else _this.renderNodeView(node);
         };
         var divid = '#data-tree';
-        require('libs/bootstrap-treeview.min');
         $(divid).treeview({data: dataTree, showTags: true,
             selectedBackColor: '#aad400',
             onNodeSelected: onClick,
@@ -233,8 +236,9 @@ var FlowsEditView = BaseView.extend(
                 model = new Actor({id: id}, { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId });
                 node.model = model;
                 onConfirm();
+                // select "Select Actor" node when confirmed
+                $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
             }
-            console.log(node)
             var modal = $('#actor-select-modal'),
                 activity = _this.activities.get(node.parentActivityId),
                 activityInput = $('input[name="activity_name"]', modal);
@@ -267,6 +271,9 @@ var FlowsEditView = BaseView.extend(
         }
         
         if (node.tag == 'actorSelect' && !options.rerender){
+            // select previous node (so that "Select Actor" is not highlighted on cancel)
+            if (this.selectedNode)
+                $('#data-tree').treeview('selectNode', [this.selectedNode.nodeId, { silent: true }]);
             selectActor(render);
         }
         else render();

@@ -1,9 +1,9 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-        'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
+        'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
         'visualizations/mapviewer', 
         'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             EvaluationView, MapViewer, appConfig) {
+             SustainabilityView, MapViewer, appConfig) {
              
       
   renderFlowsView = function(caseStudy){
@@ -33,10 +33,10 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
       el: document.getElementById('targets'),
       template: 'targets-template'
     })
-    var evaluationView = new EvaluationView({ 
+    var evaluationView = new SustainabilityView({ 
       caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+      el: document.getElementById('sustainability-assessment'),
+      template: 'sustainability-template'
     })
   };
 
@@ -48,10 +48,10 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
       template: 'challenges-aims-template', 
       mode: 1
     })
-    var evaluationView = new EvaluationView({ 
+    var evaluationView = new SustainabilityView({ 
       caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+      el: document.getElementById('sustainability-assessment'),
+      template: 'sustainability-template'
     })
   };
   

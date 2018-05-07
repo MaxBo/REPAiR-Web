@@ -14,23 +14,18 @@
         <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
       {% endfor %}
       </select>
-      <span class="sub-icon fa fa-cogs"></span>
+      <span class="sub-icon fa fa-cogs" style="margin-right: 10px"></span>
     </div>
     <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
-    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-users"></span></a></li>
+    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-users" style="margin-right: -5px"></span></a></li>
     <li><a href="#materials-edit" data-toggle="pill"> {% trans "Edit Materials" %} <span class="sub-icon fa fa-gavel"></span></a></li>
   </ul>
 {% endblock %}
 
 {% block content %}
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.dataTables.min.css">
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/leaflet.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol-contextmenu.css">
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/data-entry.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/hierarchy-select.min.css" />
+  
   <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
   <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
   <div class="tab-content">
@@ -56,9 +51,11 @@
       <div id="materials-content"></div>
     </div>
   </div>
-{% include "dataentry/backbone-templates.html" %}
+
+{% include "dataentry/actors.html" %}
+{% include "dataentry/materials.html" %}
+{% include "dataentry/flows.html" %}
 {% include "statusquo/flows.html" %}
-{% render_bundle 'vendors' %}
 {% render_bundle 'DataEntry' %}
 {% endblock %}
 
