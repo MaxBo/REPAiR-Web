@@ -272,7 +272,8 @@ var FlowsEditView = BaseView.extend(
         
         if (node.tag == 'actorSelect' && !options.rerender){
             // select previous node (so that "Select Actor" is not highlighted on cancel)
-            $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+            if (this.selectedNode)
+                $('#data-tree').treeview('selectNode', [this.selectedNode.nodeId, { silent: true }]);
             selectActor(render);
         }
         else render();

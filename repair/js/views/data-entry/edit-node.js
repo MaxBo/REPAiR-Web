@@ -796,6 +796,37 @@ var EditNodeView = BaseView.extend(
                 $(this).addClass('selected');
             }
         } );
+        // add individual search fields for all columns
+        $(table).append('<tfoot><tr></tr></tfoot>');
+        var footer = $('tfoot tr', table);
+        var delay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+                clearTimeout (timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
+        this.nodeDatatable.columns().every( function () {
+            var column = this;
+            if (column.visible()){
+                var searchInput = document.createElement('input'),
+                    th = document.createElement('th');
+                searchInput.placeholder = gettext('Search');
+                th.appendChild(searchInput);
+                searchInput.name = columns[column.index()].data;
+                searchInput.style.width = '100%';
+                searchInput.autocomplete = "off";
+                footer.append(th);
+                $(searchInput).on( 'keyup change', function () {
+                    var input = this;
+                    if ( column.search() !== input.value ) {
+                        delay(function(){
+                            column.search(input.value).draw();
+                        }, 400 );
+                    }
+                });
+            }
+        });
     },
     
     confirmNodeSelection: function(){
