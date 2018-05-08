@@ -1,11 +1,11 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/keyflows', 'collections/materials', 
         'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'views/flowsankey', 'utils/loader', 
+        'collections/activities', 'views/flowsankey', 
         'utils/utils'],
 
 function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
-    Activities, FlowSankeyView, Loader, utils){
+    Activities, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -29,7 +29,7 @@ var FlowsView = BaseView.extend(
     */
     initialize: function(options){
         var _this = this;
-        _.bindAll(this, 'render');
+        FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'refreshMap');
 
         this.template = options.template;
@@ -47,13 +47,13 @@ var FlowsView = BaseView.extend(
         this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
         this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
         var params = { included: 'True' }
         $.when(this.materials.fetch(), 
                //this.actors.fetch({ data: params }), 
                this.activities.fetch(), this.activityGroups.fetch()
             ).then(function(){
-            loader.remove();
+            _this.loader.deactivate();
             _this.render();
         })
         

@@ -3,10 +3,10 @@ define(['models/casestudy', 'views/data-entry/flows',
         'views/data-entry/actors', 'views/data-entry/materials', 
         'collections/flows', 'collections/actors',
         'collections/keyflows', 'collections/materials',
-        'app-config', 'utils/loader', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
+        'app-config', 'utils/utils', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
 function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows, 
           Actors, Keyflows, Materials,
-          appConfig, Loader) {  
+          appConfig, utils) {  
   /**
    *
    * entry point for data-entry, 
@@ -19,7 +19,8 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
   var caseStudy,
       keyflows,
       activities,
-      materials;
+      materials,
+      loader = new utils.Loader(document.getElementById('content'), {disable: true});
 
   var flowsView,
       actorsView,
@@ -87,10 +88,9 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
       var keyflow = getKeyflow();
       document.getElementById('keyflow-warning').style.display = 'none';
       materials = new Materials([], { caseStudyId: caseStudy.id, keyflowId: keyflow.id });
-      var loader = new Loader(document.getElementById('content'),
-                              { disable: true });
+      loader.activate();
       materials.fetch({success: function(){
-        loader.remove();
+        loader.deactivate();
         renderFlows(keyflow);
         renderEditActors(keyflow);
         renderEditMaterials(keyflow);
@@ -112,10 +112,9 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
       }
       caseStudy = new CaseStudy({id: caseStudyId});
       keyflows = new Keyflows([], {caseStudyId: caseStudyId});
-      var loader = new Loader(document.getElementById('content'),
-                              {disable: true});
+      loader.activate();
       $.when(caseStudy.fetch(),  keyflows.fetch()).then(function() {
-        loader.remove();
+        loader.deactivate();
         render(caseStudy);
       });
   });

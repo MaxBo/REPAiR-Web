@@ -122,7 +122,9 @@ div.fullscreen{
   padding: 0px;
 }
 .title {
-  font-weight: 600;
+  font-weight: 600;    
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .source {
   position: absolute;

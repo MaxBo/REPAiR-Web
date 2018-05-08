@@ -1,17 +1,16 @@
-define(['backbone', 'underscore','collections/flows',
+define(['views/baseview', 'underscore','collections/flows',
         'collections/stocks', 'visualizations/sankey', 
-        'collections/activities', 'collections/actors',
-        'utils/loader'],
+        'collections/activities', 'collections/actors'],
 
-function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
+function(BaseView, _, Flows, Stocks, Sankey, Activities, Actors){
 
   /**
    *
    * @author Christoph Franke
    * @name module:views/FlowsView
-   * @augments Backbone.View
+   * @augments module:views/BaseView
    */
-  var FlowSankeyView = Backbone.View.extend( 
+  var FlowSankeyView = BaseView.extend( 
     /** @lends module:views/FlowsView.prototype */
     {
 
@@ -32,7 +31,7 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
      * @see http://backbonejs.org/#View
      */
     initialize: function(options){
-      _.bindAll(this, 'render');
+      FlowSankeyView.__super__.initialize.apply(this, [options]);
       _.bindAll(this, 'toggleFullscreen');
       var _this = this;
       this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
@@ -56,10 +55,10 @@ function(Backbone, _, Flows, Stocks, Sankey, Activities, Actors, Loader){
       fullscreenBtn.addEventListener('click', this.toggleFullscreen);
       this.el.appendChild(fullscreenBtn);
                                     
-      var loader = new Loader(this.el, {disable: true});
+      this.loader.activate();
       $.when(this.stocks.fetch({data: options.stockFilterParams}), this.flows.fetch({data: options.flowFilterParams})).then(function(){
+        _this.loader.deactivate();
         _this.render();
-        loader.remove();
       });
     },
 

@@ -1,10 +1,10 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'app-config', 'datatables.net', 
+    'app-config', 'datatables.net', 
     'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
-    Wastes, Loader, config){
+    Wastes, config){
 /**
 *
 * @author Christoph Franke
@@ -45,7 +45,7 @@ var EditNodeView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        EditNodeView.__super__.initialize.apply(this, [options]);
         this.template = options.template;
         this.keyflowId = options.keyflowId;
         this.caseStudyId = options.caseStudyId;
@@ -92,8 +92,7 @@ var EditNodeView = BaseView.extend(
 
         var _this = this;
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
+        this.loader.activate();
 
         // the nace of the model determines the products/wastes of the flows out
         var nace = this.model.get('nace') || 'None';
@@ -108,8 +107,8 @@ var EditNodeView = BaseView.extend(
             this.stocks.fetch({ data: { origin: this.model.id } }),
             this.outProducts.getFirstPage({ data: { nace: nace } }),
             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
-            loader.remove();
-            _this.render();
+                _this.loader.deactivate();
+                _this.render();
         });
     },
 
@@ -354,13 +353,12 @@ var EditNodeView = BaseView.extend(
                     }
                 };
                 var nace = origin.get('nace') || 'None';
-                var loader = new Loader(document.getElementById('flows-edit'),
-                    {disable: true});
+                _this.loader.activate();
                 var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
                 items.getFirstPage({ data: { nace: nace } }).then( 
                     function(){ 
+                        _this.loader.deactivate();
                         _this.editFractions(flow, items, editFractionsBtn); 
-                        loader.remove(); 
                     }
                 )
             }
@@ -941,19 +939,18 @@ var EditNodeView = BaseView.extend(
         var _this = this;
         var models = this.getChangedModels();
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
+        this.loader.activate();
 
         var onError = function(model, response){
             _this.onError(response); 
-            loader.remove();
+            _this.loader.deactivate();
         };
 
         // upload the models recursively (starting at index it)
         function uploadModel(models, it){
             // end recursion if no elements are left and call the passed success method
             if (it >= models.length) {
-                loader.remove();
+                _this.loader.deactivate();
                 _this.onUpload();
                 return;
             };
