@@ -22,7 +22,6 @@ var SetupMapsView = BaseMapView.extend(
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
-        console.log('????')
         _.bindAll(this, 'confirmRemoval');
     },
 

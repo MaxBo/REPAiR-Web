@@ -1,5 +1,5 @@
 define(['underscore','views/baseview', 'models/challenge', 'collections/challenges',
-'models/aim', 'collections/aims'],
+        'models/aim', 'collections/aims'],
 
 function(_, BaseView, Challenge, Challenges, Aim, Aims){
     /**
