@@ -1,10 +1,10 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/geolocations', 
     'models/geolocation', 'collections/activities', 'collections/actors', 
-    'collections/areas', 'models/area','visualizations/map', 'utils/loader', 
+    'collections/areas', 'models/area','visualizations/map', 
     'utils/utils', 'bootstrap'],
 
 function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors, 
-    Areas, Area, Map, Loader, utils){
+    Areas, Area, Map, utils){
 /**
     *
     * @author Christoph Franke
@@ -94,11 +94,9 @@ var EditActorView = BaseView.extend(
             caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'operational'
         })
 
-        var loader = new Loader(document.getElementById('actors-edit'),
-            {disable: true});
-
         this.projection = 'EPSG:4326'; 
 
+        this.loader.activate();
         var deferreds = [
             this.adminLocations.fetch({ data: { actor: this.model.id } }), 
             this.opLocations.fetch({ data: { actor: this.model.id } })
@@ -111,7 +109,7 @@ var EditActorView = BaseView.extend(
 
             $.when.apply($, deferreds).then(function(){
                 if (_this.topLevelAreas) _this.topLevelAreas.sort();
-                loader.remove();
+                _this.loader.deactivate();
                 _this.render();
         });
     },
@@ -178,10 +176,10 @@ var EditActorView = BaseView.extend(
         var reason = (checked != null) ? checked.value: null;
         actor.set('reason', reason);
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
 
         var onError = function(response){
-            loader.remove();
+            _this.loader.deactivate();
             _this.onError(response);
         };
 
@@ -194,7 +192,7 @@ var EditActorView = BaseView.extend(
         function uploadModel(models, it){
             // end recursion if no elements are left and call the passed success method
             if (it >= models.length) {
-                loader.remove();
+                _this.loader.deactivate();
                 _this.onUpload(actor);
                 return;
             };
@@ -450,13 +448,11 @@ var EditActorView = BaseView.extend(
             caseStudyId = this.keyflow.get('casestudy');
         // fill this select
         var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
-        var loader = new Loader(document.getElementById('location-area-table'), {disable: true});
         areas.fetch({
             data:  { parent_id: parentId },
             success: function(){
                 _this.addAreaOptions(areas, select);
                 select.value = area.id;
-                loader.remove();
             }
         });
 

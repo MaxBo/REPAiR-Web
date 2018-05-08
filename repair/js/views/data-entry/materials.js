@@ -1,8 +1,8 @@
-define(['views/baseview', 'underscore', "models/material", 'utils/loader', 
+define(['views/baseview', 'underscore', "models/material", 
         'utils/utils', 'libs/bootstrap-treeview.min',
         'static/css/bootstrap-treeview.min.css'],
 
-function(BaseView, _, Material, Loader, utils){
+function(BaseView, _, Material, utils){
 
 /**
     *
@@ -53,8 +53,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * render the view
-        */
+    * render the view
+    */
     render: function(){
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
@@ -195,8 +195,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * edit the selected material 
-        */
+    * edit the selected material 
+    */
     editMaterial: function(){
         var node = this.selectedNode;
         if (node == null) return;
@@ -206,6 +206,8 @@ var MaterialsView = BaseView.extend(
 
         function onChange(name){
             node.model.set('name', name);
+            node.model.caseStudyId = _this.caseStudyId;
+            node.model.keyflowId = _this.keyflowId;
             node.model.save(null, { 
                 success: function(){
                     _this.rerender(node.id);
@@ -230,15 +232,15 @@ var MaterialsView = BaseView.extend(
         function destroy(){
             node.model.destroy( { success: function(){
                 // fetch the materials again because all children of this node will be removed in backend
-                var loader = new Loader(_this.el, { disable: true });
+                _this.loader.activate();
                 _this.materials.fetch({ 
                     success: function(){
                         _this.rerender();
-                        loader.remove();
+                        _this.loader.deactivate();
                     },
                     error: function(response){
-                        error: _this.onError(response);
-                        loader.remove();
+                        _this.onError(response);
+                        _this.loader.deactivate();
                     }
                 });
             }, error: _this.onError});
