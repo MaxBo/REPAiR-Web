@@ -95,7 +95,7 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
 
 class ActivityListSerializer(ActivitySerializer):
     class Meta(ActivitySerializer.Meta):
-        fields = ('id', 'name', 'activitygroup')
+        fields = ('id', 'name', 'activitygroup', 'activitygroup_name', 'nace')
 
 
 class ActivityField(InCasestudyField):

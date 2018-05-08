@@ -1,14 +1,16 @@
-define(["backbone", "models/activity", "app-config"],
+define(["backbone-pageable", "models/activity", "app-config"],
 
-  function(Backbone, Activity, config) {
+  function(PageableCollection, Activity, config) {
   
    /**
     *
     * @author Christoph Franke
     * @name module:collections/Activities
-    * @augments Backbone.Collection
+    * @augments Backbone.PageableCollection
+    *
+    * @see https://github.com/backbone-paginator/backbone.paginator
     */
-    var Activities = Backbone.Collection.extend(
+    var Activities = PageableCollection.extend(
       /** @lends module:collections/Activities.prototype */
       {
       /**
@@ -18,6 +20,20 @@ define(["backbone", "models/activity", "app-config"],
        */
       url: function(){
           return config.api.activities.format(this.caseStudyId, this.keyflowId);
+      },
+      
+      state: {
+          pageSize: 1000000,
+          firstPage: 1,
+          currentPage: 1
+      }
+      
+      queryParams: {
+        pageSize: "page_size"
+      },
+      
+      parseRecords: function (response) {
+        return response.results;
       },
       
     /**

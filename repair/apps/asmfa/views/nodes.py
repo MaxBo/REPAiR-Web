@@ -23,6 +23,7 @@ from repair.apps.utils.views import ModelPermissionViewSet
 
 class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
                            ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activitygroup'
     change_perm = 'asmfa.change_activitygroup'
     delete_perm = 'asmfa.delete_activitygroup'
@@ -40,6 +41,7 @@ class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
 
 class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
                       ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activity'
     change_perm = 'asmfa.change_activity'
     delete_perm = 'asmfa.delete_activity'
