@@ -29,6 +29,7 @@ var BaseView = Backbone.View.extend(
         _.bindAll(this, 'onError');
         var _this = this;
         this.template = options.template;
+        this.loader = new utils.Loader(options.el, {disable: true});
     },
     
     /**

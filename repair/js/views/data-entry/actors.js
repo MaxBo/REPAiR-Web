@@ -1,12 +1,11 @@
 define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
     'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 
+    'app-config', 
     'datatables.net-bs',
     'datatables.net-bs/css/dataTables.bootstrap.css',
     'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
     'bootstrap-select'],
-function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
-    Loader, config){
+function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, config){
 
 /**
     *
@@ -53,8 +52,7 @@ var ActorsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.caseStudyId = this.model.get('casestudy');
 
-        var loader = new Loader(document.getElementById('actors-edit'),
-            {disable: true});
+        this.loader.activate();
 
         this.projection = 'EPSG:4326'; 
 
@@ -66,7 +64,7 @@ var ActorsView = BaseView.extend(
             this.areaLevels.fetch(), 
             this.reasons.fetch()).then(function() {
                 _this.areaLevels.sort();
-                loader.remove();
+                _this.loader.deactivate();
                 _this.render();
             });
     },

@@ -2,13 +2,13 @@ define(['views/baseview', 'underscore',
     'views/data-entry/edit-node', 'views/status-quo/flows',
     'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
     'collections/activitygroups', 'collections/publications', 
-    'utils/loader', 'app-config', 'libs/bootstrap-treeview.min', 
+    'app-config', 'libs/bootstrap-treeview.min', 
     'datatables.net-bs',
     'datatables.net-bs/css/dataTables.bootstrap.css',
     'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
     'static/css/bootstrap-treeview.min.css'],
 function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
-    Stocks, ActivityGroups, Publications, Loader, config){
+    Stocks, ActivityGroups, Publications, config){
 
 /**
 *
@@ -33,7 +33,7 @@ var FlowsEditView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        FlowsEditView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderDataTree');
         _.bindAll(this, 'renderNodeView');
         var _this = this;
@@ -49,14 +49,13 @@ var FlowsEditView = BaseView.extend(
         this.activities = new Activities([], { caseStudyId: this.caseStudyId, keyflowId: this.keyflowId });
         this.publications = new Publications([], { caseStudyId: this.caseStudyId });
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
+        this.loader.activate();
 
         $.when(
             this.activityGroups.fetch(), this.activities.fetch(), 
             this.publications.fetch()).then(function(){
+                _this.loader.deactivate();
                 _this.render();
-                loader.remove();
         });
     },
 
