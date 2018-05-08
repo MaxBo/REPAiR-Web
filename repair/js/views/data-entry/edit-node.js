@@ -769,6 +769,11 @@ var EditNodeView = BaseView.extend(
             {data: 'id', title: 'ID', visible: false},
             {data: 'name', title: gettext('Name')}
         ];
+        if (this.model.tag == 'activity')
+            columns = columns.concat([
+                {data: 'activitygroup_name', title: gettext('Activity Group'), name: 'activitygroup__name'},
+                {data: 'nace', title: gettext('Nace Code'), name: 'nace'},
+            ]);
         if (this.model.tag == 'actor')
             columns = columns.concat([
                 {data: 'activity_name', title: gettext('Activity'), name: 'activity__name'},
@@ -795,36 +800,38 @@ var EditNodeView = BaseView.extend(
             }
         } );
         // add individual search fields for all columns
-        $(table).append('<tfoot><tr></tr></tfoot>');
-        var footer = $('tfoot tr', table);
-        var delay = (function(){
-            var timer = 0;
-            return function(callback, ms){
-                clearTimeout (timer);
-                timer = setTimeout(callback, ms);
-            };
-        })();
-        this.nodeDatatable.columns().every( function () {
-            var column = this;
-            if (column.visible()){
-                var searchInput = document.createElement('input'),
-                    th = document.createElement('th');
-                searchInput.placeholder = gettext('Search');
-                th.appendChild(searchInput);
-                searchInput.name = columns[column.index()].data;
-                searchInput.style.width = '100%';
-                searchInput.autocomplete = "off";
-                footer.append(th);
-                $(searchInput).on( 'keyup change', function () {
-                    var input = this;
-                    if ( column.search() !== input.value ) {
-                        delay(function(){
-                            column.search(input.value).draw();
-                        }, 400 );
-                    }
-                });
-            }
-        });
+        if (this.model.tag != 'activitygroup'){
+            $(table).append('<tfoot><tr></tr></tfoot>');
+            var footer = $('tfoot tr', table);
+            var delay = (function(){
+                var timer = 0;
+                return function(callback, ms){
+                    clearTimeout (timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+            this.nodeDatatable.columns().every( function () {
+                var column = this;
+                if (column.visible()){
+                    var searchInput = document.createElement('input'),
+                        th = document.createElement('th');
+                    searchInput.placeholder = gettext('Search');
+                    th.appendChild(searchInput);
+                    searchInput.name = columns[column.index()].data;
+                    searchInput.style.width = '100%';
+                    searchInput.autocomplete = "off";
+                    footer.append(th);
+                    $(searchInput).on( 'keyup change', function () {
+                        var input = this;
+                        if ( column.search() !== input.value ) {
+                            delay(function(){
+                                column.search(input.value).draw();
+                            }, 400 );
+                        }
+                    });
+                }
+            });
+        }
     },
     
     confirmNodeSelection: function(){
