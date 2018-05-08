@@ -338,7 +338,11 @@ var ImplementationsView = BaseView.extend(
                 input.type = 'number';
                 input.value = quantity.get('value');
                 input.classList.add('form-control');
-                row.insertCell(-1).appendChild(input);
+                var inputCell = row.insertCell(-1);
+                inputCell.style.width= '1%';
+                inputCell.style.whiteSpace = 'nowrap';
+                input.style.width = '200px';
+                inputCell.appendChild(input);
                 row.insertCell(-1).innerHTML = quantity.get('unit');
             });
         }});
@@ -403,7 +407,6 @@ var ImplementationsView = BaseView.extend(
             divid: divid, 
         });
         var geom = solutionImpl.get('geom');
-        // add polygon of focusarea to both maps and center on their centroid
         if (geom != null){
             previewMap.addLayer('geometry', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'})
             previewMap.addPolygon(geom.coordinates, { 
@@ -432,6 +435,12 @@ var ImplementationsView = BaseView.extend(
 
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
+            this.editorMap.addLayer('background', {
+                stroke: '#aad400',
+                fill: 'rgba(170, 212, 0, 0.1)',
+                strokeWidth: 1,
+                zIndex: 0
+            });
             var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
             this.editorMap.centerOnPolygon(poly, { projection: this.projection });
         };
