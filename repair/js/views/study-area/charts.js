@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'collections/chartcategories', 
-        'collections/charts', 'models/chart', 'utils/loader', "app-config"],
+        'collections/charts', 'models/chart', "app-config"],
 
-function(BaseView, _, ChartCategories, Charts, Chart, Loader, config){
+function(BaseView, _, ChartCategories, Charts, Chart, config){
 /**
 *
 * @author Christoph Franke
@@ -36,14 +36,14 @@ var BaseChartsView = BaseView.extend(
         
         this.chartCategories = new ChartCategories([], { caseStudyId: this.caseStudy.id });
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
         this.chartCategories.fetch({ 
             success: function(){
-                loader.remove();
+                _this.loader.deactivate();
                 _this.initTree();
             },
             error: function(r){
-                loader.remove();
+                _this.loader.deactivate();
                 _this.onError;
             }
         })
@@ -127,6 +127,7 @@ var BaseChartsView = BaseView.extend(
 
     rerenderChartTree: function(categoryId){
         this.buttonBox.style.display = 'None';
+        // error when trying to remove, but not initialized yet, safe to ignore
         $(this.chartTree).treeview('remove');
         this.renderChartTree(categoryId);
     },

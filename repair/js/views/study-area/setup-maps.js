@@ -1,8 +1,8 @@
 define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories',
-    'collections/layers', 'models/layer', 'visualizations/map',
-    'utils/loader', 'app-config', 'openlayers'],
+        'collections/layers', 'models/layer', 'visualizations/map',
+        'app-config', 'openlayers'],
 
-function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config, ol){
+function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, config, ol){
 /**
 *
 * @author Christoph Franke

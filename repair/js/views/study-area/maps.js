@@ -1,8 +1,8 @@
 define(['views/baseview', 'backbone', 'underscore', 'collections/layercategories',
-    'collections/layers', 'models/layer', 'visualizations/map',
-    'utils/loader', 'app-config', 'openlayers'],
+        'collections/layers', 'models/layer', 'visualizations/map',
+        'app-config', 'openlayers'],
 
-function(BaseView, Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config, ol){
+function(BaseView, Backbone, _, LayerCategories, Layers, Layer, Map, config, ol){
 /**
 *
 * @author Christoph Franke
@@ -59,9 +59,9 @@ var BaseMapsView = BaseView.extend(
         this.layerPrefix = 'service-layer-';
         this.legendPrefix = 'layer-legend-';
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
         this.layerCategories.fetch({ success: function(){
-            loader.remove();
+            _this.loader.deactivate();
             _this.initTree();
         }})
     },

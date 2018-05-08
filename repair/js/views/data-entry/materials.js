@@ -53,8 +53,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * render the view
-        */
+    * render the view
+    */
     render: function(){
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
@@ -195,8 +195,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * edit the selected material 
-        */
+    * edit the selected material 
+    */
     editMaterial: function(){
         var node = this.selectedNode;
         if (node == null) return;
