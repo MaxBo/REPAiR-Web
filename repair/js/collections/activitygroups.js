@@ -26,7 +26,7 @@ define(["backbone-pageable", "models/activitygroup", "app-config"],
           pageSize: 1000000,
           firstPage: 1,
           currentPage: 1
-      }
+      },
       
       queryParams: {
         pageSize: "page_size"
