@@ -13,6 +13,10 @@ class CaseStudy(GDSEModel):
     geom = geomodels.MultiPolygonField(null=True)
     focusarea = geomodels.MultiPolygonField(null=True)
     description = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        default_permissions = ('add', 'change', 'delete', 'view',
+                               'setupmode', 'dataentry')
 
     @property
     def solution_categories(self):
