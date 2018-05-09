@@ -106,7 +106,6 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
     function(session){
       var caseStudyId = session['casestudy'];
       if (caseStudyId == null){
-        document.getElementById('casestudy-warning').style.display = 'block';
         document.getElementById('keyflow-warning').style.display = 'none';
         return;
       }
