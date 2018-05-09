@@ -1,10 +1,11 @@
-define(['views/baseview', 'backbone', 'underscore', 'collections/stakeholders',
+define(['views/baseview', 'underscore', 'collections/gdsecollection/', 
+        'collections/stakeholders',
         'collections/stakeholdercategories', 'collections/solutioncategories',
         'collections/solutions', 'visualizations/map', 
         'app-config', 'utils/utils', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
-function(BaseView, Backbone, _, Stakeholders, StakeholderCategories, 
+function(BaseView, _, GDSECollection, Stakeholders, StakeholderCategories, 
          SolutionCategories, Solutions, Map, config, utils, ol){
 /**
 *
@@ -36,10 +37,13 @@ var ImplementationsView = BaseView.extend(
         this.stakeholderCategories = new StakeholderCategories([], { caseStudyId: this.caseStudy.id });
         
         // todo: collection for implementations and units (or not?)
-        var Implementations = Backbone.Collection.extend({ url: config.api.implementations.format(this.caseStudy.id) });
-        this.implementations = new Implementations();
-        var Units = Backbone.Collection.extend({ url: config.api.units });
-        this.units = new Units();
+        this.implementations = new GDSECollection([], {
+            apiTag: 'implementations', 
+            apiIds: [this.caseStudy.id] 
+        });
+        this.units = new GDSECollection([], {
+            apiTag: 'units'
+        });
         this.solutionCategories = new SolutionCategories([], { caseStudyId: this.caseStudy.id });
         this.stakeholders = [];
         this.solutions = [];
@@ -141,10 +145,10 @@ var ImplementationsView = BaseView.extend(
             }});
         })
         
-        var SolutionsInImpl = Backbone.Collection.extend({
-                url: config.api.solutionsInImplementation.format(this.caseStudy.id, implementation.id)
-            }),
-            solutionsInImpl = new SolutionsInImpl();
+        var solutionsInImpl = new GDSECollection([], {
+            apiTag: 'solutionsInImplementation', 
+            apiIds: [this.caseStudy.id, implementation.id] 
+        });
         
         solutionsInImpl.fetch({
             success: function(){ 
@@ -317,13 +321,15 @@ var ImplementationsView = BaseView.extend(
         var select = modal.querySelector('.selectpicker');
         $(select).selectpicker();
         
-        var Quantities = Backbone.Collection.extend({ 
-            url: config.api.quantitiesInImplementedSolution.format(this.caseStudy.id, implementation.id, solutionImpl.id) })
-        var squantities = new Quantities();
-        
-        var Ratios = Backbone.Collection.extend({ 
-            url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
-        var sratios = new Ratios();
+        var squantities = new GDSECollection([], {
+            apiTag: 'quantitiesInImplementedSolution', 
+            apiIds: [this.caseStudy.id, implementation.id, solutionImpl.id] 
+        });
+
+        var sratios = new GDSECollection([], {
+            apiTag: 'solutionRatioOneUnits', 
+            apiIds: [this.caseStudy.id, solution.get('solution_category'), solution.id] 
+        });
         
         // render the quantities and ratios (tab "Quantities")
         squantities.fetch({success: function(){
