@@ -72,13 +72,16 @@ class RestrictedAdminSite(AdminSite):
             return HttpResponseForbidden(str(e))
         
     def has_permission(self, request):
-        if request.user.is_superuser:
+        # superusers or non staff users (incl. being not logged in)
+        # are treated as always
+        if request.user.is_superuser or not request.user.is_staff:
             return super().has_permission(request)
         
         # admin base path is accessible for staff
-        if request.path.split(self.name)[1] == '/':
+        if request.path.split(self.name)[1] in ['/', '/logout/']:
             return True
         
+        # check if the requested url is part of the permitted models
         permitted_apps = self.get_app_list(request)
         permitted_urls = []
         for app in permitted_apps:
@@ -86,7 +89,6 @@ class RestrictedAdminSite(AdminSite):
             models = app['models']
             permitted_urls.extend(m['add_url'] for m in models if 'add_url' in m)
             permitted_urls.extend(m['admin_url'] for m in models if 'admin_url' in m)
-        
         if request.path in permitted_urls:
             return True
         return False
