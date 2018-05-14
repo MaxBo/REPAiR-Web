@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib import admin
+from repair.apps import admin
 
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 
@@ -33,6 +33,9 @@ class CustomWMSResourceAdmin(VersionAdmin, WMSResourceAdmin):
                 casestudy=casestudy,
                 wmsresource=obj)
 
-
-admin.site.unregister(WMSResource)
+            
+try:
+    admin.site.unregister(WMSResource)
+except:
+    pass
 admin.site.register(WMSResource, CustomWMSResourceAdmin)
