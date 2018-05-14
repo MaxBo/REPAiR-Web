@@ -19,11 +19,12 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from repair.views import HomeView
 from django.contrib.auth.views import logout
 from django.views.i18n import JavaScriptCatalog
 from repair.apps.wmsresources.views import (WMSProxyView)
+from repair.apps import admin
+#from django.contrib.admin import site as admin_site
 
 
 # Wire up our API using automatic URL routing.
