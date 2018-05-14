@@ -44,13 +44,15 @@ class RestrictedAdminSite(AdminSite):
         if request.user.is_superuser or not app_dict:
             return app_dict
         
+        msg403 = _('The requested admin page is '
+                   'accessible by superusers only.')
+        
         # if label is passed, a single app is looked for
         if label is not None:
             if label in self.access_dict:
                 return app_dict
             else:
-                raise Http403(_('The requested admin page is '
-                                'accessible by superusers only.'))
+                raise Http403(msg403)
 
         # all apps are queried when the index site is requested
         permitted_app_dict = {}
@@ -68,6 +70,26 @@ class RestrictedAdminSite(AdminSite):
                                      extra_context=extra_context)
         except Http403 as e:
             return HttpResponseForbidden(str(e))
+        
+    def has_permission(self, request):
+        if request.user.is_superuser:
+            return super().has_permission(request)
+        
+        # admin base path is accessible for staff
+        if request.path.split(self.name)[1] == '/':
+            return True
+        
+        permitted_apps = self.get_app_list(request)
+        permitted_urls = []
+        for app in permitted_apps:
+            permitted_urls.append(app['app_url'])
+            models = app['models']
+            permitted_urls.extend(m['add_url'] for m in models if 'add_url' in m)
+            permitted_urls.extend(m['admin_url'] for m in models if 'admin_url' in m)
+        
+        if request.path in permitted_urls:
+            return True
+        return False
 
 site = RestrictedAdminSite()
 
