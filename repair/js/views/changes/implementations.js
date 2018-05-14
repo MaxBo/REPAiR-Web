@@ -2,11 +2,11 @@ define(['views/baseview', 'underscore', 'collections/gdsecollection/',
         'collections/stakeholders',
         'collections/stakeholdercategories', 'collections/solutioncategories',
         'collections/solutions', 'visualizations/map', 
-        'app-config', 'utils/utils', 'openlayers', 'bootstrap', 
+        'utils/utils', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, Stakeholders, StakeholderCategories, 
-         SolutionCategories, Solutions, Map, config, utils, ol){
+         SolutionCategories, Solutions, Map, utils, ol){
 /**
 *
 * @author Christoph Franke
@@ -36,15 +36,20 @@ var ImplementationsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.stakeholderCategories = new StakeholderCategories([], { caseStudyId: this.caseStudy.id });
         
-        // todo: collection for implementations and units (or not?)
         this.implementations = new GDSECollection([], {
             apiTag: 'implementations', 
             apiIds: [this.caseStudy.id] 
         });
+        
         this.units = new GDSECollection([], {
             apiTag: 'units'
         });
-        this.solutionCategories = new SolutionCategories([], { caseStudyId: this.caseStudy.id });
+        
+        this.solutionCategories = new GDSECollection([], {
+            apiTag: 'solutionCategories',
+            apiIds: [this.caseStudy.id] 
+        });
+        
         this.stakeholders = [];
         this.solutions = [];
         this.projection = 'EPSG:4326';
@@ -63,9 +68,9 @@ var ImplementationsView = BaseView.extend(
             });
             // fetch all solutions after fetching the categories
             _this.solutionCategories.forEach(function(category){
-                var solutions = new Solutions([], { 
-                    caseStudyId: _this.caseStudy.id, 
-                    solutionCategoryId: category.id 
+                var solutions = new GDSECollection([], {
+                    apiTag: 'solutions',
+                    apiIds: [_this.caseStudy.id, category.id] 
                 });
                 category.solutions = solutions;
                 deferreds.push(solutions.fetch({ error: _this.onError }))

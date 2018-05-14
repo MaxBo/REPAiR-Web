@@ -19,7 +19,7 @@ function(PageableCollection, Backbone, _, config) {
         /** @lends module:collections/GDSECollection.prototype */
         {
         /**
-        * generates an url to the api resource list based on the ids given in constructor
+        * generates the url based on the passed options when initializing
         *
         * @returns {string} the url string
         */
@@ -27,6 +27,7 @@ function(PageableCollection, Backbone, _, config) {
             // if concrete url was passed: take this and ignore the rest
             if (this.baseurl) return this.baseurl;
             
+            // take url from api by tag and put the required ids in
             var apiUrl = config.api[this.apiTag]
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
@@ -72,7 +73,7 @@ function(PageableCollection, Backbone, _, config) {
         },
 
         /**
-        * collection
+        * generic collection collection matching most of the GDSE backend api
         *
         * @param {Array.<Backbone.model>} models   list objects representing the fields of each model and their values, will be set if passed
         * @param {Object} options
