@@ -16,7 +16,8 @@ class RestrictedAdminSite(AdminSite):
         full_app_list = super().get_app_list(request)
         if request.user.is_superuser:
             return full_app_list
-        permitted_app_list = [app for app in full_app_list if app['name'] in self.staff_access]
+        permitted_app_list = [app for app in full_app_list
+                              if app['name'] in self.staff_access]
         return permitted_app_list
 
     
