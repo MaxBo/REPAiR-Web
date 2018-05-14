@@ -1,17 +1,24 @@
 from django.contrib.admin import * 
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.decorators import register as dec_reg
+from django.apps import apps
+from django.http import HttpResponseForbidden
+import numpy as np
+from django.utils.translation import gettext as _
+
 from repair.apps.login.models import Profile
 from wms_client.models import WMSResource
 from publications_bootstrap.models import Publication
-from django.apps import apps
-import numpy as np
 
 def register(*models):
     return dec_reg(*models, site=site)
 
 
 STAFF_ACCESS = [ Profile, WMSResource, Publication]
+
+
+class Http403(Exception):
+    pass
 
 
 class RestrictedAdminSite(AdminSite):
@@ -31,37 +38,36 @@ class RestrictedAdminSite(AdminSite):
                 self.access_dict[app_label] = []
             self.access_dict[app_label].append(object_name)
     
-    def get_app_list(self, request):
-        full_app_list = super().get_app_list(request)
-        if request.user.is_superuser:
-            return full_app_list
+    def _build_app_dict(self, request, label=None):
+        app_dict = super()._build_app_dict(request, label=label)
         
-        permitted_app_list = []
-        for app in full_app_list:
-            accessible = self.access_dict.get(app['app_label'])
-            if not accessible:
-                continue
-            permitted_app = app.copy()
-            permitted_app['models'] = [m for m in app['models']
-                                       if m['object_name'] in accessible]
-            permitted_app_list.append(permitted_app)
-        return permitted_app_list
+        if request.user.is_superuser or not app_dict:
+            return app_dict
+        
+        # if label is passed, a single app is looked for
+        if label is not None:
+            if label in self.access_dict:
+                return app_dict
+            else:
+                raise Http403(_('The requested admin page is '
+                                'accessible by superusers only.'))
 
-    def has_permission(self, request):
-        if request.user.is_superuser:
-            return super().has_permission(request)
-        
-        url = request.path.split(self.name)[1]
-        # admin base path is accessible for staff
-        if url == '/':
-            return True
-        
-        permitted_apps = self.get_app_list(request)
-        # look for label 
-        for app_label in self.access_dict:
-            if url.startswith('/' + app_label):
-                return True
-        return False
+        # all apps are queried when the index site is requested
+        permitted_app_dict = {}
+        for app_label, object_names in self.access_dict.items():
+            app = app_dict[app_label]
+            permitted_app = app_dict[app_label]
+            permitted_app['models'] = [m for m in app['models']
+                                       if m['object_name'] in object_names]
+            permitted_app_dict[app_label] = permitted_app
+        return permitted_app_dict
+    
+    def app_index(self, request, app_label, extra_context=None):
+        try:
+            return super().app_index(request, app_label,
+                                     extra_context=extra_context)
+        except Http403 as e:
+            return HttpResponseForbidden(str(e))
 
 site = RestrictedAdminSite()
 
