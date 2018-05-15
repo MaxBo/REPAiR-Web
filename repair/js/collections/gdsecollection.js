@@ -1,6 +1,6 @@
-define(["backbone-pageable", "backbone", "underscore", "app-config"],
+define(["backbone-pageable", "underscore", "models/gdsemodel", "app-config"],
 
-function(PageableCollection, Backbone, _, config) {
+function(PageableCollection, _, GDSEModel, config) {
 
     // default model, you might add some extra common stuff here
     var GDSEModel = Backbone.Model.extend( {
@@ -71,15 +71,20 @@ function(PageableCollection, Backbone, _, config) {
                 return response.results;
             return response;
         },
+        
+        comparator: function(model) {
+          return model.get(this.comparatorAttr);
+        },
 
         /**
         * generic collection collection matching most of the GDSE backend api
         *
         * @param {Array.<Backbone.model>} models   list objects representing the fields of each model and their values, will be set if passed
         * @param {Object} options
-        * @param {string} options.baseurl          static url (overrides all api arguments)
+        * @param {string} options.baseurl          static url (overrides all of the follwing api arguments)
         * @param {string} options.apiTag           key of url as in config.api
         * @param {string} options.apiIds           ids to access api url (retrieved by apiTag), same order of appearance as in config.api[apiTag]
+        * @param {string} [options.comparator='id'] attribute used for sorting
         *
         * @constructs
         * @see http://backbonejs.org/#Collection
@@ -89,6 +94,7 @@ function(PageableCollection, Backbone, _, config) {
             this.baseurl = options.url;
             this.apiTag = options.apiTag;
             this.apiIds = options.apiIds;
+            this.comparatorAttr = options.comparator || 'id';
         },
         
         model: GDSEModel
