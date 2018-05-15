@@ -13,7 +13,8 @@ from repair.apps.login.models import Profile
 from wms_client.models import WMSResource
 from publications_bootstrap.models import Publication
 
-def register(*models):
+def register(*models, site=None):
+    site = site or globals()['site']
     return dec_reg(*models, site=site)
 
 
