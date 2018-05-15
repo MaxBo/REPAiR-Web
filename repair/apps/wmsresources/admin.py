@@ -7,6 +7,7 @@ from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 
 from wms_client.models import WMSResource
 from wms_client.admin import WMSResourceAdmin
+from django.contrib.admin.sites import NotRegistered
 
 from .models import WMSResourceInCasestudy, CaseStudy
 
@@ -36,6 +37,6 @@ class CustomWMSResourceAdmin(VersionAdmin, WMSResourceAdmin):
             
 try:
     admin.site.unregister(WMSResource)
-except:
+except NotRegistered:
     pass
 admin.site.register(WMSResource, CustomWMSResourceAdmin)

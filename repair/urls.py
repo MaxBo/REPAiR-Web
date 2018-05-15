@@ -24,7 +24,7 @@ from django.contrib.auth.views import logout
 from django.views.i18n import JavaScriptCatalog
 from repair.apps.wmsresources.views import (WMSProxyView)
 from repair.apps import admin
-#from django.contrib.admin import site as admin_site
+#from django.contrib import admin
 
 
 # Wire up our API using automatic URL routing.
