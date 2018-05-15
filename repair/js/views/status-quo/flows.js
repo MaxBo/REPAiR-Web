@@ -36,7 +36,6 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.filterParams = {};
-        content.style.display = 'inline';
         this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
         this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
             state: {
