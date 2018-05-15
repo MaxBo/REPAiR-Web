@@ -1,6 +1,7 @@
 from django.contrib.admin import * 
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from reversion_compare.admin import Revision, Version
 from django.contrib.admin.decorators import register as dec_reg
 from django.apps import apps
@@ -98,8 +99,8 @@ class RestrictedAdminSite(AdminSite):
         return False
 
 site = RestrictedAdminSite()
-site.register(User)
-site.register(Group)
+site.register(Group, GroupAdmin)
+site.register(User, UserAdmin)
 site.register(Revision)
 site.register(Version)
 site.register(Permission)
