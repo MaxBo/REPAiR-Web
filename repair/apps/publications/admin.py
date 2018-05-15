@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib import admin
+from repair.apps import admin
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
+from django.contrib.admin.sites import NotRegistered
 
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 
@@ -66,6 +67,8 @@ class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
                 casestudy=casestudy,
                 publication=obj)
 
-
-admin.site.unregister(Publication)
+try:
+    admin.site.unregister(Publication)
+except NotRegistered:
+    pass
 admin.site.register(Publication, CustomPublicationAdmin)
