@@ -1,5 +1,7 @@
 from django.contrib.admin import * 
 from django.contrib.admin.sites import AdminSite
+from django.contrib.auth.models import User, Group, Permission
+from reversion_compare.admin import Revision, Version
 from django.contrib.admin.decorators import register as dec_reg
 from django.apps import apps
 from django.http import HttpResponseForbidden
@@ -14,7 +16,7 @@ def register(*models):
     return dec_reg(*models, site=site)
 
 
-STAFF_ACCESS = [ Profile, WMSResource, Publication]
+STAFF_ACCESS = [Profile, WMSResource, Publication, User]
 
 
 class Http403(Exception):
@@ -87,11 +89,19 @@ class RestrictedAdminSite(AdminSite):
         for app in permitted_apps:
             permitted_urls.append(app['app_url'])
             models = app['models']
-            permitted_urls.extend(m['add_url'] for m in models if 'add_url' in m)
-            permitted_urls.extend(m['admin_url'] for m in models if 'admin_url' in m)
+            permitted_urls.extend(m['add_url'] for m in models
+                                  if 'add_url' in m)
+            permitted_urls.extend(m['admin_url'] for m in models
+                                  if 'admin_url' in m)
         if request.path in permitted_urls:
             return True
         return False
 
 site = RestrictedAdminSite()
+site.register(User)
+site.register(Group)
+site.register(Revision)
+site.register(Version)
+site.register(Permission)
+
 
