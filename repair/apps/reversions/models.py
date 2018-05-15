@@ -1,4 +1,4 @@
-from django.contrib import admin
+from repair.apps import admin
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 from repair.apps.login.models import (CaseStudy, )
 from repair.apps.studyarea.models import (StakeholderCategory,
