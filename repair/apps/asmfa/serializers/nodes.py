@@ -84,16 +84,18 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
     activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
                                            source='activitygroup',
                                            read_only=True)
+    activitygroup_name = serializers.CharField(
+        source='activitygroup.name', read_only=True)
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_url')
+                  'activitygroup_name', 'activitygroup_url')
 
 
 class ActivityListSerializer(ActivitySerializer):
     class Meta(ActivitySerializer.Meta):
-        fields = ('id', 'name', 'activitygroup')
+        fields = ('id', 'name', 'activitygroup', 'activitygroup_name', 'nace')
 
 
 class ActivityField(InCasestudyField):
@@ -179,8 +181,12 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         'keyflow_pk': 'activity__activitygroup__keyflow__id',
     }
     activity = IDRelatedField()
+    activity_name = serializers.CharField(source='activity.name', read_only=True)
+    activitygroup_name = serializers.CharField(source='activity.activitygroup.name', read_only=True)
     activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
                                              read_only=True)
+    address = serializers.CharField(source='administrative_location.address', read_only=True)
+    city = serializers.CharField(source='administrative_location.city', read_only=True)
     activity_url = ActivityField(view_name='activity-detail',
                                  source='activity',
                                  read_only=True)
@@ -194,14 +200,28 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'activitygroup', 'included', 'nace',
-                  'reason',
+                  'activity_name', 'activitygroup', 'activitygroup_name', 
+                  'included', 'nace', 'city', 'address', 
+                  'reason', 'description'
                   )
+        extra_kwargs = {'year': {'allow_null': True},
+                        'turnover': {'allow_null': True},
+                        'employees': {'allow_null': True}}
+    
+    # normally you can't upload empty strings for number fields, but we want to
+    # allow some of them to be blank -> set to None when receiving empty string
+    def to_internal_value(self, data):
+        allow_blank_numbers = ['year', 'turnover', 'employees']
+        for field in allow_blank_numbers:
+            if (field in data and data[field] == ''):
+                data[field] = None
+        return super().to_internal_value(data)
 
 
 class ActorListSerializer(ActorSerializer):
     class Meta(ActorSerializer.Meta):
-        fields = ('id', 'activity', 'activitygroup', 'name', 'included')
+        fields = ('id', 'activity',  'activity_name', 'activitygroup',
+                  'activitygroup_name', 'name', 'included', 'city', 'address')
 
 
 class ReasonSerializer(serializers.ModelSerializer):

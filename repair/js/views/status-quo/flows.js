@@ -1,11 +1,11 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/keyflows', 'collections/materials', 
         'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'views/flowsankey', 'utils/loader', 'utils/utils',
-        'hierarchy-select'],
+        'collections/activities', 'views/flowsankey', 
+        'utils/utils'],
 
 function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
-    Activities, FlowSankeyView, Loader, utils){
+    Activities, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -20,28 +20,42 @@ var FlowsView = BaseView.extend(
     * render view to show keyflows in casestudy
     *
     * @param {Object} options
-    * @param {HTMLElement} options.el                          element the view will be rendered in
-    * @param {string} options.template                         id of the script element containing the underscore template to render this view
-    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
+    * @param {HTMLElement} options.el                     element the view will be rendered in
+    * @param {string} options.template                    id of the script element containing the underscore template to render this view
+    * @param {module:models/CaseStudy} options.caseStudy  the casestudy to add layers to
     *
     * @constructs
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
         var _this = this;
-        _.bindAll(this, 'render');
-        _.bindAll(this, 'keyflowChanged');
+        FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'refreshMap');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
         this.filterParams = {};
+        content.style.display = 'inline';
+        this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
+            state: {
+                pageSize: 1000000,
+                firstPage: 1,
+                currentPage: 1
+            } });
+        this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
+        this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
 
-        this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id });
-
-        this.keyflows.fetch({ success: function(){
+        this.loader.activate();
+        var params = { included: 'True' }
+        $.when(this.materials.fetch(), 
+               //this.actors.fetch({ data: params }), 
+               this.activities.fetch(), this.activityGroups.fetch()
+            ).then(function(){
+            _this.loader.deactivate();
             _this.render();
-        }})
+        })
         
     },
 
@@ -49,7 +63,6 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="keyflow"]': 'keyflowChanged',
         'change select[name="waste"]': 'renderSankey',
         'change input[name="direction"]': 'renderSankey',
         'change #data-view-type-select': 'renderSankey',
@@ -62,41 +75,15 @@ var FlowsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({ keyflows: this.keyflows });
+        this.el.innerHTML = template();
         this.typeSelect = this.el.querySelector('#data-view-type-select');
+        this.renderMatFilter();
+        this.renderNodeFilters();
+        this.renderSankey();
     },
 
     refreshMap: function(){
         if (this.sankeyMap) this.sankeyMap.refresh();
-    },
-
-    keyflowChanged: function(evt){
-        var _this = this;
-        this.keyflowId = evt.target.value;
-        var content = this.el.querySelector('#flows-setup-content');
-        content.style.display = 'inline';
-        this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            } });
-        this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-
-        var loader = new Loader(this.el, {disable: true});
-        var params = { included: 'True' }
-        $.when(this.materials.fetch(), 
-               this.actors.fetch({ data: params }), 
-               this.activities.fetch(), this.activityGroups.fetch()
-            ).then(function(){
-            //_this.renderSankeyMap();
-            _this.renderMatFilter();
-            _this.renderNodeFilters();
-            _this.renderSankey();
-            loader.remove();
-        })
     },
 
     renderSankey: function(){
@@ -236,7 +223,7 @@ var FlowsView = BaseView.extend(
             }
             // specific actor
             else
-                _this.actorsFiltered = [_this.actors.get(actorId)]
+                _this.actorsFiltered = [_this.actors.get(actorId)];
             _this.typeSelect.value = 'actor'
             _this.renderSankey();
         })

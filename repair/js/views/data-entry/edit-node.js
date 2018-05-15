@@ -1,16 +1,21 @@
 define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
     'models/actor', 'collections/flows', 'collections/stocks',
     'collections/products', 'collections/wastes',
-    'utils/loader', 'tablesorter'],
+    'app-config', 'datatables.net', 
+    'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
 function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
-    Wastes, Loader){
+    Wastes, config){
 /**
-* tdgjhjhjhvvhjvh
 *
 * @author Christoph Franke
 * @name module:views/EditNodeView
 * @augments module:views/BaseView
 */
+
+function toggleBtnClass(button, cls){
+    button.classList.remove('btn-primary', 'btn-warning', 'btn-danger');
+    button.classList.add(cls);
+};
 
 var EditNodeView = BaseView.extend(
     /** @lends module:views/EditNodeView.prototype */
@@ -32,7 +37,6 @@ var EditNodeView = BaseView.extend(
     * @param {module:models/Actor|module:models/Activity|module:models/ActivityGroup} options.model the node to edit
     * @param {string} options.caseStudyId                            the id of the casestudy the node belongs to
     * @param {string} options.keyflowId                              the id of the keyflow the node belongs to
-    * @param {string} options.keyflowName                            the name of the keyflow
     * @param {module:collections/Materials} options.materials        the available materials
     * @param {module:collections/Publications} options.publications  the available publications
     * @param {module:views/EditNodeView~onUpload=} options.onUpload  called after successfully uploading the flows
@@ -41,49 +45,35 @@ var EditNodeView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        EditNodeView.__super__.initialize.apply(this, [options]);
         this.template = options.template;
         this.keyflowId = options.keyflowId;
-        this.keyflowName = options.keyflowName;
         this.caseStudyId = options.caseStudyId;
         this.materials = options.materials;
         this.publications = options.publications;
 
         this.onUpload = options.onUpload;
 
-        var flowType = '';
-        this.attrTableInner = '';
-        if (this.model.tag == 'activity'){
-            this.attrTableInner = this.getActivityAttrTable();
-            flowType = 'activity';
-        }
-        else if (this.model.tag == 'activitygroup'){
-            this.attrTableInner = this.getGroupAttrTable();
-            flowType = 'activitygroup';
-        }
-        else if (this.model.tag == 'actor'){
-            this.attrTableInner = this.getActorAttrTable();
-            flowType = 'actor';
-        }
+        this.flowType = this.model.tag;
 
         this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
         this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
             keyflowId: this.keyflowId,
-            type: flowType});
+            type: this.flowType});
 
         this.outProducts = new Products([], {
             state: {
@@ -102,8 +92,7 @@ var EditNodeView = BaseView.extend(
 
         var _this = this;
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
+        this.loader.activate();
 
         // the nace of the model determines the products/wastes of the flows out
         var nace = this.model.get('nace') || 'None';
@@ -113,45 +102,45 @@ var EditNodeView = BaseView.extend(
 
         // fetch inFlows and outFlows with different query parameters
         $.when(
-            this.model.fetch(),
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
             this.outProducts.getFirstPage({ data: { nace: nace } }),
             this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
-            loader.remove();
-            _this.render();
+                _this.loader.deactivate();
+                _this.render();
         });
     },
 
     /*
-        * dom events (managed by jquery)
-        */
+    * dom events (managed by jquery)
+    */
     events: {
         'click #upload-flows-button': 'uploadChanges',
         'click #add-input-button, #add-output-button, #add-stock-button': 'addFlowEvent',
         'click #confirm-datasource': 'confirmDatasource',
-        'click #refresh-publications-button': 'refreshDatasources'
+        'click #refresh-publications-button': 'refreshDatasources',
+        'click #flow-nodes-modal .confirm': 'confirmNodeSelection'
     },
 
     /*
-        * render the view
-        */
+    * render the view
+    */
     render: function(){
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
-
-        this.dsTable = document.getElementById('publications-table');
+        
+        var content = this.nodePopoverContent(this.model);
 
         var popOverSettings = {
             placement: 'right',
             container: 'body',
-            trigger: 'manual',
             html: true,
-            content: this.attrTableInner
+            content: content
         }
+        
         require('bootstrap');
         this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
@@ -165,9 +154,24 @@ var EditNodeView = BaseView.extend(
         this.stocks.each(function(stock){
             _this.addFlowRow('stock-table', stock, 'origin', true);
         });
-
+        
+        var table = this.el.querySelector('#publications-table');
+        this.datatable = $(table).DataTable({
+            "columnDefs": [{
+                "render": function ( data, type, row ) {
+                    var wrapper = document.createElement('a'),
+                        anchor = document.createElement('a');
+                    wrapper.appendChild(anchor);
+                    anchor.href = data;
+                    anchor.innerHTML = data;
+                    anchor.target = '_blank';
+                    return wrapper.innerHTML;
+                },
+                "targets": 4
+            }]
+        });
         this.renderDatasources(this.publications);
-        this.setupDsTable();
+        this.setupNodeTable();
     },
 
     /* set a (jQuery) popover-element to appear on hover and stay visible on hovering popover */
@@ -194,9 +198,10 @@ var EditNodeView = BaseView.extend(
     addFlowRow: function(tableId, flow, targetIdentifier, isStock){
         var _this = this;
 
-        var table = this.el.querySelector('#' + tableId);
-        var row = table.insertRow(-1);
-
+        var table = this.el.querySelector('#' + tableId),
+            row = table.insertRow(-1),
+            editFractionsBtn = document.createElement('button'),
+            typeSelect = document.createElement("select");
         // checkbox for marking deletion
 
         var checkbox = document.createElement("input");
@@ -245,28 +250,56 @@ var EditNodeView = BaseView.extend(
         // origin respectively destination (skipped at stocks)
 
         if (!isStock){
-            // select input for target (origin resp. destination of flow)
-
-            var nodeSelect = document.createElement("select");
-            var ids = [];
-            var targetId = flow.get(targetIdentifier);
-            this.model.collection.each(function(model){
-                // no flow to itself allowed
-                if (model.id != _this.model.id){
-                    var option = document.createElement("option");
-                    option.text = model.get('name');
-                    option.value = model.id;
-                    nodeSelect.add(option);
-                    ids.push(model.id);
-                };
-            });
-            var idx = ids.indexOf(targetId);
-            nodeSelect.selectedIndex = idx.toString();
-            row.insertCell(-1).appendChild(nodeSelect);
-
-            nodeSelect.addEventListener('change', function() {
-                flow.set(targetIdentifier, nodeSelect.value);
-            });
+            var targetCell = row.insertCell(-1),
+                targetId = flow.get(targetIdentifier),
+                Target = Backbone.Model.extend({ urlRoot: this.model.urlRoot() }),
+                target,
+                targetButton = document.createElement('button');
+            
+            targetCell.appendChild(targetButton);
+            targetButton.name = 'target';
+            targetButton.style.width = '100%';
+            targetButton.style.overflow = 'hidden';
+            targetButton.style.textOverflow = 'ellipsis';
+            targetButton.style.color = 'black';
+            targetButton.style.maxWidth = '200px';
+            targetButton.classList.add('btn', 'inverted', 'square', 'btn-danger');
+            targetButton.innerHTML = '-';
+            
+            function setTarget(id){
+                target = new Target({ id : id });
+                target.fetch({
+                    success: function(){
+                        toggleBtnClass(targetButton, 'btn-primary');
+                        targetButton.innerHTML = target.get('name');
+                        
+                    }, error: this.onError 
+                })
+            }
+            
+            if (targetId) setTarget(targetId);
+    
+            var popOverSettings = {
+                placement: 'right',
+                container: 'body',
+                html: true,
+                title: '',
+                content: function(){
+                    return _this.nodePopoverContent(target);
+                }
+            }
+            
+            this.setupPopover($(targetButton).popover(popOverSettings));
+            
+            targetButton.addEventListener('click', function(){
+                //_this.selectActor(onConfirm);
+                _this.onConfirmNode = function(id, name){
+                    flow.set(targetIdentifier, id);
+                    setTarget(id);
+                }
+                $('#flow-nodes-modal').modal('show');
+            })
+           
         };
 
         var itemWrapper = document.createElement("span");
@@ -275,7 +308,6 @@ var EditNodeView = BaseView.extend(
         row.insertCell(-1).appendChild(itemWrapper); 
 
         // input for product
-        var typeSelect = document.createElement("select");
         var wasteOption = document.createElement("option")
         wasteOption.value = 'true'; wasteOption.text = gettext('Waste');
         typeSelect.appendChild(wasteOption);
@@ -285,14 +317,18 @@ var EditNodeView = BaseView.extend(
         typeSelect.value = flow.get('waste');
 
         typeSelect.addEventListener('change', function() {
-            flow.set('waste', typeSelect.value);
+            var isWaste = typeSelect.value
+            flow.set('waste', isWaste);
+            // remove the composition on type change
+            flow.set('composition', null);
         });
 
         itemWrapper.appendChild(typeSelect);
-
-        var editFractionsBtn = document.createElement('button');
-        var pencil = document.createElement('span');
-        editFractionsBtn.classList.add('btn', 'btn-primary', 'square');
+        var pencil = document.createElement('span'),
+            btnClass = (flow.get('composition')) ? 'btn-primary' : 'btn-danger';
+        
+        editFractionsBtn.classList.add('btn', 'square');
+        toggleBtnClass(editFractionsBtn, btnClass);
         editFractionsBtn.appendChild(pencil);
         editFractionsBtn.innerHTML = gettext('Composition');
 
@@ -303,11 +339,11 @@ var EditNodeView = BaseView.extend(
             // the nace of this node determines the items for stocks and outputs
             if (targetIdentifier == 'destination' || isStock == true){
                 var items = (flow.get('waste') == 'true') ? _this.outWastes : _this.outProducts;
-                _this.editFractions(flow, items);
+                _this.editFractions(flow, items, editFractionsBtn);
             }
             // take nace of origin node in case of inputs
             else {
-                var origin = _this.model.collection.get(flow.get('origin'));
+                var origin = target;
                 if (origin == null) return;
                 var options = { 
                     state: {
@@ -317,13 +353,14 @@ var EditNodeView = BaseView.extend(
                     }
                 };
                 var nace = origin.get('nace') || 'None';
-                var loader = new Loader(document.getElementById('flows-edit'),
-                    {disable: true});
+                _this.loader.activate();
                 var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
                 items.getFirstPage({ data: { nace: nace } }).then( 
-                    function(){ _this.editFractions(flow, items); loader.remove(); }
+                    function(){ 
+                        _this.loader.deactivate();
+                        _this.editFractions(flow, items, editFractionsBtn); 
+                    }
                 )
-
             }
         })
 
@@ -348,17 +385,6 @@ var EditNodeView = BaseView.extend(
 
         $(editFractionsBtn).popover(popOverFractionsSettings);
 
-
-        // raw checkbox
-
-        var rawCheckbox = document.createElement("input");
-        rawCheckbox.type = 'checkbox';
-        row.insertCell(-1).appendChild(rawCheckbox);
-
-        rawCheckbox.addEventListener('change', function() {
-            flow.set('raw', rawCheckbox.checked);
-        });
-
         var year = addInput('year', 'number');
         year.min = 0;
         year.max = 3000;
@@ -375,11 +401,9 @@ var EditNodeView = BaseView.extend(
             flow.set('description', description.value);
         });
 
-        // general datasource
+        // datasource of flow
 
         var sourceCell = row.insertCell(-1);
-        // prevent breaking 
-        sourceCell.setAttribute("style", "white-space: nowrap");
         this.addPublicationInput(sourceCell, flow.get('publication'), 
             function(id){ flow.set('publication', id) })
 
@@ -387,85 +411,83 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * add input for publication to given cell, value is set to currentId
-        * onChange(publicationId) is called when publication is confirmed by user
-        */
+    * add input for publication to given cell, value is set to currentId
+    * onChange(publicationId) is called when publication is confirmed by user
+    */
     addPublicationInput: function(cell, currentId, onChange, container){
         var _this = this;
-        var sourceWrapper = document.createElement('div');
-        sourceWrapper.style.float = 'left';
-        sourceWrapper.style.maxWidth = '80%';
-        var sourceInput = document.createElement('input');
-        sourceInput.name = 'publication';
-        sourceInput.style.maxWidth = '90%';
+        var sourceButton = document.createElement('button');
+        sourceButton.name = 'publication';
+        sourceButton.style.width = '100%';
+        sourceButton.style.overflow = 'hidden';
+        sourceButton.style.textOverflow = 'ellipsis';
+        sourceButton.style.color = 'black';
+        sourceButton.style.maxWidth = '200px';
+        var btnClass = (currentId) ? 'btn-primary': 'btn-warning';
+        sourceButton.classList.add('btn', 'inverted', 'square', btnClass);
         if (currentId){
             var publication = this.publications.get(currentId)
             var title = publication.get('title');
-            sourceInput.value = title;
-            sourceInput.setAttribute('data-publication-id', currentId)
+            sourceButton.innerHTML = title;
+            sourceButton.setAttribute('data-publication-id', currentId)
         }
-        sourceInput.disabled = true;
-        sourceInput.style.cursor = 'pointer';
-        var editBtn = document.createElement('button');
-        var pencil = document.createElement('span');
-        editBtn.classList.add('btn', 'btn-primary', 'square');
-        editBtn.appendChild(pencil);
-        editBtn.title = gettext('edit datasource');
-        pencil.classList.add('glyphicon', 'glyphicon-pencil');
+        else sourceButton.innerHTML = '-';
 
         function onConfirm(publication){
             if (publication != null){
                 var title = publication.get('title');
-                sourceInput.value = title;
-                sourceInput.setAttribute('data-publication-id', publication.id)
-                onChange(publication.id)
-                sourceInput.dispatchEvent(new Event('change'));
+                sourceButton.value = title;
+                sourceButton.innerHTML = title;
+                sourceButton.setAttribute('data-publication-id', publication.id)
+                onChange(publication.id);
+                toggleBtnClass(sourceButton, 'btn-primary');
             }
+            else {
+                sourceButton.innerHTML = '-';
+                toggleBtnClass(sourceButton, 'btn-warning');
+            } 
         };
-        editBtn.addEventListener('click', function(){
+        sourceButton.addEventListener('click', function(){
             _this.editDatasource(onConfirm);
         });
 
-        sourceWrapper.appendChild(sourceInput);
-        cell.appendChild(sourceWrapper);
-        cell.appendChild(editBtn);
+        cell.appendChild(sourceButton);
 
         // information popup for source
 
         var popOverSettingsSource = {
             placement: 'left',
             container: container || 'body',
-            trigger: 'manual',
             html: true,
             content: function () {
-                var pubId = sourceInput.getAttribute('data-publication-id');
-                var publication = _this.publications.get(pubId);
+                var pubId = sourceButton.getAttribute('data-publication-id'),
+                    publication = _this.publications.get(pubId);
                 if (publication == null) return '';
-                var html = document.getElementById('popover-source-template').innerHTML;
-                var template = _.template(html);
-                var content = template({ publication: publication });
+                var html = document.getElementById('popover-source-template').innerHTML,
+                    template = _.template(html),
+                    content = template({ publication: publication });
                 return content;
             }
         }
 
-        this.setupPopover($(sourceWrapper).popover(popOverSettingsSource));
+        this.setupPopover($(sourceButton).popover(popOverSettingsSource));
     },
 
     /*
         * open modal dialog for editing the fractions of a flow 
         * items are the available products/wastes the user can select from
         */
-    editFractions: function(flow, items){
+    editFractions: function(flow, items, button){
 
-        var _this = this;
-        var modal = document.getElementById('fractions-modal');
-        var inner = document.getElementById('fractions-modal-template').innerHTML;
-        var template = _.template(inner);
-        var html = template({waste: flow.get('waste')});
+        var _this = this,
+            modal = document.getElementById('fractions-modal'),
+            inner = document.getElementById('fractions-modal-template').innerHTML,
+            template = _.template(inner),
+            html = template({waste: flow.get('waste')});
         modal.innerHTML = html;
 
-        var itemSelect = modal.querySelector('select[name="items"]');
-        var customOption = document.createElement("option");
+        var itemSelect = modal.querySelector('select[name="items"]'),
+            customOption = document.createElement("option");
         customOption.text = customOption.title = gettext('custom');
         customOption.value = -1;
         customOption.disabled = true;
@@ -501,7 +523,11 @@ var EditNodeView = BaseView.extend(
 
             // input for fraction percentage
             var row = table.insertRow(-1);
-            var fractionsCell = row.insertCell(-1);
+            row.setAttribute('data-id', fraction.id || null);
+            var fractionsCell = row.insertCell(-1),
+                fractionWrapper = document.createElement("div");
+            fractionsCell.appendChild(fractionWrapper);
+            fractionWrapper.style.whiteSpace = 'nowrap';
             var fInput = document.createElement("input");
             fInput.type = 'number';
             fInput.name = 'fraction';
@@ -510,15 +536,14 @@ var EditNodeView = BaseView.extend(
             fInput.min = 0;
             fInput.style.maxWidth = '80%';
             fInput.style.float = 'left';
-            fractionsCell.appendChild(fInput);
+            fractionWrapper.appendChild(fInput);
             fInput.value = Math.round(fraction.fraction * 1000) / 10;
             fInput.addEventListener('change', setCustom);
 
             var perDiv = document.createElement('div');
             perDiv.innerHTML = '%';
-            perDiv.style.float = 'left';
             perDiv.style.marginLeft = perDiv.style.marginRight = '5px';
-            fractionsCell.appendChild(perDiv);
+            fractionWrapper.appendChild(perDiv);
 
             // select material
             var matSelect = document.createElement('div');
@@ -530,12 +555,19 @@ var EditNodeView = BaseView.extend(
                     matSelect.setAttribute('data-material-id', matId);
                     setCustom();
                 },
+                width: 300,
                 selected: fraction.material,
                 defaultOption: gettext('Select a material')
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
-
+            
+            var avoidCheck = document.createElement('input');
+            avoidCheck.type = 'checkbox';
+            avoidCheck.name = 'avoidable';
+            avoidCheck.checked = fraction.avoidable;
+            row.insertCell(-1).appendChild(avoidCheck);
+        
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -577,7 +609,7 @@ var EditNodeView = BaseView.extend(
         // button for adding the fraction
         var addBtn = modal.querySelector('#add-fraction-button');
         addBtn.addEventListener('click', function(){
-            addFractionRow( { fraction: 0, material: '', publication: null } );
+            addFractionRow( { fraction: 0, material: '', publication: null, id: null } );
             setCustom();
         });
 
@@ -602,18 +634,12 @@ var EditNodeView = BaseView.extend(
             } else {
                 // if sum test is passed check materials
                 var matSelects = modal.querySelectorAll('.materialSelect');
-                var matIds = []
                 for (i = 0; i < matSelects.length; i++) {
                     var matId = matSelects[i].getAttribute('data-material-id');
                     if (!matId) {
                         errorMsg = gettext('All materials have to be set!');
                         break;
                     }
-                    if (matIds.includes(matId)){
-                        errorMsg = gettext('Multiple fractions with the same material are not allowed!');
-                        break;
-                    }
-                    matIds.push(matId);
                 }
             }
 
@@ -631,18 +657,26 @@ var EditNodeView = BaseView.extend(
             composition.fractions = [];
             for (var i = 1; i < table.rows.length; i++) {
                 var row = table.rows[i];
-                var fInput = row.querySelector('input[name="fraction"]');
-                var matSelect = row.querySelector('.materialSelect');
-                var pubInput = row.querySelector('input[name="publication"]');
-                var f = fInput.value / 100;
+                    fInput = row.querySelector('input[name="fraction"]'),
+                    matSelect = row.querySelector('.materialSelect'),
+                    avoidCheck = row.querySelector('input[name="avoidable"]'),
+                    pubInput = row.querySelector('button[name="publication"]'),
+                    f = fInput.value / 100,
+                    id = row.getAttribute('data-id');
+                if (id == "null") id = null;
+                
                 var fraction = { 
+                    'id': id,
                     'fraction': Number(Math.round(f+'e3')+'e-3'),
                     'material': matSelect.getAttribute('data-material-id'),
-                    'publication': pubInput.getAttribute('data-publication-id')
+                    'publication': pubInput.getAttribute('data-publication-id'),
+                    'avoidable': avoidCheck.checked
                 };
                 composition.fractions.push(fraction);
             }
             flow.set('composition', composition);
+            toggleBtnClass(button, 'btn-primary');
+            //flow.fractionsChanged = true;
             $(modal).modal('hide');
         })
 
@@ -652,11 +686,10 @@ var EditNodeView = BaseView.extend(
 
     // on click add row button
     addFlowEvent: function(event){
-        var buttonId = event.currentTarget.id;
-        var tableId;
-        var flow;
-        var targetIdentifier;
-        var isStock = false;
+        var _this = this,
+            buttonId = event.currentTarget.id,
+            tableId, flow, targetIdentifier,
+            isStock = false;
         if (buttonId == 'add-input-button'){
             tableId = 'input-table';
             flow = this.newInFlows.add({});
@@ -665,7 +698,8 @@ var EditNodeView = BaseView.extend(
                 'amount': 0,
                 'origin': null,
                 'destination': this.model.id,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
         }
         else if (buttonId == 'add-output-button'){
@@ -675,7 +709,8 @@ var EditNodeView = BaseView.extend(
                 'amount': 0,
                 'origin': this.model.id,
                 'destination': null,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
         }
         else if (buttonId == 'add-stock-button'){
@@ -684,11 +719,13 @@ var EditNodeView = BaseView.extend(
             flow = this.newStocks.add({
                 'amount': 0,
                 'origin': this.model.id,
-                'quality': null
+                'quality': null,
+                'waste': false
             });
             isStock = true;
         }
-        this.addFlowRow(tableId, flow, targetIdentifier, isStock);
+        flow.set('description', '');
+        _this.addFlowRow(tableId, flow, targetIdentifier, isStock);
 
     },
 
@@ -713,39 +750,96 @@ var EditNodeView = BaseView.extend(
             }
         }
     },
-
-    getGroupAttrTable: function(){
-        var html = document.getElementById('group-attributes-template').innerHTML
-        var template = _.template(html);
+    
+    nodePopoverContent: function(model){
+        if (!model) return '-';
+        var templateId = (this.flowType == 'activitygroup') ? 'group-attributes-template' : 
+                         (this.flowType == 'activity') ? 'activity-attributes-template' :
+                         'actor-attributes-template';
+        var html = document.getElementById(templateId).innerHTML,
+            template = _.template(html);
         return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            code: this.model.get('code')
+            model: model
         });
     },
-
-    getActivityAttrTable: function(){
-        var html = document.getElementById('activity-attributes-template').innerHTML
-        var template = _.template(html);
-        return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            nace: this.model.get('nace')
+    
+    setupNodeTable: function(){
+        var _this = this;
+        var columns = [
+            {data: 'id', title: 'ID', visible: false},
+            {data: 'name', title: gettext('Name')}
+        ];
+        if (this.model.tag == 'activity')
+            columns = columns.concat([
+                {data: 'activitygroup_name', title: gettext('Activity Group'), name: 'activitygroup__name'},
+                {data: 'nace', title: gettext('Nace Code'), name: 'nace'},
+            ]);
+        if (this.model.tag == 'actor')
+            columns = columns.concat([
+                {data: 'activity_name', title: gettext('Activity'), name: 'activity__name'},
+                {data: 'activitygroup_name', title: gettext('Activity Group'), name: 'activity__activitygroup__name'},
+                {data: 'city', title: gettext('City'), name: 'administrative_location.city'},
+                {data: 'address', title: gettext('Address'), name: 'administrative_location.address'},
+            ]);
+        var table = this.el.querySelector('#flow-nodes-modal table');
+        
+        this.nodeDatatable = $(table).DataTable({
+            serverSide: true,
+            ajax: this.model.urlRoot() + "?format=datatables",
+            columns: columns,
+            rowId: 'id'
         });
+        var body = table.querySelector('tbody');
+        $(body).on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                _this.nodeDatatable.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+        // add individual search fields for all columns
+        if (this.model.tag != 'activitygroup'){
+            $(table).append('<tfoot><tr></tr></tfoot>');
+            var footer = $('tfoot tr', table);
+            var delay = (function(){
+                var timer = 0;
+                return function(callback, ms){
+                    clearTimeout (timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+            this.nodeDatatable.columns().every( function () {
+                var column = this;
+                if (column.visible()){
+                    var searchInput = document.createElement('input'),
+                        th = document.createElement('th');
+                    searchInput.placeholder = gettext('Search');
+                    th.appendChild(searchInput);
+                    searchInput.name = columns[column.index()].data;
+                    searchInput.style.width = '100%';
+                    searchInput.autocomplete = "off";
+                    footer.append(th);
+                    $(searchInput).on( 'keyup change', function () {
+                        var input = this;
+                        if ( column.search() !== input.value ) {
+                            delay(function(){
+                                column.search(input.value).draw();
+                            }, 400 );
+                        }
+                    });
+                }
+            });
+        }
     },
-
-    getActorAttrTable: function(){
-        var html = document.getElementById('actor-attributes-template').innerHTML
-        var template = _.template(html);
-        return template({
-            name: this.model.get('name'),
-            keyflow: this.keyflowName,
-            bvdid: this.model.get('BvDid'),
-            url: this.model.get('website'),
-            year: this.model.get('year'),
-            employees: this.model.get('employees'),
-            turnover: this.model.get('turnover')
-        });
+    
+    confirmNodeSelection: function(){
+        var selected = this.nodeDatatable.row('.selected');
+        this.nodeDatatable.$('tr.selected').removeClass('selected');
+        if (!selected) return;
+        var data = selected.data();
+        this.onConfirmNode(data.id, data.name);
     },
 
     // open modal for setting the datasource
@@ -762,69 +856,34 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * prepare the table of publications
-        */
-    setupDsTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.dsTable).tablesorter({
-            widgets: ['filter'],
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
-            }
-        });
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.dsTable).find('tr').length > 1)
-            $(this.dsTable).tablesorterPager({container: $("#dspager")});
-
-        ////workaround for a bug in tablesorter-pager by triggering
-        ////event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('dspagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
-    },
-
-    /*
-        * refresh the table of publications
-        */
+    * refresh the table of publications
+    */
     refreshDatasources(){
         var _this = this;
         this.publications.fetch({ success: function(){
-            // workaround for tablesorter not clearing and adding new rows properly -> destroy the whole thing and setup again
-            $(_this.dsTable).trigger("destroy");
             _this.renderDatasources(_this.publications);
-            _this.setupDsTable();
         }});
     },
 
     /*
-        * prerender the table for publications inside a modal
-        */
+    * prerender the table for publications inside a modal
+    */
     renderDatasources: function(publications){
         var _this = this;
-        var table = this.dsTable;
+        this.datatable.clear();
+        
         this.dsRows = [];
-        // avoid error message if not initialized with tablesorter yet
-        try {
-            $.tablesorter.clearTableBody($(table)[0]);
-        }
-        catch (err) { }
         publications.each(function(publication){
-            var row = table.getElementsByTagName('tbody')[0].insertRow(-1);
+            var dataRow = _this.datatable.row.add([
+                    publication.get('title'),
+                    publication.get('type'),
+                    publication.get('authors'),
+                    publication.get('doi'),
+                    publication.get('publication_url')
+                ]).draw(),
+                row = dataRow.node();
             row.style.cursor = 'pointer';
             _this.dsRows.push(row);
-            row.insertCell(-1).innerHTML = publication.get('title');
-            row.insertCell(-1).innerHTML = publication.get('type');
-            row.insertCell(-1).innerHTML = publication.get('authors');
-            row.insertCell(-1).innerHTML = publication.get('doi');
-            var anchor = document.createElement('a');
-            var url = publication.get('publication_url');
-            anchor.href = url;
-            anchor.innerHTML = url;
-            anchor.target = '_blank';
-            row.insertCell(-1).appendChild(anchor);
-
-            // this is supposed to inform tablesorter of a new row, but instead clears the table here, no idea why
-            //$(table).trigger('addRows', [$(row), true]);
 
             row.addEventListener('click', function() {
                 _.each(_this.dsRows, function(row){ row.classList.remove('selected'); });
@@ -832,15 +891,6 @@ var EditNodeView = BaseView.extend(
                 _this.activePublication = publication;
             });
         });
-    },
-    
-    flowRepr: function(flow){
-        var origin = this.model.collection.get(flow.get('origin')),
-            origName = origin.get('name'),
-            dest = this.model.collection.get(flow.get('destination'));
-            
-        if (!dest) return origName + ' ' + gettext('Stock');
-        return origName + ' -> ' + dest.get('name');
     },
     
     getChangedModels: function(){
@@ -869,25 +919,45 @@ var EditNodeView = BaseView.extend(
     hasChanged: function(){
         return (this.getChangedModels().length > 0)
     },
+    
+    getDefaultComposition: function(model, onSuccess){
+        // activity groups have no default
+        if(model == null || model.tag == 'activitygroup'){
+            onSuccess(null);
+            return;
+        }
+        
+        // ToDo: removce this after collection/model rework
+        model.caseStudyId = this.caseStudyId;
+        model.keyflowId = this.keyflowId;
+        model.fetch({success: function(){
+            var nace = model.get('nace') || 'None';
+            var items = new Products();
+            items.getFirstPage({ data: { nace: nace } }).then( 
+                function(){ 
+                    var item = (items.length > 0) ? items.first() : null;
+                    onSuccess(item); 
+                }
+            )
+        }})
+    },
 
     uploadChanges: function(){
         var _this = this;
         var models = this.getChangedModels();
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
+        this.loader.activate();
 
         var onError = function(model, response){
-            var name = _this.flowRepr(model);
-            _this.onError(response, name); 
-            loader.remove();
+            _this.onError(response); 
+            _this.loader.deactivate();
         };
 
         // upload the models recursively (starting at index it)
         function uploadModel(models, it){
             // end recursion if no elements are left and call the passed success method
             if (it >= models.length) {
-                loader.remove();
+                _this.loader.deactivate();
                 _this.onUpload();
                 return;
             };

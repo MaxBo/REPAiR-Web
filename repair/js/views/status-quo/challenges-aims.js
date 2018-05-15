@@ -1,5 +1,5 @@
 define(['underscore','views/baseview', 'models/challenge', 'collections/challenges',
-'models/aim', 'collections/aims'],
+        'models/aim', 'collections/aims'],
 
 function(_, BaseView, Challenge, Challenges, Aim, Aims){
     /**
@@ -24,8 +24,8 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            ChallengesAimsView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             _this.caseStudy = options.caseStudy;
@@ -262,7 +262,8 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                         _this.aims.splice(pos, 1);
                         _this.render();
                     }
-                }
+                },
+                error: _this.onError
             });
         },
 

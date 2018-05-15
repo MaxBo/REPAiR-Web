@@ -1,4 +1,5 @@
-define(['backbone', 'underscore', 'utils/utils'],
+define(['backbone', 'underscore', 'utils/utils', 'hierarchy-select', 
+        'hierarchy-select/dist/hierarchy-select.min.css'],
 function(Backbone, _, utils){
 /**
 *
@@ -28,6 +29,7 @@ var BaseView = Backbone.View.extend(
         _.bindAll(this, 'onError');
         var _this = this;
         this.template = options.template;
+        this.loader = new utils.Loader(options.el, {disable: true});
     },
     
     /**
@@ -62,11 +64,13 @@ var BaseView = Backbone.View.extend(
     * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
     * @param {module:views/BaseView~onSelect=} options.onSelect  function is called on selection of an item
     * @param {Number=} options.selected             preselects the model with given id 
+    * @param {Number} [options.selected=400]        preselects the model with given id 
     */
     hierarchicalSelect: function(collection, parent, options){
 
         var wrapper = document.createElement("div"),
             options = options || {},
+            width = options.width || 400,
             parentAttr = options.parentAttr || 'parent',
             defaultOption = options.defaultOption || 'All',
             items = [];
@@ -111,10 +115,9 @@ var BaseView = Backbone.View.extend(
         wrapper.innerHTML = html;
         wrapper.name = 'material';
         parent.appendChild(wrapper);
-        require('hierarchy-select');
         var select = wrapper.querySelector('.hierarchy-select');
         $(select).hierarchySelect({
-            width: 400
+            width: width
         });
 
         // preselect an item
@@ -127,7 +130,7 @@ var BaseView = Backbone.View.extend(
                 li.classList.remove('active');
                 selection.innerHTML = model.get('name');
                 var li = select.querySelector('li[data-value="' + options.selected + '"]');
-                li.classList.add('active');
+                if (li) li.classList.add('active');
             }
         }
 
@@ -161,16 +164,16 @@ var BaseView = Backbone.View.extend(
     
     /**
     * show a modal with error message on server error
+    * you may pass the model and response or response only
     *
-    * @param {Object} response    AJAX response
-    * @param {String=} header     headline displayed on top of error message
+    * @param {Object} arg1        model or AJAX response
+    * @param {Object=} arg2       AJAX response (if arg1 is model)
     */
-    onError: function(response, header){
+    onError: function(arg1, arg2){
+        var response = (arg1.status) ? arg1 : arg2;
         message = response.statusText + '<br><br>';
         if (response.responseText)
             message += '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>';
-        if (header)
-            message = '<h4>' + header + '</h4><br>' + message;
         this.alert(message, gettext('Error <b>' + response.status + '</b>'));
     },
     

@@ -1,16 +1,28 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-        'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
+        'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
         'visualizations/mapviewer', 
         'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             EvaluationView, MapViewer, appConfig) {
-
-  renderWorkshop = function(caseStudy){
-    var flowsView = new FlowsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flows'),
-      template: 'flows-template'
+             SustainabilityView, MapViewer, appConfig) {
+             
+      
+  renderFlowsView = function(caseStudy){
+    var keyflowSelect = document.querySelector('select[name="keyflow"]'),
+        flowsView;
+    keyflowSelect.addEventListener('change', function(){
+      console.log()
+      if (flowsView) flowsView.close();
+      flowsView = new FlowsView({ 
+        caseStudy: caseStudy,
+        el: document.getElementById('flows-content'),
+        template: 'flows-template',
+        keyflowId: keyflowSelect.value
+      })
     })
+  };
+      
+  renderWorkshop = function(caseStudy){
+    renderFlowsView(caseStudy);
     var challengesView = new ChallengesAimsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('challenges'),
@@ -21,35 +33,25 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
       el: document.getElementById('targets'),
       template: 'targets-template'
     })
-    var evaluationView = new EvaluationView({ 
+    var evaluationView = new SustainabilityView({ 
       caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+      el: document.getElementById('sustainability-assessment'),
+      template: 'sustainability-template'
     })
   };
 
   renderSetup = function(caseStudy){
-    var flowsView = new FlowsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flows'),
-      template: 'flows-template'
-    })
+    renderFlowsView(caseStudy);
     var challengesView = new ChallengesAimsView({ 
       caseStudy: caseStudy,
       el: document.getElementById('challenges'),
       template: 'challenges-aims-template', 
       mode: 1
     })
-    var targetsView = new TargetsView({ 
+    var evaluationView = new SustainabilityView({ 
       caseStudy: caseStudy,
-      el: document.getElementById('targets'),
-      template: 'targets-template', 
-      mode: 1
-    })
-    var evaluationView = new EvaluationView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+      el: document.getElementById('sustainability-assessment'),
+      template: 'sustainability-template'
     })
   };
   

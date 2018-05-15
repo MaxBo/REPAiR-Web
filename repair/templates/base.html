@@ -2,52 +2,57 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/font-awesome.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/fontawesome-all.min.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-select.min.css" />
-    
+
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
-    
+
+    {% render_bundle 'commons' %}
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
 
 <body>
-  <!-- Second navbar for categories -->
   <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">
-          <img src="{{STATIC_URL}}img/repair-logo-wo-text.png">
-        </a>
-      </div>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#top-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-collapse" style="padding: 6px 15px;">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="glyphicon glyphicon-leaf"></span>
+      </button>
+      <a class="navbar-brand" href="/">
+        <img src="{{STATIC_URL}}img/repair-logo-wo-text.png">
+      </a>
+      <div class="container-fluid" style="float: left;">
+        <div class="collapse navbar-collapse" id="main-collapse">
           <ul class="nav navbar-nav navbar-bottom">
             <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
             <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
             <li id="changes-link"><div class='menu-arrow'>></div><a href="/changes/">{% trans "Changes" %}</a></li>
             <li id="impacts-link"><div class='menu-arrow'>></div><a href="/impacts">{% trans "Impacts" %}</a></li>
-            <li id="decisions-link"><div class='menu-arrow'>></div><a href="/decisions">{% trans "Decisions" %}</a></li>
+            <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
           </ul>
         </div>
-        <div class="container-fluid" style='float: right;'>
-          <ul class="nav navbar-nav navbar-top">
-            {% if request.user.is_authenticated %}
+      </div>
+    </div>
+    <div class="collapse navbar-collapse" id="top-collapse">
+      <div id="top-links" class="container-fluid">
+        <ul class="nav navbar-nav navbar-top">
+          {% if request.user.is_authenticated %}
             <li>
               <form id="casestudy-select" action="/login/session/" method="post">
                 {% csrf_token %}
@@ -61,15 +66,15 @@
                   <div class="dropdown-content">
                     <!-- BaseView has property 'casestudies' -->
                     {% if view.casestudies|length > 0 %}
-                    {% for casestudy in view.casestudies %} 
-                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    {% for casestudy in view.casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
                     onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
-                     <!-- if not this view is not inherited from BaseView or rendered with 'get', 
+                     <!-- if not this view is not inherited from BaseView or rendered with 'get',
                      casestudies have to be passed in the context, does actually the same thing -->
                     {% else %}
-                    {% for casestudy in casestudies %} 
-                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %} 
+                    {% for casestudy in casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
                     onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
                     {% endfor %}
                     {% endif %}
@@ -78,60 +83,65 @@
                 <span class="caret drop-arrow"></span>
               </form>
             </li>
-            <li>
-              <form id="mode-select" action="/login/session/" method="post">
-                {% csrf_token %}
-                <input name="next" type="hidden" value="{{ request.path }}" />
-                <input name="mode" id="mode" type="hidden">
-                <div class="dropdown">
-                  <button class="dropdown-button" type="button">
-                    {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
-                    <span class="caret"></span>
-                  </button>
-                  <div class="dropdown-content">
-                    <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
-                    <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
-                  </div>
-                </div>
-                <span class="caret drop-arrow"></span>
-              </form>
-            </li>
-           {% endif %}
-            <li id="login-link" >
-              {% if request.user.is_authenticated %}
-              <div class="dropdown">
-                <button class="dropdown-button" type="button">
-                  {% trans "User Area" %} ({{ request.user.username }})
-                  <span class="caret"></span>
-                </button>
-                <div class="dropdown-content">
-                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
-                  <a href="/admin">{% trans "Admin Area" %}</a>
-                  <a href="/logout">{% trans "Logout" %}</a>
-                </div>
-              </div>
-              {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
-              {% endif %}
-            </li>
-            <li>
-              <form id="language-select" action="{% url 'set_language' %}" method="post">
+            {% if setup_mode_permitted %}
+              <li>
+                <form id="mode-select" action="/login/session/" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
-                  <select name="language" onchange="document.getElementById('language-select').submit()"">
-                    {% get_current_language as LANGUAGE_CODE %}
-                    {% get_available_languages as LANGUAGES %}
-                    {% for lang in LANGUAGES %}
-                      <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected" {% endif %}>
-                        {{ lang.1 }} ({{ lang.0 }})
-                      </option>
-                    {% endfor %}
-                  </select>
+                  <input name="mode" id="mode" type="hidden">
+                  <div class="dropdown">
+                    <button class="dropdown-button" type="button">
+                      {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
+                      <span class="caret"></span>
+                    </button>
+                    <div class="dropdown-content">
+                      <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
+                      <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
+                    </div>
+                  </div>
                   <span class="caret drop-arrow"></span>
-                </div>
-              </form>
-            </li>
-          </ul>
-        </div>
+                </form>
+              </li>
+           {% endif %}
+         {% endif %}
+          <li id="login-link" >
+            {% if request.user.is_authenticated %}
+            <div class="dropdown">
+              <button class="dropdown-button" type="button">
+                {% trans "User Area" %} ({{ request.user.username }})
+                <span class="caret"></span>
+              </button>
+              <div class="dropdown-content">
+                {% if data_entry_permitted %}
+                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                {% endif %}
+                {% if request.user.is_staff %}
+                  <a href="/admin">{% trans "Admin Area" %}</a>
+                {% endif %}
+                <a href="/logout">{% trans "Logout" %}</a>
+              </div>
+            </div>
+            {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
+            {% endif %}
+          </li>
+          <li>
+            <form id="language-select" action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <select name="language" onchange="document.getElementById('language-select').submit()"">
+                  {% get_current_language as LANGUAGE_CODE %}
+                  {% get_available_languages as LANGUAGES %}
+                  {% for lang in LANGUAGES %}
+                    <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %} selected="selected" {% endif %}>
+                      {{ lang.1 }} ({{ lang.0 }})
+                    </option>
+                  {% endfor %}
+                </select>
+                <span class="caret drop-arrow"></span>
+              </div>
+            </form>
+          </li>
+        </ul>
       </div>
     </div>
   </nav>
@@ -156,8 +166,8 @@
         </div>
       </div>
     </div>
-  </div> 
-  
+  </div>
+
 {% include 'common.html' %}
 </body>
 </html>

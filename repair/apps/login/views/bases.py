@@ -50,16 +50,15 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
-        """
-        filter the queryset with the lookup-arguments
-        and then render the filtered queryset with the serializer
-        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
-        Serializer-Class
-        """
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
+        
+        # special format requested -> let the plugin handle that
+        if ('format' in request.query_params):
+            return super().list(request, **kwargs)
+        
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
@@ -77,12 +76,6 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         return Response(data)
 
     def retrieve(self, request, **kwargs):
-        """
-        filter the queryset with the lookup-arguments
-        and then render the filtered queryset with the serializer
-        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
-        Serializer-Class
-        """
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
@@ -171,6 +164,8 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         url_pks = serializer.context['request'].session['url_pks']
         new_kwargs = {}
         for k, v in url_pks.items():
+            if k not in self.serializer_class.parent_lookup_kwargs:
+                continue
             key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
             if '__' in key:
                 continue

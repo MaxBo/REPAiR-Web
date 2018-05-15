@@ -47,6 +47,7 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
+    AllMaterialViewSet,
     WasteViewSet,
 )
 from repair.apps.statusquo.views import (
@@ -73,6 +74,7 @@ router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'products', ProductViewSet)
 router.register(r'wastes', WasteViewSet)
+router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
 router.register(r'sustainabilities', SustainabilityFieldViewSet)

@@ -5,6 +5,7 @@ from django.db import models
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
 from repair.apps.publications.models import PublicationInCasestudy
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Keyflow(GDSEModel):
@@ -35,9 +36,10 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                null=True)
     level = models.IntegerField()
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
+    parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
                                related_name='submaterials')
 
     @property
@@ -86,7 +88,7 @@ class Waste(Composition):
 class ProductFraction(GDSEModel):
 
     fraction = models.FloatField()
-    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+    material = models.ForeignKey(Material, on_delete=PROTECT_CASCADE,
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)

@@ -1,9 +1,9 @@
 define(['views/baseview', 'backbone', 'underscore', 'collections/solutioncategories',
         'collections/solutions', 'collections/keyflows', 'visualizations/map', 
-        'app-config', 'utils/loader', 'utils/utils', 'bootstrap'],
+        'app-config', 'utils/utils', 'bootstrap'],
 
 function(BaseView, Backbone, _, SolutionCategories, Solutions, Keyflows, 
-         Map, config, Loader, utils){
+         Map, config, utils){
 /**
 *
 * @author Christoph Franke
@@ -40,7 +40,8 @@ var SolutionsView = BaseView.extend(
         // ToDo: replace with collections fetched from server
         this.categories = new SolutionCategories([], { caseStudyId: this.caseStudy.id })
     
-        var loader = new Loader(this.el, {disable: true});
+        
+        this.loader.activate();
         this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
             deferreds = [];
         var Units = Backbone.Collection.extend({ url: config.api.units });
@@ -64,11 +65,14 @@ var SolutionsView = BaseView.extend(
                 })
                 
                 $.when.apply($, deferreds).then(function(){
-                    loader.remove();
+                    _this.loader.deactivate();
                     _this.render();
                 });
             },
-            error: function(m, r){ _this.onError(r) }
+            error: function(res){
+                _this.loader.deactivate();
+                _this.onError(res);
+            }
         })
     },
 
@@ -115,85 +119,11 @@ var SolutionsView = BaseView.extend(
             _this.map.map.updateSize();
         });
     },
-
-    renderCategory: function(category){
-        var _this = this;
-        var panelList = this.el.querySelector('#categories');
-        // create the panel (ToDo: use template for panels instead?)
-        var div = document.createElement('div'),
-            panel = document.createElement('div');
-        div.classList.add('item-panel', 'bordered');
-        var label = document.createElement('label'),
-            button = document.createElement('button'),
-            removeBtn = document.createElement('button');
-        label.innerHTML = category.get('name');
-        label.style.marginBottom = '20px';
-        
-        removeBtn.classList.add("btn", "btn-warning", "square", "remove");
-        removeBtn.style.float = 'right';
-        var span = document.createElement('span');
-        removeBtn.title = gettext('Remove category')
-        span.classList.add('glyphicon', 'glyphicon-minus');
-        removeBtn.appendChild(span);
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the category and all its solutions?');
-            _this.confirm({ message: message, onConfirm: function(){
-                category.destroy({
-                    success: function() { panelList.removeChild(div); },
-                    error: _this.onError
-                })
-            }});
-        })
-        
-        button.classList.add("btn", "btn-primary", "square", "add");
-        span = document.createElement('span');
-        span.classList.add('glyphicon', 'glyphicon-plus');
-        button.innerHTML = gettext('Solution');
-        button.title = gettext('Add solution to category');
-        button.insertBefore(span, button.firstChild);
-        button.addEventListener('click', function(){
-            _this.addSolution(panel, category);
-        })
-        
-        panelList.appendChild(div);
-        div.appendChild(removeBtn);
-        div.appendChild(label);
-        div.appendChild(panel);
-        div.appendChild(button);
-        // add the items
-        if (category.solutions){
-            category.solutions.forEach(function(solution){
-                _this.addSolutionItem(panel, solution);
-            });
-        }
-    },
     
-    addSolutionItem: function(panel, solution){
-        var _this = this;
-        // render panel item from template (in templates/common.html)
-        var html = document.getElementById('panel-item-template').innerHTML,
-            template = _.template(html);
-        var panelItem = document.createElement('div');
-        panelItem.classList.add('panel-item');
-        panelItem.innerHTML = template({ name: solution.get('name') });
-        panel.appendChild(panelItem);
-        // in workshop mode show solution on click on panel, else on click on edit
-        var editBtn = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit'),
-            removeBtn = panelItem.querySelector('.remove');
-        editBtn.addEventListener('click', function(){
-            _this.showSolution(solution);
-        })
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the solution?');
-            _this.confirm({ message: message, onConfirm: function(){
-                solution.destroy({
-                    success: function() { panel.removeChild(panelItem); },
-                    error: _this.onError
-                })
-            }});
-        })
-    },
-    
+    /*
+    * adds a "Ratio defining one unit" to the "Units/Ratios" tab inside
+    * the solution detail modal
+    */
     addSolutionQuanitityRow: function(squantity){
         var table = document.getElementById('required-ratios'),
             row = table.insertRow(-1);
@@ -227,6 +157,10 @@ var SolutionsView = BaseView.extend(
         });
     },
     
+    /*
+    * adds a "Ratio to be set when implementing this solution" to the "Units/Ratios" tab inside
+    * the solution detail modal
+    */
     addSolutionRatioOneUnitRow: function(sratio){
         var table = document.getElementById('one-unit-ratios'),
             row = table.insertRow(-1);
@@ -267,6 +201,10 @@ var SolutionsView = BaseView.extend(
         });
     },
     
+    /*
+    * open a modal containing details about the solution
+    * onConfirm is called when user confirms modal by clicking OK button
+    */
     showSolution: function(solution, onConfirm){
         var _this = this,
             changedImages = {};
@@ -282,11 +220,17 @@ var SolutionsView = BaseView.extend(
             }
         };
         var Quantities = Backbone.Collection.extend({ 
-            url: config.api.solutionQuantities.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
-        var squantities = new Quantities();
+                url: config.api.solutionQuantities.format(
+                    this.caseStudy.id, solution.get('solution_category'), 
+                    solution.id) 
+            }),
+            squantities = new Quantities();
         
         var Ratios = Backbone.Collection.extend({ 
-            url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
+                url: config.api.solutionRatioOneUnits.format(
+                    this.caseStudy.id, solution.get('solution_category'), 
+                    solution.id) 
+            })
         var sratios = new Ratios();
         
         if (solution.id){
@@ -300,8 +244,9 @@ var SolutionsView = BaseView.extend(
     
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
-            template = _.template(html);
-        var modal = this.el.querySelector('#solution-modal');
+            template = _.template(html),
+            modal = this.el.querySelector('#solution-modal');
+    
         modal.innerHTML = template({ 
             name: solution.get('name'),
             description: solution.get('description'),
@@ -317,6 +262,7 @@ var SolutionsView = BaseView.extend(
         this.renderMap('actors-map', solution.get('activities'));
         var okBtn = modal.querySelector('.confirm');
         
+        // add buttons and listeners for editing the solution in setup mode
         if (this.mode == 1){
             var nameInput = modal.querySelector('input[name="name"]'),
                 unitInput = modal.querySelector('input[name="unit"]'),
@@ -364,6 +310,7 @@ var SolutionsView = BaseView.extend(
                 })
             }
             
+            // on confirming the dialog save the solution and the ratios
             okBtn.addEventListener('click', function(){
                 
                 var activities = [];
@@ -398,7 +345,7 @@ var SolutionsView = BaseView.extend(
                             error: function(m, r){ _this.onError(r) }
                         });
                     },
-                    error: function(m, r){ _this.onError(r) },
+                    error: _this.onError,
                     patch: true
                 })
             });
@@ -407,12 +354,15 @@ var SolutionsView = BaseView.extend(
         $(modal).modal('show');
     },
     
+    /*
+    * render a map containing the administrative locations of actors of the given 
+    * activities 
+    */
     renderMap: function(divid, activities){
         var _this = this;
         // remove old map
         if (this.map){
-            this.map.map.setTarget(null);
-            this.map.map = null;
+            this.map.close();
             this.map = null;
         }
         this.map = new Map({
@@ -428,9 +378,11 @@ var SolutionsView = BaseView.extend(
         });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
+            var poly = this.map.addPolygon(focusarea.coordinates[0], { 
+                projection: this.projection, 
+                layername: 'background', 
+                tooltip: gettext('Focus area') 
+            });
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
         var deferreds = [];
@@ -451,13 +403,14 @@ var SolutionsView = BaseView.extend(
         return keyflow;
     },
     
+    // render the administrative locations of all actors of activity with given id
     renderActivityOnMap: function(activityId){
         var _this = this;
         var keyflowId = this.getKeyflow(activityId).id,
             actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
         var checkList = document.getElementById('activities-checks');
         if (checkList)
-            var loader = new Loader(document.getElementById('activities-checks'), {disable: true});
+            var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
         $.ajax({
             url: actorUrl,
             type: "GET",
@@ -480,14 +433,105 @@ var SolutionsView = BaseView.extend(
         })
     },
     
+    // remove the actors of activity with given id from map
     removeActivityFromMap: function(activityId){
         this.map.removeLayer('actors' + activityId);
     },
+
+    /*
+    * render a solution category panel
+    * adds buttons in setup mode only
+    */
+    renderCategory: function(category){
+        var _this = this;
+        var panelList = this.el.querySelector('#categories');
+        // create the panel (ToDo: use template for panels instead?)
+        var div = document.createElement('div'),
+            panel = document.createElement('div');
+        div.classList.add('item-panel', 'bordered');
+        div.style.minWidth = '300px';
+        var label = document.createElement('label'),
+            button = document.createElement('button'),
+            removeBtn = document.createElement('button');
+        label.innerHTML = category.get('name');
+        label.style.marginBottom = '20px';
+        
+        removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+        removeBtn.style.float = 'right';
+        var span = document.createElement('span');
+        removeBtn.title = gettext('Remove category')
+        span.classList.add('glyphicon', 'glyphicon-minus');
+        removeBtn.appendChild(span);
+        removeBtn.addEventListener('click', function(){
+            var message = gettext('Do you really want to delete the category and all its solutions?');
+            _this.confirm({ message: message, onConfirm: function(){
+                category.destroy({
+                    success: function() { panelList.removeChild(div); },
+                    error: _this.onError
+                })
+            }});
+        })
+        
+        button.classList.add("btn", "btn-primary", "square", "add");
+        span = document.createElement('span');
+        span.classList.add('glyphicon', 'glyphicon-plus');
+        button.innerHTML = gettext('Solution');
+        button.title = gettext('Add solution to category');
+        button.insertBefore(span, button.firstChild);
+        button.addEventListener('click', function(){
+            _this.addSolution(panel, category);
+        })
+        
+        panelList.appendChild(div);
+        div.appendChild(removeBtn);
+        div.appendChild(label);
+        div.appendChild(panel);
+        div.appendChild(button);
+        // add the items
+        if (category.solutions){
+            category.solutions.forEach(function(solution){
+                _this.renderSolutionItem(panel, solution);
+            });
+        }
+    },
     
+    /*
+    * render a solution item in the panel
+    */
+    renderSolutionItem: function(panel, solution){
+        var _this = this;
+        // render panel item from template (in templates/common.html)
+        var html = document.getElementById('panel-item-template').innerHTML,
+            template = _.template(html);
+        var panelItem = document.createElement('div');
+        panelItem.classList.add('panel-item');
+        panelItem.innerHTML = template({ name: solution.get('name') });
+        panel.appendChild(panelItem);
+        // in workshop mode show solution on click on panel, else on click on edit
+        var editBtn = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit'),
+            removeBtn = panelItem.querySelector('.remove');
+        editBtn.addEventListener('click', function(){
+            _this.showSolution(solution);
+        })
+        removeBtn.addEventListener('click', function(){
+            var message = gettext('Do you really want to delete the solution?');
+            _this.confirm({ message: message, onConfirm: function(){
+                solution.destroy({
+                    success: function() { panel.removeChild(panelItem); },
+                    error: _this.onError
+                })
+            }});
+        })
+    },
+    
+    /*
+    * add a solution category and save it
+    */
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = new _this.categories.model({ name: name }, { caseStudyId: _this.caseStudy.id });
+            var category = new _this.categories.model(
+                { name: name }, { caseStudyId: _this.caseStudy.id });
             category.save(null, {
                 success: function(){
                     category.solutions = new Solutions([], { 
@@ -497,12 +541,15 @@ var SolutionsView = BaseView.extend(
                     _this.categories.add(category);
                     _this.renderCategory(category);
                 },
-                error: function(model, response) { _this.onError(response) }
+                error: _this.onError
             })
         }
         _this.getName({ onConfirm: onConfirm });
     },
     
+    /*
+    * add a solution and save it
+    */
     addSolution: function(panel, category){
         var _this = this;
         var solutions = category.solutions,
@@ -512,7 +559,7 @@ var SolutionsView = BaseView.extend(
             );
         function onConfirm(){
             solutions.add(solution);
-            _this.addSolutionItem(panel, solution);
+            _this.renderSolutionItem(panel, solution);
         }
         _this.showSolution(solution, onConfirm);
     },

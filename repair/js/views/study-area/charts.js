@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'collections/chartcategories', 
-        'collections/charts', 'models/chart', 'utils/loader', "app-config"],
+        'collections/charts', 'models/chart', "app-config"],
 
-function(BaseView, _, ChartCategories, Charts, Chart, Loader, config){
+function(BaseView, _, ChartCategories, Charts, Chart, config){
 /**
 *
 * @author Christoph Franke
@@ -36,11 +36,17 @@ var BaseChartsView = BaseView.extend(
         
         this.chartCategories = new ChartCategories([], { caseStudyId: this.caseStudy.id });
 
-        var loader = new Loader(this.el, {disable: true});
-        this.chartCategories.fetch({ success: function(){
-            loader.remove();
-            _this.initTree();
-        }})
+        this.loader.activate();
+        this.chartCategories.fetch({ 
+            success: function(){
+                _this.loader.deactivate();
+                _this.initTree();
+            },
+            error: function(r){
+                _this.loader.deactivate();
+                _this.onError;
+            }
+        })
     },
 
     /*
@@ -121,6 +127,7 @@ var BaseChartsView = BaseView.extend(
 
     rerenderChartTree: function(categoryId){
         this.buttonBox.style.display = 'None';
+        // error when trying to remove, but not initialized yet, safe to ignore
         $(this.chartTree).treeview('remove');
         this.renderChartTree(categoryId);
     },
@@ -238,16 +245,19 @@ var BaseChartsView = BaseView.extend(
         function onConfirm(name){
             var category = new _this.chartCategories.model(
                 { name: name }, { caseStudyId: _this.caseStudy.id })
-            category.save(null, { success: function(){
-                var catNode = { 
-                    text: name, 
-                    category: category,
-                    state: { checked: true }
-                };
-                catNode.nodes = [];
-                _this.categoryTree[category.id] = catNode;
-                _this.rerenderChartTree(category.id);
-            }})
+            category.save(null, { 
+                success: function(){
+                    var catNode = { 
+                        text: name, 
+                        category: category,
+                        state: { checked: true }
+                    };
+                    catNode.nodes = [];
+                    _this.categoryTree[category.id] = catNode;
+                    _this.rerenderChartTree(category.id);
+                },
+                error: _this.onError
+            })
         }
         this.getName({ 
             title: gettext('Add Category'),
@@ -324,20 +334,23 @@ var BaseChartsView = BaseView.extend(
         $(this.confirmationModal).modal('hide'); 
         var is_category = (this.selectedNode.category != null);
         var model = this.selectedNode.chart || this.selectedNode.category;
-        model.destroy({ success: function(){
-            var selectCatId = 0;
-            // remove category from tree (if category was selected)
-            if (_this.selectedNode.category) {
-                delete _this.categoryTree[model.id];
-            }
-            // remove chart from category (if chart was selected)
-            else {
-                _this.getTreeChartNode(model, { pop : true })
-                selectCatId = model.get("chart_category");
-            }
-            _this.selectedNode = null;
-            _this.rerenderChartTree(selectCatId);
-        }});
+        model.destroy({ 
+            success: function(){
+                var selectCatId = 0;
+                // remove category from tree (if category was selected)
+                if (_this.selectedNode.category) {
+                    delete _this.categoryTree[model.id];
+                }
+                // remove chart from category (if chart was selected)
+                else {
+                    _this.getTreeChartNode(model, { pop : true })
+                    selectCatId = model.get("chart_category");
+                }
+                _this.selectedNode = null;
+                _this.rerenderChartTree(selectCatId);
+            },
+            error: _this.onError
+        });
         
     },
     
@@ -360,13 +373,16 @@ var BaseChartsView = BaseView.extend(
         var model = this.selectedNode.chart || this.selectedNode.category;
         function onConfirm(name){
             model.set('name', name);
-            model.save({ name: name }, { patch: true, success: function(){
-                var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
-                            _this.getTreeChartNode(model);
-                node.text = name;
-                var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
-                _this.rerenderChartTree(selectCatId);
-            }})
+            model.save({ name: name }, { patch: true, 
+                success: function(){
+                    var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                                _this.getTreeChartNode(model);
+                    node.text = name;
+                    var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
+                    _this.rerenderChartTree(selectCatId);
+                },
+                error: _this.onError
+            })
         };
         this.getName({ 
             name: model.get('name'), 

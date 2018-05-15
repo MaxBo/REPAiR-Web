@@ -1,8 +1,8 @@
 define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories',
-    'collections/layers', 'models/layer', 'visualizations/map',
-    'utils/loader', 'app-config', 'openlayers'],
+        'collections/layers', 'models/layer', 'visualizations/map',
+        'app-config', 'openlayers'],
 
-function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, Loader, config, ol){
+function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, config, ol){
 /**
 *
 * @author Christoph Franke
@@ -106,12 +106,6 @@ var SetupMapsView = BaseMapView.extend(
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
-        this.map.addLayer('focus', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1,
-            zIndex: 1000
-        });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
             var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
@@ -309,26 +303,29 @@ var SetupMapsView = BaseMapView.extend(
         $(this.confirmationModal).modal('hide');
         var is_category = (this.selectedNode.category != null);
         var model = this.selectedNode.layer || this.selectedNode.category;
-        model.destroy({ success: function(){
-            var selectCatId = 0;
-            // remove category from tree (if category was selected)
-            if (_this.selectedNode.category) {
-                _this.selectedNode.nodes.forEach(function(node){
-                    _this.map.removeLayer(_this.layerPrefix + node.layer.id);
-                })
-                delete _this.categoryTree[model.id];
-            }
-            // remove layer from category (if layer was selected)
-            else {
-                _this.getTreeLayerNode(model, { pop: true })
-                selectCatId = model.get('category');
-                _this.map.removeLayer(_this.layerPrefix + model.id);
-                var legendDiv = document.getElementById(_this.legendPrefix + model.id);
-                if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
-            }
-            _this.selectedNode = null;
-            _this.rerenderDataTree(selectCatId);
-        }});
+        model.destroy({ 
+            success: function(){
+                var selectCatId = 0;
+                // remove category from tree (if category was selected)
+                if (_this.selectedNode.category) {
+                    _this.selectedNode.nodes.forEach(function(node){
+                        _this.map.removeLayer(_this.layerPrefix + node.layer.id);
+                    })
+                    delete _this.categoryTree[model.id];
+                }
+                // remove layer from category (if layer was selected)
+                else {
+                    _this.getTreeLayerNode(model, { pop: true })
+                    selectCatId = model.get('category');
+                    _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
+                }
+                _this.selectedNode = null;
+                _this.rerenderDataTree(selectCatId);
+            },
+            error: _this.onError
+        });
 
     },
 

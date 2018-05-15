@@ -19,11 +19,12 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from repair.views import HomeView
 from django.contrib.auth.views import logout
 from django.views.i18n import JavaScriptCatalog
 from repair.apps.wmsresources.views import (WMSProxyView)
+from repair.apps import admin
+#from django.contrib import admin
 
 
 # Wire up our API using automatic URL routing.
@@ -36,7 +37,7 @@ urlpatterns = [
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
-    url(r'^decisions/', include('repair.apps.decisions.urls')),
+    url(r'^recommendations/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
     url(r'^login/', include('repair.apps.login.urls')),

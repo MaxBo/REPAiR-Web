@@ -15,7 +15,6 @@
 }
 
 #sidebar-wrapper:hover, #sidebar-wrapper.active{
-    background #999;
     left: 0px;
 }
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.contrib import admin
+from repair.apps import admin
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 from . import models
 
