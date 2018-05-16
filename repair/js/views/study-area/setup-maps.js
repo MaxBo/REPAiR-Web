@@ -1,8 +1,8 @@
-define(['backbone', 'underscore', 'views/study-area/maps', 'collections/layercategories',
-        'collections/layers', 'models/layer', 'visualizations/map',
-        'app-config', 'openlayers'],
+define(['backbone', 'underscore', 'views/study-area/maps', 
+        'collections/gdsecollection', 'models/gdsemodel',
+        'visualizations/map', 'app-config'],
 
-function(Backbone, _, BaseMapView, LayerCategories, Layers, Layer, Map, config, ol){
+function(Backbone, _, BaseMapView, GDSECollection, GDSEModel, Map, config){
 /**
 *
 * @author Christoph Franke
@@ -23,44 +23,6 @@ var SetupMapsView = BaseMapView.extend(
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'confirmRemoval');
-    },
-
-    initTree: function(){
-        var _this = this;
-        var deferred = [],
-            layerList = [];
-        // put nodes for each category into the tree and prepare fetching the layers
-        // per category
-        this.layerCategories.each(function(category){
-            var layers = new Layers([], { caseStudyId: _this.caseStudy.id,
-                layerCategoryId: category.id });
-            var node = {
-                text: category.get('name'),
-                category: category,
-                state: { checked: true }
-            };
-            _this.categoryTree[category.id] = node;
-            layerList.push(layers);
-            deferred.push(layers.fetch());
-        });
-        // fetch prepared layers and put informations into the tree nodes
-        $.when.apply($, deferred).then(function(){
-            layerList.forEach(function(layers){
-                var catNode = _this.categoryTree[layers.layerCategoryId];
-                var children = [];
-                layers.each(function(layer){
-                    var node = {
-                        layer: layer,
-                        text: layer.get('name'),
-                        icon: 'fa fa-bookmark',
-                        state: { checked: layer.get('included') }
-                    };
-                    children.push(node);
-                });
-                catNode.nodes = children;
-            });
-            _this.render();
-        })
     },
 
     /*
@@ -108,8 +70,7 @@ var SetupMapsView = BaseMapView.extend(
 
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
-            this.map.centerOnPolygon(poly, { projection: this.projection });
+            this.map.centerOnCoordinates(focusarea.coordinates[0], { projection: this.projection });
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
@@ -220,18 +181,20 @@ var SetupMapsView = BaseMapView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = new _this.layerCategories.model(
-                { name: name }, { caseStudyId: _this.caseStudy.id })
-            category.save(null, { success: function(){
-                var catNode = {
-                    text: name,
-                    category: category,
-                    state: { checked: true }
-                };
-                catNode.nodes = [];
-                _this.categoryTree[category.id] = catNode;
-                _this.rerenderDataTree(category.id);
-            }})
+            var category = _this.layerCategories.create( { name: name }, { 
+                success: function(){
+                    var catNode = {
+                        text: name,
+                        category: category,
+                        state: { checked: true }
+                    }
+                    catNode.nodes = [];
+                    _this.categoryTree[category.id] = catNode;
+                    _this.rerenderDataTree(category.id);
+                },
+                error: _this.onError,
+                wait: true
+            });
         }
         this.getName({
             title: gettext('Add Category'),
@@ -251,12 +214,14 @@ var SetupMapsView = BaseMapView.extend(
         checked.forEach(function(checkbox){
             var wmsLayerId = checkbox.dataset.layerid,
                 wmsLayerName = checkbox.dataset.layername;
-            var layer = new Layer({
-                name: wmsLayerName,
-                included: true,
-                wms_layer: wmsLayerId,
-                style: null
-            }, { caseStudyId: _this.caseStudy.id, layerCategoryId: category.id });
+            var layer = new GDSEModel(
+                { name: wmsLayerName,
+                  included: true,
+                  wms_layer: wmsLayerId,
+                  style: null }, 
+                { apiTag: 'layers', 
+                  apiIds: [ _this.caseStudy.id, category.id ] }
+            );
             newLayers.push(layer);
         })
 

@@ -168,8 +168,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * add a material to the tree with selected node as parent
-        */
+    * add a material to the tree with selected node as parent
+    */
     addMaterial: function(){
         var node = this.selectedNode;
         if (node == null) return;

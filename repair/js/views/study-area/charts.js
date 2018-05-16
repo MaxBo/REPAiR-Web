@@ -1,7 +1,7 @@
-define(['views/baseview', 'underscore', 'collections/chartcategories', 
-        'collections/charts', 'models/chart', "app-config"],
+define(['views/baseview', 'underscore', 'collections/gdsecollection', 
+        'models/gdsemodel', "app-config"],
 
-function(BaseView, _, ChartCategories, Charts, Chart, config){
+function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
 *
 * @author Christoph Franke
@@ -34,7 +34,10 @@ var BaseChartsView = BaseView.extend(
 
         this.categoryTree = {}
         
-        this.chartCategories = new ChartCategories([], { caseStudyId: this.caseStudy.id });
+        this.chartCategories = new GDSECollection([], { 
+            apiTag: 'chartCategories',
+            apiIds: [ this.caseStudy.id ]
+        });
 
         this.loader.activate();
         this.chartCategories.fetch({ 
@@ -87,13 +90,16 @@ var BaseChartsView = BaseView.extend(
     
     initTree: function(){
         var _this = this;
-        var deferred = [],
+        var promises = [],
             chartList = [];
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
         this.chartCategories.each(function(category){
-            var charts = new Charts([], { caseStudyId: _this.caseStudy.id, 
-                                          chartCategoryId: category.id });
+            var charts = new GDSECollection([], { 
+                apiTag: 'charts',
+                apiIds: [ _this.caseStudy.id, category.id ]
+            });
+            charts.categoryId = category.id;
             var node = { 
                 text: category.get('name'), 
                 category: category,
@@ -103,12 +109,12 @@ var BaseChartsView = BaseView.extend(
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
-            deferred.push(charts.fetch());
+            promises.push(charts.fetch());
         });
         // fetch prepared layers and put informations into the tree nodes
-        $.when.apply($, deferred).then(function(){
+        Promise.all(promises).then(function(){
             chartList.forEach(function(charts){
-                var catNode = _this.categoryTree[charts.chartCategoryId];
+                var catNode = _this.categoryTree[charts.categoryId];
                 var children = [];
                 charts.each(function(chart){
                     var node = { 
@@ -243,10 +249,9 @@ var BaseChartsView = BaseView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = new _this.chartCategories.model(
-                { name: name }, { caseStudyId: _this.caseStudy.id })
-            category.save(null, { 
+            var category = _this.chartCategories.create( { name: name }, { 
                 success: function(){
+                    console.log(category)
                     var catNode = { 
                         text: name, 
                         category: category,
@@ -256,8 +261,9 @@ var BaseChartsView = BaseView.extend(
                     _this.categoryTree[category.id] = catNode;
                     _this.rerenderChartTree(category.id);
                 },
-                error: _this.onError
-            })
+                error: _this.onError,
+                wait: true
+            });
         }
         this.getName({ 
             title: gettext('Add Category'),
@@ -291,8 +297,14 @@ var BaseChartsView = BaseView.extend(
                 contentType: false,
                 success: function (data, textStatus, jqXHR) {
                     // make model out of response
-                    var chart = new Chart({ id: data.id, name: data.name, image: data.image, chart_category: category.id },
-                                          { caseStudyId: _this.caseStudy.id, categoryId: category.id });
+                    var chart = new GDSEModel(
+                        { id: data.id, 
+                          name: data.name, 
+                          image: data.image, 
+                          chart_category: category.id },
+                        { apiTag: 'charts',
+                          apiIds: [ _this.caseStudy.id, category.id ]}
+                    );
                     
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',

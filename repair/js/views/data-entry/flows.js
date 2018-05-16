@@ -50,7 +50,7 @@ var FlowsEditView = BaseView.extend(
         });
         this.activities = options.activities;
         this.publications = new GDSECollection([], { 
-            apiTag: 'publications',
+            apiTag: 'publicationsInCasestudy',
             apiIds: [ this.caseStudyId ]
         });
 
