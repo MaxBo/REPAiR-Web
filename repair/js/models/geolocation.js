@@ -23,8 +23,8 @@ define(["models/gdsemodel", "app-config"],
        * @see http://backbonejs.org/#Model
        */
         initialize: function (attributes, options) {
+            // unfortunately super doesn't pass the arguments correctly
             //Location.__super__.initialize.apply(attributes, options);
-            // unfortunately super doesn't pass the args correctly
             this.baseurl = options.url;
             this.apiTag = options.apiTag;
             this.apiIds = options.apiIds;

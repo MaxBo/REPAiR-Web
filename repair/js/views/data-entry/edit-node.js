@@ -1,10 +1,8 @@
-define(['views/baseview', 'underscore', 'models/activitygroup', 'models/activity',
-    'models/actor', 'collections/flows', 'collections/stocks',
-    'collections/products', 'collections/wastes',
-    'app-config', 'datatables.net', 
-    'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
-function(BaseView, _, ActivityGroup, Activity, Actor, Flows, Stocks, Products,
-    Wastes, config){
+define(['views/baseview', 'underscore', 
+        'collections/gdsecollection', 'models/gdsemodel',
+        'app-config', 'datatables.net', 
+        'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
+function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
 *
 * @author Christoph Franke
@@ -53,41 +51,44 @@ var EditNodeView = BaseView.extend(
         this.publications = options.publications;
 
         this.onUpload = options.onUpload;
+        this.flowTag = (this.model.apiTag == 'actor') ? 'actorToActor': 
+                       (this.model.apiTag == 'activity') ? 'activityToActivity':
+                       'groupToGroup';
+        this.stockTag = (this.model.apiTag == 'actor') ? 'actorStock': 
+                        (this.model.apiTag == 'activity') ? 'activityStock':
+                        'groupStock';
 
-        this.flowType = this.model.tag;
-
-        this.inFlows = new Flows([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-        this.outFlows = new Flows([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-        this.stocks = new Stocks([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-        this.newInFlows = new Flows([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-        this.newOutFlows = new Flows([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-        this.newStocks = new Stocks([], {caseStudyId: this.caseStudyId,
-            keyflowId: this.keyflowId,
-            type: this.flowType});
-
-        this.outProducts = new Products([], {
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            }
+        this.inFlows = new GDSECollection([], { 
+            apiTag: this.flowTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
         });
-        this.outWastes = new Wastes([], {
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            }
+        this.outFlows = new GDSECollection([], { 
+            apiTag: this.flowTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        });
+        this.stocks = new GDSECollection([], { 
+            apiTag: this.stockTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        });
+        
+        this.newInFlows = new GDSECollection([], { 
+            apiTag: this.flowTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        });
+        this.newOutFlows = new GDSECollection([], { 
+            apiTag: this.flowTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        });
+        this.newStocks = new GDSECollection([], { 
+            apiTag: this.stockTag, 
+            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        });
+
+        this.outProducts = new GDSECollection([], { 
+            apiTag: 'products'
+        });
+        this.outWastes = new GDSECollection([], { 
+            apiTag: 'wastes'
         });
 
         var _this = this;
@@ -98,18 +99,20 @@ var EditNodeView = BaseView.extend(
         var nace = this.model.get('nace') || 'None';
         // join list of nace codes to comma seperated query param
         if (nace instanceof Array)
-            nace = nace.join()
-
-        // fetch inFlows and outFlows with different query parameters
-        $.when(
+            nace = nace.join();
+        
+        var promises = [
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
             this.stocks.fetch({ data: { origin: this.model.id } }),
             this.outProducts.getFirstPage({ data: { nace: nace } }),
-            this.outWastes.getFirstPage({ data: { nace: nace } })).then(function() {
-                _this.loader.deactivate();
-                _this.render();
-        });
+            this.outWastes.getFirstPage({ data: { nace: nace } })
+        ]
+        
+        Promise.all(promises).then(function() {
+            _this.loader.deactivate();
+            _this.render();
+        })
     },
 
     /*
@@ -252,7 +255,6 @@ var EditNodeView = BaseView.extend(
         if (!isStock){
             var targetCell = row.insertCell(-1),
                 targetId = flow.get(targetIdentifier),
-                Target = Backbone.Model.extend({ urlRoot: this.model.urlRoot() }),
                 target,
                 targetButton = document.createElement('button');
             
@@ -267,7 +269,7 @@ var EditNodeView = BaseView.extend(
             targetButton.innerHTML = '-';
             
             function setTarget(id){
-                target = new Target({ id : id });
+                target = new GDSEModel({ id : id }, { url: _this.model.urlRoot() });
                 target.fetch({
                     success: function(){
                         toggleBtnClass(targetButton, 'btn-primary');
@@ -354,7 +356,8 @@ var EditNodeView = BaseView.extend(
                 };
                 var nace = origin.get('nace') || 'None';
                 _this.loader.activate();
-                var items = (flow.get('waste') == 'true') ? new Wastes([], options): new Products([], options);
+                var apiTag = (flow.get('waste') == 'true') ? 'wastes': 'products',
+                    items = new GDSECollection([], { apiTag: apiTag });
                 items.getFirstPage({ data: { nace: nace } }).then( 
                     function(){ 
                         _this.loader.deactivate();
@@ -782,7 +785,6 @@ var EditNodeView = BaseView.extend(
                 {data: 'address', title: gettext('Address'), name: 'administrative_location.address'},
             ]);
         var table = this.el.querySelector('#flow-nodes-modal table');
-        
         this.nodeDatatable = $(table).DataTable({
             serverSide: true,
             ajax: this.model.urlRoot() + "?format=datatables",
@@ -927,12 +929,9 @@ var EditNodeView = BaseView.extend(
             return;
         }
         
-        // ToDo: removce this after collection/model rework
-        model.caseStudyId = this.caseStudyId;
-        model.keyflowId = this.keyflowId;
         model.fetch({success: function(){
             var nace = model.get('nace') || 'None';
-            var items = new Products();
+            var items = new GDSECollection([], { apiTag: 'products' });
             items.getFirstPage({ data: { nace: nace } }).then( 
                 function(){ 
                     var item = (items.length > 0) ? items.first() : null;

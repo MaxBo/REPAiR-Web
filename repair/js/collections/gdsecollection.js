@@ -2,11 +2,6 @@ define(["backbone-pageable", "underscore", "models/gdsemodel", "app-config"],
 
 function(PageableCollection, _, GDSEModel, config) {
 
-    // default model, you might add some extra common stuff here
-    var GDSEModel = Backbone.Model.extend( {
-        idAttribute: "id"
-    });
-
     /**
     *
     * @author Christoph Franke
@@ -34,7 +29,8 @@ function(PageableCollection, _, GDSEModel, config) {
             return apiUrl
         },
         
-        // by default try to fetch 'em all
+        // by default try to fetch 'em all (should never exceed 1Mio hopefully)
+        // you may reduce the pageSize to get real paginated results
         state: {
             pageSize: 1000000,
             firstPage: 1,
@@ -43,28 +39,35 @@ function(PageableCollection, _, GDSEModel, config) {
 
         /**
         * filter the collection by its attributes
-        * the values to each attribute have to be an exact match to add a model to the returned results
+        * the values to each attribute have to be an exact (by default) match to add a model to the returned results
         *
-        * @param {Object} options            key/value pairs of attribute names and the values to match
+        * @param {Object} attributes         key/value pairs of attribute names and the values to match
+        * @param {Object=} options
+        * @param {String} [options.operator='&&']  the logical function to connect the attribute checks, by default all given attributes have to match, optional: '||'
         *
         * @returns {Array.<Backbone.model>}  list of all models matching the passed attribute/value combinations
         */
-        filterBy: function (options) {
-            var options = options || {};
+        filterBy: function (attributes, options) {
+            var options = options || {},
+                keys = Object.keys(attributes);
             var filtered = this.filter(function (model) {
-                var match = true;
-                for (var key in options) {
-                    match &= (String(model.get(key)) == String(options[key]));
+                function match(key){
+                    return String(model.get(key)) == String(attributes[key])
                 }
-                return match;
+                if (options.operator == '||') 
+                    return keys.some(match)
+                // &&
+                return keys.every(match)
             });
             return filtered;
         },
 
+        // parameter names as used in the rest API
         queryParams: {
             pageSize: "page_size"
         },
-
+        
+        // called immediately after fetching, parses the response (json)
         parseRecords: function (response) {
             // paginated api urls return the models under the key 'results'
             if (response.results)
@@ -72,6 +75,7 @@ function(PageableCollection, _, GDSEModel, config) {
             return response;
         },
         
+        // function to compare models by the preset attribute (id per default) whenever you call sort 
         comparator: function(model) {
           return model.get(this.comparatorAttr);
         },

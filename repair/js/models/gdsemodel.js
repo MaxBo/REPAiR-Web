@@ -26,7 +26,7 @@ function(Backbone, config) {
             var apiUrl = config.api[this.apiTag]
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
-            return apiUrl
+            return apiUrl;
         },
 
         /**

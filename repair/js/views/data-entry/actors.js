@@ -24,6 +24,7 @@ var ActorsView = BaseView.extend(
     * @param {string} options.template                    id of the script element containing the underscore template to render this view
     * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
     * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
     *
     * @constructs
     * @see http://backbonejs.org/#View
@@ -36,10 +37,7 @@ var ActorsView = BaseView.extend(
         this.template = options.template;
         var keyflowId = this.model.id,
             caseStudyId = this.model.get('casestudy');
-        this.activities = new GDSECollection([], { 
-            apiTag: 'activities',
-            apiIds: [ caseStudyId, keyflowId ]
-        });
+        this.activities = options.activities;
         this.actors = new GDSECollection([], { 
             apiTag: 'actors',
             apiIds: [ caseStudyId, keyflowId ]

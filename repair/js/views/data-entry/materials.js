@@ -1,8 +1,8 @@
-define(['views/baseview', 'underscore', "models/material", 
+define(['views/baseview', 'underscore', "models/gdsemodel", 
         'utils/utils', 'libs/bootstrap-treeview.min',
         'static/css/bootstrap-treeview.min.css'],
 
-function(BaseView, _, Material, utils){
+function(BaseView, _, GDSEModel, utils){
 
 /**
     *
@@ -176,9 +176,9 @@ var MaterialsView = BaseView.extend(
         var _this = this;
 
         function onChange(name){
-            var material = new Material(
+            var material = new GDSEModel( 
                 { parent: node.id, name: name }, 
-                { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId }
+                { apiTag: 'materials', apiIds:[ _this.caseStudyId, _this.keyflowId ] }
             );
             material.save({}, { 
                 success: function(){

@@ -1,14 +1,12 @@
 define(['views/baseview', 'underscore',
-    'views/data-entry/edit-node', 'views/status-quo/flows',
-    'collections/activities', 'models/actor', 'collections/flows', 'collections/stocks',
-    'collections/activitygroups', 'collections/publications', 
-    'app-config', 'libs/bootstrap-treeview.min', 
-    'datatables.net-bs',
-    'datatables.net-bs/css/dataTables.bootstrap.css',
-    'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
-    'static/css/bootstrap-treeview.min.css'],
-function(BaseView, _, EditNodeView, FlowsView, Activities, Actor, Flows, 
-    Stocks, ActivityGroups, Publications, config){
+        'views/data-entry/edit-node', 'views/status-quo/flows',
+        'collections/gdsecollection', 'models/gdsemodel',
+        'app-config', 'libs/bootstrap-treeview.min', 
+        'datatables.net-bs',
+        'datatables.net-bs/css/dataTables.bootstrap.css',
+        'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+        'static/css/bootstrap-treeview.min.css'],
+function(BaseView, _, EditNodeView, FlowsView, GDSECollection, GDSEModel, config){
 
 /**
 *
@@ -28,6 +26,7 @@ var FlowsEditView = BaseView.extend(
     * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
     * @param {module:models/CaseStudy} options.caseStudy       the casestudy
     * @param {module:collections/Materials} options.materials  the available materials
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
     *
     * @constructs
     * @see http://backbonejs.org/#View
@@ -45,17 +44,22 @@ var FlowsEditView = BaseView.extend(
         this.materials = options.materials;
 
         // collections of nodes associated to the casestudy
-        this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.activities = new Activities([], { caseStudyId: this.caseStudyId, keyflowId: this.keyflowId });
-        this.publications = new Publications([], { caseStudyId: this.caseStudyId });
+        this.activityGroups = new GDSECollection([], { 
+            apiTag: 'activitygroups',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
+        this.activities = options.activities;
+        this.publications = new GDSECollection([], { 
+            apiTag: 'publications',
+            apiIds: [ this.caseStudyId ]
+        });
 
         this.loader.activate();
-
-        $.when(
-            this.activityGroups.fetch(), this.activities.fetch(), 
-            this.publications.fetch()).then(function(){
-                _this.loader.deactivate();
-                _this.render();
+        
+        var promises = [ this.activityGroups.fetch(), this.publications.fetch() ]
+        Promise.all(promises).then(function(){
+            _this.loader.deactivate();
+            _this.render();
         });
     },
 
@@ -232,7 +236,10 @@ var FlowsEditView = BaseView.extend(
         
         function selectActor(onConfirm){
             _this.onConfirmActor = function(id){
-                model = new Actor({id: id}, { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId });
+                model = new GDSEModel( {id: id}, { 
+                    apiTag: 'actors',
+                    apiIds: [ _this.caseStudyId, _this.keyflowId ] 
+                });
                 node.model = model;
                 onConfirm();
                 // select "Select Actor" node when confirmed

@@ -17,6 +17,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
   var caseStudy,
       keyflows,
       materials,
+      activities,
       loader = new utils.Loader(document.getElementById('content'), {disable: true});
 
   var flowsView,
@@ -36,6 +37,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
       template: 'flows-edit-template',
       model: keyflow,
       materials: materials, 
+      activities: activities,
       caseStudy: caseStudy
     });
     refreshFlowsBtn.style.display = 'block';
@@ -52,6 +54,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
       template: 'actors-template',
       model: keyflow,
       caseStudy: caseStudy,
+      activities: activities,
       onUpload: function(){renderEditActors(keyflow)}
     });
     refreshActorsBtn.style.display = 'block';
@@ -88,13 +91,17 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
         apiTag: 'materials', 
         apiIds: [ caseStudy.id, keyflow.id ] 
       });
+      activities = new GDSECollection([], { 
+          apiTag: 'activities',
+          apiIds: [ caseStudy.id, keyflow.id ]
+      });
       loader.activate();
-      materials.fetch({success: function(){
+      Promise.all([materials.fetch(), activities.fetch()]).then(function(){
         loader.deactivate();
         renderFlows(keyflow);
         renderEditActors(keyflow);
         renderEditMaterials(keyflow);
-      }});
+      });
     });
     refreshFlowsBtn.addEventListener('click', function(){ renderFlows(getKeyflow()) });
     refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
