@@ -18,9 +18,11 @@ function(BaseView, _, Sankey, GDSECollection){
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                   element the view will be rendered in
-        * @param {String} options.tag                       'actor', 'activity' or 'group', by default the apiTag of the collection is taken 
+        * @param {String} options.tag                       'actors', 'activities' or 'activitygroups', by default the apiTag of the collection is taken 
         * @param {Number=} options.width                    width of sankey diagram (defaults to width of el)
         * @param {Number=} options.height                   height of sankey diagram (defaults to 1/3 of width)
+        * @param {Number=} options.caseStudyId              id of the casestudy
+        * @param {Number=} options.keyflowId                id of the keyflow
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
         * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -33,19 +35,19 @@ function(BaseView, _, Sankey, GDSECollection){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
             var _this = this;
-            this.caseStudyId = options.caseStudyId || this.collection.caseStudyId;
-            this.keyflowId = options.keyflowId || this.collection.keyflowId;
+            this.caseStudyId = options.caseStudyId;
+            this.keyflowId = options.keyflowId;
             this.materials = options.materials;
             this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             var tag = options.tag || this.collection.apiTag
 
-            var flowTag = (tag == 'actor') ? 'actorToActor': 
-                          (tag == 'activity') ? 'activityToActivity':
+            var flowTag = (tag == 'actors') ? 'actorToActor': 
+                          (tag == 'activities') ? 'activityToActivity':
                           'groupToGroup',
-                stockTag = (tag == 'actor') ? 'actorStock': 
-                           (tag == 'activity') ? 'activityStock':
+                stockTag = (tag == 'actors') ? 'actorStock': 
+                           (tag == 'activities') ? 'activityStock':
                            'groupStock';
                 
             this.flows = new GDSECollection([], {
@@ -159,7 +161,8 @@ function(BaseView, _, Sankey, GDSECollection){
                     fractions.forEach(function(fraction){
                         var material = materials.get(fraction.material);
                         text += fraction.fraction * 100 + '% ';
-                        text += material.get('name');
+                        if (!material) text += gettext('material not found');
+                        else text += material.get('name');
                         if (i < fractions.length - 1) text += '<br>';
                         i++;
                     })

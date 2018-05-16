@@ -97,7 +97,7 @@ function(PageableCollection, _, GDSEModel, config) {
             //_.bindAll(this, 'model');
             this.baseurl = options.url;
             this.apiTag = options.apiTag;
-            this.apiIds = options.apiIds;
+            this.apiIds = options.apiIds || options.apiIDs; // me (the author) tends to mix up both notations of 'Id' randomly and confuses himself by that
             this.comparatorAttr = options.comparator || 'id';
         },
         
