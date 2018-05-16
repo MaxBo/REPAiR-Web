@@ -361,7 +361,8 @@ var BaseChartsView = BaseView.extend(
                 _this.selectedNode = null;
                 _this.rerenderChartTree(selectCatId);
             },
-            error: _this.onError
+            error: _this.onError,
+            wait: true
         });
         
     },

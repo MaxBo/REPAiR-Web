@@ -289,7 +289,8 @@ var SetupMapsView = BaseMapView.extend(
                 _this.selectedNode = null;
                 _this.rerenderDataTree(selectCatId);
             },
-            error: _this.onError
+            error: _this.onError,
+            wait: true
         });
 
     },
