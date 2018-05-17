@@ -1,11 +1,8 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
-        'collections/keyflows', 'collections/materials', 
-        'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'views/flowsankey', 
+        'collections/gdsecollection', 'views/flowsankey', 
         'utils/utils'],
 
-function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
-    Activities, FlowSankeyView, utils){
+function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -36,23 +33,31 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.filterParams = {};
-        content.style.display = 'inline';
-        this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            } });
-        this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-
+        this.materials = new GDSECollection([], { 
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.actors = new GDSECollection([], { 
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activities = new GDSECollection([], { 
+            apiTag: 'activities',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activityGroups = new GDSECollection([], { 
+            apiTag: 'activitygroups',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
         this.loader.activate();
-        var params = { included: 'True' }
-        $.when(this.materials.fetch(), 
-               //this.actors.fetch({ data: params }), 
-               this.activities.fetch(), this.activityGroups.fetch()
-            ).then(function(){
+        var params = { included: 'True' },
+            promises = [
+                //this.actors.fetch({ data: params }), 
+                this.activities.fetch(),
+                this.activityGroups.fetch(),
+                this.materials.fetch()
+            ]
+        Promise.all(promises).then(function(){
             _this.loader.deactivate();
             _this.render();
         })
@@ -115,11 +120,12 @@ var FlowsView = BaseView.extend(
                 stockFilterParams.nodes = nodeIds;
             }
         }
-        
         if (this.flowsView != null) this.flowsView.close();
         this.flowsView = new FlowSankeyView({
             el: document.getElementById('sankey-wrapper'),
             collection: collection,
+            keyflowId: this.keyflowId,
+            caseStudyId: this.caseStudy.id,
             materials: this.materials,
             flowFilterParams: flowFilterParams,
             stockFilterParams: stockFilterParams,
@@ -173,8 +179,8 @@ var FlowsView = BaseView.extend(
             // set and use filters for selected group, set child activities 
             // clear filter if 'All' (== -1) is selected
             _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
-            _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
-            _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+            _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+            _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             _this.typeSelect.value = 'activitygroup';
@@ -192,13 +198,13 @@ var FlowsView = BaseView.extend(
             }
             // 'All' is selected for activity but a specific group is selected
             else if (activityId < 0){
-                _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+                _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             }
             // specific activity is selected
             else {
                 _this.activitiesFiltered = [_this.activities.get(activityId)];
-                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+                _this.actorsFiltered = _this.actors.filterBy({'activity': activityId});
             }
             renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             _this.typeSelect.value = 'activity';
@@ -215,11 +221,11 @@ var FlowsView = BaseView.extend(
             }
             // filter by group if 'All' (== -1) is selected in activity and actor but not group
             if (activityId < 0  && actorId < 0){
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             }
             // filter by activity if a specific activity is set and 'All' is selected for actor
             else if (actorId < 0){
-                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+                _this.actorsFiltered = _this.actors.filterBy({'activity': activityId});
             }
             // specific actor
             else

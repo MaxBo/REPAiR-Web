@@ -503,6 +503,11 @@ define([
             this.centerOnPoint(centroid, options);
             return centroid;
         }
+        
+        centerOnCoordinates(coordinates, options){
+            var poly = new ol.geom.Polygon(coordinates);
+            this.centerOnPolygon(poly, options);
+        }
 
         /**
         * centers map on layer with given name, zooms to fit extent of layer
