@@ -1,9 +1,7 @@
-define(['views/baseview', 'backbone', 'underscore', 'collections/solutioncategories',
-        'collections/solutions', 'collections/keyflows', 'visualizations/map', 
-        'app-config', 'utils/utils', 'bootstrap'],
+define(['views/baseview', 'underscore', 'collections/gdsecollection',
+        'visualizations/map', 'app-config', 'utils/utils', 'bootstrap'],
 
-function(BaseView, Backbone, _, SolutionCategories, Solutions, Keyflows, 
-         Map, config, utils){
+function(BaseView, _, GDSECollection, Map, config, utils){
 /**
 *
 * @author Christoph Franke
@@ -38,33 +36,33 @@ var SolutionsView = BaseView.extend(
         this.mode = options.mode || 0;
         
         // ToDo: replace with collections fetched from server
-        this.categories = new SolutionCategories([], { caseStudyId: this.caseStudy.id })
-    
+        this.categories = new GDSECollection([], { 
+            apiTag: 'solutionCategories', apiIds: [this.caseStudy.id]
+        }),
         
         this.loader.activate();
-        this.keyflows = new Keyflows([], { caseStudyId: this.caseStudy.id }),
-            deferreds = [];
-        var Units = Backbone.Collection.extend({ url: config.api.units });
-        this.units = new Units();
+        this.keyflows = new GDSECollection([], { 
+            apiTag: 'keyflowsInCaseStudy', apiIds: [this.caseStudy.id]
+        });
+        var promises = [];
+        this.units = new GDSECollection([], { apiTag: 'units' });
         this.keyflows.fetch({
             success: function(){
-                deferreds.push(_this.categories.fetch());
-                deferreds.push(_this.units.fetch());
+                promises.push(_this.categories.fetch());
+                promises.push(_this.units.fetch());
                 _this.keyflows.forEach(function(keyflow){
-                    var activityUrl = config.api.activities.format(_this.caseStudy.id, keyflow.id);
-                    deferreds.push(
-                        $.ajax({
-                            url: activityUrl,
-                            type: "GET",
-                            dataType: "json",
-                            success: function(response){
-                                keyflow.activities = response;
-                            }
-                        })
-                    )
+                    var activities = new GDSECollection([], {
+                        apiTag: 'activities',
+                        apiIds: [_this.caseStudy.id, keyflow.id]
+                    })
+                    promises.push(activities.fetch({
+                        success: function(response){
+                            keyflow.activities = response;
+                        }
+                    }));
                 })
                 
-                $.when.apply($, deferreds).then(function(){
+               Promise.all(promises).then(function(){
                     _this.loader.deactivate();
                     _this.render();
                 });
@@ -92,16 +90,15 @@ var SolutionsView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({ mode: this.mode });
-        var deferreds = [];
+        var promises = [];
         this.categories.forEach(function(category){
-            category.solutions = new Solutions([], { 
-                caseStudyId: _this.caseStudy.id, 
-                solutionCategoryId: category.id
-            })
-            deferreds.push(category.solutions.fetch());
+            category.solutions = new GDSECollection([], { 
+                apiTag: 'solutions', apiIds: [_this.caseStudy.id, category.id]
+            }),
+            promises.push(category.solutions.fetch());
         });
         // fetch all before rendering to keep the order
-        $.when.apply($, deferreds).then(function(){
+        Promise.all(promises).then(function(){
             _this.categories.forEach(function(category){
                 _this.renderCategory(category);
             });
@@ -219,19 +216,17 @@ var SolutionsView = BaseView.extend(
                 changedImages[field] = input.files[0];
             }
         };
-        var Quantities = Backbone.Collection.extend({ 
-                url: config.api.solutionQuantities.format(
-                    this.caseStudy.id, solution.get('solution_category'), 
-                    solution.id) 
+        var squantities = new GDSECollection([], {
+                apiTag: 'solutionQuantities',
+                apiIds: [this.caseStudy.id, solution.get('solution_category'), 
+                         solution.id]
             }),
-            squantities = new Quantities();
         
-        var Ratios = Backbone.Collection.extend({ 
-                url: config.api.solutionRatioOneUnits.format(
-                    this.caseStudy.id, solution.get('solution_category'), 
-                    solution.id) 
-            })
-        var sratios = new Ratios();
+            sratios = new GDSECollection([], {
+                apiTag: 'solutionRatioOneUnits',
+                apiIds: [this.caseStudy.id, solution.get('solution_category'), 
+                         solution.id]
+            });
         
         if (solution.id){
             squantities.fetch({success: function(){
@@ -325,15 +320,13 @@ var SolutionsView = BaseView.extend(
                     solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
                 }
+                console.log(changedImages)
                 for (file in changedImages){
                   data[file] = changedImages[file];
                 }
                 solution.save(data, { 
                     success: function(){
                         var ratioModels = [];
-                        // workaround for missing id
-                        squantities.url = config.api.solutionQuantities.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
-                        sratios.url = config.api.solutionRatioOneUnits.format(_this.caseStudy.id, solution.get('solution_category'), solution.id);
                         squantities.forEach(function(m) {ratioModels.push(m)});
                         sratios.forEach(function(m) {ratioModels.push(m)});
                         
@@ -395,7 +388,7 @@ var SolutionsView = BaseView.extend(
     // search for the keyflow of an activity
     getKeyflow: function(activityId){
         var keyflow = this.keyflows.find(function(keyflow){ 
-            var found = _.find(keyflow.activities, function(activity){
+            var found = keyflow.activities.find(function(activity){
                 return activity.id == activityId;
             }); 
             return found != null;
@@ -411,13 +404,15 @@ var SolutionsView = BaseView.extend(
         var checkList = document.getElementById('activities-checks');
         if (checkList)
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
+            loader.activate();
+        // fetch them as json instead of a collection, reduces unnessecary memory overhead
         $.ajax({
             url: actorUrl,
             type: "GET",
             dataType: "json",
             data: { activity: activityId, page_size: 100000, included: "True" },
             success: function(response){
-                if (checkList) loader.remove();
+                if (checkList) loader.deactivate();
                 var actorIds = [];
                 response.results.forEach(function(actor){ actorIds.push(actor.id) });
                 if (actorIds.length > 0){
@@ -530,14 +525,11 @@ var SolutionsView = BaseView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = new _this.categories.model(
-                { name: name }, { caseStudyId: _this.caseStudy.id });
-            category.save(null, {
-                success: function(){
-                    category.solutions = new Solutions([], { 
-                        caseStudyId: _this.caseStudy.id, 
-                        solutionCategoryId: category.id
-                    })
+            var category = _this.categories.create( { name: name }, {success: function(){
+                category.solutions = new GDSECollection([], { 
+                    apiTag: 'solutions',
+                    apiIds: [_this.caseStudy.id, category.id]
+                });
                     _this.categories.add(category);
                     _this.renderCategory(category);
                 },
@@ -553,9 +545,8 @@ var SolutionsView = BaseView.extend(
     addSolution: function(panel, category){
         var _this = this;
         var solutions = category.solutions,
-            solution = new solutions.model(
+            solution = new solutions.model( 
                 { name: name, solution_category: category.id }, 
-                { caseStudyId: _this.caseStudy.id, solutionCategoryId: category.id }
             );
         function onConfirm(){
             solutions.add(solution);

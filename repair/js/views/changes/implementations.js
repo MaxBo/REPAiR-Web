@@ -1,12 +1,8 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection/', 
-        'collections/stakeholders',
-        'collections/stakeholdercategories', 'collections/solutioncategories',
-        'collections/solutions', 'visualizations/map', 
-        'utils/utils', 'openlayers', 'bootstrap', 
+        'visualizations/map', 'utils/utils', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Stakeholders, StakeholderCategories, 
-         SolutionCategories, Solutions, Map, utils, ol){
+function(BaseView, _, GDSECollection, Map, utils, ol){
 /**
 *
 * @author Christoph Franke
@@ -34,7 +30,10 @@ var ImplementationsView = BaseView.extend(
         _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
-        this.stakeholderCategories = new StakeholderCategories([], { caseStudyId: this.caseStudy.id });
+        this.stakeholderCategories = new GDSECollection([], { 
+            apiTag: 'stakeholderCategories',
+            apiIds: [_this.caseStudy.id]
+        });
         
         this.implementations = new GDSECollection([], {
             apiTag: 'implementations', 
@@ -53,15 +52,21 @@ var ImplementationsView = BaseView.extend(
         this.stakeholders = [];
         this.solutions = [];
         this.projection = 'EPSG:4326';
+        
+        var promises = [
+            this.implementations.fetch(), 
+            this.stakeholderCategories.fetch(), 
+            this.solutionCategories.fetch(), 
+            this.units.fetch()
+        ]
     
-        $.when(this.implementations.fetch(), this.stakeholderCategories.fetch(), 
-               this.solutionCategories.fetch(), this.units.fetch()).then(function(){
+        Promise.all(promises).then(function(){
             var deferreds = [];
             // fetch all stakeholders after fetching their categories
             _this.stakeholderCategories.forEach(function(category){
-                var stakeholders = new Stakeholders([], { 
-                    caseStudyId: _this.caseStudy.id, 
-                    stakeholderCategoryId: category.id 
+                var stakeholders = new GDSECollection([], { 
+                    apiTag: 'stakeholders',
+                    apiIds: [_this.caseStudy.id, category.id ]
                 });
                 category.stakeholders = stakeholders;
                 deferreds.push(stakeholders.fetch({ error: _this.onError }))
@@ -76,9 +81,7 @@ var ImplementationsView = BaseView.extend(
                 deferreds.push(solutions.fetch({ error: _this.onError }))
             });
             
-            $.when.apply($, deferreds).then(function(){
-                _this.render();
-            });
+            Promise.all(deferreds).then(_this.render);
                
         })
     },
@@ -145,7 +148,8 @@ var ImplementationsView = BaseView.extend(
             _this.confirm({ message: message, onConfirm: function(){
                 implementation.destroy({
                     success: function() { implDiv.removeChild(el); },
-                    error: _this.onError
+                    error: _this.onError,
+                    wait: true
                 })
             }});
         })
@@ -225,7 +229,8 @@ var ImplementationsView = BaseView.extend(
             _this.confirm({ message: message, onConfirm: function(){
                 solutionInImpl.destroy({
                     success: function() { solDiv.removeChild(el); },
-                    error: _this.onError
+                    error: _this.onError,
+                    wait: true
                 })
             }});
         })
