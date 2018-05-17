@@ -1,10 +1,9 @@
-define(['views/baseview', 'underscore', 'models/actor', 'collections/geolocations', 
-    'models/geolocation', 'collections/activities', 'collections/actors', 
-    'collections/areas', 'models/area','visualizations/map', 
-    'utils/utils', 'bootstrap'],
+define(['views/baseview', 'underscore', 
+        'collections/gdsecollection', 'models/gdsemodel',
+        'collections/geolocations', 'models/geolocation', 
+        'visualizations/map', 'utils/utils', 'bootstrap'],
 
-function(BaseView, _, Actor, Locations, Geolocation, Activities, Actors, 
-    Areas, Area, Map, utils){
+function(BaseView, _, GDSECollection, GDSEModel, Locations, Location, Map, utils){
 /**
     *
     * @author Christoph Franke
@@ -19,7 +18,7 @@ var EditActorView = BaseView.extend(
     * callback for uploading the actor
     *
     * @callback module:views/EditActorView~onUpload
-    * @param {module:models/Actor} actor the uploaded actor
+    * @param {module:GDSECollection.Model} actor the uploaded actor
     */
 
     /**
@@ -28,11 +27,11 @@ var EditActorView = BaseView.extend(
     * @param {Object} options
     * @param {HTMLElement} options.el                                 element the view will be rendered in
     * @param {string} options.template                                id of the script element containing the underscore template to render this view
-    * @param {module:models/Actor} options.model                      the actor to edit
-    * @param {module:collections/Keyflows.Model} options.keyflow      the keyflow the actor belongs to
-    * @param {module:collections/Activities} options.activities       the activities belonging to the keyflow
-    * @param {module:collections/AreaLevels} options.areaLevels       the levels of areas belonging to the casestudy of the keyflow (sorted ascending by level, starting with top-level)
-    * @param {Backbone.Collection} options.reasons                    possible options for reasons to exclude the actor
+    * @param {module:collections/GDSECollection.Model} options.model  the actor to edit
+    * @param {module:collections/GDSECollection.Model} options.keyflow  the keyflow the actor belongs to
+    * @param {module:collections/GDSECollection} options.activities   the activities belonging to the keyflow
+    * @param {module:collections/GDSECollection} options.areaLevels   the levels of areas belonging to the casestudy of the keyflow (sorted ascending by level, starting with top-level)
+    * @param {module:collections/GDSECollection} options.reasons      possible options for reasons to exclude the actor
     * @param {Object} options.focusarea                               geojson with multipolygon that will be drawn on the map
     * @param {module:views/EditActorView~onUpload=} options.onUpload  called after successfully uploading the actor
     *
@@ -44,8 +43,8 @@ var EditActorView = BaseView.extend(
         _.bindAll(this, 'renderLocation');
 
         this.keyflow = options.keyflow;
-        var keyflowId = this.keyflow.id,
-            caseStudyId = this.keyflow.get('casestudy');
+        this.keyflowId = this.keyflow.id,
+        this.caseStudyId = this.keyflow.get('casestudy');
 
         this.activities = options.activities;
         this.onUpload = options.onUpload;
@@ -56,7 +55,7 @@ var EditActorView = BaseView.extend(
         this.hasChangedVal = false;
 
         this.layers = {
-            operational: {
+            opLocations: {
                 pin: '/static/img/simpleicon-places/svg/map-marker-red.svg',
                 style: {
                     stroke: 'rgb(255, 51, 0)',
@@ -65,7 +64,7 @@ var EditActorView = BaseView.extend(
                     zIndex: 1
                 }
             },
-            administrative: {
+            adminLocations: {
                 pin: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
                 style: {
                     stroke: 'rgb(51, 153, 255)',
@@ -86,13 +85,15 @@ var EditActorView = BaseView.extend(
 
         var _this = this;
 
-        this.adminLocations = new Locations([], {
-            caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'administrative'
-        })
+        this.adminLocations = new Locations([], { 
+            apiTag: 'adminLocations',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
 
-        this.opLocations = new Locations([], {
-            caseStudyId: caseStudyId, keyflowId: keyflowId, type: 'operational'
-        })
+        this.opLocations = new Locations([], { 
+            apiTag: 'opLocations',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
 
         this.projection = 'EPSG:4326'; 
 
@@ -103,7 +104,11 @@ var EditActorView = BaseView.extend(
         ]
         var topLevel = this.areaLevels.first();
         if (topLevel) {
-            this.topLevelAreas = new Areas([], { caseStudyId: caseStudyId, levelId: topLevel.id });
+            this.topLevelAreas = new GDSECollection([], { 
+                apiTag: 'areas',
+                apiIds: [ this.caseStudyId, topLevel.id ],
+                comparator: 'name'
+            });
             deferreds.push(this.topLevelAreas.fetch());
         } 
 
@@ -242,19 +247,6 @@ var EditActorView = BaseView.extend(
     },
 
     /* 
-    * add a location to the map
-    */
-    addLocation: function(coord, locations, layername, table){
-        var properties = {actor: this.activeActorId}
-        var loc = new locations.model({}, {caseStudyId: this.model.get('casestudy'),
-            type: locations.loc_type,
-            properties: properties})
-        loc.setGeometry(coord);
-        locations.add(loc);
-        this.renderLocation(loc, layername, table);
-    },
-
-    /* 
     * add a marker with given location to the map and the table
     */
     renderLocation: function(loc, layername, table){ 
@@ -328,11 +320,13 @@ var EditActorView = BaseView.extend(
         // add area to table and map
         var areaCell = row.insertCell(-1);
         var areaId = loc.get('properties').area,
-            levelId = loc.get('properties').level,
-            caseStudyId = _this.keyflow.get('casestudy');
+            levelId = loc.get('properties').level;
 
         if(areaId != null){
-            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
+            var area = new GDSEModel({ id: areaId }, { 
+                apiTag: 'areas',
+                apiIds: [ this.caseStudyId, levelId ]
+            });
             area.fetch({success: function(){
                 var wrapper = document.createElement('span'),
                     symbol = document.createElement('div'),
@@ -395,11 +389,12 @@ var EditActorView = BaseView.extend(
     */
     createLocationEvent: function(event){
         var buttonId = event.currentTarget.id;
-        var properties = {actor: this.model.id};
-        var type = (buttonId == 'add-administrative-button') ? 'administrative': 'operational';
-        var location = new Geolocation({properties: properties}, 
-            {caseStudyId: this.keyflow.get('casestudy'),
-                type: type});
+        var properties = { actor: this.model.id };
+        var type = (buttonId == 'add-administrative-button') ? 'adminLocations': 'opLocations';
+        var location = new Location(
+            { properties: properties }, 
+            { apiTag: type, apiIds: [ this.keyflow.get('casestudy') ] }
+        );
         this.editLocation(location);
     },
 
@@ -419,8 +414,10 @@ var EditActorView = BaseView.extend(
         });
         if (area == null) return;
         var directChild = childSelects[0];
-        var childAreas = new Areas([], { 
-            caseStudyId: this.keyflow.get('casestudy'), levelId: directChild.levelId 
+        var childAreas = new GDSECollection([], { 
+            apiTag: 'areas',
+            apiIds: [ this.caseStudyId, directChild.levelId ],
+            comparator: 'name'
         });
         childAreas.fetch({ 
             data: { parent_id: area.id },
@@ -444,10 +441,13 @@ var EditActorView = BaseView.extend(
         }
 
         var parentId = area.get('properties').parent_area,
-            parentLevelId = area.get('properties').parent_level,
-            caseStudyId = this.keyflow.get('casestudy');
+            parentLevelId = area.get('properties').parent_level;
         // fill this select
-        var areas = new Areas([], {caseStudyId: caseStudyId, levelId: select.levelId});
+        var areas = new GDSECollection([], { 
+            apiTag: 'areas',
+            apiIds: [ this.caseStudyId, select.levelId ],
+            comparator: 'name'
+        });
         areas.fetch({
             data:  { parent_id: parentId },
             success: function(){
@@ -458,10 +458,10 @@ var EditActorView = BaseView.extend(
 
         // if setParents is set to true fetch parent area and recursively call this function again
         if (options.setParents){
-            var parentArea = new Area(
-                { id: parentId }, 
-                { caseStudyId: caseStudyId, levelId: parentLevelId }
-            );
+            var parentArea = new GDSEModel({ id: parentId }, { 
+                apiTag: 'areas',
+                apiIds: [ this.caseStudyId, parentLevelId ]
+            });
 
             parentArea.fetch({
                 success: function(){ 
@@ -498,7 +498,6 @@ var EditActorView = BaseView.extend(
         var _this = this;
         var table = document.getElementById('location-area-table');
         this.areaSelects = [];
-        var caseStudyId = _this.keyflow.get('casestudy');
 
         // fetch geometry of area and draw it on map
         function fetchDraw(area){
@@ -528,17 +527,24 @@ var EditActorView = BaseView.extend(
             select.addEventListener('change', function(){
                 var areaId = select.value;
                 // remove polygons, keep markers
-                _this.localMap.clearLayer('administrative', { types: ['Polygon', 'MultiPolygon'] });
-                _this.localMap.clearLayer('operational', { types: ['Polygon', 'MultiPolygon'] });
+                _this.localMap.clearLayer('adminLocations', { types: ['Polygon', 'MultiPolygon'] });
+                _this.localMap.clearLayer('opLocations', { types: ['Polygon', 'MultiPolygon'] });
                 var area;
                 if (areaId >= 0){
-                    area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: level.id });
+                    area = new GDSEModel({ id: areaId }, { 
+                        apiTag: 'areas',
+                        apiIds: [ _this.caseStudyId, level.id ],
+                        comparator: 'name'
+                    });
                     fetchDraw(area);
                 }
                 // an area is deselected -> draw parent one (not on top level)
                 else if (cur > 0) {
                     var parentSelect = _this.areaSelects[cur-1];
-                    area = new Area({ id: parentSelect.value }, { caseStudyId: caseStudyId, levelId: parentSelect.levelId });
+                    area = new GDSEModel({ id: parentSelect.value }, { 
+                        apiTag: 'areas',
+                        apiIds: [ _this.caseStudyId, parentSelect.levelId ]
+                    });
                     fetchDraw(area);
                 }
                 _this.setAreaChildSelects(area, cur);
@@ -564,8 +570,7 @@ var EditActorView = BaseView.extend(
         var geometry = location.get('geometry');
         var markerId;
         var coordinates = (geometry != null) ? geometry.get("coordinates"): null;
-        this.activeType = location.loc_type || location.collection.loc_type;
-        var caseStudyId = this.keyflow.get('casestudy');
+        this.activeType = location.apiTag || location.collection.apiTag;
 
         var pin = this.layers[this.activeType].pin;
 
@@ -577,8 +582,8 @@ var EditActorView = BaseView.extend(
         $(locationModal).modal('show'); 
 
         // reset the map
-        this.localMap.clearLayer('operational');
-        this.localMap.clearLayer('administrative');
+        this.localMap.clearLayer('opLocations');
+        this.localMap.clearLayer('adminLocations');
         this.localMap.removeInteractions();
 
         // clear the selects
@@ -676,7 +681,10 @@ var EditActorView = BaseView.extend(
             }
             var select = this.areaSelects[selectIdx];
 
-            var area = new Area({ id: areaId }, { caseStudyId: caseStudyId, levelId: levelId });
+            var area = new GDSEModel({ id: areaId }, { 
+                apiTag: 'areas',
+                apiIds: [ _this.caseStudyId, levelId ]
+            });
             area.fetch({success: function(){
                 var polyCoords = area.get('geometry').coordinates[0];
                 _this.localMap.addPolygon(polyCoords, { 
@@ -684,9 +692,13 @@ var EditActorView = BaseView.extend(
                     layername: _this.activeType, tooltip: area.get('properties').name 
                 });
                 // fetch areas of level and fill select (not for top level, always stays the same)
-                if (selectIdx >= 0){
+                if (selectIdx > 0){
                     var parentId = area.get('properties').parent_area;
-                    var areas = new Areas([], { caseStudyId: caseStudyId, levelId: levelId });
+                    var areas =  new GDSECollection([], { 
+                        apiTag: 'areas',
+                        apiIds: [ _this.caseStudyId, levelId ],
+                        comparator: 'name'
+                    });
                     areas.fetch({ data: { parent_id: parentId }, success: function(){
                         _this.setAreaSelects(
                             area, selectIdx, 
@@ -761,7 +773,7 @@ var EditActorView = BaseView.extend(
 
         // location is not in a collection yet (added by clicking add-button) -> add it to the proper one
         if (location.collection == null){
-            var collection = (location.loc_type == 'administrative') ? this.adminLocations : this.opLocations;
+            var collection = (location.apiTag == 'adminLocations') ? this.adminLocations : this.opLocations;
             collection.add(location);
         }
         // rerender all markers (too lazy to add single one)
@@ -778,10 +790,10 @@ var EditActorView = BaseView.extend(
         this.adminTable.innerHTML = '';
         this.opTable.innerHTML = '';
 
-        this.globalMap.clearLayer('administrative');
-        this.globalMap.clearLayer('operational');
-        this.renderLocation(adminLoc, 'administrative', this.adminTable);
-        this.opLocations.each(function(loc){_this.renderLocation(loc, 'operational', _this.opTable);});
+        this.globalMap.clearLayer('adminLocations');
+        this.globalMap.clearLayer('opLocations');
+        this.renderLocation(adminLoc, 'adminLocations', this.adminTable);
+        this.opLocations.each(function(loc){_this.renderLocation(loc, 'opLocations', _this.opTable);});
 
         var addAdminBtn = document.getElementById('add-administrative-button');
         if (adminLoc != null){
