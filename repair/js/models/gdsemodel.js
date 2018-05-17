@@ -1,6 +1,6 @@
-define(["backbone", "app-config"],
+define(["backbone", "utils/utils", "app-config"],
 
-function(Backbone, config) {
+function(Backbone, utils, config) {
 
     /**
     *
@@ -14,10 +14,10 @@ function(Backbone, config) {
         idAttribute: "id",
 
         /**
-            * generates an url to the api resource based on the ids given in constructor
-            *
-            * @returns {string} the url string
-            */
+        * generates an url to the api resource based on the ids given in constructor
+        *
+        * @returns {string} the url string
+        */
         urlRoot: function(){
             // if concrete url was passed: take this and ignore the rest
             if (this.baseurl) return this.baseurl;
@@ -37,16 +37,69 @@ function(Backbone, config) {
         * @param {string} options.baseurl          static url (overrides all of the follwing api arguments)
         * @param {string} options.apiTag           key of url as in config.api
         * @param {string} options.apiIds           ids to access api url (retrieved by apiTag), same order of appearance as in config.api[apiTag]
+        * @param {string} options.fileAttributes   names of the attributes that should be uploaded as files
         *
         * @constructs
         * @see http://backbonejs.org/#Model
         */
         initialize: function (attributes, options) {
+            var options = options || {};
             //_.bindAll(this, 'model');
             this.baseurl = options.url;
             this.apiTag = options.apiTag;
             this.apiIds = options.apiIds || options.apiIDs; // me (the author) tends to mix up both notations of 'Id' randomly and confuses himself by that
+            this.fileAttributes = options.fileAttributes || [];
         },
+
+        /**
+        * overrides save function of Backbone models.
+        * enables possibility to upload the model as a form instead of JSON, 
+        * if attributes in data object are instances of File the model is automatically uploaded as a form (django needs it that way)
+        *
+        * WARNING: the changed attributes of model are ignored when uploading as form, only passed data will be put into form
+        *
+        * @param {Object} data       same as in Backbone.Model.save, values of file attributes have to be instances of File (the JS one)
+        * @param {Object} options    same as in Backbone.Model.save
+        * @param {Boolean} [options.uploadAsForm=false]  force uploading as form 
+        *
+        * @constructs
+        * @see http://backbonejs.org/#Model
+        */
+        save: function(data, options){
+            var _this = this,
+                uploadAsForm = options.uploadAsForm || false,
+                data = data || {};
+            // check if one of the attributes is a file
+            if (!uploadAsForm){
+                for (key in data){
+                    if (data[key] instanceof File ) {
+                        uploadAsForm = true;
+                        break;
+                    }
+                }
+            }
+
+            // if file is passed in data: upload as form
+            if (uploadAsForm){
+                // remove trailing slash if there is one
+                var url = this.urlRoot().replace(/\/$/, "");
+                // post to resource if already existing (indicated by id) else create by posting to list view
+                if (this.id != null) url += '/' + this.id;
+                url += '/';
+                utils.uploadForm(data, url, {
+                    method: (this.id != null) ? 'PUT': 'POST',
+                    success: function(resData, textStatus, jqXHR){
+                        // set attributes corresponding to response
+                        for(key in resData){
+                            _this.attributes[key] = resData[key];
+                        }
+                        if (options.success) options.success(_this);
+                    },
+                    error: options.error
+                })
+            }
+            else GDSEModel.__super__.save.apply(this, [data, options]);
+    },
 
     });
     return GDSEModel;
