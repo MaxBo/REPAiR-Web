@@ -477,9 +477,9 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-        * open modal dialog for editing the fractions of a flow 
-        * items are the available products/wastes the user can select from
-        */
+    * open modal dialog for editing the fractions of a flow 
+    * items are the available products/wastes the user can select from
+    */
     editFractions: function(flow, items, button){
 
         var _this = this,
@@ -537,10 +537,11 @@ var EditNodeView = BaseView.extend(
             fInput.style = 'text-align: right;';
             fInput.max = 100;
             fInput.min = 0;
+            fInput.style.minWidth = '100px';
             fInput.style.maxWidth = '80%';
             fInput.style.float = 'left';
             fractionWrapper.appendChild(fInput);
-            fInput.value = Math.round(fraction.fraction * 1000) / 10;
+            fInput.value = Math.round(fraction.fraction * 10000000) / 100000;
             fInput.addEventListener('change', setCustom);
 
             var perDiv = document.createElement('div');
@@ -667,10 +668,9 @@ var EditNodeView = BaseView.extend(
                     f = fInput.value / 100,
                     id = row.getAttribute('data-id');
                 if (id == "null") id = null;
-                
                 var fraction = { 
                     'id': id,
-                    'fraction': Number(Math.round(f+'e3')+'e-3'),
+                    'fraction': Number(Math.round(f+'e5')+'e-5'),
                     'material': matSelect.getAttribute('data-material-id'),
                     'publication': pubInput.getAttribute('data-publication-id'),
                     'avoidable': avoidCheck.checked
