@@ -279,33 +279,17 @@ var BaseChartsView = BaseView.extend(
         var imgInput = this.el.querySelector('#chart-image-input');
         if (imgInput.files && imgInput.files[0]){
         
-            // you have to files via form, Backbone.Models (sends data as json) doesn't work here
+            // you have to upload files via form, Backbone.Models (sends data as json) doesn't work here
             var image = imgInput.files[0],
-                name = this.el.querySelector('#chart-name').value
-                formData = new FormData();
-            formData.append('image', image);
-            formData.append('name', name);
-            var url = config.api.charts.format(this.caseStudy.id, category.id);
-            $.ajax({
-                type: "POST",
-                timeout: 50000,
-                url: url,
-                data: formData,
-                cache: false,
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                success: function (data, textStatus, jqXHR) {
-                    // make model out of response
-                    var chart = new GDSEModel(
-                        { id: data.id, 
-                          name: data.name, 
-                          image: data.image, 
-                          chart_category: category.id },
-                        { apiTag: 'charts',
-                          apiIds: [ _this.caseStudy.id, category.id ]}
-                    );
-                    
+                name = this.el.querySelector('#chart-name').value;
+            
+            var data = {
+                name: name,
+                image: image
+            }
+            var chart = new GDSEModel( {}, { apiTag: 'charts', apiIds: [ _this.caseStudy.id, category.id ] });
+            chart.save(data, {
+                success: function () {
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',
                         chart: chart };
