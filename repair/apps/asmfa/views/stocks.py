@@ -31,23 +31,26 @@ class StockViewSet(RevisionMixin,
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         query_params = request.query_params
-        filtered = None
+        queryset = self.get_queryset()
+        filtered = False
         if 'material' in query_params.keys():
             try:
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
-            filtered = filter_by_material(material, self.get_queryset())
+            queryset = filter_by_material(material, queryset)
+            filtered = True
         if 'waste' in query_params.keys():
-            queryset = filtered if filtered is not None else self.get_queryset()
-            filtered = queryset.filter(waste=query_params.get('waste'))
+            queryset = queryset.filter(waste=query_params.get('waste'))
+            filtered = True
         if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
-            queryset = filtered if filtered is not None else self.get_queryset()
             nodes = (query_params.get('nodes', None)
                      or request.GET.getlist('nodes[]')) 
-            filtered = queryset.filter(origin__in=nodes)
-        if filtered is not None:
-            serializer = SerializerClass(filtered, many=True,
+            queryset = queryset.filter(origin__in=nodes)
+            filtered = True
+    
+        if filtered:
+            serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
             return Response(serializer.data)
         return super().list(request, **kwargs)

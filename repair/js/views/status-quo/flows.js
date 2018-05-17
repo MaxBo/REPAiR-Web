@@ -52,7 +52,7 @@ var FlowsView = BaseView.extend(
         this.loader.activate();
         var params = { included: 'True' },
             promises = [
-                //this.actors.fetch({ data: params }), 
+                this.actors.fetch({ data: params }), 
                 this.activities.fetch(),
                 this.activityGroups.fetch(),
                 this.materials.fetch()
@@ -153,26 +153,34 @@ var FlowsView = BaseView.extend(
 
     renderNodeFilters: function(){
         var _this = this;
-        function renderOptions(select, collection){
+        
+        function clearOptions(select){
             utils.clearSelect(select);
             option = document.createElement('option');
             option.value = -1; 
             option.text = gettext('All');
             select.appendChild(option);
+            select.disabled = true;
+        }
+        
+        function renderOptions(select, collection){
+            clearOptions(select);
             collection.forEach(function(model){
                 var option = document.createElement('option');
                 option.value = model.id;
                 option.text = model.get('name');
                 select.appendChild(option);
             })
+            select.disabled = false;
         }
+        
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
             
         renderOptions(groupSelect, this.activityGroups);
         renderOptions(activitySelect, this.activities);
-        renderOptions(actorSelect, this.actors);
+        clearOptions(actorSelect);
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
@@ -182,7 +190,7 @@ var FlowsView = BaseView.extend(
             _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
             _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
-            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
+            clearOptions(actorSelect);
             _this.typeSelect.value = 'activitygroup';
             _this.renderSankey();
         })
@@ -195,18 +203,20 @@ var FlowsView = BaseView.extend(
             if (activityId < 0 && groupId < 0){
                 _this.activitiesFiltered = null;
                 _this.actorsFiltered = null;
+                clearOptions(actorSelect);
             }
             // 'All' is selected for activity but a specific group is selected
             else if (activityId < 0){
                 _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
                 _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+                clearOptions(actorSelect);
             }
             // specific activity is selected
             else {
                 _this.activitiesFiltered = [_this.activities.get(activityId)];
                 _this.actorsFiltered = _this.actors.filterBy({'activity': activityId});
+                renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             }
-            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
             _this.typeSelect.value = 'activity';
             _this.renderSankey();
         })

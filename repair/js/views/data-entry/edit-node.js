@@ -51,11 +51,11 @@ var EditNodeView = BaseView.extend(
         this.publications = options.publications;
 
         this.onUpload = options.onUpload;
-        this.flowTag = (this.model.apiTag == 'actor') ? 'actorToActor': 
-                       (this.model.apiTag == 'activity') ? 'activityToActivity':
+        this.flowTag = (this.model.apiTag == 'actors') ? 'actorToActor': 
+                       (this.model.apiTag == 'activities') ? 'activityToActivity':
                        'groupToGroup';
-        this.stockTag = (this.model.apiTag == 'actor') ? 'actorStock': 
-                        (this.model.apiTag == 'activity') ? 'activityStock':
+        this.stockTag = (this.model.apiTag == 'actors') ? 'actorStock': 
+                        (this.model.apiTag == 'activities') ? 'activityStock':
                         'groupStock';
 
         this.inFlows = new GDSECollection([], { 
