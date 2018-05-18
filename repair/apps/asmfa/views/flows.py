@@ -61,7 +61,7 @@ def filter_by_material(material, queryset):
 # in place changing data
 def aggregate_compositions(materials, data):
     desc_dict = {}
-    for mat in materials: desc_dict[mat] = {}
+    for mat in materials: desc_dict[mat] = { mat.id: True }
     for serialized_flow in data:
         composition = serialized_flow['composition']
         if not composition:
@@ -70,25 +70,24 @@ def aggregate_compositions(materials, data):
         new_total = 0
         aggregation = defaultdict.fromkeys(materials, 0)
         for serialized_fraction in composition['fractions']:
-            for child_material in materials:
-                child_dict = desc_dict[child_material]
-                mat_id = serialized_fraction['material']
-                is_desc = child_dict.get(mat_id)
+            for material in materials:
+                child_dict = desc_dict[material]
+                fraction_mat_id = serialized_fraction['material']
+                is_desc = child_dict.get(fraction_mat_id)
                 if is_desc is None:
                     fraction_material = Material.objects.get(
                         id=serialized_fraction['material'])
-                    child_dict[mat_id] = is_desc = fraction_material.is_descendant(child_material)
+                    child_dict[fraction_mat_id] = is_desc = fraction_material.is_descendant(material)
                 if is_desc:
                     amount = serialized_fraction['fraction'] * old_total
-                    aggregation[child_material] += amount
+                    aggregation[material] += amount
                     new_total += amount
         
         aggregated_fractions = []
-        
-        for child_material, amount in aggregation.items():
+        for material, amount in aggregation.items():
             if amount > 0:
                 aggregated_fraction = OrderedDict({
-                    'material': child_material.id,
+                    'material': material.id,
                     'fraction': amount / new_total,
                 })
                 aggregated_fractions.append(aggregated_fraction)
@@ -175,13 +174,18 @@ class FlowViewSet(RevisionMixin,
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
-        return model.objects.\
-               select_related('keyflow__casestudy').\
-               select_related('publication').\
-               select_related("origin").\
-               select_related("destination").\
-               prefetch_related("composition__fractions").\
-               all()
+        flows = model.objects.\
+                select_related('keyflow__casestudy').\
+                select_related('publication').\
+                select_related("origin").\
+                select_related("destination").\
+                prefetch_related("composition__fractions").\
+                all()
+    
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        if keyflow_pk is not None:
+            flows = flows.filter(keyflow__id=keyflow_pk)
+        return flows
 
 
 class Group2GroupViewSet(FlowViewSet):
