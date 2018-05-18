@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from collections import defaultdict
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
 from repair.apps.publications.models import PublicationInCasestudy
@@ -43,14 +44,27 @@ class Material(GDSEModel):
                                related_name='submaterials')
 
     @property
-    def children(self):
+    def descendants(self):
         """ all children of the material (deep traversal) """
-        deep_children = []
-        children = Material.objects.filter(parent=self.id)
-        for child in children:
-            deep_children.append(child)
-            deep_children.extend(child.children)
-        return deep_children
+        descendants = []
+        for child in self.children:
+            descendants.append(child)
+            descendants.extend(child.descendants)
+        return descendants
+    
+    @property
+    def children(self):
+        """ direct children of the material traversal """
+        return Material.objects.filter(parent=self.id)
+    
+    def is_descendant(self, *args):
+        ''' return True if material is descendant of any of the passed materials '''
+        parent = self.parent
+        materials = list(args)
+        while parent:
+            if parent in materials: return True
+            parent = parent.parent
+        return False
 
 
 class Composition(GDSEModel):
@@ -71,6 +85,14 @@ class Composition(GDSEModel):
         is_product = getattr(self, 'product', None) is not None
         is_custom = not (is_waste or is_product)
         return is_custom
+    
+    #def aggregate_by_materials(self, materials):
+        #aggregation = defaultdict.fromkeys(materials, 0)
+        #for fraction in self.fractions.iterator():
+            #for material in materials:
+                #if fraction.material.is_descendant(material):
+                    #aggregation[material] += fraction.fraction
+        #return
 
 
 class Product(Composition):
