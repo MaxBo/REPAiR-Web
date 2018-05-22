@@ -66,6 +66,20 @@ class Material(GDSEModel):
             parent = parent.parent
         return False
 
+    def ancestor(self, *args):
+        '''
+        return the first ancestor found
+        if material is descendant of any of the passed materials
+        else return None
+        '''
+        parent = self.parent
+        materials = list(args)
+        while parent:
+            if parent in materials:
+                return parent
+            parent = parent.parent
+        return None
+
 
 class Composition(GDSEModel):
 

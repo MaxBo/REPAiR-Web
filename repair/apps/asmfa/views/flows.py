@@ -6,6 +6,7 @@ from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from django.db.models import Q
 import time
+import numpy as np
 from collections import defaultdict, OrderedDict
 
 from repair.apps.asmfa.models import (
@@ -59,40 +60,91 @@ def filter_by_material(material, queryset):
     #return queryset
 
 # in place changing data
-def aggregate_compositions(materials, data):
+def process_data_fractions(materials, data, aggregate=False):
     desc_dict = {}
-    for mat in materials: desc_dict[mat] = { mat.id: True }
+    # dictionary to store requested materials and if other materials are
+    # descendants of those (including the material itself), much faster than
+    # repeatedly getting the materials and their ancestors
+    for mat in materials:
+        desc_dict[mat] = { mat.id: True }
     for serialized_flow in data:
         composition = serialized_flow['composition']
         if not composition:
             continue
         old_total = serialized_flow['amount']
         new_total = 0
-        aggregation = defaultdict.fromkeys(materials, 0)
+        aggregated_amounts = defaultdict.fromkeys(materials, 0)
+        
+        # remove fractions that are no descendants of the material
+        valid_fractions = []
         for serialized_fraction in composition['fractions']:
             for material in materials:
                 child_dict = desc_dict[material]
                 fraction_mat_id = serialized_fraction['material']
                 is_desc = child_dict.get(fraction_mat_id)
+                # save time by doing this once and storing it
                 if is_desc is None:
                     fraction_material = Material.objects.get(
                         id=serialized_fraction['material'])
                     child_dict[fraction_mat_id] = is_desc = fraction_material.is_descendant(material)
                 if is_desc:
                     amount = serialized_fraction['fraction'] * old_total
-                    aggregation[material] += amount
+                    aggregated_amounts[material] += amount
                     new_total += amount
-        
-        aggregated_fractions = []
-        for material, amount in aggregation.items():
-            if amount > 0:
-                aggregated_fraction = OrderedDict({
-                    'material': material.id,
-                    'fraction': amount / new_total,
-                })
-                aggregated_fractions.append(aggregated_fraction)
+                    valid_fractions.append(serialized_fraction)
+
+        new_fractions = []
+        # aggregation: new fraction for each material
+        if aggregate:
+            for material, amount in aggregated_amounts.items():
+                if amount > 0:
+                    aggregated_fraction = OrderedDict({
+                        'material': material.id,
+                        'fraction': amount / new_total,
+                    })
+                    new_fractions.append(aggregated_fraction)
+                
+        # no aggregation: keep the fractions whose materials are descendants 
+        # (->valid) and recalculate the fraction values
+        else:
+            for fraction in valid_fractions:
+                if new_total > 0:
+                    fraction['fraction'] = fraction['fraction'] * old_total / new_total
+                # old amount might be zero -> can't calc. fractions with that
+                else:
+                    fraction['fraction'] = 0
+                new_fractions.append(fraction)
         serialized_flow['amount'] = new_total
-        composition['fractions'] = aggregated_fractions
+        composition['fractions'] = new_fractions
+
+# inplace aggregate queryset (DOESN'T WORK, because the serializer is unable 
+# to get the new fractions in reverse)
+def aggregate_queryset(materials, queryset):
+    from django.db.models import IntegerField, Case, When, Value, Sum
+    args = []
+    mat_dict = {}
+    t = time.time()
+    for mat in materials:
+        all_mats = mat.descendants
+        all_mats.append(mat)
+        mat_ids = tuple(m.id for m in all_mats)
+        w = When(material_id__in = mat_ids, then=Value(mat.id))
+        args.append(w)
+        mat_dict[mat.id] = mat
+    
+    for flow in queryset:
+        fractions = ProductFraction.objects.filter(composition=flow.composition)
+        an = fractions.annotate(ancestor=Case(*args, default=-1,
+                                              output_field=IntegerField()))
+        agg = an.values('ancestor').annotate(Sum('fraction'))
+        new_comp = Composition(name='aggregated')
+        for s in agg:
+            mat_id = s['ancestor']
+            if mat_id < 0:
+                continue
+            new_fraction = ProductFraction(composition=new_comp,
+                                           material=mat_dict[mat_id])
+        flow.composition = new_comp
 
 
 class FlowViewSet(RevisionMixin,
@@ -112,65 +164,83 @@ class FlowViewSet(RevisionMixin,
         SerializerClass = self.get_serializer_class()
         query_params = request.query_params
         queryset = self.get_queryset()
-        material = None
-        filtered = False
-
-        if 'waste' in query_params.keys():
+        materials = None
+        
+        filter_waste = 'waste' in query_params.keys()
+        filter_nodes = ('nodes' in query_params.keys() or
+                        'nodes[]' in query_params.keys())
+        filter_from = ('from' in query_params.keys() or
+                       'from[]' in query_params.keys())
+        filter_to = ('to' in query_params.keys() or
+                     'to[]' in query_params.keys())
+        filter_material = 'material' in query_params.keys()
+        aggregate = ('aggregated' in query_params.keys() and
+                     query_params['aggregated'] in ['true', 'True'])
+        
+        # do the filtering and serializing of superclass, if none of the above
+        # filters are queried (unfortunately they all conflict with filters of 
+        # superclass CasestudyViewSetMixin)
+        if not np.any([filter_waste, filter_nodes, filter_from, filter_to,
+                       filter_material, aggregate]):
+            return super().list(request, **kwargs)
+    
+        # filter products (waste=False) or waste (waste=True)
+        if filter_waste:
             queryset = queryset.filter(waste=query_params.get('waste'))
-            filtered = True
-
-        if 'nodes' in query_params.keys() or 'nodes[]' in query_params.keys():
+        
+        # filter by origins AND destinations
+        if filter_nodes:
             nodes = (query_params.get('nodes', None)
                      or request.GET.getlist('nodes[]')) 
             queryset = queryset.filter(Q(origin__in=nodes) |
                                        Q(destination__in=nodes))
-            filtered = True
-
-        if 'from' in query_params.keys() or 'from[]' in query_params.keys():
+        
+        # filter by origins
+        if filter_from:
             nodes = (query_params.get('from', None)
                      or request.GET.getlist('from[]')) 
             queryset = queryset.filter(origin__in=nodes)
-            filtered = True
 
-        if 'to' in query_params.keys() or 'to[]' in query_params.keys():
+        # filter by destinations
+        if filter_to:
             nodes = (query_params.get('to', None)
                      or request.GET.getlist('to[]')) 
             queryset = queryset.filter(destination__in=nodes)
-            filtered = True
 
-        if 'material' in query_params.keys():
+        # filter the flows by their fractions excluding flows whose
+        # fractions don't contain the requested material (incl. child materials)
+        if filter_material:
             try:
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
+            materials = [material]
             queryset = filter_by_material(material, queryset)
-            filtered = True
         
-        if ('aggregated' in query_params.keys() and
-            query_params['aggregated'] in ['true', 'True']):
-            serializer = SerializerClass(queryset, many=True,
+        serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
-            
-            t = time.time()
-            data = serializer.data
-            print(time.time() - t)
-            # material was requested (see if clause 'material') -> 
-            # aggregate compositions by the direct children
-            if material:
-                materials = material.children
+        data = serializer.data
+    
+        # if the fractions of flows are filtered by material, the other
+        # fractions should be removed from the returned data
+        if filter_material and not aggregate:
+            process_data_fractions(materials, data, aggregate=False)
+            return Response(data)
+    
+        # aggregate the fractions of the queryset
+        if aggregate:
             # no material was requested -> aggregate by top level materials
-            else:
+            # else take the materials from if-clause 'filter_material'
+            if materials is None:
                 materials = Material.objects.filter(parent__isnull=True)
-            t = time.time()
-            aggregate_compositions(materials, data)
-            print(time.time() - t)
+            
+            #aggregate_queryset(materials, queryset)
+            #filtered = True
+
+            process_data_fractions(materials, data, aggregate=True)
             return Response(data)
 
-        if filtered:
-            serializer = SerializerClass(queryset, many=True,
-                                         context={'request': request, })
-            return Response(serializer.data)
-        return super().list(request, **kwargs)
+        return Response(data)
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
