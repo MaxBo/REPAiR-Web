@@ -164,7 +164,7 @@ class FlowViewSet(RevisionMixin,
         SerializerClass = self.get_serializer_class()
         query_params = request.query_params
         queryset = self.get_queryset()
-        materials = None
+        material = None
         
         filter_waste = 'waste' in query_params.keys()
         filter_nodes = ('nodes' in query_params.keys() or
@@ -214,7 +214,6 @@ class FlowViewSet(RevisionMixin,
                 material = Material.objects.get(id=query_params['material'])
             except Material.DoesNotExist:
                 return Response(status=404)
-            materials = [material]
             queryset = filter_by_material(material, queryset)
         
         serializer = SerializerClass(queryset, many=True,
@@ -224,14 +223,16 @@ class FlowViewSet(RevisionMixin,
         # if the fractions of flows are filtered by material, the other
         # fractions should be removed from the returned data
         if filter_material and not aggregate:
-            process_data_fractions(materials, data, aggregate=False)
+            process_data_fractions([material], data, aggregate=False)
             return Response(data)
     
         # aggregate the fractions of the queryset
         if aggregate:
+            # take the material and its children from if-clause 'filter_material'
+            if material:
+                materials = [material] + list(material.children)
             # no material was requested -> aggregate by top level materials
-            # else take the materials from if-clause 'filter_material'
-            if materials is None:
+            if material is None:
                 materials = Material.objects.filter(parent__isnull=True)
             
             #aggregate_queryset(materials, queryset)
