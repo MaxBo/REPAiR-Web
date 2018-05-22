@@ -190,7 +190,7 @@ function(BaseView, _, Sankey, GDSECollection){
                     units: gettext('t/year'),
                     source: source,
                     target: target,
-                    text: '<u>'typeRepr(flow) + '</u><br>' + compositionRepr(composition)
+                    text: '<u>' + typeRepr(flow) + '</u><br>' + compositionRepr(composition)
                 });
             })
             stocks.forEach(function(stock){
