@@ -72,11 +72,13 @@ function(d3, d3tip) {
     
             //sankey.nodeAlign(d3.sankeyLeft)
             var _this = this;
+            
     
             var path = this.sankey.link();
     
             // remove old svg if it was already rendered
             this.div.select("svg").remove();
+            d3.select(".d3-tip").remove();
             
             /* Initialize tooltip */
             var tipLinks = d3tip()
