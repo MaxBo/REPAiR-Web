@@ -160,7 +160,7 @@ function(BaseView, _, Sankey, GDSECollection){
                     var i = 0;
                     fractions.forEach(function(fraction){
                         var material = materials.get(fraction.material),
-                            value = Math.round(fraction.fraction * 10000000) / 100000
+                            value = Math.round(fraction.fraction * 100000) / 1000
                         text += value + '% ';
                         if (!material) text += gettext('material not found');
                         else text += material.get('name');
@@ -190,7 +190,7 @@ function(BaseView, _, Sankey, GDSECollection){
                     units: gettext('t/year'),
                     source: source,
                     target: target,
-                    text: typeRepr(flow) + '<br>' + compositionRepr(composition)
+                    text: '<u>'typeRepr(flow) + '</u><br>' + compositionRepr(composition)
                 });
             })
             stocks.forEach(function(stock){

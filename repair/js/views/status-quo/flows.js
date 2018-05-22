@@ -69,6 +69,7 @@ var FlowsView = BaseView.extend(
     */
     events: {
         'change select[name="waste"]': 'renderSankey',
+        'change input[name="aggregate"]': 'renderSankey',
         'change input[name="direction"]': 'renderSankey',
         'change #data-view-type-select': 'renderSankey',
     },
@@ -104,6 +105,8 @@ var FlowsView = BaseView.extend(
             
         var waste = this.el.querySelector('select[name="waste"]').value;
         this.filterParams.waste = waste;
+        var aggregate = this.el.querySelector('input[name="aggregate"]').checked;
+        this.filterParams.aggregated = aggregate;
         if (waste == '') delete this.filterParams.waste
         
         // if the collections are filtered build matching query params for the flows
