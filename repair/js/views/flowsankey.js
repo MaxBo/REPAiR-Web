@@ -159,10 +159,12 @@ function(BaseView, _, Sankey, GDSECollection){
                     var fractions = composition.fractions;
                     var i = 0;
                     fractions.forEach(function(fraction){
-                        var material = materials.get(fraction.material);
-                        text += fraction.fraction * 100 + '% ';
+                        var material = materials.get(fraction.material),
+                            value = Math.round(fraction.fraction * 10000000) / 100000
+                        text += value + '% ';
                         if (!material) text += gettext('material not found');
                         else text += material.get('name');
+                        if (fraction.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
                         if (i < fractions.length - 1) text += '<br>';
                         i++;
                     })
