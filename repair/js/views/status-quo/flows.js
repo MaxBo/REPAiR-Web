@@ -112,6 +112,7 @@ var FlowsView = BaseView.extend(
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, this.filterParams);
         var stockFilterParams = Object.assign({}, this.filterParams);
+        
         if (filtered){
             var nodeIds = [];
             filtered.forEach(function(node){
@@ -122,7 +123,14 @@ var FlowsView = BaseView.extend(
                 flowFilterParams[queryDirP] = nodeIds;
                 stockFilterParams.nodes = nodeIds;
             }
+        
+            //var loc = new GDSECollection([], {
+                //apiTag: 'adminLocations',
+                //apiIds: [this.caseStudy.id, this.keyflowId]
+            //})
+            //loc.fetch({ data: {'actor__in': nodeIds.toString()}, success: function(){console.log(loc)} })
         }
+        
         if (this.flowsView != null) this.flowsView.close();
         this.flowsView = new FlowSankeyView({
             el: document.getElementById('sankey-wrapper'),
