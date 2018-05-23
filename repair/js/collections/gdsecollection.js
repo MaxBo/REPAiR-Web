@@ -95,6 +95,7 @@ function(PageableCollection, _, GDSEModel, config) {
         */
         initialize: function (models, options) {
             //_.bindAll(this, 'model');
+            var options = options || {};
             this.baseurl = options.url;
             this.apiTag = options.apiTag;
             this.apiIds = options.apiIds || options.apiIDs; // me (the author) tends to mix up both notations of 'Id' randomly and confuses himself by that

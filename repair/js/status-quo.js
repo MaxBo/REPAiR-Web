@@ -9,8 +9,8 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
   renderFlowsView = function(caseStudy){
     var keyflowSelect = document.querySelector('select[name="keyflow"]'),
         flowsView;
+    keyflowSelect.disabled = false;
     keyflowSelect.addEventListener('change', function(){
-      console.log()
       if (flowsView) flowsView.close();
       flowsView = new FlowsView({ 
         caseStudy: caseStudy,
