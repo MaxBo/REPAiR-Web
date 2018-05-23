@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/gdsecollection', 'views/flowsankey', 
-        'utils/utils'],
+        'utils/utils', 'visualizations/map'],
 
-function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils){
+function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map){
 /**
 *
 * @author Christoph Franke
@@ -27,7 +27,8 @@ var FlowsView = BaseView.extend(
     initialize: function(options){
         var _this = this;
         FlowsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'refreshMap');
+        _.bindAll(this, 'refreshSankeyMap');
+        _.bindAll(this, 'prepareAreas');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -49,13 +50,22 @@ var FlowsView = BaseView.extend(
             apiTag: 'activitygroups',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.areaLevels = new GDSECollection([], { 
+            apiTag: 'arealevels',
+            apiIds: [this.caseStudy.id],
+            comparator: 'level'
+        });
+        this.areas = {};
+        this.selectedAreas = [];
+        
         this.loader.activate();
         var params = { included: 'True' },
             promises = [
                 this.actors.fetch({ data: params }), 
                 this.activities.fetch(),
                 this.activityGroups.fetch(),
-                this.materials.fetch()
+                this.materials.fetch(),
+                this.areaLevels.fetch()
             ]
         Promise.all(promises).then(function(){
             _this.loader.deactivate();
@@ -72,6 +82,8 @@ var FlowsView = BaseView.extend(
         'change input[name="aggregate"]': 'renderSankey',
         'change input[name="direction"]': 'renderSankey',
         'change #data-view-type-select': 'renderSankey',
+        'click #area-select-button': 'showAreaSelection',
+        'change select[name="level-select"]': 'changeAreaLevel'
     },
 
     /*
@@ -81,14 +93,109 @@ var FlowsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ levels: this.areaLevels });
+        
+        this.areaModal = document.getElementById('area-filter-modal');
+        this.areaMap = new Map({
+            divid: 'area-select-map', 
+        });
+        this.levelSelect = this.el.querySelector('select[name="level-select"]');
+        this.areaMap.addLayer(
+            'areas', 
+            { 
+                stroke: 'rgb(100, 150, 250)', 
+                fill: 'rgba(100, 150, 250, 0.5)',
+                select: {
+                    selectable: true,
+                    stroke: 'rgb(230, 230, 0)', 
+                    fill: 'rgba(230, 230, 0, 0.5)',
+                    onChange: function(areaFeats){
+                        var modalSelDiv = _this.el.querySelector('#modal-area-selections'),
+                            selDiv = _this.el.querySelector('#area-selections'),
+                            levelId = _this.levelSelect.value
+                            labels = [],
+                            areas = _this.areas[levelId];
+                        _this.selectedAreas = [];
+                        areaFeats.forEach(function(areaFeat){
+                            labels.push(areaFeat.label);
+                            _this.selectedAreas.push(areas.get(areaFeat.id))
+                        });
+                        modalSelDiv.innerHTML = selDiv.innerHTML = labels.join(', ');
+                    }
+                }
+            });
+        this.changeAreaLevel();
+        
+        // event triggered when modal dialog is ready -> trigger rerender to match size
+        $(this.areaModal).on('shown.bs.modal', function () {
+            _this.areaMap.map.updateSize();
+        });
         this.typeSelect = this.el.querySelector('#data-view-type-select');
         this.renderMatFilter();
         this.renderNodeFilters();
         this.renderSankey();
     },
+    
+    changeAreaLevel: function(){
+        var levelId = this.levelSelect.value;
+        this.el.querySelector('#modal-area-selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
+        this.prepareAreas(levelId);
+    },
+    
+    prepareAreas: function(levelId){
+        var _this = this;
+        this.areaMap.clearLayer('areas');
+        var areas = this.areas[levelId];
+        if (areas){
+            this.drawAreas(areas)
+        }
+        else {
+            areas = new GDSECollection([], { 
+                apiTag: 'areas',
+                apiIds: [ this.caseStudy.id, levelId ]
+            });
+            this.areas[levelId] = areas;
+            var loader = new utils.Loader(this.areaModal, {disable: true});
+            loader.activate();
+            areas.fetch({ 
+                success: function(){
+                    var promises = [];
+                    areas.forEach(function(area){
+                        promises.push(
+                            area.fetch({ error: _this.onError })
+                        )
+                    });
+                    Promise.all(promises).then(function(){
+                        loader.deactivate();
+                        _this.drawAreas(areas)
+                    });
+                }, error: function(res) {
+                    loader.deactivate();
+                    _this.onError(res);
+                } 
+            });
+        }
+    },
+    
+    drawAreas: function(areas){
+        var _this = this;
+        areas.forEach(function(area){
+            var coords = area.get('geometry').coordinates,
+                name = area.get('name');
+            _this.areaMap.addPolygon(coords, { 
+                projection: 'EPSG:4326', layername: 'areas', 
+                type: 'MultiPolygon', tooltip: name,
+                label: name, id: area.id
+            });
+        })
+        this.areaMap.centerOnLayer('areas');
+    },
+    
+    showAreaSelection: function(){
+        $(this.areaModal).modal('show'); 
+    },
 
-    refreshMap: function(){
+    refreshSankeyMap: function(){
         if (this.sankeyMap) this.sankeyMap.refresh();
     },
 
