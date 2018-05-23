@@ -74,22 +74,23 @@ class StockViewSet(RevisionMixin,
         # if the fractions of flows are filtered by material, the other
         # fractions should be removed from the returned data
         if filter_material and not aggregate:
-            process_data_fractions([material], data, aggregate=False)
+            process_data_fractions(material, material.children,
+                                   data, aggregate=False)
             return Response(data)
     
         # aggregate the fractions of the queryset
         if aggregate:
             # take the material and its children from if-clause 'filter_material'
             if material:
-                materials = [material] + list(material.children)
+                childmaterials = material.children
             # no material was requested -> aggregate by top level materials
             if material is None:
-                materials = Material.objects.filter(parent__isnull=True)
+                childmaterials = Material.objects.filter(parent__isnull=True)
     
             #aggregate_queryset(materials, queryset)
             #filtered = True
     
-            process_data_fractions(materials, data, aggregate=True)
+            process_data_fractions(material, childmaterials, data, aggregate=True)
             return Response(data)
     
         return Response(data)
