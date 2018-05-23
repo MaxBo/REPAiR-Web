@@ -11,7 +11,7 @@
   </div>
   <div class="collapse row filters">
     <div class="col-md-3">
-      <button id="area-select-button">{% trans "Area" %}</button>
+      <button id="area-select-button" class="btn btn-primary inverted">{% trans "Area" %}</button>
       <div class='row'>
         <label>{% trans "Selected Areas:" %}</label>
         <div id="area-selections"></div>
@@ -57,6 +57,9 @@
         <select name="actor" class="form-control"></select>
       </div>
     </div>
+  </div>
+  <div class="collapse row filters" style="margin-top: 20px">
+    <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply Filters" %}">{% trans "Apply Filters" %}</button>
   </div>
 </div>
 <div class="row" style="margin-top: 20px;">

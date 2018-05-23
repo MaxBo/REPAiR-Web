@@ -57,6 +57,8 @@ var FlowsView = BaseView.extend(
         });
         this.areas = {};
         this.selectedAreas = [];
+        this.filters = {};
+        this.filtersTmp = {};
         
         this.loader.activate();
         var params = { included: 'True' },
@@ -78,9 +80,7 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="waste"]': 'renderSankey',
-        'change input[name="aggregate"]': 'renderSankey',
-        'change input[name="direction"]': 'renderSankey',
+        'click #apply-filters': 'applyFilters',
         'change #data-view-type-select': 'renderSankey',
         'click #area-select-button': 'showAreaSelection',
         'change select[name="level-select"]': 'changeAreaLevel'
@@ -133,7 +133,7 @@ var FlowsView = BaseView.extend(
         this.typeSelect = this.el.querySelector('#data-view-type-select');
         this.renderMatFilter();
         this.renderNodeFilters();
-        this.renderSankey();
+        this.applyFilters();
     },
     
     changeAreaLevel: function(){
@@ -198,21 +198,31 @@ var FlowsView = BaseView.extend(
     refreshSankeyMap: function(){
         if (this.sankeyMap) this.sankeyMap.refresh();
     },
-
+    
+    applyFilters: function(){
+        this.filters['actors'] = this.filtersTmp['actors'];
+        this.filters['activities'] = this.filtersTmp['activities'];
+        this.filters['groups'] = this.filtersTmp['groups'];
+        this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
+        this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
+        this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
+        this.renderSankey();
+    },
+    
     renderSankey: function(){
         var type = this.typeSelect.value;
-        var direction = this.el.querySelector('input[name="direction"]:checked').value;
+        var direction = this.filters['direction'];
         var collection = (type == 'actor') ? this.actors: 
             (type == 'activity') ? this.activities: 
             this.activityGroups;
         
-        var filtered = (type == 'actor') ? this.actorsFiltered: 
-            (type == 'activity') ? this.activitiesFiltered: 
-            this.activityGroupsFiltered;
+        var filtered = (type == 'actor') ? this.filters['actors']: 
+            (type == 'activity') ? this.filters['activities']: 
+            this.filters['groups'];
             
-        var waste = this.el.querySelector('select[name="waste"]').value;
+        var waste = this.filters['waste'];
         this.filterParams.waste = waste;
-        var aggregate = this.el.querySelector('input[name="aggregate"]').checked;
+        var aggregate = this.filters['aggregate'];
         this.filterParams.aggregated = aggregate;
         if (waste == '') delete this.filterParams.waste
         
@@ -304,13 +314,11 @@ var FlowsView = BaseView.extend(
             var groupId = groupSelect.value;
             // set and use filters for selected group, set child activities 
             // clear filter if 'All' (== -1) is selected
-            _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
-            _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
-            _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
-            renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
+            _this.filtersTmp['groups'] = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
+            _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+            _this.filtersTmp['actors'] = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+            renderOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
             clearOptions(actorSelect);
-            _this.typeSelect.value = 'activitygroup';
-            _this.renderSankey();
         })
         
         activitySelect.addEventListener('change', function(){
@@ -319,24 +327,22 @@ var FlowsView = BaseView.extend(
             // set and use filters for selected activity, set child actors 
             // clear filter if 'All' (== -1) is selected in both group and activity
             if (activityId < 0 && groupId < 0){
-                _this.activitiesFiltered = null;
-                _this.actorsFiltered = null;
+                 _this.filtersTmp['activities'] = null;
+                _this.filtersTmp['actors']  = null;
                 clearOptions(actorSelect);
             }
             // 'All' is selected for activity but a specific group is selected
             else if (activityId < 0){
-                _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+                 _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
                 clearOptions(actorSelect);
             }
             // specific activity is selected
             else {
-                _this.activitiesFiltered = [_this.activities.get(activityId)];
-                _this.actorsFiltered = _this.actors.filterBy({'activity': activityId});
-                renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
+                _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
+                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
+                renderOptions(actorSelect, _this.filtersTmp['actors']  || _this.actors);
             }
-            _this.typeSelect.value = 'activity';
-            _this.renderSankey();
         })
         
         actorSelect.addEventListener('change', function(){
@@ -345,21 +351,19 @@ var FlowsView = BaseView.extend(
                 actorId = actorSelect.value;
             // clear filter if 'All' (== -1) is selected in group, activity and 
             if (groupId < 0 && activityId < 0 && actorId < 0){
-                _this.actorsFiltered = null;
+                _this.filtersTmp['actors'] = null;
             }
             // filter by group if 'All' (== -1) is selected in activity and actor but not group
             if (activityId < 0  && actorId < 0){
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             }
             // filter by activity if a specific activity is set and 'All' is selected for actor
             else if (actorId < 0){
-                _this.actorsFiltered = _this.actors.filterBy({'activity': activityId});
+                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
             }
             // specific actor
             else
-                _this.actorsFiltered = [_this.actors.get(actorId)];
-            _this.typeSelect.value = 'actor'
-            _this.renderSankey();
+                _this.filtersTmp['actors'] = [_this.actors.get(actorId)];
         })
     },
 
@@ -373,7 +377,6 @@ var FlowsView = BaseView.extend(
                  var modelId = (model) ? model.id : null;
                  _this.filterParams.material = modelId;
                  if (modelId == null) delete _this.filterParams.material;
-                _this.renderSankey();
             },
             defaultOption: gettext('All materials')
         });
