@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/gdsecollection', 'views/flowsankey', 
-        'utils/utils', 'visualizations/map'],
+        'utils/utils', 'visualizations/map', 'openlayers'],
 
-function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map){
+function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
 *
 * @author Christoph Franke
@@ -33,7 +33,6 @@ var FlowsView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        this.filterParams = {};
         this.materials = new GDSECollection([], { 
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
@@ -56,7 +55,6 @@ var FlowsView = BaseView.extend(
             comparator: 'level'
         });
         this.areas = {};
-        this.selectedAreas = [];
         this.filters = {};
         this.filtersTmp = {};
         
@@ -115,11 +113,12 @@ var FlowsView = BaseView.extend(
                             levelId = _this.levelSelect.value
                             labels = [],
                             areas = _this.areas[levelId];
-                        _this.selectedAreas = [];
+                        var selectedAreas = [];
                         areaFeats.forEach(function(areaFeat){
                             labels.push(areaFeat.label);
-                            _this.selectedAreas.push(areas.get(areaFeat.id))
+                            selectedAreas.push(areas.get(areaFeat.id))
                         });
+                        _this.filtersTmp['areas'] = selectedAreas;
                         modalSelDiv.innerHTML = selDiv.innerHTML = labels.join(', ');
                     }
                 }
@@ -206,6 +205,8 @@ var FlowsView = BaseView.extend(
         this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
         this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
+        this.filters['areas'] = this.filtersTmp['areas'];
+        this.filters['material'] = this.filtersTmp['material'];
         this.renderSankey();
     },
     
@@ -219,16 +220,38 @@ var FlowsView = BaseView.extend(
         var filtered = (type == 'actor') ? this.filters['actors']: 
             (type == 'activity') ? this.filters['activities']: 
             this.filters['groups'];
-            
-        var waste = this.filters['waste'];
-        this.filterParams.waste = waste;
+        
+        var filterParams = {},
+            waste = this.filters['waste'];
+        if (waste) filterParams.waste = waste;
+        
         var aggregate = this.filters['aggregate'];
-        this.filterParams.aggregated = aggregate;
-        if (waste == '') delete this.filterParams.waste
+        filterParams.aggregated = aggregate;
+        
+        var material = this.filters['material'];
+        if (material) filterParams.material = material.id;
+        
+        // areas to multipolygon
+        var areas = this.filters['areas'];
+        if (areas){
+            var multiPolygon = new ol.geom.MultiPolygon();
+            areas.forEach(function(area){ 
+                var coordinates = area.get('geometry').coordinates;
+                // flatten if necessary
+                if (coordinates[0] instanceof Array && coordinates[0].length == 1)
+                    coordinates = coordinates[0];
+                var polygon = new ol.geom.Polygon(coordinates);
+                multiPolygon.appendPolygon(polygon);
+            })
+            var geoJSON = new ol.format.GeoJSON(),
+            geoJSONText = geoJSON.writeGeometry(multiPolygon);
+            console.log(geoJSONText)
+            //filterParams.
+        }
         
         // if the collections are filtered build matching query params for the flows
-        var flowFilterParams = Object.assign({}, this.filterParams);
-        var stockFilterParams = Object.assign({}, this.filterParams);
+        var flowFilterParams = Object.assign({}, filterParams);
+        var stockFilterParams = Object.assign({}, filterParams);
         
         if (filtered){
             var nodeIds = [];
@@ -374,9 +397,7 @@ var FlowsView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 var modelId = (model) ? model.id : null;
-                 _this.filterParams.material = modelId;
-                 if (modelId == null) delete _this.filterParams.material;
+                 _this.filtersTmp['material'] = model;
             },
             defaultOption: gettext('All materials')
         });
