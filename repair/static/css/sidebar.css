@@ -10,7 +10,7 @@
     position: fixed;
     height: 100%;
     transition: all .4s ease 0s;
-    z-index: 9998; /* 1 below navbar-default */
+    z-index: 1040; 
     box-shadow: 1px 0px 3px 0px rgba(0,0,0,0.1);
 }
 
