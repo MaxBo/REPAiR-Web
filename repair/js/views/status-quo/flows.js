@@ -236,12 +236,17 @@ var FlowsView = BaseView.extend(
         if (areas){
             var multiPolygon = new ol.geom.MultiPolygon();
             areas.forEach(function(area){ 
-                var coordinates = area.get('geometry').coordinates;
-                // flatten if necessary
-                if (coordinates[0] instanceof Array && coordinates[0].length == 1)
-                    coordinates = coordinates[0];
-                var polygon = new ol.geom.Polygon(coordinates);
-                multiPolygon.appendPolygon(polygon);
+                var geom = area.get('geometry'),
+                    coordinates = geom.coordinates;
+                if (geom.type == 'MultiPolygon'){
+                    var multi = new ol.geom.MultiPolygon(coordinates),
+                        polys = multi.getPolygons();
+                    polys.forEach( function(poly) {multiPolygon.appendPolygon(poly);} )
+                }
+                else{
+                    var poly = new ol.geom.Polygon(coordinates);
+                    multiPolygon.appendPolygon(poly);
+                }
             })
             var geoJSON = new ol.format.GeoJSON(),
             geoJSONText = geoJSON.writeGeometry(multiPolygon);
