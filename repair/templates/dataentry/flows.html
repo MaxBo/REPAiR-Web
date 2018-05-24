@@ -229,7 +229,7 @@
 <script type="text/template" id="popover-fractions-template">
   <b> <%= title %> </b>
   <% if (fractions) {_.each(fractions, function(fraction){ %>
-    <div class='row'> <%= Math.round(fraction.fraction * 1000) / 10 %>% <%= materials.get(fraction.material).get('name') %></div>
+    <div class='row'> <%= Math.round(fraction.fraction * 10000000) / 100000 %>% <%= materials.get(fraction.material).get('name') %></div>
   <% }); } else { %> {% trans "No composition defined" %} <% } %>
 </script>
 

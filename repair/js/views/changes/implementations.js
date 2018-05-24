@@ -1,11 +1,8 @@
-define(['views/baseview', 'backbone', 'underscore', 'collections/stakeholders',
-        'collections/stakeholdercategories', 'collections/solutioncategories',
-        'collections/solutions', 'visualizations/map', 
-        'app-config', 'utils/utils', 'openlayers', 'bootstrap', 
+define(['views/baseview', 'underscore', 'collections/gdsecollection/', 
+        'visualizations/map', 'utils/utils', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
-function(BaseView, Backbone, _, Stakeholders, StakeholderCategories, 
-         SolutionCategories, Solutions, Map, config, utils, ol){
+function(BaseView, _, GDSECollection, Map, utils, ol){
 /**
 *
 * @author Christoph Franke
@@ -33,43 +30,58 @@ var ImplementationsView = BaseView.extend(
         _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
-        this.stakeholderCategories = new StakeholderCategories([], { caseStudyId: this.caseStudy.id });
+        this.stakeholderCategories = new GDSECollection([], { 
+            apiTag: 'stakeholderCategories',
+            apiIds: [_this.caseStudy.id]
+        });
         
-        // todo: collection for implementations and units (or not?)
-        var Implementations = Backbone.Collection.extend({ url: config.api.implementations.format(this.caseStudy.id) });
-        this.implementations = new Implementations();
-        var Units = Backbone.Collection.extend({ url: config.api.units });
-        this.units = new Units();
-        this.solutionCategories = new SolutionCategories([], { caseStudyId: this.caseStudy.id });
+        this.implementations = new GDSECollection([], {
+            apiTag: 'implementations', 
+            apiIds: [this.caseStudy.id] 
+        });
+        
+        this.units = new GDSECollection([], {
+            apiTag: 'units'
+        });
+        
+        this.solutionCategories = new GDSECollection([], {
+            apiTag: 'solutionCategories',
+            apiIds: [this.caseStudy.id] 
+        });
+        
         this.stakeholders = [];
         this.solutions = [];
         this.projection = 'EPSG:4326';
+        
+        var promises = [
+            this.implementations.fetch(), 
+            this.stakeholderCategories.fetch(), 
+            this.solutionCategories.fetch(), 
+            this.units.fetch()
+        ]
     
-        $.when(this.implementations.fetch(), this.stakeholderCategories.fetch(), 
-               this.solutionCategories.fetch(), this.units.fetch()).then(function(){
+        Promise.all(promises).then(function(){
             var deferreds = [];
             // fetch all stakeholders after fetching their categories
             _this.stakeholderCategories.forEach(function(category){
-                var stakeholders = new Stakeholders([], { 
-                    caseStudyId: _this.caseStudy.id, 
-                    stakeholderCategoryId: category.id 
+                var stakeholders = new GDSECollection([], { 
+                    apiTag: 'stakeholders',
+                    apiIds: [_this.caseStudy.id, category.id ]
                 });
                 category.stakeholders = stakeholders;
                 deferreds.push(stakeholders.fetch({ error: _this.onError }))
             });
             // fetch all solutions after fetching the categories
             _this.solutionCategories.forEach(function(category){
-                var solutions = new Solutions([], { 
-                    caseStudyId: _this.caseStudy.id, 
-                    solutionCategoryId: category.id 
+                var solutions = new GDSECollection([], {
+                    apiTag: 'solutions',
+                    apiIds: [_this.caseStudy.id, category.id] 
                 });
                 category.solutions = solutions;
                 deferreds.push(solutions.fetch({ error: _this.onError }))
             });
             
-            $.when.apply($, deferreds).then(function(){
-                _this.render();
-            });
+            Promise.all(deferreds).then(_this.render);
                
         })
     },
@@ -136,15 +148,16 @@ var ImplementationsView = BaseView.extend(
             _this.confirm({ message: message, onConfirm: function(){
                 implementation.destroy({
                     success: function() { implDiv.removeChild(el); },
-                    error: _this.onError
+                    error: _this.onError,
+                    wait: true
                 })
             }});
         })
         
-        var SolutionsInImpl = Backbone.Collection.extend({
-                url: config.api.solutionsInImplementation.format(this.caseStudy.id, implementation.id)
-            }),
-            solutionsInImpl = new SolutionsInImpl();
+        var solutionsInImpl = new GDSECollection([], {
+            apiTag: 'solutionsInImplementation', 
+            apiIds: [this.caseStudy.id, implementation.id] 
+        });
         
         solutionsInImpl.fetch({
             success: function(){ 
@@ -216,7 +229,8 @@ var ImplementationsView = BaseView.extend(
             _this.confirm({ message: message, onConfirm: function(){
                 solutionInImpl.destroy({
                     success: function() { solDiv.removeChild(el); },
-                    error: _this.onError
+                    error: _this.onError,
+                    wait: true
                 })
             }});
         })
@@ -317,13 +331,15 @@ var ImplementationsView = BaseView.extend(
         var select = modal.querySelector('.selectpicker');
         $(select).selectpicker();
         
-        var Quantities = Backbone.Collection.extend({ 
-            url: config.api.quantitiesInImplementedSolution.format(this.caseStudy.id, implementation.id, solutionImpl.id) })
-        var squantities = new Quantities();
-        
-        var Ratios = Backbone.Collection.extend({ 
-            url: config.api.solutionRatioOneUnits.format(this.caseStudy.id, solution.get('solution_category'), solution.id) })
-        var sratios = new Ratios();
+        var squantities = new GDSECollection([], {
+            apiTag: 'quantitiesInImplementedSolution', 
+            apiIds: [this.caseStudy.id, implementation.id, solutionImpl.id] 
+        });
+
+        var sratios = new GDSECollection([], {
+            apiTag: 'solutionRatioOneUnits', 
+            apiIds: [this.caseStudy.id, solution.get('solution_category'), solution.id] 
+        });
         
         // render the quantities and ratios (tab "Quantities")
         squantities.fetch({success: function(){

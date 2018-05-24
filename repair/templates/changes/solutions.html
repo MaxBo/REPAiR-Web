@@ -80,7 +80,7 @@
               <div class="row">
                 <h4>{% trans "Current state" %}</h4>
                 <% if (mode == 1) { %>
-                  <input type="file" name="state-file">
+                  <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
                 <% } %>
               </div>
               <div style="position: relative; margin-top: 30px;">
@@ -94,7 +94,7 @@
               <div class="row">
                 <h4>{% trans "Effect of Solution" %}</h4>
                 <% if (mode == 1) { %>
-                  <input type="file" name="effect-file">
+                  <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
                 <% } %>
               </div>
               <div style="position: relative; margin-top: 30px;">
@@ -112,7 +112,7 @@
                   <% keyflows.forEach(function(keyflow){ %>
                     <label> <%= keyflow.get('name') %> </label> <br>
                     <% keyflow.activities.forEach(function(activity){ %>
-                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.name %><br>
+                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
                     <% }) %>
                   <% }) %>
               </div>
@@ -120,7 +120,7 @@
             <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
               <div class="row">
                 <% if (mode == 1) { %>
-                  <input type="file" name="activities-file">
+                  <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
                 <% } %>
               </div>
               <div style="position: relative; margin-top: 30px;">

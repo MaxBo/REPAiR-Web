@@ -1,11 +1,8 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
-        'collections/keyflows', 'collections/materials', 
-        'collections/actors', 'collections/activitygroups',
-        'collections/activities', 'views/flowsankey', 
-        'utils/utils'],
+        'collections/gdsecollection', 'views/flowsankey', 
+        'utils/utils', 'visualizations/map', 'openlayers'],
 
-function(BaseView, _, FlowMap, Keyflows, Materials, Actors, ActivityGroups, 
-    Activities, FlowSankeyView, utils){
+function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
 *
 * @author Christoph Franke
@@ -30,29 +27,47 @@ var FlowsView = BaseView.extend(
     initialize: function(options){
         var _this = this;
         FlowsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'refreshMap');
+        _.bindAll(this, 'refreshSankeyMap');
+        _.bindAll(this, 'prepareAreas');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        this.filterParams = {};
-        content.style.display = 'inline';
-        this.materials = new Materials([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.actors = new Actors([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId,
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            } });
-        this.activities = new Activities([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-        this.activityGroups = new ActivityGroups([], { caseStudyId: this.caseStudy.id, keyflowId: this.keyflowId });
-
+        this.materials = new GDSECollection([], { 
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.actors = new GDSECollection([], { 
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activities = new GDSECollection([], { 
+            apiTag: 'activities',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activityGroups = new GDSECollection([], { 
+            apiTag: 'activitygroups',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.areaLevels = new GDSECollection([], { 
+            apiTag: 'arealevels',
+            apiIds: [this.caseStudy.id],
+            comparator: 'level'
+        });
+        this.areas = {};
+        this.filters = {};
+        this.filtersTmp = {};
+        
         this.loader.activate();
-        var params = { included: 'True' }
-        $.when(this.materials.fetch(), 
-               //this.actors.fetch({ data: params }), 
-               this.activities.fetch(), this.activityGroups.fetch()
-            ).then(function(){
+        var params = { included: 'True' },
+            promises = [
+                this.actors.fetch({ data: params }), 
+                this.activities.fetch(),
+                this.activityGroups.fetch(),
+                this.materials.fetch(),
+                this.areaLevels.fetch()
+            ]
+        Promise.all(promises).then(function(){
             _this.loader.deactivate();
             _this.render();
         })
@@ -63,9 +78,10 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="waste"]': 'renderSankey',
-        'change input[name="direction"]': 'renderSankey',
+        'click #apply-filters': 'applyFilters',
         'change #data-view-type-select': 'renderSankey',
+        'click #area-select-button': 'showAreaSelection',
+        'change select[name="level-select"]': 'changeAreaLevel'
     },
 
     /*
@@ -75,35 +91,168 @@ var FlowsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ levels: this.areaLevels });
+        
+        this.areaModal = document.getElementById('area-filter-modal');
+        this.areaMap = new Map({
+            divid: 'area-select-map', 
+        });
+        this.levelSelect = this.el.querySelector('select[name="level-select"]');
+        this.areaMap.addLayer(
+            'areas', 
+            { 
+                stroke: 'rgb(100, 150, 250)', 
+                fill: 'rgba(100, 150, 250, 0.5)',
+                select: {
+                    selectable: true,
+                    stroke: 'rgb(230, 230, 0)', 
+                    fill: 'rgba(230, 230, 0, 0.5)',
+                    onChange: function(areaFeats){
+                        var modalSelDiv = _this.el.querySelector('#modal-area-selections'),
+                            selDiv = _this.el.querySelector('#area-selections'),
+                            levelId = _this.levelSelect.value
+                            labels = [],
+                            areas = _this.areas[levelId];
+                        var selectedAreas = [];
+                        areaFeats.forEach(function(areaFeat){
+                            labels.push(areaFeat.label);
+                            selectedAreas.push(areas.get(areaFeat.id))
+                        });
+                        _this.filtersTmp['areas'] = selectedAreas;
+                        modalSelDiv.innerHTML = selDiv.innerHTML = labels.join(', ');
+                    }
+                }
+            });
+        this.changeAreaLevel();
+        
+        // event triggered when modal dialog is ready -> trigger rerender to match size
+        $(this.areaModal).on('shown.bs.modal', function () {
+            _this.areaMap.map.updateSize();
+        });
         this.typeSelect = this.el.querySelector('#data-view-type-select');
         this.renderMatFilter();
         this.renderNodeFilters();
-        this.renderSankey();
+        this.applyFilters();
+    },
+    
+    changeAreaLevel: function(){
+        var levelId = this.levelSelect.value;
+        this.el.querySelector('#modal-area-selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
+        this.prepareAreas(levelId);
+    },
+    
+    prepareAreas: function(levelId){
+        var _this = this;
+        this.areaMap.clearLayer('areas');
+        var areas = this.areas[levelId];
+        if (areas){
+            this.drawAreas(areas)
+        }
+        else {
+            areas = new GDSECollection([], { 
+                apiTag: 'areas',
+                apiIds: [ this.caseStudy.id, levelId ]
+            });
+            this.areas[levelId] = areas;
+            var loader = new utils.Loader(this.areaModal, {disable: true});
+            loader.activate();
+            areas.fetch({ 
+                success: function(){
+                    var promises = [];
+                    areas.forEach(function(area){
+                        promises.push(
+                            area.fetch({ error: _this.onError })
+                        )
+                    });
+                    Promise.all(promises).then(function(){
+                        loader.deactivate();
+                        _this.drawAreas(areas)
+                    });
+                }, error: function(res) {
+                    loader.deactivate();
+                    _this.onError(res);
+                } 
+            });
+        }
+    },
+    
+    drawAreas: function(areas){
+        var _this = this;
+        areas.forEach(function(area){
+            var coords = area.get('geometry').coordinates,
+                name = area.get('name');
+            _this.areaMap.addPolygon(coords, { 
+                projection: 'EPSG:4326', layername: 'areas', 
+                type: 'MultiPolygon', tooltip: name,
+                label: name, id: area.id
+            });
+        })
+        this.areaMap.centerOnLayer('areas');
+    },
+    
+    showAreaSelection: function(){
+        $(this.areaModal).modal('show'); 
     },
 
-    refreshMap: function(){
+    refreshSankeyMap: function(){
         if (this.sankeyMap) this.sankeyMap.refresh();
     },
-
+    
+    applyFilters: function(){
+        this.filters['actors'] = this.filtersTmp['actors'];
+        this.filters['activities'] = this.filtersTmp['activities'];
+        this.filters['groups'] = this.filtersTmp['groups'];
+        this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
+        this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
+        this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
+        this.filters['areas'] = this.filtersTmp['areas'];
+        this.filters['material'] = this.filtersTmp['material'];
+        this.renderSankey();
+    },
+    
     renderSankey: function(){
         var type = this.typeSelect.value;
-        var direction = this.el.querySelector('input[name="direction"]:checked').value;
+        var direction = this.filters['direction'];
         var collection = (type == 'actor') ? this.actors: 
             (type == 'activity') ? this.activities: 
             this.activityGroups;
         
-        var filtered = (type == 'actor') ? this.actorsFiltered: 
-            (type == 'activity') ? this.activitiesFiltered: 
-            this.activityGroupsFiltered;
-            
-        var waste = this.el.querySelector('select[name="waste"]').value;
-        this.filterParams.waste = waste;
-        if (waste == '') delete this.filterParams.waste
+        var filtered = (type == 'actor') ? this.filters['actors']: 
+            (type == 'activity') ? this.filters['activities']: 
+            this.filters['groups'];
+        
+        var filterParams = {},
+            waste = this.filters['waste'];
+        if (waste) filterParams.waste = waste;
+        
+        var aggregate = this.filters['aggregate'];
+        filterParams.aggregated = aggregate;
+        
+        var material = this.filters['material'];
+        if (material) filterParams.material = material.id;
+        
+        // areas to multipolygon
+        var areas = this.filters['areas'];
+        if (areas){
+            var multiPolygon = new ol.geom.MultiPolygon();
+            areas.forEach(function(area){ 
+                var coordinates = area.get('geometry').coordinates;
+                // flatten if necessary
+                if (coordinates[0] instanceof Array && coordinates[0].length == 1)
+                    coordinates = coordinates[0];
+                var polygon = new ol.geom.Polygon(coordinates);
+                multiPolygon.appendPolygon(polygon);
+            })
+            var geoJSON = new ol.format.GeoJSON(),
+            geoJSONText = geoJSON.writeGeometry(multiPolygon);
+            console.log(geoJSONText)
+            //filterParams.
+        }
         
         // if the collections are filtered build matching query params for the flows
-        var flowFilterParams = Object.assign({}, this.filterParams);
-        var stockFilterParams = Object.assign({}, this.filterParams);
+        var flowFilterParams = Object.assign({}, filterParams);
+        var stockFilterParams = Object.assign({}, filterParams);
+        
         if (filtered){
             var nodeIds = [];
             filtered.forEach(function(node){
@@ -114,12 +263,20 @@ var FlowsView = BaseView.extend(
                 flowFilterParams[queryDirP] = nodeIds;
                 stockFilterParams.nodes = nodeIds;
             }
+        
+            //var loc = new GDSECollection([], {
+                //apiTag: 'adminLocations',
+                //apiIds: [this.caseStudy.id, this.keyflowId]
+            //})
+            //loc.fetch({ data: {'actor__in': nodeIds.toString()}, success: function(){console.log(loc)} })
         }
         
         if (this.flowsView != null) this.flowsView.close();
         this.flowsView = new FlowSankeyView({
             el: document.getElementById('sankey-wrapper'),
             collection: collection,
+            keyflowId: this.keyflowId,
+            caseStudyId: this.caseStudy.id,
             materials: this.materials,
             flowFilterParams: flowFilterParams,
             stockFilterParams: stockFilterParams,
@@ -147,38 +304,44 @@ var FlowsView = BaseView.extend(
 
     renderNodeFilters: function(){
         var _this = this;
-        function renderOptions(select, collection){
+        
+        function clearOptions(select){
             utils.clearSelect(select);
             option = document.createElement('option');
             option.value = -1; 
             option.text = gettext('All');
             select.appendChild(option);
+            select.disabled = true;
+        }
+        
+        function renderOptions(select, collection){
+            clearOptions(select);
             collection.forEach(function(model){
                 var option = document.createElement('option');
                 option.value = model.id;
                 option.text = model.get('name');
                 select.appendChild(option);
             })
+            select.disabled = false;
         }
+        
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
             
         renderOptions(groupSelect, this.activityGroups);
         renderOptions(activitySelect, this.activities);
-        renderOptions(actorSelect, this.actors);
+        clearOptions(actorSelect);
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
             // set and use filters for selected group, set child activities 
             // clear filter if 'All' (== -1) is selected
-            _this.activityGroupsFiltered = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
-            _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
-            _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
-            renderOptions(activitySelect, _this.activitiesFiltered || _this.activities);
-            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
-            _this.typeSelect.value = 'activitygroup';
-            _this.renderSankey();
+            _this.filtersTmp['groups'] = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
+            _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+            _this.filtersTmp['actors'] = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+            renderOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
+            clearOptions(actorSelect);
         })
         
         activitySelect.addEventListener('change', function(){
@@ -187,22 +350,22 @@ var FlowsView = BaseView.extend(
             // set and use filters for selected activity, set child actors 
             // clear filter if 'All' (== -1) is selected in both group and activity
             if (activityId < 0 && groupId < 0){
-                _this.activitiesFiltered = null;
-                _this.actorsFiltered = null;
+                 _this.filtersTmp['activities'] = null;
+                _this.filtersTmp['actors']  = null;
+                clearOptions(actorSelect);
             }
             // 'All' is selected for activity but a specific group is selected
             else if (activityId < 0){
-                _this.activitiesFiltered = (groupId < 0) ? null: _this.activities.filterGroup(groupId);
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+                 _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
+                clearOptions(actorSelect);
             }
             // specific activity is selected
             else {
-                _this.activitiesFiltered = [_this.activities.get(activityId)];
-                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+                _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
+                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
+                renderOptions(actorSelect, _this.filtersTmp['actors']  || _this.actors);
             }
-            renderOptions(actorSelect, _this.actorsFiltered || _this.actors);
-            _this.typeSelect.value = 'activity';
-            _this.renderSankey();
         })
         
         actorSelect.addEventListener('change', function(){
@@ -211,21 +374,19 @@ var FlowsView = BaseView.extend(
                 actorId = actorSelect.value;
             // clear filter if 'All' (== -1) is selected in group, activity and 
             if (groupId < 0 && activityId < 0 && actorId < 0){
-                _this.actorsFiltered = null;
+                _this.filtersTmp['actors'] = null;
             }
             // filter by group if 'All' (== -1) is selected in activity and actor but not group
             if (activityId < 0  && actorId < 0){
-                _this.actorsFiltered = (groupId < 0) ? null: _this.actors.filterGroup(groupId);
+                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
             }
             // filter by activity if a specific activity is set and 'All' is selected for actor
             else if (actorId < 0){
-                _this.actorsFiltered = _this.actors.filterActivity(activityId);
+                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
             }
             // specific actor
             else
-                _this.actorsFiltered = [_this.actors.get(actorId)];
-            _this.typeSelect.value = 'actor'
-            _this.renderSankey();
+                _this.filtersTmp['actors'] = [_this.actors.get(actorId)];
         })
     },
 
@@ -236,10 +397,7 @@ var FlowsView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 var modelId = (model) ? model.id : null;
-                 _this.filterParams.material = modelId;
-                 if (modelId == null) delete _this.filterParams.material;
-                _this.renderSankey();
+                 _this.filtersTmp['material'] = model;
             },
             defaultOption: gettext('All materials')
         });

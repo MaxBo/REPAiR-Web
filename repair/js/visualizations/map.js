@@ -90,9 +90,9 @@ define([
                     var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
                         return feature;
                     });
-                    if (feature && feature.tooltip) {
+                    if (feature && feature.get('tooltip')) {
                         overlay.setPosition(evt.coordinate);
-                        tooltip.innerHTML = feature.tooltip;
+                        tooltip.innerHTML = feature.get('tooltip');
                         tooltip.style.display = '';
                     }
                     else tooltip.style.display = 'none';
@@ -133,19 +133,28 @@ define([
         *
         * @param {string} name  name of the layer
         * @param {Object=} options
-        * @param {string} [options.stroke='rgb(255, 255, 255)']     color of outline
-        * @param {string} [options.strokeWidth=3]                   width of outline
-        * @param {string} [options.fill='rgba(255, 255, 255, 0.1)'] color of filling
+        * @param {string} [options.stroke='rgb(100, 150, 250)']     color of outline
+        * @param {string} [options.strokeWidth=1]                   width of outline
+        * @param {string} [options.fill='rgba(100, 150, 250, 0.1)'] color of filling
+        * @param {string} [options.labelColor='#4253f4']            color of label
         * @param {string=} options.zIndex                           z-index of the layer
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
+        * @param {Object=} options.select                           options for selectable features inside this layer
+        * @param {Boolean=} [options.selectable=false]              enables selection of features on click
+        * @param {string} [options.select.stroke='rgb(230, 230, 0)'] color of outline of selected feature
+        * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
+        * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
+        * @param {string} [options.select.labelColor='#e69d00']     color of label selected feature
+        * @param {Object} options.select.onChange                   callback 
         *
         * @returns {ol.layer.Vector}                                the added vector layer
         */
         addLayer(name, options){
-            var options = options || {};
-            var sourceopt = options.source || {};
-            var source;
+            var options = options || {},
+                sourceopt = options.source || {},
+                source,
+                _this = this;
             if (sourceopt.url){
                 var source = new ol.source.Vector({
                     format: new ol.format.GeoJSON(),
@@ -153,9 +162,6 @@ define([
                     projection : sourceopt.projection || this.mapProjection,
                 })
             }
-            var layer = new ol.layer.Vector({ source: source || new ol.source.Vector() });
-            this.layers[name] = layer;
-            this.map.addLayer(layer);
 
             var image = new ol.style.Circle({
                 radius: 5,
@@ -163,18 +169,85 @@ define([
                 stroke: new ol.style.Stroke({color: 'blue', width: 1})
             });
 
-            var style = new ol.style.Style({
-                image: image,
-                stroke: new ol.style.Stroke({
-                    color: options.stroke || 'rgb(255, 255, 255)',
-                    width: options.strokeWidth || 3
-                }),
-                fill: new ol.style.Fill({
-                    color: options.fill || 'rgba(255, 255, 255, 0.1)'
+            function labelStyle(feature, resolution) {
+                return new ol.style.Text({
+                    font: '15px Open Sans,sans-serif',
+                    fill: new ol.style.Fill({ color: options.labelColor || '#4253f4' }),
+                    stroke: new ol.style.Stroke({
+                        color: 'white', width: 3
+                    }),
+                    text: feature.get('label'),
                 })
+            }
+
+            function layerStyle(feature, resolution){ 
+                return new ol.style.Style({
+                    image: image,
+                    stroke: new ol.style.Stroke({
+                        color: options.stroke || 'rgb(100, 150, 250)',
+                        width: options.strokeWidth || 1
+                    }),
+                    fill: new ol.style.Fill({
+                        color: options.fill || 'rgba(100, 150, 250, 0.1)'
+                    }),
+                    text: labelStyle(feature, resolution)
+                });
+            }
+            
+            var layer = new ol.layer.Vector({ 
+                source: source || new ol.source.Vector() ,
+                style: layerStyle
             });
-            layer.setStyle(style);
+            
+            this.layers[name] = layer;
+            this.map.addLayer(layer);
             if (options.zIndex) layer.setZIndex(options.zIndex);
+            
+            var select = options.select || {};
+
+            if (select.selectable){
+                function selectLabelStyle(feature, resolution) {
+                    return new ol.style.Text({
+                        font: '15px Open Sans,sans-serif',
+                        fill: new ol.style.Fill({ color: select.labelColor || '#e69d00' }),
+                        stroke: new ol.style.Stroke({
+                            color: 'white', width: 3
+                        }),
+                        text: feature.get('label'),
+                    })
+                }
+                function selectStyle(feature, resolution){ 
+                    return new ol.style.Style({
+                        image: image,
+                        stroke: new ol.style.Stroke({
+                            color: select.stroke || 'rgb(230, 230, 0)',
+                            width: select.strokeWidth || 3
+                        }),
+                        fill: new ol.style.Fill({
+                            color: select.fill || 'rgba(230, 230, 0, 0.1)'
+                        }),
+                        text: selectLabelStyle(feature, resolution)
+                    });
+                }
+                var interaction = new ol.interaction.Select({
+                    toggleCondition: ol.events.condition.always,
+                    layers: [layer],
+                    style: selectStyle,
+                });
+                this.map.addInteraction(interaction);
+                layer.select = interaction;
+                if (select.onChange){
+                    interaction.on('select', function(evt){ 
+                        var selected = interaction.getFeatures(),
+                            ret = [];
+                        selected.forEach(function(feat){
+                            ret.push({id: feat.get('id'), label: feat.get('label')});
+                        })
+                        select.onChange(ret);
+                    })
+                }
+            }
+            
             return layer;
         }
 
@@ -213,7 +286,9 @@ define([
         * @param {Object=} options
         * @param {string} [options.layername='basic']  layer to which the polygon will be added
         * @param {string=} options.projection          projection the given coordinates are in, defaults to map projection
+        * @param {string=} options.id                  id of feature
         * @param {string=} options.tooltip             tooltip shown on hover over polygon
+        * @param {string=} options.label               label to show on map
         * @param {string} [options.type='Polygon']     Polygon or Multipolygon
         *
         * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
@@ -229,7 +304,9 @@ define([
 
             if (!layer) layer = this.addLayer(layername);
             var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
-            feature.tooltip = options.tooltip;
+            feature.set('label', options.label);
+            feature.set('tooltip', options.tooltip);
+            feature.set('id', options.id);
             layer.getSource().addFeature(feature);
             return ret;
         }
@@ -360,6 +437,7 @@ define([
                         source.removeFeature(feature);
                 })
             }
+            if (layer.select) layer.select.getFeatures().clear();
         }
 
         /**
@@ -503,6 +581,11 @@ define([
             this.centerOnPoint(centroid, options);
             return centroid;
         }
+        
+        centerOnCoordinates(coordinates, options){
+            var poly = new ol.geom.Polygon(coordinates);
+            this.centerOnPolygon(poly, options);
+        }
 
         /**
         * centers map on layer with given name, zooms to fit extent of layer
@@ -514,7 +597,7 @@ define([
             var layer = this.layers[layername],
                 source = layer.getSource();
 
-            this.map.getView().fit(source.getExtent(), previewMap.map.getSize());
+            this.map.getView().fit(source.getExtent(), this.map.getSize());
         }
 
         /**

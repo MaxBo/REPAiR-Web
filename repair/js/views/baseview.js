@@ -229,10 +229,11 @@ var BaseView = Backbone.View.extend(
     },
     
     /**
-    * show a modal to enter a name
+    * show a modal to confirm sth
     *
     * @param {Object=} options
     * @param {module:views/BaseView~onConfirm} options.onConfirm  called when user confirmed dialog
+    * @param {String} options.message  message in dialog
     */
     confirm: function(options){
         var options = options || {},

@@ -1,9 +1,7 @@
-define(['underscore','views/baseview','models/aim', 'collections/aims',
- 'collections/targetvalues', 'collections/targetspatialreference',
-'collections/impactcategories', 'models/target', 'collections/targets'],
+define(['underscore','views/baseview', 'collections/gdsecollection',
+        'models/gdsemodel'],
 
-function(_, BaseView, Aim, Aims, TargetValues, TargetSpatialReference,
-ImpactCategories, Target, Targets){
+function(_, BaseView, GDSECollection, GDSEModel){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -34,32 +32,37 @@ ImpactCategories, Target, Targets){
             this.mode = options.mode || 0;
 
             _this.targets = [];
-            this.targetsModel = new Targets([], {
-                caseStudyId: _this.caseStudy.id
+            this.targetsModel = new GDSECollection([], {
+                apiTag: 'targets',
+                apiIds: [this.caseStudy.id]
             });
 
             _this.aims = [];
-            this.aimsModel = new Aims([], {
-                caseStudyId: _this.caseStudy.id
+            this.aimsModel = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [this.caseStudy.id]
             });
 
             // there is a spelling or conceptual error here, because
             // impactcategories == indicators
             _this.impactcategories = []
-            this.impactCategoriesModel = new ImpactCategories([], {
+            this.impactCategoriesModel = new GDSECollection([], {
+                apiTag: 'impactcategories',
             });
 
             _this.targetvalues = [];
-            this.targetValuesModel = new TargetValues([], {
-            });
-
-            _this.spatial = [];
-            this.spatialModel = new TargetSpatialReference([], {
+            this.targetValuesModel = new GDSECollection([], {
+                apiTag: 'targetvalues',
             });
             
-            var deferreds = [];
+            _this.spatial = [];
+            this.spatialModel = new GDSECollection([], {
+                apiTag: 'targetspatialreference',
+            });
+            
+            var promises = [];
 
-            deferreds.push(this.targetsModel.fetch({
+            promises.push(this.targetsModel.fetch({
                 success: function(targets){
                     var temp = [];
                     targets.forEach(function(target){
@@ -77,14 +80,14 @@ ImpactCategories, Target, Targets){
                 error: _this.onError
             }));
 
-            deferreds.push(this.aimsModel.fetch({
+            promises.push(this.aimsModel.fetch({
                 success: function(aims){
                     _this.initItems(aims, _this.aims, "Aim");
                 },
                 error: _this.onError
             }));
 
-            deferreds.push(this.impactCategoriesModel.fetch({
+            promises.push(this.impactCategoriesModel.fetch({
                 success: function(impactcategories){
                     impactcategories.forEach(function(impact){
                         _this.impactcategories.push({
@@ -98,7 +101,7 @@ ImpactCategories, Target, Targets){
                 error: _this.onError
             }));
 
-            deferreds.push(this.targetValuesModel.fetch({
+            promises.push(this.targetValuesModel.fetch({
                 success: function(targets){
                     targets.forEach(function(target){
                         _this.targetvalues.push({
@@ -112,7 +115,7 @@ ImpactCategories, Target, Targets){
                 error: _this.onError
             }));
 
-            deferreds.push(this.spatialModel.fetch({
+            promises.push(this.spatialModel.fetch({
                 success: function(areas){
                     areas.forEach(function(area){
                         _this.spatial.push({
@@ -125,7 +128,7 @@ ImpactCategories, Target, Targets){
                 error: _this.onError
             }));
 
-            $.when.apply($, deferreds).then(this.render);
+            Promise.all(promises).then(this.render);
         },
 
         /*
@@ -276,14 +279,14 @@ ImpactCategories, Target, Targets){
             var _this = this;
             var aimId = $(e.currentTarget).attr("aimId");
             // just create a default Target
-            var target = new Target(
+            var target = new GDSEModel(
                 {
                 "aim": aimId,
                 "impact_category": _this.impactcategories[0].id,
                 "target_value": _this.targetvalues[0].id,
                 "spatial_reference": _this.spatial[0].id
                 },
-                { caseStudyId: _this.caseStudy.id}
+                { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
             );
             target.save(null, {
                 success: function(){
@@ -310,9 +313,9 @@ ImpactCategories, Target, Targets){
             var targetId = parseInt(select.getAttribute("targetId"));
             var idx = select.options.selectedIndex;
             var optionId = parseInt(select.options[idx].getAttribute("id"));
-            var target = new Target(
+            var target = new GDSEModel(
                 {id: targetId},
-                {caseStudyId: _this.caseStudy.id}
+                { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
             );
             if (type == "targetvalue") {
                 target.save({
@@ -362,9 +365,9 @@ ImpactCategories, Target, Targets){
             var targetId = parseInt(select.getAttribute("targetId"));
             var message = gettext('Do you really want to delete the target?');
             _this.confirm({ message: message, onConfirm: function(){
-                var target = new Target(
+                var target = new GDSEModel(
                     {id: targetId},
-                    {caseStudyId: _this.caseStudy.id}
+                    { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
                 );
                 target.destroy({
                     success: function(){

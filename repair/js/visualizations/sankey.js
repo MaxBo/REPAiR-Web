@@ -72,15 +72,17 @@ function(d3, d3tip) {
     
             //sankey.nodeAlign(d3.sankeyLeft)
             var _this = this;
+            
     
             var path = this.sankey.link();
     
             // remove old svg if it was already rendered
             this.div.select("svg").remove();
+            d3.select(".d3-tip").remove();
             
             /* Initialize tooltip */
             var tipLinks = d3tip()
-                .attr('class', 'd3-tip')
+                .attr('class', 'd3-tip d3-tip-links')
                 .offset([-10,0]);
           
             var tipNodes = d3tip()
@@ -139,11 +141,14 @@ function(d3, d3tip) {
                 .sort(function(a, b) { return b.dy - a.dy; })
                 .on('mousemove', function(event) {
                   tipLinks
-                    .style("top", (d3.event.pageY - linkTooltipOffset) - Math.max($('.d3-tip').height() + 20, 80) + "px")
+                    .style("top", function() {
+                        var top = d3.event.pageY - $('.d3-tip-links').height() / 2;
+                        return top + "px";
+                    })
                     .style("left", function () {
-                      var left = (Math.max(d3.event.pageX - linkTooltipOffset, 10)); 
-                      left = Math.min(left, window.innerWidth - $('.d3-tip').width() - 20)
+                      var left = d3.event.pageX + 20;
                       return left + "px"; })
+                    .style("pointer-events", 'none')
                   })
                 .on('mouseover', function(d) { tipLinks.show(d, this); })
                 .on('mouseout', function(d) { tipLinks.hide(d, this); });
@@ -161,10 +166,11 @@ function(d3, d3tip) {
                 })
                 .on('mousemove', function(event) {
                   tipNodes
-                    .style("top", d3.event.pageY - Math.max($('.d3-tip-nodes').height() + 20, 60) + "px")
+                    .style("top", d3.event.pageY - $('.d3-tip-nodes').height() / 2 + "px")
                     .style("left", function () {
-                      var left = d3.event.pageX - $('.d3-tip').width() / 2
+                      var left = d3.event.pageX + 20;
                       return left + "px"; })
+                    .style("pointer-events", 'none')
                   })
                 .on('mouseover', function(d) { tipNodes.show(d, this); })
                 .on('mouseout', function(d) { tipNodes.hide(d, this); })
