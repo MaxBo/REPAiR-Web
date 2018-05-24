@@ -113,11 +113,12 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
 
+        queryset = self.get_queryset()
         # filter additional expressions
-        filter_args.update(self.get_filter_args(queryset=self.get_queryset(),
+        filter_args.update(self.get_filter_args(queryset=queryset,
                                                 query_params=query_params)
                            )
-        queryset = self.get_queryset().filter(**filter_args)
+        queryset = queryset.filter(**filter_args)
 
         return queryset
 
