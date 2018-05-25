@@ -59,14 +59,12 @@ var FlowsView = BaseView.extend(
         this.filtersTmp = {};
         
         this.loader.activate();
-        var params = { included: 'True' },
-            promises = [
-                this.actors.fetch({ data: params }), 
-                this.activities.fetch(),
-                this.activityGroups.fetch(),
-                this.materials.fetch(),
-                this.areaLevels.fetch()
-            ]
+        var promises = [
+            this.activities.fetch(),
+            this.activityGroups.fetch(),
+            this.materials.fetch(),
+            this.areaLevels.fetch()
+        ]
         Promise.all(promises).then(function(){
             _this.loader.deactivate();
             _this.render();
@@ -81,7 +79,8 @@ var FlowsView = BaseView.extend(
         'click #apply-filters': 'applyFilters',
         'change #data-view-type-select': 'renderSankey',
         'click #area-select-button': 'showAreaSelection',
-        'change select[name="level-select"]': 'changeAreaLevel'
+        'change select[name="level-select"]': 'changeAreaLevel',
+        'click #area-filter-modal .confirm': 'confirmAreaSelection'
     },
 
     /*
@@ -113,12 +112,11 @@ var FlowsView = BaseView.extend(
                             levelId = _this.levelSelect.value
                             labels = [],
                             areas = _this.areas[levelId];
-                        var selectedAreas = [];
+                        _this.selectedAreas = [];
                         areaFeats.forEach(function(areaFeat){
                             labels.push(areaFeat.label);
-                            selectedAreas.push(areas.get(areaFeat.id))
+                            _this.selectedAreas.push(areas.get(areaFeat.id))
                         });
-                        _this.filtersTmp['areas'] = selectedAreas;
                         modalSelDiv.innerHTML = selDiv.innerHTML = labels.join(', ');
                     }
                 }
@@ -193,19 +191,54 @@ var FlowsView = BaseView.extend(
     showAreaSelection: function(){
         $(this.areaModal).modal('show'); 
     },
+    
+    confirmAreaSelection: function(){
+        var _this = this;
+        if (!_this.selectedAreas) return; // TODO: reset actors
+        
+        var multiPolygon = new ol.geom.MultiPolygon();
+        _this.selectedAreas.forEach(function(area){ 
+            var geom = area.get('geometry'),
+                coordinates = geom.coordinates;
+            if (geom.type == 'MultiPolygon'){
+                var multi = new ol.geom.MultiPolygon(coordinates),
+                    polys = multi.getPolygons();
+                polys.forEach( function(poly) {multiPolygon.appendPolygon(poly);} )
+            }
+            else{
+                var poly = new ol.geom.Polygon(coordinates);
+                multiPolygon.appendPolygon(poly);
+            }
+        })
+        var geoJSON = new ol.format.GeoJSON(),
+        geoJSONText = geoJSON.writeGeometry(multiPolygon);
+        this.actors = new GDSECollection([], {
+            apiTag: 'filteractors',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        })
+       // area: geoJSONText, 
+        this.loader.activate();
+        this.actors.fetch({
+            data: { included: 'True' },
+            success: function(){
+                _this.loader.deactivate();
+                console.log(_this.actors);
+                _this.renderNodeFilters();
+            }
+        })
+        
+    },
 
     refreshSankeyMap: function(){
         if (this.sankeyMap) this.sankeyMap.refresh();
     },
     
     applyFilters: function(){
-        this.filters['actors'] = this.filtersTmp['actors'];
         this.filters['activities'] = this.filtersTmp['activities'];
         this.filters['groups'] = this.filtersTmp['groups'];
         this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
         this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
-        this.filters['areas'] = this.filtersTmp['areas'];
         this.filters['material'] = this.filtersTmp['material'];
         this.renderSankey();
     },
@@ -217,7 +250,7 @@ var FlowsView = BaseView.extend(
             (type == 'activity') ? this.activities: 
             this.activityGroups;
         
-        var filtered = (type == 'actor') ? this.filters['actors']: 
+        var filtered = (type == 'actor') ? this.actors: 
             (type == 'activity') ? this.filters['activities']: 
             this.filters['groups'];
         
@@ -231,28 +264,6 @@ var FlowsView = BaseView.extend(
         var material = this.filters['material'];
         if (material) filterParams.material = material.id;
         
-        // areas to multipolygon
-        var areas = this.filters['areas'];
-        if (areas){
-            var multiPolygon = new ol.geom.MultiPolygon();
-            areas.forEach(function(area){ 
-                var geom = area.get('geometry'),
-                    coordinates = geom.coordinates;
-                if (geom.type == 'MultiPolygon'){
-                    var multi = new ol.geom.MultiPolygon(coordinates),
-                        polys = multi.getPolygons();
-                    polys.forEach( function(poly) {multiPolygon.appendPolygon(poly);} )
-                }
-                else{
-                    var poly = new ol.geom.Polygon(coordinates);
-                    multiPolygon.appendPolygon(poly);
-                }
-            })
-            var geoJSON = new ol.format.GeoJSON(),
-            geoJSONText = geoJSON.writeGeometry(multiPolygon);
-            console.log(geoJSONText)
-            //filterParams.
-        }
         
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, filterParams);
@@ -268,12 +279,6 @@ var FlowsView = BaseView.extend(
                 flowFilterParams[queryDirP] = nodeIds;
                 stockFilterParams.nodes = nodeIds;
             }
-        
-            //var loc = new GDSECollection([], {
-                //apiTag: 'adminLocations',
-                //apiIds: [this.caseStudy.id, this.keyflowId]
-            //})
-            //loc.fetch({ data: {'actor__in': nodeIds.toString()}, success: function(){console.log(loc)} })
         }
         
         if (this.flowsView != null) this.flowsView.close();
