@@ -247,11 +247,9 @@ var FlowsView = BaseView.extend(
             body: { area: geoJSONText },
             success: function(response){
                 _this.loader.deactivate();
-                console.log(_this.actors);
                 _this.filtersTmp['actors'] = _this.actors;
                 _this.renderNodeSelectOptions(actorSelect, _this.actors);
-            },
-            //reset: true
+            }
         })
         
     },

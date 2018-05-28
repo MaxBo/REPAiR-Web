@@ -82,12 +82,43 @@ function(BaseView, _, Sankey, GDSECollection){
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'change #data-view-type-select': 'renderSankey'
         },
+        
+        complementData: function(success){
+            var nodeIds = this.collection.pluck('id'),
+                missingIds = new Set(),
+                _this = this;
+            this.flows.forEach(function(flow){
+                var origin = flow.get('origin'),
+                    destination = flow.get('destination');
+                if(!nodeIds.includes(origin)) missingIds.add(origin);
+                if(!nodeIds.includes(destination)) missingIds.add(destination);
+            })
+            if (missingIds.size > 0){
+                var missingNodes = new GDSECollection([], {
+                    url: this.collection.url()
+                })
+                missingNodes.fetch({ 
+                    data: { 'id__in': Array.from(missingIds).join() },
+                    success: function(){
+                        var models = _this.collection.models.concat(missingNodes.models);
+                        console.log(models)
+                        var data = _this.transformData(
+                            models, _this.flows, _this.stocks, _this.materials);
+                        success(data);
+                    }
+                })
+            }
+            else {
+                var data = this.transformData(this.collection, this.flows, 
+                                              this.stocks, this.materials);
+                success(data);
+            }
+        },
 
         /*
         * render the view
         */
         render: function(){
-            this.sankeyData = this.transformData(this.collection, this.flows, this.stocks, this.materials);
             var isFullScreen = this.el.classList.contains('fullscreen');
             var width = (isFullScreen) ? this.el.clientWidth : this.width;
             var height = (isFullScreen) ? this.el.clientHeight : this.height;
@@ -103,7 +134,9 @@ function(BaseView, _, Sankey, GDSECollection){
                 el: div,
                 title: ''
             })
-            sankey.render(this.sankeyData);
+            this.complementData(function(data){
+                sankey.render(data);
+            })
         },
 
         /*

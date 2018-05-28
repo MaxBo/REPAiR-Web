@@ -26,7 +26,7 @@ function(PageableCollection, _, GDSEModel, config) {
             var apiUrl = config.api[this.apiTag]
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
-            return apiUrl
+            return apiUrl;
         },
         
         // by default try to fetch 'em all (should never exceed 1Mio hopefully)
