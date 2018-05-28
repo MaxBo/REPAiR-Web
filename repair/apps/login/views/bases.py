@@ -137,8 +137,6 @@ class CasestudyReadOnlyViewSetMixin(ABC):
             if hasattr(queryset.model, key):
                 if len(key_cmp) > 1:
                     cmp = key_cmp[-1]
-                    if cmp not in QUERY_TERMS:
-                        continue
                     if cmp == 'in':
                         v = v.strip('[]').split(',')
                 filter_args[k] = v

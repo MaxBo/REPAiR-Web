@@ -43,10 +43,10 @@ function(BaseView, _, Sankey, GDSECollection){
             this.height = options.height || this.width / 3;
             var tag = options.tag || this.collection.apiTag
 
-            var flowTag = (tag == 'actors') ? 'actorToActor': 
+            var flowTag = (tag.endsWith('actors')) ? 'actorToActor': 
                           (tag == 'activities') ? 'activityToActivity':
                           'groupToGroup',
-                stockTag = (tag == 'actors') ? 'actorStock': 
+                stockTag = (tag.endsWith('actors')) ? 'actorStock': 
                            (tag == 'activities') ? 'activityStock':
                            'groupStock';
                 

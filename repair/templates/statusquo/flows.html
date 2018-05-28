@@ -15,7 +15,7 @@
       <table style="margin: 0px">
         <tr>
           <td style="vertical-align:top; width:1%;">
-            <button id="area-select-button" class="btn btn-primary inverted">{% trans "Select Areas" %}</button>
+            <button id="area-select-button" class="btn">{% trans "Select Areas" %}</button>
           </td>
           <td id="area-selections">
           </td>
@@ -70,13 +70,16 @@
 <div class="row" style="margin-top: 20px;">
   <div class="col-md-6">
     <div id="flow-diagram">
-      <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 400px;">
-        <option value="activitygroup">{% trans "Activity Group" %}</option>
-        <option value="activity">{% trans "Activity" %}</option>
-        <option value="actor">{% trans "Actor" %} </option>
-      </select>
+      <div class="row">
+        <label class="input-label">{% trans "Level" %} </label>
+        <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 200px;">
+          <option value="activitygroup">{% trans "Activity Group" %}</option>
+          <option value="activity">{% trans "Activity" %}</option>
+          <option value="actor">{% trans "Actor" %} </option>
+        </select>
+      </div>
       <div class="row" style="position: relative;">
-        <div id="sankey-wrapper" class="noselect">
+        <div id="sankey-wrapper" class="noselect" style="width: 100%;">
         </div>
       </div>
     </div>
@@ -107,7 +110,7 @@
       </div>
       <div class="modal-body">
         <div class='row'>
-          <label for="level-select">{% trans "Level" %}</label>
+          <label class="input-label">{% trans "Level" %}</label>
           <select name="level-select" class="form-control" style="max-width: 350px;">
           <%  levels.forEach(function(level) { %>
             <option value="<%= level.id %>"> <%= level.get('name') %></option>
@@ -123,6 +126,7 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn cancel" data-dismiss="modal">Cancel</button>
         <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>

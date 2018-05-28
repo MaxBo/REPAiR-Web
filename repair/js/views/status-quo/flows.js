@@ -37,10 +37,6 @@ var FlowsView = BaseView.extend(
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
-        this.actors = new GDSECollection([], { 
-            apiTag: 'actors',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
-        });
         this.activities = new GDSECollection([], { 
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId ]
@@ -108,16 +104,15 @@ var FlowsView = BaseView.extend(
                     fill: 'rgba(230, 230, 0, 0.5)',
                     onChange: function(areaFeats){
                         var modalSelDiv = _this.el.querySelector('#modal-area-selections'),
-                            selDiv = _this.el.querySelector('#area-selections'),
                             levelId = _this.levelSelect.value
                             labels = [],
                             areas = _this.areas[levelId];
-                        _this.selectedAreas = [];
+                        _this.filtersTmp['areas'] = [];
                         areaFeats.forEach(function(areaFeat){
                             labels.push(areaFeat.label);
-                            _this.selectedAreas.push(areas.get(areaFeat.id))
+                            _this.filtersTmp['areas'].push(areas.get(areaFeat.id))
                         });
-                        modalSelDiv.innerHTML = selDiv.innerHTML = labels.join(', ');
+                        modalSelDiv.innerHTML = labels.join(', ');
                     }
                 }
             });
@@ -193,38 +188,70 @@ var FlowsView = BaseView.extend(
     },
     
     confirmAreaSelection: function(){
-        var _this = this;
-        if (!_this.selectedAreas) return; // TODO: reset actors
+        this.selectedAreas = this.filtersTmp['areas'];
+        // lazy way to show the selected areas, just take it from the modal
+        var modalSelDiv = this.el.querySelector('#modal-area-selections'),
+            selDiv = this.el.querySelector('#area-selections');
+        selDiv.innerHTML = modalSelDiv.innerHTML;
+        this.filterActors();
+    },
+    
+    filterActors: function(){
+        var _this = this,
+            geoJSONText, 
+            queryParams = { 
+                included: 'True', 
+                fields: ['id', 'name', 'description', 'activity', 'activitygroup'].join() 
+            };
         
-        var multiPolygon = new ol.geom.MultiPolygon();
-        _this.selectedAreas.forEach(function(area){ 
-            var geom = area.get('geometry'),
-                coordinates = geom.coordinates;
-            if (geom.type == 'MultiPolygon'){
-                var multi = new ol.geom.MultiPolygon(coordinates),
-                    polys = multi.getPolygons();
-                polys.forEach( function(poly) {multiPolygon.appendPolygon(poly);} )
-            }
-            else{
-                var poly = new ol.geom.Polygon(coordinates);
-                multiPolygon.appendPolygon(poly);
-            }
-        })
-        var geoJSON = new ol.format.GeoJSON(),
-        geoJSONText = geoJSON.writeGeometry(multiPolygon);
+        var groupSelect = this.el.querySelector('select[name="group"]'),
+            activitySelect = this.el.querySelector('select[name="activity"]'),
+            actorSelect = this.el.querySelector('select[name="actor"]');
+        
+        var activity = activitySelect.value,
+            group = groupSelect.value;
+        
+        // actually no need to create this new, but easier to handle
         this.actors = new GDSECollection([], {
             apiTag: 'filteractors',
             apiIds: [this.caseStudy.id, this.keyflowId]
         })
+        
+        if(activity >= 0) queryParams['activity'] = activity;
+        else if (group >= 0) queryParams['activity__activitygroup'] = group;
+            
+        // if there are areas selected merge them to single multipolygon
+        // and serialize that to geoJSON
+        if (_this.selectedAreas && _this.selectedAreas.length > 0) {
+            var multiPolygon = new ol.geom.MultiPolygon();
+            _this.selectedAreas.forEach(function(area){ 
+                var geom = area.get('geometry'),
+                    coordinates = geom.coordinates;
+                if (geom.type == 'MultiPolygon'){
+                    var multi = new ol.geom.MultiPolygon(coordinates),
+                        polys = multi.getPolygons();
+                    polys.forEach( function(poly) {multiPolygon.appendPolygon(poly);} )
+                }
+                else{
+                    var poly = new ol.geom.Polygon(coordinates);
+                    multiPolygon.appendPolygon(poly);
+                }
+            })
+            var geoJSON = new ol.format.GeoJSON(),
+            geoJSONText = geoJSON.writeGeometry(multiPolygon);
+        }
        // area: geoJSONText, 
-        this.loader.activate();
-        this.actors.fetch({
-            data: { included: 'True' },
-            success: function(){
+        this.loader.activate({offsetX: '20%'});
+        this.actors.postfetch({
+            data: queryParams,
+            body: { area: geoJSONText },
+            success: function(response){
                 _this.loader.deactivate();
                 console.log(_this.actors);
-                _this.renderNodeFilters();
-            }
+                _this.filtersTmp['actors'] = _this.actors;
+                _this.renderNodeSelectOptions(actorSelect, _this.actors);
+            },
+            //reset: true
         })
         
     },
@@ -245,6 +272,7 @@ var FlowsView = BaseView.extend(
     
     renderSankey: function(){
         var type = this.typeSelect.value;
+        
         var direction = this.filters['direction'];
         var collection = (type == 'actor') ? this.actors: 
             (type == 'activity') ? this.activities: 
@@ -311,21 +339,15 @@ var FlowsView = BaseView.extend(
             //}
         //}
     },
-
-    renderNodeFilters: function(){
-        var _this = this;
-        
-        function clearOptions(select){
-            utils.clearSelect(select);
-            option = document.createElement('option');
-            option.value = -1; 
-            option.text = gettext('All');
-            select.appendChild(option);
-            select.disabled = true;
-        }
-        
-        function renderOptions(select, collection){
-            clearOptions(select);
+    
+    renderNodeSelectOptions: function(select, collection){
+        utils.clearSelect(select);
+        option = document.createElement('option');
+        option.value = -1; 
+        option.text = gettext('All');
+        if (collection) option.text += ' (' + collection.length + ')'
+        select.appendChild(option);
+        if (collection && collection.length < 2000){
             collection.forEach(function(model){
                 var option = document.createElement('option');
                 option.value = model.id;
@@ -334,14 +356,19 @@ var FlowsView = BaseView.extend(
             })
             select.disabled = false;
         }
+        else select.disabled = true;
+    },
+
+    renderNodeFilters: function(){
+        var _this = this;
         
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
             
-        renderOptions(groupSelect, this.activityGroups);
-        renderOptions(activitySelect, this.activities);
-        clearOptions(actorSelect);
+        this.renderNodeSelectOptions(groupSelect, this.activityGroups);
+        this.renderNodeSelectOptions(activitySelect, this.activities);
+        this.renderNodeSelectOptions(actorSelect, this.actors);
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
@@ -349,9 +376,8 @@ var FlowsView = BaseView.extend(
             // clear filter if 'All' (== -1) is selected
             _this.filtersTmp['groups'] = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
             _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
-            _this.filtersTmp['actors'] = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
-            renderOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
-            clearOptions(actorSelect);
+            _this.renderNodeSelectOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
+            _this.filterActors();
         })
         
         activitySelect.addEventListener('change', function(){
@@ -361,21 +387,16 @@ var FlowsView = BaseView.extend(
             // clear filter if 'All' (== -1) is selected in both group and activity
             if (activityId < 0 && groupId < 0){
                  _this.filtersTmp['activities'] = null;
-                _this.filtersTmp['actors']  = null;
-                clearOptions(actorSelect);
             }
             // 'All' is selected for activity but a specific group is selected
             else if (activityId < 0){
                  _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
-                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
-                clearOptions(actorSelect);
             }
             // specific activity is selected
             else {
                 _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
-                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
-                renderOptions(actorSelect, _this.filtersTmp['actors']  || _this.actors);
             }
+            _this.filterActors();
         })
         
         actorSelect.addEventListener('change', function(){
