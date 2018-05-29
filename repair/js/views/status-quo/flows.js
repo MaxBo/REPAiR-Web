@@ -214,7 +214,8 @@ var FlowsView = BaseView.extend(
         // actually no need to create this new, but easier to handle
         this.actors = new GDSECollection([], {
             apiTag: 'filteractors',
-            apiIds: [this.caseStudy.id, this.keyflowId]
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
         })
         
         if(activity >= 0) queryParams['activity'] = activity;
@@ -247,6 +248,7 @@ var FlowsView = BaseView.extend(
             body: { area: geoJSONText },
             success: function(response){
                 _this.loader.deactivate();
+                _this.actors.sort();
                 _this.filtersTmp['actors'] = _this.actors;
                 _this.renderNodeSelectOptions(actorSelect, _this.actors);
             }
@@ -309,8 +311,10 @@ var FlowsView = BaseView.extend(
         }
         
         if (this.flowsView != null) this.flowsView.close();
+        var el = document.getElementById('sankey-wrapper');
         this.flowsView = new FlowSankeyView({
-            el: document.getElementById('sankey-wrapper'),
+            el: el,
+            width:  el.clientWidth - 10,
             collection: collection,
             keyflowId: this.keyflowId,
             caseStudyId: this.caseStudy.id,
