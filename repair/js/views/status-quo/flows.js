@@ -265,6 +265,7 @@ var FlowsView = BaseView.extend(
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
         this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
         this.filters['material'] = this.filtersTmp['material'];
+        this.filters['actors'] = this.filtersTmp['actors'];
         this.renderSankey();
     },
     
@@ -276,7 +277,7 @@ var FlowsView = BaseView.extend(
             (type == 'activity') ? this.activities: 
             this.activityGroups;
         
-        var filtered = (type == 'actor') ? this.actors: 
+        var filtered = (type == 'actor') ? this.filters['actors']: 
             (type == 'activity') ? this.filters['activities']: 
             this.filters['groups'];
         
@@ -370,52 +371,53 @@ var FlowsView = BaseView.extend(
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
-            // set and use filters for selected group, set child activities 
-            // clear filter if 'All' (== -1) is selected
+            // clear filters if 'All' (== -1) is selected, else set specific group
+            // and filter activities depending on selection
             _this.filtersTmp['groups'] = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
             _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
             _this.renderNodeSelectOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
+            // filter actors in any case
             _this.filterActors();
         })
         
         activitySelect.addEventListener('change', function(){
             var activityId = activitySelect.value,
                 groupId = groupSelect.value;
-            // set and use filters for selected activity, set child actors 
+            // specific activity is selected
+            if (activityId >= 0) {
+                _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
+            }
             // clear filter if 'All' (== -1) is selected in both group and activity
-            if (activityId < 0 && groupId < 0){
+            else if (groupId < 0){
                  _this.filtersTmp['activities'] = null;
             }
             // 'All' is selected for activity but a specific group is selected
-            else if (activityId < 0){
+            else {
                  _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
             }
-            // specific activity is selected
-            else {
-                _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
-            }
+            // filter actors in any case
             _this.filterActors();
         })
         
         actorSelect.addEventListener('change', function(){
-            var activityId = activitySelect.value,
-                groupId = groupSelect.value,
-                actorId = actorSelect.value;
-            // clear filter if 'All' (== -1) is selected in group, activity and 
-            if (groupId < 0 && activityId < 0 && actorId < 0){
-                _this.filtersTmp['actors'] = null;
+            var actorId = actorSelect.value,
+                selected = actorSelect.selectedOptions;
+            // multiple actors selected
+            if (selected.length > 1){
+                _this.filtersTmp['actors'] = [];
+                for (var i = 0; i < selected.length; i++) {
+                    var id = selected[i].value;
+                    // ignore 'All' in multi select
+                    if (id >= 0)
+                        _this.filtersTmp['actors'].push(_this.actors.get(id));
+                }
             }
-            // filter by group if 'All' (== -1) is selected in activity and actor but not group
-            if (activityId < 0  && actorId < 0){
-                _this.filtersTmp['actors']  = (groupId < 0) ? null: _this.actors.filterBy({'activitygroup': groupId});
-            }
-            // filter by activity if a specific activity is set and 'All' is selected for actor
-            else if (actorId < 0){
-                _this.filtersTmp['actors']  = _this.actors.filterBy({'activity': activityId});
-            }
-            // specific actor
-            else
-                _this.filtersTmp['actors'] = [_this.actors.get(actorId)];
+            // single actor selected
+            else if (actorId >= 0)
+                _this.filtersTmp['actors'].push(_this.actors.get(actorId));
+            // all actors (resp. the prev. filtered ones)
+            else 
+                _this.filtersTmp['actors'] = _this.actors;
         })
     },
 
