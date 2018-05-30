@@ -251,6 +251,7 @@ var FlowsView = BaseView.extend(
                 _this.actors.sort();
                 _this.filtersTmp['actors'] = _this.actors;
                 _this.renderNodeSelectOptions(actorSelect, _this.actors);
+                actorSelect.value = -1;
             }
         })
         
@@ -272,16 +273,21 @@ var FlowsView = BaseView.extend(
     },
     
     renderSankey: function(){
+        if (this.flowsView != null) this.flowsView.close();
+        
         var type = this.typeSelect.value;
         
         var direction = this.filters['direction'];
-        var collection = (type == 'actor') ? this.actors: 
-            (type == 'activity') ? this.activities: 
-            this.activityGroups;
         
         var filtered = (type == 'actor') ? this.filters['actors']: 
             (type == 'activity') ? this.filters['activities']: 
             this.filters['groups'];
+            
+        var collection = (type == 'actor') ? this.filters['actors']: // take always the filtered actors
+            (type == 'activity') ? this.activities: 
+            this.activityGroups;
+        
+        if(!collection) return;
         
         var filterParams = {},
             waste = this.filters['waste'];
@@ -292,7 +298,6 @@ var FlowsView = BaseView.extend(
         
         var material = this.filters['material'];
         if (material) filterParams.material = material.id;
-        
         
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, filterParams);
@@ -310,7 +315,6 @@ var FlowsView = BaseView.extend(
             }
         }
         
-        if (this.flowsView != null) this.flowsView.close();
         var el = document.getElementById('sankey-wrapper');
         this.flowsView = new FlowSankeyView({
             el: el,

@@ -58,11 +58,42 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 apiTag: stockTag,
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
-
-            var fullscreenBtn = document.createElement('button');
+            
+            var fullscreenBtn = document.createElement('button'),
+                zoomControls = document.createElement('div'),
+                zoomIn = document.createElement('a'),
+                inSpan = document.createElement('span'),
+                zoomOut = document.createElement('a'),
+                outSpan = document.createElement('span'),
+                zoomToFit = document.createElement('a'),
+                fitSpan = document.createElement('span');
+                
             fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
-            fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+            
+            zoomIn.classList.add("btn", "square");
+            zoomIn.setAttribute('data-zoom', "+0.5");
+            inSpan.classList.add("fa", "fa-plus");
+            zoomIn.appendChild(inSpan);
+            
+            zoomOut.classList.add("btn", "square");
+            zoomOut.setAttribute('data-zoom', "-0.5");
+            outSpan.classList.add("fa", "fa-minus");
+            zoomOut.appendChild(outSpan);
+            
+            zoomToFit.classList.add("btn", "square");
+            zoomToFit.setAttribute('data-zoom', "0");
+            fitSpan.classList.add("fa", "fa-crosshairs");
+            zoomToFit.appendChild(fitSpan);
+            
+            zoomControls.classList.add("d3-zoom-controls");
+            zoomControls.appendChild(zoomIn);
+            zoomControls.appendChild(zoomOut);
+            zoomControls.appendChild(zoomToFit);
+            
+            this.el.appendChild(zoomControls);
             this.el.appendChild(fullscreenBtn);
+            
+            fullscreenBtn.addEventListener('click', this.toggleFullscreen);
 
             this.loader.activate();
             var promises = [

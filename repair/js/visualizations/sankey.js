@@ -90,12 +90,16 @@ class Sankey{
 
             svg.transition().duration(750).call(zoom.event);
             } else {
-                fitZoom();
+                fitZoom(500);
             }
         }
 
-        function fitZoom() {
-            svg.transition().duration(500).call(zoom.translate([20,10]).scale(1).event);
+        function fitZoom(duration) {
+            var size = _this.sankey.size(),
+                ratio = _this.width / size[0],
+                scale = ratio * 0.9,
+                duration = duration || 0;
+            svg.transition().duration(duration).call(zoom.translate([20,10]).scale(scale).event);
         }
 
         function coordinates(point) {
@@ -112,7 +116,7 @@ class Sankey{
 
         // remove old svg if it was already rendered
         this.div.select("svg").remove();
-        d3.select(".d3-tip").remove();
+        $(".d3-tip").remove();
 
         /* Initialize tooltip */
         var tipLinks = d3tip()

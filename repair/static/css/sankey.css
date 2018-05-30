@@ -93,7 +93,7 @@
   top: 10px;
 }
 
-.d3-zoom-controls .btn-circle {
+.d3-zoom-controls a {
   width: 30px;
   height: 30px;
   align-items: center;
@@ -103,7 +103,6 @@
   display: grid;
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.7);
-  color: gray;
   margin-top: 10px;
 }
 .sankey {

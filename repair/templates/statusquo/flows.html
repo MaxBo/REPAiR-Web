@@ -59,7 +59,7 @@
       </div>
       <div class="col-md-3">
         <b>{% trans "Actor" %}</b>
-        <select name="actor" class="form-control" multiple></select>
+        <select name="actor" class="form-control" multiple style="resize: vertical;"></select>
       </div>
     </div>
   </div>
@@ -78,15 +78,8 @@
           <option value="actor">{% trans "Actor" %} </option>
         </select>
       </div>
-      <div class="row" style="position: relative;">          
-      <div class="d3-zoom-controls">
-            <a data-zoom="+0.5" class="btn btn-circle"><span class="fa fa-plus"></span></a>
-            <a data-zoom="-0.5" class="btn btn-circle"><span class="fa fa-minus"></span></a>
-            <a data-zoom="0"    class="btn btn-circle"><span class="fa fa-crosshairs"></span></a>
-          </div>
-
+      <div class="row" style="position: relative;">
         <div id="sankey-wrapper" class="noselect" style="width: 100%;">
-        
         </div>
       </div>
     </div>
