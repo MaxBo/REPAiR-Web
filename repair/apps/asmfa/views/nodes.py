@@ -1,5 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
+from django.contrib.gis.geos import GEOSGeometry
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -75,5 +76,21 @@ class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             actors = actors.filter(activity__activitygroup__keyflow__id=keyflow_pk)
+            
         return actors.order_by('id')
 
+
+class FilterActorViewSet(ActorViewSet):
+    
+    def create(self, request, **kwargs):
+        return super().list(request, **kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if 'area' in self.request.data:
+            geojson = self.request.data['area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                administrative_location__geom__intersects=poly)
+        return queryset
+    

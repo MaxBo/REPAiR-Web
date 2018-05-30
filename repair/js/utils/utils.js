@@ -104,9 +104,12 @@ module.exports = {
         var loaderDiv = document.createElement('div');
         loaderDiv.className = 'loader';
         
-        this.activate = function(){
+        this.activate = function(opt){
+            var opt = opt || {};
+            loaderDiv.style.top = null;
             if (options != null && options.disable)
                 div.classList.toggle('disabled');
+            if (opt.offsetX != null) loaderDiv.style.top = opt.offsetX;
             div.appendChild(loaderDiv);
         }
 
