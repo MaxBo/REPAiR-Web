@@ -40,7 +40,8 @@ from repair.apps.asmfa.views import (
     KeyflowInCasestudyViewSet,
     GroupStockViewSet,
     ActivityStockViewSet,
-    ActorStockViewSet, 
+    ActorStockViewSet,
+    FilterActorViewSet, 
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
@@ -158,6 +159,7 @@ kf_router.register(r'actor2actor', Actor2ActorViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
+kf_router.register(r'filteractors', FilterActorViewSet)
 kf_router.register(r'actors', ActorViewSet)
 kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 kf_router.register(r'operationallocations', OperationalLocationViewSet)

@@ -113,11 +113,12 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
 
+        queryset = self.get_queryset()
         # filter additional expressions
-        filter_args.update(self.get_filter_args(queryset=self.get_queryset(),
+        filter_args.update(self.get_filter_args(queryset=queryset,
                                                 query_params=query_params)
                            )
-        queryset = self.get_queryset().filter(**filter_args)
+        queryset = queryset.filter(**filter_args)
 
         return queryset
 
@@ -136,8 +137,6 @@ class CasestudyReadOnlyViewSetMixin(ABC):
             if hasattr(queryset.model, key):
                 if len(key_cmp) > 1:
                     cmp = key_cmp[-1]
-                    if cmp not in QUERY_TERMS:
-                        continue
                     if cmp == 'in':
                         v = v.strip('[]').split(',')
                 filter_args[k] = v
