@@ -212,7 +212,7 @@ var FlowsView = BaseView.extend(
             group = groupSelect.value;
         
         // actually no need to create this new, but easier to handle
-        this.actors = new GDSECollection([], {
+        this.actorsTmp = new GDSECollection([], {
             apiTag: 'filteractors',
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name'
@@ -243,14 +243,13 @@ var FlowsView = BaseView.extend(
         }
        // area: geoJSONText, 
         this.loader.activate({offsetX: '20%'});
-        this.actors.postfetch({
+        this.actorsTmp.postfetch({
             data: queryParams,
             body: { area: geoJSONText },
             success: function(response){
                 _this.loader.deactivate();
-                _this.actors.sort();
-                _this.filtersTmp['actors'] = _this.actors;
-                _this.renderNodeSelectOptions(actorSelect, _this.actors);
+                _this.actorsTmp.sort();
+                _this.renderNodeSelectOptions(actorSelect, _this.actorsTmp);
                 actorSelect.value = -1;
             }
         })
@@ -269,6 +268,7 @@ var FlowsView = BaseView.extend(
         this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
         this.filters['material'] = this.filtersTmp['material'];
         this.filters['actors'] = this.filtersTmp['actors'];
+        this.actors = this.actorsTmp;
         this.renderSankey();
     },
     
@@ -279,12 +279,12 @@ var FlowsView = BaseView.extend(
         
         var direction = this.filters['direction'];
         
-        var filtered = (type == 'actor') ? this.filters['actors']: 
-            (type == 'activity') ? this.filters['activities']: 
+        var filteredNodes = (type == 'actors') ? this.filters['actors']: 
+            (type == 'activities') ? this.filters['activities']: 
             this.filters['groups'];
             
-        var collection = (type == 'actor') ? this.filters['actors']: // take always the filtered actors
-            (type == 'activity') ? this.activities: 
+        var collection = (type == 'actors') ? this.actors: 
+            (type == 'activities') ? this.activities: 
             this.activityGroups;
         
         if(!collection) return;
@@ -303,9 +303,9 @@ var FlowsView = BaseView.extend(
         var flowFilterParams = Object.assign({}, filterParams);
         var stockFilterParams = Object.assign({}, filterParams);
         
-        if (filtered){
+        if (filteredNodes){
             var nodeIds = [];
-            filtered.forEach(function(node){
+            filteredNodes.forEach(function(node){
                 nodeIds.push(node.id);
             })
             if (nodeIds.length > 0) {
@@ -326,7 +326,8 @@ var FlowsView = BaseView.extend(
             flowFilterParams: flowFilterParams,
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
-            height: 600
+            height: 600,
+            tag: type
         })
     },
 
@@ -375,7 +376,7 @@ var FlowsView = BaseView.extend(
             
         this.renderNodeSelectOptions(groupSelect, this.activityGroups);
         this.renderNodeSelectOptions(activitySelect, this.activities);
-        this.renderNodeSelectOptions(actorSelect, this.actors);
+        this.renderNodeSelectOptions(actorSelect, this.actorsTmp);
 
         groupSelect.addEventListener('change', function(){
             var groupId = groupSelect.value;
@@ -411,21 +412,19 @@ var FlowsView = BaseView.extend(
             var actorId = actorSelect.value,
                 selected = actorSelect.selectedOptions;
             // multiple actors selected
+            _this.filtersTmp['actors'] = [];
             if (selected.length > 1){
                 _this.filtersTmp['actors'] = [];
                 for (var i = 0; i < selected.length; i++) {
                     var id = selected[i].value;
                     // ignore 'All' in multi select
                     if (id >= 0)
-                        _this.filtersTmp['actors'].push(_this.actors.get(id));
+                        _this.filtersTmp['actors'].push(_this.actorsTmp.get(id));
                 }
             }
             // single actor selected
             else if (actorId >= 0)
-                _this.filtersTmp['actors'].push(_this.actors.get(actorId));
-            // all actors (resp. the prev. filtered ones)
-            else 
-                _this.filtersTmp['actors'] = _this.actors;
+                _this.filtersTmp['actors'].push(_this.actorsTmp.get(actorId));
         })
     },
 
