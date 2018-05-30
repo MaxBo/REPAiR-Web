@@ -6,13 +6,12 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       links = [],
-          // cycle features
-          cycleLaneNarrowWidth = 4,
-          cycleLaneDistFromFwdPaths = -10,  // the distance above the paths to start showing 'cycle lanes'
-          cycleDistFromNode = 30,      // linear path distance before arcing from node
+      // cycle features
+      cycleLaneNarrowWidth = 4,
+      cycleLaneDistFromFwdPaths = -10,  // the distance above the paths to start showing 'cycle lanes'
+      cycleDistFromNode = 30,      // linear path distance before arcing from node
       cycleControlPointDist = 30,  // controls the significance of the cycle's arc
-          cycleSmallWidthBuffer = 2  // distance between 'cycle lanes'
-          ;
+      cycleSmallWidthBuffer = 2;  // distance between 'cycle lanes'
 
   sankey.nodeWidth = function(_) {
     if (!arguments.length) return nodeWidth;
@@ -75,10 +74,14 @@ d3.sankey = function() {
     return sankey;
   };
 
-  sankey.layout = function(iterations) {
+  sankey.layout = function(options) {
+    var options = options || {},
+        iterations = options.iterations || 32;
     computeNodeLinks();
     computeNodeValues();
     markCycles();
+    if (options.adjustSize)
+      adjustSize();
     computeNodeBreadths();
     computeNodeDepths(iterations);
     computeLinkDepths();
@@ -192,6 +195,21 @@ d3.sankey = function() {
       );
     });
   }
+  
+  function adjustSize(){
+    computeNodeBreadths();
+    var nodesByBreadth = d3.nest()
+        .key(function(d) { return d.x; })
+        .sortKeys(d3.ascending)
+        .entries(nodes)
+        .map(function(d) { return d.values; });
+    var aspectRatio = size[0] / size[1],
+        maxNodesPerLane = d3.max(nodesByBreadth, function(nodes) { return nodes.length - 1 });
+    
+    var minHeight = 3 * maxNodesPerLane * nodePadding;
+    
+    if (minHeight > size[1]) size = [Math.round(aspectRatio * minHeight), minHeight];
+  }
 
   // Iteratively assign the breadth (x-position) for each node.
   // Nodes are assigned the maximum breadth of incoming neighbors plus one;
@@ -249,7 +267,6 @@ d3.sankey = function() {
         .sortKeys(d3.ascending)
         .entries(nodes)
         .map(function(d) { return d.values; });
-
     initializeNodeDepth();
     resolveCollisions();
     for (var alpha = 1; iterations > 0; --iterations) {
@@ -265,9 +282,10 @@ d3.sankey = function() {
       });
 
       nodesByBreadth.forEach(function(nodes) {
+        console.log(nodes.length - 1)
         nodes.forEach(function(node, i) {
           node.y = i;
-          node.dy = node.value * ky;
+          node.dy = Math.max(node.value * ky, 3);
         });
       });
 
@@ -353,12 +371,17 @@ d3.sankey = function() {
       var sy = 0, ty = 0;
       node.sourceLinks.forEach(function(link) {
         link.sy = sy;
-        sy += link.dy;
+        sy += Math.abs(link.dy);
       });
       node.targetLinks.forEach(function(link) {
         link.ty = ty;
-        ty += link.dy;
+        ty += Math.abs(link.dy);
       });
+      
+      //// adjust node size to spread of links going in and out
+      //var dy = Math.max(sy, ty, node.dy);
+      //node.dy = dy;
+    
     });
 
     function ascendingSourceDepth(a, b) {
@@ -438,7 +461,6 @@ d3.sankey = function() {
 
     return children;
   }
-
 
   return sankey;
 };

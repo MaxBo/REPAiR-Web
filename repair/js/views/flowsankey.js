@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'visualizations/sankey', 
-    'collections/gdsecollection'],
+    'collections/gdsecollection', 'd3'],
 
-function(BaseView, _, Sankey, GDSECollection){
+function(BaseView, _, Sankey, GDSECollection, d3){
 
     /**
     *
@@ -101,7 +101,7 @@ function(BaseView, _, Sankey, GDSECollection){
                     data: { 'id__in': Array.from(missingIds).join() },
                     success: function(){
                         var models = _this.collection.models.concat(missingNodes.models);
-                        console.log(models)
+                        console.log(missingNodes)
                         var data = _this.transformData(
                             models, _this.flows, _this.stocks, _this.materials);
                         success(data);
@@ -159,11 +159,11 @@ function(BaseView, _, Sankey, GDSECollection){
         * readable by the sankey-diagram
         */
         transformData: function(models, flows, stocks, materials){
-            var _this = this;
-            var nodes = [];
-            var nodeIdxDict = {}
-            var i = 0;
-            
+            var _this = this,
+                nodes = [],
+                nodeIdxDict = {},
+                i = 0,
+                color = d3.scale.category20();
             function nConnectionsTo(connections, nodeId, options){
                 var options = options || {},
                     filtered = (options.areStocks) ? connections.filterBy({ origin: nodeId }):
@@ -180,7 +180,7 @@ function(BaseView, _, Sankey, GDSECollection){
                         nConnectionsTo(stocks, id, { areStocks: true }) == 0)
                         return;
                 }
-                nodes.push({ id: id, name: name });
+                nodes.push({ id: id, name: name, color: color(name.replace(/ .*/, ""))});
                 nodeIdxDict[id] = i;
                 i += 1;
             });
@@ -232,7 +232,9 @@ function(BaseView, _, Sankey, GDSECollection){
                     source = nodeIdxDict[originId];
                 // continue if node does not exist
                 if (source == null) return false;
-                nodes.push({id: id, name: 'Stock', alignToSource: {x: 80, y: 0}});
+                nodes.push({id: id, name: 'Stock', 
+                            color: 'darkgray', 
+                            alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');
                 links.push({
                     value: stock.get('amount'),
