@@ -5,6 +5,7 @@ Start jupyter notebook in a docker container. It will print a personal access to
 ```bash
 docker pull continuumio/anaconda3
 
+# best if you start the container from within the flow_modeling folder
 docker run --rm -v "$(pwd):/opt/notebooks" -p 8899:8888 continuumio/anaconda3 jupyter notebook --notebook-dir=/opt/notebooks --ip=* --allow-root
 ```
 
