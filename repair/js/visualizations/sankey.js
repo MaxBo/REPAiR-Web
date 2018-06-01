@@ -23,7 +23,6 @@ class Sankey{
         this.margin = { top: 1, right: 10, bottom: 6, left: 10 };
         this.height = options.height - this.margin.top - this.margin.bottom;
         this.title = options.title;
-        this.formatNumber = d3.format(",.0f"),
         this.color = d3.scale.category20();
 
         this.div = d3.select(this.el);
@@ -37,7 +36,7 @@ class Sankey{
     }
 
     format(d) {
-        return d3.format(",.0f")(d);
+        return d3.format(",.3f")(d);
     }
 
     /**
@@ -149,11 +148,8 @@ class Sankey{
                 outSum += link.value; 
                 if (!outUnits) outUnits = link.units;
             }
-            // ToDo: use format function
-            inSum = Math.round(inSum * 100000) / 1000;
-            outSum = Math.round(outSum * 100000) / 1000;
-            var ins = "in: " + inSum + " " + (inUnits || ""),
-                out = "out: " + outSum + " " + (outUnits || "");
+            var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
+                out = "out: " + _this.format(outSum) + " " + (outUnits || "");
             return "<h1>" + d.name + "</h1>" + "<br>" + ins + "<br>" + out; 
         });
 
