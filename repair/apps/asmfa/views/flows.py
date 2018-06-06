@@ -4,7 +4,7 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Sum
 import time
 import numpy as np
 from collections import defaultdict, OrderedDict
@@ -17,7 +17,10 @@ from repair.apps.asmfa.models import (
     Group2Group,
     Material,
     Composition,
-    ProductFraction
+    ProductFraction,
+    Actor, 
+    Activity,
+    ActivityGroup, 
 )
 
 from repair.apps.asmfa.serializers import (
@@ -183,12 +186,18 @@ class FlowViewSet(RevisionMixin,
         filter_material = 'material' in query_params.keys()
         aggregate = ('aggregated' in query_params.keys() and
                      query_params['aggregated'] in ['true', 'True'])
+        aggregation_level = query_params.get('aggregation_level', None)
         
         # do the filtering and serializing of superclass, if none of the above
         # filters are queried (unfortunately they all conflict with filters of 
         # superclass CasestudyViewSetMixin)
-        if not np.any([filter_waste, filter_nodes, filter_from, filter_to,
-                       filter_material, aggregate]):
+        if not np.any([filter_waste,
+                       filter_nodes,
+                       filter_from,
+                       filter_to,
+                       filter_material,
+                       aggregate,
+                       aggregation_level is not None]):
             return super().list(request, **kwargs)
     
         # filter products (waste=False) or waste (waste=True)
@@ -213,7 +222,7 @@ class FlowViewSet(RevisionMixin,
             nodes = (query_params.get('to', None)
                      or request.GET.getlist('to[]')) 
             queryset = queryset.filter(destination__in=nodes)
-
+            
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
         if filter_material:
@@ -226,7 +235,9 @@ class FlowViewSet(RevisionMixin,
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
         data = serializer.data
-    
+        
+        data = self.aggregate_to_level(aggregation_level, data, queryset)
+        
         # if the fractions of flows are filtered by material, the other
         # fractions should be removed from the returned data
         if filter_material and not aggregate:
@@ -266,6 +277,84 @@ class FlowViewSet(RevisionMixin,
             flows = flows.filter(keyflow__id=keyflow_pk)
         return flows
 
+    def aggregate_to_level(self, aggregation_level, data, queryset):
+        """
+        Aggregate actor level to the according flow level
+        if not implemented in the subclass, do nothing
+        """
+        if aggregation_level.lower() == 'activity':
+            actors_activity = dict(Actor.objects.values_list('id', 'activity'))
+            acts = queryset.values_list('origin__activity',
+                                        'destination__activity')
+
+        elif aggregation_level.lower() == 'activitygroup':
+            actors_activity = dict(Actor.objects.values_list(
+                'id', 'activity__activitygroup'))
+            acts = queryset.values_list(
+                'origin__activity__activitygroup',
+                'destination__activity__activitygroup')
+        else:
+            return data
+
+        act2act_amounts = acts.annotate(Sum('amount'))
+        custom_compositions = dict()
+        total_amounts = dict()
+        act2act_id = -1
+        new_flows = list()
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            total_amounts[key] = amount
+            custom_compositions[key] = OrderedDict(id=act2act_id,
+                                                   name='custom',
+                                                   nace='custom nace',
+                                                   masses_of_materials=OrderedDict(), 
+                                                   )
+            act2act_id -= 1
+
+        for serialized_flow in data:
+            amount = serialized_flow['amount']
+            composition = serialized_flow['composition']
+            if not composition:
+                continue
+            key = (actors_activity[serialized_flow['origin']],
+                   actors_activity[serialized_flow['destination']])
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+    
+            fractions = composition['fractions']
+            for fraction in fractions:
+                mass = amount * fraction['fraction']
+                material = fraction['material']
+                mass_of_material = masses_of_materials.get(material, 0) + mass
+                masses_of_materials[material] = mass_of_material
+        
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+            fractions = list()
+            for material, mass_of_material in masses_of_materials.items():
+                fraction = mass_of_material / amount
+                fraction_ordered_dict = OrderedDict({
+                        'material': material,
+                        'fraction': fraction,
+                    })
+                fractions.append(fraction_ordered_dict)
+            custom_composition['fractions'] = fractions
+            del(custom_composition['masses_of_materials'])
+            
+            new_flow = OrderedDict(id=custom_composition['id'],
+                                   amount=amount,
+                                   composition=custom_composition,
+                                   origin=origin,
+                                   destination=destination)
+            new_flows.append(new_flow)
+        return new_flows
+
+        
+    def aggregate2activitiygroups(self, data):
+        """"""
+        
 
 class Group2GroupViewSet(FlowViewSet):
     add_perm = 'asmfa.add_group2group'
@@ -274,13 +363,23 @@ class Group2GroupViewSet(FlowViewSet):
     queryset = Group2Group.objects.all()
     serializer_class = Group2GroupSerializer
 
+    def aggregate_to_my_level(self, data):
+        """
+        Aggregate actor level to the activity group level
+        """
 
+        
 class Activity2ActivityViewSet(FlowViewSet):
     add_perm = 'asmfa.add_activity2activity'
     change_perm = 'asmfa.change_activity2activity'
     delete_perm = 'asmfa.delete_activity2activity'
     queryset = Activity2Activity.objects.all()
     serializer_class = Activity2ActivitySerializer
+    
+    def aggregate_to_my_level(self, data):
+        """
+        Aggregate actor level to the activity level
+        """
 
 
 class Actor2ActorViewSet(FlowViewSet):
@@ -291,4 +390,5 @@ class Actor2ActorViewSet(FlowViewSet):
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                           'destination__included': True}
+    
     

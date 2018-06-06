@@ -41,7 +41,10 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
-            var tag = options.tag || this.collection.apiTag
+            var tag = options.tag || this.collection.apiTag;
+            
+            var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
+                                (tag == 'activities') ? 'activity': null;
 
             var flowTag = (tag.endsWith('actors')) ? 'actorToActor': 
                           (tag == 'activities') ? 'activityToActivity':
@@ -49,9 +52,10 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 stockTag = (tag.endsWith('actors')) ? 'actorStock': 
                            (tag == 'activities') ? 'activityStock':
                            'groupStock';
-                
+            var params = options.flowFilterParams || {};
+            params['aggregation_level'] = aggregateLevel;
             this.flows = new GDSECollection([], {
-                apiTag: flowTag,
+                apiTag: 'actorToActor',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             this.stocks = new GDSECollection([], {
@@ -97,7 +101,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
 
             this.loader.activate();
             var promises = [
-                this.stocks.fetch({data: options.stockFilterParams}), 
+                //this.stocks.fetch({data: options.stockFilterParams}), 
                 this.flows.fetch({data: options.flowFilterParams})
             ]
             Promise.all(promises).then(function(){
