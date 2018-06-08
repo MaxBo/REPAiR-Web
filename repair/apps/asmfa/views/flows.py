@@ -4,20 +4,27 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Subquery, Min, IntegerField, OuterRef
 import time
 import numpy as np
+import copy
 from collections import defaultdict, OrderedDict
 
 from repair.apps.asmfa.models import (
     Reason,
     Flow,
+    AdministrativeLocation, 
     Activity2Activity,
     Actor2Actor,
     Group2Group,
     Material,
     Composition,
-    ProductFraction
+    ProductFraction,
+    Actor
+)
+
+from repair.apps.studyarea.models import (
+    Area, AdminLevels
 )
 
 from repair.apps.asmfa.serializers import (
@@ -53,14 +60,9 @@ def filter_by_material(material, queryset):
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-#def aggregate_compositions(material, queryset):
-    #children = material.children
-    #for flow in queryset:
-        #flow.composition.aggregate_by_materials(children)
-    #return queryset
-
 # in place changing data
-def process_data_fractions(material, childmaterials, data, aggregate=False):
+def process_data_fractions(material, childmaterials, data,
+                           aggregate_materials=False):
     desc_dict = {}
     # dictionary to store requested materials and if other materials are
     # descendants of those (including the material itself), much faster than
@@ -102,7 +104,7 @@ def process_data_fractions(material, childmaterials, data, aggregate=False):
 
         new_fractions = []
         # aggregation: new fraction for each material
-        if aggregate:
+        if aggregate_materials:
             for material, amount in aggregated_amounts.items():
                 if amount > 0:
                     aggregated_fraction = OrderedDict({
@@ -166,6 +168,27 @@ class FlowViewSet(RevisionMixin,
     serializer_class = FlowSerializer
     model = Flow
     
+    # structure of serialized components of a flow as the serializer
+    # will return it
+    flow_struct = OrderedDict(id=None,
+                              amount=0,
+                              composition=None,
+                              origin=None,
+                              destination=None,
+                              origin_level=None,
+                              destination_level=None,
+                              )
+
+    composition_struct = OrderedDict(id=None,
+                                     name='custom',
+                                     nace='custom',
+                                     fractions=[],
+                                     )
+
+    fractions_struct = OrderedDict(material=None,
+                                   fraction=0
+                                   )
+
     def list(self, request, **kwargs):
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
@@ -181,14 +204,17 @@ class FlowViewSet(RevisionMixin,
         filter_to = ('to' in query_params.keys() or
                      'to[]' in query_params.keys())
         filter_material = 'material' in query_params.keys()
-        aggregate = ('aggregated' in query_params.keys() and
-                     query_params['aggregated'] in ['true', 'True'])
+        aggregate_materials = ('aggregate_materials' in query_params.keys() and
+                               query_params['aggregate_materials'] in ['true', 'True'])
+        spatial_agg_origin = ('origin_spatial_level' in query_params.keys())
+        spatial_agg_dest = ('destination_spatial_level' in query_params.keys())
         
         # do the filtering and serializing of superclass, if none of the above
         # filters are queried (unfortunately they all conflict with filters of 
         # superclass CasestudyViewSetMixin)
         if not np.any([filter_waste, filter_nodes, filter_from, filter_to,
-                       filter_material, aggregate]):
+                       filter_material, aggregate_materials,
+                       spatial_agg_origin, spatial_agg_dest]):
             return super().list(request, **kwargs)
     
         # filter products (waste=False) or waste (waste=True)
@@ -222,20 +248,26 @@ class FlowViewSet(RevisionMixin,
             except Material.DoesNotExist:
                 return Response(status=404)
             queryset = filter_by_material(material, queryset)
-        
+
         serializer = SerializerClass(queryset, many=True,
-                                         context={'request': request, })
+                                     context={'request': request, })
         data = serializer.data
-    
+
+        if spatial_agg_dest or spatial_agg_origin:
+            origin_level = query_params.get('origin_spatial_level', None)
+            destination_level = query_params.get('destination_spatial_level', None)
+            data = self.spatial_aggregation(data, queryset,
+                                            origin_level, destination_level)
+
         # if the fractions of flows are filtered by material, the other
         # fractions should be removed from the returned data
-        if filter_material and not aggregate:
+        if filter_material and not aggregate_materials:
             process_data_fractions(material, material.children,
-                                   data, aggregate=False)
+                                   data, aggregate_materials=False)
             return Response(data)
     
         # aggregate the fractions of the queryset
-        if aggregate:
+        if aggregate_materials:
             # take the material and its children from if-clause 'filter_material'
             if material:
                 childmaterials = material.children
@@ -246,7 +278,8 @@ class FlowViewSet(RevisionMixin,
             #aggregate_queryset(materials, queryset)
             #filtered = True
 
-            process_data_fractions(material, childmaterials, data, aggregate=True)
+            process_data_fractions(material, childmaterials, data,
+                                   aggregate_materials=True)
             return Response(data)
 
         return Response(data)
@@ -265,7 +298,83 @@ class FlowViewSet(RevisionMixin,
         if keyflow_pk is not None:
             flows = flows.filter(keyflow__id=keyflow_pk)
         return flows
+    
+    def spatial_aggregation(self, data, queryset, origin_level, destination_level):
+        zipped = []
 
+        # map origins/destinations to ids of the areas they are in
+        # leave them as they are when passed level is None
+        for field, level in [('origin', origin_level),
+                             ('destination', destination_level)]:
+            actor_ids = [x[0] for x in list(queryset.values_list(field))]
+            if level is not None:
+                locations = AdministrativeLocation.objects.filter(
+                    actor__in=actor_ids)
+                annotated = self.add_area(locations, level)
+                zipped.extend(
+                    list(annotated.values_list('actor_id', 'adminarea_id')))
+            else:
+                zipped.extend(list(zip(actor_ids, actor_ids)))
+        id_map = dict(zipped)
+
+        # aggregate by mapped origins/destinations
+        aggregated_amounts = {}
+        for flow in data:
+            origin = flow['origin']
+            destination = flow['destination']
+            mapped_origin = id_map.get(origin, None)
+            mapped_destination = id_map.get(destination, None)
+            # origin or destination could not be located inside any area ->
+            # ignore it (won't be included in the results)
+            if mapped_origin is None or mapped_destination is None:
+                continue
+            amount = flow['amount']
+            composition = flow['composition']
+            key = (mapped_origin, mapped_destination)
+            if key not in aggregated_amounts:
+                aggregated_amounts[key] = {
+                    'amount': 0,
+                    'fractions': defaultdict(lambda: 0)
+                }
+            aggregation = aggregated_amounts[key]
+            aggregation['amount'] += amount
+            for fraction in composition['fractions']:
+                material = fraction['material']
+                mass = fraction['fraction'] * amount
+                aggregation['fractions'][material] += mass
+
+        # create new serialized flows based on aggregated amounts
+        new_flows = []
+        for (origin, destination), aggregation in aggregated_amounts.items():
+            new_flow = self.flow_struct.copy()
+            new_flows.append(new_flow)
+            amount = aggregation['amount']
+            new_flow['amount'] = aggregation['amount']
+            new_comp = copy.deepcopy(self.composition_struct)
+            new_flow['composition'] = new_comp
+            new_flow['origin'] = origin
+            new_flow['destination'] = destination
+            new_flow['origin_level'] = origin_level
+            new_flow['destination_level'] = destination_level
+            for material, mass in aggregation['fractions'].items():
+                new_fract = self.fractions_struct.copy()
+                new_fract['material'] = material
+                new_fract['fraction'] = mass / amount
+                new_comp['fractions'].append(new_fract)
+    
+        return new_flows
+    
+    def add_area(self, locations, level):
+        areas = Area.objects.filter(adminlevel__id=level)
+        annotated = locations.annotate(
+            adminarea_id=Subquery(
+                areas.filter(geom__intersects=OuterRef('geom')).annotate(
+                    adminarea_id=Min('id')
+                ).values('adminarea_id')[:1],
+                output_field=IntegerField()
+            )
+        )
+        return annotated
 
 class Group2GroupViewSet(FlowViewSet):
     add_perm = 'asmfa.add_group2group'

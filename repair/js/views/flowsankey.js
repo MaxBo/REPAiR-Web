@@ -138,6 +138,11 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                         success(data);
                     }
                 })
+                //var locations = new GDSECollection([], {
+                    //apiIds: _this.collection.apiIds,
+                    //apiTag: 'adminLocations'
+                //})
+                //locations.fetch({ data: { 'actor__in': nodeIds.toString() }, success: function(){ console.log(locations) } })
             }
             else {
                 var data = this.transformData(this.collection, this.flows, 

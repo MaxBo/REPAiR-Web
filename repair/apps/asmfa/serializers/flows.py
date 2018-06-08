@@ -6,6 +6,7 @@ from repair.apps.asmfa.models import (Flow,
                                       Group2Group,
                                       Composition
                                       )
+from rest_framework import serializers
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
@@ -73,11 +74,15 @@ class FlowSerializer(CompositionMixin,
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     composition = CompositionSerializer()
+    origin_level = serializers.IntegerField(default=None, read_only=True)
+    destination_level = serializers.IntegerField(default=None, read_only=True)
 
     class Meta:
         model = Flow
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'composition', 'description',
+                  'destination', 'destination_url',
+                  'origin_level', 'destination_level', 
+                  'composition', 'description',
                   'year', 'publication', 'waste')
 
 
@@ -94,7 +99,9 @@ class Group2GroupSerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'composition', 'description',
+                  'destination', 'destination_url',
+                  'origin_level', 'destination_level', 
+                  'composition', 'description',
                   'year', 'publication', 'waste')
 
 
@@ -111,7 +118,9 @@ class Activity2ActivitySerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url', 'composition', 'description',
+                  'destination', 'destination_url',
+                  'origin_level', 'destination_level', 
+                  'composition', 'description',
                   'year', 'publication', 'waste')
 
 
@@ -128,5 +137,7 @@ class Actor2ActorSerializer(FlowSerializer):
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
         fields = ('id', 'amount', 'composition', 
-                  'origin',  'destination', 'description',
+                  'origin',  'destination',
+                  'origin_level', 'destination_level', 
+                  'description',
                   'year', 'publication', 'waste')

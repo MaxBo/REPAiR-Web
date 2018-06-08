@@ -265,7 +265,7 @@ var FlowsView = BaseView.extend(
         this.filters['groups'] = this.filtersTmp['groups'];
         this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
-        this.filters['aggregate'] = this.el.querySelector('input[name="aggregate"]').checked;
+        this.filters['aggregateMaterials'] = this.el.querySelector('input[name="aggregateMaterials"]').checked;
         this.filters['material'] = this.filtersTmp['material'];
         this.filters['actors'] = this.filtersTmp['actors'];
         this.actors = this.actorsTmp;
@@ -293,8 +293,8 @@ var FlowsView = BaseView.extend(
             waste = this.filters['waste'];
         if (waste) filterParams.waste = waste;
         
-        var aggregate = this.filters['aggregate'];
-        filterParams.aggregated = aggregate;
+        var aggregateMaterials = this.filters['aggregateMaterials'];
+        filterParams.aggregate_materials = aggregateMaterials;
         
         var material = this.filters['material'];
         if (material) filterParams.material = material.id;
