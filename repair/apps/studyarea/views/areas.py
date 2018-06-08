@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import exceptions
+from django.contrib.gis.db.models.functions import PointOnSurface, AsGeoJSON
 
 from repair.apps.login.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
@@ -56,12 +57,20 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
             parents = [Areas.by_level[parent_level].objects.get(pk=parent_id)]
         except ObjectDoesNotExist as e:
             raise exceptions.NotFound(e)
-
+        queryset = self.get_queryset()
         for level_id in level_ids:
             model = Areas.by_level[level_id]
-            areas = model.objects.filter(parent_area__in=parents)
+            areas = queryset.filter(parent_area__in=parents)
             parents.extend(areas)
         filter_args = self.get_filter_args(queryset=areas,
                                            query_params=params)
         queryset = areas.filter(**filter_args)
         return queryset
+
+    def get_queryset(self):
+        model = self.serializer_class.Meta.model
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        areas = model.objects.select_related("adminlevel").filter(
+            adminlevel__casestudy=casestudy_pk)
+        areas = areas.annotate(pnt=PointOnSurface('geom'))
+        return areas
