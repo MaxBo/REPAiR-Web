@@ -306,7 +306,7 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
             if typ == 'activity':
                 group_relation = 'activity'
             elif typ == 'activitygroup':
-                group_relation = 'activity'
+                group_relation = 'activity__activitygroup'
             else:
                 raise Exception('unknown type')
             data = self.spatial_aggregation(data, queryset,
@@ -357,6 +357,13 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         return flows
 
     def spatial_aggregation(self, data, queryset, group_relation, levels):
+        '''
+        aggregate the serialized flows when origins/destinations belong to
+        specific group_relation ('activity' or 'activity__activitygroup')
+        levels is a dict of ids of activity resp. activitygroup and the id of
+        the administrative level whose areas the actors of those activity/
+        activitygroup should be mapped to
+        '''
         mapped_to_area = []
         
         actor_ids = list(queryset.values_list('origin_id', 'destination_id'))
@@ -440,6 +447,11 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         return new_flows
 
     def add_area(self, locations, level):
+        '''
+        annotate given locations with the ids of the areas ('adminarea_id')
+        of given administrative level they are located in,
+        adminarea_id will be None if a location is not located in any of the areas
+        '''
         areas = Area.objects.filter(adminlevel__id=level)
         annotated = locations.annotate(
             adminarea_id=Subquery(
