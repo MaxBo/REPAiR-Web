@@ -4,12 +4,14 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
+from django.http import HttpResponseBadRequest
 from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum
 import time
 import numpy as np
 import copy
 import json
 from collections import defaultdict, OrderedDict
+from django.utils.translation import ugettext_lazy as _
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -220,12 +222,14 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         # aggregate origin/dest. actors belonging to given
         # activity/groupon spatial level, child nodes have
         # to be exclusively 'activity's or 'activitygroup's
-        spatial: {  
+        spatial_level: {  
             activity: {
                 id: id,  # id of activitygroup/activity
                 level: id,  # id of spatial level (as in AdminLevels)
             },
         }
+        
+        aggregation_level: 'activity' or 'activitygroup'
     }
     '''
     # structure of serialized components of a flow as the serializer
@@ -262,7 +266,13 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         waste_filter = params.get('waste', None)
         actor_filter = params.get('actors', None)
         material_filter = params.get('material', None)
-        spatial_aggregation = params.get('spatial', None)
+        spatial_aggregation = params.get('spatial_level', None)
+        level_aggregation = params.get('aggregation_level', None)
+        
+        if spatial_aggregation and level_aggregation:
+            return HttpResponseBadRequest(_(
+                "Aggregation on spatial levels and based on the activity level "
+                "can't be performed at the same time" ))
 
         # filter products (waste=False) or waste (waste=True)
         if waste_filter is not None:
@@ -303,10 +313,9 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         # data
 
         if spatial_aggregation:
-            spatj = json.loads(spatial_aggregation)
             levels = {}
             types = []
-            for node_type, values in spatj.items():
+            for node_type, values in spatial_aggregation.items():
                 node_id = values['id']
                 level_id = values['level']
                 levels[node_id] = level_id
@@ -314,14 +323,16 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
             unique_types = np.unique(types)
             # ToDo: raise HTTP malformed request 
             if len(unique_types) != 1:
-                raise Exception('only one type allowed at the same type')
+                return HttpResponseBadRequest(_(
+                    'Only one type of activity level is allowed at the same '
+                    'type when aggregating on spatial levels'))
             typ = unique_types[0]
             if typ == 'activity':
                 group_relation = 'activity'
             elif typ == 'activitygroup':
                 group_relation = 'activity__activitygroup'
             else:
-                raise Exception('unknown type')
+                return HttpResponseBadRequest(_('unknown activity level'))
             data = self.spatial_aggregation(data, queryset,
                                             group_relation, levels)
 
