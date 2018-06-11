@@ -87,6 +87,9 @@ class FilterActorViewSet(ActorViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        if 'id' in self.request.data:
+            ids = self.request.data['id'].split(",")
+            queryset = queryset.filter(id__in=ids)
         if 'area' in self.request.data:
             geojson = self.request.data['area']
             poly = GEOSGeometry(geojson)

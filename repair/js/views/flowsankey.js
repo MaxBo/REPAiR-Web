@@ -131,8 +131,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 var missingNodes = new GDSECollection([], {
                     url: this.collection.url()
                 })
-                missingNodes.fetch({ 
-                    data: { 'id__in': Array.from(missingIds).join() },
+                missingNodes.postfetch({ 
+                    body: { 'id': Array.from(missingIds).join() },
                     success: function(){
                         var models = _this.collection.models.concat(missingNodes.models);
                         console.log(missingNodes)
