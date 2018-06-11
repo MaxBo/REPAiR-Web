@@ -43,7 +43,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.height = options.height || this.width / 3;
             var tag = options.tag || this.collection.apiTag
 
-            var flowTag = (tag.endsWith('actors')) ? 'actorToActor': 
+            var flowTag = (tag.endsWith('actors')) ? 'filterActorToActor': 
                           (tag == 'activities') ? 'activityToActivity':
                           'groupToGroup',
                 stockTag = (tag.endsWith('actors')) ? 'actorStock': 
@@ -96,13 +96,16 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
 
             this.loader.activate();
-            var promises = [
-                this.stocks.fetch({data: options.stockFilterParams}), 
-                this.flows.fetch({data: options.flowFilterParams})
-            ]
-            Promise.all(promises).then(function(){
-                _this.loader.deactivate();
-                _this.render();
+            //var promises = [
+                ////this.stocks.fetch({data: options.stockFilterParams}),
+                //this.flows.postfetch({body: options.flowFilterParams})
+            //]
+            this.flows.postfetch({ 
+                body: options.flowFilterParams,
+                success: function(){
+                    _this.loader.deactivate();
+                    _this.render();
+                }
             });
         },
 

@@ -213,7 +213,7 @@ var FlowsView = BaseView.extend(
         
         // actually no need to create this new, but easier to handle
         this.actorsTmp = new GDSECollection([], {
-            apiTag: 'filteractors',
+            apiTag: 'filterActors',
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name'
         })
@@ -286,7 +286,8 @@ var FlowsView = BaseView.extend(
         var collection = (type == 'actors') ? this.actors: 
             (type == 'activities') ? this.activities: 
             this.activityGroups;
-        
+        // temp. disabled rendering of actors and activities
+        if(type!='actors') return;
         if(!collection) return;
         
         var filterParams = {},
@@ -294,10 +295,12 @@ var FlowsView = BaseView.extend(
         if (waste) filterParams.waste = waste;
         
         var aggregateMaterials = this.filters['aggregateMaterials'];
-        filterParams.aggregate_materials = aggregateMaterials;
+        filterParams.material = {
+            aggregate: aggregateMaterials
+        }
         
         var material = this.filters['material'];
-        if (material) filterParams.material = material.id;
+        if (material) filterParams.material.id = material.id;
         
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, filterParams);
@@ -309,12 +312,14 @@ var FlowsView = BaseView.extend(
                 nodeIds.push(node.id);
             })
             if (nodeIds.length > 0) {
-                var queryDirP = (direction == 'both') ? 'nodes': direction;
-                flowFilterParams[queryDirP] = nodeIds;
+                flowFilterParams['actors'] = {
+                    ids: nodeIds,
+                    direction: direction
+                };
                 stockFilterParams.nodes = nodeIds;
             }
         }
-        
+        console.log(flowFilterParams)
         var el = document.getElementById('sankey-wrapper');
         this.flowsView = new FlowSankeyView({
             el: el,

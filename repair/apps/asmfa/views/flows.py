@@ -251,9 +251,11 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
     def create(self, request, **kwargs):
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
-        params = request.data
+        params = {}
+        # values of body keys are not parsed
+        for key, value in request.data.items():
+            params[key] = json.loads(value)
         queryset = self.get_queryset()
-        material = None
 
         waste_filter = params.get('waste', None)
         actor_filter = params.get('actors', None)
@@ -276,9 +278,15 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                 queryset = queryset.filter(Q(origin__in=actors) |
                                            Q(destination__in=actors))
 
+        aggregate_materials = (False if material_filter is None
+                               else material_filter.get('aggregate', False))
+        material_id = (None if material_filter is None
+                       else material_filter.get('id', None))
+
+        material = None
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if material_filter and 'id' in material_filter.keys():
+        if material_id is not None:
             try:
                 material = Material.objects.get(id=material_filter['id'])
             except Material.DoesNotExist:
@@ -288,6 +296,9 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
         data = serializer.data
+    
+        # POSTPROCESSING: all following operations are performed on serialized
+        # data
 
         if spatial_aggregation:
             spatj = json.loads(spatial_aggregation)
@@ -311,12 +322,10 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                 raise Exception('unknown type')
             data = self.spatial_aggregation(data, queryset,
                                             group_relation, levels)
-        
-        # POSTPROCESSING: all following operations are performed on serialized
-        # data
-        
-        if material_filter:
-            aggregate_materials = material_filter.get('aggregate', False)
+
+        # if the fractions of flows are filtered by material, the other
+        # fractions should be removed from the returned data        
+        if material and not aggregate_materials:
             # if the fractions of flows are filtered by material, the other
             # fractions should be removed from the returned data
             if not aggregate_materials:
@@ -324,6 +333,8 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                                        data, aggregate_materials=False)
                 return Response(data)
 
+        # aggregate the fractions of the queryset
+        if aggregate_materials:
             # aggregate the fractions of the queryset
             # take the material and its children from if-clause 'filter_material'
             if material:
