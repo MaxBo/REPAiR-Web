@@ -41,7 +41,8 @@ from repair.apps.asmfa.views import (
     GroupStockViewSet,
     ActivityStockViewSet,
     ActorStockViewSet,
-    FilterActorViewSet, 
+    FilterActorViewSet,
+    FilterActor2ActorViewSet, 
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
@@ -156,6 +157,7 @@ kf_router.register(r'actorstock', ActorStockViewSet)
 kf_router.register(r'group2group', Group2GroupViewSet)
 kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
+kf_router.register(r'filteractor2actor', FilterActor2ActorViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)

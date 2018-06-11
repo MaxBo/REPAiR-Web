@@ -8,6 +8,7 @@ from django.db.models import Q, Subquery, Min, IntegerField, OuterRef
 import time
 import numpy as np
 import copy
+import json
 from collections import defaultdict, OrderedDict
 
 from repair.apps.asmfa.models import (
@@ -20,7 +21,7 @@ from repair.apps.asmfa.models import (
     Material,
     Composition,
     ProductFraction,
-    Actor
+    Actor, Activity, ActivityGroup
 )
 
 from repair.apps.studyarea.models import (
@@ -167,7 +168,64 @@ class FlowViewSet(RevisionMixin,
     """
     serializer_class = FlowSerializer
     model = Flow
-    
+
+
+class Group2GroupViewSet(FlowViewSet):
+    add_perm = 'asmfa.add_group2group'
+    change_perm = 'asmfa.change_group2group'
+    delete_perm = 'asmfa.delete_group2group'
+    queryset = Group2Group.objects.all()
+    serializer_class = Group2GroupSerializer
+
+
+class Activity2ActivityViewSet(FlowViewSet):
+    add_perm = 'asmfa.add_activity2activity'
+    change_perm = 'asmfa.change_activity2activity'
+    delete_perm = 'asmfa.delete_activity2activity'
+    queryset = Activity2Activity.objects.all()
+    serializer_class = Activity2ActivitySerializer
+
+
+class Actor2ActorViewSet(FlowViewSet):
+    add_perm = 'asmfa.add_actor2actor'
+    change_perm = 'asmfa.change_actor2actor'
+    delete_perm = 'asmfa.delete_actor2actor'
+    queryset = Actor2Actor.objects.all()
+    serializer_class = Actor2ActorSerializer
+    additional_filters = {'origin__included': True,
+                          'destination__included': True}
+
+
+class FilterActor2ActorViewSet(Actor2ActorViewSet):
+    '''
+    body params:
+    body = {
+        waste: true / false,  # products or waste, don't pass for both
+        
+        # filter by origin/destination actors
+        actors: {
+            direction: "to" / "from" / "both", # return flows to or from given actors
+            ids = [...] # ids of the actors, all others are excluded
+        },
+        # filter/aggregate by given material 
+        material: {
+            aggregate: true / false, # aggregate child materials
+                                     # to level of given material
+                                     # or to top level if no id is given
+            id: id, # id of material
+        },
+        
+        # aggregate origin/dest. actors belonging to given
+        # activity/groupon spatial level, child nodes have
+        # to be exclusively 'activity's or 'activitygroup's
+        spatial: {  
+            activity: {
+                id: id,  # id of activitygroup/activity
+                level: id,  # id of spatial level (as in AdminLevels)
+            },
+        }
+    }
+    '''
     # structure of serialized components of a flow as the serializer
     # will return it
     flow_struct = OrderedDict(id=None,
@@ -189,92 +247,91 @@ class FlowViewSet(RevisionMixin,
                                    fraction=0
                                    )
 
-    def list(self, request, **kwargs):
+    # POST is used to send filter parameters not to create
+    def create(self, request, **kwargs):
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
-        query_params = request.query_params
+        params = request.data
         queryset = self.get_queryset()
         material = None
-        
-        filter_waste = 'waste' in query_params.keys()
-        filter_nodes = ('nodes' in query_params.keys() or
-                        'nodes[]' in query_params.keys())
-        filter_from = ('from' in query_params.keys() or
-                       'from[]' in query_params.keys())
-        filter_to = ('to' in query_params.keys() or
-                     'to[]' in query_params.keys())
-        filter_material = 'material' in query_params.keys()
-        aggregate_materials = ('aggregate_materials' in query_params.keys() and
-                               query_params['aggregate_materials'] in ['true', 'True'])
-        spatial_agg_origin = ('origin_spatial_level' in query_params.keys())
-        spatial_agg_dest = ('destination_spatial_level' in query_params.keys())
-        
-        # do the filtering and serializing of superclass, if none of the above
-        # filters are queried (unfortunately they all conflict with filters of 
-        # superclass CasestudyViewSetMixin)
-        if not np.any([filter_waste, filter_nodes, filter_from, filter_to,
-                       filter_material, aggregate_materials,
-                       spatial_agg_origin, spatial_agg_dest]):
-            return super().list(request, **kwargs)
-    
-        # filter products (waste=False) or waste (waste=True)
-        if filter_waste:
-            queryset = queryset.filter(waste=query_params.get('waste'))
-        
-        # filter by origins AND destinations
-        if filter_nodes:
-            nodes = (query_params.get('nodes', None)
-                     or request.GET.getlist('nodes[]')) 
-            queryset = queryset.filter(Q(origin__in=nodes) |
-                                       Q(destination__in=nodes))
-        
-        # filter by origins
-        if filter_from:
-            nodes = (query_params.get('from', None)
-                     or request.GET.getlist('from[]')) 
-            queryset = queryset.filter(origin__in=nodes)
 
-        # filter by destinations
-        if filter_to:
-            nodes = (query_params.get('to', None)
-                     or request.GET.getlist('to[]')) 
-            queryset = queryset.filter(destination__in=nodes)
+        waste_filter = params.get('waste', None)
+        actor_filter = params.get('actors', None)
+        material_filter = params.get('material', None)
+        spatial_aggregation = params.get('spatial', None)
+
+        # filter products (waste=False) or waste (waste=True)
+        if waste_filter is not None:
+            queryset = queryset.filter(waste=waste_filter)
+
+        # filter by origins/destinations and direction
+        if actor_filter:
+            actors = actor_filter.get('ids', None)
+            direction = actor_filter.get('direction', 'both')
+            if direction == 'from':
+                queryset = queryset.filter(origin__in=actors)
+            elif direction == 'to':
+                queryset = queryset.filter(destination__in=actors)
+            else:
+                queryset = queryset.filter(Q(origin__in=actors) |
+                                           Q(destination__in=actors))
 
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if filter_material:
+        if material_filter and 'id' in material_filter.keys():
             try:
-                material = Material.objects.get(id=query_params['material'])
+                material = Material.objects.get(id=material_filter['id'])
             except Material.DoesNotExist:
                 return Response(status=404)
             queryset = filter_by_material(material, queryset)
 
         serializer = SerializerClass(queryset, many=True,
-                                     context={'request': request, })
+                                         context={'request': request, })
         data = serializer.data
 
-        if spatial_agg_dest or spatial_agg_origin:
-            origin_level = query_params.get('origin_spatial_level', None)
-            destination_level = query_params.get('destination_spatial_level', None)
+        if spatial_aggregation:
+            spatj = json.loads(spatial_aggregation)
+            levels = {}
+            types = []
+            for node_type, values in spatj.items():
+                node_id = values['id']
+                level_id = values['level']
+                levels[node_id] = level_id
+                types.append(node_type)
+            unique_types = np.unique(types)
+            # ToDo: raise HTTP malformed request 
+            if len(unique_types) != 1:
+                raise Exception('only one type allowed at the same type')
+            typ = unique_types[0]
+            if typ == 'activity':
+                group_relation = 'activity'
+            elif typ == 'activitygroup':
+                group_relation = 'activity'
+            else:
+                raise Exception('unknown type')
             data = self.spatial_aggregation(data, queryset,
-                                            origin_level, destination_level)
+                                            group_relation, levels)
+        
+        # POSTPROCESSING: all following operations are performed on serialized
+        # data
+        
+        if material_filter:
+            aggregate_materials = material_filter.get('aggregate', False)
+            # if the fractions of flows are filtered by material, the other
+            # fractions should be removed from the returned data
+            if not aggregate_materials:
+                process_data_fractions(material, material.children,
+                                       data, aggregate_materials=False)
+                return Response(data)
 
-        # if the fractions of flows are filtered by material, the other
-        # fractions should be removed from the returned data
-        if filter_material and not aggregate_materials:
-            process_data_fractions(material, material.children,
-                                   data, aggregate_materials=False)
-            return Response(data)
-    
-        # aggregate the fractions of the queryset
-        if aggregate_materials:
+            # aggregate the fractions of the queryset
             # take the material and its children from if-clause 'filter_material'
             if material:
                 childmaterials = material.children
             # no material was requested -> aggregate by top level materials
             if material is None:
                 childmaterials = Material.objects.filter(parent__isnull=True)
-            
+
             #aggregate_queryset(materials, queryset)
             #filtered = True
 
@@ -287,35 +344,50 @@ class FlowViewSet(RevisionMixin,
     def get_queryset(self):
         model = self.serializer_class.Meta.model
         flows = model.objects.\
-                select_related('keyflow__casestudy').\
+            select_related('keyflow__casestudy').\
                 select_related('publication').\
                 select_related("origin").\
                 select_related("destination").\
                 prefetch_related("composition__fractions").\
                 all()
-    
+
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             flows = flows.filter(keyflow__id=keyflow_pk)
         return flows
-    
-    def spatial_aggregation(self, data, queryset, origin_level, destination_level):
-        zipped = []
 
-        # map origins/destinations to ids of the areas they are in
-        # leave them as they are when passed level is None
-        for field, level in [('origin', origin_level),
-                             ('destination', destination_level)]:
-            actor_ids = [x[0] for x in list(queryset.values_list(field))]
-            if level is not None:
-                locations = AdministrativeLocation.objects.filter(
-                    actor__in=actor_ids)
-                annotated = self.add_area(locations, level)
-                zipped.extend(
-                    list(annotated.values_list('actor_id', 'adminarea_id')))
-            else:
-                zipped.extend(list(zip(actor_ids, actor_ids)))
-        id_map = dict(zipped)
+    def spatial_aggregation(self, data, queryset, group_relation, levels):
+        mapped_to_area = []
+        
+        actor_ids = list(queryset.values_list('origin_id', 'destination_id'))
+        actor_ids = [t for s in actor_ids for t in s]
+        actors = Actor.objects.filter(id__in=actor_ids)
+        
+        # prepare map of ids, actors are mapped to themselves by default 
+        # (indicated by level None)
+        id_map = dict(zip(actor_ids, actor_ids))
+        # keep track of level of area
+        area_levels = {}
+        
+        # map the actors belonging to given activities or groups to 
+        # areas of given levels
+        for rid, level in levels.items():
+            # actors in given relation (activity or activitygroup)
+            actors_in_relation = actors.filter(**{group_relation: rid})
+            locations = AdministrativeLocation.objects.filter(
+                actor__in=actors_in_relation)
+            
+            # mark actors that should be mapped to area but have no location
+            air_ids = [x[0] for x in actors_in_relation.values_list('id')]
+            mapped_to_area = dict(zip(air_ids, [None] * len(air_ids)))
+            
+            annotated = self.add_area(locations, level)
+            mapped_to_area.update(dict(
+                annotated.values_list('actor_id', 'adminarea_id')))
+            # overwrite id mapping for actors mapped to an area
+            id_map.update(dict(mapped_to_area))
+            area_set= set(mapped_to_area.values())
+            area_levels.update(dict(zip(area_set, [level] * len(area_set))))
 
         # aggregate by mapped origins/destinations
         aggregated_amounts = {}
@@ -354,50 +426,27 @@ class FlowViewSet(RevisionMixin,
             new_flow['composition'] = new_comp
             new_flow['origin'] = origin
             new_flow['destination'] = destination
+            origin_level = area_levels.get(origin, None)
+            destination_level = area_levels.get(destination, None)
             new_flow['origin_level'] = origin_level
             new_flow['destination_level'] = destination_level
             for material, mass in aggregation['fractions'].items():
                 new_fract = self.fractions_struct.copy()
                 new_fract['material'] = material
-                new_fract['fraction'] = mass / amount
+                new_amount = 0 if amount == 0 else mass / amount
+                new_fract['fraction'] = new_amount
                 new_comp['fractions'].append(new_fract)
-    
+
         return new_flows
-    
+
     def add_area(self, locations, level):
         areas = Area.objects.filter(adminlevel__id=level)
         annotated = locations.annotate(
             adminarea_id=Subquery(
                 areas.filter(geom__intersects=OuterRef('geom')).annotate(
                     adminarea_id=Min('id')
-                ).values('adminarea_id')[:1],
+                    ).values('adminarea_id')[:1],
                 output_field=IntegerField()
             )
         )
         return annotated
-
-class Group2GroupViewSet(FlowViewSet):
-    add_perm = 'asmfa.add_group2group'
-    change_perm = 'asmfa.change_group2group'
-    delete_perm = 'asmfa.delete_group2group'
-    queryset = Group2Group.objects.all()
-    serializer_class = Group2GroupSerializer
-
-
-class Activity2ActivityViewSet(FlowViewSet):
-    add_perm = 'asmfa.add_activity2activity'
-    change_perm = 'asmfa.change_activity2activity'
-    delete_perm = 'asmfa.delete_activity2activity'
-    queryset = Activity2Activity.objects.all()
-    serializer_class = Activity2ActivitySerializer
-
-
-class Actor2ActorViewSet(FlowViewSet):
-    add_perm = 'asmfa.add_actor2actor'
-    change_perm = 'asmfa.change_actor2actor'
-    delete_perm = 'asmfa.delete_actor2actor'
-    queryset = Actor2Actor.objects.all()
-    serializer_class = Actor2ActorSerializer
-    additional_filters = {'origin__included': True,
-                          'destination__included': True}
-    
