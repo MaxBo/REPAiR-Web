@@ -78,11 +78,17 @@ function(PageableCollection, _, GDSEModel, config) {
             if (options.parse === void 0) options.parse = true;
             var success = options.success;
             var collection = this;
-            var queryData = options.data,
+            var queryData = options.data || {},
                 success = options.success,
                 _this = this;
             // move body attribute to post data (will be put in body by AJAX)
-            options.data = options.body;
+            // backbone does some strange parsing of nested objects
+            var data = {};
+            for (var key in options.body) {
+                var value = options.body[key];
+                data[key] = (value instanceof Object) ? JSON.stringify(value) : value;
+            }
+            options.data = data;
             
             // response to models on success, call passed success function
             function onSuccess(response){

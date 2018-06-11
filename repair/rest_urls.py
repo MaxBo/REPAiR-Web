@@ -41,7 +41,8 @@ from repair.apps.asmfa.views import (
     GroupStockViewSet,
     ActivityStockViewSet,
     ActorStockViewSet,
-    FilterActorViewSet, 
+    FilterActorViewSet,
+    FilterActor2ActorViewSet, 
     AdministrativeLocationOfActorViewSet,
     OperationalLocationsOfActorViewSet,
     AdministrativeLocationViewSet,
@@ -150,6 +151,8 @@ sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
 
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
+kf_router.register(r'filteractor2actor', FilterActor2ActorViewSet)
+kf_router.register(r'filteractors', FilterActorViewSet)
 kf_router.register(r'groupstock', GroupStockViewSet)
 kf_router.register(r'activitystock', ActivityStockViewSet)
 kf_router.register(r'actorstock', ActorStockViewSet)
@@ -159,7 +162,6 @@ kf_router.register(r'actor2actor', Actor2ActorViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
-kf_router.register(r'filteractors', FilterActorViewSet)
 kf_router.register(r'actors', ActorViewSet)
 kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 kf_router.register(r'operationallocations', OperationalLocationViewSet)
