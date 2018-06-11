@@ -74,8 +74,6 @@ class FlowSerializer(CompositionMixin,
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     composition = CompositionSerializer()
-    origin_level = serializers.IntegerField(default=None, read_only=True)
-    destination_level = serializers.IntegerField(default=None, read_only=True)
 
     class Meta:
         model = Flow
@@ -100,7 +98,6 @@ class Group2GroupSerializer(FlowSerializer):
         model = Group2Group
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
-                  'origin_level', 'destination_level', 
                   'composition', 'description',
                   'year', 'publication', 'waste')
 
@@ -119,7 +116,6 @@ class Activity2ActivitySerializer(FlowSerializer):
         model = Activity2Activity
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
-                  'origin_level', 'destination_level', 
                   'composition', 'description',
                   'year', 'publication', 'waste')
 
@@ -138,6 +134,5 @@ class Actor2ActorSerializer(FlowSerializer):
         model = Actor2Actor
         fields = ('id', 'amount', 'composition', 
                   'origin',  'destination',
-                  'origin_level', 'destination_level', 
                   'description',
                   'year', 'publication', 'waste')
