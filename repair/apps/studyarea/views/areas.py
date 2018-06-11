@@ -68,10 +68,10 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         queryset = queryset.annotate(pnt=PointOnSurface('geom'))
         return queryset
 
-    #def get_queryset(self):
-        #model = self.serializer_class.Meta.model
-        #casestudy_pk = self.kwargs.get('casestudy_pk')
-        #areas = model.objects.select_related("adminlevel").filter(
-            #adminlevel__casestudy=casestudy_pk)
-        #areas = areas.annotate(pnt=PointOnSurface('geom'))
-        #return areas
+    def get_queryset(self):
+        model = self.serializer_class.Meta.model
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        areas = model.objects.select_related("adminlevel").filter(
+            adminlevel__casestudy=casestudy_pk)
+        areas = areas.annotate(pnt=PointOnSurface('geom'))
+        return areas
