@@ -1,8 +1,8 @@
-define(['views/baseview', 'backbone', 'underscore', 'collections/layercategories', 
-    'collections/layers', 'models/layer', 'visualizations/map', 
-    'utils/loader', 'app-config', 'bootstrap-colorpicker'],
+define(['views/baseview', 'backbone', 'underscore',
+        'collections/gdsecollection', 'visualizations/map',
+        'app-config', 'openlayers'],
 
-function(BaseView, Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config){
+function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
 /**
 *
 * @author Christoph Franke
@@ -12,7 +12,7 @@ function(BaseView, Backbone, _, LayerCategories, Layers, Layer, Map, Loader, con
 var BaseMapsView = BaseView.extend(
     /** @lends module:views/BaseMapsView.prototype */
     {
-    
+
     includedOnly: true,
     categoryBackColor: '#aad400',
     categoryColor: 'white',
@@ -32,10 +32,10 @@ var BaseMapsView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        BaseMapsView.__super__.initialize.apply(this, [options]);
         var _this = this;
         // make sure 'this' references to this view when functions are called
         // from different context
-        _.bindAll(this, 'render');
         _.bindAll(this, 'nodeSelected');
         _.bindAll(this, 'nodeUnselected');
         _.bindAll(this, 'nodeChecked');
@@ -46,22 +46,24 @@ var BaseMapsView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
 
-        this.projection = 'EPSG:4326'; 
+        this.projection = 'EPSG:4326';
 
-        var WMSResources = Backbone.Collection.extend({ 
-            url: config.api.wmsresources.format(this.caseStudy.id) 
-        })
-
-        this.wmsResources = new WMSResources();
-        this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
+        this.wmsResources = new GDSECollection([], { 
+            apiTag: 'wmsresources',
+            apiIds: [ this.caseStudy.id ]
+        });
+        this.layerCategories = new GDSECollection([], { 
+            apiTag: 'layerCategories',
+            apiIds: [ this.caseStudy.id ]
+        });
 
         this.categoryTree = {};
         this.layerPrefix = 'service-layer-';
         this.legendPrefix = 'layer-legend-';
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
         this.layerCategories.fetch({ success: function(){
-            loader.remove();
+            _this.loader.deactivate();
             _this.initTree();
         }})
     },
@@ -74,36 +76,39 @@ var BaseMapsView = BaseView.extend(
 
     initTree: function(){
         var _this = this;
-        var deferred = [],
+        var promises = [],
             layerList = [];
         queryParams = (this.includedOnly) ? {included: 'True'} : {};
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
         this.layerCategories.each(function(category){
-            var layers = new Layers([], { caseStudyId: _this.caseStudy.id, 
-                layerCategoryId: category.id });
-            var node = { 
-                text: category.get('name'), 
+            var layers = new GDSECollection([], { 
+                apiTag: 'layers',
+                apiIds: [ _this.caseStudy.id, category.id ]
+            });
+            layers.categoryId = category.id;
+            var node = {
+                text: category.get('name'),
                 category: category,
                 state: { checked: true, expanded: _this.categoryExpanded },
-                backColor: _this.categoryBackColor,
-                color: _this.categoryColor
+                backColor: _this.categoryBackColor || null,
+                color: _this.categoryColor || null
             };
             _this.categoryTree[category.id] = node;
             layerList.push(layers);
-            deferred.push(layers.fetch({ data: queryParams }));
+            promises.push(layers.fetch({ data: queryParams }));
         });
         // fetch prepared layers and put informations into the tree nodes
-        $.when.apply($, deferred).then(function(){
+        Promise.all(promises).then(function(){
             layerList.forEach(function(layers){
-                var catNode = _this.categoryTree[layers.layerCategoryId];
+                var catNode = _this.categoryTree[layers.categoryId];
                 var children = [];
                 layers.each(function(layer){
-                    var node = { 
-                        layer: layer, 
-                        text: layer.get('name'), 
+                    var node = {
+                        layer: layer,
+                        text: layer.get('name'),
                         icon: 'fa fa-bookmark',
-                        state: { checked: layer.get('included') } 
+                        state: { checked: layer.get('included') }
                     };
                     children.push(node);
                 });
@@ -112,7 +117,7 @@ var BaseMapsView = BaseView.extend(
             _this.render();
         })
     },
-    
+
     /*
     * render the view
     */
@@ -121,7 +126,7 @@ var BaseMapsView = BaseView.extend(
         this.renderMap();
         this.renderDataTree();
     },
-    
+
     renderTemplate: function(){
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
@@ -129,7 +134,7 @@ var BaseMapsView = BaseView.extend(
         this.layerTree = document.getElementById('layer-tree');
         this.legend = document.getElementById('legend');
     },
-    
+
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
@@ -145,7 +150,7 @@ var BaseMapsView = BaseView.extend(
         })
 
         require('libs/bootstrap-treeview.min');
-  
+
         $(this.layerTree).treeview({
             data: tree, showTags: true,
             selectedBackColor: this.selectedBackColor,
@@ -167,14 +172,14 @@ var BaseMapsView = BaseView.extend(
             var nodes = $(this.layerTree).treeview('getEnabled');
             _.forEach(nodes, function(node){
                 if (node.category && (node.category.id == categoryId)){
-                    selectNodeId = node.nodeId; 
+                    selectNodeId = node.nodeId;
                     $(_this.layerTree).treeview('selectNode', selectNodeId);
                     return false;
                 }
             })
         }
     },
-    
+
     nodeSelected: function(event, node){
         // unselect node, so that this function is triggered on continued clicking
         $(this.layerTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
@@ -183,17 +188,17 @@ var BaseMapsView = BaseView.extend(
             var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
             $(this.layerTree).treeview(f,  node.nodeId);
         }
-        
+
         // check/uncheck layer on click
         else {
             var f = (node.state.checked) ? 'uncheckNode' : 'checkNode';
             $(this.layerTree).treeview(f,  node.nodeId);
         }
     },
-    
+
     nodeUnselected: function(event, node){
     },
-    
+
     nodeChecked: function(event, node){
         var _this = this;
         if (node.layer){
@@ -208,7 +213,7 @@ var BaseMapsView = BaseView.extend(
             })
         }
     },
-    
+
     nodeUnchecked: function(event, node){
         var _this = this;
         if (node.layer){
@@ -223,34 +228,26 @@ var BaseMapsView = BaseView.extend(
             })
         }
     },
-    
+
     nodeCollapsed: function(event, node){
-    
+
     },
-    
+
     nodeExpanded: function(event, node){
-    
+
     },
 
     renderMap: function(){
         var _this = this;
         this.map = new Map({
-            divid: 'base-map', 
+            divid: 'base-map',
             renderOSM: false
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
-        this.map.addLayer('focus', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1,
-            zIndex: 1000
-        });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'focus', tooltip: gettext('Focus area') });
-            this.map.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'focus', tooltip: gettext('Focus area') });
-            this.centroid = this.map.centerOnPolygon(poly, { projection: this.projection });
+            var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
         // get all layers and render them
@@ -261,7 +258,7 @@ var BaseMapsView = BaseView.extend(
     },
 
     addServiceLayer: function(layer){
-        this.map.addServiceLayer(this.layerPrefix + layer.id, { 
+        this.map.addServiceLayer(this.layerPrefix + layer.id, {
             opacity: 1,
             zIndex: layer.get('z_index'),
             visible: layer.get('included'),

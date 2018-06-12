@@ -1,8 +1,11 @@
-define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
-    'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 'tablesorter'],
-function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
-    Loader, config){
+define(['views/baseview', 'underscore', 
+        'collections/gdsecollection', 'views/data-entry/edit-actor',
+        'datatables.net-bs',
+        'datatables.net-bs/css/dataTables.bootstrap.css',
+        'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+        'bootstrap-select'],
+function(BaseView, _, GDSECollection, EditActorView){
+
 /**
     *
     * @author Christoph Franke
@@ -21,41 +24,49 @@ var ActorsView = BaseView.extend(
     * @param {string} options.template                    id of the script element containing the underscore template to render this view
     * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
     * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
     *
     * @constructs
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        ActorsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'removeActor');
         var _this = this;
 
         this.template = options.template;
         var keyflowId = this.model.id,
             caseStudyId = this.model.get('casestudy');
-
-        this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-        this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-        this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
+        this.activities = options.activities;
+        this.actors = new GDSECollection([], { 
+            apiTag: 'actors',
+            apiIds: [ caseStudyId, keyflowId ]
+        });
+        this.areaLevels = new GDSECollection([], { 
+            apiTag: 'arealevels',
+            apiIds: [ caseStudyId ],
+            comparator: 'level'
+        });
         this.showAll = true;
         this.caseStudy = options.caseStudy;
         this.caseStudyId = this.model.get('casestudy');
 
-        this.actorRows = [];
-
-        var loader = new Loader(document.getElementById('actors-edit'),
-            {disable: true});
+        this.loader.activate();
 
         this.projection = 'EPSG:4326'; 
 
-        var Reasons = Backbone.Collection.extend({url: config.api.reasons});
-        this.reasons = new Reasons([]);
+        this.reasons = new GDSECollection([], { 
+            apiTag: 'reasons'
+        });
 
-        $.when(this.activities.fetch(), this.actors.fetch(), 
-            this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
-        _this.areaLevels.sort();
-        loader.remove();
-        _this.render();
+        Promise.all([
+            this.activities.fetch(), 
+            this.areaLevels.fetch(), 
+            this.reasons.fetch()
+        ]).then(function() {
+            _this.areaLevels.sort();
+            _this.loader.deactivate();
+            _this.render();
         });
     },
 
@@ -65,7 +76,8 @@ var ActorsView = BaseView.extend(
     events: {
         'click #remove-actor-button': 'showRemoveModal',
         'click #add-actor-button': 'addActorEvent',
-        'change #included-filter-select': 'changeFilter'
+        'change #included-filter-select': 'changeFilter',
+        'change select[name="activity-filter"]': 'renderActors'
     },
 
     /*
@@ -75,48 +87,44 @@ var ActorsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
-            keyflow: this.model.get('name')});
-
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name'),
+            activities: this.activities
+        });
         this.filterSelect = this.el.querySelector('#included-filter-select');
-        this.table = this.el.querySelector('#actors-table');
-
-        // render inFlows
-        this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-
-        this.setupTable();
+        this.datatable = $('#actors-table').DataTable();
+        this.renderActors();
     },
-
-    /* 
-    * set up the actors table (tablesorter)
-    */
-    setupTable: function(){
-        require('libs/jquery.tablesorter.pager');
-        $(this.table).tablesorter({
-            widgets: ['filter'], //, 'zebra']
-            widgetOptions : {
-                filter_placeholder: { search : gettext('Search') + '...' }
+    
+    renderActors: function(){
+        var _this = this,
+            activityId = this.el.querySelector('select[name="activity-filter"]').value;
+            data = (activityId =="-1") ? {} : { activity: activityId }
+        this.datatable.clear();
+        this.actorRows = [];
+        this.actors.fetch({ 
+            data: data,
+            success: function(){
+                _this.actors.each(
+                    function(actor){_this.addActorRow(actor)
+                }); // you have to define function instead of passing this.addActorRow, else scope is wrong
             }
         });
-        // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-        if ($(this.table).find('tr').length > 1)
-            $(this.table).tablesorterPager({container: $("#pager")});
-
-        //workaround for a bug in tablesorter-pager by triggering
-        //event that pager-selection changed to redraw number of visible rows
-        var sel = document.getElementById('pagesize');
-        sel.selectedIndex = 0;
-        sel.dispatchEvent(new Event('change'));
     },
 
     changeFilter: function(event){
+        var _this = this;
         this.showAll = event.target.value == '0';
-        for (var i = 1, row; row = this.actorRows[i]; i++) {
-            if (!this.showAll && row.classList.contains('dsbld'))
-                row.style.display = "none";
-            else
-                row.style.display = "table-row";
+        if (!this.showAll){
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(_this.datatable.row(dataIndex).node()).attr('data-included') == 'true';
+                  }
+              );
         }
+        else $.fn.dataTable.ext.search.pop();
+        this.datatable.draw();
     },
 
     /* 
@@ -125,14 +133,23 @@ var ActorsView = BaseView.extend(
     addActorRow: function(actor){
         var _this = this;
 
-        var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
+        var dataRow = this.datatable.row.add([
+                actor.get('name'), 
+                actor.get('city'),
+                actor.get('address'),
+            ]).draw(),
+            row = dataRow.node();
+        row.setAttribute('data-included', actor.get('included'));
         this.actorRows.push(row);
-
-        var nameCell = row.insertCell(-1);
-        var activityCell = row.insertCell(-1);
-
-        // fill the row with the attributes of the actor and change it's style depending on status of actor
-        function setRowValues(actor){
+        
+        function selectRow(r){
+            _.each(_this.actorRows, function(row){
+                row.classList.remove('selected');
+            });
+            r.classList.add('selected');
+        }
+        
+        function setIncluded(actor){
             var included = actor.get('included');
             if (!included){
                 row.classList.add('dsbld');
@@ -142,41 +159,41 @@ var ActorsView = BaseView.extend(
                 row.classList.remove('dsbld')
                 row.style.display = "table-row";
             }
-
-            nameCell.innerHTML = actor.get('name');
-            var activity = _this.activities.get(actor.get('activity'));
-            activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
+            row.setAttribute('data-included', included);
         };
-        setRowValues(actor);
+        setIncluded(actor);
         
-        function selectRow(r){
-            _.each(_this.actorRows, function(row){
-                row.classList.remove('selected');
-            });
-            r.classList.add('selected');
-        }
-
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
             selectRow(row);
+            actor.caseStudyId = _this.caseStudy.id;
+            actor.keyflowId = _this.model.id;
             _this.activeActor = actor;
-            _this.activeRow = row;
             if (_this.actorView != null) _this.actorView.close();
-            _this.actorView = new EditActorView({
-                el: document.getElementById('edit-actor'),
-                template: 'edit-actor-template',
-                model: actor,
-                activities: _this.activities,
-                keyflow: _this.model,
-                onUpload: function(a) { setRowValues(a); showActor(a); },
-                focusarea: _this.caseStudy.get('properties').focusarea,
-                areaLevels: _this.areaLevels,
-                reasons: _this.reasons
-            });
+            actor.fetch({ success: function(){
+                _this.actorView = new EditActorView({
+                    el: document.getElementById('edit-actor'),
+                    template: 'edit-actor-template',
+                    model: actor,
+                    activities: _this.activities,
+                    keyflow: _this.model,
+                    onUpload: function(a) { 
+                        setIncluded(a); 
+                        dataRow.data([
+                            actor.get('name'), 
+                            actor.get('city'),
+                            actor.get('address')
+                        ]);
+                        showActor(a); 
+                    },
+                    focusarea: _this.caseStudy.get('properties').focusarea,
+                    areaLevels: _this.areaLevels,
+                    reasons: _this.reasons
+                });
+            }})
         }
 
         // row is clicked -> open view and remember that this actor is "active"
-        row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
             if (_this.activeActor != actor || actor.id == null){
                 if (_this.actorView != null && _this.actorView.hasChanged()){
@@ -190,7 +207,7 @@ var ActorsView = BaseView.extend(
             }
         });
 
-        return row;
+        return dataRow;
     },
 
     /* 
@@ -202,28 +219,25 @@ var ActorsView = BaseView.extend(
         var tableId;
 
         function onChange(name){
-            var actor = new Actor({
+            var actor = _this.actors.create({
                 "BvDid": "-",
                 "name": name || "-----",
                 "consCode": "-",
-                "year": 0,
-                "turnover": 0,
-                "employees": 0,
+                "year": null,
+                "turnover": null,
+                "employees": null,
                 "BvDii": "-",
                 "website": "www.website.org",
                 "activity": _this.activities.first().id,
-                'reason': null
-                }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
-            actor.save({}, {success: function(){
-                _this.actors.add(actor);
-                var row = _this.addActorRow(actor);
-                // let tablesorter know, that there is a new row
-                $('table').trigger('addRows', [$(row)]);
-                // workaround for going to last page by emulating click (thats where new row is added)
-                document.getElementById('goto-last-page').click();
-                // click row to show details of new actor in edit view
-                row.click();
-            }});
+                'reason': null,
+                'description': ''
+            }, { 
+                wait: true, 
+                success: function(){ 
+                    var row = _this.addActorRow(actor);
+                    row.node().click(); 
+                }
+            })
         }
         this.getName({ 
             title: gettext('Add Actor'),
@@ -245,16 +259,14 @@ var ActorsView = BaseView.extend(
     */
     removeActor: function(){
         var _this = this;
-        this.activeActor.destroy({success: function(){
-            _this.actorView.close();
-            _this.activeRow.style.display = 'none';
-            //_this.activeRow.parentNode.removeChild(_this.activeRow);
-            //document.getElementById('goto-first-page').click();
-            //$(_this.table).trigger('update');
-            //$(_this.table).trigger("appendCache");
-            _this.activeActor = null;
-            _this.activeRow = null;
-        }});
+        this.activeActor.destroy({
+            success: function(){
+                _this.actorView.close();
+                _this.activeActor = null;
+                _this.datatable.row('.selected').remove().draw( false );
+            },
+            error: _this.onError
+        });
     }
 
 });

@@ -1,9 +1,6 @@
-define(['views/baseview','underscore', 'models/stakeholdercategory',
-    'collections/stakeholdercategories', 'models/stakeholder',
-    'collections/stakeholders'],
+define(['views/baseview', 'underscore', 'collections/gdsecollection'],
 
-function(BaseView, _, StakeholderCategory, StakeholderCategories, Stakeholder,
-Stakeholders){
+function(BaseView, _, GDSECollection){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -27,8 +24,8 @@ Stakeholders){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            StakeholdersView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -36,19 +33,16 @@ Stakeholders){
 
             this.mode = options.mode || 0;
 
-            this.categories = [];
-            this.stakeholderCategories = new StakeholderCategories([], {
-                caseStudyId: caseStudyId
+            this.stakeholderCategories = new GDSECollection([], {
+                apiTag: 'stakeholderCategories',
+                apiIds: [ caseStudyId ]
             });
 
             this.stakeholderCategories.fetch({
                 success: function(stakeholderCategories){
                     _this.initStakeholders(stakeholderCategories, caseStudyId);
-                    _this.render();
                 },
-                error: function(){
-                    console.error("cannot fetch stakeholderCategories");
-                }
+                error: _this.onError
             });
 
         },
@@ -58,43 +52,27 @@ Stakeholders){
         */
         events: {
             'click #add-category-button': 'addCategory',
-            'click #remove-stakeholder-confirmation-modal .confirm': 'confirmRemoval'
         },
 
         initStakeholders: function(stakeholderCategories, caseStudyId){
             var _this = this;
-            var deferred = [];
-            queryParams = (this.includedOnly) ? {included: 'True'} : {};
+            var promises = [];
 
             stakeholderCategories.forEach(function(category){
-                var stakeholderList = [];
-                var stakeholders = new Stakeholders([], {
-                    caseStudyId: caseStudyId,
-                    stakeholderCategoryId: category.id
+                var stakeholders = new GDSECollection([], {
+                    apiTag: 'stakeholders',
+                    apiIds: [ caseStudyId, category.id ]
                 });
 
-                deferred.push(stakeholders.fetch({
-                    data: queryParams,
+                promises.push(stakeholders.fetch({
                     success: function (){
-                        stakeholders.forEach(function(stakeholder){
-                            stakeholderList.push({
-                                "name": stakeholder.get('name'),
-                                "id": stakeholder.get('id')
-                            });
-                        });
-                        _this.categories.push({
-                            name: category.get('name'),
-                            stakeholders: stakeholderList,
-                            categoryId: category.id
-                        });
+                        category.stakeholders = stakeholders;
                     },
-                    error: function(){
-                        stakeholderList.push(null);
-                    }
+                    error: _this.onError
                 }));
             });
 
-            $.when.apply($, deferred).then(function(){
+            Promise.all(promises).then(function(){
                 _this.render();
             })
         },
@@ -107,13 +85,6 @@ Stakeholders){
             var html = document.getElementById(this.template).innerHTML
             var template = _.template(html);
             this.el.innerHTML = template();
-
-            var html_modal = document.getElementById(
-                'empty-modal-template').innerHTML;
-            this.confirmationModal = document.getElementById(
-                'remove-stakeholder-confirmation-modal');
-            this.confirmationModal.innerHTML = _.template(html_modal)({
-                header: gettext('Remove') });
 
             this.renderCategories();
 
@@ -130,7 +101,7 @@ Stakeholders){
         renderCategories(){
             var _this = this;
             var panelList = this.el.querySelector('#categories');
-            this.categories.forEach(function(category){
+            this.stakeholderCategories.forEach(function(category){
                 // create the panel (ToDo: use template for panels instead?)
                 var div = document.createElement('div'),
                     panel = document.createElement('div');
@@ -138,12 +109,11 @@ Stakeholders){
                 div.style.margin = '5px';
                 panelList.appendChild(div);
 
-                var label = document.createElement('label');
-                div.appendChild(label);
-                div.appendChild(panel);
-
-                var button = document.createElement('button');
-                label.innerHTML = category.name;
+                var label = document.createElement('label'),
+                    button = document.createElement('button'),
+                    removeBtn = document.createElement('button');
+                label.innerHTML = category.get('name');
+                label.style.marginBottom = '20px';
 
                 button.classList.add("btn", "btn-primary", "square", "add");
                 var span = document.createElement('span');
@@ -154,7 +124,22 @@ Stakeholders){
                 button.addEventListener('click', function(){
                     _this.addStakeholder(category);
                 });
+
+                removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+                removeBtn.style.float = 'right';
+                var span = document.createElement('span');
+                removeBtn.title = gettext('Remove category')
+                span.classList.add('glyphicon', 'glyphicon-minus');
+                removeBtn.appendChild(span);
+                removeBtn.addEventListener('click', function(){
+                    _this.removeCategory(category);
+                })
+
+                div.appendChild(removeBtn);
+                div.appendChild(label);
+                div.appendChild(panel);
                 div.appendChild(button);
+
                 // add the items
                 _this.addPanelItems(panel, category);
             });
@@ -168,7 +153,7 @@ Stakeholders){
             category.stakeholders.forEach(function(stakeholder){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: stakeholder.name });
+                panelItem.innerHTML = template({ name: stakeholder.get('name') });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
                 var button_remove = panelItem.getElementsByClassName(
@@ -186,29 +171,10 @@ Stakeholders){
         addStakeholder: function(category){
             var _this = this;
             function onConfirm(name){
-                var stakeholder = new Stakeholder(
-                    { name: name },
-                    { caseStudyId: _this.caseStudy.id,
-                      stakeholderCategoryId: category.categoryId }
+                var stakeholder = category.stakeholders.create( 
+                    { name: name }, 
+                    { success: _this.render, error: _this.onError, wait: true }
                 );
-                stakeholder.save(null, {
-                    success: function(){
-                        // remember, _this.categories is an Array of Objects
-                        // created in initStakeholders
-                        // from https://stackoverflow.com/a/16008853
-                        var pos = _this.categories.map(function(e) {
-                            return e.categoryId;
-                        }).indexOf(category.categoryId);
-                        _this.categories[pos].stakeholders.push({
-                            "name": stakeholder.get('name'),
-                            "id": stakeholder.get('id')}
-                        );
-                        _this.render();
-                    },
-                    error: function(){
-                        console.error("cannot save Stakeholder");
-                    }
-                });
             }
             this.getName({
                 title: gettext('Add Stakeholder'),
@@ -220,28 +186,10 @@ Stakeholders){
             var _this = this;
             var id = stakeholder.id;
             function onConfirm(name){
-                var model = new Stakeholder(
-                    { id: id },
-                    { caseStudyId: _this.caseStudy.id,
-                      stakeholderCategoryId: category.categoryId }
-                );
-                model.fetch({
-                    success: function() {
-                        model.save({
-                            name: name
-                        }, {
-                            success: function(){
-                                var catPos = _this.categories.map(function(e) {
-                                    return e.categoryId;
-                                }).indexOf(category.categoryId);
-                                var stPos = _this.categories[catPos].stakeholders.map(function(e) {
-                                    return e.id;
-                                }).indexOf(id);
-                                _this.categories[catPos].stakeholders[stPos].name = name;
-                                _this.render();
-                            }
-                        });
-                    }
+                stakeholder.save({ name: name }, {
+                    success: _this.render,
+                    error: _this.onError,
+                    wait: true
                 });
             }
             this.getName({
@@ -253,37 +201,15 @@ Stakeholders){
 
         removeStakeholder: function(stakeholder, category){
             var _this = this;
-            var message = gettext("Do you want to delete the selected stakeholder?");
-            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
-            $(this.confirmationModal).modal('show');
-            _this.stakeholder = new Stakeholder(
-                {id: stakeholder.id},
-                { caseStudyId: _this.caseStudy.id,
-                  stakeholderCategoryId: category.categoryId
-                });
-        },
-
-        confirmRemoval: function() {
-            var _this = this;
-            $(this.confirmationModal).modal('hide');
-            var id = _this.stakeholder.get('id');
-            var categoryId = _this.stakeholder.stakeholderCategoryId;
-            _this.stakeholder.fetch({
-                success: function(){
-                    _this.stakeholder.destroy({
-                        success: function(){
-                            var catPos = _this.categories.map(function(e) {
-                                return e.categoryId;
-                            }).indexOf(categoryId);
-                            var stPos = _this.categories[catPos].stakeholders.map(function(e) {
-                                return e.id;
-                            }).indexOf(id);
-                            _this.categories[catPos].stakeholders.splice(stPos, 1);
-                            _this.render();
-                        }
-                    });
-                }
-            });
+            function onConfirm(){
+                stakeholder.destroy({ 
+                    success: _this.render, 
+                    error: _this.onError,
+                    wait: true
+                })
+            }
+            var message = gettext('Do you want to delete the selected stakeholder?');
+            this.confirm({ message: message, onConfirm: onConfirm })
         },
 
         addCategory: function(){
@@ -291,24 +217,10 @@ Stakeholders){
             // save category to the database, and render a local copy of it
             // with the same attributes
             function onConfirm(name){
-                var category = new StakeholderCategory(
-                    {name: name},
-                    {caseStudyId: _this.caseStudy.id}
-                );
-                category.save(null,
-                {
-                    success: function(){
-                        var displayCat = {
-                            name: name,
-                            stakeholders: [],
-                            categoryId: category.id
-                        };
-                        _this.categories.push(displayCat);
-                        _this.render();
-                    },
-                    error: function(){
-                        console.error("cannot save StakeholderCategory");
-                    }
+                _this.stakeholderCategories.create({name: name}, {
+                    success: _this.render,
+                    error: _this.onError,
+                    wait: true
                 });
             }
             this.getName({
@@ -317,13 +229,17 @@ Stakeholders){
             });
         },
 
-        /*
-        * remove this view from the DOM
-        */
-        close: function(){
-            this.undelegateEvents(); // remove click events
-            this.unbind(); // Unbind all local event bindings
-            this.el.innerHTML = ''; //empty the DOM element
+        removeCategory: function(category){
+            var _this = this;
+            var message = gettext('Do you really want to delete the stakeholder category?');
+            function onConfirm(){
+                category.destroy({ 
+                    success: _this.render, 
+                    error: _this.onError,
+                    wait: true
+                })
+            }
+            this.confirm({ message: message, onConfirm: onConfirm })
         },
 
     });

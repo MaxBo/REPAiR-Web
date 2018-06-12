@@ -5,13 +5,14 @@ from repair.apps.login.models import (GDSEUniqueNameModel,
 
 from repair.apps.studyarea.models import Stakeholder
 from .implementations import Implementation
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Strategy(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     coordinator = models.ForeignKey(Stakeholder,
-                                    on_delete=models.CASCADE)
+                                    on_delete=PROTECT_CASCADE)
     implementations = models.ManyToManyField(Implementation)
 
     @property

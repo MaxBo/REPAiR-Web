@@ -2,9 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from collections import defaultdict
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
 from repair.apps.publications.models import PublicationInCasestudy
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Keyflow(GDSEModel):
@@ -35,20 +37,48 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+                                null=True)
     level = models.IntegerField()
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
+    parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
                                related_name='submaterials')
 
     @property
-    def children(self):
+    def descendants(self):
         """ all children of the material (deep traversal) """
-        deep_children = []
-        children = Material.objects.filter(parent=self.id)
-        for child in children:
-            deep_children.append(child)
-            deep_children.extend(child.children)
-        return deep_children
+        descendants = []
+        for child in self.children:
+            descendants.append(child)
+            descendants.extend(child.descendants)
+        return descendants
+    
+    @property
+    def children(self):
+        """ direct children of the material traversal """
+        return Material.objects.filter(parent=self.id)
+    
+    def is_descendant(self, *args):
+        ''' return True if material is descendant of any of the passed materials '''
+        parent = self.parent
+        materials = list(args)
+        while parent:
+            if parent in materials: return True
+            parent = parent.parent
+        return False
+
+    def ancestor(self, *args):
+        '''
+        return the first ancestor found
+        if material is descendant of any of the passed materials
+        else return None
+        '''
+        parent = self.parent
+        materials = list(args)
+        while parent:
+            if parent in materials:
+                return parent
+            parent = parent.parent
+        return None
 
 
 class Composition(GDSEModel):
@@ -69,6 +99,14 @@ class Composition(GDSEModel):
         is_product = getattr(self, 'product', None) is not None
         is_custom = not (is_waste or is_product)
         return is_custom
+    
+    #def aggregate_by_materials(self, materials):
+        #aggregation = defaultdict.fromkeys(materials, 0)
+        #for fraction in self.fractions.iterator():
+            #for material in materials:
+                #if fraction.material.is_descendant(material):
+                    #aggregation[material] += fraction.fraction
+        #return
 
 
 class Product(Composition):
@@ -86,7 +124,7 @@ class Waste(Composition):
 class ProductFraction(GDSEModel):
 
     fraction = models.FloatField()
-    material = models.ForeignKey(Material, on_delete=models.CASCADE,
+    material = models.ForeignKey(Material, on_delete=PROTECT_CASCADE,
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)

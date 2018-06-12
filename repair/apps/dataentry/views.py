@@ -8,7 +8,7 @@ from django.shortcuts import render
 from plotly import offline
 from plotly.graph_objs import Figure, Data, Layout
 from repair.apps.login.models import CaseStudy
-from repair.apps.asmfa.models import Material, KeyflowInCasestudy
+from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.views import BaseView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -21,6 +21,11 @@ class DataEntryView(LoginRequiredMixin, BaseView):
         url_pks = request.session.get('url_pks', {})
         
         casestudy = request.session.get('casestudy')
+        
+        if not casestudy:
+            return render(request, 'casestudy-missing.html',
+                          self.get_context_data())
+        
         keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
         
         context = self.get_context_data()

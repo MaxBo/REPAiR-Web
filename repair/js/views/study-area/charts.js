@@ -1,7 +1,7 @@
-define(['views/baseview', 'underscore', 'collections/chartcategories', 
-        'collections/charts', 'models/chart', 'utils/loader', "app-config"],
+define(['views/baseview', 'underscore', 'collections/gdsecollection', 
+        'models/gdsemodel', "app-config"],
 
-function(BaseView, _, ChartCategories, Charts, Chart, Loader, config){
+function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
 *
 * @author Christoph Franke
@@ -34,13 +34,22 @@ var BaseChartsView = BaseView.extend(
 
         this.categoryTree = {}
         
-        this.chartCategories = new ChartCategories([], { caseStudyId: this.caseStudy.id });
+        this.chartCategories = new GDSECollection([], { 
+            apiTag: 'chartCategories',
+            apiIds: [ this.caseStudy.id ]
+        });
 
-        var loader = new Loader(this.el, {disable: true});
-        this.chartCategories.fetch({ success: function(){
-            loader.remove();
-            _this.initTree();
-        }})
+        this.loader.activate();
+        this.chartCategories.fetch({ 
+            success: function(){
+                _this.loader.deactivate();
+                _this.initTree();
+            },
+            error: function(r){
+                _this.loader.deactivate();
+                _this.onError;
+            }
+        })
     },
 
     /*
@@ -81,13 +90,16 @@ var BaseChartsView = BaseView.extend(
     
     initTree: function(){
         var _this = this;
-        var deferred = [],
+        var promises = [],
             chartList = [];
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
         this.chartCategories.each(function(category){
-            var charts = new Charts([], { caseStudyId: _this.caseStudy.id, 
-                                          chartCategoryId: category.id });
+            var charts = new GDSECollection([], { 
+                apiTag: 'charts',
+                apiIds: [ _this.caseStudy.id, category.id ]
+            });
+            charts.categoryId = category.id;
             var node = { 
                 text: category.get('name'), 
                 category: category,
@@ -97,12 +109,12 @@ var BaseChartsView = BaseView.extend(
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
-            deferred.push(charts.fetch());
+            promises.push(charts.fetch());
         });
         // fetch prepared layers and put informations into the tree nodes
-        $.when.apply($, deferred).then(function(){
+        Promise.all(promises).then(function(){
             chartList.forEach(function(charts){
-                var catNode = _this.categoryTree[charts.chartCategoryId];
+                var catNode = _this.categoryTree[charts.categoryId];
                 var children = [];
                 charts.each(function(chart){
                     var node = { 
@@ -121,6 +133,7 @@ var BaseChartsView = BaseView.extend(
 
     rerenderChartTree: function(categoryId){
         this.buttonBox.style.display = 'None';
+        // error when trying to remove, but not initialized yet, safe to ignore
         $(this.chartTree).treeview('remove');
         this.renderChartTree(categoryId);
     },
@@ -236,18 +249,21 @@ var BaseChartsView = BaseView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = new _this.chartCategories.model(
-                { name: name }, { caseStudyId: _this.caseStudy.id })
-            category.save(null, { success: function(){
-                var catNode = { 
-                    text: name, 
-                    category: category,
-                    state: { checked: true }
-                };
-                catNode.nodes = [];
-                _this.categoryTree[category.id] = catNode;
-                _this.rerenderChartTree(category.id);
-            }})
+            var category = _this.chartCategories.create( { name: name }, { 
+                success: function(){
+                    console.log(category)
+                    var catNode = { 
+                        text: name, 
+                        category: category,
+                        state: { checked: true }
+                    };
+                    catNode.nodes = [];
+                    _this.categoryTree[category.id] = catNode;
+                    _this.rerenderChartTree(category.id);
+                },
+                error: _this.onError,
+                wait: true
+            });
         }
         this.getName({ 
             title: gettext('Add Category'),
@@ -263,27 +279,17 @@ var BaseChartsView = BaseView.extend(
         var imgInput = this.el.querySelector('#chart-image-input');
         if (imgInput.files && imgInput.files[0]){
         
-            // you have to files via form, Backbone.Models (sends data as json) doesn't work here
+            // you have to upload files via form, Backbone.Models (sends data as json) doesn't work here
             var image = imgInput.files[0],
-                name = this.el.querySelector('#chart-name').value
-                formData = new FormData();
-            formData.append('image', image);
-            formData.append('name', name);
-            var url = config.api.charts.format(this.caseStudy.id, category.id);
-            $.ajax({
-                type: "POST",
-                timeout: 50000,
-                url: url,
-                data: formData,
-                cache: false,
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                success: function (data, textStatus, jqXHR) {
-                    // make model out of response
-                    var chart = new Chart({ id: data.id, name: data.name, image: data.image, chart_category: category.id },
-                                          { caseStudyId: _this.caseStudy.id, categoryId: category.id });
-                    
+                name = this.el.querySelector('#chart-name').value;
+            
+            var data = {
+                name: name,
+                image: image
+            }
+            var chart = new GDSEModel( {}, { apiTag: 'charts', apiIds: [ _this.caseStudy.id, category.id ] });
+            chart.save(data, {
+                success: function () {
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',
                         chart: chart };
@@ -324,20 +330,24 @@ var BaseChartsView = BaseView.extend(
         $(this.confirmationModal).modal('hide'); 
         var is_category = (this.selectedNode.category != null);
         var model = this.selectedNode.chart || this.selectedNode.category;
-        model.destroy({ success: function(){
-            var selectCatId = 0;
-            // remove category from tree (if category was selected)
-            if (_this.selectedNode.category) {
-                delete _this.categoryTree[model.id];
-            }
-            // remove chart from category (if chart was selected)
-            else {
-                _this.getTreeChartNode(model, { pop : true })
-                selectCatId = model.get("chart_category");
-            }
-            _this.selectedNode = null;
-            _this.rerenderChartTree(selectCatId);
-        }});
+        model.destroy({ 
+            success: function(){
+                var selectCatId = 0;
+                // remove category from tree (if category was selected)
+                if (_this.selectedNode.category) {
+                    delete _this.categoryTree[model.id];
+                }
+                // remove chart from category (if chart was selected)
+                else {
+                    _this.getTreeChartNode(model, { pop : true })
+                    selectCatId = model.get("chart_category");
+                }
+                _this.selectedNode = null;
+                _this.rerenderChartTree(selectCatId);
+            },
+            error: _this.onError,
+            wait: true
+        });
         
     },
     
@@ -360,13 +370,16 @@ var BaseChartsView = BaseView.extend(
         var model = this.selectedNode.chart || this.selectedNode.category;
         function onConfirm(name){
             model.set('name', name);
-            model.save({ name: name }, { patch: true, success: function(){
-                var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
-                            _this.getTreeChartNode(model);
-                node.text = name;
-                var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
-                _this.rerenderChartTree(selectCatId);
-            }})
+            model.save({ name: name }, { patch: true, 
+                success: function(){
+                    var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                                _this.getTreeChartNode(model);
+                    node.text = name;
+                    var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
+                    _this.rerenderChartTree(selectCatId);
+                },
+                error: _this.onError
+            })
         };
         this.getName({ 
             name: model.get('name'), 

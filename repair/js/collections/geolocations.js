@@ -1,6 +1,7 @@
-define(["backbone", "models/geolocation", "app-config"],
+define(["backbone", "collections/gdsecollection", "models/geolocation"],
 
-  function(Backbone, Geolocation, config) {
+  function(Backbone, GDSECollection, Location) {
+  
 
    /**
     *
@@ -8,32 +9,11 @@ define(["backbone", "models/geolocation", "app-config"],
     * @name module:collections/Locations
     * @augments Backbone.Collection
     */
-    var Locations = Backbone.Collection.extend(
+    var Locations = GDSECollection.extend(
       /** @lends module:collections/Locations.prototype */
       {
-      url: function(){
-          var url = (this.loc_type == 'operational') ? config.api.opLocations: config.api.adminLocations
-          return url.format(this.caseStudyId, this.keyflowId);
-      },
       
-    /**
-     * collection of module:models/Location
-     *
-     * @param {Array.<Object>} [attrs=null]               list objects representing the fields of each model and their values, will be set if passed
-     * @param {Object} options
-     * @param {string} options.caseStudyId              id of the casestudy the location belongs to
-     * @param {string} options.keyflowId                id of the keyflow the location belongs to
-     * @param {string} [options.type='administrative']  type of location ('administrative' or 'operational')
-     *
-     * @constructs
-     * @see http://backbonejs.org/#Collection
-     */
-      initialize: function (attrs, options) {
-        this.caseStudyId = options.caseStudyId;
-        this.loc_type = options.type;
-        this.keyflowId = options.keyflowId;
-      },
-      model: Geolocation,
+      model: Location,
       
       //override
       parse: function(response) {

@@ -79,12 +79,14 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
                             'level_pk': 'adminlevel__id', }
     casestudy = CasestudyField(source='adminlevel.casestudy',
                                view_name='casestudy-detail')
+    point_on_surface = GeometryField(source='pnt', read_only=True)
 
     class Meta:
         model = Area
         fields = ('url', 'id',
                   'casestudy',
                   'name', 'code',
+                  'point_on_surface'
                   )
 
 
@@ -109,6 +111,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
                   'adminlevel',
                   'parent_area',
                   'parent_level',
+                  'point_on_surface'
                   )
 
     def update(self, instance, validated_data):

@@ -1,10 +1,10 @@
   /* prevent selection of content, some browsers try to select sth. on touch */
 .noselect {
   -webkit-touch-callout: none;
-    -webkit-user-select: none; 
+    -webkit-user-select: none;
      -khtml-user-select: none;
        -moz-user-select: none;
-        -ms-user-select: none; 
+        -ms-user-select: none;
             user-select: none;
 }
 
@@ -122,7 +122,14 @@ div.fullscreen{
   padding: 0px;
 }
 .title {
-  font-weight: 600;
+  font-weight: 600;    
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.input-label {
+  float: left; 
+  margin-right: 10px; 
+  padding-top: 8px;
 }
 .source {
   position: absolute;
@@ -131,13 +138,6 @@ div.fullscreen{
   left: 50px;
 }
 .graph {
-}
-.selectpicker {
-  height: 30px;
-  border: 2px solid #EEE;
-  border-radius: 5px;
-  color: #fff;
-  background-color: #333;
 }
 .btn-panel {
   background-color: #5688d8;
@@ -188,7 +188,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    background-color: rgb(240, 255, 179) !IMPORTANT;
     border-bottom: 2px solid #aad400;
     border-top: 2px solid #aad400;
 }
@@ -196,8 +196,13 @@ tr.selected td{
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
-  background-color:  #aad400;
+  background-color: #aad400;
   color: white;
+}
+
+tfoot th {
+  background-color: #f9f9f9;
+  color: black;
 }
 
 .loader {
@@ -343,6 +348,18 @@ button.square, button.round, .btn.square, .btn.round {
   color: #aad400;
 }
 
+.btn-warning.inverted {
+  background-color: white;
+  border: solid 1px #d58512;
+  color: #d58512;
+}
+
+.btn-danger.inverted {
+  background-color: white;
+  border: solid 1px #ac2925;
+  color: #ac2925;
+}
+
 .btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
   border-color: #93b700 !important;
   background-color: #f9ffe2 !important;
@@ -350,6 +367,24 @@ button.square, button.round, .btn.square, .btn.round {
 
 .btn-primary.inverted:active {
   color: #93b700;
+}
+
+.btn-warning.inverted:focus, .btn-warning.inverted:hover, .btn-warning.inverted:active {
+  border-color: #b75e00 !important;
+  background-color: #fff0e2 !important;
+}
+
+.btn-warning.inverted:active {
+  color: #b75e00;
+}
+
+.btn-danger.inverted:focus, .btn-danger.inverted:hover, .btn-danger.inverted:active {
+  border-color: #b70000 !important;
+  background-color: #ffefef !important;
+}
+
+.btn-danger.inverted:active {
+  color: #b70000;
 }
 
 button.round, .btn.round{
@@ -380,8 +415,16 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
     /*top: 20px;*/
 /*}*/
 
+.flipped {
+    transform:rotateX(180deg);
+    -ms-transform:rotateX(180deg); /* IE 9 */
+    -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+
 .item-panel{
-  /*min-height: 500px;*/
+  min-width: 100px;
+  margin: 5px;
+  vertical-align: top;
 }
 
 .panel-item {
@@ -405,6 +448,8 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .panel-item label{
   font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .panel-item .button-box{
@@ -444,4 +489,11 @@ div.panel-item:hover label{
 }
 .row.overflow>div{
   display: inline-block;
+  position: relative;
+}
+.ui-select-choices {
+  position: fixed;
+  top: auto;
+  left: auto;
+  width: inherit;
 }

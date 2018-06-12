@@ -1,19 +1,21 @@
 define(['views/baseview', 'underscore',
-    'views/data-entry/edit-node',
-    'collections/activities', 'collections/actors', 'collections/flows', 'collections/stocks',
-    'collections/activitygroups', 'collections/publications', 
-    'visualizations/sankey', 'views/flowsankey', 'utils/loader'],
-function(BaseView, _, EditNodeView, Activities, Actors, Flows, 
-    Stocks, ActivityGroups, Publications, Sankey, FlowSankeyView, Loader){
+        'views/data-entry/edit-node', 'views/status-quo/flows',
+        'collections/gdsecollection', 'models/gdsemodel',
+        'app-config', 'libs/bootstrap-treeview.min', 
+        'datatables.net-bs',
+        'datatables.net-bs/css/dataTables.bootstrap.css',
+        'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+        'static/css/bootstrap-treeview.min.css'],
+function(BaseView, _, EditNodeView, FlowsView, GDSECollection, GDSEModel, config){
 
 /**
 *
 * @author Christoph Franke
-* @name module:views/FlowsView
+* @name module:views/FlowsEditView
 * @augments module:views/BaseView
 */
-var FlowsView = BaseView.extend( 
-    /** @lends module:views/FlowsView.prototype */
+var FlowsEditView = BaseView.extend( 
+    /** @lends module:views/FlowsEditView.prototype */
     {
 
     /**
@@ -24,14 +26,15 @@ var FlowsView = BaseView.extend(
     * @param {module:collections/Keyflows.Model} options.model the keyflow (defining the type of flows that will be rendered)
     * @param {module:models/CaseStudy} options.caseStudy       the casestudy
     * @param {module:collections/Materials} options.materials  the available materials
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
     *
     * @constructs
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        _.bindAll(this, 'render');
+        FlowsEditView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderDataTree');
-        _.bindAll(this, 'renderDataEntry');
+        _.bindAll(this, 'renderNodeView');
         var _this = this;
         this.template = options.template;
         this.keyflowId = this.model.id;
@@ -41,19 +44,22 @@ var FlowsView = BaseView.extend(
         this.materials = options.materials;
 
         // collections of nodes associated to the casestudy
-        this.activityGroups = new ActivityGroups([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.actors = new Actors([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.activities = new Activities([], {caseStudyId: this.caseStudyId, keyflowId: this.keyflowId});
-        this.publications = new Publications([], { caseStudyId: this.caseStudyId });
+        this.activityGroups = new GDSECollection([], { 
+            apiTag: 'activitygroups',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
+        this.activities = options.activities;
+        this.publications = new GDSECollection([], { 
+            apiTag: 'publicationsInCasestudy',
+            apiIds: [ this.caseStudyId ]
+        });
 
-        var loader = new Loader(document.getElementById('flows-edit'),
-            {disable: true});
-
-        $.when(this.actors.fetch({data: 'included=True'}, 
-            this.activityGroups.fetch(), this.activities.fetch(), 
-            this.publications.fetch())).then(function(){
-        _this.render();
-        loader.remove();
+        this.loader.activate();
+        
+        var promises = [ this.activityGroups.fetch(), this.publications.fetch() ]
+        Promise.all(promises).then(function(){
+            _this.loader.deactivate();
+            _this.render();
         });
     },
 
@@ -61,9 +67,7 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #refresh-dataview-btn': 'renderSankey',
-        'click a[href="#sankey-tab"]': 'refreshSankey',
-        'change #data-view-type-select': 'renderSankey'
+        'click #actor-select-modal .confirm': 'confirmActorSelection'
     },
 
     /*
@@ -79,24 +83,15 @@ var FlowsView = BaseView.extend(
             keyflow: this.model.get('name')});
         this.renderDataTree();
         this.renderSankey();
-    },
-
-    refreshSankey: function(){
-        if (this.flowsView) 
-            this.flowsView.refresh({ width: this.el.offsetWidth - 20});
+        this.setupActorsTable();
     },
 
     renderSankey: function(){
-        var type = this.el.querySelector('#data-view-type-select').value;
-        var collection = (type == 'actor') ? this.actors: 
-            (type == 'activity') ? this.activities: 
-            this.activityGroups;
-        if (this.flowsView != null) this.flowsView.close();
-        this.flowsView = new FlowSankeyView({
-            el: this.el.querySelector('#sankey-wrapper'),
-            collection: collection,
-            materials: this.materials,
-            width: this.el.offsetWidth - 20
+        var flowsView = new FlowsView({ 
+            caseStudy: this.caseStudy,
+            el: this.el.querySelector('#sankey-tab'),
+            template: 'flows-template',
+            keyflowId: this.keyflowId
         })
     },
 
@@ -106,41 +101,31 @@ var FlowsView = BaseView.extend(
     renderDataTree: function(){
         var _this = this;
         var dataDict = {};
-        var activityDict = {};
-
-        this.actors.each(function(actor){
-            var node = {
-                text: actor.get('name'),
-                icon: 'glyphicon glyphicon-user',
-                model: actor,
-                state: {checked: false}
-            };
-            var activity_id = actor.get('activity');
-            if (!(activity_id in activityDict))
-                activityDict[activity_id] = [];
-            activityDict[activity_id].push(node);
-        });
 
         this.activityGroups.each(function(group){
             var node = {
                 text: group.get('code') + ": " + group.get('name'),
                 model: group,
                 icon: 'fa fa-cubes',
-                nodes: [],
-                state: {checked: false}
+                nodes: []
             };
             dataDict[group.id] = node;
         });
 
         this.activities.each(function(activity){
             var id = activity.get('id');
-            var nodes = (id in activityDict) ? activityDict[id]: [];
+            var actorPlaceholder  = {
+                model: null,
+                parentActivityId: id,
+                text: [gettext('Select Actor')],
+                tag: 'actorSelect',
+                icon: 'fa fa-users'
+            };
             var node = {
                 text: activity.get('name'),
                 model: activity,
                 icon: 'fa fa-cube',
-                nodes: nodes,
-                state: {checked: false}
+                nodes: [actorPlaceholder]
             };
             dataDict[activity.get('activitygroup')].nodes.push(node)
         });
@@ -152,10 +137,22 @@ var FlowsView = BaseView.extend(
 
         // render view on node on click in data-tree
         var onClick = function(event, node){
-            _this.renderDataEntry(node, true);
+            // check and warn if previous view was changed
+            if (_this.editNodeView != null && _this.editNodeView.hasChanged()){
+                var message = gettext('Attributes of the node have been changed but not uploaded. <br><br>Do you want to discard the changes?');
+                _this.confirm({ 
+                    message: message,
+                    onConfirm: function(){
+                        _this.renderNodeView(node);
+                    },
+                    onCancel: function(){
+                        $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                    }
+                })
+            }
+            else _this.renderNodeView(node);
         };
         var divid = '#data-tree';
-        require('libs/bootstrap-treeview.min');
         $(divid).treeview({data: dataTree, showTags: true,
             selectedBackColor: '#aad400',
             onNodeSelected: onClick,
@@ -165,46 +162,137 @@ var FlowsView = BaseView.extend(
             });
         $(divid).treeview('collapseAll', {silent: true});
     },
+    
+    setupActorsTable: function(){
+        var _this = this;
+        var columns = [
+            {data: 'id', title: 'ID', visible: false},
+            {data: 'name', title: gettext('Name')},
+            {data: 'activity_name', title: gettext('Activity'), name: 'activity__name'},
+            {data: 'activitygroup_name', title: gettext('Activity Group'), name: 'activity__activitygroup__name'},
+            {data: 'city', title: gettext('City'), name: 'administrative_location.city'},
+            {data: 'address', title: gettext('Address'), name: 'administrative_location.address'},
+        ];
+        var table = this.el.querySelector('#actor-select-modal table');
+        
+        var url = config.api.actors.format(this.caseStudyId, this.keyflowId);
+        this.actorsDatatable = $(table).DataTable({
+            serverSide: true,
+            ajax: url + "?format=datatables",
+            columns: columns,
+            rowId: 'id'
+        });
+        var body = table.querySelector('tbody');
+        $(body).on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                _this.actorsDatatable.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+        
+        // add individual search fields for all columns
+        $(table).append('<tfoot><tr></tr></tfoot>');
+        var footer = $('tfoot tr', table);
+        var delay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+                clearTimeout (timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
+        this.actorsDatatable.columns().every( function () {
+            var column = this;
+            if (column.visible()){
+                var searchInput = document.createElement('input'),
+                    th = document.createElement('th');
+                searchInput.placeholder = gettext('Search');
+                th.appendChild(searchInput);
+                searchInput.name = columns[column.index()].data;
+                searchInput.style.width = '100%';
+                searchInput.autocomplete = "off";
+                footer.append(th);
+                $(searchInput).on( 'keyup change', function () {
+                    var input = this;
+                    if ( column.search() !== input.value ) {
+                        delay(function(){
+                            column.search(input.value).draw();
+                        }, 400 );
+                    }
+                });
+            }
+        });
+    },
 
     /*
     * render the edit-view on a node
     */
-    renderDataEntry: function(node, check){
-        var model = node.model;
-        if (model == null)
-            return;
-        var _this = this;
+    renderNodeView: function(node, options){
+        var options = options || {},
+            model = node.model,
+            _this = this;
+        
+        function selectActor(onConfirm){
+            _this.onConfirmActor = function(id){
+                model = new GDSEModel( {id: id}, { 
+                    apiTag: 'actors',
+                    apiIds: [ _this.caseStudyId, _this.keyflowId ] 
+                });
+                node.model = model;
+                onConfirm();
+                // select "Select Actor" node when confirmed
+                $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+            }
+            var modal = $('#actor-select-modal'),
+                activity = _this.activities.get(node.parentActivityId),
+                activityInput = $('input[name="activity_name"]', modal);
+            activityInput.val(activity.get('name'));
+            activityInput.trigger('change'); 
+            //_this.actorsDatatable.search( activity.get('name') ).draw();
+            modal.modal('show');
+        }
     
-        function renderNode(){
+        function render(){
             if (_this.editNodeView != null) _this.editNodeView.close();
             _this.selectedNode = node;
-            // currently selected keyflow
-            _this.editNodeView = new EditNodeView({
-                el: document.getElementById('edit-node'),
-                template: 'edit-node-template',
-                model: model,
-                materials: _this.materials,
-                keyflowId: _this.keyflowId,
-                keyflowName: _this.model.get('name'),
-                caseStudyId: _this.caseStudyId,
-                publications: _this.publications,
-                onUpload: function() { _this.renderDataEntry(node) } // rerender after upload
-            });
-        }
-    
-        if (check && this.editNodeView != null && this.editNodeView.hasChanged()){
-            var message = gettext('Attributes of the node have been changed but not uploaded. <br><br>Do you want to discard the changes?');
-            this.confirm({ 
-                message: message,
-                onConfirm: renderNode,
-                onCancel: function(){
-                    $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
-                }
+            model.caseStudyId = _this.caseStudyId;
+            model.keyflowId = _this.keyflowId;
+            model.fetch({ 
+                success: function(){
+                    // currently selected keyflow
+                    _this.editNodeView = new EditNodeView({
+                        el: document.getElementById('edit-node'),
+                        template: 'edit-node-template',
+                        model: model,
+                        materials: _this.materials,
+                        keyflowId: _this.keyflowId,
+                        caseStudyId: _this.caseStudyId,
+                        publications: _this.publications,
+                        onUpload: function() { _this.renderNodeView(node, { rerender: true }) } // rerender after upload
+                    });
+                }, error: _this.onError
             })
         }
-        else renderNode();
-    }
+        
+        if (node.tag == 'actorSelect' && !options.rerender){
+            // select previous node (so that "Select Actor" is not highlighted on cancel)
+            if (this.selectedNode)
+                $('#data-tree').treeview('selectNode', [this.selectedNode.nodeId, { silent: true }]);
+            selectActor(render);
+        }
+        else render();
+    },
+    
+    confirmActorSelection: function(){
+        var selected = this.actorsDatatable.row('.selected');
+        this.actorsDatatable.$('tr.selected').removeClass('selected');
+        if (!selected) return;
+        var data = selected.data();
+        this.onConfirmActor(data.id);
+    },
 
 });
-return FlowsView;
+return FlowsEditView;
 });

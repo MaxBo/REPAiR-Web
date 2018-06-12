@@ -26,6 +26,7 @@ class CasestudyReadOnlyViewSetMixin(ABC):
     additional_filters = {}
     serializer_class = None
     serializers = {}
+    pagination_class = None
 
     def get_serializer_class(self):
         return self.serializers.get(self.action,
@@ -49,32 +50,32 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         request.session['url_pks'] = kwargs
 
     def list(self, request, **kwargs):
-        """
-        filter the queryset with the lookup-arguments
-        and then render the filtered queryset with the serializer
-        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
-        Serializer-Class
-        """
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
+        
+        # special format requested -> let the plugin handle that
+        if ('format' in request.query_params):
+            return super().list(request, **kwargs)
+        
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
             return Response(status=400)
+        if self.pagination_class:
+            paginator = self.pagination_class()
+            queryset = paginator.paginate_queryset(queryset, request)
+            
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
+            
         data = self.filter_fields(serializer, request)
-        return Response(serializer.data)
+        if self.pagination_class:
+            return paginator.get_paginated_response(data)
+        return Response(data)
 
     def retrieve(self, request, **kwargs):
-        """
-        filter the queryset with the lookup-arguments
-        and then render the filtered queryset with the serializer
-        the lookup-arguments are defined in the "parent_lookup_kwargs" of the
-        Serializer-Class
-        """
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
@@ -112,11 +113,12 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         filter_args = {v: lookup_args[k] for k, v
                        in SerializerClass.parent_lookup_kwargs.items()}
 
+        queryset = self.get_queryset()
         # filter additional expressions
-        filter_args.update(self.get_filter_args(queryset=self.queryset,
+        filter_args.update(self.get_filter_args(queryset=queryset,
                                                 query_params=query_params)
                            )
-        queryset = self.queryset.model.objects.filter(**filter_args)
+        queryset = queryset.filter(**filter_args)
 
         return queryset
 
@@ -135,8 +137,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
             if hasattr(queryset.model, key):
                 if len(key_cmp) > 1:
                     cmp = key_cmp[-1]
-                    if cmp not in QUERY_TERMS:
-                        continue
+                    if cmp == 'in':
+                        v = v.strip('[]').split(',')
                 filter_args[k] = v
         return filter_args
 
@@ -161,6 +163,8 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         url_pks = serializer.context['request'].session['url_pks']
         new_kwargs = {}
         for k, v in url_pks.items():
+            if k not in self.serializer_class.parent_lookup_kwargs:
+                continue
             key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
             if '__' in key:
                 continue

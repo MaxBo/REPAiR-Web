@@ -1,13 +1,14 @@
-define(['backbone', 'underscore'],
+define(['underscore','views/baseview', 'collections/gdsecollection',
+        'models/gdsemodel'],
 
-function(Backbone, _,){
+function(_, BaseView, GDSECollection, GDSEModel){
     /**
     *
-    * @author Christoph Franke
+    * @author Christoph Franke, Balázs Dukai
     * @name module:views/TargetsView
     * @augments Backbone.View
     */
-    var TargetsView = Backbone.View.extend(
+    var TargetsView = BaseView.extend(
         /** @lends module:views/TargetsView.prototype */
         {
 
@@ -23,48 +24,128 @@ function(Backbone, _,){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
+            TargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
-            _.bindAll(this, 'render');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
+
+            _this.targets = [];
+            this.targetsModel = new GDSECollection([], {
+                apiTag: 'targets',
+                apiIds: [this.caseStudy.id]
+            });
+
+            _this.aims = [];
+            this.aimsModel = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [this.caseStudy.id]
+            });
+
+            // there is a spelling or conceptual error here, because
+            // impactcategories == indicators
+            _this.impactcategories = []
+            this.impactCategoriesModel = new GDSECollection([], {
+                apiTag: 'impactcategories',
+            });
+
+            _this.targetvalues = [];
+            this.targetValuesModel = new GDSECollection([], {
+                apiTag: 'targetvalues',
+            });
             
-            this.aims = [
-                'Higher Recycling rate',
-                'Less non recyclable garbage'
-            ]
+            _this.spatial = [];
+            this.spatialModel = new GDSECollection([], {
+                apiTag: 'targetspatialreference',
+            });
             
-            this.indicators = {
-                'Higher Recycling rate': [
-                    'Indicator AB',
-                    'Indicator XY',
-                ],
-                'Less non recyclable garbage': []
-            };
-            
-            this.targets = [
-                'reduce by 50%',
-                'reduce by 30%',
-                'reduce by 15%',
-                'reduce by 10%',
-                'reduce by 5%',
-                'increase by 5%',
-                'increase by 10%',
-                'increase by 15%',
-                'increase by 30%',
-                'increase by 50%',
-            ];
-            
-            this.spatial = [ 'Focus Area', 'Study Area' ]
-            
-            this.render();
+            var promises = [];
+
+            promises.push(this.targetsModel.fetch({
+                success: function(targets){
+                    var temp = [];
+                    targets.forEach(function(target){
+                        temp.push({
+                            "id": target.get('id'),
+                            "aim": target.get('aim'),
+                            "impact_category": target.get('impact_category'),
+                            "target_value": target.get('target_value'),
+                            "spatial_reference": target.get('spatial_reference'),
+                            "user": target.get('user')
+                        });
+                    });
+                    _this.targets = _.sortBy(temp, 'aim' );
+                },
+                error: _this.onError
+            }));
+
+            promises.push(this.aimsModel.fetch({
+                success: function(aims){
+                    _this.initItems(aims, _this.aims, "Aim");
+                },
+                error: _this.onError
+            }));
+
+            promises.push(this.impactCategoriesModel.fetch({
+                success: function(impactcategories){
+                    impactcategories.forEach(function(impact){
+                        _this.impactcategories.push({
+                            "id": impact.get('id'),
+                            "name": impact.get('name'),
+                            "area_of_protection": impact.get('area_of_protection'),
+                            "spatial_differentiation": impact.get('spatial_differentiation')
+                        });
+                    });
+                },
+                error: _this.onError
+            }));
+
+            promises.push(this.targetValuesModel.fetch({
+                success: function(targets){
+                    targets.forEach(function(target){
+                        _this.targetvalues.push({
+                            "text": target.get('text'),
+                            "id": target.get('id'),
+                            "number": target.get('number'),
+                            "factor": target.get('factor')
+                        });
+                    });
+                },
+                error: _this.onError
+            }));
+
+            promises.push(this.spatialModel.fetch({
+                success: function(areas){
+                    areas.forEach(function(area){
+                        _this.spatial.push({
+                            "text": area.get('text'),
+                            "name": area.get('name'),
+                            "id": area.get('id')
+                        });
+                    });
+                },
+                error: _this.onError
+            }));
+
+            Promise.all(promises).then(this.render);
         },
 
         /*
         * dom events (managed by jquery)
         */
         events: {
+            'click #add-target-button': 'addTarget'
+        },
+
+        initItems: function(items, list, type){
+            items.forEach(function(item){
+                list.push({
+                    "text": item.get('text'),
+                    "id": item.get('id'),
+                    "type": type
+                });
+            });
         },
 
         /*
@@ -76,57 +157,229 @@ function(Backbone, _,){
             var template = _.template(html);
             this.el.innerHTML = template();
             this.renderRows();
-            
-            // lazy way to render workshop mode: just hide all buttons for editing
-            // you may make separate views as well
-            if (this.mode == 0){
-                var btns = this.el.querySelectorAll('button.add, button.edit, button.remove');
-                _.each(btns, function(button){
-                    button.style.display = 'none';
-                });
+        },
+
+        createSelect(type, typeObject, typeList, target){
+            var _this = this;
+            var select = document.createElement('select'),
+                wrapper = document.createElement('div');
+            // var type = "targetvalue";
+            var selectId = type + typeObject.id;
+            wrapper.classList.add('fake-cell');
+            select.classList.add('form-control');
+            typeList.forEach(function(target){
+                var option = document.createElement('option');
+                if (type == "impact") {
+                    option.text = target.name;
+                } else {
+                    option.text = target.text;
+                }
+                option.setAttribute("id", target.id);
+                select.appendChild(option);
+            });
+            for(var k, j = 0; k = select.options[j]; j++) {
+                if (type == "impact") {
+                    if(k.text == typeObject.name) {
+                        select.selectedIndex = j;
+                        break;
+                    }
+                } else {
+                    if(k.text == typeObject.text) {
+                        select.selectedIndex = j;
+                        break;
+                    }
+                }
             }
+            select.setAttribute("type", type);
+            select.setAttribute("id", selectId);
+            select.setAttribute("targetId", target.id);
+            select.addEventListener("change", function(e){
+                _this.editTarget(e, target);
+            });
+            wrapper.appendChild(select);
+            return wrapper;
         },
 
         renderRows(){
             var _this = this;
-            this.aims.forEach(function(aim){
+            _this.aims.forEach(function(aim){
                 var row = document.createElement('div');
                 row.classList.add('row', 'overflow', 'bordered');
                 var html = document.getElementById('target-row-template').innerHTML
                 var template = _.template(html);
-                row.innerHTML = template({ aim: aim });
+                row.innerHTML = template({ aim: aim.text, aimId: aim.id });
+                row.setAttribute("rowAimId", aim.id);
                 _this.el.appendChild(row);
-                var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
-                    targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
-                    spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
-                    html = document.getElementById('panel-item-template').innerHTML
-                    template = _.template(html);
-                var indicators = _this.indicators[aim];
-                indicators.forEach(function(indicator){
-                    var panelItem = document.createElement('div');
-                    panelItem.classList.add('panel-item');
-                    panelItem.innerHTML = template({ name: indicator });
-                    indicatorPanel.appendChild(panelItem);
-                    
-                    var targetSelect = document.createElement('select');
-                    targetSelect.classList.add('panel-item', 'form-control');
-                    _this.targets.forEach(function(target){
-                        var option = document.createElement('option');
-                        option.text = target;
-                        targetSelect.appendChild(option);
-                    })
+            });
+            if (this.targets.length > 0) {
+                for (var i = 0; i < this.targets.length; i++){
+                    var target = this.targets[i];
+                    var aim = _this.getObject(_this.aims, target.aim),
+                        impactCategory = _this.getObject(_this.impactcategories,
+                            target.impact_category),
+                        targetValue = _this.getObject(_this.targetvalues,
+                            target.target_value),
+                        spatial = _this.getObject(_this.spatial,
+                            target.spatial_reference);
+                    var removeBtn = document.createElement('button');
+
+                    if (i == 0 || this.targets[i-1].aim != target.aim) {
+                        var row = _this.el.querySelector("[rowaimid=" + CSS.escape(target.aim) + "]");
+
+                        var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
+                            targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
+                            spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
+                            removePanel = row.querySelector('.remove').querySelector('.item-panel'),
+                            html = document.getElementById('panel-item-template').innerHTML
+                            template = _.template(html);
+                    }
+
+                    var targetSelect = _this.createSelect("targetvalue", targetValue,
+                     _this.targetvalues, target);
                     targetPanel.appendChild(targetSelect);
-                    
-                    var spatialSelect = document.createElement('select');
-                    spatialSelect.classList.add('panel-item', 'form-control');
-                    _this.spatial.forEach(function(s){
-                        var option = document.createElement('option');
-                        option.text = s;
-                        spatialSelect.appendChild(option);
-                    })
+
+                    var panelItem = _this.createSelect("impact", impactCategory,
+                    _this.impactcategories, target);
+                    indicatorPanel.appendChild(panelItem);
+
+                    var spatialSelect = _this.createSelect("spatial", spatial,
+                    _this.spatial, target);
                     spatialPanel.appendChild(spatialSelect);
-                })
-            })
+
+                    removeBtn.classList.add("btn", "btn-warning", "square",
+                     "remove");
+                    // removeBtn.style.float = 'right';
+                    var span = document.createElement('span');
+                    removeBtn.title = gettext('Remove target')
+                    span.classList.add('glyphicon', 'glyphicon-minus');
+                    // make span unclickable (caused problems when trying to 
+                    // delete row, as the span has no id attached)
+                    span.style.pointerEvents = 'none';
+                    removeBtn.appendChild(span);
+                    removeBtn.setAttribute("targetId", target.id);
+                    removeBtn.addEventListener('click', function(e){
+                        _this.deleteTarget(e);
+                    })
+                    var btnDiv = document.createElement('div');
+                    btnDiv.classList.add("row", "fake-cell");
+                    btnDiv.appendChild(removeBtn);
+                    removePanel.appendChild(btnDiv);
+                }
+            }
+        },
+
+        getObject(list, id){
+            var pos = list.map(function(e) {
+                return e.id;
+            }).indexOf(id);
+            return list[pos];
+        },
+
+        addTarget: function(e){
+            var _this = this;
+            var aimId = $(e.currentTarget).attr("aimId");
+            // just create a default Target
+            var target = new GDSEModel(
+                {
+                "aim": aimId,
+                "impact_category": _this.impactcategories[0].id,
+                "target_value": _this.targetvalues[0].id,
+                "spatial_reference": _this.spatial[0].id
+                },
+                { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
+            );
+            target.save(null, {
+                success: function(){
+                    var temp = _this.targets;
+                    temp.push({
+                        "id": target.get('id'),
+                        "aim": target.get('aim'),
+                        "impact_category": target.get('impact_category'),
+                        "target_value": target.get('target_value'),
+                        "spatial_reference": target.get('spatial_reference'),
+                        "user": target.get('user')
+                    });
+                    _this.targets = _.sortBy(temp, 'aim' );
+                    _this.render();
+                },
+                error: _this.onError
+            });
+        },
+
+        editTarget: function(e){
+            var _this = this;
+            var select = $(e)[0].target;
+            var type = select.getAttribute("type");
+            var targetId = parseInt(select.getAttribute("targetId"));
+            var idx = select.options.selectedIndex;
+            var optionId = parseInt(select.options[idx].getAttribute("id"));
+            var target = new GDSEModel(
+                {id: targetId},
+                { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
+            );
+            if (type == "targetvalue") {
+                target.save({
+                    target_value: optionId
+                }, {
+                    patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].target_value = optionId;
+                    },
+                    error: _this.onError
+                });
+            } else if (type == "impact") {
+                target.save({
+                    "impact_category": optionId
+                }, {
+                    patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].impact_category = optionId;
+                    },
+                    error: _this.onError
+                });
+            } else {
+                target.save({
+                    "spatial_reference": optionId
+                }, {
+                    patch: true,
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(target.get('id'));
+                        _this.targets[pos].spatial_reference = optionId;
+                    },
+                    error: _this.onError
+                });
+            }
+        },
+
+        deleteTarget: function(e){
+            var _this = this;
+            var select = $(e)[0].target;
+            var targetId = parseInt(select.getAttribute("targetId"));
+            var message = gettext('Do you really want to delete the target?');
+            _this.confirm({ message: message, onConfirm: function(){
+                var target = new GDSEModel(
+                    {id: targetId},
+                    { apiTag: 'targets', apiIds: [_this.caseStudy.id] }
+                );
+                target.destroy({
+                    success: function(){
+                        var pos = _this.targets.map(function(e) {
+                            return e.id;
+                        }).indexOf(targetId);
+                        _this.targets.splice(pos, 1);
+                        _this.render();
+                    },
+                    error: _this.onError
+                });
+            }});
         },
 
         /*
