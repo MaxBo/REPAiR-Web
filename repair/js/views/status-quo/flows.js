@@ -261,8 +261,8 @@ var FlowsView = BaseView.extend(
     },
     
     applyFilters: function(){
-        this.filters['activities'] = this.filtersTmp['activities'];
-        this.filters['groups'] = this.filtersTmp['groups'];
+        this.filters['activities'] = this.filtersTmp['activities'] || this.activities;
+        this.filters['groups'] = this.filtersTmp['groups'] || this.activityGroups;
         this.filters['direction'] = this.el.querySelector('input[name="direction"]:checked').value;
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
         this.filters['aggregateMaterials'] = this.el.querySelector('input[name="aggregateMaterials"]').checked;
@@ -274,21 +274,26 @@ var FlowsView = BaseView.extend(
     
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
-        
-        var type = this.typeSelect.value;
-        
-        var direction = this.filters['direction'];
+        var el = document.getElementById('sankey-wrapper'),
+            type = this.typeSelect.value,
+            direction = this.filters['direction'];
         
         var filteredNodes = (type == 'actors') ? this.filters['actors']: 
             (type == 'activities') ? this.filters['activities']: 
             this.filters['groups'];
-            
+        
+        // pass all known nodes to sankey (not only the filtered ones) to avoid
+        // fetching missing nodes
         var collection = (type == 'actors') ? this.actors: 
             (type == 'activities') ? this.activities: 
             this.activityGroups;
-        // temp. disabled rendering of actors and activities
-        if(type!='actors') return;
-        if(!collection) return;
+
+        if (!collection) {
+            if (type == 'actors')
+                el.innerHTML = gettext("The diagram of flows can't be displayed " + 
+                    "before limiting the amount of actors by filtering")
+            return;
+        }
         
         var filterParams = {},
             waste = this.filters['waste'];
@@ -305,22 +310,19 @@ var FlowsView = BaseView.extend(
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, filterParams);
         var stockFilterParams = Object.assign({}, filterParams);
+        var nodeIds = [];
         
-        if (filteredNodes){
-            var nodeIds = [];
-            filteredNodes.forEach(function(node){
-                nodeIds.push(node.id);
-            })
-            if (nodeIds.length > 0) {
-                flowFilterParams['actors'] = {
-                    ids: nodeIds,
-                    direction: direction
-                };
-                stockFilterParams.nodes = nodeIds;
-            }
-        }
-        console.log(flowFilterParams)
-        var el = document.getElementById('sankey-wrapper');
+        filteredNodes.forEach(function(node){
+            nodeIds.push(node.id);
+        })
+        flowFilterParams['subset'] = {
+            direction: direction
+        };
+        flowFilterParams['subset'][type] = nodeIds;
+        stockFilterParams.nodes = nodeIds;
+        
+        flowFilterParams.aggregation_level = type;
+            
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
@@ -387,9 +389,16 @@ var FlowsView = BaseView.extend(
             var groupId = groupSelect.value;
             // clear filters if 'All' (== -1) is selected, else set specific group
             // and filter activities depending on selection
-            _this.filtersTmp['groups'] = (groupId < 0) ? null: [_this.activityGroups.get(groupId)];
-            _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
-            _this.renderNodeSelectOptions(activitySelect,  _this.filtersTmp['activities'] || _this.activities);
+            _this.filtersTmp['groups'] = (groupId < 0) ? _this.activityGroups: 
+                _this.activityGroups.filterBy({'id': groupId});
+                
+            _this.filtersTmp['activities'] = (groupId < 0) ? _this.activities: 
+                _this.activities.filterBy({'activitygroup': groupId});
+                
+            _this.renderNodeSelectOptions(
+                activitySelect,  
+                _this.filtersTmp['activities'] || _this.activities
+            );
             // filter actors in any case
             _this.filterActors();
         })
@@ -399,15 +408,15 @@ var FlowsView = BaseView.extend(
                 groupId = groupSelect.value;
             // specific activity is selected
             if (activityId >= 0) {
-                _this.filtersTmp['activities']  = [_this.activities.get(activityId)];
+                _this.filtersTmp['activities']  = _this.activities.filterBy({'id': activityId});
             }
             // clear filter if 'All' (== -1) is selected in both group and activity
             else if (groupId < 0){
-                 _this.filtersTmp['activities'] = null;
+                 _this.filtersTmp['activities'] = _this.activities;
             }
             // 'All' is selected for activity but a specific group is selected
             else {
-                 _this.filtersTmp['activities'] = (groupId < 0) ? null: _this.activities.filterBy({'activitygroup': groupId});
+                 _this.filtersTmp['activities'] = _this.activities.filterBy({'activitygroup': groupId});
             }
             // filter actors in any case
             _this.filterActors();

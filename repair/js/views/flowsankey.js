@@ -46,16 +46,15 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
                                 (tag == 'activities') ? 'activity': null;
 
-            var flowTag = (tag.endsWith('actors')) ? 'filterActorToActor': 
-                          (tag == 'activities') ? 'activityToActivity':
-                          'groupToGroup',
-                stockTag = (tag.endsWith('actors')) ? 'actorStock': 
+            var stockTag = (tag.endsWith('actors')) ? 'actorStock': 
                            (tag == 'activities') ? 'activityStock':
                            'groupStock';
+                           
             var params = options.flowFilterParams || {};
             params['aggregation_level'] = aggregateLevel;
+            
             this.flows = new GDSECollection([], {
-                apiTag: 'actorToActor',
+                apiTag: 'filterActorToActor',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             this.stocks = new GDSECollection([], {
@@ -131,6 +130,9 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 if(!nodeIds.includes(origin)) missingIds.add(origin);
                 if(!nodeIds.includes(destination)) missingIds.add(destination);
             })
+            // WARNING: postfetch works only with filter actors route, should be
+            // fetched in case of groups and activities, but in fact they should
+            // be complete
             if (missingIds.size > 0){
                 var missingNodes = new GDSECollection([], {
                     url: this.collection.url()
@@ -139,7 +141,6 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                     body: { 'id': Array.from(missingIds).join() },
                     success: function(){
                         var models = _this.collection.models.concat(missingNodes.models);
-                        console.log(missingNodes)
                         var data = _this.transformData(
                             models, _this.flows, _this.stocks, _this.materials);
                         success(data);
@@ -162,10 +163,11 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         * render the view
         */
         render: function(){
-            var isFullScreen = this.el.classList.contains('fullscreen');
-            var width = (isFullScreen) ? this.el.clientWidth : this.width;
-            var height = (isFullScreen) ? this.el.clientHeight : this.height;
-            var div = this.el.querySelector('.sankey');
+            var isFullScreen = this.el.classList.contains('fullscreen'),
+                width = (isFullScreen) ? this.el.clientWidth : this.width,
+                height = (isFullScreen) ? this.el.clientHeight : this.height,
+                div = this.el.querySelector('.sankey'),
+                _this = this;
             if (div == null){
                 div = document.createElement('div');
                 div.classList.add('sankey', 'bordered');
@@ -178,7 +180,9 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 title: ''
             })
             this.complementData(function(data){
-                sankey.render(data);
+                if (data.nodes.length == 0)
+                    _this.el.innerHTML = gettext("No flow data found for applied filters.")
+                else sankey.render(data);
             })
         },
 

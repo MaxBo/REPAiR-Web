@@ -59,7 +59,7 @@ function(PageableCollection, _, GDSEModel, config) {
                 // &&
                 return keys.every(match)
             });
-            return filtered;
+            return new GDSECollection(filtered, {apiTag: this.apiTag, apiIds: this.apiIds});
         },
 
         /**

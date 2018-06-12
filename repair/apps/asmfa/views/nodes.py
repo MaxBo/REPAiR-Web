@@ -96,4 +96,3 @@ class FilterActorViewSet(ActorViewSet):
             queryset = queryset.filter(
                 administrative_location__geom__intersects=poly)
         return queryset
-    

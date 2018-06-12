@@ -207,9 +207,14 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         waste: true / false,  # products or waste, don't pass for both
         
         # filter by origin/destination actors
-        actors: {
-            direction: "to" / "from" / "both", # return flows to or from given actors
-            ids = [...] # ids of the actors, all others are excluded
+        subset: {
+            direction: "to" / "from" / "both", # return flows to or from filtered actors
+            # filter actors by their ids OR by group/activity ids (you may do
+            # all the same time, but makes not much sense though)
+            activitygroups: [...], # ids of activitygroups
+            activities: [...], # ids of activities
+            ids = [...] # ids of the actors
+            
         },
         # filter/aggregate by given material 
         material: {
@@ -229,7 +234,8 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
             },
         }
         
-        aggregation_level: 'activity' or 'activitygroup'
+        # exclusive to spatial_level
+        aggregation_level: 'activity' or 'activitygroup', defaults to actor level
     }
     '''
     # structure of serialized components of a flow as the serializer
@@ -260,11 +266,14 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         params = {}
         # values of body keys are not parsed
         for key, value in request.data.items():
-            params[key] = json.loads(value)
+            try:
+                params[key] = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                params[key] = value
         queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
-        actor_filter = params.get('actors', None)
+        subset_filter = params.get('subset', None)
         material_filter = params.get('material', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
@@ -278,10 +287,21 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
 
-        # filter by origins/destinations and direction
-        if actor_filter:
-            actors = actor_filter.get('ids', None)
-            direction = actor_filter.get('direction', 'both')
+        # build subset of origins/destinations and direction
+        if subset_filter:
+            group_ids = subset_filter.get('activitygroups', None)
+            activity_ids = subset_filter.get('activities', None)
+            actor_ids = subset_filter.get('actors', None)
+            direction = subset_filter.get('direction', 'both')
+            
+            actors = Actor.objects.all()
+            if group_ids:
+                actors = actors.filter(activity__activitygroup__id__in=group_ids)
+            if activity_ids:
+                actors = actors.filter(activity__id__in=activity_ids)
+            if actor_ids:
+                actors = actors.filter(id__in=actor_ids)
+
             if direction == 'from':
                 queryset = queryset.filter(origin__in=actors)
             elif direction == 'to':
@@ -311,6 +331,9 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
     
         # POSTPROCESSING: all following operations are performed on serialized
         # data
+        
+        if level_aggregation and level_aggregation != 'actors':
+            data = self.aggregate_to_level(level_aggregation, data, queryset)
 
         if spatial_aggregation:
             levels = {}
