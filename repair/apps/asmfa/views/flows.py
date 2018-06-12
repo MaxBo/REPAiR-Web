@@ -4,20 +4,32 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
-from django.db.models import Q
+from django.http import HttpResponseBadRequest
+from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum
 import time
 import numpy as np
+import copy
+import json
 from collections import defaultdict, OrderedDict
+from django.utils.translation import ugettext_lazy as _
 
 from repair.apps.asmfa.models import (
     Reason,
     Flow,
+    AdministrativeLocation, 
     Activity2Activity,
     Actor2Actor,
     Group2Group,
     Material,
     Composition,
-    ProductFraction
+    ProductFraction,
+    Actor, 
+    Activity,
+    ActivityGroup, 
+)
+
+from repair.apps.studyarea.models import (
+    Area, AdminLevels
 )
 
 from repair.apps.asmfa.serializers import (
@@ -28,8 +40,9 @@ from repair.apps.asmfa.serializers import (
     Group2GroupSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
 class ReasonViewSet(RevisionMixin, ModelViewSet):
@@ -53,14 +66,9 @@ def filter_by_material(material, queryset):
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-#def aggregate_compositions(material, queryset):
-    #children = material.children
-    #for flow in queryset:
-        #flow.composition.aggregate_by_materials(children)
-    #return queryset
-
 # in place changing data
-def process_data_fractions(material, childmaterials, data, aggregate=False):
+def process_data_fractions(material, childmaterials, data,
+                           aggregate_materials=False):
     desc_dict = {}
     # dictionary to store requested materials and if other materials are
     # descendants of those (including the material itself), much faster than
@@ -102,7 +110,7 @@ def process_data_fractions(material, childmaterials, data, aggregate=False):
 
         new_fractions = []
         # aggregation: new fraction for each material
-        if aggregate:
+        if aggregate_materials:
             for material, amount in aggregated_amounts.items():
                 if amount > 0:
                     aggregated_fraction = OrderedDict({
@@ -165,106 +173,6 @@ class FlowViewSet(RevisionMixin,
     """
     serializer_class = FlowSerializer
     model = Flow
-    
-    def list(self, request, **kwargs):
-        self.check_permission(request, 'view')
-        SerializerClass = self.get_serializer_class()
-        query_params = request.query_params
-        queryset = self.get_queryset()
-        material = None
-        
-        filter_waste = 'waste' in query_params.keys()
-        filter_nodes = ('nodes' in query_params.keys() or
-                        'nodes[]' in query_params.keys())
-        filter_from = ('from' in query_params.keys() or
-                       'from[]' in query_params.keys())
-        filter_to = ('to' in query_params.keys() or
-                     'to[]' in query_params.keys())
-        filter_material = 'material' in query_params.keys()
-        aggregate = ('aggregated' in query_params.keys() and
-                     query_params['aggregated'] in ['true', 'True'])
-        
-        # do the filtering and serializing of superclass, if none of the above
-        # filters are queried (unfortunately they all conflict with filters of 
-        # superclass CasestudyViewSetMixin)
-        if not np.any([filter_waste, filter_nodes, filter_from, filter_to,
-                       filter_material, aggregate]):
-            return super().list(request, **kwargs)
-    
-        # filter products (waste=False) or waste (waste=True)
-        if filter_waste:
-            queryset = queryset.filter(waste=query_params.get('waste'))
-        
-        # filter by origins AND destinations
-        if filter_nodes:
-            nodes = (query_params.get('nodes', None)
-                     or request.GET.getlist('nodes[]')) 
-            queryset = queryset.filter(Q(origin__in=nodes) |
-                                       Q(destination__in=nodes))
-        
-        # filter by origins
-        if filter_from:
-            nodes = (query_params.get('from', None)
-                     or request.GET.getlist('from[]')) 
-            queryset = queryset.filter(origin__in=nodes)
-
-        # filter by destinations
-        if filter_to:
-            nodes = (query_params.get('to', None)
-                     or request.GET.getlist('to[]')) 
-            queryset = queryset.filter(destination__in=nodes)
-
-        # filter the flows by their fractions excluding flows whose
-        # fractions don't contain the requested material (incl. child materials)
-        if filter_material:
-            try:
-                material = Material.objects.get(id=query_params['material'])
-            except Material.DoesNotExist:
-                return Response(status=404)
-            queryset = filter_by_material(material, queryset)
-        
-        serializer = SerializerClass(queryset, many=True,
-                                         context={'request': request, })
-        data = serializer.data
-    
-        # if the fractions of flows are filtered by material, the other
-        # fractions should be removed from the returned data
-        if filter_material and not aggregate:
-            process_data_fractions(material, material.children,
-                                   data, aggregate=False)
-            return Response(data)
-    
-        # aggregate the fractions of the queryset
-        if aggregate:
-            # take the material and its children from if-clause 'filter_material'
-            if material:
-                childmaterials = material.children
-            # no material was requested -> aggregate by top level materials
-            if material is None:
-                childmaterials = Material.objects.filter(parent__isnull=True)
-            
-            #aggregate_queryset(materials, queryset)
-            #filtered = True
-
-            process_data_fractions(material, childmaterials, data, aggregate=True)
-            return Response(data)
-
-        return Response(data)
-
-    def get_queryset(self):
-        model = self.serializer_class.Meta.model
-        flows = model.objects.\
-                select_related('keyflow__casestudy').\
-                select_related('publication').\
-                select_related("origin").\
-                select_related("destination").\
-                prefetch_related("composition__fractions").\
-                all()
-    
-        keyflow_pk = self.kwargs.get('keyflow_pk')
-        if keyflow_pk is not None:
-            flows = flows.filter(keyflow__id=keyflow_pk)
-        return flows
 
 
 class Group2GroupViewSet(FlowViewSet):
@@ -283,7 +191,7 @@ class Activity2ActivityViewSet(FlowViewSet):
     serializer_class = Activity2ActivitySerializer
 
 
-class Actor2ActorViewSet(FlowViewSet):
+class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     add_perm = 'asmfa.add_actor2actor'
     change_perm = 'asmfa.change_actor2actor'
     delete_perm = 'asmfa.delete_actor2actor'
@@ -291,4 +199,385 @@ class Actor2ActorViewSet(FlowViewSet):
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                           'destination__included': True}
+    # structure of serialized components of a flow as the serializer
+    # will return it
+    flow_struct = OrderedDict(id=None,
+                              amount=0,
+                              composition=None,
+                              origin=None,
+                              destination=None,
+                              origin_level=None,
+                              destination_level=None,
+                              )
+
+    composition_struct = OrderedDict(id=None,
+                                     name='custom',
+                                     nace='custom',
+                                     fractions=[],
+                                     )
+
+    fractions_struct = OrderedDict(material=None,
+                                   fraction=0
+                                   )
+
+    # POST is used to send filter parameters not to create
+    def post_get(self, request, **kwargs):
+        '''
+        body params:
+        body = {
+            waste: true / false,  # products or waste, don't pass for both
+            
+            # filter by origin/destination actors
+            subset: {
+                direction: "to" / "from" / "both", # return flows to or from filtered actors
+                # filter actors by their ids OR by group/activity ids (you may do
+                # all the same time, but makes not much sense though)
+                activitygroups: [...], # ids of activitygroups
+                activities: [...], # ids of activities
+                ids = [...] # ids of the actors
+                
+            },
+            # filter/aggregate by given material 
+            material: {
+                aggregate: true / false, # aggregate child materials
+                                         # to level of given material
+                                         # or to top level if no id is given
+                id: id, # id of material
+            },
+            
+            # aggregate origin/dest. actors belonging to given
+            # activity/groupon spatial level, child nodes have
+            # to be exclusively 'activity's or 'activitygroup's
+            spatial_level: {  
+                activity: {
+                    id: id,  # id of activitygroup/activity
+                    level: id,  # id of spatial level (as in AdminLevels)
+                },
+            }
+            
+            # exclusive to spatial_level
+            aggregation_level: 'activity' or 'activitygroup', defaults to actor level
+        }
+        '''
+        self.check_permission(request, 'view')
+        SerializerClass = self.get_serializer_class()
+        params = {}
+        # values of body keys are not parsed
+        for key, value in request.data.items():
+            try:
+                params[key] = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                params[key] = value
+        queryset = self.get_queryset()
+
+        waste_filter = params.get('waste', None)
+        subset_filter = params.get('subset', None)
+        material_filter = params.get('material', None)
+        spatial_aggregation = params.get('spatial_level', None)
+        level_aggregation = params.get('aggregation_level', None)
+        
+        if spatial_aggregation and level_aggregation:
+            return HttpResponseBadRequest(_(
+                "Aggregation on spatial levels and based on the activity level "
+                "can't be performed at the same time" ))
+
+        # filter products (waste=False) or waste (waste=True)
+        if waste_filter is not None:
+            queryset = queryset.filter(waste=waste_filter)
+
+        # build subset of origins/destinations and direction
+        if subset_filter:
+            group_ids = subset_filter.get('activitygroups', None)
+            activity_ids = subset_filter.get('activities', None)
+            actor_ids = subset_filter.get('actors', None)
+            direction = subset_filter.get('direction', 'both')
+            
+            actors = Actor.objects.all()
+            if group_ids:
+                actors = actors.filter(activity__activitygroup__id__in=group_ids)
+            if activity_ids:
+                actors = actors.filter(activity__id__in=activity_ids)
+            if actor_ids:
+                actors = actors.filter(id__in=actor_ids)
+
+            if direction == 'from':
+                queryset = queryset.filter(origin__in=actors)
+            elif direction == 'to':
+                queryset = queryset.filter(destination__in=actors)
+            else:
+                queryset = queryset.filter(Q(origin__in=actors) |
+                                           Q(destination__in=actors))
+
+        aggregate_materials = (False if material_filter is None
+                               else material_filter.get('aggregate', False))
+        material_id = (None if material_filter is None
+                       else material_filter.get('id', None))
+
+        material = None
+        # filter the flows by their fractions excluding flows whose
+        # fractions don't contain the requested material (incl. child materials)
+        if material_id is not None:
+            try:
+                material = Material.objects.get(id=material_filter['id'])
+            except Material.DoesNotExist:
+                return Response(status=404)
+            queryset = filter_by_material(material, queryset)
+
+        serializer = SerializerClass(queryset, many=True,
+                                         context={'request': request, })
+        data = serializer.data
     
+        # POSTPROCESSING: all following operations are performed on serialized
+        # data
+        
+        if level_aggregation and level_aggregation != 'actors':
+            data = self.aggregate_to_level(level_aggregation, data, queryset)
+
+        if spatial_aggregation:
+            levels = {}
+            types = []
+            for node_type, values in spatial_aggregation.items():
+                node_id = values['id']
+                level_id = values['level']
+                levels[node_id] = level_id
+                types.append(node_type)
+            unique_types = np.unique(types)
+            # ToDo: raise HTTP malformed request 
+            if len(unique_types) != 1:
+                return HttpResponseBadRequest(_(
+                    'Only one type of activity level is allowed at the same '
+                    'type when aggregating on spatial levels'))
+            typ = unique_types[0]
+            if typ == 'activity':
+                group_relation = 'activity'
+            elif typ == 'activitygroup':
+                group_relation = 'activity__activitygroup'
+            else:
+                return HttpResponseBadRequest(_('unknown activity level'))
+            data = self.spatial_aggregation(data, queryset,
+                                            group_relation, levels)
+
+        # if the fractions of flows are filtered by material, the other
+        # fractions should be removed from the returned data        
+        if material and not aggregate_materials:
+            # if the fractions of flows are filtered by material, the other
+            # fractions should be removed from the returned data
+            if not aggregate_materials:
+                process_data_fractions(material, material.children,
+                                       data, aggregate_materials=False)
+                return Response(data)
+
+        # aggregate the fractions of the queryset
+        if aggregate_materials:
+            # aggregate the fractions of the queryset
+            # take the material and its children from if-clause 'filter_material'
+            if material:
+                childmaterials = material.children
+            # no material was requested -> aggregate by top level materials
+            if material is None:
+                childmaterials = Material.objects.filter(parent__isnull=True)
+
+            #aggregate_queryset(materials, queryset)
+            #filtered = True
+
+            process_data_fractions(material, childmaterials, data,
+                                   aggregate_materials=True)
+            return Response(data)
+
+        return Response(data)
+
+    def get_queryset(self):
+        model = self.serializer_class.Meta.model
+        flows = model.objects.\
+            select_related('keyflow__casestudy').\
+                select_related('publication').\
+                select_related("origin").\
+                select_related("destination").\
+                prefetch_related("composition__fractions").\
+                all()
+
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        if keyflow_pk is not None:
+            flows = flows.filter(keyflow__id=keyflow_pk)
+        return flows
+
+    def spatial_aggregation(self, data, queryset, group_relation, levels):
+        '''
+        aggregate the serialized flows when origins/destinations belong to
+        specific group_relation ('activity' or 'activity__activitygroup')
+        levels is a dict of ids of activity resp. activitygroup and the id of
+        the administrative level whose areas the actors of those activity/
+        activitygroup should be mapped to
+        '''
+        mapped_to_area = []
+        
+        actor_ids = list(queryset.values_list('origin_id', 'destination_id'))
+        actor_ids = [t for s in actor_ids for t in s]
+        actors = Actor.objects.filter(id__in=actor_ids)
+        
+        # prepare map of ids, actors are mapped to themselves by default 
+        # (indicated by level None)
+        id_map = dict(zip(actor_ids, actor_ids))
+        # keep track of level of area
+        area_levels = {}
+        
+        # map the actors belonging to given activities or groups to 
+        # areas of given levels
+        for rid, level in levels.items():
+            # actors in given relation (activity or activitygroup)
+            actors_in_relation = actors.filter(**{group_relation: rid})
+            locations = AdministrativeLocation.objects.filter(
+                actor__in=actors_in_relation)
+            
+            # mark actors that should be mapped to area but have no location
+            air_ids = [x[0] for x in actors_in_relation.values_list('id')]
+            mapped_to_area = dict(zip(air_ids, [None] * len(air_ids)))
+            
+            annotated = self.add_area(locations, level)
+            mapped_to_area.update(dict(
+                annotated.values_list('actor_id', 'adminarea_id')))
+            # overwrite id mapping for actors mapped to an area
+            id_map.update(dict(mapped_to_area))
+            area_set= set(mapped_to_area.values())
+            area_levels.update(dict(zip(area_set, [level] * len(area_set))))
+
+        # aggregate by mapped origins/destinations
+        aggregated_amounts = {}
+        for flow in data:
+            origin = flow['origin']
+            destination = flow['destination']
+            mapped_origin = id_map.get(origin, None)
+            mapped_destination = id_map.get(destination, None)
+            # origin or destination could not be located inside any area ->
+            # ignore it (won't be included in the results)
+            if mapped_origin is None or mapped_destination is None:
+                continue
+            amount = flow['amount']
+            composition = flow['composition']
+            key = (mapped_origin, mapped_destination)
+            if key not in aggregated_amounts:
+                aggregated_amounts[key] = {
+                    'amount': 0,
+                    'fractions': defaultdict(lambda: 0)
+                }
+            aggregation = aggregated_amounts[key]
+            aggregation['amount'] += amount
+            for fraction in composition['fractions']:
+                material = fraction['material']
+                mass = fraction['fraction'] * amount
+                aggregation['fractions'][material] += mass
+
+        # create new serialized flows based on aggregated amounts
+        new_flows = []
+        for (origin, destination), aggregation in aggregated_amounts.items():
+            new_flow = self.flow_struct.copy()
+            new_flows.append(new_flow)
+            amount = aggregation['amount']
+            new_flow['amount'] = aggregation['amount']
+            new_comp = copy.deepcopy(self.composition_struct)
+            new_flow['composition'] = new_comp
+            new_flow['origin'] = origin
+            new_flow['destination'] = destination
+            origin_level = area_levels.get(origin, None)
+            destination_level = area_levels.get(destination, None)
+            new_flow['origin_level'] = origin_level
+            new_flow['destination_level'] = destination_level
+            for material, mass in aggregation['fractions'].items():
+                new_fract = self.fractions_struct.copy()
+                new_fract['material'] = material
+                new_amount = 0 if amount == 0 else mass / amount
+                new_fract['fraction'] = new_amount
+                new_comp['fractions'].append(new_fract)
+
+        return new_flows
+
+    def add_area(self, locations, level):
+        '''
+        annotate given locations with the ids of the areas ('adminarea_id')
+        of given administrative level they are located in,
+        adminarea_id will be None if a location is not located in any of the areas
+        '''
+        areas = Area.objects.filter(adminlevel__id=level)
+        annotated = locations.annotate(
+            adminarea_id=Subquery(
+                areas.filter(geom__intersects=OuterRef('geom')).annotate(
+                    adminarea_id=Min('id')
+                    ).values('adminarea_id')[:1],
+                output_field=IntegerField()
+            )
+        )
+        return annotated
+
+    def aggregate_to_level(self, aggregation_level, data, queryset):
+        """
+        Aggregate actor level to the according flow level
+        if not implemented in the subclass, do nothing
+        """
+        if aggregation_level.lower() == 'activity':
+            actors_activity = dict(Actor.objects.values_list('id', 'activity'))
+            acts = queryset.values_list('origin__activity',
+                                            'destination__activity')
+    
+        elif aggregation_level.lower() == 'activitygroup':
+            actors_activity = dict(Actor.objects.values_list(
+                    'id', 'activity__activitygroup'))
+            acts = queryset.values_list(
+                    'origin__activity__activitygroup',
+                    'destination__activity__activitygroup')
+        else:
+            return data
+    
+        act2act_amounts = acts.annotate(Sum('amount'))
+        custom_compositions = dict()
+        total_amounts = dict()
+        act2act_id = -1
+        new_flows = list()
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            total_amounts[key] = amount
+            custom_compositions[key] = OrderedDict(id=act2act_id,
+                                                   name='custom',
+                                                   nace='custom nace',
+                                                   masses_of_materials=OrderedDict(), 
+                                                   )
+            act2act_id -= 1
+    
+        for serialized_flow in data:
+            amount = serialized_flow['amount']
+            composition = serialized_flow['composition']
+            if not composition:
+                continue
+            key = (actors_activity[serialized_flow['origin']],
+                       actors_activity[serialized_flow['destination']])
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+    
+            fractions = composition['fractions']
+            for fraction in fractions:
+                mass = amount * fraction['fraction']
+                material = fraction['material']
+                mass_of_material = masses_of_materials.get(material, 0) + mass
+                masses_of_materials[material] = mass_of_material
+    
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+            fractions = list()
+            for material, mass_of_material in masses_of_materials.items():
+                fraction = mass_of_material / amount
+                fraction_ordered_dict = OrderedDict({
+                        'material': material,
+                            'fraction': fraction,
+                    })
+                fractions.append(fraction_ordered_dict)
+            custom_composition['fractions'] = fractions
+            del(custom_composition['masses_of_materials'])
+    
+            new_flow = OrderedDict(id=custom_composition['id'],
+                                       amount=amount,
+                                       composition=custom_composition,
+                                       origin=origin,
+                                       destination=destination)
+            new_flows.append(new_flow)
+        return new_flows

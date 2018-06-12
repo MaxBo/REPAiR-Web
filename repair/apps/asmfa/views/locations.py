@@ -13,8 +13,8 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationsOfActorSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
 
 
 class AdministrativeLocationViewSet(RevisionMixin, CasestudyViewSetMixin,

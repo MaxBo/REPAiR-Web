@@ -13,7 +13,7 @@ from repair.apps.wmsresources.serializers import (
     WMSResourceInCasestudySerializer,
 )
 
-from repair.apps.login.views import CasestudyReadOnlyViewSetMixin
+from repair.apps.utils.views import CasestudyReadOnlyViewSetMixin
 
 
 class WMSResourceInCasestudyViewSet(RevisionMixin,
