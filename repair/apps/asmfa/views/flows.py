@@ -40,8 +40,9 @@ from repair.apps.asmfa.serializers import (
     Group2GroupSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
 class ReasonViewSet(RevisionMixin, ModelViewSet):
@@ -190,7 +191,7 @@ class Activity2ActivityViewSet(FlowViewSet):
     serializer_class = Activity2ActivitySerializer
 
 
-class Actor2ActorViewSet(FlowViewSet):
+class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     add_perm = 'asmfa.add_actor2actor'
     change_perm = 'asmfa.change_actor2actor'
     delete_perm = 'asmfa.delete_actor2actor'
@@ -198,46 +199,6 @@ class Actor2ActorViewSet(FlowViewSet):
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                           'destination__included': True}
-
-
-class FilterActor2ActorViewSet(Actor2ActorViewSet):
-    '''
-    body params:
-    body = {
-        waste: true / false,  # products or waste, don't pass for both
-        
-        # filter by origin/destination actors
-        subset: {
-            direction: "to" / "from" / "both", # return flows to or from filtered actors
-            # filter actors by their ids OR by group/activity ids (you may do
-            # all the same time, but makes not much sense though)
-            activitygroups: [...], # ids of activitygroups
-            activities: [...], # ids of activities
-            ids = [...] # ids of the actors
-            
-        },
-        # filter/aggregate by given material 
-        material: {
-            aggregate: true / false, # aggregate child materials
-                                     # to level of given material
-                                     # or to top level if no id is given
-            id: id, # id of material
-        },
-        
-        # aggregate origin/dest. actors belonging to given
-        # activity/groupon spatial level, child nodes have
-        # to be exclusively 'activity's or 'activitygroup's
-        spatial_level: {  
-            activity: {
-                id: id,  # id of activitygroup/activity
-                level: id,  # id of spatial level (as in AdminLevels)
-            },
-        }
-        
-        # exclusive to spatial_level
-        aggregation_level: 'activity' or 'activitygroup', defaults to actor level
-    }
-    '''
     # structure of serialized components of a flow as the serializer
     # will return it
     flow_struct = OrderedDict(id=None,
@@ -260,7 +221,44 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                                    )
 
     # POST is used to send filter parameters not to create
-    def create(self, request, **kwargs):
+    def post_get(self, request, **kwargs):
+        '''
+        body params:
+        body = {
+            waste: true / false,  # products or waste, don't pass for both
+            
+            # filter by origin/destination actors
+            subset: {
+                direction: "to" / "from" / "both", # return flows to or from filtered actors
+                # filter actors by their ids OR by group/activity ids (you may do
+                # all the same time, but makes not much sense though)
+                activitygroups: [...], # ids of activitygroups
+                activities: [...], # ids of activities
+                ids = [...] # ids of the actors
+                
+            },
+            # filter/aggregate by given material 
+            material: {
+                aggregate: true / false, # aggregate child materials
+                                         # to level of given material
+                                         # or to top level if no id is given
+                id: id, # id of material
+            },
+            
+            # aggregate origin/dest. actors belonging to given
+            # activity/groupon spatial level, child nodes have
+            # to be exclusively 'activity's or 'activitygroup's
+            spatial_level: {  
+                activity: {
+                    id: id,  # id of activitygroup/activity
+                    level: id,  # id of spatial level (as in AdminLevels)
+                },
+            }
+            
+            # exclusive to spatial_level
+            aggregation_level: 'activity' or 'activitygroup', defaults to actor level
+        }
+        '''
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         params = {}
@@ -583,4 +581,3 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                                        destination=destination)
             new_flows.append(new_flow)
         return new_flows
-    

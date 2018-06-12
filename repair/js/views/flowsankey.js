@@ -54,7 +54,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             params['aggregation_level'] = aggregateLevel;
             
             this.flows = new GDSECollection([], {
-                apiTag: 'filterActorToActor',
+                apiTag: 'actorToActor',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             this.stocks = new GDSECollection([], {
@@ -99,16 +99,13 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
 
             this.loader.activate();
-            //var promises = [
-                ////this.stocks.fetch({data: options.stockFilterParams}),
-                //this.flows.postfetch({body: options.flowFilterParams})
-            //]
-            this.flows.postfetch({ 
-                body: options.flowFilterParams,
-                success: function(){
-                    _this.loader.deactivate();
-                    _this.render();
-                }
+            var promises = [
+                this.stocks.postfetch({body: options.stockFilterParams}),
+                this.flows.postfetch({body: options.flowFilterParams})
+            ]
+            Promise.all(promises).then(function(){
+                _this.loader.deactivate();
+                _this.render();
             });
         },
 

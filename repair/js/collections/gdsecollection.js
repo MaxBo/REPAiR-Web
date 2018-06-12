@@ -105,6 +105,10 @@ function(PageableCollection, _, GDSEModel, config) {
             queryData[this.queryParams.page || 'page'] = 1;
             queryData[this.queryParams.pageSize || 'page_size'] = this.state.pageSize;
             
+            // GDSE API specific: signal the API that resources are requested 
+            // via POST method
+            queryData.GET = true;
+            
             return Backbone.ajax(_.extend({
                 // jquery post does not automatically set the query params
                 url: this.url() + '?' + $.param(queryData),

@@ -213,7 +213,7 @@ var FlowsView = BaseView.extend(
         
         // actually no need to create this new, but easier to handle
         this.actorsTmp = new GDSECollection([], {
-            apiTag: 'filterActors',
+            apiTag: 'actors',
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name'
         })
@@ -267,7 +267,7 @@ var FlowsView = BaseView.extend(
         this.filters['waste'] = this.el.querySelector('select[name="waste"]').value;
         this.filters['aggregateMaterials'] = this.el.querySelector('input[name="aggregateMaterials"]').checked;
         this.filters['material'] = this.filtersTmp['material'];
-        this.filters['actors'] = this.filtersTmp['actors'];
+        this.filters['actors'] = this.filtersTmp['actors'] || this.actorsTmp;
         this.actors = this.actorsTmp;
         this.renderSankey();
     },
@@ -299,11 +299,11 @@ var FlowsView = BaseView.extend(
             waste = this.filters['waste'];
         if (waste) filterParams.waste = waste;
         
+        // material options for both stocks and flows
         var aggregateMaterials = this.filters['aggregateMaterials'];
         filterParams.material = {
             aggregate: aggregateMaterials
         }
-        
         var material = this.filters['material'];
         if (material) filterParams.material.id = material.id;
         
@@ -439,6 +439,9 @@ var FlowsView = BaseView.extend(
             // single actor selected
             else if (actorId >= 0)
                 _this.filtersTmp['actors'].push(_this.actorsTmp.get(actorId));
+            // all selected
+            else 
+                _this.filtersTmp['actors'] = _this.actorsTmp;
         })
     },
 

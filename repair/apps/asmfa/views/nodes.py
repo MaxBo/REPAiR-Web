@@ -18,8 +18,9 @@ from repair.apps.asmfa.serializers import (
 
 from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
 class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -59,7 +60,7 @@ class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
         return activities.order_by('id')
 
 
-class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                    ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_actor'
@@ -75,24 +76,17 @@ class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
             prefetch_related('administrative_location')
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
-            actors = actors.filter(activity__activitygroup__keyflow__id=keyflow_pk)
-            
+            actors = actors.filter(
+                activity__activitygroup__keyflow__id=keyflow_pk)
+
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                actors = actors.filter(id__in=ids)
+            if 'area' in self.request.data:
+                geojson = self.request.data['area']
+                poly = GEOSGeometry(geojson)
+                actors = actors.filter(
+                    administrative_location__geom__intersects=poly)
+
         return actors.order_by('id')
-
-
-class FilterActorViewSet(ActorViewSet):
-    
-    def create(self, request, **kwargs):
-        return super().list(request, **kwargs)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if 'id' in self.request.data:
-            ids = self.request.data['id'].split(",")
-            queryset = queryset.filter(id__in=ids)
-        if 'area' in self.request.data:
-            geojson = self.request.data['area']
-            poly = GEOSGeometry(geojson)
-            queryset = queryset.filter(
-                administrative_location__geom__intersects=poly)
-        return queryset

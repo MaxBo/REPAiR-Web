@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import exceptions
 from django.contrib.gis.db.models.functions import PointOnSurface, AsGeoJSON
 
-from repair.apps.login.views import (CasestudyViewSetMixin,
+from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
 
 from repair.apps.studyarea.models import (AdminLevels,
