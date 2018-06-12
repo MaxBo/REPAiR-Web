@@ -4,12 +4,14 @@ from abc import ABC
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
-from django.db.models import Q, Subquery, Min, IntegerField, OuterRef
+from django.http import HttpResponseBadRequest
+from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum
 import time
 import numpy as np
 import copy
 import json
 from collections import defaultdict, OrderedDict
+from django.utils.translation import ugettext_lazy as _
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -21,7 +23,9 @@ from repair.apps.asmfa.models import (
     Material,
     Composition,
     ProductFraction,
-    Actor, Activity, ActivityGroup
+    Actor, 
+    Activity,
+    ActivityGroup, 
 )
 
 from repair.apps.studyarea.models import (
@@ -36,8 +40,9 @@ from repair.apps.asmfa.serializers import (
     Group2GroupSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
 class ReasonViewSet(RevisionMixin, ModelViewSet):
@@ -186,7 +191,7 @@ class Activity2ActivityViewSet(FlowViewSet):
     serializer_class = Activity2ActivitySerializer
 
 
-class Actor2ActorViewSet(FlowViewSet):
+class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     add_perm = 'asmfa.add_actor2actor'
     change_perm = 'asmfa.change_actor2actor'
     delete_perm = 'asmfa.delete_actor2actor'
@@ -194,38 +199,6 @@ class Actor2ActorViewSet(FlowViewSet):
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                           'destination__included': True}
-
-
-class FilterActor2ActorViewSet(Actor2ActorViewSet):
-    '''
-    body params:
-    body = {
-        waste: true / false,  # products or waste, don't pass for both
-        
-        # filter by origin/destination actors
-        actors: {
-            direction: "to" / "from" / "both", # return flows to or from given actors
-            ids = [...] # ids of the actors, all others are excluded
-        },
-        # filter/aggregate by given material 
-        material: {
-            aggregate: true / false, # aggregate child materials
-                                     # to level of given material
-                                     # or to top level if no id is given
-            id: id, # id of material
-        },
-        
-        # aggregate origin/dest. actors belonging to given
-        # activity/groupon spatial level, child nodes have
-        # to be exclusively 'activity's or 'activitygroup's
-        spatial: {  
-            activity: {
-                id: id,  # id of activitygroup/activity
-                level: id,  # id of spatial level (as in AdminLevels)
-            },
-        }
-    }
-    '''
     # structure of serialized components of a flow as the serializer
     # will return it
     flow_struct = OrderedDict(id=None,
@@ -248,28 +221,85 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
                                    )
 
     # POST is used to send filter parameters not to create
-    def create(self, request, **kwargs):
+    def post_get(self, request, **kwargs):
+        '''
+        body params:
+        body = {
+            waste: true / false,  # products or waste, don't pass for both
+            
+            # filter by origin/destination actors
+            subset: {
+                direction: "to" / "from" / "both", # return flows to or from filtered actors
+                # filter actors by their ids OR by group/activity ids (you may do
+                # all the same time, but makes not much sense though)
+                activitygroups: [...], # ids of activitygroups
+                activities: [...], # ids of activities
+                ids = [...] # ids of the actors
+                
+            },
+            # filter/aggregate by given material 
+            material: {
+                aggregate: true / false, # aggregate child materials
+                                         # to level of given material
+                                         # or to top level if no id is given
+                id: id, # id of material
+            },
+            
+            # aggregate origin/dest. actors belonging to given
+            # activity/groupon spatial level, child nodes have
+            # to be exclusively 'activity's or 'activitygroup's
+            spatial_level: {  
+                activity: {
+                    id: id,  # id of activitygroup/activity
+                    level: id,  # id of spatial level (as in AdminLevels)
+                },
+            }
+            
+            # exclusive to spatial_level
+            aggregation_level: 'activity' or 'activitygroup', defaults to actor level
+        }
+        '''
         self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
         params = {}
         # values of body keys are not parsed
         for key, value in request.data.items():
-            params[key] = json.loads(value)
+            try:
+                params[key] = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                params[key] = value
         queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
-        actor_filter = params.get('actors', None)
+        subset_filter = params.get('subset', None)
         material_filter = params.get('material', None)
-        spatial_aggregation = params.get('spatial', None)
+        spatial_aggregation = params.get('spatial_level', None)
+        level_aggregation = params.get('aggregation_level', None)
+        
+        if spatial_aggregation and level_aggregation:
+            return HttpResponseBadRequest(_(
+                "Aggregation on spatial levels and based on the activity level "
+                "can't be performed at the same time" ))
 
         # filter products (waste=False) or waste (waste=True)
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
 
-        # filter by origins/destinations and direction
-        if actor_filter:
-            actors = actor_filter.get('ids', None)
-            direction = actor_filter.get('direction', 'both')
+        # build subset of origins/destinations and direction
+        if subset_filter:
+            group_ids = subset_filter.get('activitygroups', None)
+            activity_ids = subset_filter.get('activities', None)
+            actor_ids = subset_filter.get('actors', None)
+            direction = subset_filter.get('direction', 'both')
+            
+            actors = Actor.objects.all()
+            if group_ids:
+                actors = actors.filter(activity__activitygroup__id__in=group_ids)
+            if activity_ids:
+                actors = actors.filter(activity__id__in=activity_ids)
+            if actor_ids:
+                actors = actors.filter(id__in=actor_ids)
+
             if direction == 'from':
                 queryset = queryset.filter(origin__in=actors)
             elif direction == 'to':
@@ -299,12 +329,14 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
     
         # POSTPROCESSING: all following operations are performed on serialized
         # data
+        
+        if level_aggregation and level_aggregation != 'actors':
+            data = self.aggregate_to_level(level_aggregation, data, queryset)
 
         if spatial_aggregation:
-            spatj = json.loads(spatial_aggregation)
             levels = {}
             types = []
-            for node_type, values in spatj.items():
+            for node_type, values in spatial_aggregation.items():
                 node_id = values['id']
                 level_id = values['level']
                 levels[node_id] = level_id
@@ -312,14 +344,16 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
             unique_types = np.unique(types)
             # ToDo: raise HTTP malformed request 
             if len(unique_types) != 1:
-                raise Exception('only one type allowed at the same type')
+                return HttpResponseBadRequest(_(
+                    'Only one type of activity level is allowed at the same '
+                    'type when aggregating on spatial levels'))
             typ = unique_types[0]
             if typ == 'activity':
                 group_relation = 'activity'
             elif typ == 'activitygroup':
                 group_relation = 'activity__activitygroup'
             else:
-                raise Exception('unknown type')
+                return HttpResponseBadRequest(_('unknown activity level'))
             data = self.spatial_aggregation(data, queryset,
                                             group_relation, levels)
 
@@ -473,3 +507,77 @@ class FilterActor2ActorViewSet(Actor2ActorViewSet):
             )
         )
         return annotated
+
+    def aggregate_to_level(self, aggregation_level, data, queryset):
+        """
+        Aggregate actor level to the according flow level
+        if not implemented in the subclass, do nothing
+        """
+        if aggregation_level.lower() == 'activity':
+            actors_activity = dict(Actor.objects.values_list('id', 'activity'))
+            acts = queryset.values_list('origin__activity',
+                                            'destination__activity')
+    
+        elif aggregation_level.lower() == 'activitygroup':
+            actors_activity = dict(Actor.objects.values_list(
+                    'id', 'activity__activitygroup'))
+            acts = queryset.values_list(
+                    'origin__activity__activitygroup',
+                    'destination__activity__activitygroup')
+        else:
+            return data
+    
+        act2act_amounts = acts.annotate(Sum('amount'))
+        custom_compositions = dict()
+        total_amounts = dict()
+        act2act_id = -1
+        new_flows = list()
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            total_amounts[key] = amount
+            custom_compositions[key] = OrderedDict(id=act2act_id,
+                                                   name='custom',
+                                                   nace='custom nace',
+                                                   masses_of_materials=OrderedDict(), 
+                                                   )
+            act2act_id -= 1
+    
+        for serialized_flow in data:
+            amount = serialized_flow['amount']
+            composition = serialized_flow['composition']
+            if not composition:
+                continue
+            key = (actors_activity[serialized_flow['origin']],
+                       actors_activity[serialized_flow['destination']])
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+    
+            fractions = composition['fractions']
+            for fraction in fractions:
+                mass = amount * fraction['fraction']
+                material = fraction['material']
+                mass_of_material = masses_of_materials.get(material, 0) + mass
+                masses_of_materials[material] = mass_of_material
+    
+        for origin, destination, amount in act2act_amounts:
+            key = (origin, destination)
+            custom_composition = custom_compositions[key]
+            masses_of_materials = custom_composition['masses_of_materials']
+            fractions = list()
+            for material, mass_of_material in masses_of_materials.items():
+                fraction = mass_of_material / amount
+                fraction_ordered_dict = OrderedDict({
+                        'material': material,
+                            'fraction': fraction,
+                    })
+                fractions.append(fraction_ordered_dict)
+            custom_composition['fractions'] = fractions
+            del(custom_composition['masses_of_materials'])
+    
+            new_flow = OrderedDict(id=custom_composition['id'],
+                                       amount=amount,
+                                       composition=custom_composition,
+                                       origin=origin,
+                                       destination=destination)
+            new_flows.append(new_flow)
+        return new_flows

@@ -27,8 +27,8 @@ from repair.apps.asmfa.serializers import (
     WasteSerializer
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
 
 
 class UnlimitedResultsSetPagination(pagination.DatatablesPageNumberPagination):
