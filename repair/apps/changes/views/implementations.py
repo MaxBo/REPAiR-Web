@@ -1,7 +1,4 @@
-
-from repair.apps.login.views import CasestudyViewSetMixin
-
-from repair.apps.utils.views import ReadUpdateViewSet
+from repair.apps.utils.views import CasestudyViewSetMixin, ReadUpdateViewSet
 from repair.apps.changes.models import (
     Implementation,
     SolutionInImplementation,

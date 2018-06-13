@@ -5,9 +5,9 @@ from repair.views import ModeView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 import numpy as np
-from repair.apps.login.views import  CasestudyViewSetMixin
 from repair.apps.asmfa.models import KeyflowInCasestudy
-from repair.apps.utils.views import (ModelPermissionViewSet,
+from repair.apps.utils.views import (CasestudyViewSetMixin, 
+                                     ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
 
 

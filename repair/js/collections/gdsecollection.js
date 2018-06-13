@@ -59,7 +59,7 @@ function(PageableCollection, _, GDSEModel, config) {
                 // &&
                 return keys.every(match)
             });
-            return filtered;
+            return new GDSECollection(filtered, {apiTag: this.apiTag, apiIds: this.apiIds});
         },
 
         /**
@@ -104,6 +104,10 @@ function(PageableCollection, _, GDSEModel, config) {
             // ToDo: set page somehow
             queryData[this.queryParams.page || 'page'] = 1;
             queryData[this.queryParams.pageSize || 'page_size'] = this.state.pageSize;
+            
+            // GDSE API specific: signal the API that resources are requested 
+            // via POST method
+            queryData.GET = true;
             
             return Backbone.ajax(_.extend({
                 // jquery post does not automatically set the query params

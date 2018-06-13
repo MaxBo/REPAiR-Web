@@ -15,11 +15,9 @@ from repair.apps.login.serializers import (UserSerializer,
                                            UserInCasestudySerializer,
                                            PublicationSerializer)
 
-from repair.apps.utils.views import (ModelPermissionViewSet,
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
-
-
-from .bases import CasestudyViewSetMixin
 
 
 class UserViewSet(ModelPermissionViewSet):
