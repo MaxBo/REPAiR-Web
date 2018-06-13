@@ -2,13 +2,17 @@
 
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-
+from repair.apps.asmfa.views.flows import filter_by_material
+from repair.apps.asmfa.models.keyflows import Material
+from repair.apps.asmfa.models.flows import Actor2Actor
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Group2GroupFactory,
                                          Activity2ActivityFactory,
                                          Actor2ActorFactory,
                                          CompositionFactory,
-                                         MaterialFactory)
+                                         MaterialFactory,
+                                         ProductFractionFactory,
+                                         )
 
 
 class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
@@ -189,3 +193,52 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase)
                                       destination__keyflow=kic_obj,
                                       keyflow=kic_obj,
                                       )
+
+
+class FilterByMaterialTest(APITestCase):
+    material_1 = 1
+    material_2 = 2
+    material_3 = 3
+    a2a_1 = 1
+    a2a_2 = 2
+    comp_1 = 1
+    comp_2 = 2
+    frac_1 = 1
+    frac_2 = 2
+    frac_3 = 3
+    pub_1 = 1
+    pub_2 = 2
+    pub_3 = 3
+
+    def setUp(self):
+        self.comp_1_obj = CompositionFactory(id=self.comp_1)
+        self.comp_2_obj = CompositionFactory(id=self.comp_2)
+        self.a2a_1_obj = Actor2ActorFactory(id=self.a2a_1,
+                                            composition=self.comp_1_obj)
+        self.a2a_2_obj = Actor2ActorFactory(id=self.a2a_2,
+                                            composition=self.comp_2_obj)
+        self.mat_grandparent = MaterialFactory(id=self.material_1)
+        self.mat_parent = MaterialFactory(id=self.material_2,
+                                          parent=self.mat_grandparent)
+        self.mat_child = MaterialFactory(id=self.material_3,
+                                         parent=self.mat_parent)
+        self.frac_1_obj =  ProductFractionFactory(id=self.frac_1,
+                                                  composition=self.comp_1_obj,
+                                                  material=self.mat_child,
+                                                  publication__id=self.pub_1)
+        #self.frac_2_obj =  ProductFractionFactory(id=self.frac_2,
+                                                  #composition=self.comp_1_obj,
+                                                  #material=self.\
+                                                  #mat_grandparent,
+                                                  #publication__id=self.pub_2)
+        #self.frac_3_obj =  ProductFractionFactory(id=self.frac_3,
+                                                  #composition=self.comp_2_obj,
+                                                  #material=self.mat_parent,
+                                                  #publication__id=self.pub_3)
+
+
+    def test_filter_by_material(self):
+        filtered = filter_by_material(self.mat_grandparent,
+                                      Actor2Actor.objects)
+        assert filtered.count == 1
+        assert filtered.first.id == 1
