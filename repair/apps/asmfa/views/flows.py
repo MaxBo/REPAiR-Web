@@ -66,7 +66,6 @@ def filter_by_material(material, queryset):
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-# in place changing data
 def process_data_fractions(material, childmaterials, data,
                            aggregate_materials=False):
     desc_dict = {}
@@ -75,6 +74,7 @@ def process_data_fractions(material, childmaterials, data,
     # repeatedly getting the materials and their ancestors
     for mat in childmaterials:
         desc_dict[mat] = { mat.id: True }
+    new_data = []
     for serialized_flow in data:
         composition = serialized_flow['composition']
         if not composition:
@@ -107,7 +107,9 @@ def process_data_fractions(material, childmaterials, data,
                     aggregated_amounts[child] += amount
                     new_total += amount
                     valid_fractions.append(serialized_fraction)
-
+        # amount zero -> there is actually no flow
+        if new_total == 0:
+            continue
         new_fractions = []
         # aggregation: new fraction for each material
         if aggregate_materials:
@@ -123,44 +125,105 @@ def process_data_fractions(material, childmaterials, data,
         # (->valid) and recalculate the fraction values
         else:
             for fraction in valid_fractions:
-                if new_total > 0:
-                    fraction['fraction'] = fraction['fraction'] * old_total / new_total
-                # old amount might be zero -> can't calc. fractions with that
-                else:
-                    fraction['fraction'] = 0
+                fraction['fraction'] = fraction['fraction'] * old_total / new_total
                 new_fractions.append(fraction)
+        
         serialized_flow['amount'] = new_total
         composition['fractions'] = new_fractions
-
-# inplace aggregate queryset (DOESN'T WORK, because the serializer is unable 
-# to get the new fractions in reverse)
-def aggregate_queryset(materials, queryset):
-    from django.db.models import IntegerField, Case, When, Value, Sum
-    args = []
-    mat_dict = {}
-    t = time.time()
-    for mat in materials:
-        all_mats = mat.descendants
-        all_mats.append(mat)
-        mat_ids = tuple(m.id for m in all_mats)
-        w = When(material_id__in = mat_ids, then=Value(mat.id))
-        args.append(w)
-        mat_dict[mat.id] = mat
+        new_data.append(serialized_flow)
+    return new_data
     
-    for flow in queryset:
-        fractions = ProductFraction.objects.filter(composition=flow.composition)
-        an = fractions.annotate(ancestor=Case(*args, default=-1,
-                                              output_field=IntegerField()))
-        agg = an.values('ancestor').annotate(Sum('fraction'))
-        new_comp = Composition(name='aggregated')
-        for s in agg:
-            mat_id = s['ancestor']
-            if mat_id < 0:
-                continue
-            new_fraction = ProductFraction(composition=new_comp,
-                                           material=mat_dict[mat_id])
-        flow.composition = new_comp
+def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
+    """
+    Aggregate actor level to the according flow/stock level
+    if not implemented in the subclass, do nothing
+    almost the same for flows and stocks except missing destinations for stocks
+    """
+    if aggregation_level.lower() == 'activity':
+        actors_activity = dict(Actor.objects.values_list('id', 'activity'))
+        args = ['origin__activity']
+        if not is_stock:
+            args.append('destination__activity')
 
+    elif aggregation_level.lower() == 'activitygroup':
+        actors_activity = dict(Actor.objects.values_list(
+                'id', 'activity__activitygroup'))
+        args = ['origin__activity__activitygroup']
+        if not is_stock:
+            args.append('destination__activity__activitygroup')
+        
+    else:
+        return data
+    
+    acts = queryset.values_list(*args)
+
+    act2act_amounts = acts.annotate(Sum('amount'))
+    custom_compositions = dict()
+    total_amounts = dict()
+    act2act_id = -1
+    new_flows = list()
+    for values in act2act_amounts:
+        if is_stock:
+            origin, amount = values
+            destination = None
+        else:
+            origin, destination, amount = values
+        key = (origin, destination)
+        total_amounts[key] = amount
+        custom_compositions[key] = OrderedDict(id=act2act_id,
+                                               name='custom',
+                                               nace='custom nace',
+                                               masses_of_materials=OrderedDict(), 
+                                               )
+        act2act_id -= 1
+
+    for serialized_flow in data:
+        amount = serialized_flow['amount']
+        composition = serialized_flow['composition']
+        if not composition:
+            continue
+        origin = actors_activity[serialized_flow['origin']]
+        destination = None if is_stock else \
+            actors_activity[serialized_flow['destination']]
+        key = (origin, destination)
+        custom_composition = custom_compositions[key]
+        masses_of_materials = custom_composition['masses_of_materials']
+
+        fractions = composition['fractions']
+        for fraction in fractions:
+            mass = amount * fraction['fraction']
+            material = fraction['material']
+            mass_of_material = masses_of_materials.get(material, 0) + mass
+            masses_of_materials[material] = mass_of_material
+
+    for values in act2act_amounts:
+        if is_stock:
+            origin, amount = values
+            destination = None
+        else:
+            origin, destination, amount = values
+        key = (origin, destination)
+        custom_composition = custom_compositions[key]
+        masses_of_materials = custom_composition['masses_of_materials']
+        fractions = list()
+        for material, mass_of_material in masses_of_materials.items():
+            fraction = mass_of_material / amount if amount != 0 else 0
+            fraction_ordered_dict = OrderedDict({
+                    'material': material,
+                        'fraction': fraction,
+                })
+            fractions.append(fraction_ordered_dict)
+        custom_composition['fractions'] = fractions
+        del(custom_composition['masses_of_materials'])
+        
+        new_flow = OrderedDict(id=custom_composition['id'],
+                               amount=amount,
+                               composition=custom_composition,
+                               origin=origin)
+        if not is_stock:
+            new_flow['destination'] = destination
+        new_flows.append(new_flow)
+    return new_flows
 
 class FlowViewSet(RevisionMixin,
                   CasestudyViewSetMixin,
@@ -331,7 +394,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         # data
         
         if level_aggregation and level_aggregation != 'actors':
-            data = self.aggregate_to_level(level_aggregation, data, queryset)
+            data = aggregate_to_level(level_aggregation, data, queryset)
 
         if spatial_aggregation:
             levels = {}
@@ -363,8 +426,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             # if the fractions of flows are filtered by material, the other
             # fractions should be removed from the returned data
             if not aggregate_materials:
-                process_data_fractions(material, material.children,
-                                       data, aggregate_materials=False)
+                data = process_data_fractions(material, material.children,
+                                              data, aggregate_materials=False)
                 return Response(data)
 
         # aggregate the fractions of the queryset
@@ -380,8 +443,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             #aggregate_queryset(materials, queryset)
             #filtered = True
 
-            process_data_fractions(material, childmaterials, data,
-                                   aggregate_materials=True)
+            data = process_data_fractions(material, childmaterials, data,
+                                          aggregate_materials=True)
             return Response(data)
 
         return Response(data)
@@ -507,77 +570,3 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             )
         )
         return annotated
-
-    def aggregate_to_level(self, aggregation_level, data, queryset):
-        """
-        Aggregate actor level to the according flow level
-        if not implemented in the subclass, do nothing
-        """
-        if aggregation_level.lower() == 'activity':
-            actors_activity = dict(Actor.objects.values_list('id', 'activity'))
-            acts = queryset.values_list('origin__activity',
-                                            'destination__activity')
-    
-        elif aggregation_level.lower() == 'activitygroup':
-            actors_activity = dict(Actor.objects.values_list(
-                    'id', 'activity__activitygroup'))
-            acts = queryset.values_list(
-                    'origin__activity__activitygroup',
-                    'destination__activity__activitygroup')
-        else:
-            return data
-    
-        act2act_amounts = acts.annotate(Sum('amount'))
-        custom_compositions = dict()
-        total_amounts = dict()
-        act2act_id = -1
-        new_flows = list()
-        for origin, destination, amount in act2act_amounts:
-            key = (origin, destination)
-            total_amounts[key] = amount
-            custom_compositions[key] = OrderedDict(id=act2act_id,
-                                                   name='custom',
-                                                   nace='custom nace',
-                                                   masses_of_materials=OrderedDict(), 
-                                                   )
-            act2act_id -= 1
-    
-        for serialized_flow in data:
-            amount = serialized_flow['amount']
-            composition = serialized_flow['composition']
-            if not composition:
-                continue
-            key = (actors_activity[serialized_flow['origin']],
-                       actors_activity[serialized_flow['destination']])
-            custom_composition = custom_compositions[key]
-            masses_of_materials = custom_composition['masses_of_materials']
-    
-            fractions = composition['fractions']
-            for fraction in fractions:
-                mass = amount * fraction['fraction']
-                material = fraction['material']
-                mass_of_material = masses_of_materials.get(material, 0) + mass
-                masses_of_materials[material] = mass_of_material
-    
-        for origin, destination, amount in act2act_amounts:
-            key = (origin, destination)
-            custom_composition = custom_compositions[key]
-            masses_of_materials = custom_composition['masses_of_materials']
-            fractions = list()
-            for material, mass_of_material in masses_of_materials.items():
-                fraction = mass_of_material / amount
-                fraction_ordered_dict = OrderedDict({
-                        'material': material,
-                            'fraction': fraction,
-                    })
-                fractions.append(fraction_ordered_dict)
-            custom_composition['fractions'] = fractions
-            del(custom_composition['masses_of_materials'])
-    
-            new_flow = OrderedDict(id=custom_composition['id'],
-                                       amount=amount,
-                                       composition=custom_composition,
-                                       origin=origin,
-                                       destination=destination)
-            new_flows.append(new_flow)
-        return new_flows
