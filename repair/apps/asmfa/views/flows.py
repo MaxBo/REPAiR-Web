@@ -66,7 +66,6 @@ def filter_by_material(material, queryset):
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-# in place changing data
 def process_data_fractions(material, childmaterials, data,
                            aggregate_materials=False):
     desc_dict = {}
@@ -75,6 +74,7 @@ def process_data_fractions(material, childmaterials, data,
     # repeatedly getting the materials and their ancestors
     for mat in childmaterials:
         desc_dict[mat] = { mat.id: True }
+    new_data = []
     for serialized_flow in data:
         composition = serialized_flow['composition']
         if not composition:
@@ -107,7 +107,9 @@ def process_data_fractions(material, childmaterials, data,
                     aggregated_amounts[child] += amount
                     new_total += amount
                     valid_fractions.append(serialized_fraction)
-
+        # amount zero -> there is actually no flow
+        if new_total == 0:
+            continue
         new_fractions = []
         # aggregation: new fraction for each material
         if aggregate_materials:
@@ -123,15 +125,13 @@ def process_data_fractions(material, childmaterials, data,
         # (->valid) and recalculate the fraction values
         else:
             for fraction in valid_fractions:
-                if new_total > 0:
-                    fraction['fraction'] = fraction['fraction'] * old_total / new_total
-                # old amount might be zero -> can't calc. fractions with that
-                else:
-                    fraction['fraction'] = 0
+                fraction['fraction'] = fraction['fraction'] * old_total / new_total
                 new_fractions.append(fraction)
+        
         serialized_flow['amount'] = new_total
         composition['fractions'] = new_fractions
-
+        new_data.append(serialized_flow)
+    return new_data
     
 def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
     """
@@ -141,9 +141,9 @@ def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
     """
     if aggregation_level.lower() == 'activity':
         actors_activity = dict(Actor.objects.values_list('id', 'activity'))
-        args = ['origin__activity', 'destination__activity__activitygroup']
+        args = ['origin__activity']
         if not is_stock:
-            args.append('destination__activity__activitygroup')
+            args.append('destination__activity')
 
     elif aggregation_level.lower() == 'activitygroup':
         actors_activity = dict(Actor.objects.values_list(
@@ -207,7 +207,7 @@ def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
         masses_of_materials = custom_composition['masses_of_materials']
         fractions = list()
         for material, mass_of_material in masses_of_materials.items():
-            fraction = mass_of_material / amount
+            fraction = mass_of_material / amount if amount != 0 else 0
             fraction_ordered_dict = OrderedDict({
                     'material': material,
                         'fraction': fraction,
@@ -426,8 +426,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             # if the fractions of flows are filtered by material, the other
             # fractions should be removed from the returned data
             if not aggregate_materials:
-                process_data_fractions(material, material.children,
-                                       data, aggregate_materials=False)
+                data = process_data_fractions(material, material.children,
+                                              data, aggregate_materials=False)
                 return Response(data)
 
         # aggregate the fractions of the queryset
@@ -443,8 +443,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             #aggregate_queryset(materials, queryset)
             #filtered = True
 
-            process_data_fractions(material, childmaterials, data,
-                                   aggregate_materials=True)
+            data = process_data_fractions(material, childmaterials, data,
+                                          aggregate_materials=True)
             return Response(data)
 
         return Response(data)

@@ -150,7 +150,8 @@ class Sankey{
             }
             var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
                 out = "out: " + _this.format(outSum) + " " + (outUnits || "");
-            return "<h1>" + d.name + "</h1>" + "<br>" + ins + "<br>" + out; 
+            var text = (d.text) ? d.text + '<br>': '';
+            return "<h1>" + d.name + "</h1>" + text + "<br>" + ins + "<br>" + out; 
         });
 
         function dragstarted(d) {

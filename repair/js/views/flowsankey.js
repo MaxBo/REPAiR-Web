@@ -271,10 +271,12 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             stocks.forEach(function(stock){
                 var id = 'stock-' + stock.id;
                 var originId = stock.get('origin'),
-                    source = nodeIdxDict[originId];
+                    source = nodeIdxDict[originId],
+                    sourceName = models.get(originId).get('name');
                 // continue if node does not exist
                 if (source == null) return false;
-                nodes.push({id: id, name: 'Stock', 
+                nodes.push({id: id, name: 'Stock ',
+                            text: sourceName, 
                             color: 'darkgray', 
                             alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');

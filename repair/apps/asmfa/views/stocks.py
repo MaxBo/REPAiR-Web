@@ -159,8 +159,8 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
             # if the fractions of flows are filtered by material, the other
             # fractions should be removed from the returned data
             if not aggregate_materials:
-                process_data_fractions(material, material.children,
-                                       data, aggregate_materials=False)
+                data = process_data_fractions(material, material.children,
+                                              data, aggregate_materials=False)
                 return Response(data)
 
         # aggregate the fractions of the queryset
@@ -173,8 +173,8 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
             if material is None:
                 childmaterials = Material.objects.filter(parent__isnull=True)
 
-            process_data_fractions(material, childmaterials, data,
-                                   aggregate_materials=True)
+            data = process_data_fractions(material, childmaterials, data,
+                                          aggregate_materials=True)
             return Response(data)
 
         return Response(data)
