@@ -45,20 +45,18 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             
             var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
                                 (tag == 'activities') ? 'activity': null;
-
-            var stockTag = (tag.endsWith('actors')) ? 'actorStock': 
-                           (tag == 'activities') ? 'activityStock':
-                           'groupStock';
                            
-            var params = options.flowFilterParams || {};
-            params['aggregation_level'] = aggregateLevel;
+            flowFilterParams = options.flowFilterParams || {};
+            stockFilterParams = options.stockFilterParams || {};
+            flowFilterParams['aggregation_level'] = aggregateLevel;
+            stockFilterParams['aggregation_level'] = aggregateLevel;
             
             this.flows = new GDSECollection([], {
                 apiTag: 'actorToActor',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             this.stocks = new GDSECollection([], {
-                apiTag: stockTag,
+                apiTag: 'actorStock',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             
@@ -100,8 +98,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
 
             this.loader.activate();
             var promises = [
-                this.stocks.postfetch({body: options.stockFilterParams}),
-                this.flows.postfetch({body: options.flowFilterParams})
+                this.stocks.postfetch({body: stockFilterParams}),
+                this.flows.postfetch({body: flowFilterParams})
             ]
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
