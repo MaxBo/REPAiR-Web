@@ -45,20 +45,18 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             
             var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
                                 (tag == 'activities') ? 'activity': null;
-
-            var stockTag = (tag.endsWith('actors')) ? 'actorStock': 
-                           (tag == 'activities') ? 'activityStock':
-                           'groupStock';
                            
-            var params = options.flowFilterParams || {};
-            params['aggregation_level'] = aggregateLevel;
+            flowFilterParams = options.flowFilterParams || {};
+            stockFilterParams = options.stockFilterParams || {};
+            flowFilterParams['aggregation_level'] = aggregateLevel;
+            stockFilterParams['aggregation_level'] = aggregateLevel;
             
             this.flows = new GDSECollection([], {
                 apiTag: 'actorToActor',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             this.stocks = new GDSECollection([], {
-                apiTag: stockTag,
+                apiTag: 'actorStock',
                 apiIds: [ this.caseStudyId, this.keyflowId] 
             });
             
@@ -100,8 +98,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
 
             this.loader.activate();
             var promises = [
-                this.stocks.postfetch({body: options.stockFilterParams}),
-                this.flows.postfetch({body: options.flowFilterParams})
+                this.stocks.postfetch({body: stockFilterParams}),
+                this.flows.postfetch({body: flowFilterParams})
             ]
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
@@ -206,6 +204,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             var _this = this,
                 nodes = [],
                 nodeIdxDict = {},
+                labels = {},
                 i = 0,
                 color = d3.scale.category20();
             function nConnectionsTo(connections, nodeId, options){
@@ -226,6 +225,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 }
                 nodes.push({ id: id, name: name, color: color(name.replace(/ .*/, ""))});
                 nodeIdxDict[id] = i;
+                labels[id] = model.get('name');
                 i += 1;
             });
             var links = [];
@@ -273,10 +273,12 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             stocks.forEach(function(stock){
                 var id = 'stock-' + stock.id;
                 var originId = stock.get('origin'),
-                    source = nodeIdxDict[originId];
+                    source = nodeIdxDict[originId],
+                    sourceName = labels[originId];
                 // continue if node does not exist
                 if (source == null) return false;
-                nodes.push({id: id, name: 'Stock', 
+                nodes.push({id: id, name: 'Stock ',
+                            text: sourceName, 
                             color: 'darkgray', 
                             alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');
