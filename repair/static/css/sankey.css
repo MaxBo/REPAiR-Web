@@ -12,7 +12,7 @@
 .link {
   fill: none;
   stroke: #000;
-  stroke-opacity: .2;
+  stroke-opacity: .4;
 }
 
 .cycleLink {
@@ -27,7 +27,7 @@
 }
 
 .link:hover {
-  stroke-opacity: .5;
+  stroke-opacity: .8;
 }
 
 .d3-tip h1 {

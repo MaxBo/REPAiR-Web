@@ -273,7 +273,7 @@ class Sankey{
         function scaleFont(){ return fontRange(zoom.scale()) + "px"; }
         function scaleRectWidth(){ return rectRange(zoom.scale()); }
         node.append("text")
-            .style("filter", "url(#text-bg)")
+           // .style("filter", "url(#text-bg)")
             .attr("x", -6)
             .attr("y", function(d) { return d.dy / 2; })
             .attr("dy", ".35em")
