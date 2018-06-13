@@ -242,3 +242,11 @@ class FilterByMaterialTest(APITestCase):
                                       Actor2Actor.objects)
         assert filtered.count() == 1
         assert filtered.first().id == 1
+
+    def test_ancestor(self):
+        args =  (self.mat_child, self.mat_parent, self.mat_grandparent)
+        ancestor = self.mat_child.ancestor(*args)
+        assert ancestor == self.mat_parent
+        ancestor = self.mat_grandparent.ancestor(*args)
+        assert ancestor == None
+
