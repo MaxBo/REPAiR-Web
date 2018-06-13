@@ -319,7 +319,8 @@ var FlowsView = BaseView.extend(
             direction: direction
         };
         flowFilterParams['subset'][type] = nodeIds;
-        stockFilterParams.nodes = nodeIds;
+        stockFilterParams['subset'] = {};
+        stockFilterParams['subset'][type] = nodeIds;
         
         flowFilterParams.aggregation_level = type;
             

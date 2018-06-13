@@ -150,7 +150,8 @@ class Sankey{
             }
             var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
                 out = "out: " + _this.format(outSum) + " " + (outUnits || "");
-            return "<h1>" + d.name + "</h1>" + "<br>" + ins + "<br>" + out; 
+            var text = (d.text) ? d.text + '<br>': '';
+            return "<h1>" + d.name + "</h1>" + text + "<br>" + ins + "<br>" + out; 
         });
 
         function dragstarted(d) {
@@ -185,6 +186,20 @@ class Sankey{
             .call(tipNodes)
             .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+        
+        // filter for text background
+        var defs = svg.append("defs");
+        var filter = defs.append("filter")
+            .attr("id", "text-bg")
+            .attr("width", "1")
+            .attr("height", "1")
+            .attr("x", "0")
+            .attr("y", "0");
+        filter.append("feFlood")
+            .attr("flood-opacity", "0.8")
+            .attr("flood-color", "white");
+        filter.append("feComposite")
+            .attr("in", "SourceGraphic");
 
         this.sankey.nodes(data.nodes)
             .links(data.links)
@@ -253,11 +268,12 @@ class Sankey{
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
         // scale the font depending on zoom
         
-        var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([150, 25, 18, 3.5, 3]);
+        var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([100, 25, 18, 3.5, 3]);
         var rectRange = d3.scale.linear().domain([0, 0.5, 1, 5]).range([nodeWidth * 5, nodeWidth * 2, nodeWidth, nodeWidth]);
         function scaleFont(){ return fontRange(zoom.scale()) + "px"; }
         function scaleRectWidth(){ return rectRange(zoom.scale()); }
         node.append("text")
+           // .style("filter", "url(#text-bg)")
             .attr("x", -6)
             .attr("y", function(d) { return d.dy / 2; })
             .attr("dy", ".35em")
