@@ -250,3 +250,10 @@ class FilterByMaterialTest(APITestCase):
         ancestor = self.mat_grandparent.ancestor(*args)
         assert ancestor == None
 
+    def test_is_descendant(self):
+        args =  (self.mat_child, self.mat_parent, self.mat_grandparent)
+        descendand = self.mat_child.is_descendant(*args)
+        assert descendand == True
+        descendand = self.mat_grandparent.is_descendant(*args)
+        assert descendand == False
+
