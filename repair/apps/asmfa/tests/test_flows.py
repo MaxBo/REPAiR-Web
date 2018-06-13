@@ -240,5 +240,5 @@ class FilterByMaterialTest(APITestCase):
     def test_filter_by_material(self):
         filtered = filter_by_material(self.mat_grandparent,
                                       Actor2Actor.objects)
-        assert filtered.count == 1
-        assert filtered.first.id == 1
+        assert filtered.count() == 1
+        assert filtered.first().id == 1
