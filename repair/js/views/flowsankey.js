@@ -204,6 +204,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             var _this = this,
                 nodes = [],
                 nodeIdxDict = {},
+                labels = {},
                 i = 0,
                 color = d3.scale.category20();
             function nConnectionsTo(connections, nodeId, options){
@@ -224,6 +225,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 }
                 nodes.push({ id: id, name: name, color: color(name.replace(/ .*/, ""))});
                 nodeIdxDict[id] = i;
+                labels[id] = model.get('name');
                 i += 1;
             });
             var links = [];
@@ -272,7 +274,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 var id = 'stock-' + stock.id;
                 var originId = stock.get('origin'),
                     source = nodeIdxDict[originId],
-                    sourceName = models.get(originId).get('name');
+                    sourceName = labels[originId];
                 // continue if node does not exist
                 if (source == null) return false;
                 nodes.push({id: id, name: 'Stock ',
