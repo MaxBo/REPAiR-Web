@@ -195,7 +195,7 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase)
                                       )
 
 
-class FilterByMaterialTest(APITestCase):
+class MaterialTest(BasicModelPermissionTest, APITestCase):
     material_1 = 1
     material_2 = 2
     material_3 = 3
@@ -209,22 +209,35 @@ class FilterByMaterialTest(APITestCase):
     pub_1 = 1
     pub_2 = 2
     pub_3 = 3
+    keyflowincasestudy = 5
+    keyflow = 7
+    casestudy = 4
+    do_not_check = ['keyflow']
+
 
     def setUp(self):
+        super().setUp()
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
         self.comp_1_obj = CompositionFactory(id=self.comp_1)
         self.comp_2_obj = CompositionFactory(id=self.comp_2)
         self.a2a_1_obj = Actor2ActorFactory(id=self.a2a_1,
                                             composition=self.comp_1_obj)
         self.a2a_2_obj = Actor2ActorFactory(id=self.a2a_2,
                                             composition=self.comp_2_obj)
-        self.mat_grandparent = MaterialFactory(id=self.material_1)
+        self.mat_grandparent = MaterialFactory(id=self.material_1,
+                                               keyflow=self.kic_obj)
         self.mat_parent = MaterialFactory(id=self.material_2,
+                                          keyflow=self.kic_obj,
                                           parent=self.mat_grandparent)
         self.mat_child = MaterialFactory(id=self.material_3,
+                                         keyflow=self.kic_obj,
                                          parent=self.mat_parent)
+        self.obj = self.mat_grandparent
         self.frac_1_obj =  ProductFractionFactory(id=self.frac_1,
                                                   composition=self.comp_1_obj,
-                                                  material=self.mat_child,
+                                                  material=self.mat_parent,
                                                   publication__id=self.pub_1)
         #self.frac_2_obj =  ProductFractionFactory(id=self.frac_2,
                                                   #composition=self.comp_1_obj,
@@ -236,6 +249,20 @@ class FilterByMaterialTest(APITestCase):
                                                   #material=self.mat_parent,
                                                   #publication__id=self.pub_3)
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "material"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.material_1)
+        cls.put_data = dict(name='testname',
+                            keyflow=cls.keyflowincasestudy,
+                            level=1,
+                            parent=None,
+                            )
+        cls.post_data = cls.put_data
+        cls.patch_data = cls.put_data
 
     def test_filter_by_material(self):
         filtered = filter_by_material(self.mat_grandparent,
@@ -256,4 +283,12 @@ class FilterByMaterialTest(APITestCase):
         assert descendand == True
         descendand = self.mat_grandparent.is_descendant(*args)
         assert descendand == False
+
+    def test_delete(self):
+        old_obj = self.obj
+        self.obj = self.mat_child
+        super().test_delete()
+        self.obj = old_obj
+        self.assertRaises(Exception, super().test_delete)
+        x = 'breakpoint'
 
