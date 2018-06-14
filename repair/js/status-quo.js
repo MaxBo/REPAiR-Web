@@ -1,9 +1,9 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
         'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
-        'visualizations/mapviewer', 
+        'views/status-quo/setup-flow-assessment', 'visualizations/mapviewer', 
         'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             EvaluationView, MapViewer, appConfig) {
+             EvaluationView, FlowAssessmentSetupView, MapViewer, appConfig) {
              
       
   renderFlowsView = function(caseStudy){
@@ -52,6 +52,11 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
       caseStudy: caseStudy,
       el: document.getElementById('evaluation'),
       template: 'evaluation-template'
+    })
+    var flowAssessmentView = new FlowAssessmentSetupView({ 
+      caseStudy: caseStudy,
+      el: document.getElementById('flow-assessment'),
+      template: 'setup-flow-assessment-template'
     })
   };
   
