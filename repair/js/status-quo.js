@@ -1,78 +1,78 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-        'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
-        'views/status-quo/setup-flow-assessment', 'visualizations/mapviewer', 
-        'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             EvaluationView, FlowAssessmentSetupView, MapViewer, appConfig) {
-             
-      
-  renderFlowsView = function(caseStudy){
+    'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
+    'views/status-quo/setup-flow-assessment', 'visualizations/mapviewer', 
+    'app-config', 'utils/overrides', 'base'
+], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
+    SustainabilityView, FlowAssessmentSetupView, MapViewer, appConfig) {
+
+
+renderFlowsView = function(caseStudy){
     var keyflowSelect = document.querySelector('select[name="keyflow"]'),
         flowsView;
+    keyflowSelect.disabled = false;
     keyflowSelect.addEventListener('change', function(){
-      console.log()
-      if (flowsView) flowsView.close();
-      flowsView = new FlowsView({ 
-        caseStudy: caseStudy,
-        el: document.getElementById('flows-content'),
-        template: 'flows-template',
-        keyflowId: keyflowSelect.value
-      })
+        if (flowsView) flowsView.close();
+        flowsView = new FlowsView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('flows-content'),
+            template: 'flows-template',
+            keyflowId: keyflowSelect.value
+        })
     })
-  };
-      
-  renderWorkshop = function(caseStudy){
+};
+
+renderWorkshop = function(caseStudy){
     renderFlowsView(caseStudy);
     var challengesView = new ChallengesAimsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('challenges'),
-      template: 'challenges-aims-template'
+        caseStudy: caseStudy,
+        el: document.getElementById('challenges'),
+        template: 'challenges-aims-template'
     })
     var targetsView = new TargetsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('targets'),
-      template: 'targets-template'
+        caseStudy: caseStudy,
+        el: document.getElementById('targets'),
+        template: 'targets-template'
     })
-    var evaluationView = new EvaluationView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+    var evaluationView = new SustainabilityView({ 
+        caseStudy: caseStudy,
+        el: document.getElementById('sustainability-assessment'),
+        template: 'sustainability-template'
     })
-  };
+};
 
-  renderSetup = function(caseStudy){
+renderSetup = function(caseStudy){
     renderFlowsView(caseStudy);
     var challengesView = new ChallengesAimsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('challenges'),
-      template: 'challenges-aims-template', 
-      mode: 1
+        caseStudy: caseStudy,
+        el: document.getElementById('challenges'),
+        template: 'challenges-aims-template', 
+        mode: 1
     })
-    var evaluationView = new EvaluationView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('evaluation'),
-      template: 'evaluation-template'
+    var evaluationView = new SustainabilityView({ 
+        caseStudy: caseStudy,
+        el: document.getElementById('sustainability-assessment'),
+        template: 'sustainability-template'
     })
     var flowAssessmentView = new FlowAssessmentSetupView({ 
       caseStudy: caseStudy,
       el: document.getElementById('flow-assessment'),
       template: 'setup-flow-assessment-template'
     })
-  };
-  
-  var session = appConfig.getSession(
+};
+
+var session = appConfig.getSession(
     function(session){
-      var mode = session['mode'],
-          caseStudyId = session['casestudy'],
-          caseStudy = new CaseStudy({id: caseStudyId});
-    
-      caseStudy.fetch({success: function(){
-        if (Number(mode) == 1) {
-          renderSetup(caseStudy);
-        }
-        else {
-          renderWorkshop(caseStudy);
-        }
-      }});
-  });
+        var mode = session['mode'],
+            caseStudyId = session['casestudy'],
+            caseStudy = new CaseStudy({id: caseStudyId});
+
+        caseStudy.fetch({success: function(){
+            if (Number(mode) == 1) {
+                renderSetup(caseStudy);
+            }
+            else {
+                renderWorkshop(caseStudy);
+            }
+        }});
+});
 });

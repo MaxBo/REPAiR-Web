@@ -2,19 +2,21 @@
 <html lang="en">
 {% load staticfiles %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/font-awesome.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/fontawesome-all.min.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-select.min.css" />
 
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 
+    {% render_bundle 'commons' %}
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
@@ -51,54 +53,56 @@
       <div id="top-links" class="container-fluid">
         <ul class="nav navbar-nav navbar-top">
           {% if request.user.is_authenticated %}
-          <li>
-            <form id="casestudy-select" action="/login/session/" method="post">
-              {% csrf_token %}
-              <input name="next" type="hidden" value="{{ request.path }}" />
-              <input name="casestudy" id="casestudy" type="hidden">
-              <div class="dropdown">
-                <button class="dropdown-button" type="button">
-                  {% if casestudy %} {{ casestudy.name }} {% else %} {% trans "Casestudy" %} {% endif %}
-                  <span class="caret"></span>
-                </button>
-                <div class="dropdown-content">
-                  <!-- BaseView has property 'casestudies' -->
-                  {% if view.casestudies|length > 0 %}
-                  {% for casestudy in view.casestudies %}
-                  <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
-                  onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
-                  {% endfor %}
-                   <!-- if not this view is not inherited from BaseView or rendered with 'get',
-                   casestudies have to be passed in the context, does actually the same thing -->
-                  {% else %}
-                  {% for casestudy in casestudies %}
-                  <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
-                  onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
-                  {% endfor %}
-                  {% endif %}
+            <li>
+              <form id="casestudy-select" action="/login/session/" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <input name="casestudy" id="casestudy" type="hidden">
+                <div class="dropdown">
+                  <button class="dropdown-button" type="button">
+                    {% if casestudy %} {{ casestudy.name }} {% else %} {% trans "Casestudy" %} {% endif %}
+                    <span class="caret"></span>
+                  </button>
+                  <div class="dropdown-content">
+                    <!-- BaseView has property 'casestudies' -->
+                    {% if view.casestudies|length > 0 %}
+                    {% for casestudy in view.casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
+                    onclick="$('#casestudy').val({{ casestudy.id }}); $('#casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                     <!-- if not this view is not inherited from BaseView or rendered with 'get',
+                     casestudies have to be passed in the context, does actually the same thing -->
+                    {% else %}
+                    {% for casestudy in casestudies %}
+                    <a {% if casestudy.id|stringformat:"i" == request.session.casestudy %} class="active" {% endif %}
+                    onclick="document.getElementById('casestudy').value = {{ casestudy.id }}; document.getElementById('casestudy-select').submit()"> {{ casestudy.name }} </a>
+                    {% endfor %}
+                    {% endif %}
+                  </div>
                 </div>
-              </div>
-              <span class="caret drop-arrow"></span>
-            </form>
-          </li>
-          <li>
-            <form id="mode-select" action="/login/session/" method="post">
-              {% csrf_token %}
-              <input name="next" type="hidden" value="{{ request.path }}" />
-              <input name="mode" id="mode" type="hidden">
-              <div class="dropdown">
-                <button class="dropdown-button" type="button">
-                  {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
-                  <span class="caret"></span>
-                </button>
-                <div class="dropdown-content">
-                  <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
-                  <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
-                </div>
-              </div>
-              <span class="caret drop-arrow"></span>
-            </form>
-          </li>
+                <span class="caret drop-arrow"></span>
+              </form>
+            </li>
+            {% if setup_mode_permitted %}
+              <li>
+                <form id="mode-select" action="/login/session/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{{ request.path }}" />
+                  <input name="mode" id="mode" type="hidden">
+                  <div class="dropdown">
+                    <button class="dropdown-button" type="button">
+                      {% trans "Mode" %} {% if mode %} ({{ mode }}) {% endif %}
+                      <span class="caret"></span>
+                    </button>
+                    <div class="dropdown-content">
+                      <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
+                      <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
+                    </div>
+                  </div>
+                  <span class="caret drop-arrow"></span>
+                </form>
+              </li>
+           {% endif %}
          {% endif %}
           <li id="login-link" >
             {% if request.user.is_authenticated %}
@@ -108,8 +112,12 @@
                 <span class="caret"></span>
               </button>
               <div class="dropdown-content">
-                <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
-                <a href="/admin">{% trans "Admin Area" %}</a>
+                {% if data_entry_permitted %}
+                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                {% endif %}
+                {% if request.user.is_staff %}
+                  <a href="/admin">{% trans "Admin Area" %}</a>
+                {% endif %}
                 <a href="/logout">{% trans "Logout" %}</a>
               </div>
             </div>

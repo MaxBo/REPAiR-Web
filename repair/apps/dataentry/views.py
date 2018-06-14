@@ -21,6 +21,11 @@ class DataEntryView(LoginRequiredMixin, BaseView):
         url_pks = request.session.get('url_pks', {})
         
         casestudy = request.session.get('casestudy')
+        
+        if not casestudy:
+            return render(request, 'casestudy-missing.html',
+                          self.get_context_data())
+        
         keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
         
         context = self.get_context_data()

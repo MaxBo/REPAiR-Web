@@ -17,7 +17,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
-                                           IDRelatedField)
+                                           IDRelatedField,
+                                           DynamicFieldsModelSerializerMixin)
 
 
 class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
@@ -95,7 +96,7 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
 
 class ActivityListSerializer(ActivitySerializer):
     class Meta(ActivitySerializer.Meta):
-        fields = ('id', 'name', 'activitygroup')
+        fields = ('id', 'name', 'activitygroup', 'activitygroup_name', 'nace')
 
 
 class ActivityField(InCasestudyField):
@@ -174,7 +175,8 @@ class URLFieldWithoutProtocol(serializers.CharField):
         self.validators.append(validator)
 
 
-class ActorSerializer(CreateWithUserInCasestudyMixin,
+class ActorSerializer(DynamicFieldsModelSerializerMixin,
+                      CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',
@@ -202,12 +204,14 @@ class ActorSerializer(CreateWithUserInCasestudyMixin,
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'activity_name', 'activitygroup', 'activitygroup_name', 
                   'included', 'nace', 'city', 'address', 
-                  'reason',
+                  'reason', 'description'
                   )
         extra_kwargs = {'year': {'allow_null': True},
                         'turnover': {'allow_null': True},
                         'employees': {'allow_null': True}}
     
+    # normally you can't upload empty strings for number fields, but we want to
+    # allow some of them to be blank -> set to None when receiving empty string
     def to_internal_value(self, data):
         allow_blank_numbers = ['year', 'turnover', 'employees']
         for field in allow_blank_numbers:

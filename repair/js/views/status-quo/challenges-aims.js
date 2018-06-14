@@ -1,7 +1,7 @@
-define(['underscore','views/baseview', 'models/challenge', 'collections/challenges',
-'models/aim', 'collections/aims'],
+define(['underscore','views/baseview', 'collections/gdsecollection', 
+        'models/gdsemodel'],
 
-function(_, BaseView, Challenge, Challenges, Aim, Aims){
+function(_, BaseView, GDSECollection, GDSEModel){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -28,38 +28,37 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
             var _this = this;
 
             this.template = options.template;
-            _this.caseStudy = options.caseStudy;
+            this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
 
             _this.challenges = [];
-            this.challengesModel = new Challenges([], {
-                caseStudyId: _this.caseStudy.id
+            this.challengesModel = new GDSECollection([], {
+                apiTag: 'challenges',
+                apiIds: [this.caseStudy.id]
             });
             _this.aims = [];
-            this.aimsModel = new Aims([], {
-                caseStudyId: _this.caseStudy.id
+            this.aimsModel = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [this.caseStudy.id]
             });
+            
+            var promises = [
+                this.challengesModel.fetch({
+                    success: function(challenges){
+                        _this.initItems(challenges, _this.challenges,
+                             "Challenge");
+                    },
+                    error: this.onError
+                }),
+                this.aimsModel.fetch({
+                    success: function(aims){
+                        _this.initItems(aims, _this.aims, "Aim");
+                    },
+                    error: this.onError
+                })
+            ]
 
-            this.challengesModel.fetch({
-                success: function(challenges){
-                    _this.initItems(challenges, _this.challenges,
-                         "Challenge");
-                    _this.render();
-                },
-                error: function(){
-                    console.error("cannot fetch challenges");
-                }
-            });
-
-            this.aimsModel.fetch({
-                success: function(aims){
-                    _this.initItems(aims, _this.aims, "Aim");
-                    _this.render();
-                },
-                error: function(){
-                    console.error("cannot fetch aims");
-                }
-            });
+            Promise.all(promises).then(this.render)
         },
 
         /*
@@ -137,10 +136,10 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         addChallenge: function(){
             var _this = this;
             function onConfirm(text){
-                var challenge = new Challenge(
-                    { text: text },
-                    { caseStudyId: _this.caseStudy.id}
-                );
+                var challenge = new GDSEModel({ text: text }, {
+                    apiTag: 'challenges',
+                    apiIds: [_this.caseStudy.id]
+                });
                 challenge.save(null, {
                     success: function(){
                         _this.challenges.push({
@@ -150,9 +149,7 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                         });
                         _this.render();
                     },
-                    error: function(){
-                        console.error("cannot save Challenge");
-                    }
+                    error: _this.onError
                 });
             }
             this.getName({
@@ -164,10 +161,10 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
         addAim: function(){
             var _this = this;
             function onConfirm(text){
-                var aim = new Aim(
-                    { text: text },
-                    { caseStudyId: _this.caseStudy.id}
-                );
+                var aim = new GDSEModel({ text: text }, {
+                    apiTag: 'aims',
+                    apiIds: [_this.caseStudy.id]
+                });
                 aim.save(null, {
                     success: function(){
                         _this.aims.push({
@@ -194,15 +191,15 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
             var title = "Edit " + item.type
             function onConfirm(name){
                 if (item.type == "Challenge") {
-                    var model = new Challenge(
-                        { id: id },
-                        { caseStudyId: _this.caseStudy.id}
-                    );
+                    var model = new GDSEModel({ id: id }, {
+                        apiTag: 'challenges',
+                        apiIds: [_this.caseStudy.id]
+                    });
                 } else {
-                    var model = new Aim(
-                        { id: id },
-                        { caseStudyId: _this.caseStudy.id}
-                    );
+                    var model = new GDSEModel({ id: id }, {
+                        apiTag: 'aims',
+                        apiIds: [_this.caseStudy.id]
+                    });
                 }
 
                 model.save({
@@ -230,15 +227,15 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
             this.confirmationModal.querySelector('.modal-body').innerHTML = message;
             $(this.confirmationModal).modal('show');
             if (item.type == "Challenge") {
-                _this.model = new Challenge(
-                    { id: item.id },
-                    { caseStudyId: _this.caseStudy.id}
-                );
+                _this.model = new GDSEModel({ id: item.id }, {
+                    apiTag: 'challenges',
+                    apiIds: [_this.caseStudy.id]
+                });
             } else {
-                _this.model = new Aim(
-                    { id: item.id },
-                    { caseStudyId: _this.caseStudy.id}
-                );
+                _this.model = new GDSEModel({ id: item.id }, {
+                    apiTag: 'aims',
+                    apiIds: [_this.caseStudy.id]
+                });
             }
             _this.removeType = item.type;
         },
@@ -265,15 +262,6 @@ function(_, BaseView, Challenge, Challenges, Aim, Aims){
                 },
                 error: _this.onError
             });
-        },
-
-        /*
-        * remove this view from the DOM
-        */
-        close: function(){
-            this.undelegateEvents(); // remove click events
-            this.unbind(); // Unbind all local event bindings
-            this.el.innerHTML = ''; //empty the DOM element
         },
 
     });

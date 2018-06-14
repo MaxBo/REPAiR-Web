@@ -1,8 +1,10 @@
-define(['views/baseview', 'underscore', 'models/actor', 'collections/activities',
-    'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-    'utils/loader', 'app-config', 'datatables.net', 'bootstrap-select'],
-function(BaseView, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
-    Loader, config){
+define(['views/baseview', 'underscore', 
+        'collections/gdsecollection', 'views/data-entry/edit-actor',
+        'datatables.net-bs',
+        'datatables.net-bs/css/dataTables.bootstrap.css',
+        'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+        'bootstrap-select'],
+function(BaseView, _, GDSECollection, EditActorView){
 
 /**
     *
@@ -22,6 +24,7 @@ var ActorsView = BaseView.extend(
     * @param {string} options.template                    id of the script element containing the underscore template to render this view
     * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
     * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
     *
     * @constructs
     * @see http://backbonejs.org/#View
@@ -34,37 +37,37 @@ var ActorsView = BaseView.extend(
         this.template = options.template;
         var keyflowId = this.model.id,
             caseStudyId = this.model.get('casestudy');
-
-        this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-        this.actors = new Actors([], { 
-            caseStudyId: caseStudyId, keyflowId: keyflowId,
-            state: {
-                pageSize: 1000000,
-                firstPage: 1,
-                currentPage: 1
-            } 
+        this.activities = options.activities;
+        this.actors = new GDSECollection([], { 
+            apiTag: 'actors',
+            apiIds: [ caseStudyId, keyflowId ]
         });
-        this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
+        this.areaLevels = new GDSECollection([], { 
+            apiTag: 'arealevels',
+            apiIds: [ caseStudyId ],
+            comparator: 'level'
+        });
         this.showAll = true;
         this.caseStudy = options.caseStudy;
         this.caseStudyId = this.model.get('casestudy');
 
-        var loader = new Loader(document.getElementById('actors-edit'),
-            {disable: true});
+        this.loader.activate();
 
         this.projection = 'EPSG:4326'; 
 
-        var Reasons = Backbone.Collection.extend({url: config.api.reasons});
-        this.reasons = new Reasons([]);
+        this.reasons = new GDSECollection([], { 
+            apiTag: 'reasons'
+        });
 
-        $.when(
+        Promise.all([
             this.activities.fetch(), 
             this.areaLevels.fetch(), 
-            this.reasons.fetch()).then(function() {
-                _this.areaLevels.sort();
-                loader.remove();
-                _this.render();
-            });
+            this.reasons.fetch()
+        ]).then(function() {
+            _this.areaLevels.sort();
+            _this.loader.deactivate();
+            _this.render();
+        });
     },
 
     /*
@@ -103,7 +106,9 @@ var ActorsView = BaseView.extend(
         this.actors.fetch({ 
             data: data,
             success: function(){
-                _this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
+                _this.actors.each(
+                    function(actor){_this.addActorRow(actor)
+                }); // you have to define function instead of passing this.addActorRow, else scope is wrong
             }
         });
     },
@@ -114,7 +119,6 @@ var ActorsView = BaseView.extend(
         if (!this.showAll){
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    console.log($(_this.datatable.row(dataIndex).node()).attr('data-included'))
                     return $(_this.datatable.row(dataIndex).node()).attr('data-included') == 'true';
                   }
               );
@@ -215,7 +219,7 @@ var ActorsView = BaseView.extend(
         var tableId;
 
         function onChange(name){
-            var actor = new Actor({
+            var actor = _this.actors.create({
                 "BvDid": "-",
                 "name": name || "-----",
                 "consCode": "-",
@@ -225,13 +229,15 @@ var ActorsView = BaseView.extend(
                 "BvDii": "-",
                 "website": "www.website.org",
                 "activity": _this.activities.first().id,
-                'reason': null
-                }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
-            actor.save({}, {success: function(){
-                _this.actors.add(actor);
-                var row = _this.addActorRow(actor);
-                row.node().click();
-            }});
+                'reason': null,
+                'description': ''
+            }, { 
+                wait: true, 
+                success: function(){ 
+                    var row = _this.addActorRow(actor);
+                    row.node().click(); 
+                }
+            })
         }
         this.getName({ 
             title: gettext('Add Actor'),

@@ -1,6 +1,8 @@
-define(['views/baseview', 'underscore', "models/material", 'utils/loader', 'utils/utils'],
+define(['views/baseview', 'underscore', "models/gdsemodel", 
+        'utils/utils', 'libs/bootstrap-treeview.min',
+        'static/css/bootstrap-treeview.min.css'],
 
-function(BaseView, _, Material, Loader, utils){
+function(BaseView, _, GDSEModel, utils){
 
 /**
     *
@@ -51,8 +53,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * render the view
-        */
+    * render the view
+    */
     render: function(){
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
@@ -106,7 +108,6 @@ var MaterialsView = BaseView.extend(
             $(_this.materialTree).treeview('selectNode', node.nodeId);
         }
 
-        require('libs/bootstrap-treeview.min');
         $(this.materialTree).treeview({
             data: tree, showTags: true,
             selectedBackColor: '#aad400',
@@ -167,17 +168,17 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * add a material to the tree with selected node as parent
-        */
+    * add a material to the tree with selected node as parent
+    */
     addMaterial: function(){
         var node = this.selectedNode;
         if (node == null) return;
         var _this = this;
 
         function onChange(name){
-            var material = new Material(
+            var material = new GDSEModel( 
                 { parent: node.id, name: name }, 
-                { caseStudyId: _this.caseStudyId, keyflowId: _this.keyflowId }
+                { apiTag: 'materials', apiIds:[ _this.caseStudyId, _this.keyflowId ] }
             );
             material.save({}, { 
                 success: function(){
@@ -194,8 +195,8 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-        * edit the selected material 
-        */
+    * edit the selected material 
+    */
     editMaterial: function(){
         var node = this.selectedNode;
         if (node == null) return;
@@ -205,6 +206,8 @@ var MaterialsView = BaseView.extend(
 
         function onChange(name){
             node.model.set('name', name);
+            node.model.caseStudyId = _this.caseStudyId;
+            node.model.keyflowId = _this.keyflowId;
             node.model.save(null, { 
                 success: function(){
                     _this.rerender(node.id);
@@ -229,15 +232,15 @@ var MaterialsView = BaseView.extend(
         function destroy(){
             node.model.destroy( { success: function(){
                 // fetch the materials again because all children of this node will be removed in backend
-                var loader = new Loader(_this.el, { disable: true });
+                _this.loader.activate();
                 _this.materials.fetch({ 
                     success: function(){
                         _this.rerender();
-                        loader.remove();
+                        _this.loader.deactivate();
                     },
                     error: function(response){
-                        error: _this.onError(response);
-                        loader.remove();
+                        _this.onError(response);
+                        _this.loader.deactivate();
                     }
                 });
             }, error: _this.onError});

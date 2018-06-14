@@ -2,13 +2,17 @@
 
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-
+from repair.apps.asmfa.views.flows import filter_by_material
+from repair.apps.asmfa.models.keyflows import Material
+from repair.apps.asmfa.models.flows import Actor2Actor
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Group2GroupFactory,
                                          Activity2ActivityFactory,
                                          Actor2ActorFactory,
                                          CompositionFactory,
-                                         MaterialFactory)
+                                         MaterialFactory,
+                                         ProductFractionFactory,
+                                         )
 
 
 class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
@@ -189,3 +193,102 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase)
                                       destination__keyflow=kic_obj,
                                       keyflow=kic_obj,
                                       )
+
+
+class MaterialTest(BasicModelPermissionTest, APITestCase):
+    material_1 = 1
+    material_2 = 2
+    material_3 = 3
+    a2a_1 = 1
+    a2a_2 = 2
+    comp_1 = 1
+    comp_2 = 2
+    frac_1 = 1
+    frac_2 = 2
+    frac_3 = 3
+    pub_1 = 1
+    pub_2 = 2
+    pub_3 = 3
+    keyflowincasestudy = 5
+    keyflow = 7
+    casestudy = 4
+    do_not_check = ['keyflow']
+
+
+    def setUp(self):
+        super().setUp()
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
+        self.comp_1_obj = CompositionFactory(id=self.comp_1)
+        self.comp_2_obj = CompositionFactory(id=self.comp_2)
+        self.a2a_1_obj = Actor2ActorFactory(id=self.a2a_1,
+                                            composition=self.comp_1_obj)
+        self.a2a_2_obj = Actor2ActorFactory(id=self.a2a_2,
+                                            composition=self.comp_2_obj)
+        self.mat_grandparent = MaterialFactory(id=self.material_1,
+                                               keyflow=self.kic_obj)
+        self.mat_parent = MaterialFactory(id=self.material_2,
+                                          keyflow=self.kic_obj,
+                                          parent=self.mat_grandparent)
+        self.mat_child = MaterialFactory(id=self.material_3,
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_parent)
+        self.obj = self.mat_grandparent
+        self.frac_1_obj =  ProductFractionFactory(id=self.frac_1,
+                                                  composition=self.comp_1_obj,
+                                                  material=self.mat_parent,
+                                                  publication__id=self.pub_1)
+        #self.frac_2_obj =  ProductFractionFactory(id=self.frac_2,
+                                                  #composition=self.comp_1_obj,
+                                                  #material=self.\
+                                                  #mat_grandparent,
+                                                  #publication__id=self.pub_2)
+        #self.frac_3_obj =  ProductFractionFactory(id=self.frac_3,
+                                                  #composition=self.comp_2_obj,
+                                                  #material=self.mat_parent,
+                                                  #publication__id=self.pub_3)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "material"
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflowincasestudy)
+        cls.url_pk = dict(pk=cls.material_1)
+        cls.put_data = dict(name='testname',
+                            keyflow=cls.keyflowincasestudy,
+                            level=1,
+                            parent=None,
+                            )
+        cls.post_data = cls.put_data
+        cls.patch_data = cls.put_data
+
+    def test_filter_by_material(self):
+        filtered = filter_by_material(self.mat_grandparent,
+                                      Actor2Actor.objects)
+        assert filtered.count() == 1
+        assert filtered.first().id == 1
+
+    def test_ancestor(self):
+        args =  (self.mat_child, self.mat_parent, self.mat_grandparent)
+        ancestor = self.mat_child.ancestor(*args)
+        assert ancestor == self.mat_parent
+        ancestor = self.mat_grandparent.ancestor(*args)
+        assert ancestor == None
+
+    def test_is_descendant(self):
+        args =  (self.mat_child, self.mat_parent, self.mat_grandparent)
+        descendand = self.mat_child.is_descendant(*args)
+        assert descendand == True
+        descendand = self.mat_grandparent.is_descendant(*args)
+        assert descendand == False
+
+    def test_delete(self):
+        old_obj = self.obj
+        self.obj = self.mat_child
+        super().test_delete()
+        self.obj = old_obj
+        self.assertRaises(Exception, super().test_delete)
+        x = 'breakpoint'
+

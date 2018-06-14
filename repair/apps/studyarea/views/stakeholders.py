@@ -1,5 +1,5 @@
 
-from repair.apps.login.views import (CasestudyViewSetMixin,
+from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
 
 from repair.apps.studyarea.models import (StakeholderCategory,

@@ -1,12 +1,10 @@
 
 define(['models/casestudy', 'views/data-entry/flows',
         'views/data-entry/actors', 'views/data-entry/materials', 
-        'collections/flows', 'collections/actors',
-        'collections/keyflows', 'collections/materials',
-        'app-config', 'utils/loader', 'base'], // workaround: overrides.js is already loaded in base.js, but there seem to be two conflicting jquery instances
-function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows, 
-          Actors, Keyflows, Materials,
-          appConfig, Loader) {  
+        'collections/gdsecollection', 
+        'app-config', 'utils/utils', 'base'], 
+function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection, 
+          appConfig, utils) {  
   /**
    *
    * entry point for data-entry, 
@@ -18,8 +16,9 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
   var _ = require('underscore');
   var caseStudy,
       keyflows,
+      materials,
       activities,
-      materials;
+      loader = new utils.Loader(document.getElementById('content'), {disable: true});
 
   var flowsView,
       actorsView,
@@ -38,6 +37,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
       template: 'flows-edit-template',
       model: keyflow,
       materials: materials, 
+      activities: activities,
       caseStudy: caseStudy
     });
     refreshFlowsBtn.style.display = 'block';
@@ -54,6 +54,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
       template: 'actors-template',
       model: keyflow,
       caseStudy: caseStudy,
+      activities: activities,
       onUpload: function(){renderEditActors(keyflow)}
     });
     refreshActorsBtn.style.display = 'block';
@@ -86,15 +87,21 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
     keyflowSelect.addEventListener('change', function(){
       var keyflow = getKeyflow();
       document.getElementById('keyflow-warning').style.display = 'none';
-      materials = new Materials([], { caseStudyId: caseStudy.id, keyflowId: keyflow.id });
-      var loader = new Loader(document.getElementById('content'),
-                              { disable: true });
-      materials.fetch({success: function(){
-        loader.remove();
+      materials = new GDSECollection([], { 
+        apiTag: 'materials', 
+        apiIds: [ caseStudy.id, keyflow.id ] 
+      });
+      activities = new GDSECollection([], { 
+          apiTag: 'activities',
+          apiIds: [ caseStudy.id, keyflow.id ]
+      });
+      loader.activate();
+      Promise.all([materials.fetch(), activities.fetch()]).then(function(){
+        loader.deactivate();
         renderFlows(keyflow);
         renderEditActors(keyflow);
         renderEditMaterials(keyflow);
-      }});
+      });
     });
     refreshFlowsBtn.addEventListener('click', function(){ renderFlows(getKeyflow()) });
     refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
@@ -106,16 +113,17 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, Flows,
     function(session){
       var caseStudyId = session['casestudy'];
       if (caseStudyId == null){
-        document.getElementById('casestudy-warning').style.display = 'block';
         document.getElementById('keyflow-warning').style.display = 'none';
         return;
       }
-      caseStudy = new CaseStudy({id: caseStudyId});
-      keyflows = new Keyflows([], {caseStudyId: caseStudyId});
-      var loader = new Loader(document.getElementById('content'),
-                              {disable: true});
+      caseStudy = new CaseStudy({ id: caseStudyId });
+      keyflows = new GDSECollection([], { 
+        apiTag: 'keyflowsInCaseStudy', 
+        apiIds: [caseStudyId] 
+      });
+      loader.activate();
       $.when(caseStudy.fetch(),  keyflows.fetch()).then(function() {
-        loader.remove();
+        loader.deactivate();
         render(caseStudy);
       });
   });

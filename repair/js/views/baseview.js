@@ -1,4 +1,5 @@
-define(['backbone', 'underscore', 'utils/utils'],
+define(['backbone', 'underscore', 'utils/utils', 'hierarchy-select', 
+        'hierarchy-select/dist/hierarchy-select.min.css'],
 function(Backbone, _, utils){
 /**
 *
@@ -28,6 +29,7 @@ var BaseView = Backbone.View.extend(
         _.bindAll(this, 'onError');
         var _this = this;
         this.template = options.template;
+        this.loader = new utils.Loader(options.el, {disable: true});
     },
     
     /**
@@ -113,7 +115,6 @@ var BaseView = Backbone.View.extend(
         wrapper.innerHTML = html;
         wrapper.name = 'material';
         parent.appendChild(wrapper);
-        require('hierarchy-select');
         var select = wrapper.querySelector('.hierarchy-select');
         $(select).hierarchySelect({
             width: width
@@ -228,10 +229,11 @@ var BaseView = Backbone.View.extend(
     },
     
     /**
-    * show a modal to enter a name
+    * show a modal to confirm sth
     *
     * @param {Object=} options
     * @param {module:views/BaseView~onConfirm} options.onConfirm  called when user confirmed dialog
+    * @param {String} options.message  message in dialog
     */
     confirm: function(options){
         var options = options || {},

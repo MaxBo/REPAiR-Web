@@ -1,8 +1,8 @@
-define(['views/baseview', 'backbone', 'underscore', 'collections/layercategories',
-    'collections/layers', 'models/layer', 'visualizations/map',
-    'utils/loader', 'app-config', 'openlayers'],
+define(['views/baseview', 'backbone', 'underscore',
+        'collections/gdsecollection', 'visualizations/map',
+        'app-config', 'openlayers'],
 
-function(BaseView, Backbone, _, LayerCategories, Layers, Layer, Map, Loader, config, ol){
+function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
 /**
 *
 * @author Christoph Franke
@@ -48,20 +48,22 @@ var BaseMapsView = BaseView.extend(
 
         this.projection = 'EPSG:4326';
 
-        var WMSResources = Backbone.Collection.extend({
-            url: config.api.wmsresources.format(this.caseStudy.id)
-        })
-
-        this.wmsResources = new WMSResources();
-        this.layerCategories = new LayerCategories([], { caseStudyId: this.caseStudy.id });
+        this.wmsResources = new GDSECollection([], { 
+            apiTag: 'wmsresources',
+            apiIds: [ this.caseStudy.id ]
+        });
+        this.layerCategories = new GDSECollection([], { 
+            apiTag: 'layerCategories',
+            apiIds: [ this.caseStudy.id ]
+        });
 
         this.categoryTree = {};
         this.layerPrefix = 'service-layer-';
         this.legendPrefix = 'layer-legend-';
 
-        var loader = new Loader(this.el, {disable: true});
+        this.loader.activate();
         this.layerCategories.fetch({ success: function(){
-            loader.remove();
+            _this.loader.deactivate();
             _this.initTree();
         }})
     },
@@ -74,29 +76,32 @@ var BaseMapsView = BaseView.extend(
 
     initTree: function(){
         var _this = this;
-        var deferred = [],
+        var promises = [],
             layerList = [];
         queryParams = (this.includedOnly) ? {included: 'True'} : {};
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
         this.layerCategories.each(function(category){
-            var layers = new Layers([], { caseStudyId: _this.caseStudy.id,
-                layerCategoryId: category.id });
+            var layers = new GDSECollection([], { 
+                apiTag: 'layers',
+                apiIds: [ _this.caseStudy.id, category.id ]
+            });
+            layers.categoryId = category.id;
             var node = {
                 text: category.get('name'),
                 category: category,
                 state: { checked: true, expanded: _this.categoryExpanded },
-                backColor: _this.categoryBackColor,
-                color: _this.categoryColor
+                backColor: _this.categoryBackColor || null,
+                color: _this.categoryColor || null
             };
             _this.categoryTree[category.id] = node;
             layerList.push(layers);
-            deferred.push(layers.fetch({ data: queryParams }));
+            promises.push(layers.fetch({ data: queryParams }));
         });
         // fetch prepared layers and put informations into the tree nodes
-        $.when.apply($, deferred).then(function(){
+        Promise.all(promises).then(function(){
             layerList.forEach(function(layers){
-                var catNode = _this.categoryTree[layers.layerCategoryId];
+                var catNode = _this.categoryTree[layers.categoryId];
                 var children = [];
                 layers.each(function(layer){
                     var node = {

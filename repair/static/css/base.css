@@ -122,7 +122,14 @@ div.fullscreen{
   padding: 0px;
 }
 .title {
-  font-weight: 600;
+  font-weight: 600;    
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.input-label {
+  float: left; 
+  margin-right: 10px; 
+  padding-top: 8px;
 }
 .source {
   position: absolute;
