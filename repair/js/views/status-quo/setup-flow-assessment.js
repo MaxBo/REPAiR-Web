@@ -24,7 +24,7 @@ var FlowAssessmentSetupView = BaseView.extend(
     */
     initialize: function(options){
         FlowAssessmentSetupView.__super__.initialize.apply(this, [options]);
-        
+        this.render();
     },
 
     /*
@@ -36,16 +36,16 @@ var FlowAssessmentSetupView = BaseView.extend(
     /*
     * render the view
     */
-    //render: function(){
-        ////var _this = this;
-        ////var html = document.getElementById(this.template).innerHTML
-        ////var template = _.template(html);
-        ////this.el.innerHTML = template();
-        ////this.typeSelect = this.el.querySelector('#data-view-type-select');
-        ////this.renderMatFilter();
-        ////this.renderNodeFilters();
-        ////this.renderSankey();
-    //},
+    render: function(){
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML
+        var template = _.template(html);
+        this.el.innerHTML = template();
+        //this.typeSelect = this.el.querySelector('#data-view-type-select');
+        //this.renderMatFilter();
+        //this.renderNodeFilters();
+        //this.renderSankey();
+    },
 
 
 });

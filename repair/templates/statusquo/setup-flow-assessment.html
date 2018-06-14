@@ -1,5 +1,25 @@
+{% load i18n %}
 
 <script type="text/template" id="setup-flow-assessment-template">
-<div class="row">
+<div class="col-md-4">
+<table id="indicator-table">
+  <tbody>
+    <tr>
+      <td>{% trans "Name" %}</td>
+      <td>
+        <input id="name">
+      </td>
+    </tr>
+    <tr>
+      <td>{% trans "Type" %}</td>
+      <td>
+        <select class="form-control" id="type">
+          <option value="sum">Flows A</option>
+          <option value="ratio">Flows A / Flows B</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>
 </div>
 </script>
