@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flows',
-        'collections/gdsecollection', 'utils/utils'],
+        'collections/gdsecollection'],
 
-function(BaseView, _, IndicatorFlowsEditView, GDSECollection, utils){
+function(BaseView, _, IndicatorFlowsEditView, GDSECollection){
 /**
 *
 * @author Christoph Franke
@@ -75,8 +75,18 @@ var FlowAssessmentSetupView = BaseView.extend(
         var tmpltId = 'indicator-flow-edit-template',
             elA = this.el.querySelector('#flow-a-tab'),
             elB = this.el.querySelector('#flow-b-tab');
-        this.flowAView = new IndicatorFlowsEditView({ el: elA, template: tmpltId });
-        this.flowBView = new IndicatorFlowsEditView({ el: elB, template: tmpltId });
+        var options = {
+            caseStudy: this.caseStudy,
+            keyflowId: this.keyflowId,
+            activityGroups: this.activityGroups,
+            activities: this.activities,
+            materials: this.materials,
+            template: tmpltId
+        };
+        var optA = Object.assign({el: elA}, options),
+            optB = Object.assign({el: elB}, options);
+        this.flowAView = new IndicatorFlowsEditView(optA);
+        this.flowBView = new IndicatorFlowsEditView(optB);
     },
 
     typeChanged: function(evt){

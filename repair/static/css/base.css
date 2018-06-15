@@ -491,6 +491,11 @@ div.panel-item:hover label{
   display: inline-block;
   position: relative;
 }
+.row.shaded{
+  background: linear-gradient(#fdfdfd, #f7f5f5, #fdfdfd);
+  margin: -10px;
+  padding: 10px;
+}
 .ui-select-choices {
   position: fixed;
   top: auto;

@@ -11,7 +11,7 @@
   <button class="btn btn-primary"> {% trans "Edit" %} </button>
   <button class="btn btn-primary"> {% trans "New" %} </button>
 </div>
-<div class="row bordered">
+<div class="row bordered" style="margin-top: 10px;">
   <div class="row">
     <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
@@ -82,23 +82,64 @@
       <option value="actor">{% trans "Actor" %} </option>
     </select>
   </div>
-  <div class="row">
+  <div class="row" style="margin-top: 10px;">
     <div class="col-md-3">
       <b>{% trans "Activity Group" %}</b>
       <select name="group" class="form-control" style="resize: vertical;">
       </select>
     </div>
     <div class="col-md-3">
-      <div style="font-size: 30px; position: absolute; left: -10px; top: 15px;">></div>
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
       <b>{% trans "Activity" %}</b>
       <select name="activity" class="form-control" style="resize: vertical;">
       </select>
     </div>
     <div class="col-md-3">
-      <div style="font-size: 30px; position: absolute; left: -10px; top: 15px;">></div>
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
       <b>{% trans "Actor" %}</b>
       <select name="actor" class="form-control" multiple style="resize: vertical;">
       </select>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 15px;">
+    <div class="col-md-3">
+      <div class='row'>
+        <b>{% trans "Material" %}</b>
+        <div class='material-filter'></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Flow Type" %}</b>
+      <select name="waste" class="form-control">
+        <option value=''> {% trans "Products and Waste" %} </option>
+        <option value='False'> {% trans "Products" %} </option>
+        <option value='True'> {% trans "Waste" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Application of user choice for spatial filtering" %}</b>
+      <form>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="0">{% trans "origin" %}
+        </span>
+        <br>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="1">{% trans "destination" %}
+        </span>
+        <br>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="2">{% trans "both" %}
+        </span>
+        <br>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="3" selected>{% trans "none" %}
+        </span>
+      </form>
+    </div>
+  </div>
+  <div class="row" style="position: relative;">
+    <button class="btn btn-primary">{% trans "Render" %} </button>
+    <div id="sankey-wrapper" class="noselect" style="width: 100%;">
     </div>
   </div>
 </div>

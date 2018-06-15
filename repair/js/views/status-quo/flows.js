@@ -361,7 +361,7 @@ var FlowsView = BaseView.extend(
         option = document.createElement('option');
         option.value = -1; 
         option.text = gettext('All');
-        if (collection) option.text += ' (' + collection.length + ')'
+        if (collection) option.text += ' (' + collection.length + ')';
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
