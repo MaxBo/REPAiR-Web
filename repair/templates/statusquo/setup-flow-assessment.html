@@ -1,25 +1,105 @@
 {% load i18n %}
 
 <script type="text/template" id="setup-flow-assessment-template">
-<div class="col-md-4">
-<table id="indicator-table">
-  <tbody>
-    <tr>
-      <td>{% trans "Name" %}</td>
-      <td>
-        <input id="name">
-      </td>
-    </tr>
-    <tr>
-      <td>{% trans "Type" %}</td>
-      <td>
-        <select class="form-control" id="type">
-          <option value="sum">Flows A</option>
-          <option value="ratio">Flows A / Flows B</option>
-        </select>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
+  <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+    <option disabled selected> {% trans "Select" %} </option>
+    <option> Fake 1 </option>
+    <option> Fake 2 </option>
+  </select>
+  <button class="btn btn-primary"> {% trans "Edit" %} </button>
+  <button class="btn btn-primary"> {% trans "New" %} </button>
+</div>
+<div class="row bordered">
+  <div class="row">
+    <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <table>
+        <tr>
+          <td style="width:1%;">{% trans "Name" %}</td>
+          <td>
+            <input class="form-control" id="name" style="width: 100%;">
+          </td>
+        </tr>
+        <tr>
+          <td>{% trans "Type" %}</td>
+          <td>
+            <select class="form-control" id="indicator-type">
+              <option value="a">Flows A</option>
+              <option value="a/b">Flows A / Flows B</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>{% trans "Unit" %}</td>
+          <td>
+            <input class="form-control" id="unit">
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-md-4">
+      <table>
+        <tr>
+          <td valign="top" style="width:1%;">{% trans "Description" %}</td>
+          <td>
+            <textarea class="form-control" rows="4" style="width: 100%;">
+            </textarea>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">  
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li id="flowALi" class="active"><a data-toggle="tab" href="#flow-a-tab" id='data-link'>{% trans "Flow A" %}</a></li>
+        <li id="flowBLi"><a data-toggle="tab" href="#flow-b-tab">{% trans "Flow B" %}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade in active" id="flow-a-tab">
+        </div>
+        <div class="tab-pane fade in" id="flow-b-tab">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="indicator-flow-edit-template">
+<div class="row bordered">
+  <div class="row">
+    <label class="input-label">{% trans "Selection Level" %} </label>
+    <select class="form-control" name="level-select" id="data-view-type-select" style="max-width: 200px;">
+      <option value="group">{% trans "Activity Group" %}</option>
+      <option value="activity">{% trans "Activity" %}</option>
+      <option value="actor">{% trans "Actor" %} </option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <b>{% trans "Activity Group" %}</b>
+      <select name="group" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 15px;">></div>
+      <b>{% trans "Activity" %}</b>
+      <select name="activity" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 15px;">></div>
+      <b>{% trans "Actor" %}</b>
+      <select name="actor" class="form-control" multiple style="resize: vertical;">
+      </select>
+    </div>
+  </div>
 </div>
 </script>

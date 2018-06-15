@@ -381,7 +381,7 @@ var FlowsView = BaseView.extend(
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
-            
+
         this.renderNodeSelectOptions(groupSelect, this.activityGroups);
         this.renderNodeSelectOptions(activitySelect, this.activities);
         this.renderNodeSelectOptions(actorSelect, this.actorsTmp);

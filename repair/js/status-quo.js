@@ -7,15 +7,34 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
 
 
 renderFlowsView = function(caseStudy){
-    var keyflowSelect = document.querySelector('select[name="keyflow"]'),
-        flowsView;
+    var flowsView,
+        el = document.getElementById('flows-content'),
+        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
     keyflowSelect.disabled = false;
+    keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
     keyflowSelect.addEventListener('change', function(){
         if (flowsView) flowsView.close();
         flowsView = new FlowsView({ 
             caseStudy: caseStudy,
-            el: document.getElementById('flows-content'),
+            el: el,
             template: 'flows-template',
+            keyflowId: keyflowSelect.value
+        })
+    })
+};
+
+renderFlowAssessmentSetupView = function(caseStudy){
+    var assessmentView,
+        el = document.getElementById('flow-assessment-content'),
+        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+    keyflowSelect.disabled = false;
+    keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+    keyflowSelect.addEventListener('change', function(){
+        if (assessmentView) assessmentView.close();
+        assessmentView = new FlowAssessmentSetupView({ 
+            caseStudy: caseStudy,
+            el: el,
+            template: 'setup-flow-assessment-template',
             keyflowId: keyflowSelect.value
         })
     })
@@ -53,11 +72,7 @@ renderSetup = function(caseStudy){
         el: document.getElementById('sustainability-assessment'),
         template: 'sustainability-template'
     })
-    var flowAssessmentView = new FlowAssessmentSetupView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flow-assessment'),
-      template: 'setup-flow-assessment-template'
-    })
+    renderFlowAssessmentSetupView(caseStudy);
 };
 
 var session = appConfig.getSession(

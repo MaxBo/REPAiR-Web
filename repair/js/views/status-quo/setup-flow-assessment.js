@@ -1,6 +1,7 @@
-define(['views/baseview', 'underscore'],
+define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flows',
+        'collections/gdsecollection', 'utils/utils'],
 
-function(BaseView, _){
+function(BaseView, _, IndicatorFlowsEditView, GDSECollection, utils){
 /**
 *
 * @author Christoph Franke
@@ -24,13 +25,40 @@ var FlowAssessmentSetupView = BaseView.extend(
     */
     initialize: function(options){
         FlowAssessmentSetupView.__super__.initialize.apply(this, [options]);
-        this.render();
+        var _this = this;
+        
+        this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
+        this.materials = new GDSECollection([], { 
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activities = new GDSECollection([], { 
+            apiTag: 'activities',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.activityGroups = new GDSECollection([], { 
+            apiTag: 'activitygroups',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        
+        this.loader.activate();
+        var promises = [
+            this.activities.fetch(),
+            this.activityGroups.fetch(),
+            this.materials.fetch()
+        ]
+        Promise.all(promises).then(function(){
+            _this.loader.deactivate();
+            _this.render();
+        })
     },
 
     /*
     * dom events (managed by jquery)
     */
     events: {
+        'change #indicator-type': 'typeChanged'
     },
 
     /*
@@ -41,13 +69,34 @@ var FlowAssessmentSetupView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template();
-        //this.typeSelect = this.el.querySelector('#data-view-type-select');
-        //this.renderMatFilter();
-        //this.renderNodeFilters();
-        //this.renderSankey();
+        
+        this.el.querySelector('#flowBLi').style.visibility = 'hidden';
+        // content of Flow A and Flow B tabs
+        var tmpltId = 'indicator-flow-edit-template',
+            elA = this.el.querySelector('#flow-a-tab'),
+            elB = this.el.querySelector('#flow-b-tab');
+        this.flowAView = new IndicatorFlowsEditView({ el: elA, template: tmpltId });
+        this.flowBView = new IndicatorFlowsEditView({ el: elB, template: tmpltId });
     },
 
-
+    typeChanged: function(evt){
+        var val = evt.target.value,
+            aTab = this.el.querySelector('#flowALi'),
+            bTab = this.el.querySelector('#flowBLi');
+        if (val == 'a/b'){
+            bTab.style.visibility = 'visible';
+        }
+        else{
+            aTab.querySelector('a').click();
+            bTab.style.visibility = 'hidden';
+        }
+    },
+    
+    close: function(){
+        FlowAssessmentSetupView.__super__.close();
+        this.flowAView.close();
+        this.flowBView.close();
+    }
 });
 return FlowAssessmentSetupView;
 }
