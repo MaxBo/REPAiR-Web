@@ -1,6 +1,7 @@
-define(['views/baseview', 'underscore', 'collections/gdsecollection', 'utils/utils'],
+define(['views/baseview', 'underscore', 'collections/gdsecollection', 
+        'views/flowsankey', 'utils/utils'],
 
-function(BaseView, _, GDSECollection, utils){
+function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -44,6 +45,7 @@ var IndicatorFlowsEditView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click #render-sankey': 'renderSankey'
     },
     
     render: function(){
@@ -52,9 +54,9 @@ var IndicatorFlowsEditView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template();
         
-        this.levelSelect = this.el.querySelector('select[name="level-select"]'),
-        this.groupSelect = this.el.querySelector('select[name="group"]'),
-        this.activitySelect = this.el.querySelector('select[name="activity"]'),
+        this.levelSelect = this.el.querySelector('select[name="level-select"]');
+        this.groupSelect = this.el.querySelector('select[name="group"]');
+        this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
 
         this.levelSelect.addEventListener('change', _this.resetNodeSelects)
@@ -183,7 +185,75 @@ var IndicatorFlowsEditView = BaseView.extend(
             defaultOption: gettext('All materials')
         });
         this.el.querySelector('.material-filter').appendChild(matSelect);
+    },
+    
+    renderSankey: function(){
+        if (this.flowsView != null) this.flowsView.close();
+        var el = this.el.querySelector('.sankey-wrapper'),
+            type = this.levelSelect.value;
+        
+        var collection = (type == 'actor') ? this.actors: 
+            (type == 'activity') ? this.activities: 
+            this.activityGroups;
+        
+        var level = (type == 'actor') ? 'actors': 
+            (type == 'activity') ? 'activities': 
+            'activitygroups';
+
+        if (!collection) {
+            if (type == 'actors')
+                el.innerHTML = gettext("The diagram of flows can't be displayed " + 
+                    "before limiting the amount of actors by filtering")
+            return;
+        }
+        
+        var filterParams = {},
+            waste = this.el.querySelector('select[name="waste"]').value;
+        if (waste) filterParams.waste = waste;
+        
+        var material = this.material;
+        if (material) filterParams.material = {id: material.id};
+        
+        var nodeSelect = (type == 'actor') ? this.actorSelect: 
+            (type == 'activity') ? this.activitySelect: 
+            this.groupSelect;
+        
+        if (nodeSelect.value >= 0){
+            var nodeIds = [];
+            selected = nodeSelect.selectedOptions;
+            for (var i = 0; i < selected.length; i++) {
+                var id = selected[i].value;
+                // ignore 'All' in multi select
+                if (id >= 0)
+                    nodeIds.push(id);
+            }
+            
+            filterParams['subset'] = {};
+            filterParams['subset'][level] = nodeIds;
+        }
+        
+        filterParams.aggregation_level = level;
+            
+        this.flowsView = new FlowSankeyView({
+            el: el,
+            width:  el.clientWidth - 10,
+            collection: collection,
+            keyflowId: this.keyflowId,
+            caseStudyId: this.caseStudy.id,
+            materials: this.materials,
+            flowFilterParams: filterParams,
+            renderStocks: false,
+            hideUnconnected: true,
+            height: 600,
+            tag: level,
+            sourceToSinkPresentation: true
+        })
+    },
+    
+    close: function(){
+        this.flowsView.close();
     }
+
 });
 return IndicatorFlowsEditView;
 }

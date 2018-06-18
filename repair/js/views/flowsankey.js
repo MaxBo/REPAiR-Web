@@ -1,5 +1,5 @@
 define(['views/baseview', 'underscore', 'visualizations/sankey', 
-    'collections/gdsecollection', 'd3'],
+        'collections/gdsecollection', 'd3'],
 
 function(BaseView, _, Sankey, GDSECollection, d3){
 
@@ -23,6 +23,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         * @param {Number=} options.height                   height of sankey diagram (defaults to 1/3 of width)
         * @param {Number=} options.caseStudyId              id of the casestudy
         * @param {Number=} options.keyflowId                id of the keyflow
+        * @param {boolean=} [options.sourceToSinkPresentation=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
         * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -41,14 +42,14 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
+            this.sourceToSinkPresentation = options.sourceToSinkPresentation || false;
             var tag = options.tag || this.collection.apiTag;
-            
             var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
                                 (tag == 'activities') ? 'activity': null;
                            
             flowFilterParams = options.flowFilterParams || {};
-            stockFilterParams = options.stockFilterParams || {};
             flowFilterParams['aggregation_level'] = aggregateLevel;
+            stockFilterParams = options.stockFilterParams || {};
             stockFilterParams['aggregation_level'] = aggregateLevel;
             
             this.flows = new GDSECollection([], {
@@ -98,9 +99,11 @@ function(BaseView, _, Sankey, GDSECollection, d3){
 
             this.loader.activate();
             var promises = [
-                this.stocks.postfetch({body: stockFilterParams}),
                 this.flows.postfetch({body: flowFilterParams})
             ]
+            if (options.renderStocks){
+                promises.push(this.stocks.postfetch({body: stockFilterParams}));
+            }
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
                 _this.render();
@@ -203,15 +206,23 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         transformData: function(models, flows, stocks, materials){
             var _this = this,
                 nodes = [],
+                splitSinks = {},
                 nodeIdxDict = {},
                 labels = {},
                 i = 0,
-                color = d3.scale.category20();
+                colorCat = d3.scale.category20();
+
             function nConnectionsTo(connections, nodeId, options){
                 var options = options || {},
                     filtered = (options.areStocks) ? connections.filterBy({ origin: nodeId }):
                                connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' });
-                return filtered.length
+                return filtered.length;
+            }
+            
+            function hasInAndOutConnections(connections, nodeId){
+                var nConnectionsIn = connections.filterBy({ destination: nodeId }).length,
+                    nConnectionsOut = connections.filterBy({ origin: nodeId }).length;
+                return nConnectionsIn > 0 && nConnectionsOut > 0;
             }
 
             models.forEach(function(model){
@@ -223,10 +234,18 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                         nConnectionsTo(stocks, id, { areStocks: true }) == 0)
                         return;
                 }
-                nodes.push({ id: id, name: name, color: color(name.replace(/ .*/, ""))});
+                var color = colorCat(name.replace(/ .*/, ""));
+                nodes.push({ id: id, name: name, color: color });
                 nodeIdxDict[id] = i;
-                labels[id] = model.get('name');
                 i += 1;
+                if (_this.sourceToSinkPresentation && hasInAndOutConnections(flows, id)){
+                    var splitId = 'd' + id;
+                    nodes.push({ id: splitId, name: name, color: color });
+                    splitSinks[id] = splitId;
+                    nodeIdxDict[splitId] = i;
+                    i += 1;
+                }
+                labels[id] = model.get('name');
             });
             var links = [];
 
@@ -262,6 +281,13 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 // continue if one of the linked nodes does not exist
                 if (source == null || target == null) return false;
                 var composition = flow.get('composition');
+                if (_this.sourceToSinkPresentation){
+                    var splitId = splitSinks[destinationId];
+                    if (splitId != null){
+                        console.log(splitId)
+                        target = nodeIdxDict[splitId];
+                    }
+                }
                 links.push({
                     value: flow.get('amount'),
                     units: gettext('t/year'),

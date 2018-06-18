@@ -132,14 +132,16 @@
         </span>
         <br>
         <span>
-          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="3" selected>{% trans "none" %}
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="3" checked>{% trans "none" %}
         </span>
       </form>
     </div>
   </div>
-  <div class="row" style="position: relative;">
-    <button class="btn btn-primary">{% trans "Render" %} </button>
-    <div id="sankey-wrapper" class="noselect" style="width: 100%;">
+  <div class="row">
+    <button class="btn btn-primary" id="render-sankey">{% trans "Render Sankey" %} </button>
+    <div class="row" style="position: relative;">
+      <div class="sankey-wrapper" class="noselect" style="width: 100%;">
+      </div>
     </div>
   </div>
 </div>
