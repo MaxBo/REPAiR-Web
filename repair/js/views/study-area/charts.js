@@ -63,7 +63,26 @@ var BaseChartsView = BaseView.extend(
         'change #chart-image-input': 'showPreview',
         'click #remove-cc-button': 'removeNode',
         'click #remove-cc-modal .confirm': 'confirmRemoval',
-        'click #edit-cc-button': 'editName'
+        'click #edit-cc-button': 'editName',
+        'click #chart-test' : 'test'
+    },
+    
+    test: function(){
+        var div = document.getElementById('chart-chart');
+        var url = 'http://localhost:8000/api/casestudies/2/chartcategories/1/charts/6/';
+        $(div).load(url);
+        //var xhr = new XMLHttpRequest();
+        //xhr.open('GET', url, true);
+        //function bla(e){
+            //if (xhr.readyState == 4 && xhr.status == 200) {
+                //var response = xhr.responseText;
+                //console.log(response)
+                //div.innerHTML = response;
+            //}
+        //}
+        //xhr.addEventListener("readystatechange", bla, false);
+        //xhr.send()
+        
     },
 
     /*
