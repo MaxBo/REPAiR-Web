@@ -150,7 +150,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         # data
         
         if level_aggregation and level_aggregation != 'actors':
-            data = aggregate_to_level(level_aggregation, data, queryset,
+            data = aggregate_to_level(data, queryset, level_aggregation, None,
                                       is_stock=True)
         
         # if the fractions of stocks are filtered by material, the other
