@@ -214,22 +214,19 @@ var IndicatorFlowsEditView = BaseView.extend(
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
-            type = this.levelSelect.value;
+            originLevel = this.originSelects.levelSelect.value,
+            destinationLevel = this.destinationSelects.levelSelect.value;
         
-        var collection = (type == 'actor') ? this.actors: 
-            (type == 'activity') ? this.activities: 
+        var origins = (originLevel == 'actor') ? this.originActors: 
+            (originLevel == 'activity') ? this.activities: 
+            this.activityGroups;
+        var destinations = (destinationLevel == 'actor') ? this.destinationActors: 
+            (destinationLevel == 'activity') ? this.activities: 
             this.activityGroups;
         
-        var level = (type == 'actor') ? 'actors': 
-            (type == 'activity') ? 'activities': 
-            'activitygroups';
-
-        if (!collection) {
-            if (type == 'actors')
-                el.innerHTML = gettext("The diagram of flows can't be displayed " + 
-                    "before limiting the amount of actors by filtering")
-            return;
-        }
+        //var level = (type == 'actor') ? 'actors': 
+            //(type == 'activity') ? 'activities': 
+            //'activitygroups';
         
         var filterParams = {},
             waste = this.el.querySelector('select[name="waste"]').value;
@@ -238,39 +235,36 @@ var IndicatorFlowsEditView = BaseView.extend(
         var material = this.material;
         if (material) filterParams.material = {id: material.id};
         
-        var nodeSelect = (type == 'actor') ? this.actorSelect: 
-            (type == 'activity') ? this.activitySelect: 
-            this.groupSelect;
+        //var nodeSelect = (type == 'actor') ? this.actorSelect: 
+            //(type == 'activity') ? this.activitySelect: 
+            //this.groupSelect;
         
-        if (nodeSelect.value >= 0){
-            var nodeIds = [];
-            selected = nodeSelect.selectedOptions;
-            for (var i = 0; i < selected.length; i++) {
-                var id = selected[i].value;
-                // ignore 'All' in multi select
-                if (id >= 0)
-                    nodeIds.push(id);
-            }
+        //if (nodeSelect.value >= 0){
+            //var nodeIds = [];
+            //selected = nodeSelect.selectedOptions;
+            //for (var i = 0; i < selected.length; i++) {
+                //var id = selected[i].value;
+                //// ignore 'All' in multi select
+                //if (id >= 0)
+                    //nodeIds.push(id);
+            //}
             
-            filterParams['subset'] = {};
-            filterParams['subset'][level] = nodeIds;
-        }
-        
-        filterParams.aggregation_level = level;
-            
+            //filterParams['subset'] = {};
+            //filterParams['subset'][level] = nodeIds;
+        //}
+
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
-            collection: collection,
+            origins: origins,
+            destinations: destinations,
             keyflowId: this.keyflowId,
             caseStudyId: this.caseStudy.id,
             materials: this.materials,
             flowFilterParams: filterParams,
             renderStocks: false,
             hideUnconnected: true,
-            height: 600,
-            tag: level,
-            sourceToSinkPresentation: true
+            height: 600
         })
     },
     

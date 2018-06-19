@@ -156,7 +156,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                     url: origins.url()
                 })
                 promises.push(missingOrigins.postfetch({ 
-                    body: { 'id': Array.from(missingIds).join() },
+                    body: { 'id': Array.from(missingOriginIds).join() },
                     success: function(){
                         origins = origins.models.concat(missingOrigins.models);
                     }
@@ -293,7 +293,6 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             function typeRepr(flow){
                 return flow.get('waste') ? 'Waste': 'Product';
             }
-            console.log(indices)
             
             flows.forEach(function(flow){
                 var value = flow.get('amount');
@@ -301,10 +300,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                     destinationId = flow.get('destination'),
                     source = indices[_this.originAggregateLevel+originId],
                     target = indices[_this.destinationAggregateLevel+destinationId];
-                console.log(source)
-                console.log(target)
                 // continue if one of the linked nodes does not exist
-                if (source == null || target == null) return false;
+                if (source == null || target == null) {console.log('hallo');return false;}
                 var composition = flow.get('composition');
                 links.push({
                     value: flow.get('amount'),

@@ -159,9 +159,10 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
     if not implemented in the subclass, do nothing
     almost the same for flows and stocks except missing destinations for stocks
     """
-    
     if not origin_level and not destination_level:
         return data
+    origin_level = origin_level or 'actor'
+    destination_level = destination_level or 'actor'
     
     origins = Actor.objects.filter(id__in=queryset.values_list('origin'));
     if origin_level.lower() == 'activity':
@@ -173,6 +174,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         args = ['origin__activity__activitygroup']
     else:
         origins_map = dict(origins.values_list('id', 'id'))
+        args = ['id']
 
     if not is_stock:
         destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
@@ -187,6 +189,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
             args.append('destination__activity__activitygroup')
         else:
             destinations_map = dict(destinations.values_list('id', 'id'))
+            args.append('id')
     
     acts = queryset.values_list(*args)
 
