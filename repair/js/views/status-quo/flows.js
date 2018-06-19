@@ -327,7 +327,8 @@ var FlowsView = BaseView.extend(
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
-            collection: collection,
+            origins: collection,
+            destinations: collection,
             keyflowId: this.keyflowId,
             caseStudyId: this.caseStudy.id,
             materials: this.materials,
@@ -335,7 +336,8 @@ var FlowsView = BaseView.extend(
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600,
-            tag: type
+            originTag: type,
+            destinationTag: type,
         })
     },
 
@@ -361,7 +363,7 @@ var FlowsView = BaseView.extend(
         option = document.createElement('option');
         option.value = -1; 
         option.text = gettext('All');
-        if (collection) option.text += ' (' + collection.length + ')'
+        if (collection) option.text += ' (' + collection.length + ')';
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
@@ -381,7 +383,7 @@ var FlowsView = BaseView.extend(
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
-            
+
         this.renderNodeSelectOptions(groupSelect, this.activityGroups);
         this.renderNodeSelectOptions(activitySelect, this.activities);
         this.renderNodeSelectOptions(actorSelect, this.actorsTmp);

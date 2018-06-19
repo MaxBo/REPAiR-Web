@@ -22,7 +22,6 @@
 
 <div class="tab-content">
   <div class="tab-pane fade in active" id="flows">
-    
     <div class="row bordered">
       <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
       <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
@@ -36,7 +35,16 @@
   </div>
   <div class="tab-pane fade" id="challenges"></div>
   <div class="tab-pane fade" id="flow-assessment">
-    <h2> ToDo </h2>
+    <div class="row bordered">
+      <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
+      <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
+        <option disabled selected> {% trans "Select" %} </option>
+        {% for keyflow in keyflows %}
+          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div id="flow-assessment-content"></div>
   </div>
   <div class="tab-pane fade" id="sustainability-assessment"></div>
   {% if request.session.mode != 1 %}
@@ -46,6 +54,7 @@
   
 {% include "statusquo/flows.html" %}
 {% include "statusquo/challenges-aims.html" %}
+{% include "statusquo/setup-flow-assessment.html" %}
 {% include "statusquo/sustainability.html" %}
 {% if request.session.mode != 1 %}
 {% include "statusquo/targets.html" %}
