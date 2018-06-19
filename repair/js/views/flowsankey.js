@@ -18,12 +18,15 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                   element the view will be rendered in
-        * @param {String} options.tag                       'actors', 'activities' or 'activitygroups', by default the apiTag of the collection is taken 
+        * @param {Backbone.Collection} options.origins      origins
+        * @param {Backbone.Collection} options.destinations destinations
+        * @param {String=} options.originTag                'actors', 'activities' or 'activitygroups', by default the apiTag of the origins is taken 
+        * @param {String=} options.destinationTag           'actors', 'activities' or 'activitygroups', by default the apiTag of the destinations is taken 
         * @param {Number=} options.width                    width of sankey diagram (defaults to width of el)
         * @param {Number=} options.height                   height of sankey diagram (defaults to 1/3 of width)
         * @param {Number} options.caseStudyId               id of the casestudy
         * @param {Number} options.keyflowId                 id of the keyflow
-        * @param {Backbone.Collection} options.materials    id of the keyflow
+        * @param {Backbone.Collection} options.materials    materials
         * @param {boolean=} [options.renderStocks=true]     if false, stocks won't be rendered
         * @param {boolean=} [options.sourceToSinkPresentation=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
@@ -45,18 +48,24 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.sourceToSinkPresentation = options.sourceToSinkPresentation || false;
-            var tag = options.tag || this.collection.apiTag,
+            this.origins = options.origins;
+            this.destinations = options.destinations;
+            var originTag = options.originTag || this.origins.apiTag,
+                destinationTag = options.destinationTag || this.destinations.apiTag,
                 renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
-            var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
-                                (tag == 'activities') ? 'activity': null;
-                           
+
+            this.originAggregateLevel = (originTag.endsWith('activitygroups')) ? 'activitygroup': 
+                                        (originTag == 'activities') ? 'activity': null;
+            this.destinationAggregateLevel = (destinationTag.endsWith('activitygroups')) ? 'activitygroup': 
+                                             (destinationTag == 'activities') ? 'activity': null;
+
             flowFilterParams = options.flowFilterParams || {};
             flowFilterParams['aggregation_level'] = {
-                origin: aggregateLevel,
-                destination: aggregateLevel
+                origin: this.originAggregateLevel,
+                destination: this.destinationAggregateLevel
             };
             stockFilterParams = options.stockFilterParams || {};
-            stockFilterParams['aggregation_level'] = aggregateLevel;
+            stockFilterParams['aggregation_level'] = this.originAggregateLevel;
             
             this.flows = new GDSECollection([], {
                 apiTag: 'actorToActor',
@@ -125,37 +134,51 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         },
         
         complementData: function(success){
-            var nodeIds = this.collection.pluck('id'),
-                missingIds = new Set(),
+            var originIds = this.origins.pluck('id'),
+                destinationIds = this.destinations.pluck('id'),
+                missingOriginIds = new Set(),
+                missingDestinationIds = new Set(),
+                origins = this.origins,
+                destinations = this.destinations,
                 _this = this;
             this.flows.forEach(function(flow){
                 var origin = flow.get('origin'),
                     destination = flow.get('destination');
-                if(!nodeIds.includes(origin)) missingIds.add(origin);
-                if(!nodeIds.includes(destination)) missingIds.add(destination);
+                if(!originIds.includes(origin)) missingOriginIds.add(origin);
+                if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
             })
+            var promises = [];
             // WARNING: postfetch works only with filter actors route, should be
             // fetched in case of groups and activities, but in fact they should
             // be complete
-            if (missingIds.size > 0){
-                var missingNodes = new GDSECollection([], {
-                    url: this.collection.url()
+            if (missingOriginIds.size > 0){
+                var missingOrigins = new GDSECollection([], {
+                    url: origins.url()
                 })
-                missingNodes.postfetch({ 
+                promises.push(missingOrigins.postfetch({ 
                     body: { 'id': Array.from(missingIds).join() },
                     success: function(){
-                        var models = _this.collection.models.concat(missingNodes.models);
-                        var data = _this.transformData(
-                            models, _this.flows, _this.stocks, _this.materials);
-                        success(data);
+                        origins = origins.models.concat(missingOrigins.models);
                     }
+                }))
+            }
+            if (missingDestinationIds.size > 0){
+                var missingDestinations = new GDSECollection([], {
+                    url: destinations.url()
                 })
+                promises.push(missingDestinations.postfetch({ 
+                    body: { 'id': Array.from(missingDestinationIds).join() },
+                    success: function(){
+                        destinations = destinations.models.concat(missingDestinations.models);
+                    }
+                }))
             }
-            else {
-                var data = this.transformData(this.collection, this.flows, 
-                                              this.stocks, this.materials);
+            
+            Promise.all(promises).then(function(){
+                var data = _this.transformData(
+                    origins, destinations, _this.flows, _this.stocks, _this.materials);
                 success(data);
-            }
+            })
         },
 
         /*
@@ -204,50 +227,48 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         * transform the models, their links and the stocks to a json-representation
         * readable by the sankey-diagram
         */
-        transformData: function(models, flows, stocks, materials){
+        transformData: function(origins, destinations, flows, stocks, materials){
             var _this = this,
                 nodes = [],
-                splitSinks = {},
-                nodeIdxDict = {},
+                indices = {},
                 labels = {},
-                i = 0,
                 colorCat = d3.scale.category20();
 
-            function nConnectionsTo(connections, nodeId, options){
-                var options = options || {},
-                    filtered = (options.areStocks) ? connections.filterBy({ origin: nodeId }):
-                               connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' });
-                return filtered.length;
+            function nConnectionsInOut(connections, nodeId){
+                return connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' }).length;
             }
             
-            function hasInAndOutConnections(connections, nodeId){
-                var nConnectionsIn = connections.filterBy({ destination: nodeId }).length,
-                    nConnectionsOut = connections.filterBy({ origin: nodeId }).length;
-                return nConnectionsIn > 0 && nConnectionsOut > 0;
+            function nConnectionsIn(connections, nodeId){
+                return connections.filterBy({ destination: nodeId }).length;
+            }
+            
+            function nConnectionsOut(connections, nodeId){
+                return connections.filterBy({ origin: nodeId }).length;
+            }
+            
+            var idx = 0;
+            
+            function addNodes(collection, prefix){
+                collection.forEach(function(model){
+                    var id = model.id,
+                        name = model.get('name');
+                    // we already got this one -> skip it
+                    if(indices[prefix+id] != null) return;
+                    // no connections -> skip it (if requested)
+                    if (_this.hideUnconnected) {
+                        if (nConnectionsInOut(flows, id) + nConnectionsOut(stocks, id, {stocks: true}) == 0)
+                            return;
+                    }
+                    var color = colorCat(name.replace(/ .*/, ""));
+                    nodes.push({ id: id, name: name, color: color });
+                    indices[prefix+id] = idx;
+                    labels[prefix+id] = model.get('name');
+                    idx += 1;
+                });
             }
 
-            models.forEach(function(model){
-                var id = model.id;
-                var name = model.get('name');
-                // ignore nodes with no connections at all (if requested)
-                if (_this.hideUnconnected) {
-                    if (nConnectionsTo(flows, id) == 0 && 
-                        nConnectionsTo(stocks, id, { areStocks: true }) == 0)
-                        return;
-                }
-                var color = colorCat(name.replace(/ .*/, ""));
-                nodes.push({ id: id, name: name, color: color });
-                nodeIdxDict[id] = i;
-                i += 1;
-                if (_this.sourceToSinkPresentation && hasInAndOutConnections(flows, id)){
-                    var splitId = 'd' + id;
-                    nodes.push({ id: splitId, name: name, color: color });
-                    splitSinks[id] = splitId;
-                    nodeIdxDict[splitId] = i;
-                    i += 1;
-                }
-                labels[id] = model.get('name');
-            });
+            addNodes(origins, this.originAggregateLevel);
+            addNodes(destinations, this.destinationAggregateLevel);
             var links = [];
 
             function compositionRepr(composition){
@@ -272,22 +293,19 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             function typeRepr(flow){
                 return flow.get('waste') ? 'Waste': 'Product';
             }
-
+            console.log(indices)
+            
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 var originId = flow.get('origin'),
                     destinationId = flow.get('destination'),
-                    source = nodeIdxDict[originId],
-                    target = nodeIdxDict[destinationId];
+                    source = indices[_this.originAggregateLevel+originId],
+                    target = indices[_this.destinationAggregateLevel+destinationId];
+                console.log(source)
+                console.log(target)
                 // continue if one of the linked nodes does not exist
                 if (source == null || target == null) return false;
                 var composition = flow.get('composition');
-                if (_this.sourceToSinkPresentation){
-                    var splitId = splitSinks[destinationId];
-                    if (splitId != null){
-                        target = nodeIdxDict[splitId];
-                    }
-                }
                 links.push({
                     value: flow.get('amount'),
                     units: gettext('t/year'),
@@ -299,8 +317,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             stocks.forEach(function(stock){
                 var id = 'stock-' + stock.id;
                 var originId = stock.get('origin'),
-                    source = nodeIdxDict[originId],
-                    sourceName = labels[originId];
+                    source = indices[_this.originAggregateLevel+originId],
+                    sourceName = labels[_this.originAggregateLevel+originId];
                 // continue if node does not exist
                 if (source == null) return false;
                 nodes.push({id: id, name: 'Stock ',
@@ -312,10 +330,10 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                     value: stock.get('amount'),
                     units: gettext('t/year'),
                     source: source,
-                    target: i,
+                    target: idx,
                     text: typeRepr(stock) + '<br>' + compositionRepr(composition)
                 });
-                i += 1;
+                idx += 1;
             });
 
             var transformed = {nodes: nodes, links: links};

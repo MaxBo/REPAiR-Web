@@ -327,7 +327,8 @@ var FlowsView = BaseView.extend(
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
-            collection: collection,
+            origins: collection,
+            destinations: collection,
             keyflowId: this.keyflowId,
             caseStudyId: this.caseStudy.id,
             materials: this.materials,
@@ -335,7 +336,8 @@ var FlowsView = BaseView.extend(
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600,
-            tag: type
+            originTag: type,
+            destinationTag: type,
         })
     },
 

@@ -492,7 +492,7 @@ div.panel-item:hover label{
   position: relative;
 }
 .row.shaded{
-  background: linear-gradient(#fdfdfd, #f7f5f5, #fdfdfd);
+  background: linear-gradient(#fdfdfd, #fbfbfb, #fdfdfd);
   margin: -10px;
   padding: 10px;
 }
