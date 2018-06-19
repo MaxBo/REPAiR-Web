@@ -74,33 +74,6 @@
 
 <script type="text/template" id="indicator-flow-edit-template">
 <div class="row bordered">
-  <div class="row">
-    <label class="input-label">{% trans "Selection Level" %} </label>
-    <select class="form-control" name="level-select" id="data-view-type-select" style="max-width: 200px;">
-      <option value="group">{% trans "Activity Group" %}</option>
-      <option value="activity">{% trans "Activity" %}</option>
-      <option value="actor">{% trans "Actor" %} </option>
-    </select>
-  </div>
-  <div class="row" style="margin-top: 10px;">
-    <div class="col-md-3">
-      <b>{% trans "Activity Group" %}</b>
-      <select name="group" class="form-control" style="resize: vertical;">
-      </select>
-    </div>
-    <div class="col-md-3">
-      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
-      <b>{% trans "Activity" %}</b>
-      <select name="activity" class="form-control" style="resize: vertical;">
-      </select>
-    </div>
-    <div class="col-md-3">
-      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
-      <b>{% trans "Actor" %}</b>
-      <select name="actor" class="form-control" multiple style="resize: vertical;">
-      </select>
-    </div>
-  </div>
   <div class="row" style="margin-top: 15px;">
     <div class="col-md-3">
       <div class='row'>
@@ -135,6 +108,62 @@
           <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="3" checked>{% trans "none" %}
         </span>
       </form>
+    </div>
+  </div>
+  <div class="row bordered" style="margin-top: 10px;">
+    <h4> {% trans "Origins" %} </h4>
+    <div class="row">
+      <label class="input-label">{% trans "Selection Level" %} </label>
+      <select class="form-control" name="origin-level-select" id="data-view-type-select" style="max-width: 200px;">
+        <option value="group">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Activity Group" %}</b>
+      <select name="origin-group" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Activity" %}</b>
+      <select name="origin-activity" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Actor" %}</b>
+      <select name="origin-actor" class="form-control" multiple style="resize: vertical;">
+      </select>
+    </div>
+  </div>
+  <div class="row bordered" style="margin-top: 10px;">
+    <h4> {% trans "Destinations" %} </h4>
+    <div class="row">
+      <label class="input-label">{% trans "Selection Level" %} </label>
+      <select class="form-control" name="destination-level-select" id="data-view-type-select" style="max-width: 200px;">
+        <option value="group">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Activity Group" %}</b>
+      <select name="destination-group" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Activity" %}</b>
+      <select name="destination-activity" class="form-control" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Actor" %}</b>
+      <select name="destination-actor" class="form-control" multiple style="resize: vertical;">
+      </select>
     </div>
   </div>
   <div class="row">

@@ -21,8 +21,10 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         * @param {String} options.tag                       'actors', 'activities' or 'activitygroups', by default the apiTag of the collection is taken 
         * @param {Number=} options.width                    width of sankey diagram (defaults to width of el)
         * @param {Number=} options.height                   height of sankey diagram (defaults to 1/3 of width)
-        * @param {Number=} options.caseStudyId              id of the casestudy
-        * @param {Number=} options.keyflowId                id of the keyflow
+        * @param {Number} options.caseStudyId               id of the casestudy
+        * @param {Number} options.keyflowId                 id of the keyflow
+        * @param {Backbone.Collection} options.materials    id of the keyflow
+        * @param {boolean=} [options.renderStocks=true]     if false, stocks won't be rendered
         * @param {boolean=} [options.sourceToSinkPresentation=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
@@ -43,12 +45,16 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.sourceToSinkPresentation = options.sourceToSinkPresentation || false;
-            var tag = options.tag || this.collection.apiTag;
+            var tag = options.tag || this.collection.apiTag,
+                renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
             var aggregateLevel = (tag.endsWith('activitygroups')) ? 'activitygroup': 
                                 (tag == 'activities') ? 'activity': null;
                            
             flowFilterParams = options.flowFilterParams || {};
-            flowFilterParams['aggregation_level'] = aggregateLevel;
+            flowFilterParams['aggregation_level'] = {
+                origin: aggregateLevel,
+                destination: aggregateLevel
+            };
             stockFilterParams = options.stockFilterParams || {};
             stockFilterParams['aggregation_level'] = aggregateLevel;
             
@@ -101,7 +107,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             var promises = [
                 this.flows.postfetch({body: flowFilterParams})
             ]
-            if (options.renderStocks){
+            if (renderStocks){
                 promises.push(this.stocks.postfetch({body: stockFilterParams}));
             }
             Promise.all(promises).then(function(){
@@ -144,11 +150,6 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                         success(data);
                     }
                 })
-                //var locations = new GDSECollection([], {
-                    //apiIds: _this.collection.apiIds,
-                    //apiTag: 'adminLocations'
-                //})
-                //locations.fetch({ data: { 'actor__in': nodeIds.toString() }, success: function(){ console.log(locations) } })
             }
             else {
                 var data = this.transformData(this.collection, this.flows, 
@@ -284,7 +285,6 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 if (_this.sourceToSinkPresentation){
                     var splitId = splitSinks[destinationId];
                     if (splitId != null){
-                        console.log(splitId)
                         target = nodeIdxDict[splitId];
                     }
                 }

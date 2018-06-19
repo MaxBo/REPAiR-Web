@@ -32,7 +32,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
 
-        this.actors = new GDSECollection([], {
+        this.originActors = new GDSECollection([], {
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
+        })
+        this.destinationActors = new GDSECollection([], {
             apiTag: 'actors',
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name'
@@ -54,102 +59,121 @@ var IndicatorFlowsEditView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template();
         
-        this.levelSelect = this.el.querySelector('select[name="level-select"]');
-        this.groupSelect = this.el.querySelector('select[name="group"]');
-        this.activitySelect = this.el.querySelector('select[name="activity"]');
-        this.actorSelect = this.el.querySelector('select[name="actor"]');
+        this.originSelects = {
+            levelSelect: this.el.querySelector('select[name="origin-level-select"]'),
+            groupSelect: this.el.querySelector('select[name="origin-group"]'),
+            activitySelect: this.el.querySelector('select[name="origin-activity"]'),
+            actorSelect: this.el.querySelector('select[name="origin-actor"]')
+        }
+        
+        this.destinationSelects = {
+            levelSelect: this.el.querySelector('select[name="destination-level-select"]'),
+            groupSelect: this.el.querySelector('select[name="destination-group"]'),
+            activitySelect: this.el.querySelector('select[name="destination-activity"]'),
+            actorSelect: this.el.querySelector('select[name="destination-actor"]')
+        }
+        
+        this.originSelects.levelSelect.addEventListener(
+            'change', function(){ _this.resetNodeSelects('origin') })
+        this.destinationSelects.levelSelect.addEventListener(
+            'change', function(){ _this.resetNodeSelects('destination') })
 
-        this.levelSelect.addEventListener('change', _this.resetNodeSelects)
-
-        this.levelSelect.value = 'actor';
-        this.resetNodeSelects();
-        this.selectEvents();
+        this.originSelects.levelSelect.value = 'actor';
+        this.destinationSelects.levelSelect.value = 'actor';
+        this.resetNodeSelects('origin');
+        this.resetNodeSelects('destination');
+        this.addEventListeners('origin');
+        this.addEventListeners('destination');
         this.renderMatFilter();
     },
     
-    filterActors: function(){
+    filterActors: function(tag){
         var _this = this,
             geoJSONText, 
             queryParams = { 
                 included: 'True', 
                 fields: ['id', 'name'].join() 
             };
-            
-        var activity = this.activitySelect.value,
-            group = this.groupSelect.value;
+        
+        var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
+            actors = (tag == 'origin') ? this.originActors : this.destinationActors,
+            activity = selectGroup.activitySelect.value,
+            group = selectGroup.groupSelect.value;
 
         if(activity >= 0) queryParams['activity'] = activity;
         else if (group >= 0) queryParams['activity__activitygroup'] = group;
 
        // area: geoJSONText, 
         this.loader.activate({offsetX: '20%'});
-        this.actors.fetch({
+        actors.fetch({
             data: queryParams,
             success: function(response){
                 _this.loader.deactivate();
-                _this.actors.sort();
-                _this.renderNodeSelectOptions(_this.actorSelect, _this.actors);
-                _this.actorSelect.value = -1;
+                actors.sort();
+                _this.renderNodeSelectOptions(selectGroup.actorSelect, actors);
+                selectGroup.actorSelect.value = -1;
             },
             reset: true
         })
         
     },
 
-    selectEvents: function(){
+    addEventListeners: function(tag){
         var _this = this;
+        var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects;
 
-        this.groupSelect.addEventListener('change', function(){
-            var level = _this.levelSelect.value;
+        selectGroup.groupSelect.addEventListener('change', function(){
+            var level = selectGroup.levelSelect.value;
             if (level == 'group') return;
             var groupId = this.value;
             filteredActivities = (groupId < 0) ? _this.activities: 
                 _this.activities.filterBy({'activitygroup': groupId});
                 
-            _this.renderNodeSelectOptions(_this.activitySelect, filteredActivities);
+            _this.renderNodeSelectOptions(selectGroup.activitySelect, filteredActivities);
             if (level == 'actor')
-                _this.filterActors();
+                _this.filterActors(tag);
         })
         
-        this.activitySelect.addEventListener('change', function(){
-            if (_this.levelSelect.value == 'actor') 
-                _this.filterActors();
+        selectGroup.activitySelect.addEventListener('change', function(){
+            // render actors only if their level is selected
+            if (selectGroup.levelSelect.value == 'actor') 
+                _this.filterActors(tag);
         })
     },
     
-    resetNodeSelects: function(){
+    resetNodeSelects: function(tag){
         
-        var level = this.levelSelect.value,
+        var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
+            level = selectGroup.levelSelect.value,
             multi, 
             hide = [];
             
-         [this.actorSelect, this.groupSelect, this.activitySelect].forEach(function(sel){
+         [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect].forEach(function(sel){
             sel.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
             sel.style.height ='100%'; // resets size, in case it was expanded
         })
         if (level == 'actor'){
-            multi = this.actorSelect;
+            multi = selectGroup.actorSelect;
         }
         else if (level == 'activity'){
-            multi = this.activitySelect;
-            hide = [this.actorSelect];
+            multi = selectGroup.activitySelect;
+            hide = [selectGroup.actorSelect];
         }
         else {
-            multi = this.groupSelect;
-            hide = [this.actorSelect, this.activitySelect];
+            multi = selectGroup.groupSelect;
+            hide = [selectGroup.actorSelect, selectGroup.activitySelect];
         }
         multi.setAttribute('multiple', true);
         hide.forEach(function(s){
             s.parentElement.style.display = 'none';
         })
-        // if group is selected you won't see activities anyway so just leave it
-        // as it is
+        this.renderNodeSelectOptions(selectGroup.groupSelect, this.activityGroups);
         if(level != 'group')
-            this.renderNodeSelectOptions(this.activitySelect, this.activities);
-        this.renderNodeSelectOptions(this.groupSelect, this.activityGroups);
-        this.renderNodeSelectOptions(this.actorSelect);
+            this.renderNodeSelectOptions(selectGroup.activitySelect, this.activities);
+        if(level == 'actor')
+            this.renderNodeSelectOptions(selectGroup.actorSelect);
         
     },
 
