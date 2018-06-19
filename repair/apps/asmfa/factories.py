@@ -93,6 +93,16 @@ class ProductFactory(DjangoModelFactory):
     #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
+class WasteFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Waste
+    name = factory.Sequence(lambda n: "Product #%s" % n)
+    nace = 'testnace'
+    ewc ='testewc'
+    wastetype ='testtype'
+    hazardous = False
+
+
 class CompositionFactory(DjangoModelFactory):
     class Meta:
         model = models.Composition
