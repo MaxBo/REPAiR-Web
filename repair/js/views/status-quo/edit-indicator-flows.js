@@ -211,6 +211,30 @@ var IndicatorFlowsEditView = BaseView.extend(
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
     
+    getSelectedNodes: function(selectGroup){
+        var level = selectGroup.levelSelect.value,
+            nodeSelect = (level == 'actor') ? selectGroup.actorSelect: 
+                         (level == 'activity') ? selectGroup.activitySelect: 
+                         selectGroup.groupSelect;
+
+        function getValues(selectOptions){
+            var values = [];
+            for (var i = 0; i < selectOptions.length; i++) {
+                var id = selectOptions[i].value;
+                // ignore 'All' in multi select
+                if (id >= 0)
+                    values.push(id);
+            }
+            return values;
+        }
+        if (nodeSelect.value >= 0){
+            selected = nodeSelect.selectedOptions;
+            return getValues(selected);
+        }
+        // All is selected -> return values of all options
+        else return getValues(nodeSelect.options)
+    },
+    
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
@@ -223,11 +247,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         var destinations = (destinationLevel == 'actor') ? this.destinationActors: 
             (destinationLevel == 'activity') ? this.activities: 
             this.activityGroups;
-        
-        //var level = (type == 'actor') ? 'actors': 
-            //(type == 'activity') ? 'activities': 
-            //'activitygroups';
-        
+
         var filterParams = {},
             waste = this.el.querySelector('select[name="waste"]').value;
         if (waste) filterParams.waste = waste;
@@ -235,24 +255,30 @@ var IndicatorFlowsEditView = BaseView.extend(
         var material = this.material;
         if (material) filterParams.material = {id: material.id};
         
-        //var nodeSelect = (type == 'actor') ? this.actorSelect: 
-            //(type == 'activity') ? this.activitySelect: 
-            //this.groupSelect;
+        var originNodeIds = this.getSelectedNodes(this.originSelects),
+            destinationNodeIds = this.getSelectedNodes(this.destinationSelects);
         
-        //if (nodeSelect.value >= 0){
-            //var nodeIds = [];
-            //selected = nodeSelect.selectedOptions;
-            //for (var i = 0; i < selected.length; i++) {
-                //var id = selected[i].value;
-                //// ignore 'All' in multi select
-                //if (id >= 0)
-                    //nodeIds.push(id);
-            //}
-            
-            //filterParams['subset'] = {};
-            //filterParams['subset'][level] = nodeIds;
-        //}
-
+        var originSuffix = (originLevel == 'group') ? 'activity__activitygroup__id__in': 
+                (originLevel == 'activity') ? 'activity__id__in': 'id__in',
+            destinationSuffix = (destinationLevel == 'group') ? 'activity__activitygroup__id__in': 
+                (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
+        
+        var filters = filterParams['filters'] = [];
+        if (originNodeIds.length > 0)
+            filters.push({
+                'function': 'origin__'+originSuffix,
+                values: originNodeIds
+            });
+        
+        if (destinationNodeIds.length > 0)
+            filters.push({
+                'function': 'destination__'+destinationSuffix,
+                values: destinationNodeIds
+            });
+        
+        // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
+        filterParams['filter_link'] = 'and';
+        
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
