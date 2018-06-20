@@ -70,12 +70,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCas
 
 
 class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
-    """
-    MAX:
-    1. set stock.amount default value to 0
-    2. post test not working:
-        product should not be required (api/docs)
-        also not working via the api html post"""
+    """"""
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -132,7 +127,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         Test if user can post without permission
         """
         post_data = dict(aggregation_level='activitygroup',
-                         )
+                         material=json.dumps(dict(aggregate=True, id=self.material_1)))
         url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
         #complete_url = '{}/?{}'.format(
             #url, 'GET=true')
