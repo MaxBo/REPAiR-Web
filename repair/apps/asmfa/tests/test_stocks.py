@@ -8,6 +8,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActivityStockFactory,
                                          ActorStockFactory,
                                          MaterialFactory)
+import json
 
 
 class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
@@ -125,6 +126,27 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
             origin__activity__activitygroup__keyflow=kic_obj,
             keyflow=kic_obj,
             )
+
+    def test_post_get(self):
+        """
+        Test if user can post without permission
+        """
+        post_data = dict(aggregation_level='activitygroup',
+                         )
+        url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
+        #complete_url = '{}/?{}'.format(
+            #url, 'GET=true')
+        response = self.post(
+            url,
+            data=post_data,
+            extra={'format': 'json'})
+        #self.get_post_pks = dict(args, kwargs)
+        #self.url_pks['GET'] = 'true'
+        # post
+        #response = self.post(url, **self.url_pks, data=self.post_data,
+                             #extra={'format': 'json', 'GET': 'true',})
+        self.response_200()
+
 
 
 class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
