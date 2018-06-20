@@ -134,21 +134,22 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
                                                       id=self.material_1)),
                              filters=filterdata)
         post_data2 = dict(aggregation_level='activitygroup',
-                             material=json.dumps(dict(aggregate=False,
-                                                          id=self.material_1)),
-                                 filters=filterdata)
+                          material=json.dumps(dict(aggregate=False,
+                                                   id=self.material_1)),
+                          filters=filterdata)
+        post_data3 = dict(aggregation_level='activitygroup',
+                          material=json.dumps(dict(aggregate=False,
+                                                   id=self.material_1)),
+                          filters=filterdata,
+                          spatial_level=json.dumps(dict(activity=dict(id=1,
+                                                                      level=1))))
         url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
-        response = self.post(
-            url,
-            data=post_data1,
-            extra={'format': 'json'})
-        self.response_200()
-        response = self.post(
-            url,
-            data=post_data2,
-            extra={'format': 'json'})
-        self.response_200()
-
+        for post_data in [post_data1, post_data2, post_data3]:
+            response = self.post(
+                url,
+                data=post_data,
+                extra={'format': 'json'})
+            self.response_200()
 
 
 class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
