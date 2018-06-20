@@ -174,7 +174,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         args = ['origin__activity__activitygroup']
     else:
         origins_map = dict(origins.values_list('id', 'id'))
-        args = ['id']
+        args = ['origin__id']
 
     if not is_stock:
         destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
@@ -189,7 +189,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
             args.append('destination__activity__activitygroup')
         else:
             destinations_map = dict(destinations.values_list('id', 'id'))
-            args.append('id')
+            args.append('destination__id')
     
     acts = queryset.values_list(*args)
 
@@ -354,7 +354,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
-        filter_link = params.get('filters', None)
+        filter_link = params.get('filter_link', None)
         material_filter = params.get('material', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
