@@ -129,26 +129,24 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         filterdata = json.dumps([
             {'function': 'origin__activity__activitygroup__id__in',
              'values': [1, 2],}])
-        post_data = dict(aggregation_level='activitygroup',
+        post_data1 = dict(aggregation_level='activitygroup',
                              material=json.dumps(dict(aggregate=True,
                                                       id=self.material_1)),
                              filters=filterdata)
-        #post_data1 = dict(aggregation_level='activitygroup')activitygroups
-        #post_data1 = dict(aggregation_level='activitygroup',
-                              #material=json.dumps(dict(aggregate=False, id=self.material_1)),
-                             #subset=json.dumps(dict(ids=[1, 2, 3])))
+        post_data2 = dict(aggregation_level='activitygroup',
+                             material=json.dumps(dict(aggregate=False,
+                                                          id=self.material_1)),
+                                 filters=filterdata)
         url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
-        #complete_url = '{}/?{}'.format(
-            #url, 'GET=true')
         response = self.post(
             url,
-            data=post_data,
+            data=post_data1,
             extra={'format': 'json'})
-        #self.get_post_pks = dict(args, kwargs)
-        #self.url_pks['GET'] = 'true'
-        # post
-        #response = self.post(url, **self.url_pks, data=self.post_data,
-                             #extra={'format': 'json', 'GET': 'true',})
+        self.response_200()
+        response = self.post(
+            url,
+            data=post_data2,
+            extra={'format': 'json'})
         self.response_200()
 
 
