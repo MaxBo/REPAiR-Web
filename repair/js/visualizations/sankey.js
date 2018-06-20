@@ -80,7 +80,9 @@ class Sankey{
             {
                 svg.call(zoom);
             // Record the coordinates (in data space) of the center (in screen space).
-            var center0 = zoom.center(), translate0 = zoom.translate(), coordinates0 = coordinates(center0);
+            var center0 = zoom.center(), 
+                translate0 = zoom.translate(), 
+                coordinates0 = coordinates(center0);
             zoom.scale(zoom.scale() * Math.pow(2, +valueZoom));
 
             // Translate back to the center.
@@ -96,9 +98,9 @@ class Sankey{
         function fitZoom(duration) {
             var size = _this.sankey.size(),
                 ratio = _this.width / size[0],
-                scale = ratio * 0.9,
+                scale = ratio * 0.8,
                 duration = duration || 0;
-            svg.transition().duration(duration).call(zoom.translate([20,10]).scale(scale).event);
+            svg.transition().duration(duration).call(zoom.translate([50,10]).scale(scale).event);
         }
 
         function coordinates(point) {
@@ -325,32 +327,6 @@ class Sankey{
         }
 
         fitZoom();
-
-        //var numCycles = 0;
-        //for( var i = 0; i< this.sankey.links().length; i++ ) {
-            //if( this.sankey.links()[i].causesCycle ) {
-                //numCycles++;
-            //}
-        //}
-
-        //var cycleTopMarginSize = (this.sankey.cycleLaneDistFromFwdPaths() -
-            //( (this.sankey.cycleLaneNarrowWidth() + this.sankey.cycleSmallWidthBuffer() ) * numCycles ) )
-        //var horizontalMarginSize = ( this.sankey.cycleDistFromNode() + this.sankey.cycleControlPointDist() );
-
-        //svg.append("text")
-            //.attr("x", (this.width / 2))             
-            //.attr("y", cycleTopMarginSize / 2 + this.margin.top)
-            //.attr("text-anchor", "middle")  
-            //.style("font-size", "16px") 
-            //.style("text-decoration", "underline")  
-            //.text(this.title);
-
-        //svg = d3.select(this.el).select("svg")
-            //.attr( "viewBox",
-                //"" + (0 - horizontalMarginSize ) + " "         // left
-                //+ cycleTopMarginSize + " "                     // top
-                //+ (this.width + horizontalMarginSize * 2 ) + " "     // width
-                //+ (this.height + (-1 * cycleTopMarginSize)) + " " );  // height
 
     };
 };
