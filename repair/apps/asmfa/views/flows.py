@@ -49,7 +49,27 @@ class ReasonViewSet(RevisionMixin, ModelViewSet):
     pagination_class = None
     serializer_class = ReasonSerializer
     queryset = Reason.objects.all()
+    
+# structure of serialized components of a flow as the serializer
+# will return it
+flow_struct = OrderedDict(id=None,
+                          amount=0,
+                          composition=None,
+                          origin=None,
+                          destination=None,
+                          origin_level=None,
+                          destination_level=None,
+                          )
 
+composition_struct = OrderedDict(id=None,
+                                 name='custom',
+                                 nace='custom',
+                                 fractions=[],
+                                 )
+
+fractions_struct = OrderedDict(material=None,
+                               fraction=0
+                               )
 
 def filter_by_material(material, queryset):
     """filter queryset by their compositions,
@@ -133,34 +153,49 @@ def process_data_fractions(material, childmaterials, data,
         new_data.append(serialized_flow)
     return new_data
     
-def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
+def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock=False):
     """
     Aggregate actor level to the according flow/stock level
     if not implemented in the subclass, do nothing
     almost the same for flows and stocks except missing destinations for stocks
     """
-    if aggregation_level.lower() == 'activity':
-        actors_activity = dict(Actor.objects.values_list('id', 'activity'))
+    if not origin_level and not destination_level:
+        return data
+    origin_level = origin_level or 'actor'
+    destination_level = destination_level or 'actor'
+    
+    origins = Actor.objects.filter(id__in=queryset.values_list('origin'));
+    if origin_level.lower() == 'activity':
+        origins_map = dict(origins.values_list('id', 'activity'))
         args = ['origin__activity']
-        if not is_stock:
-            args.append('destination__activity')
-
-    elif aggregation_level.lower() == 'activitygroup':
-        actors_activity = dict(Actor.objects.values_list(
+    elif origin_level.lower() == 'activitygroup':
+        origins_map = dict(Actor.objects.values_list(
                 'id', 'activity__activitygroup'))
         args = ['origin__activity__activitygroup']
-        if not is_stock:
-            args.append('destination__activity__activitygroup')
-        
     else:
-        return data
+        origins_map = dict(origins.values_list('id', 'id'))
+        args = ['origin__id']
+
+    if not is_stock:
+        destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
+    
+        if destination_level.lower() == 'activity':
+            destinations_map = dict(destinations.values_list(
+                'id', 'activity'))
+            args.append('destination__activity')
+        elif destination_level.lower() == 'activitygroup':
+            destinations_map = dict(destinations.values_list(
+                'id', 'activity__activitygroup'))
+            args.append('destination__activity__activitygroup')
+        else:
+            destinations_map = dict(destinations.values_list('id', 'id'))
+            args.append('destination__id')
     
     acts = queryset.values_list(*args)
 
     act2act_amounts = acts.annotate(Sum('amount'))
     custom_compositions = dict()
     total_amounts = dict()
-    act2act_id = -1
     new_flows = list()
     for values in act2act_amounts:
         if is_stock:
@@ -170,21 +205,18 @@ def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
             origin, destination, amount = values
         key = (origin, destination)
         total_amounts[key] = amount
-        custom_compositions[key] = OrderedDict(id=act2act_id,
-                                               name='custom',
-                                               nace='custom nace',
-                                               masses_of_materials=OrderedDict(), 
-                                               )
-        act2act_id -= 1
+        custom_composition = copy.deepcopy(composition_struct)
+        custom_composition['masses_of_materials'] = OrderedDict()
+        custom_compositions[key] = custom_composition
 
     for serialized_flow in data:
         amount = serialized_flow['amount']
         composition = serialized_flow['composition']
         if not composition:
             continue
-        origin = actors_activity[serialized_flow['origin']]
+        origin = origins_map[serialized_flow['origin']]
         destination = None if is_stock else \
-            actors_activity[serialized_flow['destination']]
+            destinations_map[serialized_flow['destination']]
         key = (origin, destination)
         custom_composition = custom_compositions[key]
         masses_of_materials = custom_composition['masses_of_materials']
@@ -208,20 +240,25 @@ def aggregate_to_level(aggregation_level, data, queryset, is_stock=False):
         fractions = list()
         for material, mass_of_material in masses_of_materials.items():
             fraction = mass_of_material / amount if amount != 0 else 0
-            fraction_ordered_dict = OrderedDict({
-                    'material': material,
-                        'fraction': fraction,
-                })
-            fractions.append(fraction_ordered_dict)
+            new_fraction = copy.deepcopy(fractions_struct)
+            new_fraction['material'] = material
+            new_fraction['fraction'] = fraction
+            fractions.append(new_fraction)
         custom_composition['fractions'] = fractions
         del(custom_composition['masses_of_materials'])
         
-        new_flow = OrderedDict(id=custom_composition['id'],
-                               amount=amount,
-                               composition=custom_composition,
-                               origin=origin)
+        new_flow = copy.deepcopy(flow_struct)
+        new_flow['amount'] = amount
+        new_flow['origin'] = origin
+        new_flow['origin_level'] = origin_level
+        new_flow['composition'] = custom_composition
+        
         if not is_stock:
             new_flow['destination'] = destination
+            new_flow['destination_level'] = destination_level
+        else:
+            del new_flow['destination']
+            del new_flow['destination_level']
         new_flows.append(new_flow)
     return new_flows
 
@@ -262,27 +299,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     serializer_class = Actor2ActorSerializer
     additional_filters = {'origin__included': True,
                           'destination__included': True}
-    # structure of serialized components of a flow as the serializer
-    # will return it
-    flow_struct = OrderedDict(id=None,
-                              amount=0,
-                              composition=None,
-                              origin=None,
-                              destination=None,
-                              origin_level=None,
-                              destination_level=None,
-                              )
-
-    composition_struct = OrderedDict(id=None,
-                                     name='custom',
-                                     nace='custom',
-                                     fractions=[],
-                                     )
-
-    fractions_struct = OrderedDict(material=None,
-                                   fraction=0
-                                   )
-
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):
         '''
@@ -290,16 +306,17 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         body = {
             waste: true / false,  # products or waste, don't pass for both
             
-            # filter by origin/destination actors
-            subset: {
-                direction: "to" / "from" / "both", # return flows to or from filtered actors
-                # filter actors by their ids OR by group/activity ids (you may do
-                # all the same time, but makes not much sense though)
-                activitygroups: [...], # ids of activitygroups
-                activities: [...], # ids of activities
-                ids = [...] # ids of the actors
-                
-            },
+            # prefilter flows
+            filters: [
+                {
+                     function: django filter function (e.g. origin__id__in)
+                     values: values for filter function (e.g. [1,5,10])
+                },
+                ...
+            ],
+            
+            filter_link: and/or, # logical linking of filters, defaults to 'or'
+            
             # filter/aggregate by given material 
             material: {
                 aggregate: true / false, # aggregate child materials
@@ -319,7 +336,10 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             }
             
             # exclusive to spatial_level
-            aggregation_level: 'activity' or 'activitygroup', defaults to actor level
+            aggregation_level: {
+                origin: 'activity' or 'activitygroup', defaults to actor level
+                destination: 'activity' or 'activitygroup', defaults to actor level
+            }
         }
         '''
         self.check_permission(request, 'view')
@@ -334,7 +354,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
-        subset_filter = params.get('subset', None)
+        filters = params.get('filters', None)
+        filter_link = params.get('filter_link', None)
         material_filter = params.get('material', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
@@ -348,28 +369,22 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
 
-        # build subset of origins/destinations and direction
-        if subset_filter:
-            group_ids = subset_filter.get('activitygroups', None)
-            activity_ids = subset_filter.get('activities', None)
-            actor_ids = subset_filter.get('actors', None)
-            direction = subset_filter.get('direction', 'both')
-            
-            actors = Actor.objects.all()
-            if group_ids:
-                actors = actors.filter(activity__activitygroup__id__in=group_ids)
-            if activity_ids:
-                actors = actors.filter(activity__id__in=activity_ids)
-            if actor_ids:
-                actors = actors.filter(id__in=actor_ids)
-
-            if direction == 'from':
-                queryset = queryset.filter(origin__in=actors)
-            elif direction == 'to':
-                queryset = queryset.filter(destination__in=actors)
+        # filter queryset based on passed filters
+        if filters:
+            filter_functions = []
+            for f in filters:
+                func = f['function']
+                v = f['values']
+                filter_function = Q(**{func: v})
+                filter_functions.append(filter_function)
+            if filter_link == 'and':
+                link_func = np.bitwise_and
             else:
-                queryset = queryset.filter(Q(origin__in=actors) |
-                                           Q(destination__in=actors))
+                link_func = np.bitwise_or
+            if len(filter_functions) == 1:
+                queryset = queryset.filter(filter_functions[0])
+            if len(filter_functions) > 1:
+                queryset = queryset.filter(link_func(*filter_functions))
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
@@ -393,8 +408,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         # POSTPROCESSING: all following operations are performed on serialized
         # data
         
-        if level_aggregation and level_aggregation != 'actors':
-            data = aggregate_to_level(level_aggregation, data, queryset)
+        if level_aggregation:
+            origin_level = level_aggregation['origin']
+            destination_level = level_aggregation['destination']
+            data = aggregate_to_level(
+                data, queryset, origin_level, destination_level)
 
         if spatial_aggregation:
             levels = {}
@@ -533,11 +551,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         # create new serialized flows based on aggregated amounts
         new_flows = []
         for (origin, destination), aggregation in aggregated_amounts.items():
-            new_flow = self.flow_struct.copy()
+            new_flow = copy.deepcopy(flow_struct)
             new_flows.append(new_flow)
             amount = aggregation['amount']
             new_flow['amount'] = aggregation['amount']
-            new_comp = copy.deepcopy(self.composition_struct)
+            new_comp = copy.deepcopy(composition_struct)
             new_flow['composition'] = new_comp
             new_flow['origin'] = origin
             new_flow['destination'] = destination
@@ -546,7 +564,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             new_flow['origin_level'] = origin_level
             new_flow['destination_level'] = destination_level
             for material, mass in aggregation['fractions'].items():
-                new_fract = self.fractions_struct.copy()
+                new_fract = copy.deepcopy(fractions_struct)
                 new_fract['material'] = material
                 new_amount = 0 if amount == 0 else mass / amount
                 new_fract['fraction'] = new_amount

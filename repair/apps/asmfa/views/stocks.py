@@ -2,6 +2,7 @@
 from abc import ABC
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
+from django.db.models import Q
 import numpy as np
 import json
 
@@ -80,14 +81,16 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
                 id: id, # id of material
             },
             
-            subset: {
-                # filter origin actors by their ids OR by group/activity ids (you may do
-                # all the same time, but makes not much sense though)
-                activitygroups: [...], # ids of activitygroups
-                activities: [...], # ids of activities
-                ids = [...] # ids of the actors
-                
-            },
+            filter_link: and/or, # logical linking of filters, defaults to 'or'
+            
+            # prefilter stocks
+            filters: [
+                {
+                     function: django filter function (e.g. origin__id__in)
+                     values: values for filter function (e.g. [1,5,10])
+                },
+                ...
+            ],
             
         }
         '''
@@ -103,7 +106,8 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
-        subset_filter = params.get('subset', None)
+        filters = params.get('filters', None)
+        filter_link = params.get('filter_link', None)
         material_filter = params.get('material', None)
         level_aggregation = params.get('aggregation_level', None)
 
@@ -111,21 +115,22 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
     
-        # build subset of origins
-        if subset_filter:
-            group_ids = subset_filter.get('activitygroups', None)
-            activity_ids = subset_filter.get('activities', None)
-            actor_ids = subset_filter.get('actors', None)
-            direction = subset_filter.get('direction', 'both')
-            
-            actors = Actor.objects.all()
-            if group_ids:
-                actors = actors.filter(activity__activitygroup__id__in=group_ids)
-            if activity_ids:
-                actors = actors.filter(activity__id__in=activity_ids)
-            if actor_ids:
-                actors = actors.filter(id__in=actor_ids)
-            queryset = queryset.filter(origin__in=actors)
+        # filter queryset based on passed filters
+        if filters:
+            filter_functions = []
+            for f in filters:
+                func = f['function']
+                v = f['values']
+                filter_function = Q(**{func: v})
+                filter_functions.append(filter_function)
+            if filter_link == 'and':
+                link_func = np.bitwise_and
+            else:
+                link_func = np.bitwise_or
+            if len(filter_functions) == 1:
+                queryset = queryset.filter(filter_functions[0])
+            if len(filter_functions) > 1:
+                queryset = queryset.filter(link_func(*filter_functions))
         
         aggregate_materials = (False if material_filter is None
                                    else material_filter.get('aggregate', False))
@@ -150,7 +155,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         # data
         
         if level_aggregation and level_aggregation != 'actors':
-            data = aggregate_to_level(level_aggregation, data, queryset,
+            data = aggregate_to_level(data, queryset, level_aggregation, None,
                                       is_stock=True)
         
         # if the fractions of stocks are filtered by material, the other

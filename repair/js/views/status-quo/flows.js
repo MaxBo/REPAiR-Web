@@ -315,19 +315,41 @@ var FlowsView = BaseView.extend(
         filteredNodes.forEach(function(node){
             nodeIds.push(node.id);
         })
-        flowFilterParams['subset'] = {
-            direction: direction
-        };
-        flowFilterParams['subset'][type] = nodeIds;
-        stockFilterParams['subset'] = {};
-        stockFilterParams['subset'][type] = nodeIds;
+        
+        var levelSuffix = (type == 'activitygroups') ? 'activity__activitygroup__id__in': 
+            (type == 'activities') ? 'activity__id__in': 'id__in';
+        
+        var flowFilters = flowFilterParams['filters'] = [],
+            stockFilters = stockFilterParams['filters'] = [],
+            origin_filter = {
+                'function': 'origin__'+levelSuffix,
+                values: nodeIds
+            },
+            destination_filter = {
+                'function': 'destination__'+levelSuffix,
+                values: nodeIds
+            };
+        
+        if (direction == 'to'){
+            flowFilters.push(destination_filter);
+        }
+        if (direction == 'from') {
+            flowFilters.push(origin_filter);
+        }
+        if (direction == 'both') {
+            flowFilters.push(origin_filter);
+            flowFilters.push(destination_filter);
+        }
+        stockFilters.push(origin_filter);
         
         flowFilterParams.aggregation_level = type;
+        stockFilterParams.aggregation_level = type;
             
         this.flowsView = new FlowSankeyView({
             el: el,
             width:  el.clientWidth - 10,
-            collection: collection,
+            origins: collection,
+            destinations: collection,
             keyflowId: this.keyflowId,
             caseStudyId: this.caseStudy.id,
             materials: this.materials,
@@ -335,7 +357,8 @@ var FlowsView = BaseView.extend(
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600,
-            tag: type
+            originTag: type,
+            destinationTag: type,
         })
     },
 
@@ -361,7 +384,7 @@ var FlowsView = BaseView.extend(
         option = document.createElement('option');
         option.value = -1; 
         option.text = gettext('All');
-        if (collection) option.text += ' (' + collection.length + ')'
+        if (collection) option.text += ' (' + collection.length + ')';
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
@@ -381,7 +404,7 @@ var FlowsView = BaseView.extend(
         var groupSelect = this.el.querySelector('select[name="group"]'),
             activitySelect = this.el.querySelector('select[name="activity"]'),
             actorSelect = this.el.querySelector('select[name="actor"]');
-            
+
         this.renderNodeSelectOptions(groupSelect, this.activityGroups);
         this.renderNodeSelectOptions(activitySelect, this.activities);
         this.renderNodeSelectOptions(actorSelect, this.actorsTmp);
