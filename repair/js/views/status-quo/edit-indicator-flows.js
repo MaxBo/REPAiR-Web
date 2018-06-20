@@ -1,5 +1,5 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'views/flowsankey', 'utils/utils'],
+        'views/flowsankey', 'utils/utils', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
@@ -72,6 +72,13 @@ var IndicatorFlowsEditView = BaseView.extend(
             activitySelect: this.el.querySelector('select[name="destination-activity"]'),
             actorSelect: this.el.querySelector('select[name="destination-actor"]')
         }
+        
+        $(this.originSelects.groupSelect).selectpicker();
+        $(this.originSelects.activitySelect).selectpicker();
+        $(this.originSelects.actorSelect).selectpicker();
+        $(this.destinationSelects.groupSelect).selectpicker();
+        $(this.destinationSelects.activitySelect).selectpicker();
+        $(this.destinationSelects.actorSelect).selectpicker();
         
         this.originSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('origin') })
@@ -149,7 +156,7 @@ var IndicatorFlowsEditView = BaseView.extend(
             hide = [];
             
          [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect].forEach(function(sel){
-            sel.parentElement.style.display = 'block';
+            sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
             sel.style.height ='100%'; // resets size, in case it was expanded
@@ -167,7 +174,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         }
         multi.setAttribute('multiple', true);
         hide.forEach(function(s){
-            s.parentElement.style.display = 'none';
+            s.parentElement.parentElement.style.display = 'none';
         })
         this.renderNodeSelectOptions(selectGroup.groupSelect, this.activityGroups);
         if(level != 'group')
@@ -195,6 +202,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         }
         else select.disabled = true;
         select.selectedIndex = 0;
+        $(select).selectpicker('refresh');
     },
     
     renderMatFilter: function(){

@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/gdsecollection', 'views/flowsankey', 
-        'utils/utils', 'visualizations/map', 'openlayers'],
+        'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
 
 function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
@@ -39,11 +39,13 @@ var FlowsView = BaseView.extend(
         });
         this.activities = new GDSECollection([], { 
             apiTag: 'activities',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
+            apiIds: [this.caseStudy.id, this.keyflowId ],
+            comparator: 'name'
         });
         this.activityGroups = new GDSECollection([], { 
             apiTag: 'activitygroups',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
+            apiIds: [this.caseStudy.id, this.keyflowId ],
+            comparator: 'name'
         });
         this.areaLevels = new GDSECollection([], { 
             apiTag: 'arealevels',
@@ -62,6 +64,8 @@ var FlowsView = BaseView.extend(
             this.areaLevels.fetch()
         ]
         Promise.all(promises).then(function(){
+            _this.activities.sort();
+            _this.activityGroups.sort();
             _this.loader.deactivate();
             _this.render();
         })
@@ -122,6 +126,12 @@ var FlowsView = BaseView.extend(
         $(this.areaModal).on('shown.bs.modal', function () {
             _this.areaMap.map.updateSize();
         });
+        this.groupSelect = this.el.querySelector('select[name="group"]'),
+        this.activitySelect = this.el.querySelector('select[name="activity"]'),
+        this.actorSelect = this.el.querySelector('select[name="actor"]');
+        $(this.groupSelect).selectpicker();
+        $(this.activitySelect).selectpicker();
+        $(this.actorSelect).selectpicker();
         this.typeSelect = this.el.querySelector('#data-view-type-select');
         this.renderMatFilter();
         this.renderNodeFilters();
@@ -204,12 +214,8 @@ var FlowsView = BaseView.extend(
                 fields: ['id', 'name', 'description', 'activity', 'activitygroup'].join() 
             };
         
-        var groupSelect = this.el.querySelector('select[name="group"]'),
-            activitySelect = this.el.querySelector('select[name="activity"]'),
-            actorSelect = this.el.querySelector('select[name="actor"]');
-        
-        var activity = activitySelect.value,
-            group = groupSelect.value;
+        var activity = this.activitySelect.value,
+            group = this.groupSelect.value;
         
         // actually no need to create this new, but easier to handle
         this.actorsTmp = new GDSECollection([], {
@@ -249,8 +255,8 @@ var FlowsView = BaseView.extend(
             success: function(response){
                 _this.loader.deactivate();
                 _this.actorsTmp.sort();
-                _this.renderNodeSelectOptions(actorSelect, _this.actorsTmp);
-                actorSelect.value = -1;
+                _this.renderNodeSelectOptions(_this.actorSelect, _this.actorsTmp);
+                _this.actorSelect.value = -1;
             }
         })
         
@@ -396,21 +402,19 @@ var FlowsView = BaseView.extend(
             select.disabled = false;
         }
         else select.disabled = true;
+        select.selectedIndex = 0;
+        $(select).selectpicker('refresh');
     },
 
     renderNodeFilters: function(){
         var _this = this;
-        
-        var groupSelect = this.el.querySelector('select[name="group"]'),
-            activitySelect = this.el.querySelector('select[name="activity"]'),
-            actorSelect = this.el.querySelector('select[name="actor"]');
 
-        this.renderNodeSelectOptions(groupSelect, this.activityGroups);
-        this.renderNodeSelectOptions(activitySelect, this.activities);
-        this.renderNodeSelectOptions(actorSelect, this.actorsTmp);
+        this.renderNodeSelectOptions(this.groupSelect, this.activityGroups);
+        this.renderNodeSelectOptions(this.activitySelect, this.activities);
+        this.renderNodeSelectOptions(this.actorSelect, this.actorsTmp);
 
-        groupSelect.addEventListener('change', function(){
-            var groupId = groupSelect.value;
+        this.groupSelect.addEventListener('change', function(){
+            var groupId = this.value;
             // clear filters if 'All' (== -1) is selected, else set specific group
             // and filter activities depending on selection
             _this.filtersTmp['groups'] = (groupId < 0) ? _this.activityGroups: 
@@ -420,16 +424,16 @@ var FlowsView = BaseView.extend(
                 _this.activities.filterBy({'activitygroup': groupId});
                 
             _this.renderNodeSelectOptions(
-                activitySelect,  
+                _this.activitySelect,  
                 _this.filtersTmp['activities'] || _this.activities
             );
             // filter actors in any case
             _this.filterActors();
         })
         
-        activitySelect.addEventListener('change', function(){
-            var activityId = activitySelect.value,
-                groupId = groupSelect.value;
+        this.activitySelect.addEventListener('change', function(){
+            var activityId = this.value,
+                groupId = _this.groupSelect.value;
             // specific activity is selected
             if (activityId >= 0) {
                 _this.filtersTmp['activities']  = _this.activities.filterBy({'id': activityId});
@@ -446,9 +450,9 @@ var FlowsView = BaseView.extend(
             _this.filterActors();
         })
         
-        actorSelect.addEventListener('change', function(){
-            var actorId = actorSelect.value,
-                selected = actorSelect.selectedOptions;
+        this.actorSelect.addEventListener('change', function(){
+            var actorId = this.value,
+                selected = this.selectedOptions;
             // multiple actors selected
             _this.filtersTmp['actors'] = [];
             if (selected.length > 1){
