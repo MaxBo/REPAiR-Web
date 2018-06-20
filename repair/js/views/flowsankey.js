@@ -20,15 +20,13 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         * @param {HTMLElement} options.el                   element the view will be rendered in
         * @param {Backbone.Collection} options.origins      origins
         * @param {Backbone.Collection} options.destinations destinations
-        * @param {String=} options.originTag                'actors', 'activities' or 'activitygroups', by default the apiTag of the origins is taken 
-        * @param {String=} options.destinationTag           'actors', 'activities' or 'activitygroups', by default the apiTag of the destinations is taken 
         * @param {Number=} options.width                    width of sankey diagram (defaults to width of el)
         * @param {Number=} options.height                   height of sankey diagram (defaults to 1/3 of width)
         * @param {Number} options.caseStudyId               id of the casestudy
         * @param {Number} options.keyflowId                 id of the keyflow
         * @param {Backbone.Collection} options.materials    materials
         * @param {boolean=} [options.renderStocks=true]     if false, stocks won't be rendered
-        * @param {boolean=} [options.sourceToSinkPresentation=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
+        * @param {boolean=} [options.forceSideBySide=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
         * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
@@ -47,11 +45,11 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
-            this.sourceToSinkPresentation = options.sourceToSinkPresentation || false;
+            this.forceSideBySide = options.forceSideBySide || false;
             this.origins = options.origins;
             this.destinations = options.destinations;
-            var originTag = options.originTag || this.origins.apiTag,
-                destinationTag = options.destinationTag || this.destinations.apiTag,
+            var originTag = this.origins.apiTag,
+                destinationTag = this.destinations.apiTag,
                 renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
 
             this.originAggregateLevel = (originTag.endsWith('activitygroups')) ? 'activitygroup': 
@@ -248,17 +246,15 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             
             var idx = 0;
             
-            function addNodes(collection, prefix){
+            function addNodes(collection, prefix, check){
                 collection.forEach(function(model){
                     var id = model.id,
                         name = model.get('name');
                     // we already got this one -> skip it
                     if(indices[prefix+id] != null) return;
                     // no connections -> skip it (if requested)
-                    if (_this.hideUnconnected) {
-                        if (nConnectionsInOut(flows, id) + nConnectionsOut(stocks, id, {stocks: true}) == 0)
-                            return;
-                    }
+                    if (_this.hideUnconnected && !check(id)) return;
+                    
                     var color = colorCat(name.replace(/ .*/, ""));
                     nodes.push({ id: id, name: name, color: color });
                     indices[prefix+id] = idx;
@@ -266,9 +262,13 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                     idx += 1;
                 });
             }
-
-            addNodes(origins, this.originAggregateLevel);
-            addNodes(destinations, this.destinationAggregateLevel);
+            var sourcePrefix = (this.forceSideBySide) ? 'origin': this.originAggregateLevel,
+                targetPrefix = (this.forceSideBySide) ? 'destination': this.destinationAggregateLevel;
+            
+            function checkOrigins(id){ return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0 }
+            addNodes(origins, sourcePrefix, checkOrigins);
+            function checkDestinations(id){ return nConnectionsIn(flows, id) > 0 }
+            addNodes(destinations, targetPrefix, checkDestinations);
             var links = [];
 
             function compositionRepr(composition){
@@ -298,10 +298,10 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 var value = flow.get('amount');
                 var originId = flow.get('origin'),
                     destinationId = flow.get('destination'),
-                    source = indices[_this.originAggregateLevel+originId],
-                    target = indices[_this.destinationAggregateLevel+destinationId];
+                    source = indices[sourcePrefix+originId],
+                    target = indices[targetPrefix+destinationId];
                 // continue if one of the linked nodes does not exist
-                if (source == null || target == null) {console.log('hallo');return false;}
+                if (source == null || target == null) return false;
                 var composition = flow.get('composition');
                 links.push({
                     value: flow.get('amount'),
@@ -314,8 +314,8 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             stocks.forEach(function(stock){
                 var id = 'stock-' + stock.id;
                 var originId = stock.get('origin'),
-                    source = indices[_this.originAggregateLevel+originId],
-                    sourceName = labels[_this.originAggregateLevel+originId];
+                    source = indices[sourcePrefix+originId],
+                    sourceName = labels[sourcePrefix+originId];
                 // continue if node does not exist
                 if (source == null) return false;
                 nodes.push({id: id, name: 'Stock ',

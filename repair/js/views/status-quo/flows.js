@@ -315,10 +315,31 @@ var FlowsView = BaseView.extend(
         filteredNodes.forEach(function(node){
             nodeIds.push(node.id);
         })
-        flowFilterParams['subset'] = {
-            direction: direction
-        };
-        flowFilterParams['subset'][type] = nodeIds;
+        
+        var levelSuffix = (type == 'activitygroups') ? 'activity__activitygroup__id__in': 
+            (type == 'activities') ? 'activity__id__in': 'id__in';
+        
+        var filters = flowFilterParams['filters'] = [],
+            origin_filter = {
+                'function': 'origin__'+levelSuffix,
+                values: nodeIds
+            },
+            destination_filter = {
+                'function': 'destination__'+levelSuffix,
+                values: nodeIds
+            };
+        
+        if (direction == 'to'){
+            filters.push(destination_filter);
+        }
+        if (direction == 'from') {
+            filters.push(origin_filter);
+        }
+        if (direction == 'both') {
+            filters.push(origin_filter);
+            filters.push(destination_filter);
+        }
+        
         stockFilterParams['subset'] = {};
         stockFilterParams['subset'][type] = nodeIds;
         

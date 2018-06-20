@@ -264,6 +264,7 @@ var IndicatorFlowsEditView = BaseView.extend(
             flowFilterParams: filterParams,
             renderStocks: false,
             hideUnconnected: true,
+            forceSideBySide: true,
             height: 600
         })
     },

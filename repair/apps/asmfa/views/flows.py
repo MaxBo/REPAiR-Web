@@ -306,16 +306,16 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         body = {
             waste: true / false,  # products or waste, don't pass for both
             
-            # filter by origin/destination actors
-            subset: {
-                direction: "to" / "from" / "both", # return flows to or from filtered actors
-                # filter actors by their ids OR by group/activity ids (you may do
-                # all the same time, but makes not much sense though)
-                activitygroups: [...], # ids of activitygroups
-                activities: [...], # ids of activities
-                ids = [...] # ids of the actors
-                
-            },
+            # prefilter flows
+            filters: [
+                {
+                     function: django filter function (e.g. origin__id__in)
+                     values: values for filter function (e.g. [1,5,10])
+                },
+                ...
+            ],
+            filter_link: and/or - logical linking of filters, defaults to or,
+            
             # filter/aggregate by given material 
             material: {
                 aggregate: true / false, # aggregate child materials
@@ -353,7 +353,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
-        subset_filter = params.get('subset', None)
+        filters = params.get('filters', None)
+        filter_link = params.get('filters', None)
         material_filter = params.get('material', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
@@ -367,28 +368,22 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
 
-        # build subset of origins/destinations and direction
-        if subset_filter:
-            group_ids = subset_filter.get('activitygroups', None)
-            activity_ids = subset_filter.get('activities', None)
-            actor_ids = subset_filter.get('actors', None)
-            direction = subset_filter.get('direction', 'both')
-            
-            actors = Actor.objects.all()
-            if group_ids:
-                actors = actors.filter(activity__activitygroup__id__in=group_ids)
-            if activity_ids:
-                actors = actors.filter(activity__id__in=activity_ids)
-            if actor_ids:
-                actors = actors.filter(id__in=actor_ids)
-
-            if direction == 'from':
-                queryset = queryset.filter(origin__in=actors)
-            elif direction == 'to':
-                queryset = queryset.filter(destination__in=actors)
+        # filter queryset based on passed filters
+        if filters:
+            filter_functions = []
+            for f in filters:
+                func = f['function']
+                v = f['values']
+                filter_function = Q(**{func: v})
+                filter_functions.append(filter_function)
+            if filter_link == 'and':
+                link_func = np.bitwise_and
             else:
-                queryset = queryset.filter(Q(origin__in=actors) |
-                                           Q(destination__in=actors))
+                link_func = np.bitwise_or
+            if len(filter_functions) == 1:
+                queryset = queryset.filter(filter_functions[0])
+            if len(filter_functions) > 1:
+                queryset = queryset.filter(link_func(*filter_functions))
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
