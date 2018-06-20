@@ -127,7 +127,8 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         Test if user can post without permission
         """
         post_data = dict(aggregation_level='activitygroup',
-                         material=json.dumps(dict(aggregate=True, id=self.material_1)))
+                         material=json.dumps(dict(aggregate=True, id=self.material_1)),
+                         subset=json.dumps(dict(ids=[1, 2, 3])))
         url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
         #complete_url = '{}/?{}'.format(
             #url, 'GET=true')
