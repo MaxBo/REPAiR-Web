@@ -314,7 +314,8 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 },
                 ...
             ],
-            filter_link: and/or - logical linking of filters, defaults to or,
+            
+            filter_link: and/or, # logical linking of filters, defaults to 'or'
             
             # filter/aggregate by given material 
             material: {

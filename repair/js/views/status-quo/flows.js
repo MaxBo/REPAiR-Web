@@ -319,7 +319,8 @@ var FlowsView = BaseView.extend(
         var levelSuffix = (type == 'activitygroups') ? 'activity__activitygroup__id__in': 
             (type == 'activities') ? 'activity__id__in': 'id__in';
         
-        var filters = flowFilterParams['filters'] = [],
+        var flowFilters = flowFilterParams['filters'] = [],
+            stockFilters = stockFilterParams['filters'] = [],
             origin_filter = {
                 'function': 'origin__'+levelSuffix,
                 values: nodeIds
@@ -330,20 +331,19 @@ var FlowsView = BaseView.extend(
             };
         
         if (direction == 'to'){
-            filters.push(destination_filter);
+            flowFilters.push(destination_filter);
         }
         if (direction == 'from') {
-            filters.push(origin_filter);
+            flowFilters.push(origin_filter);
         }
         if (direction == 'both') {
-            filters.push(origin_filter);
-            filters.push(destination_filter);
+            flowFilters.push(origin_filter);
+            flowFilters.push(destination_filter);
         }
-        
-        stockFilterParams['subset'] = {};
-        stockFilterParams['subset'][type] = nodeIds;
+        stockFilters.push(origin_filter);
         
         flowFilterParams.aggregation_level = type;
+        stockFilterParams.aggregation_level = type;
             
         this.flowsView = new FlowSankeyView({
             el: el,
