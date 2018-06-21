@@ -280,7 +280,7 @@ var IndicatorFlowsEditView = BaseView.extend(
             materialIds.push(item.value)
         })
         
-        if (materialIds) 
+        if (materialIds.length > 0) 
             filterParams.materials = { 
                 ids: materialIds,
                 aggregate: true
