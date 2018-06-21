@@ -1,6 +1,7 @@
 define(['views/baseview', 'underscore', 'visualizations/flowmap',
         'collections/gdsecollection', 'views/flowsankey', 
-        'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
+        'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select',
+        'bootstrap-tagsinput/dist/bootstrap-tagsinput.css'],
 
 function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
