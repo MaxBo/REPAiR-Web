@@ -126,23 +126,30 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         """
         Test if user can post without permission
         """
-        post_data = dict(aggregation_level='activitygroup',
-                         material=json.dumps(dict(aggregate=True, id=self.material_1)),
-                         subset=json.dumps(dict(ids=[1, 2, 3])))
+        filterdata = json.dumps([
+            {'function': 'origin__activity__activitygroup__id__in',
+             'values': [1, 2],}])
+        post_data1 = dict(aggregation_level='activitygroup',
+                             material=json.dumps(dict(aggregate=True,
+                                                      id=self.material_1)),
+                             filters=filterdata)
+        post_data2 = dict(aggregation_level='activitygroup',
+                          material=json.dumps(dict(aggregate=False,
+                                                   id=self.material_1)),
+                          filters=filterdata)
+        post_data3 = dict(aggregation_level='activitygroup',
+                          material=json.dumps(dict(aggregate=False,
+                                                   id=self.material_1)),
+                          filters=filterdata,
+                          spatial_level=json.dumps(dict(activity=dict(id=1,
+                                                                      level=1))))
         url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
-        #complete_url = '{}/?{}'.format(
-            #url, 'GET=true')
-        response = self.post(
-            url,
-            data=post_data,
-            extra={'format': 'json'})
-        #self.get_post_pks = dict(args, kwargs)
-        #self.url_pks['GET'] = 'true'
-        # post
-        #response = self.post(url, **self.url_pks, data=self.post_data,
-                             #extra={'format': 'json', 'GET': 'true',})
-        self.response_200()
-
+        for post_data in [post_data1, post_data2, post_data3]:
+            response = self.post(
+                url,
+                data=post_data,
+                extra={'format': 'json'})
+            self.response_200()
 
 
 class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
