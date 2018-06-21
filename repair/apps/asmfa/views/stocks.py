@@ -20,7 +20,7 @@ from repair.apps.asmfa.serializers import (
     ActorStockSerializer,
 )
 
-from repair.apps.asmfa.views import (filter_by_material, process_data_fractions,
+from repair.apps.asmfa.views import (filter_by_material, aggregate_fractions,
                                      aggregate_to_level)
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -74,11 +74,9 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
             waste: true / false,  # products or waste, don't pass for both
             
             # filter/aggregate by given material 
-            material: {
-                aggregate: true / false, # aggregate child materials
-                                         # to level of given material
-                                         # or to top level if no id is given
-                id: id, # id of material
+            materials: {
+                ids: id, # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
+                aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
             
             filter_link: and/or, # logical linking of filters, defaults to 'or'
@@ -134,18 +132,21 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         
         aggregate_materials = (False if material_filter is None
                                    else material_filter.get('aggregate', False))
-        material_id = (None if material_filter is None
-                           else material_filter.get('id', None))
-        material = None
-        
-        # filter the flows by their fractions excluding flows whose
+        material_ids = (None if material_filter is None
+                            else material_filter.get('ids', None))
+        unaltered_material_ids = ([] if material_filter is None
+                                  else material_filter.get('unaltered', []))
+    
+        materials = None
+        unaltered_materials = None
+        # filter the stocks by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if material_id is not None:
-            try:
-                material = Material.objects.get(id=material_filter['id'])
-            except Material.DoesNotExist:
-                return Response(status=404)
-            queryset = filter_by_material(material, queryset)
+        if material_ids is not None:
+            materials = Material.objects.filter(id__in=material_ids)
+            unaltered_materials = Material.objects.filter(
+                    id__in=unaltered_material_ids)
+            queryset = filter_by_material(
+                    list(materials) + list(unaltered_materials), queryset)
         
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
@@ -158,29 +159,13 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
             data = aggregate_to_level(data, queryset, level_aggregation, None,
                                       is_stock=True)
         
-        # if the fractions of stocks are filtered by material, the other
-        # fractions should be removed from the returned data        
-        if material and not aggregate_materials:
-            # if the fractions of flows are filtered by material, the other
-            # fractions should be removed from the returned data
-            if not aggregate_materials:
-                data = process_data_fractions(material, material.children,
-                                              data, aggregate_materials=False)
-                return Response(data)
-
-        # aggregate the fractions of the queryset
-        if aggregate_materials:
-            # aggregate the fractions of the queryset
-            # take the material and its children from if-clause 'filter_material'
-            if material:
-                childmaterials = material.children
-            # no material was requested -> aggregate by top level materials
-            if material is None:
-                childmaterials = Material.objects.filter(parent__isnull=True)
-
-            data = process_data_fractions(material, childmaterials, data,
-                                          aggregate_materials=True)
+        # materials were given and/or materials shall be aggregated
+        if materials or aggregate_materials:
+            data = aggregate_fractions(
+                materials, data, aggregate_materials=aggregate_materials,
+                unaltered_materials=unaltered
+            )
             return Response(data)
-
+        
         return Response(data)
 

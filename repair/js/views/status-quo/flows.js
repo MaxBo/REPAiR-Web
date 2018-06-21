@@ -310,12 +310,22 @@ var FlowsView = BaseView.extend(
         filterParams.materials = {
             aggregate: aggregateMaterials
         }
-        var material = this.filters['material'];
+        var material = this.filters['material'],
+            materialIds = [];
         
+        // material is selected -> filter/aggregate by this material and its direct children
         if (material) {
             var childMaterials = this.materials.filterBy({ parent: material.id });
-            filterParams.materials.ids = childMaterials.pluck('id');
+            materialIds = childMaterials.pluck('id');
+            // the selected material should be included as well
+            filterParams.materials.unaltered = [material.id];
         }
+        // take top level materials to aggregate to
+        else {
+            var materials = this.materials.filterBy({ parent: null });
+            materialIds = materials.pluck('id');
+        }
+        filterParams.materials.ids = materialIds;
         
         // if the collections are filtered build matching query params for the flows
         var flowFilterParams = Object.assign({}, filterParams);
@@ -368,8 +378,7 @@ var FlowsView = BaseView.extend(
             hideUnconnected: true,
             height: 600,
             originTag: type,
-            destinationTag: type,
-            renderStocks: false
+            destinationTag: type
         })
     },
 
