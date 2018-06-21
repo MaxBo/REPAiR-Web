@@ -1,5 +1,7 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'views/flowsankey', 'utils/utils', 'bootstrap-select'],
+        'views/flowsankey', 'utils/utils', 'bootstrap-select',
+        'bootstrap-tagsinput', 
+        'bootstrap-tagsinput/dist/bootstrap-tagsinput.css'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
@@ -92,6 +94,14 @@ var IndicatorFlowsEditView = BaseView.extend(
         this.addEventListeners('origin');
         this.addEventListeners('destination');
         this.renderMatFilter();
+        
+        this.materialTags = this.el.querySelector('input[name="material-tags"]');
+        $(this.materialTags).tagsinput({
+            itemValue: 'value',
+            itemText: 'text'
+        })
+        // hide the input of tags
+        this.materialTags.parentElement.querySelector('.bootstrap-tagsinput>input').style.display = 'none';
     },
     
     filterActors: function(tag){
@@ -212,9 +222,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 _this.material = model;
+                if (model)
+                    $(_this.materialTags).tagsinput('add', { 
+                        "value": model.id , "text": model.get('name')
+                    });
             },
-            defaultOption: gettext('All materials')
+            defaultOption: gettext('Select')
         });
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
@@ -260,8 +273,18 @@ var IndicatorFlowsEditView = BaseView.extend(
             waste = this.el.querySelector('select[name="waste"]').value;
         if (waste) filterParams.waste = waste;
         
-        var material = this.material;
-        if (material) filterParams.material = {id: material.id};
+        var tags = $(this.materialTags).tagsinput('items'),
+            materialIds = [];
+        
+        tags.forEach(function(item){
+            materialIds.push(item.value)
+        })
+        
+        if (materialIds) 
+            filterParams.materials = { 
+                ids: materialIds,
+                aggregate: true
+            };
         
         var originNodeIds = this.getSelectedNodes(this.originSelects),
             destinationNodeIds = this.getSelectedNodes(this.destinationSelects);
