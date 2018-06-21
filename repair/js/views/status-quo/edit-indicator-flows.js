@@ -1,7 +1,6 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
         'views/flowsankey', 'utils/utils', 'bootstrap-select',
-        'bootstrap-tagsinput', 
-        'bootstrap-tagsinput/dist/bootstrap-tagsinput.css'],
+        'bootstrap-tagsinput'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
