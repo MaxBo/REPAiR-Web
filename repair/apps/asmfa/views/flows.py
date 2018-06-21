@@ -71,28 +71,30 @@ fractions_struct = OrderedDict(material=None,
                                fraction=0
                                )
 
-def filter_by_material(material, queryset):
+def filter_by_material(materials, queryset):
     """filter queryset by their compositions,
     their fractions have to contain the given material or children
     of the material"""
-    # get the children of the given material
-    materials = material.descendants
-    # fractions have to contain children and the material itself
-    materials.append(material)
-    fractions = ProductFraction.objects.filter(material__in=materials)
+    mats = []
+    for material in materials:
+        # get the children of the given material
+        mats.extend(material.descendants)
+        # fractions have to contain children and the material itself
+        mats.append(material)
+    fractions = ProductFraction.objects.filter(material__in=mats)
     # the compositions containing the filtered fractions
     compositions = fractions.values('composition')
     # the flows containing the filtered compositions
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-def process_data_fractions(material, childmaterials, data,
+def process_data_fractions(materials, data,
                            aggregate_materials=False):
     desc_dict = {}
     # dictionary to store requested materials and if other materials are
     # descendants of those (including the material itself), much faster than
     # repeatedly getting the materials and their ancestors
-    for mat in childmaterials:
+    for mat in materials:
         desc_dict[mat] = { mat.id: True }
     new_data = []
     for serialized_flow in data:
@@ -101,30 +103,23 @@ def process_data_fractions(material, childmaterials, data,
             continue
         old_total = serialized_flow['amount']
         new_total = 0
-        aggregated_amounts = defaultdict.fromkeys(childmaterials, 0)
-        if material:
-            aggregated_amounts[material] = 0
+        aggregated_amounts = defaultdict.fromkeys(materials, 0)
         
         # remove fractions that are no descendants of the material
         valid_fractions = []
         for serialized_fraction in composition['fractions']:
-            if material and material.id == serialized_fraction['material']:
-                aggregated_amounts[material] += (
-                    serialized_fraction['fraction'] * old_total)
-                valid_fractions.append(serialized_fraction)
-                continue
-            for child in childmaterials:
-                child_dict = desc_dict[child]
+            for mat in materials:
+                child_dict = desc_dict[mat]
                 fraction_mat_id = serialized_fraction['material']
                 is_desc = child_dict.get(fraction_mat_id)
                 # save time by doing this once and storing it
                 if is_desc is None:
                     fraction_material = Material.objects.get(
                         id=serialized_fraction['material'])
-                    child_dict[fraction_mat_id] = is_desc = fraction_material.is_descendant(child)
+                    child_dict[fraction_mat_id] = is_desc = fraction_material.is_descendant(mat)
                 if is_desc:
                     amount = serialized_fraction['fraction'] * old_total
-                    aggregated_amounts[child] += amount
+                    aggregated_amounts[mat] += amount
                     new_total += amount
                     valid_fractions.append(serialized_fraction)
         # amount zero -> there is actually no flow
@@ -318,11 +313,9 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             filter_link: and/or, # logical linking of filters, defaults to 'or'
             
             # filter/aggregate by given material 
-            material: {
-                aggregate: true / false, # aggregate child materials
-                                         # to level of given material
-                                         # or to top level if no id is given
-                id: id, # id of material
+            materials: {
+                ids: id, # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
+                aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
             
             # aggregate origin/dest. actors belonging to given
@@ -356,7 +349,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
         filter_link = params.get('filter_link', None)
-        material_filter = params.get('material', None)
+        material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
         
@@ -388,18 +381,15 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
-        material_id = (None if material_filter is None
-                       else material_filter.get('id', None))
+        material_ids = (None if material_filter is None
+                        else material_filter.get('ids', None))
 
-        material = None
+        materials = None
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if material_id is not None:
-            try:
-                material = Material.objects.get(id=material_filter['id'])
-            except Material.DoesNotExist:
-                return Response(status=404)
-            queryset = filter_by_material(material, queryset)
+        if material_ids is not None:
+            materials = Material.objects.filter(id__in=material_ids)
+            queryset = filter_by_material(materials, queryset)
 
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
@@ -440,29 +430,19 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         # if the fractions of flows are filtered by material, the other
         # fractions should be removed from the returned data        
-        if material and not aggregate_materials:
-            # if the fractions of flows are filtered by material, the other
-            # fractions should be removed from the returned data
-            if not aggregate_materials:
-                data = process_data_fractions(material, material.children,
-                                              data, aggregate_materials=False)
-                return Response(data)
+        if materials and not aggregate_materials:
+            data = process_data_fractions(
+                materials, data, aggregate_materials=aggregate_materials)
+            return Response(data)
 
         # aggregate the fractions of the queryset
         if aggregate_materials:
-            # aggregate the fractions of the queryset
-            # take the material and its children from if-clause 'filter_material'
-            if material:
-                childmaterials = material.children
-            # no material was requested -> aggregate by top level materials
-            if material is None:
-                childmaterials = Material.objects.filter(parent__isnull=True)
+            # no material was requested -> aggregate to top level materials
+            if materials is None:
+                materials = Material.objects.filter(parent__isnull=True)
 
-            #aggregate_queryset(materials, queryset)
-            #filtered = True
-
-            data = process_data_fractions(material, childmaterials, data,
-                                          aggregate_materials=True)
+            data = process_data_fractions(
+                materials, data, aggregate_materials=aggregate_materials)
             return Response(data)
 
         return Response(data)
