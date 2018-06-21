@@ -163,7 +163,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         if materials or aggregate_materials:
             data = aggregate_fractions(
                 materials, data, aggregate_materials=aggregate_materials,
-                unaltered_materials=unaltered
+                unaltered_materials=unaltered_materials
             )
             return Response(data)
         

@@ -47,6 +47,11 @@ var FlowsView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId ],
             comparator: 'name'
         });
+        this.actors = this.actorsTmp = new GDSECollection([], {
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
+        })
         this.areaLevels = new GDSECollection([], { 
             apiTag: 'arealevels',
             apiIds: [this.caseStudy.id],
@@ -216,14 +221,7 @@ var FlowsView = BaseView.extend(
         
         var activity = this.activitySelect.value,
             group = this.groupSelect.value;
-        
-        // actually no need to create this new, but easier to handle
-        this.actorsTmp = new GDSECollection([], {
-            apiTag: 'actors',
-            apiIds: [this.caseStudy.id, this.keyflowId],
-            comparator: 'name'
-        })
-        
+
         if(activity >= 0) queryParams['activity'] = activity;
         else if (group >= 0) queryParams['activity__activitygroup'] = group;
             
@@ -257,7 +255,8 @@ var FlowsView = BaseView.extend(
                 _this.actorsTmp.sort();
                 _this.renderNodeSelectOptions(_this.actorSelect, _this.actorsTmp);
                 _this.actorSelect.value = -1;
-            }
+            },
+            reset: true
         })
         
     },
@@ -287,19 +286,13 @@ var FlowsView = BaseView.extend(
         var filteredNodes = (type == 'actors') ? this.filters['actors']: 
             (type == 'activities') ? this.filters['activities']: 
             this.filters['groups'];
+        filteredNodes = filteredNodes || [];
         
         // pass all known nodes to sankey (not only the filtered ones) to avoid
         // fetching missing nodes
         var collection = (type == 'actors') ? this.actors: 
             (type == 'activities') ? this.activities: 
             this.activityGroups;
-
-        if (!collection) {
-            if (type == 'actors')
-                el.innerHTML = gettext("The diagram of flows can't be displayed " + 
-                    "before limiting the amount of actors by filtering")
-            return;
-        }
         
         var filterParams = {},
             waste = this.filters['waste'];
@@ -350,17 +343,19 @@ var FlowsView = BaseView.extend(
                 values: nodeIds
             };
         
-        if (direction == 'to'){
-            flowFilters.push(destination_filter);
+        if (nodeIds.length>0){
+            if (direction == 'to'){
+                flowFilters.push(destination_filter);
+            }
+            if (direction == 'from') {
+                flowFilters.push(origin_filter);
+            }
+            if (direction == 'both') {
+                flowFilters.push(origin_filter);
+                flowFilters.push(destination_filter);
+            }
+            stockFilters.push(origin_filter);
         }
-        if (direction == 'from') {
-            flowFilters.push(origin_filter);
-        }
-        if (direction == 'both') {
-            flowFilters.push(origin_filter);
-            flowFilters.push(destination_filter);
-        }
-        stockFilters.push(origin_filter);
         
         flowFilterParams.aggregation_level = type;
         stockFilterParams.aggregation_level = type;

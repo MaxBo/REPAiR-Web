@@ -131,7 +131,7 @@ def aggregate_fractions(materials, data, unaltered_materials=[],
                 fraction_mat_id = serialized_fraction['material']
                 # keep the fraction as is
                 if fraction_mat_id in unaltered_dict:
-                    aggregated_amounts[unaltered_dict] += (
+                    aggregated_amounts[unaltered_dict[fraction_mat_id]] += (
                         serialized_fraction['fraction'] * old_total)
                     valid_fractions.append(serialized_fraction)
                     continue
@@ -467,7 +467,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         if materials or aggregate_materials:
             data = aggregate_fractions(
                 materials, data, aggregate_materials=aggregate_materials,
-                unaltered_materials=unaltered
+                unaltered_materials=unaltered_materials
             )
             return Response(data)
 
