@@ -1,5 +1,7 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'views/flowsankey', 'utils/utils'],
+        'views/flowsankey', 'utils/utils', 'bootstrap-select',
+        'bootstrap-tagsinput', 
+        'bootstrap-tagsinput/dist/bootstrap-tagsinput.css'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
@@ -73,6 +75,13 @@ var IndicatorFlowsEditView = BaseView.extend(
             actorSelect: this.el.querySelector('select[name="destination-actor"]')
         }
         
+        $(this.originSelects.groupSelect).selectpicker();
+        $(this.originSelects.activitySelect).selectpicker();
+        $(this.originSelects.actorSelect).selectpicker();
+        $(this.destinationSelects.groupSelect).selectpicker();
+        $(this.destinationSelects.activitySelect).selectpicker();
+        $(this.destinationSelects.actorSelect).selectpicker();
+        
         this.originSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('origin') })
         this.destinationSelects.levelSelect.addEventListener(
@@ -85,6 +94,14 @@ var IndicatorFlowsEditView = BaseView.extend(
         this.addEventListeners('origin');
         this.addEventListeners('destination');
         this.renderMatFilter();
+        
+        this.materialTags = this.el.querySelector('input[name="material-tags"]');
+        $(this.materialTags).tagsinput({
+            itemValue: 'value',
+            itemText: 'text'
+        })
+        // hide the input of tags
+        this.materialTags.parentElement.querySelector('.bootstrap-tagsinput>input').style.display = 'none';
     },
     
     filterActors: function(tag){
@@ -149,7 +166,7 @@ var IndicatorFlowsEditView = BaseView.extend(
             hide = [];
             
          [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect].forEach(function(sel){
-            sel.parentElement.style.display = 'block';
+            sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
             sel.style.height ='100%'; // resets size, in case it was expanded
@@ -167,7 +184,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         }
         multi.setAttribute('multiple', true);
         hide.forEach(function(s){
-            s.parentElement.style.display = 'none';
+            s.parentElement.parentElement.style.display = 'none';
         })
         this.renderNodeSelectOptions(selectGroup.groupSelect, this.activityGroups);
         if(level != 'group')
@@ -195,6 +212,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         }
         else select.disabled = true;
         select.selectedIndex = 0;
+        $(select).selectpicker('refresh');
     },
     
     renderMatFilter: function(){
@@ -204,9 +222,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 _this.material = model;
+                if (model)
+                    $(_this.materialTags).tagsinput('add', { 
+                        "value": model.id , "text": model.get('name')
+                    });
             },
-            defaultOption: gettext('All materials')
+            defaultOption: gettext('Select')
         });
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
@@ -252,8 +273,18 @@ var IndicatorFlowsEditView = BaseView.extend(
             waste = this.el.querySelector('select[name="waste"]').value;
         if (waste) filterParams.waste = waste;
         
-        var material = this.material;
-        if (material) filterParams.material = {id: material.id};
+        var tags = $(this.materialTags).tagsinput('items'),
+            materialIds = [];
+        
+        tags.forEach(function(item){
+            materialIds.push(item.value)
+        })
+        
+        if (materialIds) 
+            filterParams.materials = { 
+                ids: materialIds,
+                aggregate: true
+            };
         
         var originNodeIds = this.getSelectedNodes(this.originSelects),
             destinationNodeIds = this.getSelectedNodes(this.destinationSelects);

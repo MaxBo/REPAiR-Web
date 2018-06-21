@@ -31,11 +31,13 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.keyflowId = options.keyflowId;
         this.materials = new GDSECollection([], { 
             apiTag: 'materials',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
+            apiIds: [this.caseStudy.id, this.keyflowId ],
+            comparator: 'name'
         });
         this.activities = new GDSECollection([], { 
             apiTag: 'activities',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
+            apiIds: [this.caseStudy.id, this.keyflowId ],
+            comparator: 'name'
         });
         this.activityGroups = new GDSECollection([], { 
             apiTag: 'activitygroups',
@@ -49,6 +51,8 @@ var FlowAssessmentSetupView = BaseView.extend(
             this.materials.fetch()
         ]
         Promise.all(promises).then(function(){
+            _this.activityGroups.sort();
+            _this.activities.sort();
             _this.loader.deactivate();
             _this.render();
         })

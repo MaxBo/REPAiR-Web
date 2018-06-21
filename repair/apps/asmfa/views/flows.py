@@ -71,85 +71,108 @@ fractions_struct = OrderedDict(material=None,
                                fraction=0
                                )
 
-def filter_by_material(material, queryset):
+def filter_by_material(materials, queryset):
     """filter queryset by their compositions,
     their fractions have to contain the given material or children
     of the material"""
-    # get the children of the given material
-    materials = material.descendants
-    # fractions have to contain children and the material itself
-    materials.append(material)
-    fractions = ProductFraction.objects.filter(material__in=materials)
+    mats = []
+    for material in materials:
+        # get the children of the given material
+        mats.extend(material.descendants)
+        # fractions have to contain children and the material itself
+        mats.append(material)
+    fractions = ProductFraction.objects.filter(material__in=mats)
     # the compositions containing the filtered fractions
     compositions = fractions.values('composition')
     # the flows containing the filtered compositions
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-def process_data_fractions(material, childmaterials, data,
-                           aggregate_materials=False):
-    desc_dict = {}
+def aggregate_fractions(materials, data, unaltered_materials=[], 
+                        aggregate_materials=False):
+    '''
+    aggregate the fractions to given materials, all fractions with child
+    materials of given materials will be summed up to the level of those,
+    amount will be recalculated
+    
+    if aggregate_materials is False the materials won't be aggregated, but
+    all materials that are not children of given materials will be removed
+    from flow and amount will still be recalculated
+    
+    unaltered materials will be kept as is and ignored when
+    aggregating children (may be parents as well)
+    '''
+    if not materials and not aggregate_materials:
+        return data
+    materials = materials or []
+    unaltered_dict = dict([(mat.id, mat) for mat in unaltered_materials])
     # dictionary to store requested materials and if other materials are
     # descendants of those (including the material itself), much faster than
     # repeatedly getting the materials and their ancestors
-    for mat in childmaterials:
-        desc_dict[mat] = { mat.id: True }
+    desc_dict = dict([(mat, { mat.id: True }) for mat in materials])
     new_data = []
     for serialized_flow in data:
-        composition = serialized_flow['composition']
-        if not composition:
-            continue
-        old_total = serialized_flow['amount']
-        new_total = 0
-        aggregated_amounts = defaultdict.fromkeys(childmaterials, 0)
-        if material:
-            aggregated_amounts[material] = 0
-        
-        # remove fractions that are no descendants of the material
-        valid_fractions = []
-        for serialized_fraction in composition['fractions']:
-            if material and material.id == serialized_fraction['material']:
-                aggregated_amounts[material] += (
-                    serialized_fraction['fraction'] * old_total)
-                valid_fractions.append(serialized_fraction)
-                continue
-            for child in childmaterials:
-                child_dict = desc_dict[child]
-                fraction_mat_id = serialized_fraction['material']
-                is_desc = child_dict.get(fraction_mat_id)
-                # save time by doing this once and storing it
-                if is_desc is None:
-                    fraction_material = Material.objects.get(
-                        id=serialized_fraction['material'])
-                    child_dict[fraction_mat_id] = is_desc = fraction_material.is_descendant(child)
-                if is_desc:
-                    amount = serialized_fraction['fraction'] * old_total
-                    aggregated_amounts[child] += amount
-                    new_total += amount
-                    valid_fractions.append(serialized_fraction)
-        # amount zero -> there is actually no flow
-        if new_total == 0:
-            continue
-        new_fractions = []
-        # aggregation: new fraction for each material
-        if aggregate_materials:
-            for material, amount in aggregated_amounts.items():
-                if amount > 0:
-                    aggregated_fraction = OrderedDict({
-                        'material': material.id,
-                        'fraction': amount / new_total,
-                    })
-                    new_fractions.append(aggregated_fraction)
-                
-        # no aggregation: keep the fractions whose materials are descendants 
-        # (->valid) and recalculate the fraction values
+        # aggregation is requested on no given materials -> 
+        # aggregate to top level (just meaning: keep amount, remove fractions)
+        if not materials and aggregate_materials:
+            serialized_flow['composition'] = None
         else:
-            for fraction in valid_fractions:
-                fraction['fraction'] = fraction['fraction'] * old_total / new_total
-                new_fractions.append(fraction)
+            composition = serialized_flow['composition']
+            if not composition:
+                continue
+            old_total = serialized_flow['amount']
+            new_total = 0
+            aggregated_amounts = defaultdict.fromkeys(materials, 0)
+            for mat in unaltered_materials:
+                aggregated_amounts[mat] = 0
+            # remove fractions that are no descendants of the material
+            valid_fractions = []
+            for serialized_fraction in composition['fractions']:
+                fraction_mat_id = serialized_fraction['material']
+                # keep the fraction as is
+                if fraction_mat_id in unaltered_dict:
+                    aggregated_amounts[unaltered_dict[fraction_mat_id]] += (
+                        serialized_fraction['fraction'] * old_total)
+                    valid_fractions.append(serialized_fraction)
+                    continue
+                for mat in materials:
+                    child_dict = desc_dict[mat]
+                    is_desc = child_dict.get(fraction_mat_id)
+                    # save time by doing this once and storing it
+                    if is_desc is None:
+                        fraction_material = Material.objects.get(
+                            id=fraction_mat_id)
+                        child_dict[fraction_mat_id] = is_desc = \
+                            fraction_material.is_descendant(mat)
+                    if is_desc:
+                        amount = serialized_fraction['fraction'] * old_total
+                        aggregated_amounts[mat] += amount
+                        new_total += amount
+                        valid_fractions.append(serialized_fraction)
+            # amount zero -> there is actually no flow
+            if new_total == 0:
+                continue
+            new_fractions = []
+            # aggregation: new fraction for each material
+            if aggregate_materials:
+                for material, amount in aggregated_amounts.items():
+                    if amount > 0:
+                        aggregated_fraction = OrderedDict({
+                            'material': material.id,
+                            'fraction': amount / new_total,
+                        })
+                        new_fractions.append(aggregated_fraction)
+                    
+            # no aggregation: keep the fractions whose materials are descendants 
+            # (->valid) and recalculate the fraction values
+            else:
+                for fraction in valid_fractions:
+                    fraction['fraction'] = fraction['fraction'] * old_total / new_total
+                    new_fractions.append(fraction)
         
-        serialized_flow['amount'] = new_total
-        composition['fractions'] = new_fractions
+            serialized_flow['amount'] = new_total
+            composition['fractions'] = new_fractions
+    
         new_data.append(serialized_flow)
     return new_data
     
@@ -318,11 +341,10 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             filter_link: and/or, # logical linking of filters, defaults to 'or'
             
             # filter/aggregate by given material 
-            material: {
-                aggregate: true / false, # aggregate child materials
-                                         # to level of given material
-                                         # or to top level if no id is given
-                id: id, # id of material
+            materials: {
+                ids: [...], # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
+                unaltered: [...], # ids of materials that should be kept as they are when aggregating
+                aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
             
             # aggregate origin/dest. actors belonging to given
@@ -356,7 +378,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
         filter_link = params.get('filter_link', None)
-        material_filter = params.get('material', None)
+        material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
         
@@ -388,18 +410,21 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
-        material_id = (None if material_filter is None
-                       else material_filter.get('id', None))
+        material_ids = (None if material_filter is None
+                        else material_filter.get('ids', None))
+        unaltered_material_ids = ([] if material_filter is None
+                                  else material_filter.get('unaltered', []))
 
-        material = None
+        materials = None
+        unaltered_materials = None
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if material_id is not None:
-            try:
-                material = Material.objects.get(id=material_filter['id'])
-            except Material.DoesNotExist:
-                return Response(status=404)
-            queryset = filter_by_material(material, queryset)
+        if material_ids is not None:
+            materials = Material.objects.filter(id__in=material_ids)
+            unaltered_materials = Material.objects.filter(
+                id__in=unaltered_material_ids)
+            queryset = filter_by_material(
+                list(materials) + list(unaltered_materials), queryset)
 
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
@@ -438,31 +463,12 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             data = self.spatial_aggregation(data, queryset,
                                             group_relation, levels)
 
-        # if the fractions of flows are filtered by material, the other
-        # fractions should be removed from the returned data        
-        if material and not aggregate_materials:
-            # if the fractions of flows are filtered by material, the other
-            # fractions should be removed from the returned data
-            if not aggregate_materials:
-                data = process_data_fractions(material, material.children,
-                                              data, aggregate_materials=False)
-                return Response(data)
-
-        # aggregate the fractions of the queryset
-        if aggregate_materials:
-            # aggregate the fractions of the queryset
-            # take the material and its children from if-clause 'filter_material'
-            if material:
-                childmaterials = material.children
-            # no material was requested -> aggregate by top level materials
-            if material is None:
-                childmaterials = Material.objects.filter(parent__isnull=True)
-
-            #aggregate_queryset(materials, queryset)
-            #filtered = True
-
-            data = process_data_fractions(material, childmaterials, data,
-                                          aggregate_materials=True)
+        # materials were given and/or materials shall be aggregated
+        if materials or aggregate_materials:
+            data = aggregate_fractions(
+                materials, data, aggregate_materials=aggregate_materials,
+                unaltered_materials=unaltered_materials
+            )
             return Response(data)
 
         return Response(data)
