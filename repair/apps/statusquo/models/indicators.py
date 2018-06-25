@@ -56,7 +56,7 @@ class IndicatorFlow(GDSEModel):
     destination_node_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
-    materials = models.ManyToManyField(Material)
+    materials = models.ManyToManyField(Material, blank=True)
 
     spatial_application = models.IntegerField(choices=SPATIAL_CHOICES,
                                               default=NONE)
@@ -69,7 +69,7 @@ class FlowIndicator(GDSEModel):
     
     name = models.CharField(max_length=255)
     unit = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     
     indicator_type = models.IntegerField(choices=INDICATOR_TYPE_CHOICES,
                                          default=INDICATOR_TYPE_A)
