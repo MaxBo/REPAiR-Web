@@ -1,5 +1,8 @@
 {% load i18n %}
 
+<!--for some reason i can't load this with require and css loader-->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
+
 <script type="text/template" id="setup-flow-assessment-template">
 <div class="row bordered">
   <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
