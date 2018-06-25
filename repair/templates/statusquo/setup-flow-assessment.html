@@ -8,15 +8,17 @@
   <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
   <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
     <option disabled selected> {% trans "Select" %} </option>
-    <option> Fake 1 </option>
-    <option> Fake 2 </option>
+    <% indicators.each(function(indicator) { %>
+      <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
+    <% });  %>
   </select>
-  <button class="btn btn-primary"> {% trans "Edit" %} </button>
-  <button class="btn btn-primary"> {% trans "New" %} </button>
+  <button class="btn btn-primary" id="edit-flowindicator-button"> {% trans "Edit" %} </button>
+  <button class="btn btn-primary" id="new-flowindicator-button"> {% trans "New" %} </button>
+  <button class="btn btn-warning" id="delete-flowindicator-button"> {% trans "Delete" %} </button>
 </div>
-<div class="row bordered" style="margin-top: 10px;">
+<div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; ">
   <div class="row">
-    <button id='upload-actor-button' title="{% trans "upload changes made to actor and its locations" %}" class="btn btn-danger btn-upload">
+    <button id='upload-flowindicator-button' title="{% trans "upload changes made to indicator" %}" class="btn btn-danger btn-upload">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
     </button>
   </div>
@@ -26,22 +28,22 @@
         <tr>
           <td style="width:1%;">{% trans "Name" %}</td>
           <td>
-            <input class="form-control" id="name" style="width: 100%;">
+            <input class="form-control" name="name" style="width: 100%;">
           </td>
         </tr>
         <tr>
           <td>{% trans "Type" %}</td>
           <td>
             <select class="form-control" id="indicator-type">
-              <option value="a">Flows A</option>
-              <option value="a/b">Flows A / Flows B</option>
+              <option value="A">Flows A</option>
+              <option value="AB">Flows A / Flows B</option>
             </select>
           </td>
         </tr>
         <tr>
           <td>{% trans "Unit" %}</td>
           <td>
-            <input class="form-control" id="unit">
+            <input class="form-control" name="unit">
           </td>
         </tr>
       </table>
@@ -51,8 +53,7 @@
         <tr>
           <td valign="top" style="width:1%;">{% trans "Description" %}</td>
           <td>
-            <textarea class="form-control" rows="4" style="width: 100%;">
-            </textarea>
+            <textarea class="form-control" name='description' rows="4" style="width: 100%;"></textarea>
           </td>
         </tr>
       </table>

@@ -43,10 +43,15 @@ var FlowAssessmentSetupView = BaseView.extend(
             apiTag: 'activitygroups',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.indicators = new GDSECollection([], { 
+            apiTag: 'flowIndicators',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
         
         this.loader.activate();
         var promises = [
             this.activities.fetch(),
+            this.indicators.fetch(),
             this.activityGroups.fetch(),
             this.materials.fetch()
         ]
@@ -62,7 +67,11 @@ var FlowAssessmentSetupView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change #indicator-type': 'typeChanged'
+        'change #indicator-type': 'typeChanged',
+        'click #edit-flowindicator-button': 'editIndicator',
+        'click #new-flowindicator-button': 'createIndicator',
+        'click #upload-flowindicator-button': 'uploadIndicator',
+        'click #delete-flowindicator-button': 'deleteIndicator'
     },
 
     /*
@@ -72,9 +81,36 @@ var FlowAssessmentSetupView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({indicators: this.indicators});
         
-        this.el.querySelector('#flowBLi').style.visibility = 'hidden';
+        this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
+    },
+    
+    editIndicator: function(){
+        var selected = this.indicatorSelect.value,
+            indicator = this.indicators.get(selected);
+        if (indicator)
+            this.renderIndicator(indicator);
+    },
+    
+    renderIndicator: function(indicator){
+        this.el.querySelector('#flowindicator-edit').style.display = 'block';
+        
+        this.indicator = indicator;
+        this.inputs = {
+            name: this.el.querySelector('input[name="name"]'),
+            'indicator-type': this.el.querySelector('#indicator-type'),
+            unit: this.el.querySelector('input[name="unit"]'),
+            description: this.el.querySelector('textarea[name="description"]')
+        }
+        var type = indicator.get('indicator_type');
+        this.el.querySelector('#flowBLi').style.visibility = (type == 'AB') ? 'visible': 'hidden';
+        
+        this.inputs.name.value = indicator.get('name');
+        this.inputs['indicator-type'].value = type;
+        this.inputs.unit.value = indicator.get('unit');
+        this.inputs.description.value = indicator.get('description');
+        
         // content of Flow A and Flow B tabs
         var tmpltId = 'indicator-flow-edit-template',
             elA = this.el.querySelector('#flow-a-tab'),
@@ -97,13 +133,59 @@ var FlowAssessmentSetupView = BaseView.extend(
         var val = evt.target.value,
             aTab = this.el.querySelector('#flowALi'),
             bTab = this.el.querySelector('#flowBLi');
-        if (val == 'a/b'){
+        if (val == 'AB'){
             bTab.style.visibility = 'visible';
         }
         else{
             aTab.querySelector('a').click();
             bTab.style.visibility = 'hidden';
         }
+    },
+    
+    uploadIndicator: function(){
+        var _this = this;
+        for (var key in this.inputs){
+            var value = this.inputs[key].value;
+            this.indicator.set(key, value);
+        }
+        this.indicator.save(null, {success: function(model){
+            var option = _this.indicatorSelect.querySelector('option[value="'+model.id+'"]');
+            option.innerHTML = model.get('name');
+            _this.alert(gettext('Upload successful'));
+        }, error: this.onError})
+    },
+    
+    createIndicator: function(){
+        var _this = this;
+        function create(name){
+            var indicator = _this.indicators.create( 
+                { name: name }, 
+                { success: function(){
+                    console.log(indicator)
+                    _this.renderIndicator(indicator);
+                }, error: _this.onError, wait: true }
+            );
+        }
+        this.getName({ onConfirm: create });
+    },
+    
+    deleteIndicator: function(){
+        var selected = this.indicatorSelect.value,
+            indicator = this.indicators.get(selected),
+            _this = this;
+        if (!indicator) return;
+        function destroy(){
+            indicator.destroy({
+                success: function(){
+                    console.log('destroyed')
+                },
+                error: _this.onError
+            });
+        };
+        this.confirm({
+            message: gettext('Do you want to delete the Indicator') + ' "' + indicator.get('name') + '"?',
+            onConfirm: destroy
+        })
     },
     
     close: function(){

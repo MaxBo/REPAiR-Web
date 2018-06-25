@@ -25,13 +25,13 @@ class IndicatorFlowSerializer(serializers.ModelSerializer):
 
 
 class FlowIndicatorSerializer(serializers.ModelSerializer):
-    flow_a = IndicatorFlowSerializer(required=True)
-    flow_b = IndicatorFlowSerializer(allow_null=True)
+    flow_a = IndicatorFlowSerializer(allow_null=True, required=False)
+    flow_b = IndicatorFlowSerializer(allow_null=True, required=False)
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
-    indicator_type = EnumField(enum=IndicatorType)
+    indicator_type = EnumField(enum=IndicatorType, required=False)
 
     class Meta:
         model = FlowIndicator

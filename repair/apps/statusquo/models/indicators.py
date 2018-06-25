@@ -8,28 +8,27 @@ from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 
 
 class SpatialChoice(Enum):
-    NONE = 0
-    ORIGIN = 1
-    DESTINATION = 2
-    BOTH = 3
+    NONE = 1
+    ORIGIN = 2
+    DESTINATION = 3
+    BOTH = 4
 
 
 class NodeLevel(Enum):
-    ACTOR = 0
-    ACTIVITY = 1
-    ACTIVITYGROUP = 2
+    ACTOR = 1
+    ACTIVITY = 2
+    ACTIVITYGROUP = 3
 
 
 class IndicatorType(Enum):
-    A = 0
-    AB = 1
+    A = 1
+    AB = 2
 
 
 class FlowType(Enum):
-    BOTH = 0
-    WASTE = 1
-    PRODUCT = 2
-
+    BOTH = 1
+    WASTE = 2
+    PRODUCT = 3
 
 
 class IndicatorFlow(GDSEModel):
@@ -55,7 +54,7 @@ class IndicatorFlow(GDSEModel):
 class FlowIndicator(GDSEModel):
     
     name = models.CharField(max_length=255)
-    unit = models.CharField(max_length=255)
+    unit = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
     
     indicator_type = EnumIntegerField(
