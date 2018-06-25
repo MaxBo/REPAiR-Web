@@ -1,68 +1,55 @@
 from django.db import models
 from django.core.validators import validate_comma_separated_integer_list
+from enum import Enum
+from enumfields import EnumIntegerField
 
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 
-NONE = 0
-ORIGIN = 1
-DESTINATION = 2
-BOTH = 3
 
-SPATIAL_CHOICES = (
-    (NONE, 'none'), 
-    (ORIGIN, 'origin'),
-    (DESTINATION, 'destination'),
-    (BOTH, 'both')
-)
+class SpatialChoice(Enum):
+    NONE = 0
+    ORIGIN = 1
+    DESTINATION = 2
+    BOTH = 3
 
-ACTOR_LEVEL = 0
-ACTIVITY_LEVEL = 1
-ACTIVITYGROUP_LEVEL = 2
 
-NODE_LEVEL_CHOICES = (
-    (ACTOR_LEVEL, 'actor'),
-    (ACTIVITY_LEVEL, 'activity'),
-    (ACTIVITYGROUP_LEVEL, 'activitygroup')
-)
+class NodeLevel(Enum):
+    ACTOR = 0
+    ACTIVITY = 1
+    ACTIVITYGROUP = 2
 
-INDICATOR_TYPE_A = 0
-INDICATOR_TYPE_AB = 1
 
-INDICATOR_TYPE_CHOICES = (
-    (INDICATOR_TYPE_A, 'a'),
-    (INDICATOR_TYPE_AB, 'a/b')
-)
+class IndicatorType(Enum):
+    A = 0
+    AB = 1
 
-FLOW_TYPE_BOTH = 0
-FLOW_TYPE_WASTE = 1
-FLOW_TYPE_PRODUCT = 2
 
-FLOW_TYPE_CHOICES = (
-    (FLOW_TYPE_BOTH, 'both'),
-    (FLOW_TYPE_WASTE, 'waste'),
-    (FLOW_TYPE_PRODUCT, 'product')
-)
+class FlowType(Enum):
+    BOTH = 0
+    WASTE = 1
+    PRODUCT = 2
+
 
 
 class IndicatorFlow(GDSEModel):
-    origin_node_level = models.IntegerField(choices=NODE_LEVEL_CHOICES,
-                                            default=ACTOR_LEVEL)
+    origin_node_level = EnumIntegerField(
+        enum=NodeLevel, default=NodeLevel.ACTOR)
     origin_node_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
-    destination_node_level = models.IntegerField(choices=NODE_LEVEL_CHOICES,
-                                                 default=ACTOR_LEVEL)
+    destination_node_level = EnumIntegerField(
+        enum=NodeLevel, default=NodeLevel.ACTOR)
     destination_node_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
     materials = models.ManyToManyField(Material, blank=True)
 
-    spatial_application = models.IntegerField(choices=SPATIAL_CHOICES,
-                                              default=NONE)
+    spatial_application = EnumIntegerField(
+        enum=SpatialChoice, default=SpatialChoice.NONE)
     
-    flow_type = models.IntegerField(choices=FLOW_TYPE_CHOICES,
-                                    default=FLOW_TYPE_BOTH)
+    flow_type = EnumIntegerField(
+        enum=FlowType, default=FlowType.BOTH)
 
 
 class FlowIndicator(GDSEModel):
@@ -71,8 +58,8 @@ class FlowIndicator(GDSEModel):
     unit = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     
-    indicator_type = models.IntegerField(choices=INDICATOR_TYPE_CHOICES,
-                                         default=INDICATOR_TYPE_A)
+    indicator_type = EnumIntegerField(
+        enum=IndicatorType, default=IndicatorType.A)
 
     flow_a = models.ForeignKey(IndicatorFlow,
                                on_delete=models.SET_NULL,

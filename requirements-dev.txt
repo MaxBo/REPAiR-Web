@@ -7,6 +7,7 @@ djangorestframework-gis
 djangorestframework-datatables>=0.3
 django-filter
 django-test-plus
+django-enumfields
 django-money
 django-reversion
 django-reversion-compare
