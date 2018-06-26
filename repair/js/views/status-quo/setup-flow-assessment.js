@@ -26,6 +26,7 @@ var FlowAssessmentSetupView = BaseView.extend(
     initialize: function(options){
         FlowAssessmentSetupView.__super__.initialize.apply(this, [options]);
         var _this = this;
+         _.bindAll(this, 'renderIndicator');
         
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
@@ -89,8 +90,13 @@ var FlowAssessmentSetupView = BaseView.extend(
     editIndicator: function(){
         var selected = this.indicatorSelect.value,
             indicator = this.indicators.get(selected);
-        if (indicator)
-            this.renderIndicator(indicator);
+        if (indicator){
+            // fetch the indicator to reload it
+            indicator.fetch({
+                success: this.renderIndicator,
+                error: this.onError
+            })
+        }
     },
     
     renderIndicator: function(indicator){
@@ -158,7 +164,6 @@ var FlowAssessmentSetupView = BaseView.extend(
             flowB = this.flowBView.getInputs();
         this.indicator.set('flow_a', flowA);
         this.indicator.set('flow_b', flowB);
-        console.log(this.indicator);
         this.indicator.save(null, {success: function(model){
             var option = _this.indicatorSelect.querySelector('option[value="'+model.id+'"]');
             option.innerHTML = model.get('name');
@@ -172,7 +177,11 @@ var FlowAssessmentSetupView = BaseView.extend(
             var indicator = _this.indicators.create( 
                 { name: name }, 
                 { success: function(){
-                    console.log(indicator)
+                    var option = document.createElement('option');
+                    option.value = indicator.id;
+                    option.innerHTML = name;
+                    _this.indicatorSelect.appendChild(option);
+                    _this.indicatorSelect.value = indicator.id;
                     _this.renderIndicator(indicator);
                 }, error: _this.onError, wait: true }
             );
@@ -183,12 +192,16 @@ var FlowAssessmentSetupView = BaseView.extend(
     deleteIndicator: function(){
         var selected = this.indicatorSelect.value,
             indicator = this.indicators.get(selected),
+            id = indicator.id
             _this = this;
         if (!indicator) return;
         function destroy(){
+            if (indicator == _this.indicator)
+                _this.el.querySelector('#flowindicator-edit').style.display = 'none';
             indicator.destroy({
                 success: function(){
-                    console.log('destroyed')
+                    var option = _this.indicatorSelect.querySelector('option[value="' + id + '"]');
+                    _this.indicatorSelect.removeChild(option);
                 },
                 error: _this.onError
             });
