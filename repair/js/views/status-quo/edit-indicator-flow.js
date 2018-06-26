@@ -166,9 +166,11 @@ var IndicatorFlowEditView = BaseView.extend(
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
             level = selectGroup.levelSelect.value,
             multi, 
-            hide = [];
+            hide = [],
+            selects = [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect];
             
-         [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect].forEach(function(sel){
+            
+         selects.forEach(function(sel){
             sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
@@ -186,6 +188,7 @@ var IndicatorFlowEditView = BaseView.extend(
             hide = [selectGroup.actorSelect, selectGroup.activitySelect];
         }
         multi.setAttribute('multiple', true);
+        $(multi).selectpicker("refresh");
         hide.forEach(function(s){
             s.parentElement.parentElement.style.display = 'none';
         })
@@ -195,6 +198,12 @@ var IndicatorFlowEditView = BaseView.extend(
         if(level == 'actor')
             this.renderNodeSelectOptions(selectGroup.actorSelect);
         
+        // selectpicker has to be completely rerendered to change between
+        // multiple and single select
+        selects.forEach(function(sel){
+            $(sel).selectpicker('destroy');
+            $(sel).selectpicker();
+        });
     },
 
     renderNodeSelectOptions: function(select, collection){
@@ -251,11 +260,13 @@ var IndicatorFlowEditView = BaseView.extend(
             }
             return values;
         }
+        // value will always return the value of the top selected option
+        // so if it is > -1 "All" is not selected
         if (nodeSelect.value >= 0){
             selected = nodeSelect.selectedOptions;
             return getValues(selected);
         }
-        // All is selected -> return values of all options
+        // "All" is selected -> return values of all options (except "All")
         else return getValues(nodeSelect.options)
     },
     
@@ -345,9 +356,9 @@ var IndicatorFlowEditView = BaseView.extend(
             
         var flow = {
             origin_node_level: originLevel,
-            origin_node_ids: originNodeIds,
+            origin_node_ids: originNodeIds.join(','),
             destination_node_level: destinationLevel,
-            destination_node_ids: destinationNodeIds,
+            destination_node_ids: destinationNodeIds.join(','),
             materials: materialIds,
             flow_type: flowType,
             spatial_application: spatial
