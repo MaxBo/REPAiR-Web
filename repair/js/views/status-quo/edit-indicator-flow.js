@@ -76,7 +76,6 @@ var IndicatorFlowEditView = BaseView.extend(
         }
         
         this.typeSelect = this.el.querySelector('select[name="waste"]');
-        this.spatialSelect = this.el.querySelector('input[name="spatial-filtering"]');
         
         $(this.originSelects.groupSelect).selectpicker();
         $(this.originSelects.activitySelect).selectpicker();
@@ -89,11 +88,7 @@ var IndicatorFlowEditView = BaseView.extend(
             'change', function(){ _this.resetNodeSelects('origin') })
         this.destinationSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('destination') })
-
-        this.originSelects.levelSelect.value = 'actor';
-        this.destinationSelects.levelSelect.value = 'actor';
-        this.resetNodeSelects('origin');
-        this.resetNodeSelects('destination');
+        
         this.addEventListeners('origin');
         this.addEventListeners('destination');
         this.renderMatFilter();
@@ -105,6 +100,8 @@ var IndicatorFlowEditView = BaseView.extend(
         })
         // hide the input of tags
         this.materialTags.parentElement.querySelector('.bootstrap-tagsinput>input').style.display = 'none';
+        
+        this.setInputs(this.indicatorFlow);
     },
     
     filterActors: function(tag){
@@ -270,6 +267,30 @@ var IndicatorFlowEditView = BaseView.extend(
         else return getValues(nodeSelect.options)
     },
     
+    setSelectedNodes: function(selectGroup, values, actors){
+        if (values.length == 0 || values[0].length == 0)
+            return;
+        var level = selectGroup.levelSelect.value,
+            nodeSelect = (level == 'actor') ? selectGroup.actorSelect: 
+                         (level == 'activity') ? selectGroup.activitySelect: 
+                         selectGroup.groupSelect,
+            _this = this;
+        if (level == 'actor') {
+            actors.fetch({
+                data: {
+                    'id__in': values.join(',')
+                },
+                success: function(){
+                    _this.renderNodeSelectOptions(nodeSelect, actors);
+                    $(nodeSelect).selectpicker('val', values);
+                },
+                error: _this.onError
+            })
+            return;
+        }
+        $(nodeSelect).selectpicker('val', values);
+    },
+    
     selectedMaterials: function(){
         var tags = $(this.materialTags).tagsinput('items'),
             materialIds = [];
@@ -277,6 +298,18 @@ var IndicatorFlowEditView = BaseView.extend(
             materialIds.push(item.value)
         })
         return materialIds;
+    },
+    
+    setSelectedMaterials: function(materialIds){
+        var tags = $(this.materialTags).tagsinput('items'),
+            _this = this;
+        console.log(materialIds)
+        materialIds.forEach(function(materialId){
+            var model = _this.materials.get(materialId);
+            $(_this.materialTags).tagsinput('add', { 
+                "value": model.id , "text": model.get('name')
+            });
+        });
     },
     
     renderSankey: function(){
@@ -345,6 +378,28 @@ var IndicatorFlowEditView = BaseView.extend(
         })
     },
     
+    setInputs: function(flow){
+        if (flow == null) return;
+        var materialIds = flow.materials || [],
+            originNodeIds = flow.origin_node_ids || "",
+            destinationNodeIds = flow.destination_node_ids || "",
+            originLevel = flow.origin_node_level || 'actor',
+            destinationLevel = flow.destination_node_level || 'actor',
+            flowType = flow.flow_type || 'both',
+            spatial = flow.spatial_application || 'none';
+        
+        this.originSelects.levelSelect.value = originLevel.toLowerCase();
+        this.destinationSelects.levelSelect.value = destinationLevel.toLowerCase();
+        this.resetNodeSelects('origin');
+        this.resetNodeSelects('destination');
+        this.setSelectedNodes(this.originSelects, originNodeIds.split(','), this.originActors);
+        this.setSelectedNodes(this.destinationSelects, destinationNodeIds.split(','), this.destinationActors);
+        this.typeSelect.value = flowType.toLowerCase();
+        this.setSelectedMaterials(materialIds);
+        
+        this.el.querySelector('input[name="spatial-filtering"][value="' + spatial.toLowerCase() + '"]').checked = true;
+    },
+    
     getInputs: function(){
         var materialIds = this.selectedMaterials(),
             originNodeIds = this.getSelectedNodes(this.originSelects),
@@ -352,7 +407,7 @@ var IndicatorFlowEditView = BaseView.extend(
             originLevel = this.originSelects.levelSelect.value,
             destinationLevel = this.destinationSelects.levelSelect.value,
             flowType = this.typeSelect.value,
-            spatial = this.spatialSelect.value;
+            spatial = this.el.querySelector('input[name="spatial-filtering"]:checked').value;
             
         var flow = {
             origin_node_level: originLevel,

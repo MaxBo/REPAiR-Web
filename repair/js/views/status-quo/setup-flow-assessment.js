@@ -123,8 +123,14 @@ var FlowAssessmentSetupView = BaseView.extend(
             materials: this.materials,
             template: tmpltId
         };
-        var optA = Object.assign({el: elA}, options),
-            optB = Object.assign({el: elB}, options);
+        var optA = Object.assign({
+                el: elA,
+                indicatorFlow: indicator.get('flow_a')
+            }, options),
+            optB = Object.assign({
+                el: elB,
+                indicatorFlow: indicator.get('flow_b')
+            }, options);
         this.flowAView = new IndicatorFlowEditView(optA);
         this.flowBView = new IndicatorFlowEditView(optB);
     },
