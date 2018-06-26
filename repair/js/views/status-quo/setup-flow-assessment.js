@@ -1,7 +1,7 @@
-define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flows',
+define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flow',
         'collections/gdsecollection'],
 
-function(BaseView, _, IndicatorFlowsEditView, GDSECollection){
+function(BaseView, _, IndicatorFlowEditView, GDSECollection){
 /**
 *
 * @author Christoph Franke
@@ -125,8 +125,8 @@ var FlowAssessmentSetupView = BaseView.extend(
         };
         var optA = Object.assign({el: elA}, options),
             optB = Object.assign({el: elB}, options);
-        this.flowAView = new IndicatorFlowsEditView(optA);
-        this.flowBView = new IndicatorFlowsEditView(optB);
+        this.flowAView = new IndicatorFlowEditView(optA);
+        this.flowBView = new IndicatorFlowEditView(optB);
     },
 
     typeChanged: function(evt){
@@ -148,6 +148,11 @@ var FlowAssessmentSetupView = BaseView.extend(
             var value = this.inputs[key].value;
             this.indicator.set(key, value);
         }
+        var flowA = this.flowAView.getInputs(),
+            flowB = this.flowBView.getInputs();
+        this.indicator.set('flow_a', flowA);
+        this.indicator.set('flow_b', flowB);
+        console.log(this.indicator);
         this.indicator.save(null, {success: function(model){
             var option = _this.indicatorSelect.querySelector('option[value="'+model.id+'"]');
             option.innerHTML = model.get('name');

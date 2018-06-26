@@ -91,28 +91,28 @@
     <div class="col-md-3">
       <b>{% trans "Flow Type" %}</b>
       <select name="waste" class="form-control">
-        <option value=''> {% trans "Products and Waste" %} </option>
-        <option value='False'> {% trans "Products" %} </option>
-        <option value='True'> {% trans "Waste" %} </option>
+        <option value='both'> {% trans "Products and Waste" %} </option>
+        <option value='product'> {% trans "Products" %} </option>
+        <option value='waste'> {% trans "Waste" %} </option>
       </select>
     </div>
     <div class="col-md-3">
       <b>{% trans "Application of user choice for spatial filtering" %}</b>
       <form>
         <span>
-          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="0">{% trans "origin" %}
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="origin">{% trans "origin" %}
         </span>
         <br>
         <span>
-          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="1">{% trans "destination" %}
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="destination">{% trans "destination" %}
         </span>
         <br>
         <span>
-          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="2">{% trans "both" %}
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="both">{% trans "both" %}
         </span>
         <br>
         <span>
-          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="3" checked>{% trans "none" %}
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="none" checked>{% trans "none" %}
         </span>
       </form>
     </div>
@@ -124,7 +124,7 @@
     <div class="row">
       <label class="input-label">{% trans "Selection Level" %} </label>
       <select class="form-control" name="origin-level-select" id="data-view-type-select" style="max-width: 200px;">
-        <option value="group">{% trans "Activity Group" %}</option>
+        <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
         <option value="actor">{% trans "Actor" %} </option>
       </select>

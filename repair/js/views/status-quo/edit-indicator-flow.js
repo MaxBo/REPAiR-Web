@@ -6,10 +6,10 @@ function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
-* @name module:views/IndicatorFlowsEditView
+* @name module:views/IndicatorFlowEditView
 * @augments module:views/BaseView
 */
-var IndicatorFlowsEditView = BaseView.extend(
+var IndicatorFlowEditView = BaseView.extend(
     /** @lends module:views/FlowsView.prototype */
     {
 
@@ -25,13 +25,14 @@ var IndicatorFlowsEditView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        IndicatorFlowsEditView.__super__.initialize.apply(this, [options]);
+        IndicatorFlowEditView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'resetNodeSelects');
         this.activityGroups = options.activityGroups;
         this.activities = options.activities;
         this.materials = options.materials;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.indicatorFlow = options.indicatorFlow;
 
         this.originActors = new GDSECollection([], {
             apiTag: 'actors',
@@ -73,6 +74,9 @@ var IndicatorFlowsEditView = BaseView.extend(
             activitySelect: this.el.querySelector('select[name="destination-activity"]'),
             actorSelect: this.el.querySelector('select[name="destination-actor"]')
         }
+        
+        this.typeSelect = this.el.querySelector('select[name="waste"]');
+        this.spatialSelect = this.el.querySelector('input[name="spatial-filtering"]');
         
         $(this.originSelects.groupSelect).selectpicker();
         $(this.originSelects.activitySelect).selectpicker();
@@ -255,6 +259,15 @@ var IndicatorFlowsEditView = BaseView.extend(
         else return getValues(nodeSelect.options)
     },
     
+    selectedMaterials: function(){
+        var tags = $(this.materialTags).tagsinput('items'),
+            materialIds = [];
+        tags.forEach(function(item){
+            materialIds.push(item.value)
+        })
+        return materialIds;
+    },
+    
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
@@ -269,15 +282,11 @@ var IndicatorFlowsEditView = BaseView.extend(
             this.activityGroups;
 
         var filterParams = {},
-            waste = this.el.querySelector('select[name="waste"]').value;
+            waste = (this.typeSelect.value == 'waste') ? true : 
+                    (this.typeSelect.value == 'product') ? false : '';
         if (waste) filterParams.waste = waste;
         
-        var tags = $(this.materialTags).tagsinput('items'),
-            materialIds = [];
-        
-        tags.forEach(function(item){
-            materialIds.push(item.value)
-        })
+        var materialIds = this.selectedMaterials();
         
         if (materialIds.length > 0) 
             filterParams.materials = { 
@@ -288,9 +297,9 @@ var IndicatorFlowsEditView = BaseView.extend(
         var originNodeIds = this.getSelectedNodes(this.originSelects),
             destinationNodeIds = this.getSelectedNodes(this.destinationSelects);
         
-        var originSuffix = (originLevel == 'group') ? 'activity__activitygroup__id__in': 
+        var originSuffix = (originLevel == 'activitygroup') ? 'activity__activitygroup__id__in': 
                 (originLevel == 'activity') ? 'activity__id__in': 'id__in',
-            destinationSuffix = (destinationLevel == 'group') ? 'activity__activitygroup__id__in': 
+            destinationSuffix = (destinationLevel == 'activitygroup') ? 'activity__activitygroup__id__in': 
                 (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
         
         var filters = filterParams['filters'] = [];
@@ -325,11 +334,33 @@ var IndicatorFlowsEditView = BaseView.extend(
         })
     },
     
+    getInputs: function(){
+        var materialIds = this.selectedMaterials(),
+            originNodeIds = this.getSelectedNodes(this.originSelects),
+            destinationNodeIds = this.getSelectedNodes(this.destinationSelects),
+            originLevel = this.originSelects.levelSelect.value,
+            destinationLevel = this.destinationSelects.levelSelect.value,
+            flowType = this.typeSelect.value,
+            spatial = this.spatialSelect.value;
+            
+        var flow = {
+            origin_node_level: originLevel,
+            origin_node_ids: originNodeIds,
+            destination_node_level: destinationLevel,
+            destination_node_ids: destinationNodeIds,
+            materials: materialIds,
+            flow_type: flowType,
+            spatial_application: spatial
+        }
+        
+        return flow;
+    },
+    
     close: function(){
         this.flowsView.close();
     }
 
 });
-return IndicatorFlowsEditView;
+return IndicatorFlowEditView;
 }
 );
