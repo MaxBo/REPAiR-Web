@@ -151,7 +151,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.indicator.save(null, {success: function(model){
             var option = _this.indicatorSelect.querySelector('option[value="'+model.id+'"]');
             option.innerHTML = model.get('name');
-            _this.alert(gettext('Upload successful'));
+            _this.alert(gettext('Upload successful'), gettext('Success'));
         }, error: this.onError})
     },
     
