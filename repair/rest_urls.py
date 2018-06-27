@@ -192,5 +192,5 @@ urlpatterns = [
     url(r'^', include(kf_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
-    url(r'^', include(layercat_router.urls)),
+    url(r'^', include(layercat_router.urls))
 ]
