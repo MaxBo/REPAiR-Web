@@ -37,9 +37,15 @@ class ComputeIndicator(metaclass=ABCMeta):
             flows = flows.filter(waste=is_waste)
 
         # filter flows by origin/destination nodes
-        origins = self.get_actors(indicator_flow.origin_node_ids.split(','),
+        origin_node_ids = indicator_flow.origin_node_ids
+        origin_node_ids = origin_node_ids.split(',') \
+            if len(origin_node_ids) > 0 else []
+        destination_node_ids = indicator_flow.destination_node_ids
+        destination_node_ids = destination_node_ids.split(',') \
+            if len(destination_node_ids) > 0 else []
+        origins = self.get_actors(origin_node_ids,
                                   indicator_flow.origin_node_level)
-        destinations = self.get_actors(indicator_flow.destination_node_ids.split(','),
+        destinations = self.get_actors(destination_node_ids,
                                        indicator_flow.destination_node_level)
 
         if area:
@@ -71,7 +77,7 @@ class ComputeIndicator(metaclass=ABCMeta):
     
     def get_actors(self, node_ids, node_level):
         actors = Actor.objects.all()
-        if node_ids:
+        if len(node_ids) > 0:
             filter_prefix = ''
             if node_level.name == 'ACTIVITY':
                 filter_prefix = 'activity__'

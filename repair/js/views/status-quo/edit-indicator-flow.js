@@ -303,7 +303,6 @@ var IndicatorFlowEditView = BaseView.extend(
     setSelectedMaterials: function(materialIds){
         var tags = $(this.materialTags).tagsinput('items'),
             _this = this;
-        console.log(materialIds)
         materialIds.forEach(function(materialId){
             var model = _this.materials.get(materialId);
             $(_this.materialTags).tagsinput('add', { 

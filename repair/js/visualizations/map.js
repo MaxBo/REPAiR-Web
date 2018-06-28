@@ -177,26 +177,34 @@ define([
                         color: 'white', width: 3
                     }),
                     text: feature.get('label'),
+                    overflow: true
                 })
             }
 
-            function layerStyle(feature, resolution){ 
+            function defaultStyle(feature, resolution, strokeColor, fillColor){ 
                 return new ol.style.Style({
                     image: image,
                     stroke: new ol.style.Stroke({
-                        color: options.stroke || 'rgb(100, 150, 250)',
+                        color: strokeColor || options.stroke || 'rgb(100, 150, 250)',
                         width: options.strokeWidth || 1
                     }),
                     fill: new ol.style.Fill({
-                        color: options.fill || 'rgba(100, 150, 250, 0.1)'
+                        color: fillColor || options.fill || 'rgba(100, 150, 250, 0.1)'
                     }),
                     text: labelStyle(feature, resolution)
                 });
             }
             
+            //function colorRangeStyle(feature, resolution){
+                //var value = feature.get('value');
+                //if (!value) return defaultStyle(feature, resolution);
+                //var color = 
+                //return defaultStyle(feature, resolution, color);
+            //}
+            
             var layer = new ol.layer.Vector({ 
-                source: source || new ol.source.Vector() ,
-                style: layerStyle
+                source: source || new ol.source.Vector(),
+                style: (options.colorRange != null) ? colorRangeStyle: defaultStyle
             });
             
             this.layers[name] = layer;

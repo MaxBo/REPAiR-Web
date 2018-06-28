@@ -1,9 +1,11 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
     'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
-    'views/status-quo/setup-flow-assessment', 'visualizations/mapviewer', 
+    'views/status-quo/setup-flow-assessment', 
+    'views/status-quo/workshop-flow-assessment', 'visualizations/mapviewer', 
     'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
-    SustainabilityView, FlowAssessmentSetupView, MapViewer, appConfig) {
+    SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
+    MapViewer, appConfig) {
 
 
 renderFlowsView = function(caseStudy){
@@ -23,7 +25,7 @@ renderFlowsView = function(caseStudy){
     })
 };
 
-renderFlowAssessmentSetupView = function(caseStudy){
+renderFlowAssessmentView = function(caseStudy, View, template){
     var assessmentView,
         el = document.getElementById('flow-assessment-content'),
         keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
@@ -31,7 +33,24 @@ renderFlowAssessmentSetupView = function(caseStudy){
     keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
     keyflowSelect.addEventListener('change', function(){
         if (assessmentView) assessmentView.close();
-        assessmentView = new FlowAssessmentSetupView({ 
+        assessmentView = new View({ 
+            caseStudy: caseStudy,
+            el: el,
+            template: template,
+            keyflowId: keyflowSelect.value
+        })
+    })
+};
+
+renderFlowAssessmentWorkshopView = function(caseStudy){
+    var assessmentView,
+        el = document.getElementById('flow-assessment-content'),
+        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+    keyflowSelect.disabled = false;
+    keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+    keyflowSelect.addEventListener('change', function(){
+        if (assessmentView) assessmentView.close();
+        assessmentView = new FlowAssessmentWorkshopView({ 
             caseStudy: caseStudy,
             el: el,
             template: 'setup-flow-assessment-template',
@@ -57,6 +76,8 @@ renderWorkshop = function(caseStudy){
         el: document.getElementById('sustainability-assessment'),
         template: 'sustainability-template'
     })
+    renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
+                             'workshop-flow-assessment-template');
 };
 
 renderSetup = function(caseStudy){
@@ -72,7 +93,8 @@ renderSetup = function(caseStudy){
         el: document.getElementById('sustainability-assessment'),
         template: 'sustainability-template'
     })
-    renderFlowAssessmentSetupView(caseStudy);
+    renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
+                             'setup-flow-assessment-template');
 };
 
 var session = appConfig.getSession(
