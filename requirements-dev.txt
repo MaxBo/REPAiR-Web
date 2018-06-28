@@ -2,11 +2,12 @@
 
 django==2
 django-webpack-loader>=0.5
-djangorestframework>=3.7
+djangorestframework>=3.8.2
 djangorestframework-gis
 djangorestframework-datatables>=0.3
 django-filter
 django-test-plus
+django-enumfields
 django-money
 django-reversion
 django-reversion-compare

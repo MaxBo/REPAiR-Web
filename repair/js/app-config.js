@@ -86,6 +86,7 @@ define(['browser-cookies'],
       groupStock:             '/api/casestudies/{0}/keyflows/{1}/groupstock/',
       activityStock:          '/api/casestudies/{0}/keyflows/{1}/activitystock/',
       actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
+      flowIndicators:         '/api/casestudies/{0}/keyflows/{1}/flowindicators/',
       arealevels:             '/api/casestudies/{0}/levels/',
       areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
       wmsresources:           '/api/casestudies/{0}/wmsresources/'

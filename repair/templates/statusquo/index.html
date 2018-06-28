@@ -54,10 +54,12 @@
   
 {% include "statusquo/flows.html" %}
 {% include "statusquo/challenges-aims.html" %}
-{% include "statusquo/setup-flow-assessment.html" %}
 {% include "statusquo/sustainability.html" %}
-{% if request.session.mode != 1 %}
+{% if request.session.mode != 1 %} <!-- workshop -->
 {% include "statusquo/targets.html" %}
+{% include "statusquo/workshop-flow-assessment.html" %}
+{% else %} <!-- setup -->
+{% include "statusquo/setup-flow-assessment.html" %}
 {% endif %}
   
 {% render_bundle 'StatusQuo' %}

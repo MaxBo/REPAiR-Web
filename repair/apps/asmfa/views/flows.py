@@ -427,7 +427,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 list(materials) + list(unaltered_materials), queryset)
 
         serializer = SerializerClass(queryset, many=True,
-                                         context={'request': request, })
+                                     context={'request': request, })
         data = serializer.data
     
         # POSTPROCESSING: all following operations are performed on serialized
