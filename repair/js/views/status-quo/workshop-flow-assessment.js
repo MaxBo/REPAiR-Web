@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
-        'visualizations/map', 'openlayers', 'chroma-js'],
+        'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils'],
 
-function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma){
+function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils){
 /**
 *
 * @author Christoph Franke
@@ -73,6 +73,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                                       levels: this.areaLevels});
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
         this.levelSelect = this.el.querySelector('select[name="level-select"]');
+        this.elLegend = this.el.querySelector('.legend');
         this.renderMap();
     },
     
@@ -87,13 +88,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
-            console.log(areaIds)
             _this.loader.activate();
             indicator.compute({
                 data: { areas: areaIds.join(',') },
                 success: function(data){ 
                     _this.loader.deactivate();
-                    _this.renderIndicator(data, areas) 
+                    _this.renderIndicator(data, areas, indicator) 
                 },
                 error: _this.onError
             })
@@ -125,25 +125,46 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         else fetchCompute(areas)
     },
     
-    renderIndicator: function(data, areas){
-        console.log(data)
+    renderIndicator: function(data, areas, indicator){
         var _this = this,
             values = {},
-            minValue = 0;
-            maxValue = 0;
+            minValue = 0,
+            maxValue = 0,
+            unit = indicator.get('unit');
         data.forEach(function(d){
-            values[d.area] = d.value;
-            maxValue = Math.max(d.value, maxValue);
-            minValue = Math.min(d.value, minValue);
+            var value = Math.round(d.value)
+            values[d.area] = value;
+            maxValue = Math.max(value, maxValue);
+            minValue = Math.min(value, minValue);
         })
         
-        var colorRange = chroma.scale(['yellow', 'navy']).domain([minValue, maxValue]);
+        var colorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']) //'Spectral')//['yellow', 'navy'])
+                               .domain([minValue, maxValue]);
+        var step = (maxValue - minValue) / 10,
+            entries = utils.range(minValue, maxValue, step);
+            
+        this.elLegend.innerHTML = '';
+        entries.forEach(function(entry){
+            var color = colorRange(entry).hex(),
+                square = document.createElement('div'),
+                label = document.createElement('label');
+            square.style.height = '25px';
+            square.style.width = '50px';
+            square.style.float = 'left';
+            square.style.backgroundColor = color;
+            label.innerHTML = Math.round(entry) + ' ' + unit;
+            _this.elLegend.appendChild(square);
+            _this.elLegend.appendChild(label);
+            _this.elLegend.appendChild(document.createElement('br'));
+        })
         this.map.addLayer(
             'areas', 
             { 
-                stroke: 'rgb(100, 150, 250)', 
+                stroke: 'rgb(100, 150, 250)',
+                //strokeWidth: 3,
                 fill: 'rgba(100, 150, 250, 0.5)',
-                colorRange: colorRange
+                colorRange: colorRange,
+                //alphaFill: 0.8
             }
         );
         areas.forEach(function(area){
@@ -152,8 +173,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 value = values[area.id]
             _this.map.addPolygon(coords, { 
                 projection: 'EPSG:4326', layername: 'areas', 
-                type: 'MultiPolygon', tooltip: name + ': ' + value,
-                label: value + '', id: area.id,
+                type: 'MultiPolygon', tooltip: name + ': ' + value + ' ' + unit,
+                label: value + ' ' + unit, id: area.id,
                 value: value
             });
         })

@@ -198,10 +198,13 @@ define([
                 });
             }
             
+            var alpha = options.alphaFill || 1;
+            console.log(alpha)
+            
             function colorRangeStyle(feature, resolution){
                 var value = feature.get('value');
                 if (value == null) return defaultStyle(feature, resolution);
-                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(0.5).rgba());
+                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
             }
             
             var layer = new ol.layer.Vector({ 
