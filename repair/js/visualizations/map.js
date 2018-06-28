@@ -151,6 +151,9 @@ define([
         * @returns {ol.layer.Vector}                                the added vector layer
         */
         addLayer(name, options){
+            
+            if (this.layers[name] != null) this.removeLayer(name)
+            
             var options = options || {},
                 sourceopt = options.source || {},
                 source,
@@ -177,7 +180,7 @@ define([
                         color: 'white', width: 3
                     }),
                     text: feature.get('label'),
-                    overflow: true
+                    overflow: false
                 })
             }
 
@@ -195,12 +198,11 @@ define([
                 });
             }
             
-            //function colorRangeStyle(feature, resolution){
-                //var value = feature.get('value');
-                //if (!value) return defaultStyle(feature, resolution);
-                //var color = 
-                //return defaultStyle(feature, resolution, color);
-            //}
+            function colorRangeStyle(feature, resolution){
+                var value = feature.get('value');
+                if (value == null) return defaultStyle(feature, resolution);
+                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(0.5).rgba());
+            }
             
             var layer = new ol.layer.Vector({ 
                 source: source || new ol.source.Vector(),
@@ -315,6 +317,7 @@ define([
             feature.set('label', options.label);
             feature.set('tooltip', options.tooltip);
             feature.set('id', options.id);
+            feature.set('value', options.value);
             layer.getSource().addFeature(feature);
             return ret;
         }

@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
-        'visualizations/map', 'openlayers'],
+        'visualizations/map', 'openlayers', 'chroma-js'],
 
-function(BaseView, _, GDSECollection, Indicator, Map, ol){
+function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma){
 /**
 *
 * @author Christoph Franke
@@ -27,7 +27,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     initialize: function(options){
         FlowAssessmentWorkshopView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.indicators = new GDSECollection([], { 
@@ -89,9 +88,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
             console.log(areaIds)
+            _this.loader.activate();
             indicator.compute({
                 data: { areas: areaIds.join(',') },
-                success: function(data){ _this.renderIndicator(data, areas) },
+                success: function(data){ 
+                    _this.loader.deactivate();
+                    _this.renderIndicator(data, areas) 
+                },
                 error: _this.onError
             })
         }
@@ -125,10 +128,24 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     renderIndicator: function(data, areas){
         console.log(data)
         var _this = this,
-            values = {};
+            values = {},
+            minValue = 0;
+            maxValue = 0;
         data.forEach(function(d){
             values[d.area] = d.value;
+            maxValue = Math.max(d.value, maxValue);
+            minValue = Math.min(d.value, minValue);
         })
+        
+        var colorRange = chroma.scale(['yellow', 'navy']).domain([minValue, maxValue]);
+        this.map.addLayer(
+            'areas', 
+            { 
+                stroke: 'rgb(100, 150, 250)', 
+                fill: 'rgba(100, 150, 250, 0.5)',
+                colorRange: colorRange
+            }
+        );
         areas.forEach(function(area){
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
@@ -136,7 +153,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.map.addPolygon(coords, { 
                 projection: 'EPSG:4326', layername: 'areas', 
                 type: 'MultiPolygon', tooltip: name + ': ' + value,
-                label: value + '', id: area.id
+                label: value + '', id: area.id,
+                value: value
             });
         })
         this.map.centerOnLayer('areas');
@@ -154,13 +172,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
-        this.map.addLayer(
-            'areas', 
-            { 
-                stroke: 'rgb(100, 150, 250)', 
-                fill: 'rgba(100, 150, 250, 0.5)',
-            }
-        );
     },
     
 });
