@@ -283,15 +283,6 @@ var BaseMapsView = BaseView.extend(
         }
     },
 
-    /*
-    * remove this view from the DOM
-    */
-    close: function(){
-        this.undelegateEvents(); // remove click events
-        this.unbind(); // Unbind all local event bindings
-        this.el.innerHTML = ''; //empty the DOM element
-    },
-
 });
 return BaseMapsView;
 }

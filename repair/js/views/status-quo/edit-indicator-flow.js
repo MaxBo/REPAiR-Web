@@ -1,14 +1,15 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'views/flowsankey', 'utils/utils'],
+        'views/flowsankey', 'utils/utils', 'bootstrap-select',
+        'bootstrap-tagsinput'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
-* @name module:views/IndicatorFlowsEditView
+* @name module:views/IndicatorFlowEditView
 * @augments module:views/BaseView
 */
-var IndicatorFlowsEditView = BaseView.extend(
+var IndicatorFlowEditView = BaseView.extend(
     /** @lends module:views/FlowsView.prototype */
     {
 
@@ -24,13 +25,14 @@ var IndicatorFlowsEditView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        IndicatorFlowsEditView.__super__.initialize.apply(this, [options]);
+        IndicatorFlowEditView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'resetNodeSelects');
         this.activityGroups = options.activityGroups;
         this.activities = options.activities;
         this.materials = options.materials;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.indicatorFlow = options.indicatorFlow;
 
         this.originActors = new GDSECollection([], {
             apiTag: 'actors',
@@ -73,18 +75,33 @@ var IndicatorFlowsEditView = BaseView.extend(
             actorSelect: this.el.querySelector('select[name="destination-actor"]')
         }
         
+        this.typeSelect = this.el.querySelector('select[name="waste"]');
+        
+        $(this.originSelects.groupSelect).selectpicker();
+        $(this.originSelects.activitySelect).selectpicker();
+        $(this.originSelects.actorSelect).selectpicker();
+        $(this.destinationSelects.groupSelect).selectpicker();
+        $(this.destinationSelects.activitySelect).selectpicker();
+        $(this.destinationSelects.actorSelect).selectpicker();
+        
         this.originSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('origin') })
         this.destinationSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('destination') })
-
-        this.originSelects.levelSelect.value = 'actor';
-        this.destinationSelects.levelSelect.value = 'actor';
-        this.resetNodeSelects('origin');
-        this.resetNodeSelects('destination');
+        
         this.addEventListeners('origin');
         this.addEventListeners('destination');
         this.renderMatFilter();
+        
+        this.materialTags = this.el.querySelector('input[name="material-tags"]');
+        $(this.materialTags).tagsinput({
+            itemValue: 'value',
+            itemText: 'text'
+        })
+        // hide the input of tags
+        this.materialTags.parentElement.querySelector('.bootstrap-tagsinput>input').style.display = 'none';
+        
+        this.setInputs(this.indicatorFlow);
     },
     
     filterActors: function(tag){
@@ -146,10 +163,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
             level = selectGroup.levelSelect.value,
             multi, 
-            hide = [];
+            hide = [],
+            selects = [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect];
             
-         [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect].forEach(function(sel){
-            sel.parentElement.style.display = 'block';
+            
+         selects.forEach(function(sel){
+            sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
             sel.style.height ='100%'; // resets size, in case it was expanded
@@ -166,8 +185,9 @@ var IndicatorFlowsEditView = BaseView.extend(
             hide = [selectGroup.actorSelect, selectGroup.activitySelect];
         }
         multi.setAttribute('multiple', true);
+        $(multi).selectpicker("refresh");
         hide.forEach(function(s){
-            s.parentElement.style.display = 'none';
+            s.parentElement.parentElement.style.display = 'none';
         })
         this.renderNodeSelectOptions(selectGroup.groupSelect, this.activityGroups);
         if(level != 'group')
@@ -175,6 +195,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         if(level == 'actor')
             this.renderNodeSelectOptions(selectGroup.actorSelect);
         
+        // selectpicker has to be completely rerendered to change between
+        // multiple and single select
+        selects.forEach(function(sel){
+            $(sel).selectpicker('destroy');
+            $(sel).selectpicker();
+        });
     },
 
     renderNodeSelectOptions: function(select, collection){
@@ -195,6 +221,7 @@ var IndicatorFlowsEditView = BaseView.extend(
         }
         else select.disabled = true;
         select.selectedIndex = 0;
+        $(select).selectpicker('refresh');
     },
     
     renderMatFilter: function(){
@@ -204,9 +231,12 @@ var IndicatorFlowsEditView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 _this.material = model;
+                if (model)
+                    $(_this.materialTags).tagsinput('add', { 
+                        "value": model.id , "text": model.get('name')
+                    });
             },
-            defaultOption: gettext('All materials')
+            defaultOption: gettext('Select')
         });
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
@@ -227,12 +257,58 @@ var IndicatorFlowsEditView = BaseView.extend(
             }
             return values;
         }
+        // value will always return the value of the top selected option
+        // so if it is > -1 "All" is not selected
         if (nodeSelect.value >= 0){
             selected = nodeSelect.selectedOptions;
             return getValues(selected);
         }
-        // All is selected -> return values of all options
+        // "All" is selected -> return values of all options (except "All")
         else return getValues(nodeSelect.options)
+    },
+    
+    setSelectedNodes: function(selectGroup, values, actors){
+        if (values.length == 0 || values[0].length == 0)
+            return;
+        var level = selectGroup.levelSelect.value,
+            nodeSelect = (level == 'actor') ? selectGroup.actorSelect: 
+                         (level == 'activity') ? selectGroup.activitySelect: 
+                         selectGroup.groupSelect,
+            _this = this;
+        if (level == 'actor') {
+            actors.fetch({
+                data: {
+                    'id__in': values.join(',')
+                },
+                success: function(){
+                    _this.renderNodeSelectOptions(nodeSelect, actors);
+                    $(nodeSelect).selectpicker('val', values);
+                },
+                error: _this.onError
+            })
+            return;
+        }
+        $(nodeSelect).selectpicker('val', values);
+    },
+    
+    selectedMaterials: function(){
+        var tags = $(this.materialTags).tagsinput('items'),
+            materialIds = [];
+        tags.forEach(function(item){
+            materialIds.push(item.value)
+        })
+        return materialIds;
+    },
+    
+    setSelectedMaterials: function(materialIds){
+        var tags = $(this.materialTags).tagsinput('items'),
+            _this = this;
+        materialIds.forEach(function(materialId){
+            var model = _this.materials.get(materialId);
+            $(_this.materialTags).tagsinput('add', { 
+                "value": model.id , "text": model.get('name')
+            });
+        });
     },
     
     renderSankey: function(){
@@ -249,18 +325,24 @@ var IndicatorFlowsEditView = BaseView.extend(
             this.activityGroups;
 
         var filterParams = {},
-            waste = this.el.querySelector('select[name="waste"]').value;
+            waste = (this.typeSelect.value == 'waste') ? true : 
+                    (this.typeSelect.value == 'product') ? false : '';
         if (waste) filterParams.waste = waste;
         
-        var material = this.material;
-        if (material) filterParams.material = {id: material.id};
+        var materialIds = this.selectedMaterials();
+        
+        if (materialIds.length > 0) 
+            filterParams.materials = { 
+                ids: materialIds,
+                aggregate: true
+            };
         
         var originNodeIds = this.getSelectedNodes(this.originSelects),
             destinationNodeIds = this.getSelectedNodes(this.destinationSelects);
         
-        var originSuffix = (originLevel == 'group') ? 'activity__activitygroup__id__in': 
+        var originSuffix = (originLevel == 'activitygroup') ? 'activity__activitygroup__id__in': 
                 (originLevel == 'activity') ? 'activity__id__in': 'id__in',
-            destinationSuffix = (destinationLevel == 'group') ? 'activity__activitygroup__id__in': 
+            destinationSuffix = (destinationLevel == 'activitygroup') ? 'activity__activitygroup__id__in': 
                 (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
         
         var filters = filterParams['filters'] = [];
@@ -295,11 +377,55 @@ var IndicatorFlowsEditView = BaseView.extend(
         })
     },
     
+    setInputs: function(flow){
+        if (flow == null) return;
+        var materialIds = flow.materials || [],
+            originNodeIds = flow.origin_node_ids || "",
+            destinationNodeIds = flow.destination_node_ids || "",
+            originLevel = flow.origin_node_level || 'actor',
+            destinationLevel = flow.destination_node_level || 'actor',
+            flowType = flow.flow_type || 'both',
+            spatial = flow.spatial_application || 'none';
+        
+        this.originSelects.levelSelect.value = originLevel.toLowerCase();
+        this.destinationSelects.levelSelect.value = destinationLevel.toLowerCase();
+        this.resetNodeSelects('origin');
+        this.resetNodeSelects('destination');
+        this.setSelectedNodes(this.originSelects, originNodeIds.split(','), this.originActors);
+        this.setSelectedNodes(this.destinationSelects, destinationNodeIds.split(','), this.destinationActors);
+        this.typeSelect.value = flowType.toLowerCase();
+        this.setSelectedMaterials(materialIds);
+        
+        this.el.querySelector('input[name="spatial-filtering"][value="' + spatial.toLowerCase() + '"]').checked = true;
+    },
+    
+    getInputs: function(){
+        var materialIds = this.selectedMaterials(),
+            originNodeIds = this.getSelectedNodes(this.originSelects),
+            destinationNodeIds = this.getSelectedNodes(this.destinationSelects),
+            originLevel = this.originSelects.levelSelect.value,
+            destinationLevel = this.destinationSelects.levelSelect.value,
+            flowType = this.typeSelect.value,
+            spatial = this.el.querySelector('input[name="spatial-filtering"]:checked').value;
+            
+        var flow = {
+            origin_node_level: originLevel,
+            origin_node_ids: originNodeIds.join(','),
+            destination_node_level: destinationLevel,
+            destination_node_ids: destinationNodeIds.join(','),
+            materials: materialIds,
+            flow_type: flowType,
+            spatial_application: spatial
+        }
+        
+        return flow;
+    },
+    
     close: function(){
         this.flowsView.close();
     }
 
 });
-return IndicatorFlowsEditView;
+return IndicatorFlowEditView;
 }
 );

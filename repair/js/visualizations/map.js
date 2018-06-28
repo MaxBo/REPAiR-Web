@@ -151,6 +151,9 @@ define([
         * @returns {ol.layer.Vector}                                the added vector layer
         */
         addLayer(name, options){
+            
+            if (this.layers[name] != null) this.removeLayer(name)
+            
             var options = options || {},
                 sourceopt = options.source || {},
                 source,
@@ -177,26 +180,36 @@ define([
                         color: 'white', width: 3
                     }),
                     text: feature.get('label'),
+                    overflow: false
                 })
             }
 
-            function layerStyle(feature, resolution){ 
+            function defaultStyle(feature, resolution, strokeColor, fillColor){ 
                 return new ol.style.Style({
                     image: image,
                     stroke: new ol.style.Stroke({
-                        color: options.stroke || 'rgb(100, 150, 250)',
+                        color: strokeColor || options.stroke || 'rgb(100, 150, 250)',
                         width: options.strokeWidth || 1
                     }),
                     fill: new ol.style.Fill({
-                        color: options.fill || 'rgba(100, 150, 250, 0.1)'
+                        color: fillColor || options.fill || 'rgba(100, 150, 250, 0.1)'
                     }),
                     text: labelStyle(feature, resolution)
                 });
             }
             
+            var alpha = options.alphaFill || 1;
+            console.log(alpha)
+            
+            function colorRangeStyle(feature, resolution){
+                var value = feature.get('value');
+                if (value == null) return defaultStyle(feature, resolution);
+                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
+            }
+            
             var layer = new ol.layer.Vector({ 
-                source: source || new ol.source.Vector() ,
-                style: layerStyle
+                source: source || new ol.source.Vector(),
+                style: (options.colorRange != null) ? colorRangeStyle: defaultStyle
             });
             
             this.layers[name] = layer;
@@ -307,6 +320,7 @@ define([
             feature.set('label', options.label);
             feature.set('tooltip', options.tooltip);
             feature.set('id', options.id);
+            feature.set('value', options.value);
             layer.getSource().addFeature(feature);
             return ret;
         }

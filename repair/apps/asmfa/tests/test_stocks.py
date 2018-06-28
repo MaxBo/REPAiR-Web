@@ -130,16 +130,16 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
             {'function': 'origin__activity__activitygroup__id__in',
              'values': [1, 2],}])
         post_data1 = dict(aggregation_level='activitygroup',
-                             material=json.dumps(dict(aggregate=True,
-                                                      id=self.material_1)),
+                             materials=json.dumps(dict(aggregate=True,
+                                                      id=[self.material_1])),
                              filters=filterdata)
         post_data2 = dict(aggregation_level='activitygroup',
-                          material=json.dumps(dict(aggregate=False,
-                                                   id=self.material_1)),
+                          materials=json.dumps(dict(aggregate=False,
+                                                   id=[self.material_1])),
                           filters=filterdata)
         post_data3 = dict(aggregation_level='activitygroup',
-                          material=json.dumps(dict(aggregate=False,
-                                                   id=self.material_1)),
+                          materials=json.dumps(dict(aggregate=False,
+                                                   id=[self.material_1])),
                           filters=filterdata,
                           spatial_level=json.dumps(dict(activity=dict(id=1,
                                                                       level=1))))

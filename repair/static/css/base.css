@@ -19,7 +19,20 @@ body {
 }
 
 a {
-  color: #aad400;
+  color: #94b900;
+}
+
+li>a {
+  background-color: #efefef;
+}
+
+.dropdown-menu>li>a {
+  background-color: white;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+  background-color: #aad400;
+  color: white;
 }
 
 .row{

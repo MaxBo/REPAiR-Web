@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<!--for some reason i can't load this with require and css loader-->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
+
+<script type="text/template" id="workshop-flow-assessment-template">
+<div class="col-md-12" style="margin-top: 20px;">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#indicator-map-tab">{% trans "Map" %}</a></li>
+    <li ><a data-toggle="tab" href="#bar-charts-tab">{% trans "Bar charts" %}</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="indicator-map-tab">
+      <div class="row bordered">
+        <div class="row">
+          <div class="col-md-4">
+            <label>{% trans "Indicator" %}</label>
+            <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+              <option disabled selected value="-1"> {% trans "Select" %} </option>
+              <% indicators.each(function(indicator) { %>
+                <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
+              <% });  %>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>{% trans "Spatial level" %}</label>
+            <select name="level-select" class="form-control" style="max-width: 350px;">
+              <option disabled selected value="-1"> {% trans "Select" %} </option>
+              <% levels.forEach(function(level) { %>
+                  <option value="<%= level.id %>"> <%= level.get('name') %></option>
+              <% })  %>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div id='indicator-map' style='min-height: 400px; width: 100%; height: 100%;'></div>
+        </div>
+        <div class="col-md-4">
+          <h4>{% trans "Legend" %}</h4>
+          <div class='legend'></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade in" id="bar-charts-tab">
+    </div>
+  </div>
+</div>
+</script>
