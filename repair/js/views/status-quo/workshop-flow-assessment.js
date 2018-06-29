@@ -41,6 +41,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             comparator: 'level'
         });
         this.areas = {};
+        this.areaSelects = {};
+        this.areaSelectIdCnt = 0;
 
         this.loader.activate();
         var promises = [
@@ -59,22 +61,29 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     */
     events: {
         'change select[name="indicator"]': 'computeIndicator',
-        'change select[name="level-select"]': 'computeIndicator'
+        'change select[name="level-select"]': 'computeIndicator',
+        'click #add-area-select-item-btn': 'addAreaSelectItem',
+        'click button.remove-item': 'removeAreaSelectItem',
+        'click button.select-area': 'selectArea'
     },
 
     /*
     * render the view
     */
     render: function(){
-        var _this = this;
-        var html = document.getElementById(this.template).innerHTML
-        var template = _.template(html);
+        var _this = this,
+            html = document.getElementById(this.template).innerHTML,
+            template = _.template(html);
         this.el.innerHTML = template({indicators: this.indicators, 
                                       levels: this.areaLevels});
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
         this.levelSelect = this.el.querySelector('select[name="level-select"]');
         this.elLegend = this.el.querySelector('.legend');
+        this.areaSelectRow = this.el.querySelector('#indicator-area-row');
+        this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
+        
         this.renderMap();
+        this.addFocusAreaItem();
     },
     
     computeIndicator: function(){
@@ -179,6 +188,44 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             });
         })
         this.map.centerOnLayer('areas');
+    },
+    
+    renderAreaBox: function(el, id, title, fontSize){
+        var html = document.getElementById('row-box-template').innerHTML,
+            template = _.template(html),
+            div = document.createElement('div');
+        div.innerHTML = template({
+            title: title, 
+            fontSize: fontSize || '60px',
+            id: id
+        });
+        el.insertBefore(div, this.addAreaSelectBtn);
+        div.classList.add('item');
+        div.dataset['id'] = id;
+        return div;
+    },
+    
+    addAreaSelectItem: function(){
+        this.renderAreaBox(
+            this.areaSelectRow, this.areaSelectIdCnt, this.areaSelectIdCnt);
+        this.areaSelectIdCnt += 1;
+    },
+    
+    addFocusAreaItem: function(){
+        var div = this.renderAreaBox(
+                this.areaSelectRow, this.areaSelectIdCnt, 
+                'Focus <br> Area', '40px'
+            ),
+            buttons = div.querySelectorAll('button');
+        this.areaSelectIdCnt += 1
+        for(var i = 0; i < buttons.length; i++)
+            buttons[i].style.display = 'none';
+    },
+    
+    removeAreaSelectItem: function(evt){
+        var id = evt.target.dataset['id'],
+            div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
+        this.areaSelectRow.removeChild(div);
     },
     
     renderMap: function(){

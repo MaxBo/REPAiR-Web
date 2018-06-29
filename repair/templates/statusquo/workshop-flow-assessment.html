@@ -17,7 +17,7 @@
             <label>{% trans "Indicator" %}</label>
             <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
               <option disabled selected value="-1"> {% trans "Select" %} </option>
-              <% indicators.each(function(indicator) { %>
+              <% indicators.forEach(function(indicator) { %>
                 <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
               <% });  %>
             </select>
@@ -28,11 +28,11 @@
               <option disabled selected value="-1"> {% trans "Select" %} </option>
               <% levels.forEach(function(level) { %>
                   <option value="<%= level.id %>"> <%= level.get('name') %></option>
-              <% })  %>
+              <% }) %>
             </select>
           </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-8" style="margin-top: 10px;">
           <div id='indicator-map' style='min-height: 400px; width: 100%; height: 100%;'></div>
         </div>
         <div class="col-md-4">
@@ -42,7 +42,28 @@
       </div>
     </div>
     <div class="tab-pane fade in" id="bar-charts-tab">
+      <div class="row overflow bordered" id='indicator-area-row' style="display: flex; align-items: center;">
+        <button class="btn btn-primary round" id='add-area-select-item-btn' style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px;">
+          <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
+        </button>
+      </div>
+      <% indicators.forEach(function(indicator) { %>
+      <div class="row bordered overflow" data-indicator=<%= indicator.id %>>
+        <h4> <%= indicator.get('name') %> </h4>
+        <div class="row"> </div>
+      </div>
+      <% })  %>
     </div>
   </div>
+</div>
+</script>
+
+<script type="text/template" id="row-box-template">
+<div class="bordered" style="min-height: 150px; width: 200px; text-align: center; align-items: center; margin-right: 10px;">
+  <button class="btn btn-danger remove-item" style="position: absolute; top: 0px; right: 10px;" data-id="<%= id %>">
+    <b style="pointer-events: none;">X</b>
+  </button>
+  <b style="font-size: <%= fontSize %>"><%= title %></b><br>
+  <button class="btn btn-warning select-area" data-id="<%= id %>"><b style="pointer-events: none;">{% trans "Select Areas" %}</b></button>
 </div>
 </script>
