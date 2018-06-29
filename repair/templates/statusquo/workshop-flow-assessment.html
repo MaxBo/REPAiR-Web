@@ -24,7 +24,7 @@
           </div>
           <div class="col-md-4">
             <label>{% trans "Spatial level" %}</label>
-            <select name="level-select" class="form-control" style="max-width: 350px;">
+            <select name="spatial-level-select" class="form-control" style="max-width: 350px;">
               <option disabled selected value="-1"> {% trans "Select" %} </option>
               <% levels.forEach(function(level) { %>
                   <option value="<%= level.id %>"> <%= level.get('name') %></option>
@@ -55,6 +55,8 @@
       <% })  %>
     </div>
   </div>
+</div>
+<div class="area-select modal fade" role="dialog">
 </div>
 </script>
 

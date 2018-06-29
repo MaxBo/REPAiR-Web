@@ -43,6 +43,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areas = {};
         this.areaSelects = {};
         this.areaSelectIdCnt = 0;
+        this.selectedAreas = [];
 
         this.loader.activate();
         var promises = [
@@ -61,10 +62,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     */
     events: {
         'change select[name="indicator"]': 'computeIndicator',
-        'change select[name="level-select"]': 'computeIndicator',
+        'change select[name="spatial-level-select"]': 'computeIndicator',
         'click #add-area-select-item-btn': 'addAreaSelectItem',
         'click button.remove-item': 'removeAreaSelectItem',
-        'click button.select-area': 'selectArea'
+        'click button.select-area': 'showAreaModal',
+        'click .area-select.modal .confirm': 'confirmAreaSelection',
+        'change select[name="level-select"]': 'changeAreaLevel'
     },
 
     /*
@@ -77,12 +80,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.el.innerHTML = template({indicators: this.indicators, 
                                       levels: this.areaLevels});
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
-        this.levelSelect = this.el.querySelector('select[name="level-select"]');
+        this.levelSelect = this.el.querySelector('select[name="spatial-level-select"]');
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         
-        this.renderMap();
+        this.renderIndicatorMap();
+        this.renderAreaModal();
         this.addFocusAreaItem();
     },
     
@@ -97,7 +101,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
-            _this.loader.activate();
+            
             indicator.compute({
                 data: { areas: areaIds.join(',') },
                 success: function(data){ 
@@ -107,31 +111,35 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 error: _this.onError
             })
         }
-        
-        var areas = this.areas[levelId];
-        if (areas == null){
-            areas = this.areas[levelId] = new GDSECollection([], { 
-                apiTag: 'areas',
-                apiIds: [ this.caseStudy.id, levelId ]
-            });
-            this.loader.activate();
-            areas.fetch({
-                success: function(areas){
-                    var promises = [];
-                    areas.forEach(function(area){
-                        promises.push(
-                            area.fetch({ error: _this.onError })
-                        )
-                    });
-                    Promise.all(promises).then(function(){
-                        _this.loader.deactivate();
-                        fetchCompute(areas);
-                    });
-                },
-                error: this.onError
-            });
+        this.loader.activate();
+        this.getAreas(levelId, fetchCompute);
+    },
+    
+    getAreas: function(level, onSuccess){
+        var areas = this.areas[level],
+            _this = this;
+        if (areas != null) {
+            onSuccess(areas);
+            return;
         }
-        else fetchCompute(areas)
+        areas = this.areas[level] = new GDSECollection([], { 
+            apiTag: 'areas',
+            apiIds: [ this.caseStudy.id, level ]
+        });
+        areas.fetch({
+            success: function(areas){
+                var promises = [];
+                areas.forEach(function(area){
+                    promises.push(
+                        area.fetch({ error: _this.onError })
+                    )
+                });
+                Promise.all(promises).then(function(){
+                    onSuccess(areas);
+                });
+            },
+            error: this.onError
+        });
     },
     
     renderIndicator: function(data, areas, indicator){
@@ -206,9 +214,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     },
     
     addAreaSelectItem: function(){
+        var id = this.areaSelectIdCnt;
         this.renderAreaBox(
-            this.areaSelectRow, this.areaSelectIdCnt, this.areaSelectIdCnt);
+            this.areaSelectRow, id, this.areaSelectIdCnt);
+        this.areaSelects[id] = {
+            areas: [],
+            level: this.areaLevels.first().id
+        }
         this.areaSelectIdCnt += 1;
+        
     },
     
     addFocusAreaItem: function(){
@@ -225,10 +239,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     removeAreaSelectItem: function(evt){
         var id = evt.target.dataset['id'],
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
+        delete this.areaSelects[id];
         this.areaSelectRow.removeChild(div);
     },
     
-    renderMap: function(){
+    renderIndicatorMap: function(){
         var _this = this;
         this.map = new Map({
             el: document.getElementById('indicator-map')
@@ -241,6 +256,104 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
     },
+    
+    renderAreaModal: function(){
+        this.areaModal = this.el.querySelector('.area-select.modal');
+        var html = document.getElementById('area-select-modal-template').innerHTML,
+            template = _.template(html),
+            _this = this;
+        this.areaModal.innerHTML = template({ levels: this.areaLevels });
+        this.areaLevelSelect = this.areaModal.querySelector('select[name="level-select"]');
+        this.areaMap = new Map({
+            el: this.areaModal.querySelector('.map'), 
+        });
+        this.areaMap.addLayer(
+            'areas', 
+            { 
+                stroke: 'rgb(100, 150, 250)', 
+                fill: 'rgba(100, 150, 250, 0.5)',
+                select: {
+                    selectable: true,
+                    stroke: 'rgb(230, 230, 0)', 
+                    fill: 'rgba(230, 230, 0, 0.5)',
+                    onChange: function(areaFeats){
+                        var modalSelDiv = _this.el.querySelector('.selections'),
+                            levelId = _this.areaLevelSelect.value
+                            labels = [],
+                            areas = _this.areas[levelId];
+                        areaFeats.forEach(function(areaFeat){
+                            labels.push(areaFeat.label);
+                            _this.selectedAreas.push(areas.get(areaFeat.id));
+                        });
+                        modalSelDiv.innerHTML = labels.join(', ');
+                    }
+                }
+            }
+        );
+        // event triggered when modal dialog is ready -> trigger rerender to match size
+        $(this.areaModal).on('shown.bs.modal', function () {
+            _this.areaMap.map.updateSize();
+        });
+    },
+    
+    showAreaModal: function(evt){
+        var id = evt.target.dataset['id'],
+            level = this.areaSelects[id].level,
+            _this = this;
+        this.selectedAreas = [];
+        this.activeAreaSelectId = id;
+        this.areaLevelSelect.value = level;
+        this.drawAreas(level);
+        var labels = [];
+        this.areaSelects[id].areas.forEach(function(area){
+            labels.push(area.get('name'));
+            _this.areaMap.selectFeature('areas', area.id);
+        })
+        this.el.querySelector('.selections').innerHTML = labels.join(', ');
+        $(this.areaModal).modal('show');
+    },
+    
+    changeAreaLevel: function(evt){
+        var level = evt.target.value;
+        this.selectedAreas = [];
+        this.el.querySelector('.selections').innerHTML = '';
+        this.drawAreas(level);
+    },
+    
+    drawAreas: function(level){
+        var _this = this;
+        this.areaMap.clearLayer('areas');
+        var loader = new utils.Loader(this.areaModal, {disable: true});
+        function draw(areas){
+            areas.forEach(function(area){
+                var coords = area.get('geometry').coordinates,
+                    name = area.get('name');
+                _this.areaMap.addPolygon(coords, { 
+                    projection: 'EPSG:4326', layername: 'areas', 
+                    type: 'MultiPolygon', tooltip: name,
+                    label: name, id: area.id
+                });
+            })
+            loader.deactivate();
+            _this.areaMap.centerOnLayer('areas');
+        }
+        loader.activate();
+        this.getAreas(level, draw);
+    },
+    
+    confirmAreaSelection: function(){
+        var id = this.activeAreaSelectId;
+        this.areaSelects[id].areas = this.selectedAreas;
+        this.areaSelects[id].level = this.areaLevelSelect.value;
+        var button = this.el.querySelector('button.select-area[data-id="' + id + '"]')
+        if (this.selectedAreas.length > 0){
+            button.classList.remove('btn-warning');
+            button.classList.add('btn-primary');
+        } else {
+            button.classList.add('btn-warning');
+            button.classList.remove('btn-primary');
+        }
+    }
     
 });
 return FlowAssessmentWorkshopView;

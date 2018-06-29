@@ -85,7 +85,7 @@ var FlowsView = BaseView.extend(
         'change #data-view-type-select': 'renderSankey',
         'click #area-select-button': 'showAreaSelection',
         'change select[name="level-select"]': 'changeAreaLevel',
-        'click #area-filter-modal .confirm': 'confirmAreaSelection'
+        'click .area-filter.modal .confirm': 'confirmAreaSelection'
     },
 
     /*
@@ -97,7 +97,7 @@ var FlowsView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template();
         
-        this.areaModal = document.getElementById('area-filter-modal');
+        this.areaModal = this.el.querySelector('.area-filter.modal');
         html = document.getElementById('area-select-modal-template').innerHTML;
         template = _.template(html);
         this.areaModal.innerHTML = template({ levels: this.areaLevels });
