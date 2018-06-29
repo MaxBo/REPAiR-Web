@@ -231,7 +231,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     renderMap: function(){
         var _this = this;
         this.map = new Map({
-            divid: 'indicator-map'
+            el: document.getElementById('indicator-map')
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 

@@ -15,7 +15,7 @@ define([
         * create the map and show it inside the HTMLElement with the given id
         *
         * @param {Object} options
-        * @param {string} options.divid                        id of the HTMLElement to render the map into
+        * @param {string} options.el                           the HTMLElement to render the map into
         * @param {boolean} [options.renderOSM=true]            render default background map
         * @param {string} [options.projection='EPSG:3857']     projection of the map
         * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
@@ -48,13 +48,13 @@ define([
 
             this.map = new ol.Map({
                 layers: initlayers,
-                target: options.divid,
+                target: options.el,
                 controls: ol.control.defaults({
                     attributionOptions: ({
                         collapsible: false
                     })
                 }).extend([
-                    new ol.control.FullScreen({source: options.divid})
+                    new ol.control.FullScreen({source: options.el})
                 ]),
                 view: this.view
             });
@@ -69,7 +69,7 @@ define([
                 _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
             });
 
-            this.div = document.getElementById(options.divid);
+            this.div = options.el;
 
             var tooltip = this.div.querySelector('.tooltip');
             if (!tooltip){
@@ -199,7 +199,6 @@ define([
             }
             
             var alpha = options.alphaFill || 1;
-            console.log(alpha)
             
             function colorRangeStyle(feature, resolution){
                 var value = feature.get('value');

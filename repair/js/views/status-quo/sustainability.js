@@ -67,7 +67,7 @@ function(Backbone, _, Map, utils){
 
         renderMap: function(){
             this.map = new Map({
-                divid: 'evaluation-map', 
+                el: document.getElementById('evaluation-map'), 
             });
             var focusarea = this.caseStudy.get('properties').focusarea;
 
