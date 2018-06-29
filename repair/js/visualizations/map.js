@@ -230,8 +230,12 @@ define([
                     interaction.on('select', function(evt){
                         var selected = evt.selected,
                             ret = [];
+                        // newly selected
                         selected.forEach(function(feat){
                             feat.selected = true;
+                        })
+                        // all selected
+                        interaction.getFeatures().forEach(function(feat){
                             ret.push({id: feat.get('id'), label: feat.get('label')});
                         })
                         select.onChange(ret);
