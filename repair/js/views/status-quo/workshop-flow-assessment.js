@@ -281,6 +281,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                             levelId = _this.areaLevelSelect.value
                             labels = [],
                             areas = _this.areas[levelId];
+                        _this.selectedAreas = [];
                         areaFeats.forEach(function(areaFeat){
                             labels.push(areaFeat.label);
                             _this.selectedAreas.push(areas.get(areaFeat.id));

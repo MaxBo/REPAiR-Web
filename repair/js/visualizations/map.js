@@ -221,6 +221,7 @@ define([
                 }
                 var interaction = new ol.interaction.Select({
                     toggleCondition: ol.events.condition.always,
+                    features: layer.selected,
                     layers: [layer],
                     style: layer.selectStyle,
                 });
@@ -231,19 +232,12 @@ define([
                         var selected = evt.selected,
                             deselected = evt.deselected,
                             ret = [];
-                        // newly selected
-                        deselected.forEach(function(feat){
-                            feat.selected = false;
-                        })
-                        // newly selected
-                        selected.forEach(function(feat){
-                            feat.selected = true;
-                        })
                         // callback with all currently selected
                         interaction.getFeatures().forEach(function(feat){
                             ret.push({id: feat.get('id'), label: feat.get('label')});
                         })
                         select.onChange(ret);
+                        layer.getSource().dispatchEvent('change');
                     })
                 }
             }
@@ -352,7 +346,7 @@ define([
         selectFeature(layername, id){
             var feature = this.getFeature(layername, id),
                 layer = this.layers[layername];
-            console.log(feature)
+            layer.select.getFeatures().push(feature);
             layer.select.dispatchEvent({
                 type: 'select',
                 selected: [feature],
