@@ -228,11 +228,11 @@ var EditActorView = BaseView.extend(
         var _this = this;
 
         this.globalMap = new Map({
-            divid: 'actors-map', 
+            el: document.getElementById('actors-map'), 
         });
 
     this.localMap = new Map({
-        divid: 'edit-location-map', 
+        el: document.getElementById('edit-location-map'), 
     });
 
     _.each(this.layers, function(attrs, layername){

@@ -359,7 +359,7 @@ var SolutionsView = BaseView.extend(
             this.map = null;
         }
         this.map = new Map({
-            divid: divid, 
+            el: document.getElementById(divid), 
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
