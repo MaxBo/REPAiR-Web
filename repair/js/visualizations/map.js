@@ -229,12 +229,17 @@ define([
                 if (select.onChange){
                     interaction.on('select', function(evt){
                         var selected = evt.selected,
+                            deselected = evt.deselected,
                             ret = [];
+                        // newly selected
+                        deselected.forEach(function(feat){
+                            feat.selected = false;
+                        })
                         // newly selected
                         selected.forEach(function(feat){
                             feat.selected = true;
                         })
-                        // all selected
+                        // callback with all currently selected
                         interaction.getFeatures().forEach(function(feat){
                             ret.push({id: feat.get('id'), label: feat.get('label')});
                         })
