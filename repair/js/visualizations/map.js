@@ -15,7 +15,7 @@ define([
         * create the map and show it inside the HTMLElement with the given id
         *
         * @param {Object} options
-        * @param {string} options.divid                        id of the HTMLElement to render the map into
+        * @param {string} options.el                           the HTMLElement to render the map into
         * @param {boolean} [options.renderOSM=true]            render default background map
         * @param {string} [options.projection='EPSG:3857']     projection of the map
         * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
@@ -48,13 +48,13 @@ define([
 
             this.map = new ol.Map({
                 layers: initlayers,
-                target: options.divid,
+                target: options.el,
                 controls: ol.control.defaults({
                     attributionOptions: ({
                         collapsible: false
                     })
                 }).extend([
-                    new ol.control.FullScreen({source: options.divid})
+                    new ol.control.FullScreen({source: options.el})
                 ]),
                 view: this.view
             });
@@ -69,7 +69,7 @@ define([
                 _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
             });
 
-            this.div = document.getElementById(options.divid);
+            this.div = options.el;
 
             var tooltip = this.div.querySelector('.tooltip');
             if (!tooltip){
@@ -141,7 +141,7 @@ define([
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
         * @param {Object=} options.select                           options for selectable features inside this layer
-        * @param {Boolean=} [options.selectable=false]              enables selection of features on click
+        * @param {Boolean=} [options.select.selectable=false]       enables selection of features on click
         * @param {string} [options.select.stroke='rgb(230, 230, 0)'] color of outline of selected feature
         * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
         * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
@@ -183,29 +183,6 @@ define([
                     overflow: false
                 })
             }
-
-            function defaultStyle(feature, resolution, strokeColor, fillColor){ 
-                return new ol.style.Style({
-                    image: image,
-                    stroke: new ol.style.Stroke({
-                        color: strokeColor || options.stroke || 'rgb(100, 150, 250)',
-                        width: options.strokeWidth || 1
-                    }),
-                    fill: new ol.style.Fill({
-                        color: fillColor || options.fill || 'rgba(100, 150, 250, 0.1)'
-                    }),
-                    text: labelStyle(feature, resolution)
-                });
-            }
-            
-            var alpha = options.alphaFill || 1;
-            console.log(alpha)
-            
-            function colorRangeStyle(feature, resolution){
-                var value = feature.get('value');
-                if (value == null) return defaultStyle(feature, resolution);
-                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
-            }
             
             var layer = new ol.layer.Vector({ 
                 source: source || new ol.source.Vector(),
@@ -229,7 +206,7 @@ define([
                         text: feature.get('label'),
                     })
                 }
-                function selectStyle(feature, resolution){ 
+                layer.selectStyle = function(feature, resolution){ 
                     return new ol.style.Style({
                         image: image,
                         stroke: new ol.style.Stroke({
@@ -244,21 +221,48 @@ define([
                 }
                 var interaction = new ol.interaction.Select({
                     toggleCondition: ol.events.condition.always,
+                    features: layer.selected,
                     layers: [layer],
-                    style: selectStyle,
+                    style: layer.selectStyle,
                 });
                 this.map.addInteraction(interaction);
                 layer.select = interaction;
                 if (select.onChange){
-                    interaction.on('select', function(evt){ 
-                        var selected = interaction.getFeatures(),
+                    interaction.on('select', function(evt){
+                        var selected = evt.selected,
+                            deselected = evt.deselected,
                             ret = [];
-                        selected.forEach(function(feat){
+                        // callback with all currently selected
+                        interaction.getFeatures().forEach(function(feat){
                             ret.push({id: feat.get('id'), label: feat.get('label')});
                         })
                         select.onChange(ret);
+                        layer.getSource().dispatchEvent('change');
                     })
                 }
+            }
+
+            function defaultStyle(feature, resolution, strokeColor, fillColor){
+                if (feature.selected) return layer.selectStyle(feature, resolution);
+                return new ol.style.Style({
+                    image: image,
+                    stroke: new ol.style.Stroke({
+                        color: strokeColor || options.stroke || 'rgb(100, 150, 250)',
+                        width: options.strokeWidth || 1
+                    }),
+                    fill: new ol.style.Fill({
+                        color: fillColor || options.fill || 'rgba(100, 150, 250, 0.1)'
+                    }),
+                    text: labelStyle(feature, resolution)
+                });
+            }
+            
+            var alpha = options.alphaFill || 1;
+            
+            function colorRangeStyle(feature, resolution){
+                var value = feature.get('value');
+                if (value == null) return defaultStyle(feature, resolution);
+                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
             }
             
             return layer;
@@ -324,7 +328,31 @@ define([
             layer.getSource().addFeature(feature);
             return ret;
         }
-
+        
+        getFeatures(layername){
+            var layer = this.layers[layername];
+            return layer.getSource().getFeatures();
+        }
+        
+        getFeature(layername, id){
+            var features = this.getFeatures(layername);
+            for (var i = 0; i < features.length; i++){
+                var feature = features[i];
+                if (feature.get('id') == id) return feature
+            }
+            return null;
+        }
+        
+        selectFeature(layername, id){
+            var feature = this.getFeature(layername, id),
+                layer = this.layers[layername];
+            layer.select.getFeatures().push(feature);
+            layer.select.dispatchEvent({
+                type: 'select',
+                selected: [feature],
+                deselected: []
+            });
+        }
         /**
         * callback for dragging markers
         *

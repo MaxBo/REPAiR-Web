@@ -63,7 +63,7 @@ var SetupMapsView = BaseMapView.extend(
     renderMap: function(){
         var _this = this;
         this.map = new Map({
-            divid: 'base-map',
+            el: document.getElementById('base-map'),
             renderOSM: false
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
