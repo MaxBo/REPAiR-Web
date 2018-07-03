@@ -6,6 +6,10 @@ from publications_bootstrap.models import Publication
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from reversion.views import RevisionMixin
+from django.contrib.auth.views import LoginView
+from django.views import View
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+import json
 
 from repair.apps.login.models import CaseStudy, UserInCasestudy
 from repair.apps.login.serializers import (UserSerializer,
@@ -18,6 +22,7 @@ from repair.apps.login.serializers import (UserSerializer,
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
+from repair.apps.login.models import Profile
 
 
 class UserViewSet(ModelPermissionViewSet):
@@ -74,3 +79,72 @@ class PublicationView(ModelPermissionViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
     pagination_class = None
+
+
+class LoginView(LoginView):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        session = self.request.session
+        profile = Profile.objects.get(user=self.request.user)
+        persist = profile.session
+        if len(persist) > 0:
+            for k, v in json.loads(persist).items():
+                session[k] = v
+        return response
+
+
+class SessionView(View):
+    MODES = {
+        'Workshop': 0,
+        'Setup': 1,
+    }
+    
+    PERSISTENT_KEYS = ['casestudy', 'mode', 'persist']
+    
+    def persist(self):
+        profile = Profile.objects.get(user=self.request.user)
+        persist = {}
+        for key in self.PERSISTENT_KEYS:
+            if key in self.request.session:
+                persist[key] = self.request.session[key]
+        profile.session = json.dumps(persist)
+        profile.save()
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return HttpResponse(_('Unauthorized'), status=401) 
+        casestudy = request.POST.get('casestudy')
+        mode = request.POST.get('mode')
+        persist = request.POST.get('persist')
+        next = request.POST.get('next', None)
+
+        if casestudy is not None:
+            request.session['casestudy'] = casestudy
+        if mode is not None:
+            try:
+                mode = int(mode)
+            except ValueError:
+                return HttpResponseBadRequest('invalid mode')
+            if mode not in self.MODES.values():
+                return HttpResponseBadRequest('invalid mode')
+            request.session['mode'] = mode
+        if persist is not None:
+            for k, v in persist.items():
+                request.session['persist'][k] = v
+        
+        self.persist()
+        
+        if (next):
+            return HttpResponseRedirect(next)
+        else:
+            return self.get(response)
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return HttpResponse(_('Unauthorized'), status=401)
+        response = {
+            'casestudy': request.session.get('casestudy'),
+            'mode': request.session.get('mode', self.MODES['Workshop']),
+            'persistent': request.session.get('persist', '{}'),
+        }
+        return JsonResponse(response)

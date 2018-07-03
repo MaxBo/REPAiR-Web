@@ -26,7 +26,7 @@ define(['browser-cookies'],
      */
     config.getSession = function(callback){
 
-      fetch('/login/session', {
+      fetch('/session', {
           headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
