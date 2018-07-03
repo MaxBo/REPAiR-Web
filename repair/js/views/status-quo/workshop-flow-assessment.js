@@ -1,8 +1,9 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
-        'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils'],
+        'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
+        'muuri'],
 
-function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils){
+function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, Muuri){
 /**
 *
 * @author Christoph Franke
@@ -85,6 +86,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         
+        this.areaSelectGrid = new Muuri('#indicator-area-row', {
+            dragEnabled: true,
+            layout: {
+                fillGaps: false,
+                horizontal: true,
+                rounding: true
+              },
+            dragSortPredicate : 50
+        });
         this.renderIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
@@ -207,9 +217,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             fontSize: fontSize || '60px',
             id: id
         });
-        el.insertBefore(div, this.addAreaSelectBtn);
         div.classList.add('item');
+        el.appendChild(div);
+        //el.insertBefore(div, this.addAreaSelectBtn);
         div.dataset['id'] = id;
+        this.areaSelectGrid.add(div, {});
         return div;
     },
     
@@ -240,7 +252,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var id = evt.target.dataset['id'],
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
-        this.areaSelectRow.removeChild(div);
+        this.areaSelectGrid.remove(div, { removeElements: true });
     },
     
     renderIndicatorMap: function(){
