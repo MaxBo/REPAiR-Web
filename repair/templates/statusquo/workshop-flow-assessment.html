@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="tab-pane fade in" id="bar-charts-tab">
-      <div class="row overflow bordered">
+      <div class="row overflow bordered" style="overflow-y: hidden;">
         <div class="grid" id='indicator-area-row' style="float: left; height: 150px;">
         </div>
         <button class="btn btn-primary round" id='add-area-select-item-btn' style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px; margin-top: 50px;">
@@ -63,7 +63,7 @@
 </script>
 
 <script type="text/template" id="row-box-template">
-<div class="item-content bordered">
+<div class="item-content bordered noselect">
   <button class="btn btn-danger remove-item" style="position: absolute; top: -1px; right: -1px;" data-id="<%= id %>">
     <b style="pointer-events: none;">X</b>
   </button>

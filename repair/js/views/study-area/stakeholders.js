@@ -153,6 +153,7 @@ function(BaseView, _, GDSECollection){
             category.stakeholders.forEach(function(stakeholder){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
+                panelItem.classList.add('noselect');
                 panelItem.innerHTML = template({ name: stakeholder.get('name') });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);

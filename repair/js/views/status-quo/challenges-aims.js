@@ -118,6 +118,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             items.forEach(function(item){
                 var panelItem = document.createElement('div');
                 panelItem.classList.add('panel-item');
+                panelItem.classList.add('noselect');
                 panelItem.innerHTML = template({ name: item.text });
                 var button_edit = panelItem.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
