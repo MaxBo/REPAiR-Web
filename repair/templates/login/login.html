@@ -7,9 +7,8 @@
 {% render_bundle 'Base' %}
   <div id="content-container" class="container p-none">
     <div class="col-md-6">
-      <form id="login-form" method="post" 
-        action="{% url 'login' %}">
-          {% csrf_token %}
+      <form id="login-form" method="post" action="{% url 'login' %}">
+        {% csrf_token %}
         <table class="table">
           <tr>
             <td><label for="id_username">Username</label></td>
