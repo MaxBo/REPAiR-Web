@@ -48,6 +48,7 @@
     "jsdom": "^11.5.1",
     "leaflet": "0.7",
     "location": "^0.0.1",
+    "muuri": "^0.5.4",
     "navigator": "^1.0.1",
     "ol-contextmenu": "^3.1.0",
     "openlayers": "^4.5.0",
