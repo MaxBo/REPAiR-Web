@@ -15,7 +15,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     {
 
     /**
-    * render workshop mode for flow assessment
+    * render workshop mode for flow assessment with chloropleth map and bar charts
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                     element the view will be rendered in
@@ -62,8 +62,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="indicator"]': 'computeIndicator',
-        'change select[name="spatial-level-select"]': 'computeIndicator',
+        'change select[name="indicator"]': 'computeMapIndicator',
+        'change select[name="spatial-level-select"]': 'computeMapIndicator',
         'click #add-area-select-item-btn': 'addAreaSelectItem',
         'click button.remove-item': 'removeAreaSelectItem',
         'click button.select-area': 'showAreaModal',
@@ -95,12 +95,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
               },
             dragSortPredicate : 50
         });
-        this.renderIndicatorMap();
+        this.initIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
     },
     
-    computeIndicator: function(){
+    // compute and render the indicator on the map
+    computeMapIndicator: function(){
         var indicatorId = this.indicatorSelect.value,
             levelId = this.levelSelect.value,
             _this = this;
@@ -116,7 +117,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 data: { areas: areaIds.join(',') },
                 success: function(data){ 
                     _this.loader.deactivate();
-                    _this.renderIndicator(data, areas, indicator) 
+                    _this.renderIndicatorOnMap(data, areas, indicator) 
                 },
                 error: _this.onError
             })
@@ -125,6 +126,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.getAreas(levelId, fetchCompute);
     },
     
+    // fetch the areas of given area level
+    // call success(areas) on successful fetch
     getAreas: function(level, onSuccess){
         var areas = this.areas[level],
             _this = this;
@@ -152,7 +155,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
     },
     
-    renderIndicator: function(data, areas, indicator){
+    // render given indicator and its data into the areas into the chlorpleth map
+    renderIndicatorOnMap: function(data, areas, indicator){
         var _this = this,
             values = {},
             minValue = 0,
@@ -208,6 +212,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map.centerOnLayer('areas');
     },
     
+    // render item for area selection
     renderAreaBox: function(el, id, title, fontSize){
         var html = document.getElementById('row-box-template').innerHTML,
             template = _.template(html),
@@ -225,6 +230,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         return div;
     },
     
+    // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt;
         this.renderAreaBox(
@@ -237,6 +243,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
     },
     
+    // item for focus area
     addFocusAreaItem: function(){
         var div = this.renderAreaBox(
                 this.areaSelectRow, this.areaSelectIdCnt, 
@@ -248,6 +255,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             buttons[i].style.display = 'none';
     },
     
+    // remove an area item
     removeAreaSelectItem: function(evt){
         var id = evt.target.dataset['id'],
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
@@ -255,7 +263,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.remove(div, { removeElements: true });
     },
     
-    renderIndicatorMap: function(){
+    // initialize the chlorpleth map
+    initIndicatorMap: function(){
         var _this = this;
         this.map = new Map({
             el: document.getElementById('indicator-map')
@@ -269,6 +278,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         };
     },
     
+    // render the modal for area selections
     renderAreaModal: function(){
         this.areaModal = this.el.querySelector('.area-select.modal');
         var html = document.getElementById('area-select-modal-template').innerHTML,
@@ -309,6 +319,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
     },
     
+    // show the modal for area selections
     showAreaModal: function(evt){
         var id = evt.target.dataset['id'],
             level = this.areaSelects[id].level,
@@ -326,6 +337,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         $(this.areaModal).modal('show');
     },
     
+    // event listener for change the area level inside the area selection modal
     changeAreaLevel: function(evt){
         var level = evt.target.value;
         this.selectedAreas = [];
@@ -333,6 +345,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.drawAreas(level);
     },
     
+    // draw the areas of given level into the map of the area selection modal
     drawAreas: function(level){
         var _this = this;
         this.areaMap.clearLayer('areas');
@@ -354,6 +367,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.getAreas(level, draw);
     },
     
+    // user confirmation of selected areas in modal
     confirmAreaSelection: function(){
         var id = this.activeAreaSelectId;
         this.areaSelects[id].areas = this.selectedAreas;

@@ -14,7 +14,7 @@ var IndicatorFlowEditView = BaseView.extend(
     {
 
     /**
-    * render view on flow (A/B) settings for indicators
+    * render view on flow (A or B) settings for indicators
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                     element the view will be rendered in
@@ -104,6 +104,8 @@ var IndicatorFlowEditView = BaseView.extend(
         this.setInputs(this.indicatorFlow);
     },
     
+    // filter and fetch the actors by selected group/activity
+    // tag indicates the select group ('origin' or 'destination')
     filterActors: function(tag){
         var _this = this,
             geoJSONText, 
@@ -135,6 +137,8 @@ var IndicatorFlowEditView = BaseView.extend(
         
     },
 
+    // add the event listeners to the group/activity selects
+    // tag indicates the select group ('origin' or 'destination')
     addEventListeners: function(tag){
         var _this = this;
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects;
@@ -158,6 +162,8 @@ var IndicatorFlowEditView = BaseView.extend(
         })
     },
     
+    // reset the options of the selects
+    // tag indicates the select group ('origin' or 'destination')
     resetNodeSelects: function(tag){
         
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
@@ -203,6 +209,7 @@ var IndicatorFlowEditView = BaseView.extend(
         });
     },
 
+    // fill given select with options created based on models of given collection
     renderNodeSelectOptions: function(select, collection){
         utils.clearSelect(select);
         option = document.createElement('option');
@@ -224,6 +231,7 @@ var IndicatorFlowEditView = BaseView.extend(
         $(select).selectpicker('refresh');
     },
     
+    // render the material filter
     renderMatFilter: function(){
         var _this = this;
         // select material
@@ -241,6 +249,7 @@ var IndicatorFlowEditView = BaseView.extend(
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
     
+    // get selected nodes in given select group depending on selected node level
     getSelectedNodes: function(selectGroup){
         var level = selectGroup.levelSelect.value,
             nodeSelect = (level == 'actor') ? selectGroup.actorSelect: 
@@ -267,6 +276,7 @@ var IndicatorFlowEditView = BaseView.extend(
         else return getValues(nodeSelect.options)
     },
     
+    // preset the selected nodes in given select group depending on selected node level
     setSelectedNodes: function(selectGroup, values, actors){
         if (values.length == 0 || values[0].length == 0)
             return;
@@ -291,6 +301,7 @@ var IndicatorFlowEditView = BaseView.extend(
         $(nodeSelect).selectpicker('val', values);
     },
     
+    // get the selected materials
     selectedMaterials: function(){
         var tags = $(this.materialTags).tagsinput('items'),
             materialIds = [];
@@ -300,6 +311,7 @@ var IndicatorFlowEditView = BaseView.extend(
         return materialIds;
     },
     
+    // preset the selected materials
     setSelectedMaterials: function(materialIds){
         var tags = $(this.materialTags).tagsinput('items'),
             _this = this;
@@ -311,6 +323,7 @@ var IndicatorFlowEditView = BaseView.extend(
         });
     },
     
+    // render the sankey diagram
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
@@ -377,6 +390,7 @@ var IndicatorFlowEditView = BaseView.extend(
         })
     },
     
+    // preset all inputs based on flow data
     setInputs: function(flow){
         if (flow == null) return;
         var materialIds = flow.materials || [],
@@ -399,6 +413,7 @@ var IndicatorFlowEditView = BaseView.extend(
         this.el.querySelector('input[name="spatial-filtering"][value="' + spatial.toLowerCase() + '"]').checked = true;
     },
     
+    // get the flow with currently set values
     getInputs: function(){
         var materialIds = this.selectedMaterials(),
             originNodeIds = this.getSelectedNodes(this.originSelects),
@@ -422,6 +437,7 @@ var IndicatorFlowEditView = BaseView.extend(
     },
     
     close: function(){
+        IndicatorFlowEditView.__super__.close();
         this.flowsView.close();
     }
 

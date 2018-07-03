@@ -19,6 +19,9 @@ from repair.apps.studyarea.models import Area
 
 
 def filter_actors_by_area(actors, area):
+    '''
+    get actors in an area (by administrative location)
+    '''
     locations = AdministrativeLocation.objects.filter(actor__in=actors)
     locations = locations.filter(geom__intersects=area.geom)
     actors_in_area = actors.filter(id__in=locations.values('actor'))
@@ -26,7 +29,13 @@ def filter_actors_by_area(actors, area):
 
 
 class ComputeIndicator(metaclass=ABCMeta):
+    '''
+    abstract class for computing indicators
+    '''
     def sum(self, indicator_flow, area=None):
+        '''
+        aggregation sum
+        '''
         materials = indicator_flow.materials.all()
         flow_type = indicator_flow.flow_type.name
 
@@ -92,6 +101,9 @@ class ComputeIndicator(metaclass=ABCMeta):
 
 
 class IndicatorA(ComputeIndicator):
+    '''
+    Aggregated Flow A
+    '''
     def process(self, indicator, areas=None):
         flow_a = indicator.flow_a
         if not areas:
@@ -105,6 +117,9 @@ class IndicatorA(ComputeIndicator):
 
 
 class IndicatorAB(ComputeIndicator):
+    '''
+    Aggregated Flow A / aggregated Flow B
+    '''
     def process(self):
         flow_a = indicator.flow_a
         flow_b = indicator.flow_b
@@ -122,12 +137,17 @@ class ComputeIndicators(Enum):
     A = IndicatorA
     AB = IndicatorAB
 
+# make sure that the indicators to compute
+# match the indicators how they are stored in db
 assert (np.array_equal(np.sort(ComputeIndicators._member_names_),
                        np.sort(IndicatorType._member_names_))), \
        "ComputeIndicators and IndicatorTypes don't match"
 
 
 class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
+    '''
+    view on indicators in db
+    '''
     queryset = FlowIndicator.objects.order_by('id')
     serializer_class = FlowIndicatorSerializer
     
@@ -157,13 +177,3 @@ class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
         if keyflow_pk is not None:
             queryset = queryset.filter(keyflow__id=keyflow_pk)
         return queryset
-
-
-#class ComputeIndicatorViewSet(ModelPermissionViewSet):
-
-    #@action(methods=['get'])
-    #def list(self, request, **kwargs):
-        #pass
-    ##def get(self, request, *args, **kwargs):
-        ##print
-        ##pass
