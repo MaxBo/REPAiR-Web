@@ -146,7 +146,7 @@ var FlowsEditView = BaseView.extend(
                         _this.renderNodeView(node);
                     },
                     onCancel: function(){
-                        $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                        $('#data-tree').treeview('selectNode', [_this.selectedNode, { silent: true }]);
                     }
                 })
             }
@@ -243,7 +243,7 @@ var FlowsEditView = BaseView.extend(
                 node.model = model;
                 onConfirm();
                 // select "Select Actor" node when confirmed
-                $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                $('#data-tree').treeview('selectNode', [_this.selectedNode, { silent: true }]);
             }
             var modal = $('#actor-select-modal'),
                 activity = _this.activities.get(node.parentActivityId),
@@ -279,7 +279,7 @@ var FlowsEditView = BaseView.extend(
         if (node.tag == 'actorSelect' && !options.rerender){
             // select previous node (so that "Select Actor" is not highlighted on cancel)
             if (this.selectedNode)
-                $('#data-tree').treeview('selectNode', [this.selectedNode.nodeId, { silent: true }]);
+                $('#data-tree').treeview('selectNode', [this.selectedNode, { silent: true }]);
             selectActor(render);
         }
         else render();

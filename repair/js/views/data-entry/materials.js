@@ -121,7 +121,7 @@ var MaterialsView = BaseView.extend(
         // look for and expand and select node with given material id
         if (selectId){
             // there is no other method to get all nodes or to search for an attribute
-            var nodes = $(this.materialTree).treeview('getCollapsed');
+            var nodes = $(this.materialTree).treeview('getNodes');
             var found;
             _.forEach(nodes, function(node){
                 if (node.id == selectId){
