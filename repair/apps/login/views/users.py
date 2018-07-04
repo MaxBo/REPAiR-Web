@@ -108,10 +108,22 @@ class SessionView(View):
 
     def post(self, request):
         if not request.user.is_authenticated:
-            return HttpResponse(_('Unauthorized'), status=401) 
-        casestudy = request.POST.get('casestudy')
-        mode = request.POST.get('mode')
-        next = request.POST.get('next', None)
+            return HttpResponse(_('Unauthorized'), status=401)
+        _next = None
+        
+        # form data
+        if request.content_type in ['application/x-www-form-urlencoded',
+                                    'multipart/form-data']:
+            casestudy = request.POST.get('casestudy')
+            mode = request.POST.get('mode')
+            _next = request.POST.get('next', None)
+        # json data
+        elif request.content_type == 'application/json' and request.body:
+            json_body = json.loads(request.body)
+            casestudy = json_body.get('casestudy')
+            mode = json_body.get('mode')
+            for k, v in json_body.items():
+                request.session[k] = v
 
         if casestudy is not None:
             request.session['casestudy'] = casestudy
@@ -123,16 +135,11 @@ class SessionView(View):
             if mode not in self.MODES.values():
                 return HttpResponseBadRequest('invalid mode')
             request.session['mode'] = mode
-
-        body = request.body
-        if body and request.content_type == 'application/json':
-            for k, v in json.loads(body).items():
-                request.session[k] = v
         
         self.persist()
         
-        if (next):
-            return HttpResponseRedirect(next)
+        if (_next):
+            return HttpResponseRedirect(_next)
         else:
             return self.get(request)
     

@@ -85,6 +85,8 @@ define(['browser-cookies'], function(cookies)
         *
         */
         save(attributes, options){
+            var _this = this,
+                options = options || {};
             function success(json){
                 _this.setAttributes(json);
                 if (options.success){
@@ -106,7 +108,6 @@ define(['browser-cookies'], function(cookies)
         }
 
     };
-
 
     return Session;
 });

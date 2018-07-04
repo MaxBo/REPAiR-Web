@@ -1,11 +1,11 @@
 define(['views/baseview', 'underscore',
         'views/data-entry/edit-node', 'views/status-quo/flows',
         'collections/gdsecollection', 'models/gdsemodel',
-        'app-config', 'libs/bootstrap-treeview.min', 
+        'app-config', 'patternfly-bootstrap-treeview',
         'datatables.net-bs',
         'datatables.net-bs/css/dataTables.bootstrap.css',
         'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
-        'static/css/bootstrap-treeview.min.css'],
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 function(BaseView, _, EditNodeView, FlowsView, GDSECollection, GDSEModel, config){
 
 /**

@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', "models/gdsemodel", 
-        'utils/utils', 'libs/bootstrap-treeview.min',
-        'static/css/bootstrap-treeview.min.css'],
+        'utils/utils', 'patternfly-bootstrap-treeview',
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 
 function(BaseView, _, GDSEModel, utils){
 
@@ -105,7 +105,7 @@ var MaterialsView = BaseView.extend(
         }]
 
         function select(event, node){ 
-            $(_this.materialTree).treeview('selectNode', node.nodeId);
+            $(_this.materialTree).treeview('selectNode', node);
         }
 
         $(this.materialTree).treeview({
@@ -130,8 +130,8 @@ var MaterialsView = BaseView.extend(
                 }
             })
             if (found){
-                $(this.materialTree).treeview('revealNode', [ found.nodeId, { levels: 1, silent: true } ]);
-                $(this.materialTree).treeview('selectNode', [ found.nodeId ]);
+                $(this.materialTree).treeview('revealNode', [ found, { levels: 1, silent: true } ]);
+                $(this.materialTree).treeview('selectNode', [ found ]);
             }
         }
     },

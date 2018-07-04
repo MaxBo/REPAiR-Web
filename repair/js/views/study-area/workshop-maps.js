@@ -1,6 +1,7 @@
 define(['views/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
-        'app-config', 'openlayers'],
+        'app-config', 'openlayers', 'patternfly-bootstrap-treeview',
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
 /**
@@ -19,6 +20,10 @@ var BaseMapsView = BaseView.extend(
     categoryExpanded: false,
     selectedBackColor: null,
     selectedColor: null,
+    onhoverColor: null,
+    hierarchicalCheck: true,
+    allowReselect: true,
+    preventUnselect: true,
 
     /**
     * render view on map layers of casestudy
@@ -66,6 +71,7 @@ var BaseMapsView = BaseView.extend(
             _this.loader.deactivate();
             _this.initTree();
         }})
+        this.lastNode = null;
     },
 
     /*
@@ -97,7 +103,7 @@ var BaseMapsView = BaseView.extend(
             var node = {
                 text: category.get('name'),
                 category: category,
-                state: { checked: true, expanded: _this.categoryExpanded },
+                state: { checked: undefined },
                 backColor: _this.categoryBackColor || null,
                 color: _this.categoryColor || null
             };
@@ -143,6 +149,7 @@ var BaseMapsView = BaseView.extend(
         this.renderTemplate();
         this.renderMap();
         this.renderDataTree();
+        if (this.categoryExpanded) $(this.layerTree).treeview('collapseAll', { silent: false });
     },
 
     renderTemplate: function(){
@@ -166,9 +173,6 @@ var BaseMapsView = BaseView.extend(
         _.each(this.categoryTree, function(category){
             tree.push(category)
         })
-
-        require('libs/bootstrap-treeview.min');
-
         $(this.layerTree).treeview({
             data: tree, showTags: true,
             selectedBackColor: this.selectedBackColor,
@@ -181,37 +185,48 @@ var BaseMapsView = BaseView.extend(
             onNodeUnchecked: this.nodeUnchecked,
             onNodeCollapsed: this.nodeCollapsed, //function(event, node){ select(event, node, false) },
             onNodeExpanded: this.nodeExpanded,//function(event, node){ select(event, node, false) },
-            showCheckbox: true
+            showCheckbox: true,
+            multiSelect: false,
+            onhoverColor: this.onhoverColor,
+            hierarchicalCheck: this.hierarchicalCheck,
+            allowReselect: this.allowReselect,
+            preventUnselect: this.preventUnselect
         });
 
         // look for and expand and select node with given category id
         if (categoryId != null){
-            // there is no other method to get all nodes or to search for an attribute
-            var nodes = $(this.layerTree).treeview('getEnabled');
+            var nodes = $(this.layerTree).treeview('getNodes');
             _.forEach(nodes, function(node){
                 if (node.category && (node.category.id == categoryId)){
-                    selectNodeId = node.nodeId;
-                    $(_this.layerTree).treeview('selectNode', selectNodeId);
+                    $(_this.layerTree).treeview('selectNode', node);
                     return false;
                 }
             })
         }
     },
-
-    nodeSelected: function(event, node){
-        // unselect node, so that this function is triggered on continued clicking
-        $(this.layerTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
-        // expand/collapse category on click
+    
+    toggleState: function(node){
+    
+        var nodes = $(this.layerTree).treeview('getNodes'),
+            _node = null;
+        nodes.forEach(function(n){
+            if (node.nodeId == n.nodeId) {
+                _node = n;
+            }
+        })
+        // expand on click
         if (node.category){
-            var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
-            $(this.layerTree).treeview(f,  node.nodeId);
+            $(this.layerTree).treeview('toggleNodeExpanded', _node);
         }
 
         // check/uncheck layer on click
         else {
-            var f = (node.state.checked) ? 'uncheckNode' : 'checkNode';
-            $(this.layerTree).treeview(f,  node.nodeId);
+            $(this.layerTree).treeview('toggleNodeChecked', _node);
         }
+    },
+
+    nodeSelected: function(event, node){
+        this.toggleState(node);
     },
 
     nodeUnselected: function(event, node){
@@ -225,12 +240,6 @@ var BaseMapsView = BaseView.extend(
             if (legendDiv) legendDiv.style.display = 'block';
             this.saveSession();
         }
-        // check all layers in category
-        else {
-            node.nodes.forEach(function(child){
-                $(_this.layerTree).treeview('checkNode',  child.nodeId);
-            })
-        }
     },
 
     nodeUnchecked: function(event, node){
@@ -240,12 +249,6 @@ var BaseMapsView = BaseView.extend(
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
             if (legendDiv) legendDiv.style.display = 'none';
             this.saveSession();
-        }
-        // uncheck all layers in category
-        else {
-            node.nodes.forEach(function(child){
-                $(_this.layerTree).treeview('uncheckNode',  child.nodeId);
-            })
         }
     },
 
