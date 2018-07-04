@@ -108,7 +108,7 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
         assert casestudy is None
 
         # selecting a casestudy by posting to /login/session/
-        url = '/login/session/'
+        url = '/session/'
         self.post(url, data={'casestudy': casestudy_name, })
         casestudy = self.client.session.get('casestudy', None)
         assert casestudy == casestudy_name

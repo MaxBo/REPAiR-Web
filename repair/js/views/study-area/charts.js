@@ -1,5 +1,6 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', "app-config"],
+        'models/gdsemodel', 'app-config', 'patternfly-bootstrap-treeview',
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
@@ -32,7 +33,7 @@ var BaseChartsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.mode = options.mode || 0;
 
-        this.categoryTree = {}
+        this.categoryTree = {};
         
         this.chartCategories = new GDSECollection([], { 
             apiTag: 'chartCategories',
@@ -155,23 +156,23 @@ var BaseChartsView = BaseView.extend(
         
         // items are not unselectable
         function nodeUnselected(event, node){
-            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+            $(_this.chartTree).treeview('selectNode',  [node, { silent: true }]);
         }
         // select item on collapsing (workaround for misplaced buttons when collapsing)
         function nodeCollapsed(event, node){
             if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+                $(_this.chartTree).treeview('selectNode',  [node, { silent: false }]);
         }
         function nodeExpanded(event, node){
             if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+                $(_this.chartTree).treeview('selectNode',  [node, { silent: false }]);
         }
 
-        require('libs/bootstrap-treeview.min');
         $(this.chartTree).treeview({
             data: tree, showTags: true,
             selectedColor: (_this.mode == 0) ? 'black' : 'white',
             selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
+            onhoverColor: (_this.mode == 0) ? null : '#F5F5F5',
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,
@@ -183,17 +184,15 @@ var BaseChartsView = BaseView.extend(
         
         // look for and expand and select node with given category id
         if (categoryId != null){
-            // there is no other method to get all nodes or to search for an attribute
-            var nodes = $(this.chartTree).treeview('getEnabled');
+            var nodes = $(this.chartTree).treeview('getNodes');
             _.forEach(nodes, function(node){
                 if (node.category && (node.category.id == categoryId)){
-                    selectNodeId = node.nodeId; 
-                    $(_this.chartTree).treeview('selectNode', selectNodeId);
+                    $(_this.chartTree).treeview('selectNode', node);
                     return false;
                 }
             })
         }
-        else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
+        //else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
     },
 
     /*
@@ -202,7 +201,7 @@ var BaseChartsView = BaseView.extend(
     nodeSelected: function(event, node){
         // unselect previous node (caused by onNodeUnselected)
         if (this.selectedNode)
-            $(this.chartTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+            $(this.chartTree).treeview('unselectNode', [this.selectedNode, { silent: true }]);
         var addBtn = document.getElementById('add-chart-button');
         var removeBtn = document.getElementById('remove-cc-button');
         this.selectedNode = node;
@@ -222,9 +221,9 @@ var BaseChartsView = BaseView.extend(
         if (this.mode == 0) {
             if (node.category){
                 // unselect node, so that selection is triggered on continued clicking
-                $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
+                $(this.chartTree).treeview('unselectNode',  [node, { silent: true }]);
                 var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
-                $(this.chartTree).treeview(f,  node.nodeId);
+                $(this.chartTree).treeview(f,  node);
             }
             // no buttons in workshop mode -> return before showing
             return;
