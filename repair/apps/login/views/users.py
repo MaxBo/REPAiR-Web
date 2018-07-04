@@ -98,15 +98,11 @@ class SessionView(View):
         'Workshop': 0,
         'Setup': 1,
     }
-    
-    PERSISTENT_KEYS = ['casestudy', 'mode', 'persist']
+    EXCLUDE_PERSIST = ['url_pks', 'csrfmiddlewaretoken']
     
     def persist(self):
         profile = Profile.objects.get(user=self.request.user)
-        persist = {}
-        for key in self.PERSISTENT_KEYS:
-            if key in self.request.session:
-                persist[key] = self.request.session[key]
+        persist = self._session_dict
         profile.session = json.dumps(persist)
         profile.save()
 
@@ -115,7 +111,6 @@ class SessionView(View):
             return HttpResponse(_('Unauthorized'), status=401) 
         casestudy = request.POST.get('casestudy')
         mode = request.POST.get('mode')
-        persist = request.POST.get('persist')
         next = request.POST.get('next', None)
 
         if casestudy is not None:
@@ -128,23 +123,28 @@ class SessionView(View):
             if mode not in self.MODES.values():
                 return HttpResponseBadRequest('invalid mode')
             request.session['mode'] = mode
-        if persist is not None:
-            for k, v in persist.items():
-                request.session['persist'][k] = v
+
+        body = request.body
+        if body and request.content_type == 'application/json':
+            for k, v in json.loads(body).items():
+                request.session[k] = v
         
         self.persist()
         
         if (next):
             return HttpResponseRedirect(next)
         else:
-            return self.get(response)
+            return self.get(request)
+    
+    @property
+    def _session_dict(self):
+        return {k: v for k, v in self.request.session.items()
+                if not k.startswith('_') and
+                k not in self.EXCLUDE_PERSIST}
 
     def get(self, request):
         if not request.user.is_authenticated:
             return HttpResponse(_('Unauthorized'), status=401)
-        response = {
-            'casestudy': request.session.get('casestudy'),
-            'mode': request.session.get('mode', self.MODES['Workshop']),
-            'persistent': request.session.get('persist', '{}'),
-        }
+        response = self._session_dict
+        response['mode'] = request.session.get('mode', self.MODES['Workshop'])
         return JsonResponse(response)

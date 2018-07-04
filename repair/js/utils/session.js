@@ -1,4 +1,4 @@
-define([], function()
+define(['browser-cookies'], function(cookies)
 {
     /**
     * Class to fetch/save attributes stored in current session
@@ -31,16 +31,11 @@ define([], function()
         *
         * @param {module:utils/Session~success=} options.success - called when session object is successfully fetched
         *
-        * @method getSession
-        * @memberof module:config
         */
         fetch(options){
             var _this = this;
             function success(json){
-                _this.attributes = {};
-                for (var key in json) {
-                    _this.attributes[key] = json[key];
-                }
+                _this.setAttributes(json);
                 if (options.success){
                     options.success(_this);
                 }
@@ -54,16 +49,60 @@ define([], function()
             }).then(response => response.json()).then(json => success(json));
         }
         
+        setAttributes(json){
+            this.attributes = {};
+            for (var key in json) {
+                this.attributes[key] = json[key];
+            }
+        }
+        
+        /**
+        * get value of attribute by name
+        *
+        * @param {string} attribute - name of the attribute
+        * @returns {string}
+        */
         get(attribute){
             return this.attributes[attribute];
         }
         
+        /**
+        * set attribute
+        *
+        * @param {string} attribute - name of the attribute
+        * @param {string} value - value of attribute to set
+        */
         set(attribute, value){
             this.attributes[attribute] = value;
         }
         
-        save(options){
-            
+        /**
+        * save the current session object from the server
+        *
+        * @param {Object} [attributes] - attributes to save, if null is passed all attributes will be uploaded
+        * @param {module:utils/Session~success=} options.success - called when session object is successfully saved
+        * @param {module:utils/Session~error=} options.error - called when upload did not succeed
+        *
+        */
+        save(attributes, options){
+            function success(json){
+                _this.setAttributes(json);
+                if (options.success){
+                    options.success(_this);
+                }
+            };
+            var attributes = attributes || this.attributes,
+                csrftoken = cookies.get('csrftoken');
+            fetch(this.url, {
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: 'post',
+                body: JSON.stringify(attributes),
+                credentials: 'include'
+            }).then(response => success(response));
         }
 
     };

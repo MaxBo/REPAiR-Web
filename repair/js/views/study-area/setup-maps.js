@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'views/study-area/maps', 
+define(['backbone', 'underscore', 'views/study-area/workshop-maps', 
         'collections/gdsecollection', 'models/gdsemodel',
         'visualizations/map', 'app-config'],
 
@@ -37,6 +37,16 @@ var SetupMapsView = BaseMapView.extend(
         'click #refresh-wms-services-button': 'renderAvailableServices',
         'click #move-layer-up-button': 'moveLayerUp',
         'click #move-layer-down-button': 'moveLayerDown'
+    },
+    
+    // determines if a layer is checked on start ('included' layers in setup mode)
+    isChecked: function(layer){
+        return layer.get('included');
+    },
+
+    saveSession(){
+        // setup mode doesn't need to store anything in the session
+        // all saved directly in db
     },
 
     /*

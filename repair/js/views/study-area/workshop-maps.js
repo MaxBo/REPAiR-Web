@@ -21,7 +21,7 @@ var BaseMapsView = BaseView.extend(
     selectedColor: null,
 
     /**
-    * render view to add layers to casestudy
+    * render view on map layers of casestudy
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                          element the view will be rendered in
@@ -73,6 +73,13 @@ var BaseMapsView = BaseView.extend(
     */
     events: {
     },
+    
+    // determines if a layer is checked on start (stored in session for workshop mode)
+    isChecked: function(layer){
+        var checked = config.session.get('checkedMapLayers');
+        if (!checked) return false;
+        return checked.includes(layer.id);
+    },
 
     initTree: function(){
         var _this = this;
@@ -101,14 +108,14 @@ var BaseMapsView = BaseView.extend(
         // fetch prepared layers and put informations into the tree nodes
         Promise.all(promises).then(function(){
             layerList.forEach(function(layers){
-                var catNode = _this.categoryTree[layers.categoryId];
-                var children = [];
+                var catNode = _this.categoryTree[layers.categoryId],
+                    children = [];
                 layers.each(function(layer){
                     var node = {
                         layer: layer,
                         text: layer.get('name'),
                         icon: 'fa fa-bookmark',
-                        state: { checked: layer.get('included') }
+                        state: { checked: _this.isChecked(layer) }
                     };
                     children.push(node);
                 });
@@ -116,6 +123,17 @@ var BaseMapsView = BaseView.extend(
             });
             _this.render();
         })
+    },
+    
+    // store checked layers in session
+    saveSession(){
+        var checkedItems = $(this.layerTree).treeview('getChecked'),
+            checkedIds = [];
+        checkedItems.forEach(function(item){
+            if(item.layer)
+                checkedIds.push(item.layer.id);
+        })
+        config.session.save({ checkedMapLayers: checkedIds });
     },
 
     /*
@@ -205,6 +223,7 @@ var BaseMapsView = BaseView.extend(
             this.map.setVisible(this.layerPrefix + node.layer.id, true);
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
             if (legendDiv) legendDiv.style.display = 'block';
+            this.saveSession();
         }
         // check all layers in category
         else {
@@ -220,6 +239,7 @@ var BaseMapsView = BaseView.extend(
             this.map.setVisible(this.layerPrefix + node.layer.id, false);
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
             if (legendDiv) legendDiv.style.display = 'none';
+            this.saveSession();
         }
         // uncheck all layers in category
         else {
@@ -261,7 +281,7 @@ var BaseMapsView = BaseView.extend(
         this.map.addServiceLayer(this.layerPrefix + layer.id, {
             opacity: 1,
             zIndex: layer.get('z_index'),
-            visible: layer.get('included'),
+            visible: this.isChecked(layer),
             url: config.views.layerproxy.format(layer.id),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
         });

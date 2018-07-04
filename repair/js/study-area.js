@@ -1,5 +1,5 @@
 define(['d3', 'models/casestudy', 'visualizations/sankey-map',
-    'views/study-area/maps', 'views/study-area/setup-maps', 
+    'views/study-area/workshop-maps', 'views/study-area/setup-maps', 
     'views/study-area/charts',
     'views/study-area/stakeholders',
     'app-config', 'base',
