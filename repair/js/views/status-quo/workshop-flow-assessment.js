@@ -96,6 +96,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
               },
             dragSortPredicate : 50
         });
+        this.areaSelectGrid.on('dragEnd', function (items) {
+            _this.saveSession();
+        });
         this.renderIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
@@ -211,17 +214,36 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     },
     
     saveSession: function(){
-        config.session.save({areaSelects: this.areaSelects});
+        var items = this.areaSelectGrid.getItems(),
+            _this = this;
+        var orderedSelects = [];
+        items.forEach(function(item){
+            var id = item.getElement().dataset['id'];
+            // Focus Area has id 0, skip it
+            if (id > 0){
+                var areaSelect = Object.assign({}, _this.areaSelects[id]);
+                areaSelect.id = id;
+                orderedSelects.push(areaSelect);
+            }
+        });
+        config.session.save({areaSelects: orderedSelects});
     },
     
     restoreSession: function(){
-        this.areaSelects = config.session.get('areaSelects');
-        for (id in this.areaSelects){
-            this.areaSelectIdCnt = Math.max(this.areaSelectIdCnt, parseInt(id) + 1);
-            this.renderAreaBox(this.areaSelectRow, id, id);
+        var orderedSelects = config.session.get('areaSelects'),
+            _this = this;
+        this.areaSelects = {};
+        if (!orderedSelects || orderedSelects.length == 0) return;
+        orderedSelects.forEach(function(areaSelect){
+            var id = areaSelect.id;
+            areaSelect = Object.assign({}, areaSelect);
+            delete areaSelect.id;
+            _this.areaSelects[id] = areaSelect;
+            _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
+            _this.renderAreaBox(_this.areaSelectRow, id, id);
             
-            var button = this.el.querySelector('button.select-area[data-id="' + id + '"]')
-            var areas = this.areaSelects[id].areas;
+            var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
+                areas = areaSelect.areas;
             if (areas.length > 0){
                 button.classList.remove('btn-warning');
                 button.classList.add('btn-primary');
@@ -229,7 +251,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 button.classList.add('btn-warning');
                 button.classList.remove('btn-primary');
             }
-        }
+        
+        })
     },
     
     renderAreaBox: function(el, id, title, fontSize){
@@ -377,7 +400,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             })
             loader.deactivate();
             _this.areaMap.centerOnLayer('areas');
-            onSuccess();
+            if(onSuccess) onSuccess();
         }
         loader.activate();
         this.getAreas(level, draw);
