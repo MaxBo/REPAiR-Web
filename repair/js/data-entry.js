@@ -111,7 +111,6 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
 
     appConfig.session.fetch({
         success: function(session){
-            console.log(session)
             var caseStudyId = session.get('casestudy');
             if (caseStudyId == null){
                 document.getElementById('keyflow-warning').style.display = 'none';
@@ -125,7 +124,6 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
             loader.activate();
 
             $.when(caseStudy.fetch(), keyflows.fetch()).then(function() {
-                console.log(caseStudy)
                 loader.deactivate();
                 render(caseStudy);
             });

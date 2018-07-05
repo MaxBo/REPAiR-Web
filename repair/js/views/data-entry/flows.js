@@ -277,9 +277,16 @@ var FlowsEditView = BaseView.extend(
         }
         
         if (node.tag == 'actorSelect' && !options.rerender){
-            // select previous node (so that "Select Actor" is not highlighted on cancel)
-            if (this.selectedNode)
-                $('#data-tree').treeview('selectNode', [this.selectedNode, { silent: true }]);
+            // patternfly-bootstrap-treeview bug workaround
+           if (this.selectedNode){
+                var _node;
+                $('#data-tree').treeview('getNodes').forEach(function(node){
+                    if (node.nodeId == _this.selectedNode.nodeId) _node = node;
+                })
+                
+                // select previous node (so that "Select Actor" is not highlighted on cancel)
+                $('#data-tree').treeview('selectNode', [_node, { silent: true }]);
+            }
             selectActor(render);
         }
         else render();

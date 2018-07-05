@@ -132,17 +132,17 @@ var BaseChartsView = BaseView.extend(
     },
 
 
-    rerenderChartTree: function(categoryId){
+    rerenderChartTree: function(){
         this.buttonBox.style.display = 'None';
         // error when trying to remove, but not initialized yet, safe to ignore
         $(this.chartTree).treeview('remove');
-        this.renderChartTree(categoryId);
+        this.renderChartTree();
     },
 
     /*
     * render the hierarchic tree of layers
     */
-    renderChartTree: function(categoryId){
+    renderChartTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
         var _this = this;
@@ -153,19 +153,10 @@ var BaseChartsView = BaseView.extend(
             category.tag = 'category';
             tree.push(category);
         })
-        
-        // items are not unselectable
-        function nodeUnselected(event, node){
-            $(_this.chartTree).treeview('selectNode',  [node, { silent: true }]);
-        }
-        // select item on collapsing (workaround for misplaced buttons when collapsing)
-        function nodeCollapsed(event, node){
+
+        function hideEdits(event, node){
             if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node, { silent: false }]);
-        }
-        function nodeExpanded(event, node){
-            if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node, { silent: false }]);
+                _this.buttonBox.style.display = 'None';
         }
 
         $(this.chartTree).treeview({
@@ -175,24 +166,13 @@ var BaseChartsView = BaseView.extend(
             onhoverColor: (_this.mode == 0) ? null : '#F5F5F5',
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
+            preventUnselect: true,
+            allowReselect: true,
             onNodeSelected: this.nodeSelected,
-            onNodeUnselected: nodeUnselected,
-            onNodeCollapsed: nodeCollapsed,
-            onNodeExpanded: nodeExpanded
+            onNodeCollapsed: hideEdits,
+            onNodeExpanded: hideEdits
             //showCheckbox: true
         });
-        
-        // look for and expand and select node with given category id
-        if (categoryId != null){
-            var nodes = $(this.chartTree).treeview('getNodes');
-            _.forEach(nodes, function(node){
-                if (node.category && (node.category.id == categoryId)){
-                    $(_this.chartTree).treeview('selectNode', node);
-                    return false;
-                }
-            })
-        }
-        //else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
     },
 
     /*
@@ -218,12 +198,18 @@ var BaseChartsView = BaseView.extend(
             preview.style.display = 'none';
         }
         
+        // expand/collapse category on click in workshop mode
         if (this.mode == 0) {
             if (node.category){
-                // unselect node, so that selection is triggered on continued clicking
-                $(this.chartTree).treeview('unselectNode',  [node, { silent: true }]);
-                var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
-                $(this.chartTree).treeview(f,  node);
+                // workaround for patternfly-treeview bug
+                var nodes = $(this.chartTree).treeview('getNodes'),
+                    _node = null;
+                nodes.forEach(function(n){
+                    if (node.nodeId == n.nodeId) {
+                        _node = n;
+                    }
+                })
+                $(this.chartTree).treeview('toggleNodeExpanded', _node);
             }
             // no buttons in workshop mode -> return before showing
             return;
@@ -258,7 +244,7 @@ var BaseChartsView = BaseView.extend(
                     };
                     catNode.nodes = [];
                     _this.categoryTree[category.id] = catNode;
-                    _this.rerenderChartTree(category.id);
+                    _this.addNode(catNode);
                 },
                 error: _this.onError,
                 wait: true
@@ -292,8 +278,10 @@ var BaseChartsView = BaseView.extend(
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',
                         chart: chart };
-                    _this.categoryTree[category.id].nodes.push(chartNode);
-                    _this.rerenderChartTree(category.id);
+                    var catNode = _this.categoryTree[category.id];
+                    if (!catNode.nodes) catNode.nodes = [];
+                    catNode.nodes.push(chartNode);
+                    _this.addNode(chartNode, _this.selectedNode);
                 },
                 error: _this.onError
             });
@@ -341,13 +329,25 @@ var BaseChartsView = BaseView.extend(
                     _this.getTreeChartNode(model, { pop : true })
                     selectCatId = model.get("chart_category");
                 }
-                _this.selectedNode = null;
-                _this.rerenderChartTree(selectCatId);
+                $(_this.chartTree).treeview('removeNode', _this.selectedNode);
+                _this.buttonBox.style.display = 'None';
             },
             error: _this.onError,
             wait: true
         });
         
+    },
+    
+    addNode: function(node, parentNode){
+        // patternfly-bootstrap-treeview bug workaround
+        if (parentNode){
+            var _node;
+            $(this.chartTree).treeview('getNodes').forEach(function(node){
+                if (node.nodeId == parentNode.nodeId) _node = node;
+            })
+            parentNode = _node;
+        }
+        $(this.chartTree).treeview('addNode', [node, parentNode]);
     },
     
     getTreeChartNode: function(chart, options){
@@ -375,7 +375,8 @@ var BaseChartsView = BaseView.extend(
                                 _this.getTreeChartNode(model);
                     node.text = name;
                     var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
-                    _this.rerenderChartTree(selectCatId);
+                    // patternfly-bootstrap-treeview is bugged as hell, updating nodes doesn't work as expected -> need to rerender
+                    _this.rerenderChartTree();
                 },
                 error: _this.onError
             })
