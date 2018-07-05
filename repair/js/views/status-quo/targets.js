@@ -230,7 +230,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),
                             removePanel = row.querySelector('.remove').querySelector('.item-panel'),
-                            html = document.getElementById('panel-item-template').innerHTML
+                            html = document.getElementById('panel-item-template').innerHTML,
                             template = _.template(html);
                     }
 
@@ -239,7 +239,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     targetPanel.appendChild(targetSelect);
 
                     var panelItem = _this.createSelect("impact", impactCategory,
-                    _this.impactcategories, target);
+                        _this.impactcategories, target);
                     indicatorPanel.appendChild(panelItem);
 
                     var spatialSelect = _this.createSelect("spatial", spatial,

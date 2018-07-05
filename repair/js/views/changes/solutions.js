@@ -359,7 +359,7 @@ var SolutionsView = BaseView.extend(
             this.map = null;
         }
         this.map = new Map({
-            divid: divid, 
+            el: document.getElementById(divid), 
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
@@ -500,6 +500,7 @@ var SolutionsView = BaseView.extend(
             template = _.template(html);
         var panelItem = document.createElement('div');
         panelItem.classList.add('panel-item');
+        panelItem.classList.add('noselect');
         panelItem.innerHTML = template({ name: solution.get('name') });
         panel.appendChild(panelItem);
         // in workshop mode show solution on click on panel, else on click on edit

@@ -420,7 +420,7 @@ var ImplementationsView = BaseView.extend(
         mapDiv.id = divid;
         mapDiv.innerHTML = '';
         previewMap = new Map({
-            divid: divid, 
+            el: document.getElementById(divid), 
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
@@ -445,7 +445,7 @@ var ImplementationsView = BaseView.extend(
             this.editorMap = null;
         }
         this.editorMap = new Map({
-            divid: divid, 
+            el: document.getElementById(divid), 
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 

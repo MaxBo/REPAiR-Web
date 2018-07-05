@@ -85,21 +85,24 @@ var FlowsView = BaseView.extend(
         'change #data-view-type-select': 'renderSankey',
         'click #area-select-button': 'showAreaSelection',
         'change select[name="level-select"]': 'changeAreaLevel',
-        'click #area-filter-modal .confirm': 'confirmAreaSelection'
+        'click .area-filter.modal .confirm': 'confirmAreaSelection'
     },
 
     /*
     * render the view
     */
     render: function(){
-        var _this = this;
-        var html = document.getElementById(this.template).innerHTML
-        var template = _.template(html);
-        this.el.innerHTML = template({ levels: this.areaLevels });
+        var _this = this,
+            html = document.getElementById(this.template).innerHTML
+            template = _.template(html);
+        this.el.innerHTML = template();
         
-        this.areaModal = document.getElementById('area-filter-modal');
+        this.areaModal = this.el.querySelector('.area-filter.modal');
+        html = document.getElementById('area-select-modal-template').innerHTML;
+        template = _.template(html);
+        this.areaModal.innerHTML = template({ levels: this.areaLevels });
         this.areaMap = new Map({
-            divid: 'area-select-map', 
+            el: this.areaModal.querySelector('.map'), 
         });
         this.levelSelect = this.el.querySelector('select[name="level-select"]');
         this.areaMap.addLayer(
@@ -112,7 +115,7 @@ var FlowsView = BaseView.extend(
                     stroke: 'rgb(230, 230, 0)', 
                     fill: 'rgba(230, 230, 0, 0.5)',
                     onChange: function(areaFeats){
-                        var modalSelDiv = _this.el.querySelector('#modal-area-selections'),
+                        var modalSelDiv = _this.el.querySelector('.selections'),
                             levelId = _this.levelSelect.value
                             labels = [],
                             areas = _this.areas[levelId];
@@ -145,7 +148,7 @@ var FlowsView = BaseView.extend(
     
     changeAreaLevel: function(){
         var levelId = this.levelSelect.value;
-        this.el.querySelector('#modal-area-selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
+        this.el.querySelector('.selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
         this.prepareAreas(levelId);
     },
     
@@ -205,7 +208,7 @@ var FlowsView = BaseView.extend(
     confirmAreaSelection: function(){
         this.selectedAreas = this.filtersTmp['areas'];
         // lazy way to show the selected areas, just take it from the modal
-        var modalSelDiv = this.el.querySelector('#modal-area-selections'),
+        var modalSelDiv = this.el.querySelector('.selections'),
             selDiv = this.el.querySelector('#area-selections');
         selDiv.innerHTML = modalSelDiv.innerHTML;
         this.filterActors();

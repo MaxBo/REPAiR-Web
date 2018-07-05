@@ -1,8 +1,6 @@
 from rest_framework import viewsets, exceptions, mixins
 from django.views import View
-from django.http import (HttpResponseRedirect,
-                         JsonResponse,
-                         HttpResponseBadRequest,
+from django.http import (HttpResponseBadRequest,
                          HttpResponseForbidden,
                          )
 from django.db.models import ProtectedError
@@ -303,38 +301,6 @@ class ModelPermissionViewSet(ModelReadPermissionMixin,
     update(), retrieve() and list(). Throw exceptions.PermissionDenied() if
     permission is missing.
     """
-
-
-class SessionView(View):
-    modes = {
-        'Workshop': 0,
-        'Setup': 1,
-    }
-
-    def post(self, request):
-        casestudy = request.POST.get('casestudy')
-        mode = request.POST.get('mode')
-        next = request.POST.get('next', '/')
-
-        if casestudy is not None:
-            request.session['casestudy'] = casestudy
-        if mode is not None:
-            try:
-                mode = int(mode)
-            except ValueError:
-                return HttpResponseBadRequest('invalid mode')
-            if mode not in self.modes.values():
-                return HttpResponseBadRequest('invalid mode')
-            request.session['mode'] = mode
-
-        return HttpResponseRedirect(next)
-
-    def get(self, request):
-        response = {
-            'casestudy': request.session.get('casestudy'),
-            'mode': request.session.get('mode') or self.modes['Workshop']
-        }
-        return JsonResponse(response)
 
 
 class PublicationView(ModelPermissionViewSet):
