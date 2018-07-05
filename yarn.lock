@@ -459,7 +459,7 @@ bootstrap-tagsinput@^0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/bootstrap-tagsinput/-/bootstrap-tagsinput-0.7.1.tgz#ffe3b06bbe2a106945ef2814568005a94f211937"
 
-bootstrap@3.3.7:
+bootstrap@3.3.7, bootstrap@3.3.x:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-3.3.7.tgz#5a389394549f23330875a3b150656574f8a9eb71"
 
@@ -2835,17 +2835,13 @@ jasmine@^2.9.0:
     glob "^7.0.6"
     jasmine-core "~2.9.0"
 
-jquery@>=1.7, jquery@>=1.8, jquery@^3.0.0:
+"jquery@>= 2.1.x", jquery@>=1.7, jquery@>=1.8, jquery@^3.0.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 
 js-base64@^2.1.9:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
-
-js-cookies@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/js-cookies/-/js-cookies-1.0.4.tgz#d46e576c420ff6d5542c0f52b6d4ef7d637e754e"
 
 js-tokens@^3.0.2:
   version "3.0.2"
@@ -3851,6 +3847,13 @@ path-type@^2.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-2.0.0.tgz#f012ccb8415b7096fc2daa1054c3d72389594c73"
   dependencies:
     pify "^2.0.0"
+
+patternfly-bootstrap-treeview@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/patternfly-bootstrap-treeview/-/patternfly-bootstrap-treeview-2.1.5.tgz#4c29f2582fb8a2f28f0a928f2f0d324d21d6990d"
+  dependencies:
+    bootstrap "3.3.x"
+    jquery ">= 2.1.x"
 
 pbf@3.1.0:
   version "3.1.0"
