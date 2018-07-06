@@ -8,10 +8,9 @@ from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 
 
 class SpatialChoice(Enum):
-    NONE = 1
+    BOTH = 1
     ORIGIN = 2
     DESTINATION = 3
-    BOTH = 4
 
 
 class NodeLevel(Enum):
@@ -45,7 +44,7 @@ class IndicatorFlow(GDSEModel):
     materials = models.ManyToManyField(Material, blank=True)
 
     spatial_application = EnumIntegerField(
-        enum=SpatialChoice, default=SpatialChoice.NONE)
+        enum=SpatialChoice, default=SpatialChoice.BOTH)
     
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
