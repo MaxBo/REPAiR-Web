@@ -1,7 +1,7 @@
 define(['views/baseview', 'underscore', 'visualizations/sankey', 
-        'collections/gdsecollection', 'd3'],
+        'collections/gdsecollection', 'd3', 'app-config'],
 
-function(BaseView, _, Sankey, GDSECollection, d3){
+function(BaseView, _, Sankey, GDSECollection, d3, config){
 
     /**
     *
@@ -48,13 +48,13 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             this.forceSideBySide = options.forceSideBySide || false;
             this.origins = options.origins;
             this.destinations = options.destinations;
-            var originTag = this.origins.apiTag,
-                destinationTag = this.destinations.apiTag,
+            var originTag = options.originLevel || this.origins.apiTag,
+                destinationTag = options.destinationLevel || this.destinations.apiTag,
                 renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
-            this.originAggregateLevel = (originTag.endsWith('activitygroups')) ? 'activitygroup': 
-                                        (originTag == 'activities') ? 'activity': null;
-            this.destinationAggregateLevel = (destinationTag.endsWith('activitygroups')) ? 'activitygroup': 
-                                             (destinationTag == 'activities') ? 'activity': null;
+            this.originAggregateLevel = (originTag.includes('group')) ? 'activitygroup': 
+                                        (originTag.includes('actor')) ? 'actor': 'activity';
+            this.destinationAggregateLevel = (destinationTag.includes('group')) ? 'activitygroup': 
+                                             (destinationTag.includes('actor')) ? 'actor': 'activity';
 
             flowFilterParams = options.flowFilterParams || {};
             flowFilterParams['aggregation_level'] = {
@@ -147,13 +147,20 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 if(!originIds.includes(origin)) missingOriginIds.add(origin);
                 if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
             })
+            
+            function getUrl(tag){
+                var url = (tag.includes('group')) ? config.api.activitygroups:
+                          (tag.includes('actor')) ? config.api.actors:
+                          config.api.activities;
+                return url.format(_this.caseStudyId, _this.keyflowId);
+            }
             var promises = [];
             // WARNING: postfetch works only with filter actors route, should be
             // fetched in case of groups and activities, but in fact they should
             // be complete
             if (missingOriginIds.size > 0){
                 var missingOrigins = new GDSECollection([], {
-                    url: origins.url()
+                    url: getUrl(this.originAggregateLevel)
                 })
                 promises.push(missingOrigins.postfetch({ 
                     body: { 'id': Array.from(missingOriginIds).join() },
@@ -164,7 +171,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             }
             if (missingDestinationIds.size > 0){
                 var missingDestinations = new GDSECollection([], {
-                    url: destinations.url()
+                    url: getUrl(this.destinationAggregateLevel)
                 })
                 promises.push(missingDestinations.postfetch({ 
                     body: { 'id': Array.from(missingDestinationIds).join() },

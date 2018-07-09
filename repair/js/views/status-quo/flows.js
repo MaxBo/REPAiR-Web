@@ -131,6 +131,7 @@ var FlowsView = BaseView.extend(
         $(this.areaModal).on('shown.bs.modal', function () {
             _this.areaMap.map.updateSize();
         });
+        this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
         this.groupSelect = this.el.querySelector('select[name="group"]'),
         this.activitySelect = this.el.querySelector('select[name="activity"]'),
@@ -312,12 +313,13 @@ var FlowsView = BaseView.extend(
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
             nodeLevel = this.nodeLevelSelect.value,
+            displayLevel = this.displayLevelSelect.value,
             direction = this.el.querySelector('input[name="direction"]:checked').value;
         
         // pass all known nodes to sankey (not only the filtered ones) to avoid
         // fetching missing nodes
-        var collection = (nodeLevel == 'actor') ? this.actors: 
-            (nodeLevel == 'activity') ? this.activities: 
+        var collection = (displayLevel == 'actor') ? this.actors: 
+            (displayLevel == 'activity') ? this.activities: 
             this.activityGroups;
         
         var filterParams = {},
@@ -355,7 +357,6 @@ var FlowsView = BaseView.extend(
         nodeIds.forEach(function(id){
             nodeIds.push(id);
         })
-        console.log(nodeIds)
         
         var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__': 
             (nodeLevel == 'activity') ? 'activity__': '';
@@ -399,7 +400,9 @@ var FlowsView = BaseView.extend(
             flowFilterParams: flowFilterParams,
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
-            height: 600
+            height: 600,
+            //originLevel: displayLevel,
+            //destinationLevel: displayLevel
         })
     },
 
@@ -459,12 +462,12 @@ var FlowsView = BaseView.extend(
     
     renderNodeSelectOptions: function(select, collection){
         utils.clearSelect(select);
-        option = document.createElement('option');
-        option.value = -1; 
-        option.text = gettext('All');
-        if (collection) option.text += ' (' + collection.length + ')';
-        select.appendChild(option);
-        option = document.createElement('option');
+        var defOption = document.createElement('option');
+        defOption.value = -1; 
+        defOption.text = gettext('All');
+        if (collection) defOption.text += ' (' + collection.length + ')';
+        select.appendChild(defOption);
+        var option = document.createElement('option');
         option.dataset.divider = 'true';
         select.appendChild(option);
         if (collection && collection.length < 2000){
@@ -476,7 +479,10 @@ var FlowsView = BaseView.extend(
             })
             select.disabled = false;
         }
-        else select.disabled = true;
+        else {
+            defOption.text += ' - ' + gettext('too many to display');
+            select.disabled = true;
+        }
         select.selectedIndex = 0;
         $(select).selectpicker('refresh');
     },
