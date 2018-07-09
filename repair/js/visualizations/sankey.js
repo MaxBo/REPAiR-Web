@@ -36,7 +36,7 @@ class Sankey{
     }
 
     format(d) {
-        return d3.format(",.3f")(d);
+        return d3.format(",.2f")(d);
     }
 
     /**
