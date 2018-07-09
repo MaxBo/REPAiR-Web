@@ -51,7 +51,6 @@ function(BaseView, _, Sankey, GDSECollection, d3){
             var originTag = this.origins.apiTag,
                 destinationTag = this.destinations.apiTag,
                 renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
-
             this.originAggregateLevel = (originTag.endsWith('activitygroups')) ? 'activitygroup': 
                                         (originTag == 'activities') ? 'activity': null;
             this.destinationAggregateLevel = (destinationTag.endsWith('activitygroups')) ? 'activitygroup': 
@@ -118,8 +117,11 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 promises.push(this.stocks.postfetch({body: stockFilterParams}));
             }
             Promise.all(promises).then(function(){
-                _this.loader.deactivate();
-                _this.render();
+                _this.complementData(function(data){
+                    _this.transformedData = data;
+                    _this.loader.deactivate();
+                    _this.render(data);
+                })
             });
         },
 
@@ -182,7 +184,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         /*
         * render the view
         */
-        render: function(){
+        render: function(data){
             var isFullScreen = this.el.classList.contains('fullscreen'),
                 width = (isFullScreen) ? this.el.clientWidth : this.width,
                 height = (isFullScreen) ? this.el.clientHeight : this.height,
@@ -199,11 +201,9 @@ function(BaseView, _, Sankey, GDSECollection, d3){
                 el: div,
                 title: ''
             })
-            this.complementData(function(data){
-                if (data.nodes.length == 0)
-                    _this.el.innerHTML = gettext("No flow data found for applied filters.")
-                else sankey.render(data);
-            })
+            if (data.nodes.length == 0)
+                _this.el.innerHTML = gettext("No flow data found for applied filters.")
+            else sankey.render(data);
         },
 
         /*
@@ -211,7 +211,7 @@ function(BaseView, _, Sankey, GDSECollection, d3){
         */
         toggleFullscreen: function(){
             this.el.classList.toggle('fullscreen');
-            this.render();
+            this.render(this.transformedData);
         },
 
         refresh: function(options){

@@ -41,7 +41,7 @@ function(PageableCollection, _, GDSEModel, config) {
         * filter the collection by its attributes
         * the values to each attribute have to be an exact (by default) match to add a model to the returned results
         *
-        * @param {Object} attributes         key/value pairs of attribute names and the values to match
+        * @param {Object} attributes         key/value pairs of attribute names and the values to match; value may be an array (any of elements may match to return true for single attribute)
         * @param {Object=} options
         * @param {String} [options.operator='&&']  the logical function to connect the attribute checks, by default all given attributes have to match, optional: '||'
         *
@@ -52,7 +52,15 @@ function(PageableCollection, _, GDSEModel, config) {
                 keys = Object.keys(attributes);
             var filtered = this.filter(function (model) {
                 function match(key){
-                    return String(model.get(key)) == String(attributes[key])
+                    var value = model.get(key),
+                        checkValue = attributes[key];
+                    if (Array.isArray(checkValue)){
+                        for (var i = 0; i < checkValue.length; i++){
+                            if (String(value) == String(checkValue[i])) return true;
+                        }
+                        return false;
+                    }
+                    return String(value) == String(checkValue);
                 }
                 if (options.operator == '||') 
                     return keys.some(match)
