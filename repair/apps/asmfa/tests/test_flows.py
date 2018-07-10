@@ -149,18 +149,20 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                              materials=json.dumps(dict(aggregate=True,
                                                       id=[self.material_1])),
                              filters=filterdata)
-        #post_data2 = dict(aggregation_level='activitygroup',
-                          #materials=json.dumps(dict(aggregate=False,
-                                                   #id=[self.material_1])),
-                          #filters=filterdata)
-        #post_data3 = dict(aggregation_level='activitygroup',
-                          #materials=json.dumps(dict(aggregate=False,
-                                                   #id=[self.material_1])),
-                          #filters=filterdata,
-                          #spatial_level=json.dumps(dict(activity=dict(id=1,
-                                                                      #level=1))))
+        post_data2 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                                destination='activitygroup')),
+                              materials=json.dumps(dict(aggregate=False,
+                                                           id=[self.material_1])),
+                                 filters=filterdata)
+        #post_data3 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                                #destination='activitygroup')),
+                              #materials=json.dumps(dict(aggregate=False,
+                                                           #id=[self.material_1])),
+                                 #filters=filterdata,
+                            #spatial_level=json.dumps(dict(activity=dict(id=1,
+                                                                        #level=1))))
         url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(self.casestudy, self.keyflow)
-        for post_data in [post_data1]:  #, post_data2, post_data3]:
+        for post_data in [post_data1, post_data2]:
             response = self.post(
                 url,
                 data=post_data,
