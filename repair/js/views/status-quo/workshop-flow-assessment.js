@@ -88,6 +88,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
+            dragAxis: 'x',
             dragEnabled: true,
             layout: {
                 fillGaps: false,
