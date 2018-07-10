@@ -89,13 +89,17 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
             dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease',
             layout: {
                 fillGaps: false,
                 horizontal: true,
                 rounding: true
-              },
-            dragSortPredicate : 50
+              }
         });
         this.areaSelectGrid.on('dragEnd', function (items) {
             _this.saveSession();
