@@ -95,6 +95,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
     activitygroup = 76
     material_1 = 10
     material_2 = 11
+    actor1id = 12
+    actor2id = 20
     comp_data1 = {'name': 'testname', 'nace': 'testnace',
                  "fractions": [{ "material": material_1,
                                  "fraction": 0.4},
@@ -144,10 +146,10 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                                             nace='nace2')
         self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
         self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
-        self.actor1 = ActorFactory(activity=self.activity1)
+        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
         self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
         self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
-        self.actor2 = ActorFactory(activity=self.activity2)
+        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
         self.actor3 = ActorFactory(activity=self.activity2)
         self.act2act1 = Actor2ActorFactory(id=self.actor2actor1,
                                            origin=self.actor1,
@@ -161,6 +163,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                                            keyflow=self.kic_obj,
                                            composition=self.comp2,
                                            )
+        self.obj = self.act2act1
 
 
     def test_post_get(self):
