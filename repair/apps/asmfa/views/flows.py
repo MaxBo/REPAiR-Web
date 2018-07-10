@@ -16,16 +16,16 @@ from django.utils.translation import ugettext_lazy as _
 from repair.apps.asmfa.models import (
     Reason,
     Flow,
-    AdministrativeLocation, 
+    AdministrativeLocation,
     Activity2Activity,
     Actor2Actor,
     Group2Group,
     Material,
     Composition,
     ProductFraction,
-    Actor, 
+    Actor,
     Activity,
-    ActivityGroup, 
+    ActivityGroup,
 )
 
 from repair.apps.studyarea.models import (
@@ -49,7 +49,7 @@ class ReasonViewSet(RevisionMixin, ModelViewSet):
     pagination_class = None
     serializer_class = ReasonSerializer
     queryset = Reason.objects.all()
-    
+
 # structure of serialized components of a flow as the serializer
 # will return it
 flow_struct = OrderedDict(id=None,
@@ -88,17 +88,17 @@ def filter_by_material(materials, queryset):
     filtered = queryset.filter(composition__in=compositions)
     return filtered
 
-def aggregate_fractions(materials, data, unaltered_materials=[], 
+def aggregate_fractions(materials, data, unaltered_materials=[],
                         aggregate_materials=False):
     '''
     aggregate the fractions to given materials, all fractions with child
     materials of given materials will be summed up to the level of those,
     amount will be recalculated
-    
+
     if aggregate_materials is False the materials won't be aggregated, but
     all materials that are not children of given materials will be removed
     from flow and amount will still be recalculated
-    
+
     unaltered materials will be kept as is and ignored when
     aggregating children (may be parents as well)
     '''
@@ -112,7 +112,7 @@ def aggregate_fractions(materials, data, unaltered_materials=[],
     desc_dict = dict([(mat, { mat.id: True }) for mat in materials])
     new_data = []
     for serialized_flow in data:
-        # aggregation is requested on no given materials -> 
+        # aggregation is requested on no given materials ->
         # aggregate to top level (just meaning: keep amount, remove fractions)
         if not materials and aggregate_materials:
             serialized_flow['composition'] = None
@@ -162,20 +162,20 @@ def aggregate_fractions(materials, data, unaltered_materials=[],
                             'fraction': amount / new_total,
                         })
                         new_fractions.append(aggregated_fraction)
-                    
-            # no aggregation: keep the fractions whose materials are descendants 
+
+            # no aggregation: keep the fractions whose materials are descendants
             # (->valid) and recalculate the fraction values
             else:
                 for fraction in valid_fractions:
                     fraction['fraction'] = fraction['fraction'] * old_total / new_total
                     new_fractions.append(fraction)
-        
+
             serialized_flow['amount'] = new_total
             composition['fractions'] = new_fractions
-    
+
         new_data.append(serialized_flow)
     return new_data
-    
+
 def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock=False):
     """
     Aggregate actor level to the according flow/stock level
@@ -186,7 +186,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         return data
     origin_level = origin_level or 'actor'
     destination_level = destination_level or 'actor'
-    
+
     origins = Actor.objects.filter(id__in=queryset.values_list('origin'));
     if origin_level.lower() == 'activity':
         origins_map = dict(origins.values_list('id', 'activity'))
@@ -201,7 +201,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
 
     if not is_stock:
         destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
-    
+
         if destination_level.lower() == 'activity':
             destinations_map = dict(destinations.values_list(
                 'id', 'activity'))
@@ -213,7 +213,7 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         else:
             destinations_map = dict(destinations.values_list('id', 'id'))
             args.append('destination__id')
-    
+
     acts = queryset.values_list(*args)
 
     act2act_amounts = acts.annotate(Sum('amount'))
@@ -269,13 +269,13 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
             fractions.append(new_fraction)
         custom_composition['fractions'] = fractions
         del(custom_composition['masses_of_materials'])
-        
+
         new_flow = copy.deepcopy(flow_struct)
         new_flow['amount'] = amount
         new_flow['origin'] = origin
         new_flow['origin_level'] = origin_level
         new_flow['composition'] = custom_composition
-        
+
         if not is_stock:
             new_flow['destination'] = destination
             new_flow['destination_level'] = destination_level
@@ -328,7 +328,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         body params:
         body = {
             waste: true / false,  # products or waste, don't pass for both
-            
+
             # prefilter flows
             filters: [
                 {
@@ -337,26 +337,26 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 },
                 ...
             ],
-            
+
             filter_link: and/or, # logical linking of filters, defaults to 'or'
-            
-            # filter/aggregate by given material 
+
+            # filter/aggregate by given material
             materials: {
                 ids: [...], # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
                 unaltered: [...], # ids of materials that should be kept as they are when aggregating
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
-            
+
             # aggregate origin/dest. actors belonging to given
             # activity/groupon spatial level, child nodes have
             # to be exclusively 'activity's or 'activitygroup's
-            spatial_level: {  
+            spatial_level: {
                 activity: {
                     id: id,  # id of activitygroup/activity
                     level: id,  # id of spatial level (as in AdminLevels)
                 },
             }
-            
+
             # exclusive to spatial_level
             aggregation_level: {
                 origin: 'activity' or 'activitygroup', defaults to actor level
@@ -381,7 +381,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
-        
+
         if spatial_aggregation and level_aggregation:
             return HttpResponseBadRequest(_(
                 "Aggregation on spatial levels and based on the activity level "
@@ -416,7 +416,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                                   else material_filter.get('unaltered', []))
 
         materials = None
-        unaltered_materials = None
+        unaltered_materials = []
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
         if material_ids is not None:
@@ -429,10 +429,10 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         data = serializer.data
-    
+
         # POSTPROCESSING: all following operations are performed on serialized
         # data
-        
+
         if level_aggregation:
             origin_level = level_aggregation['origin']
             destination_level = level_aggregation['destination']
@@ -448,7 +448,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 levels[node_id] = level_id
                 types.append(node_type)
             unique_types = np.unique(types)
-            # ToDo: raise HTTP malformed request 
+            # ToDo: raise HTTP malformed request
             if len(unique_types) != 1:
                 return HttpResponseBadRequest(_(
                     'Only one type of activity level is allowed at the same '
@@ -497,29 +497,29 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         activitygroup should be mapped to
         '''
         mapped_to_area = []
-        
+
         actor_ids = list(queryset.values_list('origin_id', 'destination_id'))
         actor_ids = [t for s in actor_ids for t in s]
         actors = Actor.objects.filter(id__in=actor_ids)
-        
-        # prepare map of ids, actors are mapped to themselves by default 
+
+        # prepare map of ids, actors are mapped to themselves by default
         # (indicated by level None)
         id_map = dict(zip(actor_ids, actor_ids))
         # keep track of level of area
         area_levels = {}
-        
-        # map the actors belonging to given activities or groups to 
+
+        # map the actors belonging to given activities or groups to
         # areas of given levels
         for rid, level in levels.items():
             # actors in given relation (activity or activitygroup)
             actors_in_relation = actors.filter(**{group_relation: rid})
             locations = AdministrativeLocation.objects.filter(
                 actor__in=actors_in_relation)
-            
+
             # mark actors that should be mapped to area but have no location
             air_ids = [x[0] for x in actors_in_relation.values_list('id')]
             mapped_to_area = dict(zip(air_ids, [None] * len(air_ids)))
-            
+
             annotated = self.add_area(locations, level)
             mapped_to_area.update(dict(
                 annotated.values_list('actor_id', 'adminarea_id')))
