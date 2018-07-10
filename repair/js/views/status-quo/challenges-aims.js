@@ -1,7 +1,7 @@
 define(['underscore','views/baseview', 'collections/gdsecollection', 
-        'models/gdsemodel'],
+        'models/gdsemodel', 'muuri'],
 
-function(_, BaseView, GDSECollection, GDSEModel){
+function(_, BaseView, GDSECollection, GDSEModel, Muuri){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -90,9 +90,30 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.el.innerHTML = template();
 
             var challengesPanel = this.el.querySelector('#challenges').querySelector('.item-panel'),
-                aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
-            this.renderPanel(challengesPanel, this.challenges);
-            this.renderPanel(aimsPanel, this.aims);
+                aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel'),
+                dragEnabled = this.mode == 1;
+            this.challengesGrid = new Muuri(challengesPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })            
+            this.aimsGrid = new Muuri(aimsPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })
+            this.renderPanel(this.challengesGrid, this.challenges);
+            this.renderPanel(this.aimsGrid, this.aims);
 
             var html_modal = document.getElementById(
                 'empty-modal-template').innerHTML;
@@ -111,18 +132,20 @@ function(_, BaseView, GDSECollection, GDSEModel){
             }
         },
 
-        renderPanel(panel, items){
+        renderPanel(grid, items){
             var _this = this;
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html);
             items.forEach(function(item){
-                var panelItem = document.createElement('div');
+                var panelItem = document.createElement('div'),
+                    itemContent = document.createElement('div');
                 panelItem.classList.add('panel-item');
-                panelItem.classList.add('noselect');
-                panelItem.innerHTML = template({ name: item.text });
-                var button_edit = panelItem.getElementsByClassName(
+                panelItem.style.position = 'absolute';
+                itemContent.classList.add('noselect', 'item-content');
+                itemContent.innerHTML = template({ name: item.text });
+                var button_edit = itemContent.getElementsByClassName(
                     "btn btn-primary square edit inverted").item(0);
-                var button_remove = panelItem.getElementsByClassName(
+                var button_remove = itemContent.getElementsByClassName(
                     "btn btn-warning square remove").item(0);
                 button_edit.addEventListener('click', function(){
                     _this.editPanelItem(item, items);
@@ -130,7 +153,8 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 button_remove.addEventListener('click', function(){
                     _this.removePanelItem(item, items);
                 });
-                panel.appendChild(panelItem);
+                panelItem.appendChild(itemContent);
+                grid.add(panelItem);
             });
         },
 
