@@ -98,7 +98,7 @@ class SessionView(View):
         'Workshop': 0,
         'Setup': 1,
     }
-    EXCLUDE_PERSIST = ['url_pks', 'csrfmiddlewaretoken']
+    EXCLUDE_PERSIST = ['url_pks', 'csrfmiddlewaretoken', 'language']
     
     def persist(self):
         profile = Profile.objects.get(user=self.request.user)
@@ -154,4 +154,5 @@ class SessionView(View):
             return HttpResponse(_('Unauthorized'), status=401)
         response = self._session_dict
         response['mode'] = request.session.get('mode', self.MODES['Workshop'])
+        response['language'] = request.LANGUAGE_CODE
         return JsonResponse(response)
