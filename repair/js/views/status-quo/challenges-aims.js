@@ -141,7 +141,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     itemContent = document.createElement('div');
                 panelItem.classList.add('panel-item');
                 panelItem.style.position = 'absolute';
-                panelItem.style.width = '100%';
                 itemContent.classList.add('noselect', 'item-content');
                 itemContent.innerHTML = template({ name: item.text });
                 var button_edit = itemContent.getElementsByClassName(
