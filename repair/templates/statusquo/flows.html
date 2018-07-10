@@ -115,7 +115,7 @@
               <div id='material-filter'></div>
             </div>
             <div class='row' title='Aggregate all derived materials to the level of the direct child materials'>
-              <input type='checkbox' checked name='aggregateMaterials' style="transform: scale(2); float: left; margin-right: 10px;"> <div>{% trans 'Aggregate materials' %}</div>
+              <input type='checkbox' checked name='aggregateMaterials' style="transform: scale(1.5); float: left; margin-right: 10px;"> <div>{% trans 'Aggregate materials' %}</div>
             </div>
           </div>
         </div>
@@ -131,8 +131,8 @@
       <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filters and Render" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
-          Rerender the sankey diagram with data filtered by the selections made in the <b>Filter</b> section above 
-          (click the Filter row to expand/collapse it).<br><br>
+          Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above 
+          (click the Filters row to expand/collapse it).<br><br>
           All data is based on flows between actors. The data will be aggregated to the selected <b>Display Level</b>. 
         {% endblocktrans %}">
       </a>

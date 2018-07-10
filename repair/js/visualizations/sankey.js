@@ -16,6 +16,7 @@ class Sankey{
     * @param {string} options.el        the HTMLElement to render the sankey diagram in
     * @param {string=} options.title    title of the diagram (displayed on top)
     * @param {string=} options.width    width of the diagram, defaults to bounding box of el
+    * @param {string} [options.language='en-US'] language code
     * 
     */
     constructor(options){
@@ -29,14 +30,15 @@ class Sankey{
         this.bbox = this.div.node().getBoundingClientRect();
         this.width = options.width || this.width;
         this.width = this.width - this.margin.left - this.margin.right;
+        this.language = options.language || 'en-US';
         this.sankey = d3.sankey()
             .nodeWidth(15)
             .nodePadding(10)
             .size([this.width, this.height]);
     }
-
+    
     format(d) {
-        return d3.format(",.2f")(d);
+        return d.toLocaleString(this.language);
     }
 
     /**
