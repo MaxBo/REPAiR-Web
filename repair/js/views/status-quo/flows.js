@@ -81,7 +81,8 @@ var FlowsView = BaseView.extend(
     events: {
         'click #apply-filters': 'renderSankey',
         'click #area-select-button': 'showAreaSelection',
-        'change select[name="level-select"]': 'changeAreaLevel',
+        'change select[name="area-level-select"]': 'changeAreaLevel',
+        'change select[name="node-level-select"]': 'resetNodeSelects',
         'click .area-filter.modal .confirm': 'confirmAreaSelection'
     },
 
@@ -94,6 +95,9 @@ var FlowsView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template();
         
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "hover" }); 
+        
         this.areaModal = this.el.querySelector('.area-filter.modal');
         html = document.getElementById('area-select-modal-template').innerHTML;
         template = _.template(html);
@@ -101,7 +105,7 @@ var FlowsView = BaseView.extend(
         this.areaMap = new Map({
             el: this.areaModal.querySelector('.map'), 
         });
-        this.areaLevelSelect = this.el.querySelector('select[name="level-select"]');
+        this.areaLevelSelect = this.el.querySelector('select[name="area-level-select"]');
         this.areaMap.addLayer(
             'areas', 
             { 
@@ -139,8 +143,6 @@ var FlowsView = BaseView.extend(
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
-        this.nodeLevelSelect.addEventListener('change', function(){ 
-            _this.resetNodeSelects() });
         this.resetNodeSelects();
         this.renderMatFilter();
         this.addEventListeners();

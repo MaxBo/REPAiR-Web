@@ -119,26 +119,31 @@ div.fullscreen{
   font-size: 12px;
 }
 .panel-heading .accordion-toggle{
-    text-decoration: none;
-    padding: 20px 10px 20px 10px;
-    display: block;
-    color: black !important;
+  text-decoration: none;
+  padding: 20px 10px 20px 10px;
+  display: block;
+  color: black !important;
 }
 .panel-heading .accordion-toggle:after {
-    /* symbol for panel */
-    font-family: 'Glyphicons Halflings';  
-    content: "\e114";
-    color: grey;
-    margin-left: 10px;
+  /* symbol for panel */
+  font-family: 'Glyphicons Halflings';  
+  content: "\e114";
+  color: grey;
+  margin-left: 10px;
 }
 .panel-heading .accordion-toggle.collapsed:after {
-    /* symbol for collapsed panel*/
-    content: "\e080"; 
+  /* symbol for collapsed panel*/
+  content: "\e080"; 
 }
 .title {
   font-weight: 600;    
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.help-icon{
+  margin: 5px 5px 5px 10px;
+  font-size: 24px;
+  color: lightblue;
 }
 .input-label {
   float: left; 
