@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', "models/gdsemodel", 
-        'utils/utils', 'libs/bootstrap-treeview.min',
-        'static/css/bootstrap-treeview.min.css'],
+        'utils/utils', 'patternfly-bootstrap-treeview',
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 
 function(BaseView, _, GDSEModel, utils){
 
@@ -67,12 +67,27 @@ var MaterialsView = BaseView.extend(
         this.renderDataTree();
 
     },
+    
+    materialToNode: function(material){
+        var node = { 
+            id: material.id, 
+            parent: material.get('parent'),
+            text: material.get('name'),
+            model: material,
+            state: { collapsed: true }
+        };
+        if (material.get('keyflow') == null){
+            node.backColor = "#C6C6C6";
+            node.text += ' (' + gettext('read only') + ')';
+        }
+        return node;
+    },
 
 
     /*
     * render the hierarchic tree of materials
     */
-    renderDataTree: function(selectId){
+    renderDataTree: function(){
 
         var _this = this;
         var expandedIds = expandedIds || []
@@ -80,19 +95,7 @@ var MaterialsView = BaseView.extend(
         // collection to list, prepare it to treeify
         var materialList = [];
         this.materials.each(function(material){
-            // expand if id is in given array
-            var mat = { 
-                id: material.id, 
-                parent: material.get('parent'),
-                text: material.get('name'),
-                model: material,
-                state: { collapsed: true }
-            };
-            if (material.get('keyflow') == null){
-                mat.backColor = "#C6C6C6";
-                mat.text += ' (' + gettext('read only') + ')';
-            }
-            materialList.push(mat);
+            materialList.push(_this.materialToNode(material));
         });
 
         // root node "Materials"
@@ -104,8 +107,13 @@ var MaterialsView = BaseView.extend(
             state: { collapsed: false }
         }]
 
-        function select(event, node){ 
-            $(_this.materialTree).treeview('selectNode', node.nodeId);
+        function hideEdits(event, node){ 
+            _this.buttonBox.style.display = 'None';
+            // patternfly has problems to get the nodes right, so this does not work unfortunately
+            //if (_this.selectedNode){
+                //console.log(_this.selectedNode)
+                //$(_this.materialTree).treeview('unselectNode', [_this.selectedNode, {silent: true}]);
+            //}
         }
 
         $(this.materialTree).treeview({
@@ -114,40 +122,33 @@ var MaterialsView = BaseView.extend(
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,
+            preventUnselect: true,
+            allowReselect: true,
             // workaround for misplaced buttons when collapsing parent node -> select the collapsed node
-            onNodeCollapsed: select,
-            onNodeExpanded: select
+            onNodeCollapsed: hideEdits,
+            onNodeExpanded: hideEdits
         });
-        // look for and expand and select node with given material id
-        if (selectId){
-            // there is no other method to get all nodes or to search for an attribute
-            var nodes = $(this.materialTree).treeview('getCollapsed');
-            var found;
-            _.forEach(nodes, function(node){
-                if (node.id == selectId){
-                    found = node; 
-                    return false; // in lodash forEach behaves like "break"
-                }
-            })
-            if (found){
-                $(this.materialTree).treeview('revealNode', [ found.nodeId, { levels: 1, silent: true } ]);
-                $(this.materialTree).treeview('selectNode', [ found.nodeId ]);
-            }
-        }
     },
 
     /*
-        * clear the data tree and render it again
-        */
-    rerender: function(selectId){
+    * clear the data tree and render it again
+    */
+    rerender: function(){
         this.buttonBox.style.display = 'None';
         $(this.materialTree).treeview('remove');
-        this.renderDataTree(selectId);
+        this.renderDataTree();
+    },
+    
+    unselectAll: function(){
+        var selected = $(this.materialTree).treeview('getSelected');
+        selected.forEach(function(node){
+            $(this.materialTree).treeview('unselectNode', [node, {silent: true}]);
+        });
     },
 
     /*
-        * event for selecting a node in the material tree
-        */
+    * event for selecting a node in the material tree
+    */
     nodeSelected: function(event, node){
         this.selectedNode = node;
         var editBtn = document.getElementById('edit-material-button');
@@ -183,7 +184,7 @@ var MaterialsView = BaseView.extend(
             material.save({}, { 
                 success: function(){
                     _this.materials.add(material);
-                    _this.rerender(material.id);
+                    _this.addNode(material, node);
                 },
                 error: _this.onError
             });
@@ -192,6 +193,19 @@ var MaterialsView = BaseView.extend(
             title: gettext('Add Material'),
             onConfirm: onChange
         });
+    },
+    
+    addNode: function(material, parentNode){
+        // patternfly-bootstrap-treeview bug workaround
+        if (parentNode){
+            var _node;
+            $(this.materialTree).treeview('getNodes').forEach(function(node){
+                if (node.nodeId == parentNode.nodeId) _node = node;
+            })
+            parentNode = _node;
+        }
+        var node = this.materialToNode(material);
+        $(this.materialTree).treeview('addNode', [node, parentNode]);
     },
 
     /*
@@ -235,7 +249,8 @@ var MaterialsView = BaseView.extend(
                 _this.loader.activate();
                 _this.materials.fetch({ 
                     success: function(){
-                        _this.rerender();
+                        $(_this.materialTree).treeview('removeNode', node);
+                        _this.buttonBox.style.display = 'None';
                         _this.loader.deactivate();
                     },
                     error: function(response){

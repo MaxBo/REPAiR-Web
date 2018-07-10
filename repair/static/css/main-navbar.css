@@ -21,6 +21,7 @@
     z-index: 11;
     margin-top: 0px;
     float: left;
+    background-color: transparent !IMPORTANT;
     /*margin-right: 10px;*/
 }
 
@@ -63,6 +64,7 @@
     padding-bottom: 0px !IMPORTANT;
     float: left;
     transition: font-size 0.25s ease-in-out;
+    background-color: transparent !IMPORTANT;
 }
 
 .navbar-bottom > li:hover > a {
@@ -83,7 +85,6 @@
 
 .navbar-bottom > li.active > a, .navbar-top > li.active > a  {
     color: #aad400 !IMPORTANT;
-    background-color: transparent !IMPORTANT;
     /*text-decoration: underline;*/
 }
 

@@ -147,7 +147,7 @@ var EditActorView = BaseView.extend(
         this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
         this.initMap();
-        this.renderLocations(true);
+        this.renderLocations();
         this.setupAreaInput();
     },
 
@@ -228,11 +228,11 @@ var EditActorView = BaseView.extend(
         var _this = this;
 
         this.globalMap = new Map({
-            divid: 'actors-map', 
+            el: document.getElementById('actors-map'), 
         });
 
     this.localMap = new Map({
-        divid: 'edit-location-map', 
+        el: document.getElementById('edit-location-map'), 
     });
 
     _.each(this.layers, function(attrs, layername){
@@ -783,7 +783,7 @@ var EditActorView = BaseView.extend(
     /* 
     * render the locations of the given actor as markers inside the map and table
     */
-    renderLocations: function(zoomToFocusarea){
+    renderLocations: function(){
         var adminLoc = this.adminLocations.first();
 
         var _this = this;
@@ -803,14 +803,21 @@ var EditActorView = BaseView.extend(
         }
         else addAdminBtn.style.display = 'block';
 
-        // add polygon of focusarea to both maps and center on their centroid
-        if (this.focusarea != null){
+        // add polygon of focusarea to both maps
+        if (this.focusarea != null)
             var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            if (zoomToFocusarea){
-                this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-                this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
-                this.localMap.centerOnPolygon(poly, { projection: _this.projection });
-            }
+        // zoom to admin area
+        if (adminLoc){
+            this.globalMap.centerOnPoint(
+                adminLoc.get('geometry').get('coordinates'),
+                { projection: _this.projection }
+            )
+        }
+        // else zoom to focus area
+        else if (this.focusarea){
+            this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+            this.localMap.centerOnPolygon(poly, { projection: _this.projection });
         };
     },
 

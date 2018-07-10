@@ -23,7 +23,7 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      PostGetViewMixin)
 
 
-class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                            ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activitygroup'
@@ -38,10 +38,14 @@ class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             groups = groups.filter(keyflow__id=keyflow_pk)
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                groups = groups.filter(id__in=ids)
         return groups.order_by('id')
 
 
-class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                       ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activity'
@@ -57,6 +61,10 @@ class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             activities = activities.filter(activitygroup__keyflow__id=keyflow_pk)
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                activities = activities.filter(id__in=ids)
         return activities.order_by('id')
 
 

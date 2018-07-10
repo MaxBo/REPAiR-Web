@@ -19,6 +19,7 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 
 <div class="tab-content">
   <div class="tab-pane fade in active" id="flows">
@@ -54,12 +55,11 @@
   
 {% include "statusquo/flows.html" %}
 {% include "statusquo/challenges-aims.html" %}
-{% include "statusquo/setup-flow-assessment.html" %}
 {% include "statusquo/sustainability.html" %}
-{% if request.session.mode != 1 %}
+{% if request.session.mode != 1 %} <!-- workshop -->
 {% include "statusquo/targets.html" %}
 {% endif %}
-  
+
 {% render_bundle 'StatusQuo' %}
 
 {% endblock %}

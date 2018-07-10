@@ -54,6 +54,7 @@
     border: 2px solid #fff;
     /*border-radius: 10px;*/
     margin-top: 20px;
+    background-color: transparent;
 }
 
 #sidebar li.active a, #sidebar li.active a:hover {
@@ -65,11 +66,9 @@
 #sidebar li a:hover {
     border-style: solid;
     border-color: #aad400;
-    background-color: transparent;
 }
 
-#slide-icon
-{
+#slide-icon{
     color: #999;
     float: right;
     padding: 50px 5px 30px 0px;

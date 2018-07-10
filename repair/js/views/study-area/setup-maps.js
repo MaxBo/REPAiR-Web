@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'views/study-area/maps', 
+define(['backbone', 'underscore', 'views/study-area/workshop-maps', 
         'collections/gdsecollection', 'models/gdsemodel',
         'visualizations/map', 'app-config'],
 
@@ -19,6 +19,9 @@ var SetupMapsView = BaseMapView.extend(
     categoryExpanded: true,
     selectedBackColor: '#aad400',
     selectedColor: 'white',
+    allowReselect: true,
+    preventUnselect: false,
+    onhoverColor: '#F5F5F5',
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
@@ -37,6 +40,16 @@ var SetupMapsView = BaseMapView.extend(
         'click #refresh-wms-services-button': 'renderAvailableServices',
         'click #move-layer-up-button': 'moveLayerUp',
         'click #move-layer-down-button': 'moveLayerDown'
+    },
+    
+    // determines if a layer is checked on start ('included' layers in setup mode)
+    isChecked: function(layer){
+        return layer.get('included');
+    },
+
+    saveSession(){
+        // setup mode doesn't need to store anything in the session
+        // all saved directly in db
     },
 
     /*
@@ -63,7 +76,7 @@ var SetupMapsView = BaseMapView.extend(
     renderMap: function(){
         var _this = this;
         this.map = new Map({
-            divid: 'base-map',
+            el: document.getElementById('base-map'),
             renderOSM: false
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
@@ -91,9 +104,9 @@ var SetupMapsView = BaseMapView.extend(
     * event for selecting a node in the layer tree
     */
     nodeSelected: function(event, node){
-        // unselect previous node (caused by onNodeUnselected)
-        if (this.selectedNode)
-            $(this.layerTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
+        //// unselect previous node (caused by onNodeUnselected)
+        //if (this.selectedNode)
+            //$(this.layerTree).treeview('unselectNode', [this.selectedNode, { silent: true }]);
         var addBtn = document.getElementById('add-layer-button'),
             removeBtn = document.getElementById('remove-layer-button'),
             downBtn = document.getElementById('move-layer-down-button'),
@@ -120,15 +133,15 @@ var SetupMapsView = BaseMapView.extend(
 
     // items are not unselectable
     nodeUnselected: function(event, node){
-        $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
+        //$(this.layerTree).treeview('selectNode',  [node, { silent: true }]);
     },
 
     // select item on collapsing (workaround for misplaced buttons when collapsing)
     nodeCollapsed: function(event, node){
-        $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
     },
     nodeExpanded: function(event, node){
-        $(this.layerTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
+        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
     },
 
     nodeChecked: function(event, node){
@@ -139,10 +152,6 @@ var SetupMapsView = BaseMapView.extend(
             this.map.setVisible(this.layerPrefix + node.layer.id, true);
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
             if (legendDiv) legendDiv.style.display = 'inline';
-            //$(this.layerTree).treeview('checkNode', [node.parentId, { silent: true }]);
-        }
-        // category checked
-        else {
         }
     },
 
@@ -154,10 +163,6 @@ var SetupMapsView = BaseMapView.extend(
             this.map.setVisible(this.layerPrefix + node.layer.id, false);
             var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
             if (legendDiv) legendDiv.style.display = 'none';
-        }
-        // category cant't be unchecked
-        else {
-            $(this.layerTree).treeview('checkNode', [node.nodeId, { silent: true }]);
         }
     },
 
@@ -272,7 +277,7 @@ var SetupMapsView = BaseMapView.extend(
             success: function(){
                 var selectCatId = 0;
                 // remove category from tree (if category was selected)
-                if (_this.selectedNode.category) {
+                if (_this.selectedNode.category && _this.selectedNode.nodes) {
                     _this.selectedNode.nodes.forEach(function(node){
                         _this.map.removeLayer(_this.layerPrefix + node.layer.id);
                     })

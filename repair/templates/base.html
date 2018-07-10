@@ -54,7 +54,7 @@
         <ul class="nav navbar-nav navbar-top">
           {% if request.user.is_authenticated %}
             <li>
-              <form id="casestudy-select" action="/login/session/" method="post">
+              <form id="casestudy-select" action="/session/" method="post">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.path }}" />
                 <input name="casestudy" id="casestudy" type="hidden">
@@ -85,7 +85,7 @@
             </li>
             {% if setup_mode_permitted %}
               <li>
-                <form id="mode-select" action="/login/session/" method="post">
+                <form id="mode-select" action="/session/" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
                   <input name="mode" id="mode" type="hidden">
@@ -121,7 +121,7 @@
                 <a href="/logout">{% trans "Logout" %}</a>
               </div>
             </div>
-            {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
+            {% else %}<a href="/login">{% trans "Login" %}</a></li>
             {% endif %}
           </li>
           <li>
@@ -144,8 +144,8 @@
         </ul>
       </div>
     </div>
-    <a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank" style="position: absolute; right: 5px; bottom: 10px;">
-      <img src="{{STATIC_URL}}img/logoEC_H2020_for_black.jpg" style="width: 250px;">
+    <a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank" style="position: absolute; right: 17px; bottom: 15px;">
+      <img src="{{STATIC_URL}}img/eu-logo.jpg" style="width: 40px;">
     </a>
   </nav>
   <div id="wrapper" class="active">

@@ -19,7 +19,20 @@ body {
 }
 
 a {
-  color: #aad400;
+  color: #94b900;
+}
+
+li>a {
+  background-color: #efefef;
+}
+
+.dropdown-menu>li>a {
+  background-color: white;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+  background-color: #aad400;
+  color: white;
 }
 
 .row{
@@ -105,21 +118,22 @@ div.fullscreen{
   font-family: sans-serif;
   font-size: 12px;
 }
-.panel {
-  position: relative;
-  min-height: 700px;
-  border: 2px solid #EEE;
-  border-radius: 10px;
-  margin: 3px;
-  padding: 5px;
-  background-color: white;
-  font-family: sans-serif;
-  font-size: 12px;
+.panel-heading .accordion-toggle{
+    text-decoration: none;
+    padding: 20px 10px 20px 10px;
+    display: block;
+    color: black !important;
 }
-.panel ul {
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
+.panel-heading .accordion-toggle:after {
+    /* symbol for panel */
+    font-family: 'Glyphicons Halflings';  
+    content: "\e114";
+    color: grey;
+    margin-left: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for collapsed panel*/
+    content: "\e080"; 
 }
 .title {
   font-weight: 600;    
