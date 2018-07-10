@@ -39,6 +39,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
             var _this = this;
+            this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
@@ -206,7 +207,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 height: height,
                 width: width,
                 el: div,
-                title: ''
+                title: '',
+                language: config.session.get('language')
             })
             if (data.nodes.length == 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
@@ -226,6 +228,10 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.render();
+        },
+        
+        format: function(value){
+            return value.toLocaleString(this.language);
         },
 
         /*
@@ -286,7 +292,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     fractions.forEach(function(fraction){
                         var material = materials.get(fraction.material),
                             value = Math.round(fraction.fraction * 100000) / 1000
-                        text += value + '% ';
+                        text += _this.format(value) + '% ';
                         if (!material) text += gettext('material not found');
                         else text += material.get('name');
                         if (fraction.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';

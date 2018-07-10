@@ -13,6 +13,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          MaterialFactory,
                                          ProductFractionFactory,
                                          )
+import json
 
 
 class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
@@ -135,6 +136,38 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                                       destination__activity__activitygroup__keyflow=kic_obj,
                                       keyflow=kic_obj,
                                       )
+
+    def test_post_get(self):
+        """
+        Test if user can post without permission
+        """
+        filterdata = json.dumps([
+            {'function': 'origin__activity__activitygroup__id__in',
+             'values': [1, 2],}])
+        post_data1 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                 destination='activitygroup')),
+                             materials=json.dumps(dict(aggregate=True,
+                                                      id=[self.material_1])),
+                             filters=filterdata)
+        post_data2 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                                destination='activitygroup')),
+                              materials=json.dumps(dict(aggregate=False,
+                                                           id=[self.material_1])),
+                                 filters=filterdata)
+        #post_data3 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                                #destination='activitygroup')),
+                              #materials=json.dumps(dict(aggregate=False,
+                                                           #id=[self.material_1])),
+                                 #filters=filterdata,
+                            #spatial_level=json.dumps(dict(activity=dict(id=1,
+                                                                        #level=1))))
+        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(self.casestudy, self.keyflow)
+        for post_data in [post_data1, post_data2]:
+            response = self.post(
+                url,
+                data=post_data,
+                extra={'format': 'json'})
+            self.response_200()
 
 
 class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
