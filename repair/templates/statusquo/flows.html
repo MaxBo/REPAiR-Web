@@ -16,8 +16,18 @@
     </div>
     <div id="filterCollapse" class="panel-collapse collapse" style="padding: 0px 10px 10px 10px;">
       <div class="row" style="border-top: 1px solid lightgrey;">
-        <h4> {% trans 'Nodes' %} </h4>
-        <div class="row" style="margin-top: 20px">
+        <h4 style="float: left;"> {% trans 'Nodes' %} </h4>
+        <div class="help-icon glyphicon glyphicon-question-sign" data-placement="bottom" data-toggle="popover" title="Nodes Filter" data-html="true"
+          data-content="{% blocktrans %}
+            Filter the nodes by the following criteria<br><br>
+            <b>Filter Level</b> - 
+            The level hierarchy of the nodes goes from Activitygroup over Activities down to the individual Actors.
+            Depending on the selected level different selects for the nodes of each level appear, from left to right with higher granularity. 
+            Each selection on a specific level limits the number of available nodes in the more granular node selects to its right.<br><br>
+            <b>Direction</b> - Limits the displayed flows to a set flowing <i>to</i> or <i>from</i> the filtered nodes (or both: <i>from/to</i>)
+          {% endblocktrans %}">
+        </div> 
+        <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Filter Level" %} </label>
             <select class="form-control" name="node-level-select" style="max-width: 200px;">
@@ -48,20 +58,24 @@
           <div class="col-md-4">
             <div>
               <label style="margin: 0px;">{% trans "Filter Actors by Areas" %}</label>
-              <table style="margin: 0px" class="area-select-wrapper">
-                <tr>
-                  <td style="vertical-align:top; width:1%;">
-                    <button id="area-select-button" class="btn">{% trans "Select Areas" %}</button>
-                  </td>
-                  <td id="area-selections">
-                  </td>
-              </tr>
-              </table>
+                <div class="row area-select-wrapper">
+                  <button id="area-select-button" class="btn" style="float: left;">{% trans "Select Areas" %}</button>
+                  <div class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Filter Actors by Areas" data-html="true"
+                    data-content="{% blocktrans %}
+                      Clicking the <b>Select Areas</b> button opens a dialog where areas may be selected and confirmed.<br>
+                      On confirmation the selected areas are used to limit the Actors to those located inside these areas.<br><br>
+                      This filter is complementary to the other node filters and available on the Actor level only.
+                    {% endblocktrans %}">
+                  </div> 
+                </div> 
+                <div id="area-selections" class="row">
+                  <div id="area-selections"></div>
+                </div> 
             </div>
           </div>
         </div>
         <div class="row">
-          <div class="col-md-2">
+          <div class="col-md-3">
             <label>{% trans "Direction" %} </label>
             <br>
             <label class="radio-inline"><input type="radio" name="direction" value="both" checked>{% trans "From/To" %}</label>
@@ -71,36 +85,57 @@
         </div>
       </div>
       <div class="row" style="border-top: 1px solid lightgrey;">
-        <h4> {% trans 'Flows' %} </h4>
-        <div class="row">
+        <h4 style="float: left;"> {% trans 'Flows' %} </h4>
+        <div class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true"
+          data-content="{% blocktrans %}
+            Filter the flows in between the nodes by the following criteria<br><br>
+            <b>Flow Type</b> - 
+            Limits the displayed flows to flows of <i>Products</i> or <i>Waste</i> or displays both (<i>Products and Waste</i>).<br><br>
+            <b>Material</b> - 
+            Flows are composed of multiple fractions of different materials. Selecting a material limits the displayed flows 
+            to a set of flows containing this material and its child materials.<br>
+            <b><i>Aggregate materials</i></b> - If this is checked all material fractions and their amounts are summed up to the top level materials (or to the selected material and its direct children).
+            If unchecked all fractions will be shown in detail.
+          {% endblocktrans %}">
+        </div> 
+        <div class="row" style="margin-top: 10px">
+          <div class="col-md-3">
+            <div class="row">
+              <label>{% trans "Flow Type" %}</label>
+              <select name="waste" class="form-control">
+                <option value=''> {% trans "Products and Waste" %} </option>
+                <option value='False'> {% trans "Products" %} </option>
+                <option value='True'> {% trans "Waste" %} </option>
+              </select>
+            </div>
+          </div>
           <div class="col-md-3">
             <div class='row'>
               <label>{% trans "Material" %}</label>
               <div id='material-filter'></div>
             </div>
             <div class='row' title='Aggregate all derived materials to the level of the direct child materials'>
-              <input type='checkbox' checked name='aggregateMaterials'>{% trans 'aggregate materials' %}
+              <input type='checkbox' checked name='aggregateMaterials' style="transform: scale(2); float: left; margin-right: 10px;"> <div>{% trans 'Aggregate materials' %}</div>
             </div>
-          </div>
-          <div class="col-md-3">
-            <label>{% trans "Flow Type" %}</label>
-            <select name="waste" class="form-control">
-              <option value=''> {% trans "Products and Waste" %} </option>
-              <option value='False'> {% trans "Products" %} </option>
-              <option value='True'> {% trans "Waste" %} </option>
-            </select>
           </div>
         </div>
       </div>
     </div>
     <div class="row" style="padding: 10px; border-top: 1px solid lightgrey;">
-        <label class="input-label">{% trans "Display Level" %} </label>
-        <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
-          <option value="activitygroup">{% trans "Activity Group" %}</option>
-          <option value="activity">{% trans "Activity" %}</option>
-          <option value="actor">{% trans "Actor" %} </option>
-        </select>
-      <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px;">{% trans "Apply Filters and Render" %}</button>
+      <label class="input-label">{% trans "Display Level" %} </label>
+      <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
+        <option value="activitygroup">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
+      </select>
+      <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
+      <div class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filters and Render" style="float: left;" data-html="true"
+        data-content="{% blocktrans %}
+          Rerender the sankey diagram with data filtered by the selections made in the <b>Filter</b> section above 
+          (click the Filter row to expand/collapse it).<br><br>
+          All data is based on flows between actors. The data will be aggregated to the selected <b>Display Level</b>. 
+        {% endblocktrans %}">
+      </div>
     </div>
   </div>
 </div>
@@ -382,7 +417,7 @@
     <div class="modal-body">
       <div class='row'>
         <label class="input-label">{% trans "Level" %}</label>
-        <select name="level-select" class="form-control" style="max-width: 350px;">
+        <select name="area-level-select" class="form-control" style="max-width: 350px;">
         <%  levels.forEach(function(level) { %>
           <option value="<%= level.id %>"> <%= level.get('name') %></option>
         <% })  %>
