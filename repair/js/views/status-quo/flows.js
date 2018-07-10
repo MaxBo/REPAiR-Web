@@ -96,7 +96,7 @@ var FlowsView = BaseView.extend(
         this.el.innerHTML = template();
         
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
-        $(popovers).popover({ trigger: "hover" }); 
+        $(popovers).popover({ trigger: "focus" }); 
         
         this.areaModal = this.el.querySelector('.area-filter.modal');
         html = document.getElementById('area-select-modal-template').innerHTML;

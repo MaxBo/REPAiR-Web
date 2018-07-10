@@ -144,6 +144,15 @@ div.fullscreen{
   margin: 5px 5px 5px 10px;
   font-size: 24px;
   color: lightblue;
+  cursor: pointer;
+  text-decoration: none!important;
+}
+.help-icon:hover{
+  color: #44c9f5;
+}
+.help-icon:focus{
+  color: #44c9f5;
+  outline: none;
 }
 .input-label {
   float: left; 
