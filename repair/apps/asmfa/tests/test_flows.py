@@ -19,7 +19,8 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
 import json
 
 
-class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
+                                                 APITestCase):
     """
     MAX:
     1. origin/destination can be in other casestudies than activity2activity
@@ -83,7 +84,8 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITe
             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
+                                           APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -134,8 +136,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
     def setUp(self):
         super().setUp()
         self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
                                          keyflow=self.kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
@@ -173,17 +175,18 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
         filterdata = json.dumps([
             {'function': 'origin__activity__activitygroup__id__in',
              'values': [self.activitygroup1.id, self.activitygroup2.id],}])
-        post_data1 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
-                                                 destination='activitygroup')),
-                             materials=json.dumps(dict(aggregate=True,
-                                                      id=[self.material_1])),
+        post_data1 = dict(aggregation_level=json.dumps(
+            dict(origin='activitygroup', destination='activitygroup')),
+                          materials=json.dumps(dict(aggregate=True,
+                                                    id=[self.material_1])),
                              filters=filterdata)
-        post_data2 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
-                                                                destination='activitygroup')),
-                              materials=json.dumps(dict(aggregate=False,
-                                                           id=[self.material_1])),
+        post_data2 = dict(aggregation_level=json.dumps(
+            dict(origin='activitygroup', destination='activitygroup')),
+                          materials=json.dumps(dict(aggregate=False,
+                                                    id=[self.material_1])),
                                  filters=filterdata)
-        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(self.casestudy, self.kic_obj.id)
+        url = '/api/casestudies/{}/keyflows/{}/actor2actor/' + \
+            '?GET=true'.format(self.casestudy, self.kic_obj.id)
         for post_data in [post_data1, post_data2]:
             response = self.post(
                 url,
@@ -192,7 +195,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
             self.response_200()
 
 
-class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest,
+                                          APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -238,9 +242,9 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase)
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
+                                         keyflow=kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
+                                         keyflow=kic_obj)
         self.obj = Group2GroupFactory(id=self.group2group,
                                       origin__id=self.origin,
                                       origin__keyflow=kic_obj,
