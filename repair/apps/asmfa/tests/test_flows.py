@@ -184,12 +184,14 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
         post_data1 = dict(aggregation_level=json.dumps(
             dict(origin='activitygroup', destination='activitygroup')),
                           materials=json.dumps(dict(aggregate=True,
-                                                    id=[self.material_2])),
+                                                    ids=[self.material_1,
+                                                        self.material_2,
+                                                        self.material_3])),
                              filters=filterdata)
         post_data2 = dict(aggregation_level=json.dumps(
             dict(origin='activitygroup', destination='activitygroup')),
                           materials=json.dumps(dict(aggregate=False,
-                                                    id=[self.material_1])),
+                                                    ids=[self.material_1])),
                                  filters=filterdata)
         url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(
             self.casestudy, self.kic_obj.id)
