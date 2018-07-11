@@ -120,16 +120,16 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                                     casestudy=self.uic.casestudy,
-                                                keyflow__id=self.keyflow)
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj)
         self.comp1 = CompositionFactory(name='composition1',
-                                            nace='nace1')
+                                        nace='nace1')
         self.comp2 = CompositionFactory(name='composition2',
-                                            nace='nace2')
+                                        nace='nace2')
         self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
         self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
         self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
@@ -138,17 +138,17 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
         self.actor3 = ActorFactory(activity=self.activity2)
         self.act2act1 = Actor2ActorFactory(id=self.actor2actor1,
-                                               origin=self.actor1,
-                                               destination=self.actor2,
-                                               keyflow=self.kic_obj,
-                                               composition=self.comp1,
-                                               )
+                                           origin=self.actor1,
+                                           destination=self.actor2,
+                                           keyflow=self.kic_obj,
+                                           composition=self.comp1,
+                                           )
         self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
-                                               origin=self.actor2,
-                                               destination=self.actor3,
-                                               keyflow=self.kic_obj,
-                                               composition=self.comp2,
-                                               )
+                                           origin=self.actor2,
+                                           destination=self.actor3,
+                                           keyflow=self.kic_obj,
+                                           composition=self.comp2,
+                                           )
         self.actorstock1 = ActorStockFactory(id=self.actorstock,
                                              keyflow=self.kic_obj,
                                              origin=self.actor1)
@@ -166,19 +166,20 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
              'values': [1, 2],}])
         post_data1 = dict(aggregation_level='activitygroup',
                              materials=json.dumps(dict(aggregate=True,
-                                                      id=[self.material_1])),
+                                                       id=[self.material_1])),
                              filters=filterdata)
         post_data2 = dict(aggregation_level='activitygroup',
                           materials=json.dumps(dict(aggregate=False,
-                                                   id=[self.material_1])),
+                                                    id=[self.material_1])),
                           filters=filterdata)
         post_data3 = dict(aggregation_level='activitygroup',
                           materials=json.dumps(dict(aggregate=False,
-                                                   id=[self.material_1])),
+                                                    id=[self.material_1])),
                           filters=filterdata,
                           spatial_level=json.dumps(dict(activity=dict(id=1,
-                                                                      level=1))))
-        url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(self.casestudy, self.keyflow)
+                                                                    level=1))))
+        url = '/api/casestudies/{}/keyflows/{}/actorstock/?GET=true'.format(
+            self.casestudy, self.keyflow)
         for post_data in [post_data1, post_data2, post_data3]:
             response = self.post(
                 url,
