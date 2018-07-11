@@ -1,107 +1,443 @@
 {% load i18n %}
 {% block content %}
 
+<!--for some reason i can't load this with require and css loader-->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
+
 <script type="text/template" id="flows-template">
-<div class="row bordered" >
-  <div class="row shaded" data-toggle="collapse" data-target=".row.filters" style='cursor: pointer;'>
-    <button class="btn btn-primary square inverted" style="margin-right: 5px; float: left;">
-      <span class="glyphicon glyphicon-eye-open"></span>
-    </button>
-    <h4 style="margin-top: 3px;">{% trans "Filters" %}</h4>
-  </div>
-  <div class="collapse row filters">
-    <div class="col-md-3">
-      <label style="margin: 0px">{% trans "Areas" %}</label>
-      <table style="margin: 0px">
-        <tr>
-          <td style="vertical-align:top; width:1%;">
-            <button id="area-select-button" class="btn">{% trans "Select Areas" %}</button>
-          </td>
-          <td id="area-selections">
-          </td>
-      </tr>
-      </table>
+<div class="panel-group" id="filter-accordion">
+  <div class="panel panel-default">
+    <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+      <h4 style="margin-top: 0; margin-bottom: 0;"> 
+        <a role="button" data-toggle="collapse" data-parent="#filter-accordion" href="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" class="accordion-toggle collapsed">
+          {% trans "Filters" %} 
+        </a>
+      </h4>
     </div>
-    <div class="col-md-3">
-      <div class='row'>
-        <b>{% trans "Material" %}</b>
-        <div id='material-filter'></div>
+    <div id="filterCollapse" class="panel-collapse collapse" style="padding: 0px 10px 10px 10px;">
+      <div class="row" style="border-top: 1px solid lightgrey;">
+        <h4 style="float: left;"> {% trans 'Nodes' %} </h4>
+        <a class="help-icon glyphicon glyphicon-question-sign" data-placement="bottom" data-toggle="popover" title="Nodes Filter" data-html="true" tabindex="0"
+          data-content="{% blocktrans %}
+            Filter the nodes by the following criteria<br><br>
+            <b>Filter Level</b> - 
+            The level hierarchy of the nodes goes from Activitygroup over Activities down to the individual Actors.
+            Depending on the selected level different selects for the nodes of each level appear, from left to right with higher granularity. 
+            Each selection on a specific level limits the number of available nodes in the more granular node selects to its right.<br><br>
+            <b>Direction</b> - Limits the displayed flows to a set flowing <i>to</i> or <i>from</i> the filtered nodes (or both: <i>from/to</i>)
+          {% endblocktrans %}">
+        </a> 
+        <div class="row" style="margin-top: 10px">
+          <div class="col-md-2">
+            <label>{% trans "Filter Level" %} </label>
+            <select class="form-control" name="node-level-select" style="max-width: 200px;">
+              <option value="activitygroup">{% trans "Activity Group" %}</option>
+              <option value="activity">{% trans "Activity" %}</option>
+              <option value="actor">{% trans "Actor" %} </option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-2">
+            <label>{% trans "Activity Group" %}</label>
+            <select name="group" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+            </select>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 30px; position: absolute; left: -10px; top: 20px;">></div>
+            <label>{% trans "Activity" %}</label>
+            <select name="activity" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+            </select>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 30px; position: absolute; left: -10px; top: 20px;">></div>
+            <label>{% trans "Actor" %}</label>
+            <select name="actor" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="10" style="resize: vertical;">
+            </select>
+          </div>
+          <div class="col-md-4">
+            <div>
+              <label style="margin: 0px;">{% trans "Filter Actors by Areas" %}</label>
+                <div class="row area-select-wrapper">
+                  <button id="area-select-button" class="btn" style="float: left;">{% trans "Select Areas" %}</button>
+                  <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Filter Actors by Areas" data-html="true" tabindex="0"
+                    data-content="{% blocktrans %}
+                      Clicking the <b>Select Areas</b> button opens a dialog where areas may be selected and confirmed.<br>
+                      On confirmation the selected areas are used to limit the Actors to those located inside these areas.<br><br>
+                      This filter is complementary to the other node filters and available on the Actor level only.
+                    {% endblocktrans %}">
+                  </a> 
+                </div> 
+                <div id="area-selections" class="row">
+                  <div id="area-selections"></div>
+                </div> 
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <label>{% trans "Direction" %} </label>
+            <br>
+            <label class="radio-inline"><input type="radio" name="direction" value="both" checked>{% trans "From/To" %}</label>
+            <label class="radio-inline"><input type="radio" name="direction" value="from">{% trans "From" %}</label>
+            <label class="radio-inline"><input type="radio" name="direction" value="to">{% trans "To" %}</label>
+          </div>
+        </div>
       </div>
-      <div class='row' title='Aggregate all derived materials to the level of the direct child materials'>
-        <input type='checkbox' checked name='aggregateMaterials'>{% trans 'aggregate materials' %}
+      <div class="row" style="border-top: 1px solid lightgrey;">
+        <h4 style="float: left;"> {% trans 'Flows' %} </h4>
+        <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true" tabindex="0"
+          data-content="{% blocktrans %}
+            Filter the flows in between the nodes by the following criteria<br><br>
+            <b>Flow Type</b> - 
+            Limits the displayed flows to flows of <i>Products</i> or <i>Waste</i> or displays both (<i>Products and Waste</i>).<br><br>
+            <b>Material</b> - 
+            Flows are composed of multiple fractions of different materials. Selecting a material limits the displayed flows 
+            to a set of flows containing this material and its child materials.<br>
+            <b><i>Aggregate materials</i></b> - If this is checked all material fractions and their amounts are summed up to the top level materials (or to the selected material and its direct children).
+            If unchecked all fractions will be shown in detail.
+          {% endblocktrans %}">
+        </a> 
+        <div class="row" style="margin-top: 10px">
+          <div class="col-md-3">
+            <div class="row">
+              <label>{% trans "Flow Type" %}</label>
+              <select name="waste" class="form-control">
+                <option value=''> {% trans "Products and Waste" %} </option>
+                <option value='False'> {% trans "Products" %} </option>
+                <option value='True'> {% trans "Waste" %} </option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class='row'>
+              <label>{% trans "Material" %}</label>
+              <div id='material-filter'></div>
+            </div>
+            <div class='row' title='Aggregate all derived materials to the level of the direct child materials'>
+              <input type='checkbox' checked name='aggregateMaterials' style="transform: scale(1.5); float: left; margin-right: 10px;"> <div>{% trans 'Aggregate materials' %}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <b>{% trans "Flow Type" %}</b>
-      <select name="waste" class="form-control">
-        <option value=''> {% trans "Products and Waste" %} </option>
-        <option value='False'> {% trans "Products" %} </option>
-        <option value='True'> {% trans "Waste" %} </option>
+    <div class="row" style="padding: 10px; border-top: 1px solid lightgrey;">
+      <label class="input-label">{% trans "Display Level" %} </label>
+      <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
+        <option value="activitygroup">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
       </select>
+      <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filters and Render" style="float: left;" data-html="true" tabindex="0"
+        data-content="{% blocktrans %}
+          Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above 
+          (click the Filters row to expand/collapse it).<br><br>
+          All data is based on flows between actors. The data will be aggregated to the selected <b>Display Level</b>. 
+        {% endblocktrans %}">
+      </a>
     </div>
-  </div>
-  <div class="collapse row filters" style="margin-top: 20px">
-    <div class="row" style="margin-left: 20px">
-      <label class="radio-inline"><input type="radio" name="direction" value="both" checked>{% trans "From/To" %}</label>
-      <label class="radio-inline"><input type="radio" name="direction" value="from">{% trans "From" %}</label>
-      <label class="radio-inline"><input type="radio" name="direction" value="to">{% trans "To" %}</label>
-    </div>
-    <div class="row">
-      <div class="col-md-3">
-        <b>{% trans "Activity Group" %}</b>
-        <select name="group" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6"></select>
-        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
-      </div>
-      <div class="col-md-3">
-        <b>{% trans "Activity" %}</b>
-        <select name="activity" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6"></select>
-        <div style="font-size: 30px; position: absolute; right: -10px; top: 15px;">></div>
-      </div>
-      <div class="col-md-3">
-        <b>{% trans "Actor" %}</b>
-        <select name="actor" class="form-control" data-live-search="true" data-dropup-auto="false" multiple style="resize: vertical;" data-size="10"></select>
-      </div>
-    </div>
-  </div>
-  <div class="collapse row filters" style="margin-top: 20px; margin-left: 20px;">
-    <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply Filters" %}">{% trans "Apply Filters" %}</button>
   </div>
 </div>
 <div class="row" style="margin-top: 20px;">
   <div class="col-md-6">
-    <div id="flow-diagram">
-      <div class="row">
-        <label class="input-label">{% trans "Level" %} </label>
-        <select class="form-control" name="data-view-type-select" id="data-view-type-select" style="max-width: 200px;">
-          <option value="activitygroups">{% trans "Activity Group" %}</option>
-          <option value="activities">{% trans "Activity" %}</option>
-          <option value="actors">{% trans "Actor" %} </option>
-        </select>
-      </div>
-      <div class="row" style="position: relative;">
-        <div id="sankey-wrapper" class="noselect" style="width: 100%;">
-        </div>
+    <div class="row" style="position: relative;">
+      <div class="sankey-wrapper" class="noselect" style="width: 100%;">
       </div>
     </div>
   </div>
   <div class="col-md-6">
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#flow-map-panel">{% trans "Flow Map" %}</a></li>
-      <li><a data-toggle="tab" href="#chloropleth-map-panel">{% trans "Chloropleth Map" %}</a></li>
-    </ul>
-    <div class="tab-pane fade in active" id="flow-map-panel">
-      <div id="flow-map" style="width: 100%">
-        <img src='/static/img/flow-sankey-preview.png'>
-      </div>
+    <div id="flow-map" style="width: 100%">
+      <img src='/static/img/flow-sankey-preview.png'>
     </div>
-    <div class="tab-pane fade in" id="chloropleth-map-panel">
-      <h4>ToDo</h4>
-    </div>
-  </div>
 </div>
 
 <div class="area-filter modal fade" role="dialog">
 </div>
 </script>
+<script type="text/template" id="workshop-flow-assessment-template">
+<div class="col-md-12" style="margin-top: 20px;">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#indicator-map-tab">{% trans "Map" %}</a></li>
+    <li ><a data-toggle="tab" href="#bar-charts-tab">{% trans "Bar charts" %}</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="indicator-map-tab">
+      <div class="row bordered">
+        <div class="row">
+          <div class="col-md-4">
+            <label>{% trans "Indicator" %}</label>
+            <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+              <option disabled selected value="-1"> {% trans "Select" %} </option>
+              <% indicators.forEach(function(indicator) { %>
+                <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
+              <% });  %>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>{% trans "Spatial level" %}</label>
+            <select name="spatial-level-select" class="form-control" style="max-width: 350px;">
+              <option disabled selected value="-1"> {% trans "Select" %} </option>
+              <% levels.forEach(function(level) { %>
+                  <option value="<%= level.id %>"> <%= level.get('name') %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-8" style="margin-top: 10px;">
+          <div id='indicator-map' style='min-height: 400px; width: 100%; height: 100%;'></div>
+        </div>
+        <div class="col-md-4">
+          <h4>{% trans "Legend" %}</h4>
+          <div class='legend'></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade in" id="bar-charts-tab">
+      <div class="row overflow bordered" style="overflow-y: hidden;">
+        <div class="grid" id='indicator-area-row' style="float: left; height: 150px;">
+        </div>
+        <button class="btn btn-primary round" id='add-area-select-item-btn' style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px; margin-top: 50px;">
+          <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
+        </button>
+      </div>
+      <% indicators.forEach(function(indicator) { %>
+      <div class="row bordered overflow" data-indicator=<%= indicator.id %>>
+        <h4> <%= indicator.get('name') %> </h4>
+        <div class="row"> </div>
+      </div>
+      <% })  %>
+    </div>
+  </div>
+</div>
+<div class="area-select modal fade" role="dialog">
+</div>
+</script>
+
+<script type="text/template" id="row-box-template">
+<div class="item-content bordered noselect">
+  <button class="btn btn-danger remove-item" style="position: absolute; top: -1px; right: -1px;" data-id="<%= id %>">
+    <b style="pointer-events: none;">X</b>
+  </button>
+  <b style="font-size: <%= fontSize %>"><%= title %></b><br>
+  <button class="btn btn-warning select-area" data-id="<%= id %>"><b style="pointer-events: none;">{% trans "Select Areas" %}</b></button>
+</div>
+</script>
+
+<script type="text/template" id="setup-flow-assessment-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
+  <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+    <option disabled selected> {% trans "Select" %} </option>
+    <% indicators.each(function(indicator) { %>
+      <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
+    <% });  %>
+  </select>
+  <button class="btn btn-primary" id="edit-flowindicator-button"> {% trans "Edit" %} </button>
+  <button class="btn btn-primary" id="new-flowindicator-button"> {% trans "New" %} </button>
+  <button class="btn btn-warning" id="delete-flowindicator-button"> {% trans "Delete" %} </button>
+</div>
+<div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; ">
+  <div class="row">
+    <button id='upload-flowindicator-button' title="{% trans "upload changes made to indicator" %}" class="btn btn-danger btn-upload">
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <table>
+        <tr>
+          <td style="width:1%;">{% trans "Name" %}</td>
+          <td>
+            <input class="form-control" name="name" style="width: 100%;">
+          </td>
+        </tr>
+        <tr>
+          <td>{% trans "Type" %}</td>
+          <td>
+            <select class="form-control" id="indicator-type">
+              <option value="A">Flows A</option>
+              <option value="AB">Flows A / Flows B</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>{% trans "Unit" %}</td>
+          <td>
+            <input class="form-control" name="unit">
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-md-4">
+      <table>
+        <tr>
+          <td valign="top" style="width:1%;">{% trans "Description" %}</td>
+          <td>
+            <textarea class="form-control" name='description' rows="4" style="width: 100%;"></textarea>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">  
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li id="flowALi" class="active"><a data-toggle="tab" href="#flow-a-tab" id='data-link'>{% trans "Flow A" %}</a></li>
+        <li id="flowBLi"><a data-toggle="tab" href="#flow-b-tab">{% trans "Flow B" %}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade in active" id="flow-a-tab">
+        </div>
+        <div class="tab-pane fade in" id="flow-b-tab">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="indicator-flow-edit-template">
+<div class="row bordered">
+  <div class="row" style="margin-top: 15px;">
+    <div class="col-md-3">
+      <div class='row'>
+        <b>{% trans "Material" %}</b>
+        <div class='material-filter'></div>
+      </div>
+      <div class="row">
+        <input type="text" name="material-tags" placeholder="" >
+      </div>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Flow Type" %}</b>
+      <select name="waste" class="form-control">
+        <option value='both'> {% trans "Products and Waste" %} </option>
+        <option value='product'> {% trans "Products" %} </option>
+        <option value='waste'> {% trans "Waste" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Application of user choice for spatial filtering" %}</b>
+      <form >
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="origin">{% trans "origin" %}
+        </span>
+        <br>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="destination">{% trans "destination" %}
+        </span>
+        <br>
+        <span>
+          <input name="spatial-filtering" type="radio" style="margin-right: 2px;" value="both">{% trans "both" %}
+        </span>
+        <br>
+      </form>
+    </div>
+  </div>
+  <div class="row bordered" style="margin-top: 10px;">
+    <h4> {% trans "Origins" %} 
+    <!--<span class="far fa-circle" style="margin-right: 5px;"></span><span class="glyphicon glyphicon-arrow-right"></span>-->
+    </h4>
+    <div class="row">
+      <label class="input-label">{% trans "Node Level" %} </label>
+      <select class="form-control" name="origin-level-select" id="data-view-type-select" style="max-width: 200px;">
+        <option value="activitygroup">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Activity Group" %}</b>
+      <select name="origin-group" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Activity" %}</b>
+      <select name="origin-activity" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Actor" %}</b>
+      <select name="origin-actor" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="10" multiple style="resize: vertical;">
+      </select>
+    </div>
+  </div>
+  <div class="row bordered" style="margin-top: 10px;">
+    <h4> {% trans "Destinations" %} 
+    <!--<span class="glyphicon glyphicon-arrow-right"></span><span class="far fa-circle" style="margin-right: 5px;"></span>-->
+    </h4>
+    <div class="row">
+      <label class="input-label">{% trans "Selection Level" %} </label>
+      <select class="form-control" name="destination-level-select" id="data-view-type-select" style="max-width: 200px;">
+        <option value="activitygroup">{% trans "Activity Group" %}</option>
+        <option value="activity">{% trans "Activity" %}</option>
+        <option value="actor">{% trans "Actor" %} </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <b>{% trans "Activity Group" %}</b>
+      <select name="destination-group" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Activity" %}</b>
+      <select name="destination-activity" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div style="font-size: 30px; position: absolute; left: -10px; top: 10px;">></div>
+      <b>{% trans "Actor" %}</b>
+      <select name="destination-actor" class="form-control" data-live-search="true" data-dropup-auto="false" data-size="10" multiple style="resize: vertical;">
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <button class="btn btn-primary" id="render-sankey">{% trans "Render Sankey" %} </button>
+    <div class="row" style="position: relative;">
+      <div class="sankey-wrapper" class="noselect" style="width: 100%; min-height: 200px;">
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+
+<script type="text/template" id="area-select-modal-template">
+<div class="modal-dialog modal-lg">
+  <!-- Modal content-->
+  <div class="modal-content col-md-12">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">{% trans "Select Areas" %}</h4>
+    </div>
+    <div class="modal-body">
+      <div class='row'>
+        <label class="input-label">{% trans "Level" %}</label>
+        <select name="area-level-select" class="form-control" style="max-width: 350px;">
+        <%  levels.forEach(function(level) { %>
+          <option value="<%= level.id %>"> <%= level.get('name') %></option>
+        <% })  %>
+        </select>
+      </div>
+      <div class='row'>
+        <div class='map' oncontextmenu="return false;" style="min-height: 400px; min-width: 400px; width: 100%; height: 100%;"></div>
+      </div>
+      <div class='row'>
+        <label>{% trans "Selected Areas:" %}</label>
+        <div class="selections"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn cancel" data-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+    </div>
+  </div>
+</div>
+</script>
+
 
 {% endblock %}

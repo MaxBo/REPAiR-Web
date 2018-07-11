@@ -60,10 +60,6 @@ class ComputeIndicator(metaclass=ABCMeta):
         if area:
             area = Area.objects.get(id=area)
             spatial = indicator_flow.spatial_application.name
-            # no idea what none is supposed to mean in this case,
-            # treat it like both for now
-            if spatial == 'NONE':
-                spatial = 'BOTH'
             if spatial == 'ORIGIN' or spatial == 'BOTH':
                 origins = filter_actors_by_area(origins, area)
             if spatial == 'DESTINATION' or spatial == 'BOTH':

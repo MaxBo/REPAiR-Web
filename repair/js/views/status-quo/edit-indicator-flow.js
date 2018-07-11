@@ -399,7 +399,7 @@ var IndicatorFlowEditView = BaseView.extend(
             originLevel = flow.origin_node_level || 'actor',
             destinationLevel = flow.destination_node_level || 'actor',
             flowType = flow.flow_type || 'both',
-            spatial = flow.spatial_application || 'none';
+            spatial = flow.spatial_application || 'both';
         
         this.originSelects.levelSelect.value = originLevel.toLowerCase();
         this.destinationSelects.levelSelect.value = destinationLevel.toLowerCase();
@@ -409,7 +409,6 @@ var IndicatorFlowEditView = BaseView.extend(
         this.setSelectedNodes(this.destinationSelects, destinationNodeIds.split(','), this.destinationActors);
         this.typeSelect.value = flowType.toLowerCase();
         this.setSelectedMaterials(materialIds);
-        
         this.el.querySelector('input[name="spatial-filtering"][value="' + spatial.toLowerCase() + '"]').checked = true;
     },
     

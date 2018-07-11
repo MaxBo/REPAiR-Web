@@ -55,6 +55,7 @@ class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
     organization = models.TextField(default='', blank=True)
+    session = models.TextField(default='', blank=True)
 
     @property
     def name(self):

@@ -1,11 +1,11 @@
 define(['views/baseview', 'underscore',
         'views/data-entry/edit-node', 'views/status-quo/flows',
         'collections/gdsecollection', 'models/gdsemodel',
-        'app-config', 'libs/bootstrap-treeview.min', 
+        'app-config', 'patternfly-bootstrap-treeview',
         'datatables.net-bs',
         'datatables.net-bs/css/dataTables.bootstrap.css',
         'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
-        'static/css/bootstrap-treeview.min.css'],
+        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 function(BaseView, _, EditNodeView, FlowsView, GDSECollection, GDSEModel, config){
 
 /**
@@ -146,7 +146,7 @@ var FlowsEditView = BaseView.extend(
                         _this.renderNodeView(node);
                     },
                     onCancel: function(){
-                        $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                        $('#data-tree').treeview('selectNode', [_this.selectedNode, { silent: true }]);
                     }
                 })
             }
@@ -243,7 +243,7 @@ var FlowsEditView = BaseView.extend(
                 node.model = model;
                 onConfirm();
                 // select "Select Actor" node when confirmed
-                $('#data-tree').treeview('selectNode', [_this.selectedNode.nodeId, { silent: true }]);
+                $('#data-tree').treeview('selectNode', [_this.selectedNode, { silent: true }]);
             }
             var modal = $('#actor-select-modal'),
                 activity = _this.activities.get(node.parentActivityId),
@@ -277,9 +277,16 @@ var FlowsEditView = BaseView.extend(
         }
         
         if (node.tag == 'actorSelect' && !options.rerender){
-            // select previous node (so that "Select Actor" is not highlighted on cancel)
-            if (this.selectedNode)
-                $('#data-tree').treeview('selectNode', [this.selectedNode.nodeId, { silent: true }]);
+            // patternfly-bootstrap-treeview bug workaround
+           if (this.selectedNode){
+                var _node;
+                $('#data-tree').treeview('getNodes').forEach(function(node){
+                    if (node.nodeId == _this.selectedNode.nodeId) _node = node;
+                })
+                
+                // select previous node (so that "Select Actor" is not highlighted on cancel)
+                $('#data-tree').treeview('selectNode', [_node, { silent: true }]);
+            }
             selectActor(render);
         }
         else render();

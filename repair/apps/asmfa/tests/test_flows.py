@@ -12,7 +12,11 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          CompositionFactory,
                                          MaterialFactory,
                                          ProductFractionFactory,
+                                         ActorFactory,
+                                         ActivityFactory,
+                                         ActivityGroupFactory,
                                          )
+import json
 
 
 class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
@@ -85,16 +89,24 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
     origin = 20
     destination = 12
     product = 16
-    actor2actor = 13
+    actor2actor1 = 13
+    actor2actor2 = 14
     keyflowincasestudy = 45
     activitygroup = 76
     material_1 = 10
     material_2 = 11
-    comp_data = {'name': 'testname', 'nace': 'testnace',
+    actor1id = 12
+    actor2id = 20
+    comp_data1 = {'name': 'testname', 'nace': 'testnace',
                  "fractions": [{ "material": material_1,
                                  "fraction": 0.4},
                                { "material": material_2,
                                  "fraction": 0.6}]}
+    comp_data2 = {'name': 'testname2', 'nace': 'testnace2',
+                  "fractions": [{ "material": material_1,
+                                 "fraction": 0.5},
+                               { "material": material_2,
+                                 "fraction": 0.5}]}
     do_not_check = ['composition']
 
     @classmethod
@@ -103,38 +115,81 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
         cls.url_key = "actor2actor"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            keyflow_pk=cls.keyflowincasestudy)
-        cls.url_pk = dict(pk=cls.actor2actor)
+        cls.url_pk = dict(pk=cls.actor2actor1)
 
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
-                            composition=cls.comp_data,
+                            composition=cls.comp_data1,
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
-                             composition=cls.comp_data,
+                             composition=cls.comp_data1,
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
-                              composition=cls.comp_data,
+                              composition=cls.comp_data1,
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
     def setUp(self):
         super().setUp()
-        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
+                                         keyflow=self.kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
-        self.obj = Actor2ActorFactory(id=self.actor2actor,
-                                      origin__id=self.origin,
-                                      origin__activity__activitygroup__keyflow=kic_obj,
-                                      destination__id=self.destination,
-                                      destination__activity__activitygroup__keyflow=kic_obj,
-                                      keyflow=kic_obj,
-                                      )
+                                         keyflow=self.kic_obj)
+        self.comp1 = CompositionFactory(name='composition1',
+                                        nace='nace1')
+        self.comp2 = CompositionFactory(name='composition2',
+                                            nace='nace2')
+        self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
+        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
+        self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
+        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
+        self.actor3 = ActorFactory(activity=self.activity2)
+        self.act2act1 = Actor2ActorFactory(id=self.actor2actor1,
+                                           origin=self.actor1,
+                                           destination=self.actor2,
+                                           keyflow=self.kic_obj,
+                                           composition=self.comp1,
+                                           )
+        self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
+                                           origin=self.actor2,
+                                           destination=self.actor3,
+                                           keyflow=self.kic_obj,
+                                           composition=self.comp2,
+                                           )
+        self.obj = self.act2act1
+
+
+    def test_post_get(self):
+        """
+        Test if user can post without permission
+        """
+        filterdata = json.dumps([
+            {'function': 'origin__activity__activitygroup__id__in',
+             'values': [self.activitygroup1.id, self.activitygroup2.id],}])
+        post_data1 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                 destination='activitygroup')),
+                             materials=json.dumps(dict(aggregate=True,
+                                                      id=[self.material_1])),
+                             filters=filterdata)
+        post_data2 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
+                                                                destination='activitygroup')),
+                              materials=json.dumps(dict(aggregate=False,
+                                                           id=[self.material_1])),
+                                 filters=filterdata)
+        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(self.casestudy, self.kic_obj.id)
+        for post_data in [post_data1, post_data2]:
+            response = self.post(
+                url,
+                data=post_data,
+                extra={'format': 'json'})
+            self.response_200()
 
 
 class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):

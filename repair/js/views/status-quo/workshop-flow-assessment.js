@@ -1,9 +1,10 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
         'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
-        'muuri'],
+        'muuri', 'app-config'],
 
-function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, Muuri){
+function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, 
+         Muuri, config){
 /**
 *
 * @author Christoph Franke
@@ -87,17 +88,26 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
+            dragAxis: 'x',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
             dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease',
             layout: {
                 fillGaps: false,
                 horizontal: true,
                 rounding: true
-              },
-            dragSortPredicate : 50
+              }
+        });
+        this.areaSelectGrid.on('dragEnd', function (items) {
+            _this.saveSession();
         });
         this.initIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
+        this.restoreSession();
     },
     
     // compute and render the indicator on the map
@@ -212,6 +222,48 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map.centerOnLayer('areas');
     },
     
+    saveSession: function(){
+        var items = this.areaSelectGrid.getItems(),
+            _this = this;
+        var orderedSelects = [];
+        items.forEach(function(item){
+            var id = item.getElement().dataset['id'];
+            // Focus Area has id 0, skip it
+            if (id > 0){
+                var areaSelect = Object.assign({}, _this.areaSelects[id]);
+                areaSelect.id = id;
+                orderedSelects.push(areaSelect);
+            }
+        });
+        config.session.save({areaSelects: orderedSelects});
+    },
+    
+    restoreSession: function(){
+        var orderedSelects = config.session.get('areaSelects'),
+            _this = this;
+        this.areaSelects = {};
+        if (!orderedSelects || orderedSelects.length == 0) return;
+        orderedSelects.forEach(function(areaSelect){
+            var id = areaSelect.id;
+            areaSelect = Object.assign({}, areaSelect);
+            delete areaSelect.id;
+            _this.areaSelects[id] = areaSelect;
+            _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
+            _this.renderAreaBox(_this.areaSelectRow, id, id);
+            
+            var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
+                areas = areaSelect.areas;
+            if (areas.length > 0){
+                button.classList.remove('btn-warning');
+                button.classList.add('btn-primary');
+            } else {
+                button.classList.add('btn-warning');
+                button.classList.remove('btn-primary');
+            }
+        
+        })
+    },
+    
     // render item for area selection
     renderAreaBox: function(el, id, title, fontSize){
         var html = document.getElementById('row-box-template').innerHTML,
@@ -234,13 +286,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt;
         this.renderAreaBox(
-            this.areaSelectRow, id, this.areaSelectIdCnt);
+            this.areaSelectRow, id, id);
         this.areaSelects[id] = {
             areas: [],
             level: this.areaLevels.first().id
         }
         this.areaSelectIdCnt += 1;
-        
+        this.saveSession();
     },
     
     // item for focus area
@@ -261,6 +313,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
         this.areaSelectGrid.remove(div, { removeElements: true });
+        this.saveSession();
     },
     
     // initialize the chlorpleth map
@@ -285,7 +338,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             template = _.template(html),
             _this = this;
         this.areaModal.innerHTML = template({ levels: this.areaLevels });
-        this.areaLevelSelect = this.areaModal.querySelector('select[name="level-select"]');
+        this.areaLevelSelect = this.areaModal.querySelector('select[name="area-level-select"]');
         this.areaMap = new Map({
             el: this.areaModal.querySelector('.map'), 
         });
@@ -306,7 +359,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                         _this.selectedAreas = [];
                         areaFeats.forEach(function(areaFeat){
                             labels.push(areaFeat.label);
-                            _this.selectedAreas.push(areas.get(areaFeat.id));
+                            _this.selectedAreas.push(areaFeat.id);
                         });
                         modalSelDiv.innerHTML = labels.join(', ');
                     }
@@ -327,12 +380,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.selectedAreas = [];
         this.activeAreaSelectId = id;
         this.areaLevelSelect.value = level;
-        this.drawAreas(level);
         var labels = [];
-        this.areaSelects[id].areas.forEach(function(area){
-            labels.push(area.get('name'));
-            _this.areaMap.selectFeature('areas', area.id);
-        })
+        function selectAreas(){
+            _this.areaSelects[id].areas.forEach(function(areaId){
+                var area = _this.areas[level].get(areaId);
+                labels.push(area.get('name'));
+                _this.areaMap.selectFeature('areas', area.id);
+            })
+        }
+        this.drawAreas(level, selectAreas);
         this.el.querySelector('.selections').innerHTML = labels.join(', ');
         $(this.areaModal).modal('show');
     },
@@ -344,9 +400,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.el.querySelector('.selections').innerHTML = '';
         this.drawAreas(level);
     },
-    
+
     // draw the areas of given level into the map of the area selection modal
-    drawAreas: function(level){
+    drawAreas: function(level, onSuccess){
         var _this = this;
         this.areaMap.clearLayer('areas');
         var loader = new utils.Loader(this.areaModal, {disable: true});
@@ -362,6 +418,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             })
             loader.deactivate();
             _this.areaMap.centerOnLayer('areas');
+            if(onSuccess) onSuccess();
         }
         loader.activate();
         this.getAreas(level, draw);
@@ -380,6 +437,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             button.classList.add('btn-warning');
             button.classList.remove('btn-primary');
         }
+        this.saveSession();
     }
     
 });
