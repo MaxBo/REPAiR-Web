@@ -97,6 +97,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
     activitygroup = 76
     material_1 = 10
     material_2 = 11
+    material_3 = 12
     actor1id = 12
     actor2id = 20
     comp_data1 = {'name': 'testname', 'nace': 'testnace',
@@ -139,9 +140,14 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                                  casestudy=self.uic.casestudy,
                                                  keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                         keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj,
+                                         parent=None)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                         keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_obj_1)
+        self.mat_obj_3 = MaterialFactory(id=self.material_3,
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_obj_2)
         self.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
         self.comp2 = CompositionFactory(name='composition2',
@@ -178,7 +184,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
         post_data1 = dict(aggregation_level=json.dumps(
             dict(origin='activitygroup', destination='activitygroup')),
                           materials=json.dumps(dict(aggregate=True,
-                                                    id=[self.material_1])),
+                                                    id=[self.material_2])),
                              filters=filterdata)
         post_data2 = dict(aggregation_level=json.dumps(
             dict(origin='activitygroup', destination='activitygroup')),
