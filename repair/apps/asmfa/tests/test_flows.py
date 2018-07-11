@@ -185,8 +185,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                           materials=json.dumps(dict(aggregate=False,
                                                     id=[self.material_1])),
                                  filters=filterdata)
-        url = '/api/casestudies/{}/keyflows/{}/actor2actor/' + \
-            '?GET=true'.format(self.casestudy, self.kic_obj.id)
+        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(
+            self.casestudy, self.kic_obj.id)
         for post_data in [post_data1, post_data2]:
             response = self.post(
                 url,
