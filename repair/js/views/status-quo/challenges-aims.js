@@ -31,32 +31,16 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
 
-            _this.challenges = [];
-            this.challengesModel = new GDSECollection([], {
+            this.challenges = new GDSECollection([], {
                 apiTag: 'challenges',
                 apiIds: [this.caseStudy.id]
             });
-            _this.aims = [];
-            this.aimsModel = new GDSECollection([], {
+            this.aims = new GDSECollection([], {
                 apiTag: 'aims',
                 apiIds: [this.caseStudy.id]
             });
             
-            var promises = [
-                this.challengesModel.fetch({
-                    success: function(challenges){
-                        _this.initItems(challenges, _this.challenges,
-                             "Challenge");
-                    },
-                    error: this.onError
-                }),
-                this.aimsModel.fetch({
-                    success: function(aims){
-                        _this.initItems(aims, _this.aims, "Aim");
-                    },
-                    error: this.onError
-                })
-            ]
+            var promises = [this.challenges.fetch(), this.aims.fetch()]
 
             Promise.all(promises).then(this.render)
         },
@@ -68,16 +52,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             'click #add-challenge-button': 'addChallenge',
             'click #add-aim-button': 'addAim',
             'click #remove-ch-aim-confirmation-modal .confirm': 'confirmRemoval'
-        },
-
-        initItems: function(items, list, type){
-            items.forEach(function(item){
-                list.push({
-                    "text": item.get('text'),
-                    "id": item.get('id'),
-                    "type": type
-                });
-            });
         },
 
         /*
@@ -112,8 +86,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragReleaseDuration: 400,
                 dragReleaseEasing: 'ease'
             })
-            this.renderPanel(this.challengesGrid, this.challenges);
-            this.renderPanel(this.aimsGrid, this.aims);
+            this.renderPanel(this.challengesGrid, this.challenges, gettext('Challenge'));
+            this.renderPanel(this.aimsGrid, this.aims, gettext('Aim'));
 
             var html_modal = document.getElementById(
                 'empty-modal-template').innerHTML;
@@ -132,30 +106,33 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             }
         },
 
-        renderPanel(grid, items){
+        renderPanel(grid, collection, type){
             var _this = this;
-            var html = document.getElementById('panel-item-template').innerHTML,
-                template = _.template(html);
-            items.forEach(function(item){
-                var panelItem = document.createElement('div'),
-                    itemContent = document.createElement('div');
-                panelItem.classList.add('panel-item');
-                panelItem.style.position = 'absolute';
-                itemContent.classList.add('noselect', 'item-content');
-                itemContent.innerHTML = template({ name: item.text });
-                var button_edit = itemContent.getElementsByClassName(
-                    "btn btn-primary square edit inverted").item(0);
-                var button_remove = itemContent.getElementsByClassName(
-                    "btn btn-warning square remove").item(0);
-                button_edit.addEventListener('click', function(){
-                    _this.editPanelItem(item, items);
-                });
-                button_remove.addEventListener('click', function(){
-                    _this.removePanelItem(item, items);
-                });
-                panelItem.appendChild(itemContent);
-                grid.add(panelItem);
+            collection.forEach(function(model){
+                _this.renderItem(grid, model, type);
             });
+        },
+        
+        renderItem(grid, model, type){
+            var html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html),
+                panelItem = document.createElement('div'),
+                itemContent = document.createElement('div'),
+                _this = this;
+            panelItem.classList.add('panel-item');
+            panelItem.style.position = 'absolute';
+            itemContent.classList.add('noselect', 'item-content');
+            itemContent.innerHTML = template({ name: model.get('text') });
+            var editBtn = itemContent.querySelector("button.edit");
+            var removeBtn = itemContent.querySelector("button.remove");
+            editBtn.addEventListener('click', function(){
+                _this.editPanelItem(panelItem, model, type);
+            });
+            removeBtn.addEventListener('click', function(){
+                _this.removePanelItem(panelItem, model, grid, type);
+            });
+            panelItem.appendChild(itemContent);
+            grid.add(panelItem);
         },
 
         addChallenge: function(){
@@ -169,10 +146,9 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     success: function(){
                         _this.challenges.push({
                             "text": challenge.get('text'),
-                            "id": challenge.get('id'),
-                            "type": "Challenge"
+                            "id": challenge.get('id')
                         });
-                        _this.render();
+                        _this.renderItem(_this.challengesGrid, challenge, gettext('Challenge'));
                     },
                     error: _this.onError
                 });
@@ -194,10 +170,9 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     success: function(){
                         _this.aims.push({
                             "text": aim.get('text'),
-                            "id": aim.get('id'),
-                            "type": "Aim"
+                            "id": aim.get('id')
                         });
-                        _this.render();
+                        _this.renderItem(_this.aimsGrid, aim, gettext('Aim'));
                     },
                     error: function(){
                         console.error("cannot save Aim");
@@ -210,85 +185,44 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             });
         },
 
-        editPanelItem: function(item, items){
+        editPanelItem: function(item, model, type){
             var _this = this;
             var id = item.id;
-            var title = "Edit " + item.type
+            var title = gettext("Edit") + " " + type;
             function onConfirm(name){
-                if (item.type == "Challenge") {
-                    var model = new GDSEModel({ id: id }, {
-                        apiTag: 'challenges',
-                        apiIds: [_this.caseStudy.id]
-                    });
-                } else {
-                    var model = new GDSEModel({ id: id }, {
-                        apiTag: 'aims',
-                        apiIds: [_this.caseStudy.id]
-                    });
-                }
-
-                model.save({
-                    text: name
-                }, {
+                model.save({ text: name }, {
                     success: function(){
-                        var pos = items.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        items[pos].text = name;
-                        _this.render();
-                    }
+                        var label = item.querySelector('label');
+                        label.innerHTML = name;
+                    },
+                    error: _this.onError
                 });
             }
             this.getName({
-                name: item.text,
+                name: model.get('text'),
                 title: gettext(title),
                 onConfirm: onConfirm
             });
         },
 
-        removePanelItem: function(item, items){
+        removePanelItem: function(item, model, grid, type){
             var _this = this;
             var message = gettext("Do you want to delete the selected item?");
             this.confirmationModal.querySelector('.modal-body').innerHTML = message;
-            $(this.confirmationModal).modal('show');
-            if (item.type == "Challenge") {
-                _this.model = new GDSEModel({ id: item.id }, {
-                    apiTag: 'challenges',
-                    apiIds: [_this.caseStudy.id]
-                });
-            } else {
-                _this.model = new GDSEModel({ id: item.id }, {
-                    apiTag: 'aims',
-                    apiIds: [_this.caseStudy.id]
+            this.activeModel = model;
+            function onConfirm(name){
+                model.destroy({
+                    success: function(){
+                        grid.remove(item, { removeElements: true });
+                    },
+                    error: _this.onError
                 });
             }
-            _this.removeType = item.type;
-        },
-
-        confirmRemoval: function(items) {
-            var _this = this;
-            $(this.confirmationModal).modal('hide');
-            var id = _this.model.get('id');
-            _this.model.destroy({
-                success: function(){
-                    if (_this.removeType == "Challenge") {
-                        var pos = _this.challenges.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        _this.challenges.splice(pos, 1);
-                        _this.render();
-                    } else {
-                        var pos = _this.aims.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        _this.aims.splice(pos, 1);
-                        _this.render();
-                    }
-                },
-                error: _this.onError
-            });
-        },
-
+            this.confirm({
+                message: gettext("Do you want to delete the selected item?"),
+                onConfirm: onConfirm
+            })
+        }
     });
     return ChallengesAimsView;
 }

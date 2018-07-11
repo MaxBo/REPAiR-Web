@@ -328,7 +328,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             template = _.template(html),
             _this = this;
         this.areaModal.innerHTML = template({ levels: this.areaLevels });
-        this.areaLevelSelect = this.areaModal.querySelector('select[name="level-select"]');
+        this.areaLevelSelect = this.areaModal.querySelector('select[name="area-level-select"]');
         this.areaMap = new Map({
             el: this.areaModal.querySelector('.map'), 
         });

@@ -194,7 +194,7 @@ function(BaseView, _, GDSECollection){
                 });
             }
             this.getName({
-                name: stakeholder.name,
+                name: stakeholder.get('name'),
                 title: gettext('Edit Stakeholder'),
                 onConfirm: onConfirm
             });
