@@ -7,7 +7,13 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          GroupStockFactory,
                                          ActivityStockFactory,
                                          ActorStockFactory,
-                                         MaterialFactory)
+                                         MaterialFactory,
+                                         CompositionFactory,
+                                         ActivityGroupFactory,
+                                         ActivityFactory,
+                                         Actor2ActorFactory,
+                                         ActorFactory,
+                                         )
 import json
 
 
@@ -74,12 +80,18 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
+    destination = 12
     product = 16
-    actorstock = 13
+    actor2actor1 = 13
+    actor2actor2 = 14
     keyflowincasestudy = 45
     activitygroup = 76
     material_1 = 10
     material_2 = 11
+    actor1id = 12
+    actor2id = 20
+    actorstock = 56
+    actorstock2 = 58
     comp_data = {'name': 'testname', 'nace': 'testnace',
                  "fractions": [{ "material": material_1,
                                  "fraction": 0.4},
@@ -107,20 +119,43 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     def setUp(self):
         super().setUp()
-        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                     casestudy=self.uic.casestudy,
+                                                keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
+                                             keyflow=self.kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
-        self.obj = ActorStockFactory(
-            id=self.actorstock,
-            origin__id=self.origin,
-            origin__activity__activitygroup__id=self.activitygroup,
-            origin__activity__activitygroup__keyflow=kic_obj,
-            keyflow=kic_obj,
-            )
+                                             keyflow=self.kic_obj)
+        self.comp1 = CompositionFactory(name='composition1',
+                                            nace='nace1')
+        self.comp2 = CompositionFactory(name='composition2',
+                                            nace='nace2')
+        self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
+        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
+        self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
+        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
+        self.actor3 = ActorFactory(activity=self.activity2)
+        self.act2act1 = Actor2ActorFactory(id=self.actor2actor1,
+                                               origin=self.actor1,
+                                               destination=self.actor2,
+                                               keyflow=self.kic_obj,
+                                               composition=self.comp1,
+                                               )
+        self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
+                                               origin=self.actor2,
+                                               destination=self.actor3,
+                                               keyflow=self.kic_obj,
+                                               composition=self.comp2,
+                                               )
+        self.actorstock1 = ActorStockFactory(id=self.actorstock,
+                                             keyflow=self.kic_obj,
+                                             origin=self.actor1)
+        self.actorstock2 = ActorStockFactory(id=self.actorstock2,
+                                             keyflow=self.kic_obj,
+                                             origin=self.actor2)
+        self.obj = self.actorstock1
 
     def test_post_get(self):
         """
