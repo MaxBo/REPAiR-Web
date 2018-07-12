@@ -22,9 +22,9 @@ a {
   color: #94b900;
 }
 
-li>a {
+/*li>a {
   background-color: #efefef;
-}
+}*/
 
 .dropdown-menu>li>a {
   background-color: white;
