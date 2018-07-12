@@ -15,6 +15,8 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
+                                         ProductFractionFactory,
+                                         PublicationInCasestudyFactory,
                                          )
 import json
 
@@ -172,6 +174,19 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                            composition=self.comp2,
                                            )
         self.obj = self.act2act1
+        self.publicationic = PublicationInCasestudyFactory()
+        self.pfrac1 = ProductFractionFactory(composition=self.comp1,
+                                             material=self.mat_obj_1,
+                                             publication=self.publicationic)
+        self.pfrac2 = ProductFractionFactory(composition=self.comp1,
+                                             material=self.mat_obj_2,
+                                             publication=self.publicationic)
+        self.pfrac3 = ProductFractionFactory(composition=self.comp2,
+                                             material=self.mat_obj_1,
+                                             publication=self.publicationic)
+        self.pfrac4 = ProductFractionFactory(composition=self.comp2,
+                                             material=self.mat_obj_2,
+                                             publication=self.publicationic)
 
 
     def test_post_get(self):
