@@ -9,6 +9,7 @@
   padding: 0;
   list-style-type: none;
   list-style-image: none;
+  /*font-size: 16px;*/
 }
 .jstree-node {
   white-space: nowrap;
@@ -20,6 +21,7 @@
   padding: 0 4px 0 1px;
   margin: 0;
   vertical-align: top;
+  width: 100%;
 }
 .jstree-anchor:focus {
   outline: 0;
@@ -264,10 +266,11 @@
   margin: -5px 0 0 0;
   padding: 0;
   border-right: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid;
-  width: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid;
+  width: 100px;
+  color: black;
   height: 0;
   font-size: 0;
   line-height: 0;
@@ -395,7 +398,7 @@ filter: gray;
   min-height: 40px;
   line-height: 40px;
   margin-left: 22px;
-  min-width: 40px;
+  min-width: 30px;
 }
 .jstree-gdsetouch .jstree-anchor {
   line-height: 40px;
@@ -403,12 +406,12 @@ filter: gray;
   height: 40px;
 }
 .jstree-gdsetouch .jstree-icon {
-  width: 40px;
+  width: 30px;
   height: 40px;
   line-height: 40px;
 }
 .jstree-gdsetouch .jstree-icon:empty {
-  width: 40px;
+  width: 30px;
   height: 40px;
   line-height: 40px;
 }
@@ -432,19 +435,16 @@ filter: gray;
 }
 .jstree-gdsetouch .jstree-open > .jstree-ocl {
   background-position: -129px -2px;
-  transform: scale(1.5);
 }
 .jstree-gdsetouch .jstree-closed > .jstree-ocl {
   background-position: -97px -2px;
-  transform: scale(1.5);
 }
 .jstree-gdsetouch .jstree-leaf > .jstree-ocl {
   background-position: -65px -2px;
-  transform: scale(1.5);
 }
 .jstree-gdsetouch .jstree-themeicon {
   background-position: -257px 0px;
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 .jstree-gdsetouch > .jstree-no-dots .jstree-node,
 .jstree-gdsetouch > .jstree-no-dots .jstree-leaf > .jstree-ocl {
@@ -548,7 +548,7 @@ filter: gray;
 }
 #jstree-dnd.jstree-gdsetouch i {
   background: transparent;
-  width: 40px;
+  width: 30px;
   height: 40px;
   line-height: 40px;
 }
