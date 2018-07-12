@@ -127,13 +127,6 @@ var BaseChartsView = BaseView.extend(
         })
     },
 
-    rerenderChartTree: function(){
-        this.buttonBox.style.display = 'None';
-        // error when trying to remove, but not initialized yet, safe to ignore
-        $(this.chartTree).treeview('remove');
-        this.renderChartTree();
-    },
-
     /*
     * render the hierarchic tree of layers
     */
@@ -175,7 +168,7 @@ var BaseChartsView = BaseView.extend(
                     "icon": "fa fa-image"
                 }
             },
-            plugins: ["dnd", "wholerow", "ui", "types", "themes"]
+            plugins: ["wholerow", "ui", "types", "themes"]
         });
         $(this.chartTree).on("select_node.jstree", this.nodeSelected);
         if (this.mode === '1'){
