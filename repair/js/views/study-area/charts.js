@@ -127,13 +127,6 @@ var BaseChartsView = BaseView.extend(
         })
     },
 
-    rerenderChartTree: function(){
-        this.buttonBox.style.display = 'None';
-        // error when trying to remove, but not initialized yet, safe to ignore
-        $(this.chartTree).treeview('remove');
-        this.renderChartTree();
-    },
-
     /*
     * render the hierarchic tree of layers
     */

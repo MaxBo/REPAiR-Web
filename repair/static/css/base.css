@@ -54,6 +54,10 @@ div.fullscreen{
   left: 0;
 }
 
+.popover{
+  z-index: 10000;
+}
+
 .tooltip {
   position: relative;
   padding: 3px;
