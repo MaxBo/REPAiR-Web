@@ -169,6 +169,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                             "id": challenge.get('id')
                         });
                         _this.renderItem(_this.challengesGrid, challenge, gettext('Challenge'));
+                        _this.uploadPriorities(_this.challengesGrid, _this.challenges);
                     },
                     error: _this.onError
                 });
@@ -193,6 +194,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                             "id": aim.get('id')
                         });
                         _this.renderItem(_this.aimsGrid, aim, gettext('Aim'));
+                        _this.uploadPriorities(_this.aimsGrid, _this.aims);
                     },
                     error: function(){
                         console.error("cannot save Aim");
