@@ -168,7 +168,7 @@ var BaseChartsView = BaseView.extend(
                     "icon": "fa fa-image"
                 }
             },
-            plugins: ["dnd", "wholerow", "ui", "types", "themes"]
+            plugins: ["wholerow", "ui", "types", "themes"]
         });
         $(this.chartTree).on("select_node.jstree", this.nodeSelected);
         if (this.mode === '1'){
