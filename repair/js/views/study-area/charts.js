@@ -1,6 +1,5 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', 'app-config', 'jstree', 
-        'jstree/dist/themes/default/style.min.css'],
+        'models/gdsemodel', 'app-config', 'jstree', 'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
@@ -160,7 +159,12 @@ var BaseChartsView = BaseView.extend(
         console.log(tree)
         $(this.chartTree).jstree({
             core : {
-                data : tree,
+                data: tree,
+                themes: {
+                    name: 'gdsetouch',
+                    responsive: true
+                },
+                
                 check_callback: true//function(operation, node, node_parent, node_position, more) {
                     //// operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
                     //// in case of 'rename_node' node_position is filled with the new node name
@@ -191,7 +195,7 @@ var BaseChartsView = BaseView.extend(
             //"dnd": {
                 //check_while_dragging: true
             //},
-            plugins: ["dnd", "wholerow", "ui", "types"],
+            plugins: ["dnd", "wholerow", "ui", "types", "themes"],
           });
 
         //$(this.chartTree).treeview({
