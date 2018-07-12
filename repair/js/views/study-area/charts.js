@@ -1,6 +1,6 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', 'app-config', 'patternfly-bootstrap-treeview',
-        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
+        'models/gdsemodel', 'app-config', 'jstree', 
+        'jstree/dist/themes/default/style.min.css'],
 
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
@@ -104,9 +104,8 @@ var BaseChartsView = BaseView.extend(
             var node = { 
                 text: category.get('name'), 
                 category: category,
-                state: { expanded: true },
-                backColor: (_this.mode == 0) ? '#aad400' : 'white',
-                color: (_this.mode == 0) ? 'white' : 'black'
+                children: [],
+                type: "category"
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
@@ -119,13 +118,13 @@ var BaseChartsView = BaseView.extend(
                 var children = [];
                 charts.each(function(chart){
                     var node = { 
-                        chart: chart, 
+                        //chart: chart, 
                         text: chart.get('name'),
-                        icon: 'fa fa-image'
+                        type: "chart"
                         } 
                     children.push(node);
                 });
-                catNode.nodes = children;
+                catNode.children = children;
             });
             _this.render();
         })
@@ -158,21 +157,57 @@ var BaseChartsView = BaseView.extend(
             if (_this.mode == 1)
                 _this.buttonBox.style.display = 'None';
         }
+        console.log(tree)
+        $(this.chartTree).jstree({
+            core : {
+                data : tree,
+                check_callback: true//function(operation, node, node_parent, node_position, more) {
+                    //// operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
+                    //// in case of 'rename_node' node_position is filled with the new node name
+                    
+                    //if (operation === "move_node") {
+                        //console.log(node)
+                        //console.log(node_parent)
+                        //return node_parent.original.type === "Parent"; //only allow dropping inside nodes of type 'Parent'
+                    //}
+                    //return true;  //allow all other operations
+                //}
+            },
+            types: {
+                "#" : {
+                  "max_depth": -1,
+                  "max_children": -1,
+                  "valid_children": ["category"],
+                },
+                category: {
+                    "valid_children": ["chart"],
+                    "check_node": false,
+                    "uncheck_node": false
+                },
+                chart: {
+                    "valid_children": []
+                }
+            },
+            //"dnd": {
+                //check_while_dragging: true
+            //},
+            plugins: ["dnd", "wholerow", "ui", "types"],
+          });
 
-        $(this.chartTree).treeview({
-            data: tree, showTags: true,
-            selectedColor: (_this.mode == 0) ? 'black' : 'white',
-            selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
-            onhoverColor: (_this.mode == 0) ? null : '#F5F5F5',
-            expandIcon: 'glyphicon glyphicon-triangle-right',
-            collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-            preventUnselect: true,
-            allowReselect: true,
-            onNodeSelected: this.nodeSelected,
-            onNodeCollapsed: hideEdits,
-            onNodeExpanded: hideEdits
-            //showCheckbox: true
-        });
+        //$(this.chartTree).treeview({
+            //data: tree, showTags: true,
+            //selectedColor: (_this.mode == 0) ? 'black' : 'white',
+            //selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
+            //onhoverColor: (_this.mode == 0) ? null : '#F5F5F5',
+            //expandIcon: 'glyphicon glyphicon-triangle-right',
+            //collapseIcon: 'glyphicon glyphicon-triangle-bottom',
+            //preventUnselect: true,
+            //allowReselect: true,
+            //onNodeSelected: this.nodeSelected,
+            //onNodeCollapsed: hideEdits,
+            //onNodeExpanded: hideEdits
+            ////showCheckbox: true
+        //});
     },
 
     /*
