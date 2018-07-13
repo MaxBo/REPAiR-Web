@@ -22,9 +22,9 @@ a {
   color: #94b900;
 }
 
-/*li>a {
-  background-color: #efefef;
-}*/
+.nav-tabs>li>a {
+  border: 1px solid #e6e6e6;
+}
 
 .dropdown-menu>li>a {
   background-color: white;
