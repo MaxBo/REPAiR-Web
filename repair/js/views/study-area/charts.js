@@ -345,7 +345,7 @@ var BaseChartsView = BaseView.extend(
     getTreeChartNode: function(chart, options){
         var options = options || {};
         var catNode = this.categoryTree[chart.get('chart_category')];
-        var nodes = catNode.nodes;
+        var nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.chart === chart) {
