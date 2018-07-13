@@ -112,7 +112,7 @@ var BaseMapsView = BaseView.extend(
                     var node = {
                         layer: layer,
                         text: layer.get('name'),
-                        icon: 'fa fa-bookmark',
+                        icon: 'far fa-bookmark',
                         type: 'layer'
                         //state: { checked: _this.isChecked(layer) }
                     };
@@ -164,7 +164,6 @@ var BaseMapsView = BaseView.extend(
         _.each(this.categoryTree, function(category){
             tree.push(category)
         })
-        console.log(tree)
         $(this.layerTree).jstree({
             core : {
                 data: tree,
@@ -176,7 +175,9 @@ var BaseMapsView = BaseView.extend(
                 multiple: true
             },
             checkbox : {
-                "keep_selected_style" : false
+                "keep_selected_style": false,
+                "whole_node": false,
+                "tie_selection": false
             },
             types: {
                 "#" : {
@@ -195,6 +196,7 @@ var BaseMapsView = BaseView.extend(
             },
             plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
         });
+        $(this.layerTree).on("select_node.jstree", this.nodeSelected);
     },
     
     toggleState: function(node){

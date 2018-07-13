@@ -181,9 +181,6 @@ var BaseChartsView = BaseView.extend(
         }
     },
 
-    /*
-    * event for selecting a node in the material tree
-    */
     nodeSelected: function(event, data){
         var node = data.node,
             addBtn = this.buttonBox.querySelector('.add'),

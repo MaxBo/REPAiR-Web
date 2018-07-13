@@ -101,23 +101,24 @@ var SetupMapsView = BaseMapView.extend(
     },
     
     renderDataTree: function(){
-        
-        SetupMapsView.__super__.renderDataTree(this);
-        $(this.chartTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
-        $(this.chartTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
-        $(this.chartTree).on("after_open.jstree", this.repositionButtons);
-        $(this.chartTree).on("after_close.jstree", this.repositionButtons);
+        SetupMapsView.__super__.renderDataTree.call(this);
+        var _this = this;
+        $(this.layerTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.layerTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.layerTree).on("after_open.jstree", this.repositionButtons);
+        $(this.layerTree).on("after_close.jstree", this.repositionButtons);
     },
 
     // place buttons over currently selected node
     repositionButtons(){
-        var id = $(this.chartTree).jstree('get_selected')[0],
-            li = this.chartTree.querySelector('#' + id);
+        var id = $(this.layerTree).jstree('get_selected')[0],
+            li = this.layerTree.querySelector('#' + id);
+        console.log(id)
         if (!li) {
             this.buttonBox.style.display = 'none';
             return;
         }
-        this.buttonBox.style.top = li.offsetTop + this.chartTree.offsetTop + 'px';
+        this.buttonBox.style.top = li.offsetTop + this.layerTree.offsetTop + 'px';
         this.buttonBox.style.display = 'inline';
     },
 
@@ -125,32 +126,19 @@ var SetupMapsView = BaseMapView.extend(
     /*
     * event for selecting a node in the layer tree
     */
-    nodeSelected: function(event, node){
-        //// unselect previous node (caused by onNodeUnselected)
-        //if (this.selectedNode)
-            //$(this.layerTree).treeview('unselectNode', [this.selectedNode, { silent: true }]);
-        var addBtn = document.getElementById('add-layer-button'),
-            removeBtn = document.getElementById('remove-layer-button'),
-            downBtn = document.getElementById('move-layer-down-button'),
-            upBtn = document.getElementById('move-layer-up-button');
+    nodeSelected: function(event, data){
+        var node = data.node,
+            addBtn = this.buttonBox.querySelector('.add'),
+            removeBtn = this.buttonBox.querySelector('.remove');
         this.selectedNode = node;
-        if (node.layer != null) {
+        console.log(node)
+        if (node.type == 'layer') {
             addBtn.style.display = 'None';
-            this.zInput.style.display = 'inline';
-            this.zInput.value = node.layer.get('z_index');
-            downBtn.style.display = 'inline';
-            upBtn.style.display = 'inline';
         }
         else {
             addBtn.style.display = 'inline';
-            this.zInput.style.display = 'None';
-            downBtn.style.display = 'None';
-            upBtn.style.display = 'None';
         }
-        var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
-        if (!li) return;
-        this.buttonBox.style.top = li.offsetTop + 'px';
-        this.buttonBox.style.display = 'inline';
+        this.repositionButtons();
     },
 
     // items are not unselectable
@@ -255,7 +243,7 @@ var SetupMapsView = BaseMapView.extend(
         function onSuccess(){
             newLayers.forEach(function(layer){
                 var layerNode = { text: layer.get('name'),
-                    icon: 'fa fa-bookmark',
+                    icon: 'far fa-bookmark',
                     layer: layer,
                     state: { checked: layer.get('included') } };
                 catNode.nodes.push(layerNode);
