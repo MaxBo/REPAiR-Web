@@ -171,7 +171,7 @@ var BaseChartsView = BaseView.extend(
             plugins: ["wholerow", "ui", "types", "themes"]
         });
         $(this.chartTree).on("select_node.jstree", this.nodeSelected);
-        if (this.mode === '1'){
+        if (this.mode === 1){
             // button position needs to be recalculated when collapsing/expanding
             $(this.chartTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
             $(this.chartTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
