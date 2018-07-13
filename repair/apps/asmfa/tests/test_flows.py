@@ -15,11 +15,14 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
+                                         ProductFractionFactory,
+                                         PublicationInCasestudyFactory,
                                          )
 import json
 
 
-class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
+                                                 APITestCase):
     """
     MAX:
     1. origin/destination can be in other casestudies than activity2activity
@@ -83,7 +86,8 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest, APITe
             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
+                                           APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -95,6 +99,7 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
     activitygroup = 76
     material_1 = 10
     material_2 = 11
+    material_3 = 12
     actor1id = 12
     actor2id = 20
     comp_data1 = {'name': 'testname', 'nace': 'testnace',
@@ -134,12 +139,17 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
     def setUp(self):
         super().setUp()
         self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                         keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj,
+                                         parent=None)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                         keyflow=self.kic_obj)
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_obj_1)
+        self.mat_obj_3 = MaterialFactory(id=self.material_3,
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_obj_2)
         self.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
         self.comp2 = CompositionFactory(name='composition2',
@@ -164,6 +174,19 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
                                            composition=self.comp2,
                                            )
         self.obj = self.act2act1
+        self.publicationic = PublicationInCasestudyFactory()
+        self.pfrac1 = ProductFractionFactory(composition=self.comp1,
+                                             material=self.mat_obj_1,
+                                             publication=self.publicationic)
+        self.pfrac2 = ProductFractionFactory(composition=self.comp1,
+                                             material=self.mat_obj_2,
+                                             publication=self.publicationic)
+        self.pfrac3 = ProductFractionFactory(composition=self.comp2,
+                                             material=self.mat_obj_1,
+                                             publication=self.publicationic)
+        self.pfrac4 = ProductFractionFactory(composition=self.comp2,
+                                             material=self.mat_obj_2,
+                                             publication=self.publicationic)
 
 
     def test_post_get(self):
@@ -173,17 +196,20 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
         filterdata = json.dumps([
             {'function': 'origin__activity__activitygroup__id__in',
              'values': [self.activitygroup1.id, self.activitygroup2.id],}])
-        post_data1 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
-                                                 destination='activitygroup')),
-                             materials=json.dumps(dict(aggregate=True,
-                                                      id=[self.material_1])),
+        post_data1 = dict(aggregation_level=json.dumps(
+            dict(origin='activitygroup', destination='activitygroup')),
+                          materials=json.dumps(dict(aggregate=True,
+                                                    ids=[self.material_1,
+                                                        self.material_2,
+                                                        self.material_3])),
                              filters=filterdata)
-        post_data2 = dict(aggregation_level=json.dumps(dict(origin='activitygroup',
-                                                                destination='activitygroup')),
-                              materials=json.dumps(dict(aggregate=False,
-                                                           id=[self.material_1])),
+        post_data2 = dict(aggregation_level=json.dumps(
+            dict(origin='activitygroup', destination='activitygroup')),
+                          materials=json.dumps(dict(aggregate=False,
+                                                    ids=[self.material_1])),
                                  filters=filterdata)
-        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(self.casestudy, self.kic_obj.id)
+        url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(
+            self.casestudy, self.kic_obj.id)
         for post_data in [post_data1, post_data2]:
             response = self.post(
                 url,
@@ -192,7 +218,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest, APITestCase
             self.response_200()
 
 
-class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
+class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest,
+                                          APITestCase):
     casestudy = 17
     keyflow = 3
     origin = 20
@@ -238,9 +265,9 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase)
                                             casestudy=self.uic.casestudy,
                                             keyflow__id=self.keyflow)
         self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
+                                         keyflow=kic_obj)
         self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
+                                         keyflow=kic_obj)
         self.obj = Group2GroupFactory(id=self.group2group,
                                       origin__id=self.origin,
                                       origin__keyflow=kic_obj,

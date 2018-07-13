@@ -22,9 +22,9 @@ a {
   color: #94b900;
 }
 
-li>a {
+/*li>a {
   background-color: #efefef;
-}
+}*/
 
 .dropdown-menu>li>a {
   background-color: white;
@@ -52,6 +52,10 @@ div.fullscreen{
   position: fixed;
   top: 0;
   left: 0;
+}
+
+.popover{
+  z-index: 10000;
 }
 
 .tooltip {
