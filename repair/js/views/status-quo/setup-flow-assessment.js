@@ -87,6 +87,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
     },
     
+    // fetch and show selected indicator
     editIndicator: function(){
         var selected = this.indicatorSelect.value,
             indicator = this.indicators.get(selected);
@@ -99,6 +100,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         }
     },
     
+    // render view on given indicator
     renderIndicator: function(indicator){
         this.el.querySelector('#flowindicator-edit').style.display = 'block';
         
@@ -141,6 +143,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.flowBView = new IndicatorFlowEditView(optB);
     },
 
+    // event listener for changing flow type
     typeChanged: function(evt){
         var val = evt.target.value,
             aTab = this.el.querySelector('#flowALi'),
@@ -154,6 +157,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         }
     },
     
+    // upload the changes made on inputs of currently opened indicator
     uploadIndicator: function(){
         var _this = this;
         for (var key in this.inputs){
@@ -171,6 +175,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         }, error: this.onError})
     },
     
+    // create, select and show a new indicator
     createIndicator: function(){
         var _this = this;
         function create(name){
@@ -189,6 +194,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.getName({ onConfirm: create });
     },
     
+    // delete selected indicator
     deleteIndicator: function(){
         var selected = this.indicatorSelect.value,
             indicator = this.indicators.get(selected),

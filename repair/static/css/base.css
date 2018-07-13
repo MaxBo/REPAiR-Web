@@ -22,8 +22,9 @@ a {
   color: #94b900;
 }
 
-li>a {
-  background-color: #efefef;
+.nav-tabs>li>a {
+  border: 1px solid #e6e6e6;
+  background-color: white;
 }
 
 .dropdown-menu>li>a {
@@ -52,6 +53,10 @@ div.fullscreen{
   position: fixed;
   top: 0;
   left: 0;
+}
+
+.popover{
+  z-index: 10000;
 }
 
 .tooltip {
@@ -520,9 +525,10 @@ div.panel-item:hover label{
   position: relative;
 }
 .row.shaded{
-  background: linear-gradient(#fdfdfd, #fbfbfb, #fdfdfd);
-  margin: -10px;
-  padding: 10px;
+  box-shadow: 0px 1px 6px 0px #adadad;
+}
+.row.shaded:hover{
+  box-shadow: 0px 1px 6px 0px #c4d875;
 }
 .ui-select-choices {
   position: fixed;

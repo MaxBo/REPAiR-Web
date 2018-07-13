@@ -6,13 +6,13 @@
   <div class="row" style="margin-top: 20px;">
     <div class="col-md-3 bordered" style="margin-right: 10px;">
       <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
-        <button id='add-chart-button' class="btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
+        <button class="add btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
         </button>
-        <button id='edit-cc-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
+        <button class="edit btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-pencil"></span>
         </button>
-        <button id='remove-cc-button'  class="btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
+        <button class="remove btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-minus"></span>
         </button>
       </div>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="col-md-6 bordered" style="min-height: 500px; overflow: auto;">
-      <img id="chart-view" src="" alt="chart" style="width: 100%; display: None;">
+      <img id="chart-view" src="" alt="{% trans "Image not found" %}" style="width: 100%; display: None;">
       <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
     </div>
   </div>
@@ -68,7 +68,6 @@
   </div>
 </div>
 <div id="edit-chart-category-modal"></div>
-<div id="remove-cc-modal" class="modal fade" role="dialog"></div>
 </script>
 
 {% endblock %}
