@@ -26,6 +26,7 @@ var SetupMapsView = BaseMapView.extend(
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'confirmRemoval');
+        _.bindAll(this, 'repositionButtons');
     },
 
     /*
@@ -97,6 +98,27 @@ var SetupMapsView = BaseMapView.extend(
         if (this.layerTree.innerHTML)
             $(this.layerTree).treeview('remove');
         this.renderDataTree(categoryId);
+    },
+    
+    renderDataTree: function(){
+        
+        SetupMapsView.__super__.renderDataTree(this);
+        $(this.chartTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.chartTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.chartTree).on("after_open.jstree", this.repositionButtons);
+        $(this.chartTree).on("after_close.jstree", this.repositionButtons);
+    },
+
+    // place buttons over currently selected node
+    repositionButtons(){
+        var id = $(this.chartTree).jstree('get_selected')[0],
+            li = this.chartTree.querySelector('#' + id);
+        if (!li) {
+            this.buttonBox.style.display = 'none';
+            return;
+        }
+        this.buttonBox.style.top = li.offsetTop + this.chartTree.offsetTop + 'px';
+        this.buttonBox.style.display = 'inline';
     },
 
 
