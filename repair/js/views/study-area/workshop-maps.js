@@ -173,7 +173,10 @@ var BaseMapsView = BaseView.extend(
                     responsive: true
                 },
                 check_callback: true,
-                multiple: false
+                multiple: true
+            },
+            checkbox : {
+                "keep_selected_style" : false
             },
             types: {
                 "#" : {
@@ -183,8 +186,6 @@ var BaseMapsView = BaseView.extend(
                 },
                 category: {
                     "valid_children": ["layer"],
-                    "check_node": false,
-                    "uncheck_node": false,
                     "icon": "fa fa-images"
                 },
                 chart: {
@@ -192,7 +193,7 @@ var BaseMapsView = BaseView.extend(
                     "icon": "fa fa-image"
                 }
             },
-            plugins: ["wholerow", "ui", "types", "themes"]
+            plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
         });
     },
     
