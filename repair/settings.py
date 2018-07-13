@@ -24,6 +24,7 @@ GEOSERVER_URL = 'https://geoserver.h2020repair.bk.tudelft.nl/geoserver'
 GEOSERVER_USER = os.environ.get('GEOSERVER_USER')
 GEOSERVER_PASS = os.environ.get('GEOSERVER_PASS')
 
+os.environ['wsgi.url_scheme'] = 'https'
 
 if os.name == 'nt':
     os.environ['GDAL_DATA'] = os.path.join(sys.prefix, 'Library',
@@ -136,7 +137,7 @@ WSGI_APPLICATION = 'repair.wsgi.application'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-USE_X_FORWARDED_HOST = True
+#USE_X_FORWARDED_HOST = True
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
