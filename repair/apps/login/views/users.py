@@ -155,4 +155,5 @@ class SessionView(View):
         response = self._session_dict
         response['mode'] = request.session.get('mode', self.MODES['Workshop'])
         response['language'] = request.LANGUAGE_CODE
+        response['ssl'] = request.is_secure()
         return JsonResponse(response)
