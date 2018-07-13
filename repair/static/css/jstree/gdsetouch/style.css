@@ -466,24 +466,24 @@ filter: gray;
   background: #efefef;
 }
 .jstree-gdsetouch .jstree-checkbox {
-  background-position: -165px -5px;
+  background-position: -165px 0px;
 }
 .jstree-gdsetouch .jstree-checkbox:hover {
-  background-position: -165px -37px;
+  background-position: -165px -32px;
 }
 .jstree-gdsetouch.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
 .jstree-gdsetouch .jstree-checked > .jstree-checkbox {
-  background-position: -229px -5px;
+  background-position: -229px 0px;
 }
 .jstree-gdsetouch.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
 .jstree-gdsetouch .jstree-checked > .jstree-checkbox:hover {
-  background-position: -229px -37px;
+  background-position: -229px -32px;
 }
 .jstree-gdsetouch .jstree-anchor > .jstree-undetermined {
-  background-position: -197px -5px;
+  background-position: -197px 0px;
 }
 .jstree-gdsetouch .jstree-anchor > .jstree-undetermined:hover {
-  background-position: -197px -37px;
+  background-position: -197px -32px;
 }
 .jstree-gdsetouch > .jstree-striped {
   background-size: auto 44px;

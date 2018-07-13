@@ -26,6 +26,7 @@ var SetupMapsView = BaseMapView.extend(
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'confirmRemoval');
+        _.bindAll(this, 'repositionButtons');
     },
 
     /*
@@ -87,7 +88,7 @@ var SetupMapsView = BaseMapView.extend(
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].nodes;
+            var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
     },
@@ -98,37 +99,46 @@ var SetupMapsView = BaseMapView.extend(
             $(this.layerTree).treeview('remove');
         this.renderDataTree(categoryId);
     },
+    
+    renderDataTree: function(){
+        SetupMapsView.__super__.renderDataTree.call(this);
+        var _this = this;
+        $(this.layerTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.layerTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
+        $(this.layerTree).on("after_open.jstree", this.repositionButtons);
+        $(this.layerTree).on("after_close.jstree", this.repositionButtons);
+    },
+
+    // place buttons over currently selected node
+    repositionButtons(){
+        var id = $(this.layerTree).jstree('get_selected')[0],
+            li = this.layerTree.querySelector('#' + id);
+        console.log(id)
+        if (!li) {
+            this.buttonBox.style.display = 'none';
+            return;
+        }
+        this.buttonBox.style.top = li.offsetTop + this.layerTree.offsetTop + 'px';
+        this.buttonBox.style.display = 'inline';
+    },
 
 
     /*
     * event for selecting a node in the layer tree
     */
-    nodeSelected: function(event, node){
-        //// unselect previous node (caused by onNodeUnselected)
-        //if (this.selectedNode)
-            //$(this.layerTree).treeview('unselectNode', [this.selectedNode, { silent: true }]);
-        var addBtn = document.getElementById('add-layer-button'),
-            removeBtn = document.getElementById('remove-layer-button'),
-            downBtn = document.getElementById('move-layer-down-button'),
-            upBtn = document.getElementById('move-layer-up-button');
+    nodeSelected: function(event, data){
+        var node = data.node,
+            addBtn = this.buttonBox.querySelector('.add'),
+            removeBtn = this.buttonBox.querySelector('.remove');
         this.selectedNode = node;
-        if (node.layer != null) {
+        console.log(node)
+        if (node.type == 'layer') {
             addBtn.style.display = 'None';
-            this.zInput.style.display = 'inline';
-            this.zInput.value = node.layer.get('z_index');
-            downBtn.style.display = 'inline';
-            upBtn.style.display = 'inline';
         }
         else {
             addBtn.style.display = 'inline';
-            this.zInput.style.display = 'None';
-            downBtn.style.display = 'None';
-            upBtn.style.display = 'None';
         }
-        var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
-        if (!li) return;
-        this.buttonBox.style.top = li.offsetTop + 'px';
-        this.buttonBox.style.display = 'inline';
+        this.repositionButtons();
     },
 
     // items are not unselectable
@@ -233,7 +243,7 @@ var SetupMapsView = BaseMapView.extend(
         function onSuccess(){
             newLayers.forEach(function(layer){
                 var layerNode = { text: layer.get('name'),
-                    icon: 'fa fa-bookmark',
+                    icon: 'far fa-bookmark',
                     layer: layer,
                     state: { checked: layer.get('included') } };
                 catNode.nodes.push(layerNode);
@@ -303,7 +313,7 @@ var SetupMapsView = BaseMapView.extend(
     getTreeLayerNode: function(layer, options){
         var options = options || {};
         var catNode = this.categoryTree[layer.get('category')];
-        var nodes = catNode.nodes;
+        var nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.layer === layer) {

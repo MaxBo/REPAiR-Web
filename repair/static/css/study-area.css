@@ -4,12 +4,6 @@
     height: 100%;
 }
 
-#base-map-content {
-    margin-left: -25px;
-    margin-top: -32px;
-    margin-right: -23px;
-}
-
 #layer-tree.workshop {
     left: 10px; 
     z-index: 1000; 

@@ -1,7 +1,7 @@
 define(['views/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
-        'app-config', 'openlayers', 'patternfly-bootstrap-treeview',
-        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
+        'app-config', 'openlayers', 'jstree', 
+        'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
 /**
@@ -14,16 +14,8 @@ var BaseMapsView = BaseView.extend(
     /** @lends module:views/BaseMapsView.prototype */
     {
 
+    // fetch only layers included by user in setup mode (set true for workshop mode)
     includedOnly: true,
-    categoryBackColor: '#aad400',
-    categoryColor: 'white',
-    categoryExpanded: false,
-    selectedBackColor: null,
-    selectedColor: null,
-    onhoverColor: null,
-    hierarchicalCheck: true,
-    allowReselect: true,
-    preventUnselect: true,
 
     /**
     * render view on map layers of casestudy
@@ -103,9 +95,9 @@ var BaseMapsView = BaseView.extend(
             var node = {
                 text: category.get('name'),
                 category: category,
-                state: { checked: undefined },
-                backColor: _this.categoryBackColor || null,
-                color: _this.categoryColor || null
+                type: 'category',
+                icon: 'far fa-map',
+                children: []
             };
             _this.categoryTree[category.id] = node;
             layerList.push(layers);
@@ -120,12 +112,13 @@ var BaseMapsView = BaseView.extend(
                     var node = {
                         layer: layer,
                         text: layer.get('name'),
-                        icon: 'fa fa-bookmark',
-                        state: { checked: _this.isChecked(layer) }
+                        icon: 'far fa-bookmark',
+                        type: 'layer'
+                        //state: { checked: _this.isChecked(layer) }
                     };
                     children.push(node);
                 });
-                catNode.nodes = children;
+                catNode.children = children;
             });
             _this.render();
         })
@@ -163,46 +156,47 @@ var BaseMapsView = BaseView.extend(
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
-    renderDataTree: function(categoryId){
+    renderDataTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
-        var _this = this;
-        var dataDict = {};
-        var tree = [];
-
+        var _this = this,
+            tree = [];
         _.each(this.categoryTree, function(category){
             tree.push(category)
         })
-        $(this.layerTree).treeview({
-            data: tree, showTags: true,
-            selectedBackColor: this.selectedBackColor,
-            selectedColor: this.selectedColor,
-            expandIcon: 'glyphicon glyphicon-triangle-right',
-            collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-            onNodeSelected: this.nodeSelected,
-            onNodeUnselected: this.nodeUnselected,// function(event, node){ select(event, node, true) },
-            onNodeChecked: this.nodeChecked,
-            onNodeUnchecked: this.nodeUnchecked,
-            onNodeCollapsed: this.nodeCollapsed, //function(event, node){ select(event, node, false) },
-            onNodeExpanded: this.nodeExpanded,//function(event, node){ select(event, node, false) },
-            showCheckbox: true,
-            multiSelect: false,
-            onhoverColor: this.onhoverColor,
-            hierarchicalCheck: this.hierarchicalCheck,
-            allowReselect: this.allowReselect,
-            preventUnselect: this.preventUnselect
-        });
-
-        // look for and expand and select node with given category id
-        if (categoryId != null){
-            var nodes = $(this.layerTree).treeview('getNodes');
-            _.forEach(nodes, function(node){
-                if (node.category && (node.category.id == categoryId)){
-                    $(_this.layerTree).treeview('selectNode', node);
-                    return false;
+        $(this.layerTree).jstree({
+            core : {
+                data: tree,
+                themes: {
+                    name: 'gdsetouch',
+                    responsive: true
+                },
+                check_callback: true,
+                multiple: true
+            },
+            checkbox : {
+                "keep_selected_style": false,
+                "whole_node": false,
+                "tie_selection": false
+            },
+            types: {
+                "#" : {
+                  "max_depth": -1,
+                  "max_children": -1,
+                  "valid_children": ["category"],
+                },
+                category: {
+                    "valid_children": ["layer"],
+                    "icon": "fa fa-images"
+                },
+                chart: {
+                    "valid_children": [],
+                    "icon": "fa fa-image"
                 }
-            })
-        }
+            },
+            plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
+        });
+        $(this.layerTree).on("select_node.jstree", this.nodeSelected);
     },
     
     toggleState: function(node){
@@ -275,7 +269,7 @@ var BaseMapsView = BaseView.extend(
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].nodes;
+            var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
     },
