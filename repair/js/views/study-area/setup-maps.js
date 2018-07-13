@@ -87,7 +87,7 @@ var SetupMapsView = BaseMapView.extend(
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].nodes;
+            var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
     },
@@ -303,7 +303,7 @@ var SetupMapsView = BaseMapView.extend(
     getTreeLayerNode: function(layer, options){
         var options = options || {};
         var catNode = this.categoryTree[layer.get('category')];
-        var nodes = catNode.nodes;
+        var nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.layer === layer) {

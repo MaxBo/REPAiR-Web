@@ -95,8 +95,9 @@ var BaseMapsView = BaseView.extend(
             var node = {
                 text: category.get('name'),
                 category: category,
-                type: 'category'
+                type: 'category',
                 icon: 'far fa-map',
+                children: []
             };
             _this.categoryTree[category.id] = node;
             layerList.push(layers);
@@ -117,7 +118,7 @@ var BaseMapsView = BaseView.extend(
                     };
                     children.push(node);
                 });
-                catNode.nodes = children;
+                catNode.children = children;
             });
             _this.render();
         })
@@ -158,14 +159,13 @@ var BaseMapsView = BaseView.extend(
     renderDataTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
-        var _this = this;
-        var dataDict = {};
-        var tree = [];
-
+        var _this = this,
+            tree = [];
         _.each(this.categoryTree, function(category){
             tree.push(category)
         })
-        $(this.layertTree).jstree({
+        console.log(tree)
+        $(this.layerTree).jstree({
             core : {
                 data: tree,
                 themes: {
@@ -266,7 +266,7 @@ var BaseMapsView = BaseView.extend(
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].nodes;
+            var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
     },
