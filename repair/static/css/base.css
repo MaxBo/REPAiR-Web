@@ -24,6 +24,7 @@ a {
 
 .nav-tabs>li>a {
   border: 1px solid #e6e6e6;
+  background-color: white;
 }
 
 .dropdown-menu>li>a {
