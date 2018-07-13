@@ -4,9 +4,9 @@ DEBUG = True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DB_NAME = 'gdse'
-DB_USER = 'mypassword'
-DB_PASS = 'gdse_staging_db'
+DB_USER = 'gdse'
+DB_PASS = 'mypassword'
+DB_NAME = 'gdse_staging_db'
 
 DATABASES = {
     'default': {
