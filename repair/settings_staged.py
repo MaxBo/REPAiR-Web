@@ -7,6 +7,8 @@ DEBUG = True
 DB_USER = 'gdse'
 DB_PASS = 'mypassword'
 DB_NAME = 'gdse_staging_db'
+DB_HOST = 'db'
+DB_PORT = '5432'
 
 DATABASES = {
     'default': {
@@ -15,8 +17,8 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
-        'HOST': 'db',
-        'PORT': '5432',
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
         #'OPTIONS': {
             #'sslmode': 'require',
             #},
