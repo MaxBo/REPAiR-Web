@@ -21,7 +21,7 @@ drf-nested-routers
 numpy
 matplotlib
 plotly
-psycopg2
+psycopg2-binary
 geojson
 
 django-debug-toolbar
