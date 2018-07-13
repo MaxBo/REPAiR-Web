@@ -1,5 +1,6 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', 'app-config', 'jstree', 'static/css/jstree/gdsetouch/style.css'],
+        'models/gdsemodel', 'app-config', 'jstree', 
+        'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
