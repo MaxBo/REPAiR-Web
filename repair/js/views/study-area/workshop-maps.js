@@ -213,6 +213,7 @@ var BaseMapsView = BaseView.extend(
         }
         if (node.type === 'layer')
             applyLayerCheck(node)
+        // cascading checks don't fire check_node event -> update child layers if category is checked
         else {
             node.children.forEach(function(child){ 
                 applyLayerCheck($(_this.layerTree).jstree('get_node', child));

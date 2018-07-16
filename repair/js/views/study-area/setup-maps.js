@@ -128,31 +128,35 @@ var SetupMapsView = BaseMapView.extend(
         }
         this.repositionButtons();
     },
-
-    nodeChecked: function(event, data){
-        var node = data.node;
-        // layer checked
-        if (node.type === 'layer'){
-            var layer = node.original.layer;
-            layer.set('included', true);
+    
+    applyCheckState: function(node){
+        var _this = this;
+        function applyLayerCheck(layerNode){
+            var isChecked = layerNode.state.checked,
+                layer = layerNode.original.layer;
+            layer.set('included', isChecked);
             layer.save();
-            this.map.setVisible(this.layerPrefix + layer.id, true);
-            var legendDiv = document.getElementById(this.legendPrefix + layer.id);
-            if (legendDiv) legendDiv.style.display = 'inline';
+            _this.map.setVisible(_this.layerPrefix + layer.id, isChecked);
+            var legendDiv = document.getElementById(_this.legendPrefix + layer.id),
+                display = (isChecked) ? 'inline': 'none';
+            if (legendDiv) legendDiv.style.display = display;
+        }
+        if (node.type === 'layer')
+            applyLayerCheck(node)
+        // cascading checks don't fire check_node event -> update child layers if category is checked
+        else {
+            node.children.forEach(function(child){ 
+                applyLayerCheck($(_this.layerTree).jstree('get_node', child));
+            });
         }
     },
 
+    nodeChecked: function(event, data){
+        this.applyCheckState(data.node);
+    },
+
     nodeUnchecked: function(event, data){
-        var node = data.node;
-        // layer unchecked
-        if (node.type === 'layer'){
-            var layer = node.original.layer;
-            layer.set('included', false);
-            layer.save();
-            this.map.setVisible(this.layerPrefix + layer.id, false);
-            var legendDiv = document.getElementById(this.legendPrefix + layer.id);
-            if (legendDiv) legendDiv.style.display = 'none';
-        }
+        this.applyCheckState(data.node);
     },
 
     renderAvailableServices: function(){
