@@ -16,6 +16,8 @@ var BaseMapsView = BaseView.extend(
 
     // fetch only layers included by user in setup mode (set true for workshop mode)
     includedOnly: true,
+    // check/uncheck node when clicked on row, else only if clicked on checkbox
+    rowClickCheck: true,
 
     /**
     * render view on map layers of casestudy
@@ -33,12 +35,8 @@ var BaseMapsView = BaseView.extend(
         var _this = this;
         // make sure 'this' references to this view when functions are called
         // from different context
-        _.bindAll(this, 'nodeSelected');
-        _.bindAll(this, 'nodeUnselected');
         _.bindAll(this, 'nodeChecked');
         _.bindAll(this, 'nodeUnchecked');
-        _.bindAll(this, 'nodeCollapsed');
-        _.bindAll(this, 'nodeExpanded');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -111,8 +109,8 @@ var BaseMapsView = BaseView.extend(
                     var node = {
                         layer: layer,
                         text: layer.get('name'),
-                        type: 'layer'
-                        //state: { checked: _this.isChecked(layer) }
+                        type: 'layer',
+                        state: { checked: _this.isChecked(layer) }
                     };
                     children.push(node);
                 });
@@ -124,11 +122,11 @@ var BaseMapsView = BaseView.extend(
     
     // store checked layers in session
     saveSession(){
-        var checkedItems = $(this.layerTree).treeview('getChecked'),
+        var checkedItems = $(this.layerTree).jstree('get_checked', { full: true }),
             checkedIds = [];
         checkedItems.forEach(function(item){
-            if(item.layer)
-                checkedIds.push(item.layer.id);
+            if(item.type === 'layer')
+                checkedIds.push(item.original.layer.id);
         })
         config.session.save({ checkedMapLayers: checkedIds });
     },
@@ -174,7 +172,7 @@ var BaseMapsView = BaseView.extend(
             },
             checkbox : {
                 "keep_selected_style": false,
-                "whole_node": false,
+                "whole_node": this.rowClickCheck,
                 "tie_selection": false
             },
             types: {
@@ -195,61 +193,40 @@ var BaseMapsView = BaseView.extend(
             plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
         });
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
+        $(this.layerTree).on("check_node.jstree", this.nodeChecked);
+        $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
+    },
+
+    nodeUnselected: function(event, data){
     },
     
-    toggleState: function(node){
-    
-        var nodes = $(this.layerTree).treeview('getNodes'),
-            _node = null;
-        nodes.forEach(function(n){
-            if (node.nodeId == n.nodeId) {
-                _node = n;
-            }
-        })
-        // expand on click
-        if (node.category){
-            $(this.layerTree).treeview('toggleNodeExpanded', _node);
+    applyCheckState: function(node){
+        var _this = this;
+        function applyLayerCheck(layerNode){
+            var isChecked = layerNode.state.checked,
+                layer = layerNode.original.layer;
+                
+            _this.map.setVisible(_this.layerPrefix + layer.id, isChecked);
+            var legendDiv = document.getElementById(_this.legendPrefix + layer.id),
+                display = (isChecked) ? 'block': 'none';
+            if (legendDiv) legendDiv.style.display = display;
         }
-
-        // check/uncheck layer on click
+        if (node.type === 'layer')
+            applyLayerCheck(node)
         else {
-            $(this.layerTree).treeview('toggleNodeChecked', _node);
+            node.children.forEach(function(child){ 
+                applyLayerCheck($(_this.layerTree).jstree('get_node', child));
+            });
         }
+        this.saveSession();
     },
 
-    nodeSelected: function(event, node){
-        this.toggleState(node);
+    nodeChecked: function(event, data){
+        this.applyCheckState(data.node);
     },
 
-    nodeUnselected: function(event, node){
-    },
-
-    nodeChecked: function(event, node){
-        var _this = this;
-        if (node.layer){
-            this.map.setVisible(this.layerPrefix + node.layer.id, true);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
-            if (legendDiv) legendDiv.style.display = 'block';
-            this.saveSession();
-        }
-    },
-
-    nodeUnchecked: function(event, node){
-        var _this = this;
-        if (node.layer){
-            this.map.setVisible(this.layerPrefix + node.layer.id, false);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
-            if (legendDiv) legendDiv.style.display = 'none';
-            this.saveSession();
-        }
-    },
-
-    nodeCollapsed: function(event, node){
-
-    },
-
-    nodeExpanded: function(event, node){
-
+    nodeUnchecked: function(event, data){
+        this.applyCheckState(data.node);
     },
 
     renderMap: function(){

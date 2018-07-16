@@ -14,18 +14,13 @@ var SetupMapsView = BaseMapView.extend(
     {
 
     includedOnly: false,
-    categoryBackColor: 'white',
-    categoryColor: 'black',
-    categoryExpanded: true,
-    selectedBackColor: '#aad400',
-    selectedColor: 'white',
-    allowReselect: true,
-    preventUnselect: false,
-    onhoverColor: '#F5F5F5',
+    // check/uncheck node when clicked on row, else only if clicked on checkbox
+    rowClickCheck: false,
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'repositionButtons');
+        _.bindAll(this, 'nodeSelected');
     },
 
     /*
@@ -134,37 +129,28 @@ var SetupMapsView = BaseMapView.extend(
         this.repositionButtons();
     },
 
-    // items are not unselectable
-    nodeUnselected: function(event, node){
-        //$(this.layerTree).treeview('selectNode',  [node, { silent: true }]);
-    },
-
-    // select item on collapsing (workaround for misplaced buttons when collapsing)
-    nodeCollapsed: function(event, node){
-        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
-    },
-    nodeExpanded: function(event, node){
-        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
-    },
-
-    nodeChecked: function(event, node){
+    nodeChecked: function(event, data){
+        var node = data.node;
         // layer checked
-        if (node.layer != null){
-            node.layer.set('included', true);
-            node.layer.save();
-            this.map.setVisible(this.layerPrefix + node.layer.id, true);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+        if (node.type === 'layer'){
+            var layer = node.original.layer;
+            layer.set('included', true);
+            layer.save();
+            this.map.setVisible(this.layerPrefix + layer.id, true);
+            var legendDiv = document.getElementById(this.legendPrefix + layer.id);
             if (legendDiv) legendDiv.style.display = 'inline';
         }
     },
 
-    nodeUnchecked: function(event, node){
+    nodeUnchecked: function(event, data){
+        var node = data.node;
         // layer unchecked
-        if (node.layer != null){
-            node.layer.set('included', false);
-            node.layer.save();
-            this.map.setVisible(this.layerPrefix + node.layer.id, false);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+        if (node.type === 'layer'){
+            var layer = node.original.layer;
+            layer.set('included', false);
+            layer.save();
+            this.map.setVisible(this.layerPrefix + layer.id, false);
+            var legendDiv = document.getElementById(this.legendPrefix + layer.id);
             if (legendDiv) legendDiv.style.display = 'none';
         }
     },
@@ -245,8 +231,8 @@ var SetupMapsView = BaseMapView.extend(
                 var layerNode = { 
                     text: layer.get('name'),
                     layer: layer,
-                    type: 'layer'
-                    //state: { checked: layer.get('included') } 
+                    type: 'layer',
+                    state: { checked: layer.get('included') } 
                 };
                 catNode.children.push(layerNode);
                 _this.addNode(layerNode, _this.selectedNode);
