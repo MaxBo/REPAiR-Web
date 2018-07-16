@@ -59,12 +59,12 @@ var BaseChartsView = BaseView.extend(
     */
     events: {
         'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
-        'click .add': 'addChart',
+        'click #chart-tree-buttons>.add': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
         'change #chart-image-input': 'showPreview',
-        'click .remove': 'removeNode',
-        'click .edit': 'editName'
+        'click #chart-tree-buttons>.remove': 'removeNode',
+        'click #chart-tree-buttons>.edit': 'editName'
     },
 
     /*
@@ -221,7 +221,6 @@ var BaseChartsView = BaseView.extend(
     
     // place buttons over currently selected node
     repositionButtons(){
-        console.log('trigger')
         var id = $(this.chartTree).jstree('get_selected')[0],
             li = this.chartTree.querySelector('#' + id);
         if (!li) {
@@ -346,10 +345,8 @@ var BaseChartsView = BaseView.extend(
         this.confirm({ message: message, onConfirm: confirmRemoval })
     },
     
-    addNode: function(node, parentNode, selectNode){
+    addNode: function(node, parentNode){
         var parent = parentNode || null;
-        console.log(parent);
-        console.log(node)
         $(this.chartTree).jstree('create_node', parent, node, 'last');
     },
     

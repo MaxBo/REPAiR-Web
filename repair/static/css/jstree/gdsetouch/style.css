@@ -386,12 +386,6 @@ filter: gray;
 }
 .jstree-gdsetouch .jstree-wholerow-clicked {
   background: #aad400;
-  background: -moz-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aad400), color-stop(100%, #aad400));
-  background: -webkit-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -o-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -ms-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: linear-gradient(to bottom, #aad400 0%, #aad400 100%);
   /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@color1', endColorstr='@color2',GradientType=0 );*/
 }
 .jstree-gdsetouch .jstree-node {

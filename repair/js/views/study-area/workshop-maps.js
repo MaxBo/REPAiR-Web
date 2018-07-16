@@ -96,7 +96,6 @@ var BaseMapsView = BaseView.extend(
                 text: category.get('name'),
                 category: category,
                 type: 'category',
-                icon: 'far fa-map',
                 children: []
             };
             _this.categoryTree[category.id] = node;
@@ -112,7 +111,6 @@ var BaseMapsView = BaseView.extend(
                     var node = {
                         layer: layer,
                         text: layer.get('name'),
-                        icon: 'far fa-bookmark',
                         type: 'layer'
                         //state: { checked: _this.isChecked(layer) }
                     };
@@ -141,7 +139,7 @@ var BaseMapsView = BaseView.extend(
     render: function(){
         this.renderTemplate();
         this.renderMap();
-        this.renderDataTree();
+        this.renderLayerTree();
         if (this.categoryExpanded) $(this.layerTree).treeview('collapseAll', { silent: false });
     },
 
@@ -156,7 +154,7 @@ var BaseMapsView = BaseView.extend(
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
-    renderDataTree: function(){
+    renderLayerTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
         var _this = this,
@@ -187,11 +185,11 @@ var BaseMapsView = BaseView.extend(
                 },
                 category: {
                     "valid_children": ["layer"],
-                    "icon": "fa fa-images"
+                    icon: 'far fa-map',
                 },
-                chart: {
+                layer: {
                     "valid_children": [],
-                    "icon": "fa fa-image"
+                    icon: 'far fa-bookmark'
                 }
             },
             plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
