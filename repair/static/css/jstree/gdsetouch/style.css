@@ -274,12 +274,14 @@
   height: 0;
   font-size: 0;
   line-height: 0;
-  z-index: 1000;
+  z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
+  
 }
 #jstree-dnd {
   line-height: 16px;
   margin: 0;
   padding: 4px;
+  background: rgba(255, 255, 255, 0.8);
 }
 #jstree-dnd .jstree-icon,
 #jstree-dnd .jstree-copy {
@@ -924,6 +926,7 @@ filter: gray;
     border-top-width: 10px;
     border-bottom-width: 10px;
     margin-top: -10px;
+    z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
   }
 }
 @media (max-width: 768px) {
