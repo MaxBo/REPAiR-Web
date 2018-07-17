@@ -4,18 +4,15 @@
     height: 100%;
 }
 
-#base-map-content {
-    margin-left: -25px;
-    margin-top: -32px;
-    margin-right: -23px;
-}
-
 #layer-tree.workshop {
-    left: 10px; 
+    left: 20px; 
     z-index: 1000; 
     float: left; 
     position: absolute; 
     top: 80px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px 10px 5px;
+    border-radius: 5px;
 }
 
 #legend {
@@ -29,15 +26,13 @@
     z-index: 1000; 
     top: 50px; 
     max-height: 50%; 
-    background: white; 
+    background: rgba(255, 255, 255, 0.8); 
     border-radius: 5px; 
     padding: 0px;
 }
 
 #legend.workshop>.row {
     cursor: pointer; 
-    background: #aad400; 
-    color: white;
     padding-left: 10px;
     padding-right: 10px;
 }

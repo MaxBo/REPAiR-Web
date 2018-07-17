@@ -1,5 +1,6 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', 'app-config', 'jstree', 'static/css/jstree/gdsetouch/style.css'],
+        'models/gdsemodel', 'app-config', 'jstree', 
+        'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
@@ -58,12 +59,12 @@ var BaseChartsView = BaseView.extend(
     */
     events: {
         'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
-        'click .add': 'addChart',
+        'click #chart-tree-buttons>.add': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
         'change #chart-image-input': 'showPreview',
-        'click .remove': 'removeNode',
-        'click .edit': 'editName'
+        'click #chart-tree-buttons>.remove': 'removeNode',
+        'click #chart-tree-buttons>.edit': 'editName'
     },
 
     /*
@@ -126,6 +127,11 @@ var BaseChartsView = BaseView.extend(
             _this.render();
         })
     },
+    
+    rerenderTree: function(){
+        $(this.chartTree).jstree("destroy");
+        this.renderChartTree();
+    },
 
     /*
     * render the hierarchic tree of layers
@@ -180,9 +186,6 @@ var BaseChartsView = BaseView.extend(
         }
     },
 
-    /*
-    * event for selecting a node in the material tree
-    */
     nodeSelected: function(event, data){
         var node = data.node,
             addBtn = this.buttonBox.querySelector('.add'),
@@ -238,15 +241,19 @@ var BaseChartsView = BaseView.extend(
         function onConfirm(name){
             var category = _this.chartCategories.create( { name: name }, { 
                 success: function(){
-                    console.log(category)
                     var catNode = { 
                         text: name, 
                         type: 'category',
                         category: category,
                         children: []
                     };
+                    var treeIsEmpty = Object.keys(_this.categoryTree).length === 0;
                     _this.categoryTree[category.id] = catNode;
-                    _this.addNode(catNode);
+                    // bug in jstree: tree is not correctly initiallized when empty
+                    if (treeIsEmpty)
+                        _this.rerenderTree();
+                    else
+                        _this.addNode(catNode);
                 },
                 error: _this.onError,
                 wait: true
@@ -338,8 +345,7 @@ var BaseChartsView = BaseView.extend(
         this.confirm({ message: message, onConfirm: confirmRemoval })
     },
     
-    
-    addNode: function(node, parentNode, selectNode){
+    addNode: function(node, parentNode){
         var parent = parentNode || null;
         $(this.chartTree).jstree('create_node', parent, node, 'last');
     },
@@ -347,7 +353,7 @@ var BaseChartsView = BaseView.extend(
     getTreeChartNode: function(chart, options){
         var options = options || {};
         var catNode = this.categoryTree[chart.get('chart_category')];
-        var nodes = catNode.nodes;
+        var nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.chart === chart) {

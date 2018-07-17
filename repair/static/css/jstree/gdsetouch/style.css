@@ -274,11 +274,14 @@
   height: 0;
   font-size: 0;
   line-height: 0;
+  z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
+  
 }
 #jstree-dnd {
   line-height: 16px;
   margin: 0;
   padding: 4px;
+  background: rgba(255, 255, 255, 0.8);
 }
 #jstree-dnd .jstree-icon,
 #jstree-dnd .jstree-copy {
@@ -386,12 +389,6 @@ filter: gray;
 }
 .jstree-gdsetouch .jstree-wholerow-clicked {
   background: #aad400;
-  background: -moz-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aad400), color-stop(100%, #aad400));
-  background: -webkit-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -o-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: -ms-linear-gradient(top, #aad400 0%, #aad400 100%);
-  background: linear-gradient(to bottom, #aad400 0%, #aad400 100%);
   /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@color1', endColorstr='@color2',GradientType=0 );*/
 }
 .jstree-gdsetouch .jstree-node {
@@ -466,24 +463,24 @@ filter: gray;
   background: #efefef;
 }
 .jstree-gdsetouch .jstree-checkbox {
-  background-position: -165px -5px;
+  background-position: -165px 0px;
 }
 .jstree-gdsetouch .jstree-checkbox:hover {
-  background-position: -165px -37px;
+  background-position: -165px -32px;
 }
 .jstree-gdsetouch.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
 .jstree-gdsetouch .jstree-checked > .jstree-checkbox {
-  background-position: -229px -5px;
+  background-position: -229px 0px;
 }
 .jstree-gdsetouch.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
 .jstree-gdsetouch .jstree-checked > .jstree-checkbox:hover {
-  background-position: -229px -37px;
+  background-position: -229px -32px;
 }
 .jstree-gdsetouch .jstree-anchor > .jstree-undetermined {
-  background-position: -197px -5px;
+  background-position: -197px 0px;
 }
 .jstree-gdsetouch .jstree-anchor > .jstree-undetermined:hover {
-  background-position: -197px -37px;
+  background-position: -197px -32px;
 }
 .jstree-gdsetouch > .jstree-striped {
   background-size: auto 44px;
@@ -929,6 +926,7 @@ filter: gray;
     border-top-width: 10px;
     border-bottom-width: 10px;
     margin-top: -10px;
+    z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
   }
 }
 @media (max-width: 768px) {

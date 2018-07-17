@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="{{STATIC_URL}}css/study-area.css" />
   <div class="tab-content">
     <div class="tab-pane fade in active" id="base-map-wrapper">
-      <div id="base-map-content"></div>
+      <div id="base-map-content" {% if request.session.mode != 1 %} style="margin-left: -25px; margin-top: -32px; margin-right: -23px;" {% endif %}></div> <!--- removed margins in workshop mode for bigger map -->
     </div>
     <div class="tab-pane fade" id="base-charts-content">
     </div>

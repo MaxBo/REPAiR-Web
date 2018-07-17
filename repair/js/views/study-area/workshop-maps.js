@@ -1,7 +1,7 @@
 define(['views/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
-        'app-config', 'openlayers', 'patternfly-bootstrap-treeview',
-        'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
+        'app-config', 'openlayers', 'jstree', 
+        'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
 /**
@@ -14,16 +14,10 @@ var BaseMapsView = BaseView.extend(
     /** @lends module:views/BaseMapsView.prototype */
     {
 
+    // fetch only layers included by user in setup mode (set true for workshop mode)
     includedOnly: true,
-    categoryBackColor: '#aad400',
-    categoryColor: 'white',
-    categoryExpanded: false,
-    selectedBackColor: null,
-    selectedColor: null,
-    onhoverColor: null,
-    hierarchicalCheck: true,
-    allowReselect: true,
-    preventUnselect: true,
+    // check/uncheck node when clicked on row, else only if clicked on checkbox
+    rowClickCheck: true,
 
     /**
     * render view on map layers of casestudy
@@ -41,12 +35,10 @@ var BaseMapsView = BaseView.extend(
         var _this = this;
         // make sure 'this' references to this view when functions are called
         // from different context
-        _.bindAll(this, 'nodeSelected');
-        _.bindAll(this, 'nodeUnselected');
         _.bindAll(this, 'nodeChecked');
         _.bindAll(this, 'nodeUnchecked');
-        _.bindAll(this, 'nodeCollapsed');
-        _.bindAll(this, 'nodeExpanded');
+        _.bindAll(this, 'nodeDropped');
+        
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -59,10 +51,12 @@ var BaseMapsView = BaseView.extend(
         });
         this.layerCategories = new GDSECollection([], { 
             apiTag: 'layerCategories',
-            apiIds: [ this.caseStudy.id ]
+            apiIds: [ this.caseStudy.id ],
+            comparator: 'order'
         });
 
         this.categoryTree = {};
+        this.categoryPrefix = 'category-';
         this.layerPrefix = 'service-layer-';
         this.legendPrefix = 'layer-legend-';
 
@@ -94,18 +88,20 @@ var BaseMapsView = BaseView.extend(
         queryParams = (this.includedOnly) ? {included: 'True'} : {};
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
+        this.layerCategories.sort();
         this.layerCategories.each(function(category){
             var layers = new GDSECollection([], { 
                 apiTag: 'layers',
-                apiIds: [ _this.caseStudy.id, category.id ]
+                apiIds: [ _this.caseStudy.id, category.id ],
+                comparator: 'order'
             });
             layers.categoryId = category.id;
             var node = {
+                id: _this.categoryPrefix + category.id,
                 text: category.get('name'),
                 category: category,
-                state: { checked: undefined },
-                backColor: _this.categoryBackColor || null,
-                color: _this.categoryColor || null
+                type: 'category',
+                children: []
             };
             _this.categoryTree[category.id] = node;
             layerList.push(layers);
@@ -116,30 +112,65 @@ var BaseMapsView = BaseView.extend(
             layerList.forEach(function(layers){
                 var catNode = _this.categoryTree[layers.categoryId],
                     children = [];
+                layers.sort();
                 layers.each(function(layer){
                     var node = {
+                        id: _this.layerPrefix + layer.id,
                         layer: layer,
                         text: layer.get('name'),
-                        icon: 'fa fa-bookmark',
+                        type: 'layer',
                         state: { checked: _this.isChecked(layer) }
                     };
                     children.push(node);
                 });
-                catNode.nodes = children;
+                catNode.children = children;
             });
             _this.render();
         })
     },
     
     // store checked layers in session
-    saveSession(){
-        var checkedItems = $(this.layerTree).treeview('getChecked'),
+    saveCheckstates(){
+        var checkedItems = $(this.layerTree).jstree('get_checked', { full: true }),
             checkedIds = [];
         checkedItems.forEach(function(item){
-            if(item.layer)
-                checkedIds.push(item.layer.id);
+            if(item.type === 'layer')
+                checkedIds.push(item.original.layer.id);
         })
         config.session.save({ checkedMapLayers: checkedIds });
+    },
+    
+    saveOrder: function(){
+        var catNodes = $(this.layerTree).jstree('get_json'),
+            order = [],
+            _this = this;
+        catNodes.forEach(function(catNode){
+            var layerNodes = [];
+            catNode.children.forEach(function(layerNode){
+                var layerId = layerNode.id.replace(_this.layerPrefix, '');
+                layerNodes.push(layerId)
+            })
+            var catId = catNode.id.replace(_this.categoryPrefix, '');
+            order.push({ category: catId, layers: layerNodes});
+        })
+        config.session.save({ layerOrder: order });
+    },
+    
+    // restore order from session
+    restoreOrder: function(){
+        var order = config.session.get('layerOrder'),
+            _this = this;
+        if (!order) return;
+        order.forEach(function(item){
+            var catId = item.category,
+                layerIds = item.layers;
+                catNodeId = _this.categoryPrefix + catId;
+            $(_this.layerTree).jstree('move_node', catNodeId, '#', 'last');
+            layerIds.forEach(function(layerId){
+                var layerNodeId = _this.layerPrefix + layerId;
+                $(_this.layerTree).jstree('move_node', layerNodeId, catNodeId, 'last');
+            })
+        });
     },
 
     /*
@@ -147,8 +178,8 @@ var BaseMapsView = BaseView.extend(
     */
     render: function(){
         this.renderTemplate();
+        this.renderLayerTree();
         this.renderMap();
-        this.renderDataTree();
         if (this.categoryExpanded) $(this.layerTree).treeview('collapseAll', { silent: false });
     },
 
@@ -163,101 +194,93 @@ var BaseMapsView = BaseView.extend(
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
-    renderDataTree: function(categoryId){
+    renderLayerTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
-        var _this = this;
-        var dataDict = {};
-        var tree = [];
-
-        _.each(this.categoryTree, function(category){
-            tree.push(category)
+        var _this = this,
+            tree = [];
+        this.layerCategories.forEach(function(category){
+            tree.push(_this.categoryTree[category.id])
         })
-        $(this.layerTree).treeview({
-            data: tree, showTags: true,
-            selectedBackColor: this.selectedBackColor,
-            selectedColor: this.selectedColor,
-            expandIcon: 'glyphicon glyphicon-triangle-right',
-            collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-            onNodeSelected: this.nodeSelected,
-            onNodeUnselected: this.nodeUnselected,// function(event, node){ select(event, node, true) },
-            onNodeChecked: this.nodeChecked,
-            onNodeUnchecked: this.nodeUnchecked,
-            onNodeCollapsed: this.nodeCollapsed, //function(event, node){ select(event, node, false) },
-            onNodeExpanded: this.nodeExpanded,//function(event, node){ select(event, node, false) },
-            showCheckbox: true,
-            multiSelect: false,
-            onhoverColor: this.onhoverColor,
-            hierarchicalCheck: this.hierarchicalCheck,
-            allowReselect: this.allowReselect,
-            preventUnselect: this.preventUnselect
-        });
-
-        // look for and expand and select node with given category id
-        if (categoryId != null){
-            var nodes = $(this.layerTree).treeview('getNodes');
-            _.forEach(nodes, function(node){
-                if (node.category && (node.category.id == categoryId)){
-                    $(_this.layerTree).treeview('selectNode', node);
-                    return false;
+        $(this.layerTree).jstree({
+            core : {
+                data: tree,
+                themes: {
+                    name: 'gdsetouch',
+                    responsive: true
+                },
+                check_callback: function(operation, node, node_parent, node_position, more) {
+                    // restrict movement of nodes to stay inside same parent
+                    if (operation === "move_node") {
+                        if ( node.parent !== node_parent.id) return false;
+                    }
+                    // allow all other operations
+                    return true;
+                },
+                multiple: true
+            },
+            checkbox : {
+                "keep_selected_style": false,
+                "whole_node": this.rowClickCheck,
+                "tie_selection": false
+            },
+            types: {
+                "#" : {
+                  "max_depth": -1,
+                  "max_children": -1,
+                  "valid_children": ["category"],
+                },
+                category: {
+                    "valid_children": ["layer"],
+                    icon: 'far fa-map',
+                },
+                layer: {
+                    "valid_children": [],
+                    icon: 'far fa-bookmark'
                 }
-            })
-        }
+            },
+            plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
+        });
+        this.restoreOrder();
+        $(this.layerTree).on("select_node.jstree", this.nodeSelected);
+        $(this.layerTree).on("check_node.jstree", this.nodeChecked);
+        $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
+        $(this.layerTree).on("move_node.jstree", this.nodeDropped);
     },
     
-    toggleState: function(node){
+    nodeDropped: function(event, data){
+        this.saveOrder();
+        this.setMapZIndices();
+    },
     
-        var nodes = $(this.layerTree).treeview('getNodes'),
-            _node = null;
-        nodes.forEach(function(n){
-            if (node.nodeId == n.nodeId) {
-                _node = n;
-            }
-        })
-        // expand on click
-        if (node.category){
-            $(this.layerTree).treeview('toggleNodeExpanded', _node);
+    applyCheckState: function(node){
+        var _this = this;
+        function applyLayerCheck(layerNode){
+            var isChecked = layerNode.state.checked,
+                layer = layerNode.original.layer;
+                
+            _this.map.setVisible(_this.layerPrefix + layer.id, isChecked);
+            var legendDiv = document.getElementById(_this.legendPrefix + layer.id),
+                display = (isChecked) ? 'block': 'none';
+            if (legendDiv) legendDiv.style.display = display;
         }
-
-        // check/uncheck layer on click
+        if (node.type === 'layer')
+            applyLayerCheck(node)
+        // cascading checks don't fire check_node event -> update child layers if category is checked
         else {
-            $(this.layerTree).treeview('toggleNodeChecked', _node);
+            node.children.forEach(function(child){ 
+                applyLayerCheck($(_this.layerTree).jstree('get_node', child));
+            });
         }
+        this.saveCheckstates();
     },
 
-    nodeSelected: function(event, node){
-        this.toggleState(node);
+    nodeChecked: function(event, data){
+        this.applyCheckState(data.node);
     },
 
-    nodeUnselected: function(event, node){
-    },
-
-    nodeChecked: function(event, node){
-        var _this = this;
-        if (node.layer){
-            this.map.setVisible(this.layerPrefix + node.layer.id, true);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
-            if (legendDiv) legendDiv.style.display = 'block';
-            this.saveSession();
-        }
-    },
-
-    nodeUnchecked: function(event, node){
-        var _this = this;
-        if (node.layer){
-            this.map.setVisible(this.layerPrefix + node.layer.id, false);
-            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
-            if (legendDiv) legendDiv.style.display = 'none';
-            this.saveSession();
-        }
-    },
-
-    nodeCollapsed: function(event, node){
-
-    },
-
-    nodeExpanded: function(event, node){
-
+    nodeUnchecked: function(event, data){
+        this.applyCheckState(data.node);
     },
 
     renderMap: function(){
@@ -275,15 +298,28 @@ var BaseMapsView = BaseView.extend(
         };
         // get all layers and render them
         Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].nodes;
+            var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
+        })
+        this.setMapZIndices();
+    },
+
+    setMapZIndices: function(){
+        // use get_json to get all nodes in a flat order
+        var nodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
+            zIndex = nodes.length,
+            _this = this;
+        nodes.forEach(function(node){
+            if(node.type === 'layer'){
+                _this.map.setZIndex(node.id, zIndex);
+                zIndex--;
+            }
         })
     },
 
     addServiceLayer: function(layer){
         this.map.addServiceLayer(this.layerPrefix + layer.id, {
             opacity: 1,
-            zIndex: layer.get('z_index'),
             visible: this.isChecked(layer),
             url: config.views.layerproxy.format(layer.id),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
