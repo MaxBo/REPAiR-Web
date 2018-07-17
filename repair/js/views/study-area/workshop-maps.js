@@ -56,6 +56,7 @@ var BaseMapsView = BaseView.extend(
         });
 
         this.categoryTree = {};
+        this.categoryPrefix = 'category-';
         this.layerPrefix = 'service-layer-';
         this.legendPrefix = 'layer-legend-';
 
@@ -96,7 +97,7 @@ var BaseMapsView = BaseView.extend(
             });
             layers.categoryId = category.id;
             var node = {
-                //id: category.id, // don't set ids, because category and layer may have same id, confuses jstree
+                id: _this.categoryPrefix + category.id,
                 text: category.get('name'),
                 category: category,
                 type: 'category',
@@ -114,7 +115,7 @@ var BaseMapsView = BaseView.extend(
                 layers.sort();
                 layers.each(function(layer){
                     var node = {
-                        //id: layer.id,
+                        id: _this.layerPrefix + layer.id,
                         layer: layer,
                         text: layer.get('name'),
                         type: 'layer',
@@ -129,7 +130,7 @@ var BaseMapsView = BaseView.extend(
     },
     
     // store checked layers in session
-    saveSession(){
+    saveCheckstates(){
         var checkedItems = $(this.layerTree).jstree('get_checked', { full: true }),
             checkedIds = [];
         checkedItems.forEach(function(item){
@@ -137,6 +138,41 @@ var BaseMapsView = BaseView.extend(
                 checkedIds.push(item.original.layer.id);
         })
         config.session.save({ checkedMapLayers: checkedIds });
+    },
+    
+    saveOrder: function(){
+        var catNodes = $(this.layerTree).jstree('get_json'),
+            order = [],
+            _this = this;
+        catNodes.forEach(function(catNode){
+            var layerNodes = [];
+            catNode.children.forEach(function(layerNode){
+                var layerId = layerNode.id.replace(_this.layerPrefix, '');
+                layerNodes.push(layerId)
+            })
+            var catId = catNode.id.replace(_this.categoryPrefix, '');
+            order.push({ category: catId, layers: layerNodes});
+        })
+        console.log(order)
+        config.session.save({ layerOrder: order });
+    },
+    
+    // restore order from session
+    restoreOrder: function(){
+        var order = config.session.get('layerOrder'),
+            _this = this;
+        console.log(order)
+        if (!order) return;
+        order.forEach(function(item){
+            var catId = item.category,
+                layerIds = item.layers;
+                catNodeId = _this.categoryPrefix + catId;
+            $(_this.layerTree).jstree('move_node', catNodeId, '#', 'last');
+            layerIds.forEach(function(layerId){
+                var layerNodeId = _this.layerPrefix + layerId;
+                $(_this.layerTree).jstree('move_node', layerNodeId, catNodeId, 'last');
+            })
+        });
     },
 
     /*
@@ -207,6 +243,7 @@ var BaseMapsView = BaseView.extend(
             },
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
+        this.restoreOrder();
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
@@ -214,10 +251,8 @@ var BaseMapsView = BaseView.extend(
     },
     
     nodeDropped: function(event, data){
-        var node = data.node,
-            parent = $(this.layerTree).jstree("get_node", node.parent),
-            siblings = parent.children;
-        this.setMapZIndices()
+        this.saveOrder();
+        this.setMapZIndices();
     },
     
     applyCheckState: function(node){
@@ -239,7 +274,7 @@ var BaseMapsView = BaseView.extend(
                 applyLayerCheck($(_this.layerTree).jstree('get_node', child));
             });
         }
-        this.saveSession();
+        this.saveCheckstates();
     },
 
     nodeChecked: function(event, data){
@@ -273,14 +308,12 @@ var BaseMapsView = BaseView.extend(
 
     setMapZIndices: function(){
         // use get_json to get all nodes in a flat order
-        var jsonNodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
-            zIndex = jsonNodes.length,
+        var nodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
+            zIndex = nodes.length,
             _this = this;
-        jsonNodes.forEach(function(jsonNode){
-            if(jsonNode.type === 'layer'){
-                var node = $(_this.layerTree).jstree('get_node', jsonNode.id),
-                    layername = _this.layerPrefix + node.original.layer.id;
-                _this.map.setZIndex(layername, zIndex);
+        nodes.forEach(function(node){
+            if(node.type === 'layer'){
+                _this.map.setZIndex(node.id, zIndex);
                 zIndex--;
             }
         })

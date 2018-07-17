@@ -40,9 +40,11 @@ var SetupMapsView = BaseMapView.extend(
         return layer.get('included');
     },
 
-    saveSession(){
-        // setup mode doesn't need to store anything in the session
-        // all saved directly in db
+    // setup mode doesn't need to store anything in the session
+    // all saved directly in db -> override and leave empty
+    saveCheckstates(){
+    },
+    restoreOrder(){
     },
 
     /*
