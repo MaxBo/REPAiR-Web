@@ -37,6 +37,8 @@ var BaseMapsView = BaseView.extend(
         // from different context
         _.bindAll(this, 'nodeChecked');
         _.bindAll(this, 'nodeUnchecked');
+        _.bindAll(this, 'nodeDropped');
+        
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -49,7 +51,8 @@ var BaseMapsView = BaseView.extend(
         });
         this.layerCategories = new GDSECollection([], { 
             apiTag: 'layerCategories',
-            apiIds: [ this.caseStudy.id ]
+            apiIds: [ this.caseStudy.id ],
+            comparator: 'order'
         });
 
         this.categoryTree = {};
@@ -84,13 +87,16 @@ var BaseMapsView = BaseView.extend(
         queryParams = (this.includedOnly) ? {included: 'True'} : {};
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
+        this.layerCategories.sort();
         this.layerCategories.each(function(category){
             var layers = new GDSECollection([], { 
                 apiTag: 'layers',
-                apiIds: [ _this.caseStudy.id, category.id ]
+                apiIds: [ _this.caseStudy.id, category.id ],
+                comparator: 'order'
             });
             layers.categoryId = category.id;
             var node = {
+                //id: category.id, // don't set ids, because category and layer may have same id, confuses jstree
                 text: category.get('name'),
                 category: category,
                 type: 'category',
@@ -105,8 +111,10 @@ var BaseMapsView = BaseView.extend(
             layerList.forEach(function(layers){
                 var catNode = _this.categoryTree[layers.categoryId],
                     children = [];
+                layers.sort();
                 layers.each(function(layer){
                     var node = {
+                        //id: layer.id,
                         layer: layer,
                         text: layer.get('name'),
                         type: 'layer',
@@ -136,8 +144,8 @@ var BaseMapsView = BaseView.extend(
     */
     render: function(){
         this.renderTemplate();
-        this.renderMap();
         this.renderLayerTree();
+        this.renderMap();
         if (this.categoryExpanded) $(this.layerTree).treeview('collapseAll', { silent: false });
     },
 
@@ -157,8 +165,8 @@ var BaseMapsView = BaseView.extend(
 
         var _this = this,
             tree = [];
-        _.each(this.categoryTree, function(category){
-            tree.push(category)
+        this.layerCategories.forEach(function(category){
+            tree.push(_this.categoryTree[category.id])
         })
         $(this.layerTree).jstree({
             core : {
@@ -190,14 +198,19 @@ var BaseMapsView = BaseView.extend(
                     icon: 'far fa-bookmark'
                 }
             },
-            plugins: ["checkbox", "wholerow", "ui", "types", "themes"]
+            plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
+        $(this.layerTree).on("move_node.jstree", this.nodeDropped);
     },
-
-    nodeUnselected: function(event, data){
+    
+    nodeDropped: function(event, data){
+        var node = data.node,
+            parent = $(this.layerTree).jstree("get_node", node.parent),
+            siblings = parent.children;
+        this.setMapZIndices()
     },
     
     applyCheckState: function(node){
@@ -248,12 +261,27 @@ var BaseMapsView = BaseView.extend(
             var children = _this.categoryTree[catId].children;
             children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
+        this.setMapZIndices();
+    },
+
+    setMapZIndices: function(){
+        // use get_json to get all nodes in a flat order
+        var jsonNodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
+            zIndex = jsonNodes.length,
+            _this = this;
+        jsonNodes.forEach(function(jsonNode){
+            if(jsonNode.type === 'layer'){
+                var node = $(_this.layerTree).jstree('get_node', jsonNode.id),
+                    layername = _this.layerPrefix + node.original.layer.id;
+                _this.map.setZIndex(layername, zIndex);
+                zIndex--;
+            }
+        })
     },
 
     addServiceLayer: function(layer){
         this.map.addServiceLayer(this.layerPrefix + layer.id, {
             opacity: 1,
-            zIndex: layer.get('z_index'),
             visible: this.isChecked(layer),
             url: config.views.layerproxy.format(layer.id),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},

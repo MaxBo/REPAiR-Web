@@ -274,6 +274,7 @@
   height: 0;
   font-size: 0;
   line-height: 0;
+  z-index: 1000;
 }
 #jstree-dnd {
   line-height: 16px;

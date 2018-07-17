@@ -56,7 +56,6 @@ var SetupMapsView = BaseMapView.extend(
 
         this.layerModal = document.getElementById('add-layer-modal');
 
-        this.renderMap();
 
         // preselect first category
         categoryIds = Object.keys(this.categoryTree);
@@ -64,25 +63,7 @@ var SetupMapsView = BaseMapView.extend(
         this.renderLayerTree(preselect);
 
         this.renderAvailableServices();
-    },
-
-    renderMap: function(){
-        var _this = this;
-        this.map = new Map({
-            el: document.getElementById('base-map'),
-            renderOSM: false
-        });
-        var focusarea = this.caseStudy.get('properties').focusarea;
-
-        // add polygon of focusarea to both maps and center on their centroid
-        if (focusarea != null){
-            this.map.centerOnCoordinates(focusarea.coordinates[0], { projection: this.projection });
-        };
-        // get all layers and render them
-        Object.keys(this.categoryTree).forEach(function(catId){
-            var children = _this.categoryTree[catId].children;
-            children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
-        })
+        this.renderMap();
     },
     
     rerenderTree: function(){
@@ -110,7 +91,22 @@ var SetupMapsView = BaseMapView.extend(
         this.buttonBox.style.top = li.offsetTop + this.layerTree.offsetTop + 'px';
         this.buttonBox.style.display = 'inline';
     },
-
+    
+    nodeDropped: function(event, data){
+        var node = data.node,
+            parent = $(this.layerTree).jstree("get_node", node.parent),
+            siblings = parent.children,
+            _this = this;
+        var i = 0;
+        siblings.forEach(function(sibling){
+            var n = $(_this.layerTree).jstree("get_node", sibling),
+                model = (n.type === 'category') ? n.original.category : n.original.layer;
+            model.set('order', i);
+            model.save();
+            i++;
+        })
+        this.setMapZIndices();
+    },
 
     /*
     * event for selecting a node in the layer tree
@@ -184,7 +180,8 @@ var SetupMapsView = BaseMapView.extend(
                     var catNode = {
                         text: name,
                         category: category,
-                        type: 'category'
+                        type: 'category',
+                        children: []
                     }
                     var treeIsEmpty = Object.keys(_this.categoryTree).length === 0;
                     _this.categoryTree[category.id] = catNode;
@@ -215,7 +212,7 @@ var SetupMapsView = BaseMapView.extend(
             catNode = this.categoryTree[category.id],
             checked = this.layerModal.querySelectorAll('input[name=layer]:checked'),
             newLayers = [];
-
+        console.log(catNode)
         checked.forEach(function(checkbox){
             var wmsLayerId = checkbox.dataset.layerid,
                 wmsLayerName = checkbox.dataset.layername;
@@ -301,9 +298,9 @@ var SetupMapsView = BaseMapView.extend(
     },
 
     getTreeLayerNode: function(layer, options){
-        var options = options || {};
-        var catNode = this.categoryTree[layer.get('category')];
-        var nodes = catNode.children;
+        var options = options || {},
+            catNode = this.categoryTree[layer.get('category')],
+            nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.layer === layer) {
@@ -315,8 +312,8 @@ var SetupMapsView = BaseMapView.extend(
     },
 
     editName: function(){
-        var _this = this;
-        var model = this.selectedNode.original.layer || this.selectedNode.original.category;
+        var _this = this,
+            model = this.selectedNode.original.layer || this.selectedNode.original.category;
         function onConfirm(name){
             model.set('name', name);
             model.save(null, { 
@@ -331,34 +328,6 @@ var SetupMapsView = BaseMapView.extend(
         })
     },
 
-    moveLayerUp: function(){
-        var _this = this;
-        var layer = this.selectedNode.layer;
-        var newVal = Number(this.zInput.value) + 1;
-        layer.set('z_index', newVal);
-        this.buttonBox.style.pointerEvents = 'none';
-        layer.save(null, { success: function(){
-            _this.buttonBox.style.pointerEvents = 'auto';
-            _this.zInput.value = newVal;
-            _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
-        }});
-    },
-
-    moveLayerDown: function(){
-        var _this = this;
-        var layer = this.selectedNode.layer;
-        var newVal = Number(this.zInput.value) - 1;
-        if (newVal > 0){
-            this.zInput.value = newVal;
-            layer.set('z_index', newVal);
-            this.buttonBox.style.pointerEvents = 'none';
-            layer.save(null, { success: function(){
-                _this.buttonBox.style.pointerEvents = 'auto';
-                _this.zInput.value = newVal;
-                _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
-            }});
-        }
-    },
 });
 return SetupMapsView;
 }

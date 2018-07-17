@@ -10,7 +10,7 @@ class LayerCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LayerCategory
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'order')
 
 
 class LayerSerializer(serializers.ModelSerializer):
@@ -22,6 +22,6 @@ class LayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Layer
-        fields = ('id', 'name', 'included', 'wms_layer', 'category', 'z_index',
+        fields = ('id', 'name', 'included', 'wms_layer', 'category', 'order',
                   'style', 'legend_uri')
 
