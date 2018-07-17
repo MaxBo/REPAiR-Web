@@ -153,7 +153,6 @@ var BaseMapsView = BaseView.extend(
             var catId = catNode.id.replace(_this.categoryPrefix, '');
             order.push({ category: catId, layers: layerNodes});
         })
-        console.log(order)
         config.session.save({ layerOrder: order });
     },
     
@@ -161,7 +160,6 @@ var BaseMapsView = BaseView.extend(
     restoreOrder: function(){
         var order = config.session.get('layerOrder'),
             _this = this;
-        console.log(order)
         if (!order) return;
         order.forEach(function(item){
             var catId = item.category,

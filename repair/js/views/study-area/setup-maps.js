@@ -214,7 +214,6 @@ var SetupMapsView = BaseMapView.extend(
             catNode = this.categoryTree[category.id],
             checked = this.layerModal.querySelectorAll('input[name=layer]:checked'),
             newLayers = [];
-        console.log(catNode)
         checked.forEach(function(checkbox){
             var wmsLayerId = checkbox.dataset.layerid,
                 wmsLayerName = checkbox.dataset.layername;
