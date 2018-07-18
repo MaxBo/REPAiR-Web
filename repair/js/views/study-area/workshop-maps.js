@@ -16,8 +16,7 @@ var BaseMapsView = BaseView.extend(
 
     // fetch only layers included by user in setup mode (set true for workshop mode)
     includedOnly: true,
-    // check/uncheck node when clicked on row, else only if clicked on checkbox
-    rowClickCheck: true,
+    theme: 'gdsetouch-large',
 
     /**
     * render view on map layers of casestudy
@@ -38,7 +37,7 @@ var BaseMapsView = BaseView.extend(
         _.bindAll(this, 'nodeChecked');
         _.bindAll(this, 'nodeUnchecked');
         _.bindAll(this, 'nodeDropped');
-        
+        _.bindAll(this, 'nodeSelected');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -148,7 +147,7 @@ var BaseMapsView = BaseView.extend(
             var layerNodes = [];
             catNode.children.forEach(function(layerNode){
                 var layerId = layerNode.id.replace(_this.layerPrefix, '');
-                layerNodes.push(layerId)
+                layerNodes.push(layerId);
             })
             var catId = catNode.id.replace(_this.categoryPrefix, '');
             order.push({ category: catId, layers: layerNodes});
@@ -206,8 +205,9 @@ var BaseMapsView = BaseView.extend(
             core : {
                 data: tree,
                 themes: {
-                    name: 'gdsetouch',
-                    responsive: true
+                    name: this.theme,
+                    responsive: true,
+                    //large: true
                 },
                 check_callback: function(operation, node, node_parent, node_position, more) {
                     // restrict movement of nodes to stay inside same parent
@@ -221,7 +221,6 @@ var BaseMapsView = BaseView.extend(
             },
             checkbox : {
                 "keep_selected_style": false,
-                "whole_node": this.rowClickCheck,
                 "tie_selection": false
             },
             types: {
@@ -236,7 +235,7 @@ var BaseMapsView = BaseView.extend(
                 },
                 layer: {
                     "valid_children": [],
-                    icon: 'far fa-bookmark'
+                    icon: false
                 }
             },
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
@@ -246,6 +245,16 @@ var BaseMapsView = BaseView.extend(
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
         $(this.layerTree).on("move_node.jstree", this.nodeDropped);
+    },
+    
+    nodeSelected: function(event, data){
+        var node = data.node;
+        console.log(node)
+        if (node.type === 'category') $(this.layerTree).jstree('toggle_node', node);
+        if (node.type === 'layer'){
+            if (node.state.checked) $(this.layerTree).jstree('uncheck_node', node);
+            else $(this.layerTree).jstree('check_node', node);
+        } 
     },
     
     nodeDropped: function(event, data){
