@@ -744,6 +744,7 @@ filter: gray;
   line-height: 40px;
   margin: 1px 0 2px;
   height: 32px;
+  font-size: 16px;
 }
 .jstree-gdsetouch-large .jstree-icon {
   width: 40px;
