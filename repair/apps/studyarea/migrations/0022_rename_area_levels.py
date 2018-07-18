@@ -6,7 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    #atomic = False
+    atomic = False
 
     dependencies = [
         ('asmfa', '0029_auto_20180503_1411'),
