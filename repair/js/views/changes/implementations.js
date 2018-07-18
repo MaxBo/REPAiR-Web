@@ -461,11 +461,11 @@ var ImplementationsView = BaseView.extend(
             this.editorMap.centerOnPolygon(poly, { projection: this.projection });
         };
         
-        var geom = solutionImpl.get('geom');
+        var geom = solutionImpl.get('geom'),
             drawingLayer = this.editorMap.addLayer('drawing', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'});
         
         if (geom){
-            this.editorMap.addPolygon(geom.coordinates, { 
+            var poly = this.editorMap.addPolygon(geom.coordinates, { 
                 projection: 'EPSG:3857', layername: 'drawing', 
                 type: 'MultiPolygon'
             });
