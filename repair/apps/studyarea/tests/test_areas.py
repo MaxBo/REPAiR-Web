@@ -87,11 +87,13 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                                   level=models.NUTS3._level,
                                                   casestudy=casestudy)
         amt = models.AdminLevels.objects.create(name='Amt',
-                                                level=models.LAU1._level,
+                                                level=models.District._level,
                                                 casestudy=casestudy)
-        gemeinde = models.AdminLevels.objects.create(name='Gemeinde',
-                                                     level=models.LAU2._level,
-                                                     casestudy=casestudy)
+        gemeinde = models.AdminLevels.objects.create(
+            name='Gemeinde',
+            level=models.Municipality._level,
+            casestudy=casestudy
+        )
         ortsteil = models.AdminLevels.objects.create(
             name='Ortsteil',
             level=models.CityNeighbourhood._level,
@@ -113,16 +115,16 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         kreis_pi = models.NUTS3.objects.create(
             name='Kreis PI',
             parent_area=sh)
-        elmshorn = models.LAU2.objects.create(
+        elmshorn = models.Municipality.objects.create(
             name='Elmshorn',
             parent_area=kreis_pi)
-        pinneberg = models.LAU2.objects.create(
+        pinneberg = models.Municipality.objects.create(
             name='Pinneberg',
             parent_area=kreis_pi)
-        amt_pinnau = models.LAU1.objects.create(
+        amt_pinnau = models.District.objects.create(
             name='Amt Pinnau',
             parent_area=kreis_pi)
-        ellerbek = models.LAU2.objects.create(
+        ellerbek = models.Municipality.objects.create(
             name='Ellerbek',
             parent_area=amt_pinnau)
 
@@ -354,9 +356,9 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                           )
         self.response_201()
 
-        gem1 = models.LAU2.objects.get(code='01002001')
+        gem1 = models.Municipality.objects.get(code='01002001')
         assert gem1.parent_area.code == '01002'
-        gem2 = models.LAU2.objects.get(code='01001002')
+        gem2 = models.Municipality.objects.get(code='01001002')
         assert gem2.parent_area.code == '01001'
 
 
