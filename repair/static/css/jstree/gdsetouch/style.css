@@ -878,6 +878,9 @@ filter: gray;
   margin-left: 0;
   margin-right: 0;
 }
+/*.jstree-gdsetouch-large .jstree-wholerow-clicked {
+  background: #aad400;
+}*/
 #jstree-dnd.jstree-gdsetouch-large {
   line-height: 32px;
   padding: 0 4px;
