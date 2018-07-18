@@ -14,13 +14,11 @@ var SetupMapsView = BaseMapView.extend(
     {
 
     includedOnly: false,
-    // check/uncheck node when clicked on row, else only if clicked on checkbox
-    rowClickCheck: false,
+    theme: 'gdsetouch',
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'repositionButtons');
-        _.bindAll(this, 'nodeSelected');
     },
 
     /*
