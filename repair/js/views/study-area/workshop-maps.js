@@ -212,7 +212,7 @@ var BaseMapsView = BaseView.extend(
                 check_callback: function(operation, node, node_parent, node_position, more) {
                     // restrict movement of nodes to stay inside same parent
                     if (operation === "move_node") {
-                        if ( node.parent !== node_parent.id) return false;
+                        if (node.parent !== node_parent.id) return false;
                     }
                     // allow all other operations
                     return true;
@@ -221,6 +221,7 @@ var BaseMapsView = BaseView.extend(
             },
             checkbox : {
                 "keep_selected_style": false,
+                "whole_node": false,
                 "tie_selection": false
             },
             types: {

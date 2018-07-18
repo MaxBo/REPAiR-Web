@@ -741,9 +741,10 @@ filter: gray;
   min-width: 40px;
 }
 .jstree-gdsetouch-large .jstree-anchor {
-  line-height: 40px;
+  line-height: 32px;
   margin: 1px 0 2px;
   height: 32px;
+  font-size: 16px;
 }
 .jstree-gdsetouch-large .jstree-icon {
   width: 40px;
