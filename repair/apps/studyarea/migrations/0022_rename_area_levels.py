@@ -6,13 +6,24 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    atomic = False
+    #atomic = False
 
     dependencies = [
+        ('asmfa', '0029_auto_20180503_1411'),
         ('studyarea', '0021_auto_20180717_1133'),
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='lau1',
+            name='parent_area',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='district_areas', to='studyarea.Area'),
+        ),
+        migrations.AlterField(
+            model_name='lau2',
+            name='parent_area',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='municipality_areas', to='studyarea.Area'),
+        ),
         migrations.RenameModel(
             old_name='LAU1',
             new_name='District',
