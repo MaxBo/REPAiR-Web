@@ -16,8 +16,6 @@ var BaseMapsView = BaseView.extend(
 
     // fetch only layers included by user in setup mode (set true for workshop mode)
     includedOnly: true,
-    // check/uncheck node when clicked on row, else only if clicked on checkbox
-    rowClickCheck: false,
     theme: 'gdsetouch-large',
 
     /**
@@ -149,7 +147,7 @@ var BaseMapsView = BaseView.extend(
             var layerNodes = [];
             catNode.children.forEach(function(layerNode){
                 var layerId = layerNode.id.replace(_this.layerPrefix, '');
-                layerNodes.push(layerId)
+                layerNodes.push(layerId);
             })
             var catId = catNode.id.replace(_this.categoryPrefix, '');
             order.push({ category: catId, layers: layerNodes});
@@ -223,7 +221,6 @@ var BaseMapsView = BaseView.extend(
             },
             checkbox : {
                 "keep_selected_style": false,
-                "whole_node": this.rowClickCheck,
                 "tie_selection": false
             },
             types: {

@@ -274,14 +274,18 @@
   height: 0;
   font-size: 0;
   line-height: 0;
-  z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
+  z-index: 2147483648; /* thats one number higher than -webkit-fullscreen z-index*/
   
+}
+#vakata-dnd{
+  z-index: 2147483648!important; /* thats one number higher than -webkit-fullscreen z-index*/
 }
 #jstree-dnd {
   line-height: 16px;
-  margin: 0;
+  margin: 0 0 0 35px;
   padding: 4px;
   background: rgba(255, 255, 255, 0.8);
+  z-index: 2147483648;
 }
 #jstree-dnd .jstree-icon,
 #jstree-dnd .jstree-copy {
@@ -798,7 +802,7 @@ filter: gray;
   background: transparent;
 }
 .jstree-gdsetouch-large .jstree-disabled.jstree-hovered {
-  background: transparent;
+  background: #efefef;
 }
 .jstree-gdsetouch-large .jstree-disabled.jstree-clicked {
   background: #efefef;
@@ -929,7 +933,7 @@ filter: gray;
     border-top-width: 10px;
     border-bottom-width: 10px;
     margin-top: -10px;
-    z-index: 1000000000000; /*thats an absurdely high number, but else sth is overlaying the marker in fullscreen mode (no idea what)*/
+    z-index: 2147483648; /* thats one number higher than -webkit-fullscreen z-index*/
   }
 }
 @media (max-width: 768px) {
