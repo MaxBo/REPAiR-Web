@@ -238,7 +238,7 @@ var BaseMapsView = BaseView.extend(
                 },
                 layer: {
                     "valid_children": [],
-                    icon: 'far fa-bookmark'
+                    icon: false
                 }
             },
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]

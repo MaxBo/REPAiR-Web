@@ -355,7 +355,7 @@ filter: gray;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked .jstree-clicked {
   background: transparent;
-  color: inherit;
+  color: white;
   box-shadow: none;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked .jstree-clicked.jstree-hovered {
@@ -363,8 +363,8 @@ filter: gray;
   color: black;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked {
-  background: transparent;
-  color: inherit;
+  background: #aad400;
+  color: white;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked.jstree-wholerow-hovered {
   background: #efefef;
