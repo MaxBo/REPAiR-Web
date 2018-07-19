@@ -172,7 +172,6 @@ var IndicatorFlowEditView = BaseView.extend(
             hide = [],
             selects = [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect];
             
-            
          selects.forEach(function(sel){
             sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
@@ -392,12 +391,12 @@ var IndicatorFlowEditView = BaseView.extend(
     
     // preset all inputs based on flow data
     setInputs: function(flow){
-        if (flow == null) return;
+        var flow = flow || {};
         var materialIds = flow.materials || [],
             originNodeIds = flow.origin_node_ids || "",
             destinationNodeIds = flow.destination_node_ids || "",
-            originLevel = flow.origin_node_level || 'actor',
-            destinationLevel = flow.destination_node_level || 'actor',
+            originLevel = flow.origin_node_level || 'activitygroup',
+            destinationLevel = flow.destination_node_level || 'activitygroup',
             flowType = flow.flow_type || 'both',
             spatial = flow.spatial_application || 'both';
         
