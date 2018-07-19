@@ -2,6 +2,7 @@
 from django.contrib.auth.models import Group, User
 
 from publications_bootstrap.models import Publication
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
@@ -160,4 +161,13 @@ class SessionView(View):
 
 
 class PasswordChangeView(auth_views.PasswordChangeView):
-    pass
+    def get(self, request, *args, **kwargs):
+        if not request.user.profile.can_change_password:
+            return HttpResponse(_('Unauthorized'), status=401) 
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.profile.can_change_password:
+            return HttpResponse(_('Unauthorized'), status=401) 
+        return super().post(request, *args, **kwargs)
+    
