@@ -56,6 +56,7 @@ class Profile(GDSEModel):
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
     organization = models.TextField(default='', blank=True)
     session = models.TextField(default='', blank=True)
+    can_change_password = models.BooleanField(default=True)
 
     @property
     def name(self):
