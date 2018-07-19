@@ -219,9 +219,9 @@ var FlowAssessmentSetupView = BaseView.extend(
     },
     
     close: function(){
-        FlowAssessmentSetupView.__super__.close();
-        this.flowAView.close();
-        this.flowBView.close();
+        if(this.flowAView) this.flowAView.close();
+        if(this.flowBView) this.flowBView.close();
+        FlowAssessmentSetupView.__super__.close.call(this);
     }
 });
 return FlowAssessmentSetupView;

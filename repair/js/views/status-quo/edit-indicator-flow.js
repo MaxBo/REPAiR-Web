@@ -435,8 +435,8 @@ var IndicatorFlowEditView = BaseView.extend(
     },
     
     close: function(){
-        IndicatorFlowEditView.__super__.close();
         this.flowsView.close();
+        IndicatorFlowEditView.__super__.close.call(this);
     }
 
 });
