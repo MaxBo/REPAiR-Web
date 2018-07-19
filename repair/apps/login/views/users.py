@@ -6,7 +6,7 @@ from publications_bootstrap.models import Publication
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from reversion.views import RevisionMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth import views as auth_views
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import json
@@ -81,7 +81,7 @@ class PublicationView(ModelPermissionViewSet):
     pagination_class = None
 
 
-class LoginView(LoginView):
+class LoginView(auth_views.LoginView):
     def form_valid(self, form):
         response = super().form_valid(form)
         session = self.request.session
@@ -157,3 +157,7 @@ class SessionView(View):
         response['language'] = request.LANGUAGE_CODE
         #response['ssl'] = request.is_secure()
         return JsonResponse(response)
+
+
+class PasswordChangeView(auth_views.PasswordChangeView):
+    pass
