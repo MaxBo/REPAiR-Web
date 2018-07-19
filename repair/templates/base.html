@@ -111,11 +111,12 @@
                 <span class="caret"></span>
               </button>
               <div class="dropdown-content">
+                <a href="/password">{% trans "Password" %}</a>
                 {% if data_entry_permitted %}
-                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
                 {% endif %}
                 {% if request.user.is_staff %}
-                  <a href="/admin">{% trans "Admin Area" %}</a>
+                <a href="/admin">{% trans "Admin Area" %}</a>
                 {% endif %}
                 <a href="/logout">{% trans "Logout" %}</a>
               </div>
