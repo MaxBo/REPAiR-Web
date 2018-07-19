@@ -23,17 +23,29 @@ a {
 }
 
 .nav-tabs>li>a {
-  border: 1px solid #e6e6e6;
-  background-color: white;
+  background-color: #f1f1f1;
+  color: grey;
+  border-bottom-color: #e6e6e6;
+}
+
+.nav-tabs>li>a:hover {
+  background-color: #e6e6e6;
+  color: grey;
+  border: 1px solid #cccccc;
 }
 
 .dropdown-menu>li>a {
   background-color: white;
 }
 
-.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
-  background-color: #aad400;
-  color: white;
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  background-color: white;
+  color: #94b900;
+  border: 1px solid #e6e6e6;
+  /* make the bottom line white and lay it over the borders of divs to the bottom */
+  border-bottom: 2px solid white;
+  margin-bottom: -1px;
+  z-index: 1000;
 }
 
 .row{
