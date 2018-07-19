@@ -182,7 +182,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var colorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']) //'Spectral')//['yellow', 'navy'])
                                .domain([minValue, maxValue]);
         var step = (maxValue - minValue) / 10,
-            entries = utils.range(minValue, maxValue, step);
+            entries = (step > 0) ? utils.range(minValue, maxValue, step): [0];
             
         this.elLegend.innerHTML = '';
         entries.forEach(function(entry){
