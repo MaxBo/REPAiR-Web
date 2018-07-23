@@ -5,4 +5,14 @@
 {% block content %}
 {% render_bundle 'Base' %}
 <h3>{% trans "Please select a Casestudy first!" %}</h3>
+<form id="casestuy-missing-select" action="/session/" method="post">
+  {% csrf_token %}
+  <input name="next" type="hidden" value="{{ request.path }}" />
+  <select name="casestudy" class="form-control" style="max-width: 400px; float: left; margin-right: 10px;">
+    {% for casestudy in casestudies %}
+    <option value="{{ casestudy.id }}"> {{ casestudy.name }} </option>
+    {% endfor %}
+  </select>
+</form>
+<button type="submit" class="btn btn-primary" form="casestuy-missing-select" value="Submit">{% trans "Submit" %}</button>
 {% endblock %}

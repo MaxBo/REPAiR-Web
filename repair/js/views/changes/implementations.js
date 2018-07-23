@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection/', 
-        'visualizations/map', 'utils/utils', 'openlayers', 'bootstrap', 
+        'visualizations/map', 'utils/utils', 'muuri', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Map, utils, ol){
+function(BaseView, _, GDSECollection, Map, utils, Muuri, ol){
 /**
 *
 * @author Christoph Franke
@@ -159,10 +159,29 @@ var ImplementationsView = BaseView.extend(
             apiIds: [this.caseStudy.id, implementation.id] 
         });
         
+        var implementationGrid = new Muuri(el.querySelector('.solutions'), {
+            dragAxis: 'x',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
+            dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease',
+            layout: {
+                fillGaps: false,
+                horizontal: true,
+                rounding: true
+            },
+            dragStartPredicate: {
+                handle: '.handle'
+            }
+        });
+        
+        
         solutionsInImpl.fetch({
             success: function(){ 
                 solutionsInImpl.forEach(function(solInImpl){
-                    _this.renderSolution(solInImpl, implementation, el);
+                    _this.renderSolution(solInImpl, implementation, implementationGrid);
                 })
             }
         });
@@ -179,7 +198,7 @@ var ImplementationsView = BaseView.extend(
                         wait: true,
                         success: function(){
                             $(addModal).modal('hide');
-                            var solItem = _this.renderSolution(solInImpl, implementation, el);
+                            var solItem = _this.renderSolution(solInImpl, implementation, implementationGrid);
                             _this.editSolution(solInImpl, implementation, solItem);
                         },
                         error: _this.onError
@@ -200,15 +219,13 @@ var ImplementationsView = BaseView.extend(
     /*
     * render a solution item into the given implementation item
     */
-    renderSolution: function(solutionInImpl, implementation, implementationItem){
+    renderSolution: function(solutionInImpl, implementation, grid){
         var html = document.getElementById('solution-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
-            solDiv = implementationItem.querySelector('.solutions'),
             solId = solutionInImpl.get('solution'),
             _this = this;
         
-        solDiv.appendChild(el);
         var solution;
         for (var i = 0; i < this.solutionCategories.length; i++){
             solution = this.solutionCategories.at(i).solutions.get(solId);
@@ -223,12 +240,13 @@ var ImplementationsView = BaseView.extend(
         editBtn.addEventListener('click', function(){
             _this.editSolution(solutionInImpl, implementation, el);
         })
-        
+        el.classList.add('item', 'large');
+        grid.add(el, {});
         removeBtn.addEventListener('click', function(){
             var message = gettext('Do you really want to delete your solution?');
             _this.confirm({ message: message, onConfirm: function(){
                 solutionInImpl.destroy({
-                    success: function() { solDiv.removeChild(el); },
+                    success: function() { grid.remove(el, { removeElements: true }); },
                     error: _this.onError,
                     wait: true
                 })

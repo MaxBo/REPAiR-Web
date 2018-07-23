@@ -496,6 +496,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .panel-item .button-box{
