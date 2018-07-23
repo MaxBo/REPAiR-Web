@@ -137,7 +137,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
         * dom events (managed by jquery)
         */
         events: {
-            'click #add-target-button': 'addTarget'
+            'click .add-target': 'addTarget'
         },
 
         initItems: function(items, list, type){
