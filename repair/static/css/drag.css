@@ -16,6 +16,10 @@
   /*background: #000;*/
   /*color: #fff;*/
 }
+.item.large {
+  height: 450px; 
+  width: 300px;
+}
 .item.muuri-item-dragging {
   z-index: 3;
 }

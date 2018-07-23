@@ -85,39 +85,40 @@
   <h3 class='title'> <%= implementation.get('name') %> </h3>
   {% trans "Coordinated by" %}:&nbsp;
   <label class='coordinator'><%= stakeholder.get('name') %></label>
-  <div class="row solutions overflow">
+  <div class="row overflow bordered" style="overflow-y: hidden;">
+    <div class="grid solutions" style="float: left; height: 450px;">
+    </div>
+    <button title="{% trans "Add solution" %}" class="btn btn-primary round add" id='add-area-select-item-btn' style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px; margin-top: 200px;">
+      <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
+    </button>
   </div>
-  <button class="btn btn-primary add" title="{% trans "Add solution" %}">
-    <span class="glyphicon glyphicon-plus"></span> {% trans "Solution" %}
-  </button>
 </div>
 <div id="solution-implementation-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </script>
 
 <!-- modal for a solution item -->
 <script type="text/template" id="solution-item-template">
-<div class="col-md-3 bordered" style="margin-top: 15px; min-width: 300px; margin-right: 5px;">
-  <div class="row">
+<div class="item-content bordered noselect">
+  <div class="row handle">
     <button class="btn btn-warning square remove" title="Remove solution" style="float: right;">
       <span class="glyphicon glyphicon-minus"></span>
     </button>
     <button class="btn btn-primary square edit" title="Edit solution" style="float: right; margin-right: 5px;">
       <span class="glyphicon glyphicon-pencil"></span>
     </button>
-    <h4 class='title'> <%= solution.get('name') %> </h4>
+    <h4 class='title' title="<%= solution.get('name') %>"> <%= solution.get('name') %> </h4>
   </div>
   <div class="row">
     <div class='map' style="min-height: 200px; width: 100%;">
     </div>
   </div>
-  <div class="row">
+  <div class="row handle">
     {% trans "Quantity" %}:&nbsp; <br>
     {% trans "Implemented by" %}:&nbsp; <br>
     {% trans "Notes" %}:&nbsp; <br>
-    <textarea rows="4" disabled name='notes' style='width: 100%;'><%= solutionInImpl.get('note') %> </textarea>
+    <textarea rows="4" disabled name='notes' style='width: 100%; max-width: 100%;'><%= solutionInImpl.get('note') %> </textarea>
   </div>
 </div>
-<div id="solution-implementation-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </script>
 
 <!-- modal for editing/viewing a solution-->
