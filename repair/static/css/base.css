@@ -538,10 +538,10 @@ div.panel-item:hover label{
   display: inline-block;
   position: relative;
 }
-.row.shaded{
+.shaded{
   box-shadow: 0px 1px 6px 0px #adadad;
 }
-.row.shaded:hover{
+.shaded:hover{
   box-shadow: 0px 1px 6px 0px #c4d875;
 }
 .ui-select-choices {

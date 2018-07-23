@@ -49,6 +49,11 @@ var ImplementationsView = BaseView.extend(
             apiIds: [this.caseStudy.id] 
         });
         
+        var focusarea = this.caseStudy.get('properties').focusarea;
+        if (focusarea != null){
+            this.focusPoly = new ol.geom.Polygon(focusarea.coordinates[0]);
+        }
+        
         this.stakeholders = [];
         this.solutions = [];
         this.projection = 'EPSG:4326';
@@ -116,6 +121,15 @@ var ImplementationsView = BaseView.extend(
             'click', function(){ _this.confirmNewSolution() })
     },
     
+    getStakeholder: function(id){
+        var stakeholder = null;
+        for (var i = 0; i < this.stakeholderCategories.length; i++){
+            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(id);
+            if (stakeholder != null) break;
+        }
+        return stakeholder
+    },
+    
     /*
     * render an implementation item
     */
@@ -123,16 +137,12 @@ var ImplementationsView = BaseView.extend(
         var html = document.getElementById('implementation-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
-            stakeholder = null,
             coordId = implementation.get('coordinating_stakeholder'),
             implDiv = this.el.querySelector('#implementations'),
+            stakeholder = this.getStakeholder(coordId),
             _this = this;
         
         implDiv.appendChild(el);
-        for (var i = 0; i < this.stakeholderCategories.length; i++){
-            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(coordId);
-            if (stakeholder != null) break;
-        }
         el.innerHTML = template({ implementation: implementation, stakeholder: stakeholder });
         
         var editBtn = el.querySelector('.edit'),
@@ -177,7 +187,6 @@ var ImplementationsView = BaseView.extend(
             }
         });
         
-        
         solutionsInImpl.fetch({
             success: function(){ 
                 solutionsInImpl.forEach(function(solInImpl){
@@ -206,7 +215,6 @@ var ImplementationsView = BaseView.extend(
                 )
             };
             
-        
             var solutionSelect = addModal.querySelector('#solution-select');
             
             solutionSelect.selectedIndex = 0;
@@ -232,7 +240,19 @@ var ImplementationsView = BaseView.extend(
             if (solution != null) break;
         }
         
-        el.innerHTML = template({ solutionInImpl: solutionInImpl, solution: solution });
+        var stakeholderIds = solutionInImpl.get('participants'),
+            stakeholderNames = [];
+        
+        stakeholderIds.forEach(function(id){
+            var stakeholder = _this.getStakeholder(id);
+            stakeholderNames.push(stakeholder.get('name'));
+        })
+        
+        el.innerHTML = template({ 
+            solutionInImpl: solutionInImpl, 
+            solution: solution, 
+            stakeholderNames: stakeholderNames.join(', ')
+        });
         
         var editBtn = el.querySelector('.edit'),
             removeBtn = el.querySelector('.remove');
@@ -346,8 +366,14 @@ var ImplementationsView = BaseView.extend(
             stakeholderCategories: this.stakeholderCategories
         });
         
-        var select = modal.querySelector('.selectpicker');
-        $(select).selectpicker();
+        var stakeholderSelect = modal.querySelector('#implementation-stakeholders'),
+            stakeholders = solutionImpl.get('participants').map(String);
+        for (var i = 0; i < stakeholderSelect.options.length; i++) {
+            if (stakeholders.indexOf(stakeholderSelect.options[i].value) >= 0) {
+                stakeholderSelect.options[i].selected = true;
+            }
+        }
+        $(stakeholderSelect).selectpicker();
         
         var squantities = new GDSECollection([], {
             apiTag: 'quantitiesInImplementedSolution', 
@@ -400,6 +426,17 @@ var ImplementationsView = BaseView.extend(
         // save solution and drawn polygons after user confirmed modal
         var okBtn = modal.querySelector('.confirm');
         okBtn.addEventListener('click', function(){
+            // stakeholders
+            var stakeholderIds = [];
+            for (var i = 0; i < stakeholderSelect.options.length; i++) {
+                var option = stakeholderSelect.options[i];
+                if (option.selected) {
+                    stakeholderIds.push(option.value);
+                }
+            }
+            solutionImpl.set('participants', stakeholderIds);
+            
+            // drawn features
             var features = _this.editorMap.getFeatures('drawing');
             if (features.length > 0){
                 var multiPolygon = new ol.geom.MultiPolygon();
@@ -413,14 +450,20 @@ var ImplementationsView = BaseView.extend(
                  });
                 var geoJSON = new ol.format.GeoJSON(),
                     geoJSONText = geoJSON.writeGeometry(multiPolygon);
-                var notes = modal.querySelector('textarea[name="description"]').value
                 solutionImpl.set('geom', geoJSONText);
             }
+            var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
             solutionImpl.save(null, {
                 success: function(){
                     _this.renderSolutionPreviewMap(solutionImpl, item);
                     item.querySelector('textarea[name="notes"]').value = notes;
+                    var stakeholderNames = [];
+                    stakeholderIds.forEach(function(id){
+                        var stakeholder = _this.getStakeholder(id);
+                        stakeholderNames.push(stakeholder.get('name'));
+                    })
+                    item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
                     $(modal).modal('hide');
                 },
                 error: _this.onError,
@@ -448,7 +491,10 @@ var ImplementationsView = BaseView.extend(
                 type: 'MultiPolygon'
             });
             previewMap.centerOnLayer('geometry');
-        };
+        }
+        else if (this.focusPoly){
+            previewMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
+        }
     },
     
     /*
@@ -465,18 +511,9 @@ var ImplementationsView = BaseView.extend(
         this.editorMap = new Map({
             el: document.getElementById(divid), 
         });
-        var focusarea = this.caseStudy.get('properties').focusarea;
 
-        // add polygon of focusarea to both maps and center on their centroid
-        if (focusarea != null){
-            this.editorMap.addLayer('background', {
-                stroke: '#aad400',
-                fill: 'rgba(170, 212, 0, 0.1)',
-                strokeWidth: 1,
-                zIndex: 0
-            });
-            var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+        if (this.focusPoly){
+            this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
         
         var geom = solutionImpl.get('geom'),

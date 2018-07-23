@@ -1,6 +1,8 @@
 {% load i18n %}
 {% block content %}
 
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
+
 <script type="text/template" id="implementations-template">
 <button id="add-implementation" class="btn btn-primary add" title="{% trans "Add/Edit implementation" %}">
   <span class="glyphicon glyphicon-plus"></span> {% trans "Implementation" %}
@@ -98,7 +100,7 @@
 
 <!-- modal for a solution item -->
 <script type="text/template" id="solution-item-template">
-<div class="item-content bordered noselect">
+<div class="item-content shaded bordered noselect">
   <div class="row handle">
     <button class="btn btn-warning square remove" title="Remove solution" style="float: right;">
       <span class="glyphicon glyphicon-minus"></span>
@@ -113,9 +115,18 @@
     </div>
   </div>
   <div class="row handle">
-    {% trans "Quantity" %}:&nbsp; <br>
-    {% trans "Implemented by" %}:&nbsp; <br>
-    {% trans "Notes" %}:&nbsp; <br>
+    <table style="margin: 0px; table-layout: fixed; width: 100%;">
+      <tr>
+        <td> {% trans "Quantity" %}:&nbsp; </td>
+        <td class="quantity"></td>
+      </tr>
+      <tr>
+        <td> {% trans "Implemented by" %}:&nbsp; </td>
+        <td class="implemented-by" style="overflow: hidden; text-overflow: ellipsis;">
+          <%= stakeholderNames %>
+        </td>
+      </tr>
+    </table>
     <textarea rows="4" disabled name='notes' style='width: 100%; max-width: 100%;'><%= solutionInImpl.get('note') %> </textarea>
   </div>
 </div>
@@ -140,43 +151,50 @@
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="implementation-area-tab">
-            <div style="min-height: 500px; width: 100%; height: 100%;" id='editor-map'>
+            <div class="col-md-12 bordered">
+              <div style="min-height: 500px; width: 100%; height: 100%;" id='editor-map'>
+              </div>
             </div>
           </div>
           <div class="tab-pane fade in" id="quantities-tab">
-            <div class="row">
-              <h4> {% trans "General definition" %} </h4>
-              {% trans "For the solution" %} <i> <%= solution.get('name') %> </i>{% trans "one unit equals" %}: <b> <%= solution.get('one_unit_equals') %> </b> <br><br>
-              {% trans "This unit is defined by the following ratios" %}
-              <div id="ratios"></div>
-            </div>
-            <div class="row">
-              <h4> {% trans "Your implementation" %} </h4>
-              {% trans "In the implementation area, this quantities shall be implemented:" %}
-              <table id="implemented-quantities"></table>
+            <div class="col-md-12 bordered">
+              <div class="row">
+                <h4> {% trans "General definition" %} </h4>
+                {% trans "For the solution" %} <i> <%= solution.get('name') %> </i>{% trans "one unit equals" %}: <b> <%= solution.get('one_unit_equals') %> </b> <br><br>
+                {% trans "This unit is defined by the following ratios" %}
+                <div id="ratios"></div>
+              </div>
+              <div class="row">
+                <h4> {% trans "Your implementation" %} </h4>
+                {% trans "In the implementation area, this quantities shall be implemented:" %}
+                <table id="implemented-quantities"></table>
+              </div>
             </div>
           </div>
           <div class="tab-pane fade in" id="implementation-by-tab">
-            <div class="row" style="margin-top: 15px">
-              {% trans "Stakeholders in charge of the solution’s implementation in the implementation area" %}:
+            <div class="col-md-12 bordered">
+              <div class="row" style="margin-top: 15px">
+                {% trans "Stakeholders in charge of the solution’s implementation in the implementation area" %}:
+              </div>
+              <div class="row">
+                <select id="implementation-stakeholders" class="selectpicker" multiple data-width="500px">
+                <% stakeholderCategories.forEach(function(category){ %>
+                  <optgroup label="<%= category.get('name') %>">
+                    <% category.stakeholders.forEach(function(stakeholder){ %>
+                    <option value="<%= stakeholder.id %>"> <%= stakeholder.get('name') %></option>
+                    <% }) %>
+                  </optgroup>
+                <% }) %>
+                </select>
+              </div>
             </div>
-            <div class="row">
-              <select class="selectpicker" style="width: 100%;">
-              <% stakeholderCategories.forEach(function(category){ %>
-                <optgroup label="<%= category.get('name') %>">
-                  <% category.stakeholders.forEach(function(stakeholder){ %>
-                  <option value="<%= stakeholder.id %>"> <%= stakeholder.get('name') %></option>
-                  <% }) %>
-                </optgroup>
-              <% }) %>
-              </select>
-            </div>
-            <button class="btn btn-primary add square" title="{% trans "Add stakeholder" %}">
-              <span class="glyphicon glyphicon-plus"></span> {% trans "Stakeholder" %}
-            </button>
           </div>
           <div class="tab-pane fade in" id="notes-tab">
-            <textarea name="description" rows="4" cols="50" style="max-width: 100%; width: 100%;" ><%= solutionImpl.get('note') %></textarea>
+            <div class="col-md-12 bordered">
+              <div class="row">
+                <textarea name="description" rows="10" cols="100" style="max-width: 100%;"><%= solutionImpl.get('note') %></textarea>
+              </div>
+            </div>
           </div>
         </div>
       </div>
