@@ -402,9 +402,10 @@ var SolutionsView = BaseView.extend(
         var keyflowId = this.getKeyflow(activityId).id,
             actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
         var checkList = document.getElementById('activities-checks');
-        if (checkList)
+        if (checkList){
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
             loader.activate();
+        }
         // fetch them as json instead of a collection, reduces unnessecary memory overhead
         $.ajax({
             url: actorUrl,
