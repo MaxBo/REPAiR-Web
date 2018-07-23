@@ -112,9 +112,6 @@ var SolutionsView = BaseView.extend(
                 });
             }
         });
-        $('#solution-modal').on('shown.bs.modal', function () {
-            _this.map.map.updateSize();
-        });
     },
     
     /*
@@ -344,6 +341,12 @@ var SolutionsView = BaseView.extend(
             });
         }
         else okBtn.addEventListener('click', function(){ $(modal).modal('hide'); });
+        
+        // update map, when tab 'Actors' becomes active, else you won't see any map
+        var actorsLink = modal.querySelector('a[href="#actors-tab"]');
+        $(actorsLink).on('shown.bs.tab', function () {
+            _this.map.map.updateSize();
+        });
         $(modal).modal('show');
     },
     
