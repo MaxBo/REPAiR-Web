@@ -44,7 +44,7 @@
             </div>
           </div>
           <div class="tab-pane fade in" id="units-tab">
-            <div class="col-md-12">
+            <div class="col-md-12 bordered">
               <br>
               <div class="row bordered">
                 <label>{% trans "Ratios defining one unit" %} </label>
@@ -75,64 +75,70 @@
               </div>
             </div>
           </div>
-          <div class="tab-pane fade in bordered" id="ce-diagrams-tab">
-            <div class="col-md-6">
-              <div class="row">
-                <h4>{% trans "Current state" %}</h4>
-                <% if (mode == 1) { %>
-                  <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
-                <% } %>
-              </div>
-              <div style="position: relative; margin-top: 30px;">
-                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                  <img id="state-image" src='<%= stateSrc %>' style="width: 100%">
-                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+          <div class="tab-pane fade in" id="ce-diagrams-tab">
+            <div class="col-md-12 bordered">
+              <div class="col-md-6">
+                <div class="row">
+                  <h4>{% trans "Current state" %}</h4>
+                  <% if (mode == 1) { %>
+                    <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
+                  <% } %>
+                </div>
+                <div style="position: relative; margin-top: 30px;">
+                  <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
+                    <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="row">
-                <h4>{% trans "Effect of Solution" %}</h4>
-                <% if (mode == 1) { %>
-                  <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
-                <% } %>
-              </div>
-              <div style="position: relative; margin-top: 30px;">
-                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                  <img id="effect-image" src='<%= effectSrc %>' style="width: 100%">
-                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+              <div class="col-md-6">
+                <div class="row">
+                  <h4>{% trans "Effect of Solution" %}</h4>
+                  <% if (mode == 1) { %>
+                    <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
+                  <% } %>
+                </div>
+                <div style="position: relative; margin-top: 30px;">
+                  <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
+                    <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="tab-pane fade in bordered" id="activities-tab">
-            <h4>{% trans "Activities involved" %}</h4>
-            <% if (mode == 1) { %> 
-              <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
-                  <% keyflows.forEach(function(keyflow){ %>
-                    <label> <%= keyflow.get('name') %> </label> <br>
-                    <% keyflow.activities.forEach(function(activity){ %>
-                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
+          <div class="tab-pane fade in" id="activities-tab">
+            <div class="col-md-12 bordered">
+              <h4>{% trans "Activities involved" %}</h4>
+              <% if (mode == 1) { %> 
+                <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
+                    <% keyflows.forEach(function(keyflow){ %>
+                      <label> <%= keyflow.get('name') %> </label> <br>
+                      <% keyflow.activities.forEach(function(activity){ %>
+                        <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
+                      <% }) %>
                     <% }) %>
-                  <% }) %>
-              </div>
-            <% } %>
-            <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
-              <div class="row">
-                <% if (mode == 1) { %>
-                  <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
-                <% } %>
-              </div>
-              <div style="position: relative; margin-top: 30px;">
-                <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                  <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%">
-                  <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                </div>
+              <% } %>
+              <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
+                <div class="row">
+                  <% if (mode == 1) { %>
+                    <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
+                  <% } %>
+                </div>
+                <div style="position: relative; margin-top: 30px;">
+                  <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
+                    <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
+                    <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="tab-pane fade in bordered" id="actors-tab">
-            <div style="min-height: 600px; width: 100%; height: 100%; margin: 5px;" id='actors-map'>
+          <div class="tab-pane fade in" id="actors-tab">
+            <div class="col-md-12 bordered">
+              <div style="min-height: 600px; width: 100%; height: 100%;" id='actors-map'>
+              </div>
             </div>
           </div>
         </div>
