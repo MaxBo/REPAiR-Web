@@ -16,7 +16,7 @@ from repair.apps.studyarea.factories import (AreaFactory,
                                              )
 
 
-class FlowIndicatorTestCase(BasicModelPermissionTest, APITestCase):
+class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     area1 = 1
