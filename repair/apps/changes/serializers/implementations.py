@@ -113,24 +113,19 @@ class SolutionInImplementationDetailListField(InCaseStudyIdentityField):
                             }
 
 
-class SolutionInImplementationSerializer(NestedHyperlinkedModelSerializer):
+class SolutionInImplementationSerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk':
                             'implementation__user__casestudy__id',
                             'implementation_pk': 'implementation__id',
                             }
-    implementation = ImplementationField(
-        view_name='implementation-detail', read_only=True)
-    solution = IDRelatedField()
-    solutioninimplementationquantity_set = SolutionInImplementationDetailListField(
-        view_name='solutioninimplementationquantity-list')
+    participants = IDRelatedField(many=True, required=False)
 
     class Meta:
         model = SolutionInImplementation
-        fields = ('url', 'id',
-                  'implementation',
+        fields = ('id',
                   'solution',
-                  'solutioninimplementationquantity_set',
-                  'note', 'geom'
+                  'note', 'geom',
+                  'participants'
                   )
 
 
