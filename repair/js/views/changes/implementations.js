@@ -247,12 +247,25 @@ var ImplementationsView = BaseView.extend(
             var stakeholder = _this.getStakeholder(id);
             stakeholderNames.push(stakeholder.get('name'));
         })
+        var quantityLabels = [];
+        
+        var squantities = new GDSECollection([], {
+            apiTag: 'quantitiesInImplementedSolution', 
+            apiIds: [this.caseStudy.id, implementation.id, solutionInImpl.id] 
+        });
         
         el.innerHTML = template({ 
             solutionInImpl: solutionInImpl, 
             solution: solution, 
             stakeholderNames: stakeholderNames.join(', ')
         });
+        
+        squantities.fetch({success: function(){
+            squantities.forEach(function(quantity){
+                quantityLabels.push(quantity.get('value') + ' ' + quantity.get('unit'));
+            })
+            el.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
+        }})
         
         var editBtn = el.querySelector('.edit'),
             removeBtn = el.querySelector('.remove');
@@ -385,17 +398,18 @@ var ImplementationsView = BaseView.extend(
             apiIds: [this.caseStudy.id, solution.get('solution_category'), solution.id] 
         });
         
+        var quantityTable = modal.querySelector('#implemented-quantities');
         // render the quantities and ratios (tab "Quantities")
         squantities.fetch({success: function(){
-            var table = modal.querySelector('#implemented-quantities');
             squantities.forEach(function(quantity){
-                var row = table.insertRow(-1),
+                var row = quantityTable.insertRow(-1),
                     nameCell = row.insertCell(-1);
                 nameCell.innerHTML = quantity.get('name');
                 nameCell.style.width= '1%';
                 nameCell.style.whiteSpace = 'nowrap';
                 var input = document.createElement('input');
                 input.type = 'number';
+                input.dataset.id = quantity.id;
                 input.value = quantity.get('value');
                 input.classList.add('form-control');
                 var inputCell = row.insertCell(-1);
@@ -435,7 +449,6 @@ var ImplementationsView = BaseView.extend(
                 }
             }
             solutionImpl.set('participants', stakeholderIds);
-            
             // drawn features
             var features = _this.editorMap.getFeatures('drawing');
             if (features.length > 0){
@@ -454,20 +467,38 @@ var ImplementationsView = BaseView.extend(
             }
             var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
-            solutionImpl.save(null, {
-                success: function(){
-                    _this.renderSolutionPreviewMap(solutionImpl, item);
-                    item.querySelector('textarea[name="notes"]').value = notes;
-                    var stakeholderNames = [];
-                    stakeholderIds.forEach(function(id){
-                        var stakeholder = _this.getStakeholder(id);
-                        stakeholderNames.push(stakeholder.get('name'));
-                    })
-                    item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
-                    $(modal).modal('hide');
-                },
-                error: _this.onError,
-                patch: true
+            var promises = [
+                solutionImpl.save(null, {
+                    success: console.log,
+                    error: _this.onError,
+                    patch: true,
+                    wait: true
+                })
+            ]
+            squantities.forEach(function(quantity){
+                var input = quantityTable.querySelector('input[data-id="' + quantity.id + '"]');
+                quantity.set('value', input.value);
+                promises.push(quantity.save(null, {
+                    success: console.log,
+                    error: _this.onError,
+                    wait: true
+                }))
+            })
+            Promise.all(promises).then(function(){
+                _this.renderSolutionPreviewMap(solutionImpl, item);
+                item.querySelector('textarea[name="notes"]').value = notes;
+                var stakeholderNames = [];
+                stakeholderIds.forEach(function(id){
+                    var stakeholder = _this.getStakeholder(id);
+                    stakeholderNames.push(stakeholder.get('name'));
+                })
+                var quantityLabels = [];
+                squantities.forEach(function(quantity){
+                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('name'));
+                })
+                item.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
+                item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
+                $(modal).modal('hide');
             })
         })
     },
