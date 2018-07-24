@@ -17,7 +17,7 @@
     <div id="filterCollapse" class="panel-collapse collapse" style="padding: 0px 10px 10px 10px;">
       <div class="row" style="border-top: 1px solid lightgrey;">
         <h4 style="float: left;"> {% trans 'Nodes' %} </h4>
-        <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Nodes Filter" data-html="true" tabindex="0"
+        <a class="help-icon glyphicon glyphicon-question-sign" data-placement="bottom" data-toggle="popover" title="Nodes Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
             Filter the nodes by the following criteria<br><br>
             <b>Filter Level</b> - 
@@ -142,7 +142,7 @@
 <div class="row" style="margin-top: 20px;">
   <div class="col-md-6">
     <div class="row" style="position: relative;">
-      <div class="sankey-wrapper" class="noselect" style="width: 100%; touch-action: none;">
+      <div class="sankey-wrapper" class="noselect" style="width: 100%;">
       </div>
     </div>
   </div>
@@ -237,7 +237,7 @@
   <button class="btn btn-primary" id="new-flowindicator-button"> {% trans "New" %} </button>
   <button class="btn btn-warning" id="delete-flowindicator-button"> {% trans "Delete" %} </button>
 </div>
-<div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; background-color: #f7f7f7;">
+<div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; ">
   <div class="row">
     <button id='upload-flowindicator-button' title="{% trans "upload changes made to indicator" %}" class="btn btn-danger btn-upload">
       <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
@@ -335,7 +335,7 @@
       </form>
     </div>
   </div>
-  <div class="row bordered shaded" style="margin-top: 10px;">
+  <div class="row bordered" style="margin-top: 10px;">
     <h4> {% trans "Origins" %} 
     <!--<span class="far fa-circle" style="margin-right: 5px;"></span><span class="glyphicon glyphicon-arrow-right"></span>-->
     </h4>
@@ -365,12 +365,12 @@
       </select>
     </div>
   </div>
-  <div class="row bordered shaded" style="margin-top: 10px; margin-bottom: 10px;">
+  <div class="row bordered" style="margin-top: 10px;">
     <h4> {% trans "Destinations" %} 
     <!--<span class="glyphicon glyphicon-arrow-right"></span><span class="far fa-circle" style="margin-right: 5px;"></span>-->
     </h4>
     <div class="row">
-      <label class="input-label">{% trans "Node Level" %} </label>
+      <label class="input-label">{% trans "Selection Level" %} </label>
       <select class="form-control" name="destination-level-select" id="data-view-type-select" style="max-width: 200px;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>

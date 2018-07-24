@@ -40,15 +40,14 @@ function(_, BaseView, GDSECollection, GDSEModel){
             _this.aims = [];
             this.aimsModel = new GDSECollection([], {
                 apiTag: 'aims',
-                apiIds: [this.caseStudy.id],
-                comparator: 'priority'
+                apiIds: [this.caseStudy.id]
             });
 
             // there is a spelling or conceptual error here, because
             // impactcategories == indicators
             _this.impactcategories = []
             this.impactCategoriesModel = new GDSECollection([], {
-                apiTag: 'impactcategories'
+                apiTag: 'impactcategories',
             });
 
             _this.targetvalues = [];
@@ -83,7 +82,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             promises.push(this.aimsModel.fetch({
                 success: function(aims){
-                    aims.sort();
                     _this.initItems(aims, _this.aims, "Aim");
                 },
                 error: _this.onError
@@ -137,7 +135,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
         * dom events (managed by jquery)
         */
         events: {
-            'click .add-target': 'addTarget'
+            'click #add-target-button': 'addTarget'
         },
 
         initItems: function(items, list, type){

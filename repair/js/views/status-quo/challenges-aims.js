@@ -33,13 +33,11 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
 
             this.challenges = new GDSECollection([], {
                 apiTag: 'challenges',
-                apiIds: [this.caseStudy.id],
-                comparator: 'priority'
+                apiIds: [this.caseStudy.id]
             });
             this.aims = new GDSECollection([], {
                 apiTag: 'aims',
-                apiIds: [this.caseStudy.id],
-                comparator: 'priority'
+                apiIds: [this.caseStudy.id]
             });
             
             var promises = [this.challenges.fetch(), this.aims.fetch()]
@@ -77,9 +75,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragSortInterval: 0,
                 dragReleaseDuration: 400,
                 dragReleaseEasing: 'ease'
-            })
-            this.challengesGrid.on('dragReleaseEnd', function () { 
-                _this.uploadPriorities(_this.challengesGrid, _this.challenges) } );
+            })            
             this.aimsGrid = new Muuri(aimsPanel, {
                 items: '.panel-item',
                 dragAxis: 'y',
@@ -90,9 +86,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragReleaseDuration: 400,
                 dragReleaseEasing: 'ease'
             })
-            this.aimsGrid.on('dragReleaseEnd', function () { 
-                _this.uploadPriorities(_this.aimsGrid, _this.aims) } );
-
             this.renderPanel(this.challengesGrid, this.challenges, gettext('Challenge'));
             this.renderPanel(this.aimsGrid, this.aims, gettext('Aim'));
 
@@ -112,18 +105,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 });
             }
         },
-        
-        uploadPriorities(grid, collection){
-            var items = grid.getItems(),
-                priority = 0;
-            items.forEach(function(item){
-                var id = item._element.dataset.id,
-                    model = collection.get(id);
-                model.set('priority', priority);
-                model.save();
-                priority++;
-            })
-        },
 
         renderPanel(grid, collection, type){
             var _this = this;
@@ -140,7 +121,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 _this = this;
             panelItem.classList.add('panel-item');
             panelItem.style.position = 'absolute';
-            panelItem.dataset.id = model.id;
             itemContent.classList.add('noselect', 'item-content');
             itemContent.innerHTML = template({ name: model.get('text') });
             var editBtn = itemContent.querySelector("button.edit");
@@ -169,7 +149,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                             "id": challenge.get('id')
                         });
                         _this.renderItem(_this.challengesGrid, challenge, gettext('Challenge'));
-                        _this.uploadPriorities(_this.challengesGrid, _this.challenges);
                     },
                     error: _this.onError
                 });
@@ -194,7 +173,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                             "id": aim.get('id')
                         });
                         _this.renderItem(_this.aimsGrid, aim, gettext('Aim'));
-                        _this.uploadPriorities(_this.aimsGrid, _this.aims);
                     },
                     error: function(){
                         console.error("cannot save Aim");

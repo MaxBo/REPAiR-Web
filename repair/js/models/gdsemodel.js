@@ -68,9 +68,10 @@ function(Backbone, utils, config) {
         save: function(data, options){
             var _this = this,
                 options = options || {},
-                uploadAsForm = options.uploadAsForm || false;
+                uploadAsForm = options.uploadAsForm || false,
+                data = data || {};
             // check if one of the attributes is a file
-            if (!uploadAsForm && data){
+            if (!uploadAsForm){
                 for (key in data){
                     if (data[key] instanceof File ) {
                         uploadAsForm = true;

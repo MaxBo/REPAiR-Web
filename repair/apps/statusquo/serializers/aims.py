@@ -26,8 +26,7 @@ class AimSerializer(InCasestudySerializerMixin,
         fields = ('url',
                   'id',
                   'text',
-                  'casestudy',
-                  'priority')
+                  'casestudy')
 
 
 class AimPostSerializer(InCasestudySerializerMixin,
@@ -39,5 +38,4 @@ class AimPostSerializer(InCasestudySerializerMixin,
         model = Aim
         fields = ('url',
                   'id',
-                  'text',
-                  'priority')
+                  'text')

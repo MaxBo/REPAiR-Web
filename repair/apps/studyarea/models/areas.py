@@ -103,19 +103,19 @@ class NUTS3(Area):
                                     , on_delete=models.CASCADE)
 
 
-class District(Area):
+class LAU1(Area):
     """TopLevel"""
     _level = 7
     parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    related_name='district_areas'
+                                    related_name='lau1_areas'
                                     , on_delete=models.CASCADE)
 
 
-class Municipality(Area):
+class LAU2(Area):
     """TopLevel"""
     _level = 8
     parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    related_name='municipality_areas'
+                                    related_name='lau2_areas'
                                     , on_delete=models.CASCADE)
 
 

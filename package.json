@@ -45,7 +45,6 @@
     "jasmine": "^2.9.0",
     "jquery": "^3.0.0",
     "jsdom": "^11.5.1",
-    "jstree": "^3.3.5",
     "leaflet": "0.7",
     "location": "^0.0.1",
     "muuri": "^0.5.4",

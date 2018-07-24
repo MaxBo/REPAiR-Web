@@ -14,23 +14,32 @@ var SetupMapsView = BaseMapView.extend(
     {
 
     includedOnly: false,
-    theme: 'gdsetouch',
+    categoryBackColor: 'white',
+    categoryColor: 'black',
+    categoryExpanded: true,
+    selectedBackColor: '#aad400',
+    selectedColor: 'white',
+    allowReselect: true,
+    preventUnselect: false,
+    onhoverColor: '#F5F5F5',
 
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'repositionButtons');
+        _.bindAll(this, 'confirmRemoval');
     },
 
     /*
         * dom events (managed by jquery)
         */
     events: {
-        'click #layer-tree-buttons>.add': 'addLayer',
-        'click #add-layer-category-button': 'addCategory',
+        'click #add-layer-button': 'addLayer',
+        'click #add-category-button': 'addCategory',
         'click #add-layer-modal .confirm': 'confirmLayer',
-        'click #layer-tree-buttons>.remove': 'removeNode',
-        'click #layer-tree-buttons>.edit': 'editName',
+        'click #remove-layer-button': 'removeLayer',
+        'click #edit-layer-button': 'editName',
         'click #refresh-wms-services-button': 'renderAvailableServices',
+        'click #move-layer-up-button': 'moveLayerUp',
+        'click #move-layer-down-button': 'moveLayerDown'
     },
     
     // determines if a layer is checked on start ('included' layers in setup mode)
@@ -38,11 +47,9 @@ var SetupMapsView = BaseMapView.extend(
         return layer.get('included');
     },
 
-    // setup mode doesn't need to store anything in the session
-    // all saved directly in db -> override and leave empty
-    saveCheckstates(){
-    },
-    restoreOrder(){
+    saveSession(){
+        // setup mode doesn't need to store anything in the session
+        // all saved directly in db
     },
 
     /*
@@ -56,103 +63,107 @@ var SetupMapsView = BaseMapView.extend(
 
         this.layerModal = document.getElementById('add-layer-modal');
 
+        this.renderMap();
 
         // preselect first category
         categoryIds = Object.keys(this.categoryTree);
         var preselect = (categoryIds.length > 0) ? categoryIds[0] : null;
-        this.renderLayerTree(preselect);
+        this.renderDataTree(preselect);
 
         this.renderAvailableServices();
-        this.renderMap();
-    },
-    
-    rerenderTree: function(){
-        $(this.layerTree).jstree("destroy");
-        this.renderLayerTree();
-    },
-    
-    renderLayerTree: function(){
-        SetupMapsView.__super__.renderLayerTree.call(this);
-        var _this = this;
-        $(this.layerTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
-        $(this.layerTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
-        $(this.layerTree).on("after_open.jstree", this.repositionButtons);
-        $(this.layerTree).on("after_close.jstree", this.repositionButtons);
     },
 
-    // place buttons over currently selected node
-    repositionButtons(){
-        var id = $(this.layerTree).jstree('get_selected')[0],
-            li = this.layerTree.querySelector('#' + id);
-        if (!li) {
-            this.buttonBox.style.display = 'none';
-            return;
-        }
-        this.buttonBox.style.top = li.offsetTop + this.layerTree.offsetTop + 'px';
-        this.buttonBox.style.display = 'inline';
-    },
-    
-    nodeDropped: function(event, data){
-        var node = data.node,
-            parent = $(this.layerTree).jstree("get_node", node.parent),
-            siblings = parent.children,
-            _this = this;
-        var i = 0;
-        siblings.forEach(function(sibling){
-            var n = $(_this.layerTree).jstree("get_node", sibling),
-                model = (n.type === 'category') ? n.original.category : n.original.layer;
-            model.set('order', i);
-            model.save();
-            i++;
+    renderMap: function(){
+        var _this = this;
+        this.map = new Map({
+            el: document.getElementById('base-map'),
+            renderOSM: false
+        });
+        var focusarea = this.caseStudy.get('properties').focusarea;
+
+        // add polygon of focusarea to both maps and center on their centroid
+        if (focusarea != null){
+            this.map.centerOnCoordinates(focusarea.coordinates[0], { projection: this.projection });
+        };
+        // get all layers and render them
+        Object.keys(this.categoryTree).forEach(function(catId){
+            var children = _this.categoryTree[catId].nodes;
+            children.forEach(function(node){ _this.addServiceLayer(node.layer) } );
         })
-        this.setMapZIndices();
     },
+
+    rerenderDataTree: function(categoryId){
+        this.buttonBox.style.display = 'None';
+        if (this.layerTree.innerHTML)
+            $(this.layerTree).treeview('remove');
+        this.renderDataTree(categoryId);
+    },
+
 
     /*
     * event for selecting a node in the layer tree
     */
-    nodeSelected: function(event, data){
-        var node = data.node,
-            addBtn = this.buttonBox.querySelector('.add'),
-            removeBtn = this.buttonBox.querySelector('.remove');
+    nodeSelected: function(event, node){
+        //// unselect previous node (caused by onNodeUnselected)
+        //if (this.selectedNode)
+            //$(this.layerTree).treeview('unselectNode', [this.selectedNode, { silent: true }]);
+        var addBtn = document.getElementById('add-layer-button'),
+            removeBtn = document.getElementById('remove-layer-button'),
+            downBtn = document.getElementById('move-layer-down-button'),
+            upBtn = document.getElementById('move-layer-up-button');
         this.selectedNode = node;
-        if (node.type === 'layer') {
+        if (node.layer != null) {
             addBtn.style.display = 'None';
+            this.zInput.style.display = 'inline';
+            this.zInput.value = node.layer.get('z_index');
+            downBtn.style.display = 'inline';
+            upBtn.style.display = 'inline';
         }
         else {
             addBtn.style.display = 'inline';
+            this.zInput.style.display = 'None';
+            downBtn.style.display = 'None';
+            upBtn.style.display = 'None';
         }
-        this.repositionButtons();
+        var li = this.layerTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
+        if (!li) return;
+        this.buttonBox.style.top = li.offsetTop + 'px';
+        this.buttonBox.style.display = 'inline';
     },
-    
-    applyCheckState: function(node){
-        var _this = this;
-        function applyLayerCheck(layerNode){
-            var isChecked = layerNode.state.checked,
-                layer = layerNode.original.layer;
-            layer.set('included', isChecked);
-            layer.save();
-            _this.map.setVisible(_this.layerPrefix + layer.id, isChecked);
-            var legendDiv = document.getElementById(_this.legendPrefix + layer.id),
-                display = (isChecked) ? 'inline': 'none';
-            if (legendDiv) legendDiv.style.display = display;
-        }
-        if (node.type === 'layer')
-            applyLayerCheck(node)
-        // cascading checks don't fire check_node event -> update child layers if category is checked
-        else {
-            node.children.forEach(function(child){ 
-                applyLayerCheck($(_this.layerTree).jstree('get_node', child));
-            });
+
+    // items are not unselectable
+    nodeUnselected: function(event, node){
+        //$(this.layerTree).treeview('selectNode',  [node, { silent: true }]);
+    },
+
+    // select item on collapsing (workaround for misplaced buttons when collapsing)
+    nodeCollapsed: function(event, node){
+        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
+    },
+    nodeExpanded: function(event, node){
+        $(this.layerTree).treeview('selectNode',  [node, { silent: false }]);
+    },
+
+    nodeChecked: function(event, node){
+        // layer checked
+        if (node.layer != null){
+            node.layer.set('included', true);
+            node.layer.save();
+            this.map.setVisible(this.layerPrefix + node.layer.id, true);
+            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+            if (legendDiv) legendDiv.style.display = 'inline';
         }
     },
 
-    nodeChecked: function(event, data){
-        this.applyCheckState(data.node);
-    },
-
-    nodeUnchecked: function(event, data){
-        this.applyCheckState(data.node);
+    nodeUnchecked: function(event, node){
+        // layer unchecked
+        if (node.layer != null){
+            node.layer.set('included', false);
+            node.layer.save();
+            this.map.setVisible(this.layerPrefix + node.layer.id, false);
+            var legendDiv = document.getElementById(this.legendPrefix + node.layer.id);
+            if (legendDiv) legendDiv.style.display = 'none';
+        }
     },
 
     renderAvailableServices: function(){
@@ -180,16 +191,11 @@ var SetupMapsView = BaseMapView.extend(
                     var catNode = {
                         text: name,
                         category: category,
-                        type: 'category',
-                        children: []
+                        state: { checked: true }
                     }
-                    var treeIsEmpty = Object.keys(_this.categoryTree).length === 0;
+                    catNode.nodes = [];
                     _this.categoryTree[category.id] = catNode;
-                    // bug in jstree: tree is not correctly initiallized when empty
-                    if (treeIsEmpty)
-                        _this.rerenderTree();
-                    else
-                        _this.addNode(catNode);
+                    _this.rerenderDataTree(category.id);
                 },
                 error: _this.onError,
                 wait: true
@@ -200,18 +206,16 @@ var SetupMapsView = BaseMapView.extend(
             onConfirm: onConfirm
         });
     },
-    
-    addNode: function(node, parentNode){
-        var parent = parentNode || null;
-        $(this.layerTree).jstree('create_node', parent, node, 'last');
-    },
 
     confirmLayer: function(){
         var _this = this;
-        var category = this.selectedNode.original.category,
-            catNode = this.categoryTree[category.id],
-            checked = this.layerModal.querySelectorAll('input[name=layer]:checked'),
-            newLayers = [];
+        var category = this.selectedNode.category,
+            catNode = this.categoryTree[category.id];
+
+        var checked = this.layerModal.querySelectorAll('input[name=layer]:checked');
+
+        var newLayers = [];
+
         checked.forEach(function(checkbox){
             var wmsLayerId = checkbox.dataset.layerid,
                 wmsLayerName = checkbox.dataset.layername;
@@ -228,14 +232,12 @@ var SetupMapsView = BaseMapView.extend(
 
         function onSuccess(){
             newLayers.forEach(function(layer){
-                var layerNode = { 
-                    text: layer.get('name'),
+                var layerNode = { text: layer.get('name'),
+                    icon: 'fa fa-bookmark',
                     layer: layer,
-                    type: 'layer',
-                    state: { checked: layer.get('included') } 
-                };
-                catNode.children.push(layerNode);
-                _this.addNode(layerNode, _this.selectedNode);
+                    state: { checked: layer.get('included') } };
+                catNode.nodes.push(layerNode);
+                _this.rerenderDataTree(category.id);
                 _this.addServiceLayer(layer);
             })
         }
@@ -258,48 +260,50 @@ var SetupMapsView = BaseMapView.extend(
         uploadModel(newLayers, 0);
     },
 
-    removeNode: function(){
+    removeLayer: function(){
         if (!this.selectedNode) return;
+        var model = this.selectedNode.layer || this.selectedNode.category,
+            message = (this.selectedNode.layer) ? gettext('Do you really want to delete the selected layer?') :
+                      gettext('Do you really want to delete the selected category?');
+        this.confirm({ message: message, onConfirm: this.confirmRemoval });
+    },
+
+    confirmRemoval: function(){
         var _this = this;
-        var isCategory = (this.selectedNode.type === 'category'),
-            model = this.selectedNode.original.chart || this.selectedNode.original.category,
-            message = (!isCategory) ? gettext('Do you really want to delete the selected chart?') :
-                      gettext('Do you really want to delete the selected category and all its charts?');
-        function confirmRemoval(){
-            $(_this.confirmationModal).modal('hide'); 
-            var model = _this.selectedNode.original.layer || _this.selectedNode.original.category;
-            model.destroy({ 
-                success: function(){
-                    var selectCatId = 0;
-                    // remove category from tree (if category was selected)
-                    if (isCategory) {
-                        _this.selectedNode.children.forEach(function(node){
-                            _this.map.removeLayer(_this.layerPrefix + node.original.layer.id);
-                        })
-                        delete _this.categoryTree[model.id];
-                    }
-                    // remove chart from category (if chart was selected)
-                    else {
-                        _this.getTreeLayerNode(model, { pop: true })
-                        selectCatId = model.get('category');
-                        _this.map.removeLayer(_this.layerPrefix + model.id);
-                        var legendDiv = document.getElementById(_this.legendPrefix + model.id);
-                        if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
-                    }
-                    $(_this.layerTree).jstree("delete_node", _this.selectedNode);
-                    _this.buttonBox.style.display = 'None';
-                },
-                error: _this.onError,
-                wait: true
-            });
-        }
-        this.confirm({ message: message, onConfirm: confirmRemoval })
+        $(this.confirmationModal).modal('hide');
+        var is_category = (this.selectedNode.category != null);
+        var model = this.selectedNode.layer || this.selectedNode.category;
+        model.destroy({ 
+            success: function(){
+                var selectCatId = 0;
+                // remove category from tree (if category was selected)
+                if (_this.selectedNode.category && _this.selectedNode.nodes) {
+                    _this.selectedNode.nodes.forEach(function(node){
+                        _this.map.removeLayer(_this.layerPrefix + node.layer.id);
+                    })
+                    delete _this.categoryTree[model.id];
+                }
+                // remove layer from category (if layer was selected)
+                else {
+                    _this.getTreeLayerNode(model, { pop: true })
+                    selectCatId = model.get('category');
+                    _this.map.removeLayer(_this.layerPrefix + model.id);
+                    var legendDiv = document.getElementById(_this.legendPrefix + model.id);
+                    if (legendDiv) legendDiv.parentElement.removeChild(legendDiv);
+                }
+                _this.selectedNode = null;
+                _this.rerenderDataTree(selectCatId);
+            },
+            error: _this.onError,
+            wait: true
+        });
+
     },
 
     getTreeLayerNode: function(layer, options){
-        var options = options || {},
-            catNode = this.categoryTree[layer.get('category')],
-            nodes = catNode.children;
+        var options = options || {};
+        var catNode = this.categoryTree[layer.get('category')];
+        var nodes = catNode.nodes;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.layer === layer) {
@@ -311,13 +315,16 @@ var SetupMapsView = BaseMapView.extend(
     },
 
     editName: function(){
-        var _this = this,
-            model = this.selectedNode.original.layer || this.selectedNode.original.category;
+        var _this = this;
+        var model = this.selectedNode.layer || this.selectedNode.category;
         function onConfirm(name){
             model.set('name', name);
-            model.save(null, { 
-                success: function(){
-                    $(_this.layerTree).jstree('set_text', _this.selectedNode, name);
+            model.save(null, { success: function(){
+                var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
+                            _this.getTreeLayerNode(model);
+                node.text = name;
+                var selectCatId = _this.selectedNode.category? model.id: model.get('category');
+                _this.rerenderDataTree(selectCatId);
             }})
         };
         this.getName({
@@ -327,6 +334,34 @@ var SetupMapsView = BaseMapView.extend(
         })
     },
 
+    moveLayerUp: function(){
+        var _this = this;
+        var layer = this.selectedNode.layer;
+        var newVal = Number(this.zInput.value) + 1;
+        layer.set('z_index', newVal);
+        this.buttonBox.style.pointerEvents = 'none';
+        layer.save(null, { success: function(){
+            _this.buttonBox.style.pointerEvents = 'auto';
+            _this.zInput.value = newVal;
+            _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+        }});
+    },
+
+    moveLayerDown: function(){
+        var _this = this;
+        var layer = this.selectedNode.layer;
+        var newVal = Number(this.zInput.value) - 1;
+        if (newVal > 0){
+            this.zInput.value = newVal;
+            layer.set('z_index', newVal);
+            this.buttonBox.style.pointerEvents = 'none';
+            layer.save(null, { success: function(){
+                _this.buttonBox.style.pointerEvents = 'auto';
+                _this.zInput.value = newVal;
+                _this.map.setZIndex(_this.layerPrefix + layer.id, newVal);
+            }});
+        }
+    },
 });
 return SetupMapsView;
 }

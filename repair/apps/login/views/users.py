@@ -2,12 +2,11 @@
 from django.contrib.auth.models import Group, User
 
 from publications_bootstrap.models import Publication
-from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from reversion.views import RevisionMixin
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LoginView
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import json
@@ -82,7 +81,7 @@ class PublicationView(ModelPermissionViewSet):
     pagination_class = None
 
 
-class LoginView(auth_views.LoginView):
+class LoginView(LoginView):
     def form_valid(self, form):
         response = super().form_valid(form)
         session = self.request.session
@@ -156,18 +155,4 @@ class SessionView(View):
         response = self._session_dict
         response['mode'] = request.session.get('mode', self.MODES['Workshop'])
         response['language'] = request.LANGUAGE_CODE
-        #response['ssl'] = request.is_secure()
         return JsonResponse(response)
-
-
-class PasswordChangeView(auth_views.PasswordChangeView):
-    def get(self, request, *args, **kwargs):
-        if not request.user.profile.can_change_password:
-            return HttpResponse(_('Unauthorized'), status=401) 
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        if not request.user.profile.can_change_password:
-            return HttpResponse(_('Unauthorized'), status=401) 
-        return super().post(request, *args, **kwargs)
-    

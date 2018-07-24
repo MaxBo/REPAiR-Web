@@ -25,8 +25,7 @@ class ChallengeSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'casestudy',
-                  'text',
-                  'priority')
+                  'text')
 
 
 class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
@@ -37,5 +36,4 @@ class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
         model = Challenge
         fields = ('url',
                   'id',
-                  'text',
-                  'priority')
+                  'text')

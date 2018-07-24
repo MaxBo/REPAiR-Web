@@ -20,6 +20,7 @@
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
 
+
 <body>
   <nav class="navbar navbar-default">
     <div class="navbar-header">
@@ -112,14 +113,10 @@
               </button>
               <div class="dropdown-content">
                 {% if data_entry_permitted %}
-                <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
                 {% endif %}
                 {% if request.user.is_staff %}
-                <a href="/admin">{% trans "Admin Area" %}</a>
-                {% endif %}
-                <div style="width: 100%; border-bottom: 1px solid #efefef;"></div>
-                {% if request.user.profile.can_change_password %}
-                <a href="/password">{% trans "Change password" %}</a>
+                  <a href="/admin">{% trans "Admin Area" %}</a>
                 {% endif %}
                 <a href="/logout">{% trans "Logout" %}</a>
               </div>

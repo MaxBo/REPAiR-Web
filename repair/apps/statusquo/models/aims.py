@@ -7,7 +7,6 @@ from repair.apps.login.models import (CaseStudy, GDSEModel)
 class Aim(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
-    priority = models.IntegerField(default=0)
 
     def __str__(self):
         try:

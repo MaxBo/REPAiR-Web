@@ -16,18 +16,17 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
-<div class="tab-content">
-  <div class="tab-pane fade in active" id="solutions">
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="solutions">
+    </div>
+    {% if request.session.mode != 1 %}
+    <div class="tab-pane fade" id="implementations">
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2>ToDo</h2>
+    </div>
+    {% endif %}
   </div>
-  {% if request.session.mode != 1 %}
-  <div class="tab-pane fade" id="implementations">
-  </div>
-  <div class="tab-pane fade" id="strategies">
-    <h2>ToDo</h2>
-  </div>
-  {% endif %}
-</div>
 
 {% include "changes/solutions.html" %}
 {% if request.session.mode != 1 %}

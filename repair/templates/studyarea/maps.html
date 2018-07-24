@@ -22,27 +22,34 @@
 
 <script type="text/template" id="setup-maps-template">
 <div class="row">
-  <div class="col-md-3 bordered" style="margin-right: 10px;">
+  <div class="col-md-4 bordered" style="margin-right: 10px;">
     <div id="layer-tree-buttons">
-      <button class="add btn btn-primary square inverted" title="{% trans "add layer" %}" style="margin-right: 10px; color: black;">
+      <button id='add-layer-button' class="btn btn-primary square inverted" title="{% trans "add layer" %}" style="margin-right: 10px; color: black;">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Layer" %}
       </button>
-      <button class="edit btn btn-primary square inverted" title="{% trans "edit name" %}">
+      <button id='move-layer-down-button' class="btn btn-primary round small inverted" title="{% trans "Move down" %}" ">
+        <span class="glyphicon glyphicon-minus"></span>
+      </button>
+      <input id='layer-z-index' disabled value="10"/>
+      <button id='move-layer-up-button' class="btn btn-primary round small inverted" title="{% trans "Move up" %}" style="margin-right: 10px;">
+        <span class="glyphicon glyphicon-plus"></span>
+      </button>
+      <button id='edit-layer-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}">
         <span class="glyphicon glyphicon-pencil"></span>
       </button>
-      <button class="remove btn btn-warning square" title="{% trans "remove" %}">
+      <button id='remove-layer-button'  class="btn btn-warning square" title="{% trans "remove" %}">
         <span class="glyphicon glyphicon-minus"></span>
       </button>
     </div>
     <div class="row">
       <h4> {% trans "Layers" %} </h4>
       <div id="layer-tree" class="noselect"></div>
-      <button id='add-layer-category-button' class="btn btn-primary square" title="{% trans "add group" %}">
+      <button id='add-category-button' class="btn btn-primary square" title="{% trans "add group" %}">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
       </button>
     </div>
   </div>
-  <div class="col-md-6 bordered" style="margin-right: 10px;">
+  <div class="col-md-5 bordered" style="margin-right: 10px;">
     <div id='base-map'>
     </div>
   </div>

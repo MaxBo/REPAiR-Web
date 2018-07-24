@@ -4,26 +4,18 @@ DEBUG = True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DB_USER = 'postgres'
-DB_PASS = ''
-DB_NAME = 'gdse_db'
-DB_HOST = 'db'
-DB_PORT = '5432'
 
 DATABASES = {
     'default': {
-
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-        #'OPTIONS': {
-            #'sslmode': 'require',
-            #},
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+        'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+             'timeout': 20,
+         }
     },
 }
+
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 WEBPACK_LOADER = {
     'DEFAULT': {

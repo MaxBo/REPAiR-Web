@@ -20,9 +20,9 @@
           </tr>
         </table>
         {% if form.errors %}
-        <div class="alert alert-danger">
+        <p class=" label label-danger">
           {% trans "Username and password didn't match. Please try again." %}
-        </div>
+        </p>
         {% endif %}
         <input type="submit" value="Login"  class="btn btn-primary pull-right" />
         <input type="hidden" name="next" value="{{ next }}" />

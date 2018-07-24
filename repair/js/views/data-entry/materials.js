@@ -83,6 +83,7 @@ var MaterialsView = BaseView.extend(
         return node;
     },
 
+
     /*
     * render the hierarchic tree of materials
     */

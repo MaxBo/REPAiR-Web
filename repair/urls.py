@@ -21,10 +21,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from repair.views import HomeView
 from django.contrib.auth.views import logout
-from repair.apps.login.views import (SessionView, LoginView,
-                                     PasswordChangeView)
+from repair.apps.login.views import SessionView, LoginView
 from django.views.i18n import JavaScriptCatalog
-from django.views.generic import TemplateView
 from repair.apps.wmsresources.views import (WMSProxyView)
 from repair.apps import admin
 #from django.contrib import admin
@@ -45,10 +43,6 @@ urlpatterns = [
     # API urls
     url(r'^login/', LoginView.as_view(template_name='login/login.html'),
         name='login'),
-    url(r'^password/', PasswordChangeView.as_view(template_name='login/password_change_form.html'),
-        name='password_change_form'),
-    url(r'^password-done/', TemplateView.as_view(template_name='login/password_change_done.html'),
-        name='password_change_done'),
     url(r'^session', SessionView.as_view(), name='session'), 
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^api/', include('repair.rest_urls')),

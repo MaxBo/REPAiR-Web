@@ -9,7 +9,6 @@ class LayerCategory(GDSEUniqueNameModel):
     """Layer Category"""
     name = models.TextField()
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
-    order = models.IntegerField(default=1)
 
 
 class Layer(GDSEModel):
@@ -17,7 +16,7 @@ class Layer(GDSEModel):
     category = models.ForeignKey(LayerCategory, on_delete=PROTECT_CASCADE)
     name = models.TextField()
     included = models.BooleanField(default=False)
-    order = models.IntegerField(default=1)
+    z_index = models.IntegerField(default=1)
     wms_layer = models.ForeignKey(WMSLayer, on_delete=PROTECT_CASCADE)
     style = models.ForeignKey(LayerStyle, on_delete=models.SET_NULL, null=True)
 
