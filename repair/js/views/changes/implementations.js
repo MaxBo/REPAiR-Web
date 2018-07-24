@@ -532,7 +532,8 @@ var ImplementationsView = BaseView.extend(
     * render the map to draw on inside the solution modal
     */
     renderEditorMap: function(divid, solutionImpl, activities){
-        var _this = this;
+        var _this = this,
+            el = document.getElementById(divid);
         // remove old map
         if (this.editorMap){
             this.editorMap.map.setTarget(null);
@@ -540,7 +541,8 @@ var ImplementationsView = BaseView.extend(
             this.editorMap = null;
         }
         this.editorMap = new Map({
-            el: document.getElementById(divid), 
+            el: el, 
+            select: { selectable: true }
         });
 
         if (this.focusPoly){
@@ -557,7 +559,11 @@ var ImplementationsView = BaseView.extend(
             });
             this.editorMap.centerOnLayer('drawing');
         }
-        this.editorMap.enableDrawing('drawing');
+        var toolSelect = this.el.querySelector('.tool-select');
+        toolSelect.addEventListener('change', function(){
+            if (!this.value) _this.editorMap.toggleDrawing();
+            else _this.editorMap.toggleDrawing('drawing',  this.value);
+        })
     },
 
 });

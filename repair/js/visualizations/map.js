@@ -645,19 +645,23 @@ define([
         /**
         * centers map on layer with given name, zooms to fit extent of layer
         *
-        * @param {string} layername                layer to draw on
-        * @param {Object} options
-        * @param {string} [options.type='Polygon'] type of geometry to draw
+        * @param {string} layername          layer to draw on, disables drawing if not given
+        * @param {string} [type='Polygon']   type of geometry to draw
         *
         */
-        enableDrawing(layername, options){
-            var options = options || {},
-                layer = this.layers[layername],
+        toggleDrawing(layername, type){
+            if (this.drawingInteraction)
+                this.map.removeInteraction(this.drawingInteraction);
+            this.drawingInteraction = null;
+            if (!layername || !type) return;
+                
+            var layer = this.layers[layername],
                 source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
-                    type: options.type || 'Polygon'
+                    type: type || 'Polygon'
                 });
+            this.drawingInteraction = draw;
             this.map.addInteraction(draw);
         }
         
