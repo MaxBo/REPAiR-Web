@@ -70,16 +70,6 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            keyflow_pk=cls.kic.id)
         cls.url_pk = dict(pk=cls.flowindicator_id)
-        cls.post_data = dict(
-            name = 'FlowIndicator',
-            unit = 'Elmshorn',
-            description = 'supernormal',
-            indicator_type = 1,
-            flow_a = cls.indicatorflow_ida,
-            flow_b = cls.indicatorflow_idb,
-            keyflow = cls.keyflow_id1,)
-        cls.put_data = cls.post_data
-        cls.patch_data = cls.post_data
 
     def setUp(self):
         super().setUp()
@@ -134,3 +124,19 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
         self.obj = FlowIndicatorFactory(flow_a=self.flow_a,
                                         flow_b=self.flow_b,
                                         keyflow=self.kic)
+        self.post_data = dict(
+            name = 'FlowIndicator',
+            unit = 'Elmshorn',
+            description = 'supernormal',
+            indicator_type = 'A',
+            flow_a = [self.flow_a],
+            flow_b = [self.flow_b],
+            keyflow = self.keyflow_id1,)
+        self.put_data = self.post_data
+        self.patch_data = self.post_data
+
+    def test_post(self):
+        pass
+
+    def test_put_patch(self):
+        pass
