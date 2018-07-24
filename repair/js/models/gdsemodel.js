@@ -98,7 +98,7 @@ function(Backbone, utils, config) {
                     error: options.error
                 })
             }
-            else GDSEModel.__super__.save.apply(this, [data, options]);
+            else return GDSEModel.__super__.save.apply(this, [data, options]);
     },
 
     });
