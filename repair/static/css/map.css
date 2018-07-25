@@ -37,3 +37,6 @@
 .ol-rotate {
   right: 3em !important;
 }
+.drawing-tools label>span{
+  font-size: 18px;
+}

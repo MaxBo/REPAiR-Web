@@ -560,17 +560,36 @@ var ImplementationsView = BaseView.extend(
             _this.editorMap.centerOnLayer('drawing');
         }
         var drawingTools = this.el.querySelector('.drawing-tools'),
-            toolSelect = drawingTools.querySelector('.tool-select'),
-            removeBtn = drawingTools.querySelector('.remove');
-        toolSelect.addEventListener('change', function(){
-            var selectable = false;
-            if (!this.value) {
+            removeBtn = drawingTools.querySelector('.remove'),
+            freehand = drawingTools.querySelector('.freehand'),
+            tools = drawingTools.querySelectorAll('.tool');
+
+        function toolChanged(){
+            if (!this.checked) return;
+            var type = this.dataset.tool,
+                selectable = false;
+            if (type === 'Select'){
                 _this.editorMap.toggleDrawing();
                 selectable = true;
+                removeBtn.disabled = false;
             }
-            else _this.editorMap.toggleDrawing('drawing',  this.value);
+            else { 
+                _this.editorMap.toggleDrawing('drawing', {
+                    type: type,
+                    freehand: freehand.checked
+                });
+                removeBtn.disabled = true;
+            }
             _this.editorMap.enableSelect('drawing', selectable);
-        })
+        }
+
+        for (var i = 0; i < tools.length; i++){
+            var tool = tools[i];
+            // pure js doesn't work unfortunately
+            //tool.addEventListener('change', toolChanged);
+            $(tool).on('change', toolChanged)
+        }
+
         removeBtn.addEventListener('click', function(){
             _this.editorMap.removeSelectedFeatures('drawing');
         })

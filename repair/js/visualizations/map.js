@@ -664,20 +664,26 @@ define([
         * centers map on layer with given name, zooms to fit extent of layer
         *
         * @param {string} layername          layer to draw on, disables drawing if not given
-        * @param {string} [type='Polygon']   type of geometry to draw
+        * @param {Object} options
+        * @param {string} [options.type='Polygon']   type of geometry to draw
+        * @param {Boolean} [options.freehand=false]  freehand drawing or drawing by setting points
         *
         */
-        toggleDrawing(layername, type){
+        toggleDrawing(layername, options){
             if (this.drawingInteraction)
                 this.map.removeInteraction(this.drawingInteraction);
             this.drawingInteraction = null;
-            if (!layername || !type) return;
+            if (!layername) return;
+            var options = options || {},
+                type = options.type || 'Polygon',
+                freehand = options.freehand
                 
             var layer = this.layers[layername],
                 source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
-                    type: type || 'Polygon'
+                    type: type,
+                    freehand: options.freehand
                 });
             this.drawingInteraction = draw;
             this.map.addInteraction(draw);
