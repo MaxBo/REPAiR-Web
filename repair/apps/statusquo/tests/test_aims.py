@@ -140,3 +140,9 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
 
     def test_put_patch(self):
         pass
+
+    def test_post_permission(self):
+        pass
+
+    def test_put_permission(self):
+        pass
