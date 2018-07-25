@@ -1,8 +1,8 @@
 define(['views/baseview', 'underscore', 'collections/gdsecollection/', 
-        'visualizations/map', 'utils/utils', 'openlayers', 'bootstrap', 
+        'visualizations/map', 'utils/utils', 'muuri', 'openlayers', 'bootstrap', 
         'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Map, utils, ol){
+function(BaseView, _, GDSECollection, Map, utils, Muuri, ol){
 /**
 *
 * @author Christoph Franke
@@ -48,6 +48,11 @@ var ImplementationsView = BaseView.extend(
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id] 
         });
+        
+        var focusarea = this.caseStudy.get('properties').focusarea;
+        if (focusarea != null){
+            this.focusPoly = new ol.geom.Polygon(focusarea.coordinates[0]);
+        }
         
         this.stakeholders = [];
         this.solutions = [];
@@ -116,6 +121,15 @@ var ImplementationsView = BaseView.extend(
             'click', function(){ _this.confirmNewSolution() })
     },
     
+    getStakeholder: function(id){
+        var stakeholder = null;
+        for (var i = 0; i < this.stakeholderCategories.length; i++){
+            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(id);
+            if (stakeholder != null) break;
+        }
+        return stakeholder
+    },
+    
     /*
     * render an implementation item
     */
@@ -123,16 +137,12 @@ var ImplementationsView = BaseView.extend(
         var html = document.getElementById('implementation-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
-            stakeholder = null,
             coordId = implementation.get('coordinating_stakeholder'),
             implDiv = this.el.querySelector('#implementations'),
+            stakeholder = this.getStakeholder(coordId),
             _this = this;
         
         implDiv.appendChild(el);
-        for (var i = 0; i < this.stakeholderCategories.length; i++){
-            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(coordId);
-            if (stakeholder != null) break;
-        }
         el.innerHTML = template({ implementation: implementation, stakeholder: stakeholder });
         
         var editBtn = el.querySelector('.edit'),
@@ -159,10 +169,28 @@ var ImplementationsView = BaseView.extend(
             apiIds: [this.caseStudy.id, implementation.id] 
         });
         
+        var implementationGrid = new Muuri(el.querySelector('.solutions'), {
+            dragAxis: 'x',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
+            dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease',
+            layout: {
+                fillGaps: false,
+                horizontal: true,
+                rounding: true
+            },
+            dragStartPredicate: {
+                handle: '.handle'
+            }
+        });
+        
         solutionsInImpl.fetch({
             success: function(){ 
                 solutionsInImpl.forEach(function(solInImpl){
-                    _this.renderSolution(solInImpl, implementation, el);
+                    _this.renderSolution(solInImpl, implementation, implementationGrid);
                 })
             }
         });
@@ -179,7 +207,7 @@ var ImplementationsView = BaseView.extend(
                         wait: true,
                         success: function(){
                             $(addModal).modal('hide');
-                            var solItem = _this.renderSolution(solInImpl, implementation, el);
+                            var solItem = _this.renderSolution(solInImpl, implementation, implementationGrid);
                             _this.editSolution(solInImpl, implementation, solItem);
                         },
                         error: _this.onError
@@ -187,7 +215,6 @@ var ImplementationsView = BaseView.extend(
                 )
             };
             
-        
             var solutionSelect = addModal.querySelector('#solution-select');
             
             solutionSelect.selectedIndex = 0;
@@ -200,22 +227,45 @@ var ImplementationsView = BaseView.extend(
     /*
     * render a solution item into the given implementation item
     */
-    renderSolution: function(solutionInImpl, implementation, implementationItem){
+    renderSolution: function(solutionInImpl, implementation, grid){
         var html = document.getElementById('solution-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
-            solDiv = implementationItem.querySelector('.solutions'),
             solId = solutionInImpl.get('solution'),
             _this = this;
         
-        solDiv.appendChild(el);
         var solution;
         for (var i = 0; i < this.solutionCategories.length; i++){
             solution = this.solutionCategories.at(i).solutions.get(solId);
             if (solution != null) break;
         }
         
-        el.innerHTML = template({ solutionInImpl: solutionInImpl, solution: solution });
+        var stakeholderIds = solutionInImpl.get('participants'),
+            stakeholderNames = [];
+        
+        stakeholderIds.forEach(function(id){
+            var stakeholder = _this.getStakeholder(id);
+            stakeholderNames.push(stakeholder.get('name'));
+        })
+        var quantityLabels = [];
+        
+        var squantities = new GDSECollection([], {
+            apiTag: 'quantitiesInImplementedSolution', 
+            apiIds: [this.caseStudy.id, implementation.id, solutionInImpl.id] 
+        });
+        
+        el.innerHTML = template({ 
+            solutionInImpl: solutionInImpl, 
+            solution: solution, 
+            stakeholderNames: stakeholderNames.join(', ')
+        });
+        
+        squantities.fetch({success: function(){
+            squantities.forEach(function(quantity){
+                quantityLabels.push(quantity.get('value') + ' ' + quantity.get('unit'));
+            })
+            el.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
+        }})
         
         var editBtn = el.querySelector('.edit'),
             removeBtn = el.querySelector('.remove');
@@ -223,12 +273,13 @@ var ImplementationsView = BaseView.extend(
         editBtn.addEventListener('click', function(){
             _this.editSolution(solutionInImpl, implementation, el);
         })
-        
+        el.classList.add('item', 'large');
+        grid.add(el, {});
         removeBtn.addEventListener('click', function(){
             var message = gettext('Do you really want to delete your solution?');
             _this.confirm({ message: message, onConfirm: function(){
                 solutionInImpl.destroy({
-                    success: function() { solDiv.removeChild(el); },
+                    success: function() { grid.remove(el, { removeElements: true }); },
                     error: _this.onError,
                     wait: true
                 })
@@ -328,8 +379,14 @@ var ImplementationsView = BaseView.extend(
             stakeholderCategories: this.stakeholderCategories
         });
         
-        var select = modal.querySelector('.selectpicker');
-        $(select).selectpicker();
+        var stakeholderSelect = modal.querySelector('#implementation-stakeholders'),
+            stakeholders = solutionImpl.get('participants').map(String);
+        for (var i = 0; i < stakeholderSelect.options.length; i++) {
+            if (stakeholders.indexOf(stakeholderSelect.options[i].value) >= 0) {
+                stakeholderSelect.options[i].selected = true;
+            }
+        }
+        $(stakeholderSelect).selectpicker();
         
         var squantities = new GDSECollection([], {
             apiTag: 'quantitiesInImplementedSolution', 
@@ -341,17 +398,18 @@ var ImplementationsView = BaseView.extend(
             apiIds: [this.caseStudy.id, solution.get('solution_category'), solution.id] 
         });
         
+        var quantityTable = modal.querySelector('#implemented-quantities');
         // render the quantities and ratios (tab "Quantities")
         squantities.fetch({success: function(){
-            var table = modal.querySelector('#implemented-quantities');
             squantities.forEach(function(quantity){
-                var row = table.insertRow(-1),
+                var row = quantityTable.insertRow(-1),
                     nameCell = row.insertCell(-1);
                 nameCell.innerHTML = quantity.get('name');
                 nameCell.style.width= '1%';
                 nameCell.style.whiteSpace = 'nowrap';
                 var input = document.createElement('input');
                 input.type = 'number';
+                input.dataset.id = quantity.id;
                 input.value = quantity.get('value');
                 input.classList.add('form-control');
                 var inputCell = row.insertCell(-1);
@@ -382,6 +440,16 @@ var ImplementationsView = BaseView.extend(
         // save solution and drawn polygons after user confirmed modal
         var okBtn = modal.querySelector('.confirm');
         okBtn.addEventListener('click', function(){
+            // stakeholders
+            var stakeholderIds = [];
+            for (var i = 0; i < stakeholderSelect.options.length; i++) {
+                var option = stakeholderSelect.options[i];
+                if (option.selected) {
+                    stakeholderIds.push(option.value);
+                }
+            }
+            solutionImpl.set('participants', stakeholderIds);
+            // drawn features
             var features = _this.editorMap.getFeatures('drawing');
             if (features.length > 0){
                 var multiPolygon = new ol.geom.MultiPolygon();
@@ -395,18 +463,42 @@ var ImplementationsView = BaseView.extend(
                  });
                 var geoJSON = new ol.format.GeoJSON(),
                     geoJSONText = geoJSON.writeGeometry(multiPolygon);
-                var notes = modal.querySelector('textarea[name="description"]').value
                 solutionImpl.set('geom', geoJSONText);
             }
+            var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
-            solutionImpl.save(null, {
-                success: function(){
-                    _this.renderSolutionPreviewMap(solutionImpl, item);
-                    item.querySelector('textarea[name="notes"]').value = notes;
-                    $(modal).modal('hide');
-                },
-                error: _this.onError,
-                patch: true
+            var promises = [
+                solutionImpl.save(null, {
+                    success: console.log,
+                    error: _this.onError,
+                    patch: true,
+                    wait: true
+                })
+            ]
+            squantities.forEach(function(quantity){
+                var input = quantityTable.querySelector('input[data-id="' + quantity.id + '"]');
+                quantity.set('value', input.value);
+                promises.push(quantity.save(null, {
+                    success: console.log,
+                    error: _this.onError,
+                    wait: true
+                }))
+            })
+            Promise.all(promises).then(function(){
+                _this.renderSolutionPreviewMap(solutionImpl, item);
+                item.querySelector('textarea[name="notes"]').value = notes;
+                var stakeholderNames = [];
+                stakeholderIds.forEach(function(id){
+                    var stakeholder = _this.getStakeholder(id);
+                    stakeholderNames.push(stakeholder.get('name'));
+                })
+                var quantityLabels = [];
+                squantities.forEach(function(quantity){
+                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('name'));
+                })
+                item.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
+                item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
+                $(modal).modal('hide');
             })
         })
     },
@@ -430,7 +522,10 @@ var ImplementationsView = BaseView.extend(
                 type: 'MultiPolygon'
             });
             previewMap.centerOnLayer('geometry');
-        };
+        }
+        else if (this.focusPoly){
+            previewMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
+        }
     },
     
     /*
@@ -447,25 +542,16 @@ var ImplementationsView = BaseView.extend(
         this.editorMap = new Map({
             el: document.getElementById(divid), 
         });
-        var focusarea = this.caseStudy.get('properties').focusarea;
 
-        // add polygon of focusarea to both maps and center on their centroid
-        if (focusarea != null){
-            this.editorMap.addLayer('background', {
-                stroke: '#aad400',
-                fill: 'rgba(170, 212, 0, 0.1)',
-                strokeWidth: 1,
-                zIndex: 0
-            });
-            var poly = this.editorMap.addPolygon(focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+        if (this.focusPoly){
+            this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
         
-        var geom = solutionImpl.get('geom');
+        var geom = solutionImpl.get('geom'),
             drawingLayer = this.editorMap.addLayer('drawing', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'});
         
         if (geom){
-            this.editorMap.addPolygon(geom.coordinates, { 
+            var poly = this.editorMap.addPolygon(geom.coordinates, { 
                 projection: 'EPSG:3857', layername: 'drawing', 
                 type: 'MultiPolygon'
             });
