@@ -21,7 +21,7 @@ class ProductsTest(BasicModelPermissionTest, APITestCase):
         cls.url_pk = dict(pk=cls.product)
         cls.put_data = dict(cpa="test", fractions=[])
         cls.post_data = cls.put_data
-        cls.patch_data = dict(name="other name")
+        cls.patch_data = dict()  #name="other name")
 
     def setUp(self):
         super().setUp()
