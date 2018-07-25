@@ -86,13 +86,22 @@ class IndicatorFlowFactory(DjangoModelFactory):
     origin_node_ids = None
     destination_node_level = 1
     destination_node_ids = None
-    materials = None
     spatial_application = 1
     flow_type = 1
 
     class Meta:
         model = models.indicators.IndicatorFlow
 
+    @factory.post_generation
+    def materials(self, create, extracted, **kwargs):
+            if not create:
+                # Simple build, do nothing.
+                return
+
+            if extracted:
+                # A list of groups were passed in, use them
+                for material in extracted:
+                    self.materials.add(material)
 
 class FlowIndicatorFactory(DjangoModelFactory):
     name = 'FlowIndicator'
