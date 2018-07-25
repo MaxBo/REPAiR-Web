@@ -452,24 +452,20 @@ var ImplementationsView = BaseView.extend(
             // drawn features
             var features = _this.editorMap.getFeatures('drawing');
             if (features.length > 0){
-                var multiPolygon = new ol.geom.MultiPolygon();
+                var geometries = [];
                 features.forEach(function(feature) {
-                    var coordinates = feature.getGeometry().getCoordinates();
-                    // flatten if necessary
-                    if (coordinates[0] instanceof Array && coordinates[0].length == 1)
-                        coordinates = coordinates[0];
-                    var polygon = new ol.geom.Polygon(coordinates);
-                    multiPolygon.appendPolygon(polygon);
-                 });
-                var geoJSON = new ol.format.GeoJSON(),
-                    geoJSONText = geoJSON.writeGeometry(multiPolygon);
+                    var geom = feature.getGeometry();
+                    geometries.push(geom)
+                });
+                var geoCollection = new ol.geom.GeometryCollection(geometries),
+                    geoJSON = new ol.format.GeoJSON(),
+                    geoJSONText = geoJSON.writeGeometry(geoCollection);
                 solutionImpl.set('geom', geoJSONText);
             }
             var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
             var promises = [
                 solutionImpl.save(null, {
-                    success: console.log,
                     error: _this.onError,
                     patch: true,
                     wait: true
@@ -479,7 +475,6 @@ var ImplementationsView = BaseView.extend(
                 var input = quantityTable.querySelector('input[data-id="' + quantity.id + '"]');
                 quantity.set('value', input.value);
                 promises.push(quantity.save(null, {
-                    success: console.log,
                     error: _this.onError,
                     wait: true
                 }))
@@ -494,7 +489,7 @@ var ImplementationsView = BaseView.extend(
                 })
                 var quantityLabels = [];
                 squantities.forEach(function(quantity){
-                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('name'));
+                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('unit'));
                 })
                 item.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
                 item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
@@ -516,11 +511,13 @@ var ImplementationsView = BaseView.extend(
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
-            previewMap.addLayer('geometry', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'})
-            previewMap.addPolygon(geom.coordinates, { 
-                projection: 'EPSG:3857', layername: 'geometry', 
-                type: 'MultiPolygon'
-            });
+            previewMap.addLayer('geometry')
+            geom.geometries.forEach(function(g){
+                previewMap.addGeometry(g.coordinates, { 
+                    projection: 'EPSG:3857', layername: 'geometry', 
+                    type: g.type
+                });
+            })
             previewMap.centerOnLayer('geometry');
         }
         else if (this.focusPoly){
@@ -532,7 +529,8 @@ var ImplementationsView = BaseView.extend(
     * render the map to draw on inside the solution modal
     */
     renderEditorMap: function(divid, solutionImpl, activities){
-        var _this = this;
+        var _this = this,
+            el = document.getElementById(divid);
         // remove old map
         if (this.editorMap){
             this.editorMap.map.setTarget(null);
@@ -540,24 +538,61 @@ var ImplementationsView = BaseView.extend(
             this.editorMap = null;
         }
         this.editorMap = new Map({
-            el: document.getElementById(divid), 
+            el: el
         });
 
         if (this.focusPoly){
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
         
-        var geom = solutionImpl.get('geom'),
-            drawingLayer = this.editorMap.addLayer('drawing', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'});
+        var geom = solutionImpl.get('geom');
+        this.editorMap.addLayer('drawing', { 
+            select: { selectable: true }
+        });
         
         if (geom){
-            var poly = this.editorMap.addPolygon(geom.coordinates, { 
-                projection: 'EPSG:3857', layername: 'drawing', 
-                type: 'MultiPolygon'
-            });
-            this.editorMap.centerOnLayer('drawing');
+            geom.geometries.forEach(function(g){
+                _this.editorMap.addGeometry(g.coordinates, { 
+                    projection: 'EPSG:3857', layername: 'drawing', 
+                    type: g.type
+                });
+            })
+            _this.editorMap.centerOnLayer('drawing');
         }
-        this.editorMap.enableDrawing('drawing');
+        var drawingTools = this.el.querySelector('.drawing-tools'),
+            removeBtn = drawingTools.querySelector('.remove'),
+            freehand = drawingTools.querySelector('.freehand'),
+            tools = drawingTools.querySelectorAll('.tool');
+
+        function toolChanged(){
+            if (!this.checked) return;
+            var type = this.dataset.tool,
+                selectable = false;
+            if (type === 'Select'){
+                _this.editorMap.toggleDrawing();
+                selectable = true;
+                removeBtn.disabled = false;
+            }
+            else { 
+                _this.editorMap.toggleDrawing('drawing', {
+                    type: type,
+                    freehand: freehand.checked
+                });
+                removeBtn.disabled = true;
+            }
+            _this.editorMap.enableSelect('drawing', selectable);
+        }
+
+        for (var i = 0; i < tools.length; i++){
+            var tool = tools[i];
+            // pure js doesn't work unfortunately
+            //tool.addEventListener('change', toolChanged);
+            $(tool).on('change', toolChanged)
+        }
+
+        removeBtn.addEventListener('click', function(){
+            _this.editorMap.removeSelectedFeatures('drawing');
+        })
     },
 
 });
