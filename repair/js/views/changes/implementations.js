@@ -460,15 +460,12 @@ var ImplementationsView = BaseView.extend(
                 var geoCollection = new ol.geom.GeometryCollection(geometries),
                     geoJSON = new ol.format.GeoJSON(),
                     geoJSONText = geoJSON.writeGeometry(geoCollection);
-                console.log(geoJSON)
-                console.log(geoJSONText)
                 solutionImpl.set('geom', geoJSONText);
             }
             var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
             var promises = [
                 solutionImpl.save(null, {
-                    success: console.log,
                     error: _this.onError,
                     patch: true,
                     wait: true
@@ -478,7 +475,6 @@ var ImplementationsView = BaseView.extend(
                 var input = quantityTable.querySelector('input[data-id="' + quantity.id + '"]');
                 quantity.set('value', input.value);
                 promises.push(quantity.save(null, {
-                    success: console.log,
                     error: _this.onError,
                     wait: true
                 }))
@@ -493,7 +489,7 @@ var ImplementationsView = BaseView.extend(
                 })
                 var quantityLabels = [];
                 squantities.forEach(function(quantity){
-                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('name'));
+                    quantityLabels.push(quantity.get('value') + ' ' + quantity.get('unit'));
                 })
                 item.querySelector('.quantity').innerHTML = quantityLabels.join(', ');
                 item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
@@ -515,7 +511,7 @@ var ImplementationsView = BaseView.extend(
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
-            previewMap.addLayer('geometry', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'})
+            previewMap.addLayer('geometry')
             geom.geometries.forEach(function(g){
                 previewMap.addGeometry(g.coordinates, { 
                     projection: 'EPSG:3857', layername: 'geometry', 
@@ -551,7 +547,7 @@ var ImplementationsView = BaseView.extend(
         
         var geom = solutionImpl.get('geom');
         this.editorMap.addLayer('drawing', { 
-            select: { selectable: true, onChange: console.log }
+            select: { selectable: true }
         });
         
         if (geom){
@@ -576,7 +572,6 @@ var ImplementationsView = BaseView.extend(
             _this.editorMap.enableSelect('drawing', selectable);
         })
         removeBtn.addEventListener('click', function(){
-            console.log('click')
             _this.editorMap.removeSelectedFeatures('drawing');
         })
     },

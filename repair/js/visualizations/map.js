@@ -168,8 +168,11 @@ define([
 
             var image = new ol.style.Circle({
                 radius: 5,
-                fill: new ol.style.Fill({ color: 'blue' }),
-                stroke: new ol.style.Stroke({color: 'blue', width: 1})
+                fill: new ol.style.Fill({ color: options.stroke || 'rgb(100, 150, 250)' }),
+                stroke: new ol.style.Stroke({
+                    color: options.fill || 'rgba(100, 150, 250, 0.1)', 
+                    width: options.strokeWidth || 3
+                })
             });
 
             function labelStyle(feature, resolution) {
@@ -208,7 +211,14 @@ define([
                 }
                 layer.selectStyle = function(feature, resolution){ 
                     return new ol.style.Style({
-                        image: image,
+                        image: new ol.style.Circle({
+                            radius: 5,
+                            fill: new ol.style.Fill({ color: select.stroke || 'rgb(230, 230, 0)' }),
+                            stroke: new ol.style.Stroke({
+                                color: select.fill || 'rgba(100, 150, 250, 0.1)', 
+                                width: select.strokeWidth || 3
+                            })
+                        }),
                         stroke: new ol.style.Stroke({
                             color: select.stroke || 'rgb(230, 230, 0)',
                             width: select.strokeWidth || 3
