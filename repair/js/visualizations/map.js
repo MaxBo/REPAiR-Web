@@ -38,7 +38,10 @@ define([
             // blank map
             if (options.renderOSM != false){
                 initlayers.push(new ol.layer.Tile({
-                    source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+                    source: new ol.source.OSM({crossOrigin: 'anonymous'}),
+                    crossOrigin: 'anonymous',
+                    tileOptions: {crossOriginKeyword: 'anonymous'},
+                }))
             }
 
             var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
