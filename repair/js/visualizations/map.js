@@ -669,7 +669,7 @@ define([
         *
         * @param {string} layername          layer to draw on
         * @param {Object} options
-        * @param {string} [options.type='None']      type of geometry to draw
+        * @param {string} [options.type='None']      type of geometry to draw ('Polygon', 'Point', 'Circle', 'LineString', 'None')
         * @param {Boolean} [options.freehand=false]  freehand drawing or drawing by setting points
         *
         */
@@ -692,6 +692,41 @@ define([
                 });
             layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
+            }
+            
+        /**
+        * enable/disable drag box to select features
+        * (only works when layer supports selection, see addLayer)
+        *
+        * @param {string} layername   layer whose features to select
+        * @param {Boolean} [enabled=true]    enable if true (or null), disable if false
+        *
+        */
+        enableDragBox(layername, enabled){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enabled === null || enabled === true){
+                // it's already there
+                if (layer.dragBox) return;
+                layer.dragBox = new ol.interaction.DragBox();
+                this.map.addInteraction(layer.dragBox);
+                layer.dragBox.on('boxend', function() {
+                    var extent = layer.dragBox.getGeometry().getExtent();
+                    layer.select.getFeatures().clear();
+                    layer.getSource().forEachFeatureIntersectingExtent(extent, function(feature) {
+                        layer.select.getFeatures().push(feature);
+                        layer.select.dispatchEvent({
+                            type: 'select',
+                            selected: [feature],
+                            deselected: []
+                        });
+                    });
+                });
+            }
+            else if (layer.dragBox){
+                this.map.removeInteraction(layer.dragBox);
+                layer.dragBox = null;
+            }
         }
         
         /**

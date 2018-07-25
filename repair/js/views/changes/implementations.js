@@ -568,9 +568,10 @@ var ImplementationsView = BaseView.extend(
         function toolChanged(){
             var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
                 type = checkedTool.dataset.tool,
-                selectable = false;
-            if (type === 'Select'){
-                _this.editorMap.toggleDrawing();
+                selectable = false,
+                useDragBox = false;
+            if (type === 'Select' || type === 'DragBox'){
+                _this.editorMap.toggleDrawing('drawing');
                 selectable = true;
                 removeBtn.disabled = false;
             }
@@ -579,9 +580,12 @@ var ImplementationsView = BaseView.extend(
                     type: type,
                     freehand: freehand.checked
                 });
+                _this.editorMap.enableDragBox('drawing');
                 removeBtn.disabled = true;
             }
+            if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
+            _this.editorMap.enableDragBox('drawing', useDragBox);
         }
 
         for (var i = 0; i < tools.length; i++){
