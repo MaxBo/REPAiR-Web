@@ -541,8 +541,7 @@ var ImplementationsView = BaseView.extend(
             this.editorMap = null;
         }
         this.editorMap = new Map({
-            el: el, 
-            select: { selectable: true }
+            el: el
         });
 
         if (this.focusPoly){
@@ -550,7 +549,9 @@ var ImplementationsView = BaseView.extend(
         };
         
         var geom = solutionImpl.get('geom'),
-            drawingLayer = this.editorMap.addLayer('drawing', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'});
+            drawingLayer = this.editorMap.addLayer('drawing', { 
+                select: { selectable: true, onChange: console.log }
+            });
         
         if (geom){
             var poly = this.editorMap.addPolygon(geom.coordinates, { 
@@ -559,10 +560,21 @@ var ImplementationsView = BaseView.extend(
             });
             this.editorMap.centerOnLayer('drawing');
         }
-        var toolSelect = this.el.querySelector('.tool-select');
+        var drawingTools = this.el.querySelector('.drawing-tools'),
+            toolSelect = drawingTools.querySelector('.tool-select'),
+            removeBtn = drawingTools.querySelector('.remove');
         toolSelect.addEventListener('change', function(){
-            if (!this.value) _this.editorMap.toggleDrawing();
+            var selectable = false;
+            if (!this.value) {
+                _this.editorMap.toggleDrawing();
+                selectable = true;
+            }
             else _this.editorMap.toggleDrawing('drawing',  this.value);
+            _this.editorMap.enableSelect('drawing', selectable);
+        })
+        removeBtn.addEventListener('click', function(){
+            console.log('click')
+            _this.editorMap.removeSelectedFeatures('drawing');
         })
     },
 

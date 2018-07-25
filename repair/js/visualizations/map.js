@@ -666,6 +666,36 @@ define([
         }
         
         /**
+        * enable/disable selection of features, requires initialization of layer 
+        * with select options (see addLayer)
+        *
+        * @param {string} layername          layer to enable selection of features in
+        * @param {Boolean} [enable=true]     set to false to disable selection
+        *
+        */
+        enableSelect(layername, enable){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enable === false) this.map.removeInteraction(layer.select);
+            else this.map.addInteraction(layer.select);
+        }
+        
+        /**
+        * remove the selected features from layer
+        *
+        * @param {string} layername  layer to remove features from
+        */
+        removeSelectedFeatures(layername){
+            var layer = this.layers[layername],
+                source = layer.getSource();
+            if (!layer.select) return;
+            layer.select.getFeatures().forEach(function(feat){
+                source.removeFeature(feat);
+            })
+            layer.select.getFeatures().clear();
+        }
+        
+        /**
         * get the feature inside layer with given name
         *
         * @param {string} layername  layer to retrieve features from
@@ -674,7 +704,6 @@ define([
         getFeatures(layername){
             var layer = this.layers[layername],
                 source = layer.getSource();
-            
             return source.getFeatures();
         }
 
