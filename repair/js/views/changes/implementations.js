@@ -452,17 +452,16 @@ var ImplementationsView = BaseView.extend(
             // drawn features
             var features = _this.editorMap.getFeatures('drawing');
             if (features.length > 0){
-                var multiPolygon = new ol.geom.MultiPolygon();
+                var geometries = [];
                 features.forEach(function(feature) {
-                    var coordinates = feature.getGeometry().getCoordinates();
-                    // flatten if necessary
-                    if (coordinates[0] instanceof Array && coordinates[0].length == 1)
-                        coordinates = coordinates[0];
-                    var polygon = new ol.geom.Polygon(coordinates);
-                    multiPolygon.appendPolygon(polygon);
-                 });
-                var geoJSON = new ol.format.GeoJSON(),
-                    geoJSONText = geoJSON.writeGeometry(multiPolygon);
+                    var geom = feature.getGeometry();
+                    geometries.push(geom)
+                });
+                var geoCollection = new ol.geom.GeometryCollection(geometries),
+                    geoJSON = new ol.format.GeoJSON(),
+                    geoJSONText = geoJSON.writeGeometry(geoCollection);
+                console.log(geoJSON)
+                console.log(geoJSONText)
                 solutionImpl.set('geom', geoJSONText);
             }
             var notes = modal.querySelector('textarea[name="description"]').value;
@@ -517,10 +516,12 @@ var ImplementationsView = BaseView.extend(
         var geom = solutionImpl.get('geom');
         if (geom != null){
             previewMap.addLayer('geometry', { stroke: 'rgb(230, 230, 0)', fill: 'rgba(230, 230, 0, 0.2)'})
-            previewMap.addPolygon(geom.coordinates, { 
-                projection: 'EPSG:3857', layername: 'geometry', 
-                type: 'MultiPolygon'
-            });
+            geom.geometries.forEach(function(g){
+                previewMap.addGeometry(g.coordinates, { 
+                    projection: 'EPSG:3857', layername: 'geometry', 
+                    type: g.type
+                });
+            })
             previewMap.centerOnLayer('geometry');
         }
         else if (this.focusPoly){
@@ -548,17 +549,19 @@ var ImplementationsView = BaseView.extend(
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
         
-        var geom = solutionImpl.get('geom'),
-            drawingLayer = this.editorMap.addLayer('drawing', { 
-                select: { selectable: true, onChange: console.log }
-            });
+        var geom = solutionImpl.get('geom');
+        this.editorMap.addLayer('drawing', { 
+            select: { selectable: true, onChange: console.log }
+        });
         
         if (geom){
-            var poly = this.editorMap.addPolygon(geom.coordinates, { 
-                projection: 'EPSG:3857', layername: 'drawing', 
-                type: 'MultiPolygon'
-            });
-            this.editorMap.centerOnLayer('drawing');
+            geom.geometries.forEach(function(g){
+                _this.editorMap.addGeometry(g.coordinates, { 
+                    projection: 'EPSG:3857', layername: 'drawing', 
+                    type: g.type
+                });
+            })
+            _this.editorMap.centerOnLayer('drawing');
         }
         var drawingTools = this.el.querySelector('.drawing-tools'),
             toolSelect = drawingTools.querySelector('.tool-select'),
