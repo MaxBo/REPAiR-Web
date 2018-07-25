@@ -4,7 +4,7 @@ from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelPermissionTest, LoginTestCase
-
+from repair.apps.asmfa.models import Material
 from repair.apps.asmfa.factories import (Actor2ActorFactory,
                                          ActorFactory,
                                          CompositionFactory,
@@ -15,8 +15,9 @@ from repair.apps.statusquo.factories import (FlowIndicatorFactory,
                                              )
 from repair.apps.studyarea.factories import (AreaFactory,
                                              )
+from repair.apps.statusquo.views import ComputeIndicator
 
-class FlowIndicatorTest():  #BasicModelPermissionTest, APITestCase):
+class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     area_id1 = 1
@@ -120,3 +121,7 @@ class FlowIndicatorTest():  #BasicModelPermissionTest, APITestCase):
 
     def test_put_permission(self):
         pass
+
+    def test_ComputeIndicator(self):
+        ci = ComputeIndicator()
+        ci.sum(self.flow_a)
