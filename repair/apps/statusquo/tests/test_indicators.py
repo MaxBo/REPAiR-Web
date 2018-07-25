@@ -15,6 +15,7 @@ from repair.apps.statusquo.factories import (FlowIndicatorFactory,
                                              )
 from repair.apps.studyarea.factories import (AreaFactory,
                                              )
+from repair.apps.statusquo.views import ComputeIndicator
 
 class FlowIndicatorTest():  #BasicModelPermissionTest, APITestCase):
 
@@ -120,3 +121,7 @@ class FlowIndicatorTest():  #BasicModelPermissionTest, APITestCase):
 
     def test_put_permission(self):
         pass
+
+    def test_ComputeIndicator(self):
+        ci = ComputeIndicator()
+        ci.sum(self.indicatorflow_ida)
