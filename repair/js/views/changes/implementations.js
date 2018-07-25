@@ -547,7 +547,8 @@ var ImplementationsView = BaseView.extend(
         
         var geom = solutionImpl.get('geom');
         this.editorMap.addLayer('drawing', { 
-            select: { selectable: true }
+            select: { selectable: true }, 
+            strokeWidth: 3
         });
         
         if (geom){
@@ -565,11 +566,12 @@ var ImplementationsView = BaseView.extend(
             tools = drawingTools.querySelectorAll('.tool');
 
         function toolChanged(){
-            if (!this.checked) return;
-            var type = this.dataset.tool,
-                selectable = false;
-            if (type === 'Select'){
-                _this.editorMap.toggleDrawing();
+            var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
+                type = checkedTool.dataset.tool,
+                selectable = false,
+                useDragBox = false;
+            if (type === 'Select' || type === 'DragBox'){
+                _this.editorMap.toggleDrawing('drawing');
                 selectable = true;
                 removeBtn.disabled = false;
             }
@@ -578,9 +580,12 @@ var ImplementationsView = BaseView.extend(
                     type: type,
                     freehand: freehand.checked
                 });
+                _this.editorMap.enableDragBox('drawing');
                 removeBtn.disabled = true;
             }
+            if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
+            _this.editorMap.enableDragBox('drawing', useDragBox);
         }
 
         for (var i = 0; i < tools.length; i++){
@@ -589,6 +594,7 @@ var ImplementationsView = BaseView.extend(
             //tool.addEventListener('change', toolChanged);
             $(tool).on('change', toolChanged)
         }
+        freehand.addEventListener('change', toolChanged);
 
         removeBtn.addEventListener('click', function(){
             _this.editorMap.removeSelectedFeatures('drawing');
