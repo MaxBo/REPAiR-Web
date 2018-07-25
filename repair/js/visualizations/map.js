@@ -312,15 +312,23 @@ define([
         *
         */
         addPolygon(coordinates, options){
-            var options = options || {};
-            var proj = options.projection || this.mapProjection;
-            var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
-            var ret = poly.clone();
+            return this.addGeometry(coordinates, options);
+        }
+        
+        addGeometry(coordinates, options){
+            var options = options || {},
+                type = options.type || 'Polygon',
+                proj = options.projection || this.mapProjection;
+            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : 
+                           (type === 'Point') ? new ol.geom.Point(coordinates) :
+                           (type === 'LineString') ? new ol.geom.LineString(coordinates) :
+                           new ol.geom.Polygon(coordinates);
+            var ret = geometry.clone();
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
 
             if (!layer) layer = this.addLayer(layername);
-            var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+            var feature = new ol.Feature({ geometry: geometry.transform(proj, this.mapProjection) });
             feature.set('label', options.label);
             feature.set('tooltip', options.tooltip);
             feature.set('id', options.id);
