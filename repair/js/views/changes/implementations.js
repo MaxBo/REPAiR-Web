@@ -575,7 +575,7 @@ var ImplementationsView = BaseView.extend(
                 useDragBox = false,
                 removeActive = false;
             if (type === 'Move'){
-                removeBtn.disabled = true;
+                _this.editorMap.toggleDrawing('drawing');
             }
             else if (type === 'Select'){ // || type === 'DragBox'){
                 _this.editorMap.toggleDrawing('drawing');
