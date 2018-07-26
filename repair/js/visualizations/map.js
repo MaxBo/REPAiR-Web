@@ -684,11 +684,21 @@ define([
             layer.drawingInteraction = null;
             if (type === 'None') return;
             
+            // doesn't work with freehand, so not set atm
+            function oneFingerCondition(olBrowserEvent) {
+                var touchEvent = olBrowserEvent.originalEvent.touches;
+                console.log(touchEvent)
+                if (touchEvent)
+                    return touchEvent.length === 1;
+                return true;
+            }
+            
             var source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
                     type: type,
-                    freehand: options.freehand
+                    freehand: freehand,
+                    //condition: oneFingerCondition
                 });
             layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
@@ -705,7 +715,7 @@ define([
         enableDragBox(layername, enabled){
             var layer = this.layers[layername];
             if (!layer.select) return;
-            if (enabled === null || enabled === true){
+            if (enabled == null || enabled === true){
                 // it's already there
                 if (layer.dragBox) return;
                 layer.dragBox = new ol.interaction.DragBox();

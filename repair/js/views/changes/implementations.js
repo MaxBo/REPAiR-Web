@@ -531,6 +531,9 @@ var ImplementationsView = BaseView.extend(
     renderEditorMap: function(divid, solutionImpl, activities){
         var _this = this,
             el = document.getElementById(divid);
+        // calculate (min) height
+        var minHeight = document.body.clientHeight * 0.4;
+        el.style.minHeight = minHeight;
         // remove old map
         if (this.editorMap){
             this.editorMap.map.setTarget(null);
@@ -569,11 +572,16 @@ var ImplementationsView = BaseView.extend(
             var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
                 type = checkedTool.dataset.tool,
                 selectable = false,
-                useDragBox = false;
-            if (type === 'Select' || type === 'DragBox'){
+                useDragBox = false,
+                removeActive = false;
+            if (type === 'Move'){
+                removeBtn.disabled = true;
+            }
+            else if (type === 'Select'){ // || type === 'DragBox'){
                 _this.editorMap.toggleDrawing('drawing');
                 selectable = true;
-                removeBtn.disabled = false;
+                useDragBox = true;
+                removeActive = true;
             }
             else { 
                 _this.editorMap.toggleDrawing('drawing', {
@@ -581,12 +589,15 @@ var ImplementationsView = BaseView.extend(
                     freehand: freehand.checked
                 });
                 _this.editorMap.enableDragBox('drawing');
-                removeBtn.disabled = true;
             }
-            if (type === 'DragBox') useDragBox = true;
+            // seperate dragbox tool disabled, doesn't work with touch
+            //if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
             _this.editorMap.enableDragBox('drawing', useDragBox);
+            removeBtn.style.display = (removeActive) ? 'block' : 'none';
         }
+        // "Move" tool is selected initially, deactivate selection
+        _this.editorMap.enableSelect('drawing', false);
 
         for (var i = 0; i < tools.length; i++){
             var tool = tools[i];
