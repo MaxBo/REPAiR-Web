@@ -705,7 +705,7 @@ define([
         enableDragBox(layername, enabled){
             var layer = this.layers[layername];
             if (!layer.select) return;
-            if (enabled === null || enabled === true){
+            if (enabled == null || enabled === true){
                 // it's already there
                 if (layer.dragBox) return;
                 layer.dragBox = new ol.interaction.DragBox();

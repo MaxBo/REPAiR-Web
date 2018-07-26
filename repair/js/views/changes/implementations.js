@@ -570,9 +570,10 @@ var ImplementationsView = BaseView.extend(
                 type = checkedTool.dataset.tool,
                 selectable = false,
                 useDragBox = false;
-            if (type === 'Select' || type === 'DragBox'){
+            if (type === 'Select'){ // || type === 'DragBox'){
                 _this.editorMap.toggleDrawing('drawing');
                 selectable = true;
+                useDragBox = true;
                 removeBtn.disabled = false;
             }
             else { 
@@ -583,10 +584,13 @@ var ImplementationsView = BaseView.extend(
                 _this.editorMap.enableDragBox('drawing');
                 removeBtn.disabled = true;
             }
-            if (type === 'DragBox') useDragBox = true;
+            // seperate dragbox tool disabled, doesn't work with touch
+            //if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
             _this.editorMap.enableDragBox('drawing', useDragBox);
         }
+        // "Select" tool is selected initially, activate dragbox for this tool
+        _this.editorMap.enableDragBox('drawing');
 
         for (var i = 0; i < tools.length; i++){
             var tool = tools[i];
