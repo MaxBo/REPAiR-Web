@@ -37,6 +37,26 @@
 .ol-rotate {
   right: 3em !important;
 }
+.drawing-tools {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.drawing-tools > * {
+  pointer-events: auto;
+}
 .drawing-tools label>span{
   font-size: 18px;
+}
+.drawing-tools .btn.focus, .drawing-tools .btn:focus{
+  outline: 0;
+}
+.drawing-tools > .btn-group{
+  background-color: #f9f9f9; 
+  border-radius: 5px 5px;
 }
