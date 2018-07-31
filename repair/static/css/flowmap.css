@@ -1,28 +1,38 @@
+.map{
+    width: 1960px;
+    height: 500px;
+}
 .country:hover{
     stroke: #7d7d7d;
     stroke-width: 0.5px;
 }
-
-#container {
-    width:100%;
-    height:100%;
-    overflow:hidden;
+div.tooltip {
+    position: absolute;
+    text-align: left;
+    width: auto;
+    height: auto;
+    padding: 4px;
+    font: 14px sans-serif;
+    color: #111111;
     background: #fff;
+    border: 0px;
+    border-radius: 0px;
+    pointer-events: none;
 }
 
-.gpoint:hover{
-    fill:#c95f64;
-    stroke:#c95f64;
+.mpoint:hover{
+    stroke:white;
     stroke-width: 2px;
-}
-
-.gpoint{
-    fill: #c95f64;
 }
 
 .route{
     fill: none;	
 }
+
 .route:hover{
     stroke-width: 4px;
+}
+
+.arc path {
+    stroke: #0fff;
 }

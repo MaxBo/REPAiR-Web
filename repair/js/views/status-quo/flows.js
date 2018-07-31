@@ -1,8 +1,8 @@
-define(['views/baseview', 'underscore', 'visualizations/flowmap',
+define(['views/baseview', 'underscore', 'views/flowsankeymap',
         'collections/gdsecollection', 'views/flowsankey', 
         'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
 
-function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
+function(BaseView, _, FlowMapView, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
 *
 * @author Christoph Franke
@@ -148,6 +148,7 @@ var FlowsView = BaseView.extend(
         this.addEventListeners();
         // render with preset selects (group level, all materials etc.)
         this.renderSankey();
+        this.renderSankeyMap();
     },
 
     resetNodeSelects: function(){
@@ -409,20 +410,8 @@ var FlowsView = BaseView.extend(
     },
 
     renderSankeyMap: function(){
-        var flowMap = new FlowMap("flow-map");
-        var collection = this.actors;
-        flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+        var flowMapView = new FlowMapView({el: this.el.querySelector('#flow-map')});
         
-        //function transformNodes(nodes){
-            //var transformed = [];
-            //nodes.forEach(function(node)){
-                //var t = {
-                    //city: node.id,
-                    
-                //};
-                //transformed.append()
-            //}
-        //}
     },
     
     getSelectedNodes: function(nodeSelect){

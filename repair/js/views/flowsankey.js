@@ -14,7 +14,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         {
 
         /**
-        * render view to edit flows of a single keyflow
+        * render flows in sankey diagram
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                   element the view will be rendered in
