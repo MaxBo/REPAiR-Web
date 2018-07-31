@@ -505,11 +505,13 @@ var EditActorView = BaseView.extend(
                 var polyCoords = area.get('geometry').coordinates;
                 var poly = _this.localMap.addPolygon(
                     polyCoords, 
-                    { projection: _this.projection, 
+                    { 
+                        projection: _this.projection, 
                         layername: _this.activeType, 
                         tooltip: area.get('properties').name,
                         type: area.get('geometry').type 
-                });
+                    }
+                );
                 _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
             }});
         }
@@ -659,6 +661,7 @@ var EditActorView = BaseView.extend(
         if (coordinates != null){
             addMarker(coordinates);
             setPointButtons('remove');
+            _this.localMap.centerOnPoint(coordinates, {projection: _this.projection});
         }
         else 
             setPointButtons('add');
