@@ -1,3 +1,9 @@
+/**
+ * map related stylesheet (sankey map, openlayers)
+ *
+ * @author Christoph Franke
+ */
+
 .sankeymap * path {
   fill: none;
   stroke: #4682B4;

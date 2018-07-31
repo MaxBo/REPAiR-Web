@@ -1,3 +1,8 @@
+/**
+* utility functions for frontend scripts
+* @author Christoph Franke
+*/
+
 module.exports = {
     clearSelect: function(select, stop){
         var stop = stop || 0;
