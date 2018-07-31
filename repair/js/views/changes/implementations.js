@@ -532,8 +532,8 @@ var ImplementationsView = BaseView.extend(
         var _this = this,
             el = document.getElementById(divid);
         // calculate (min) height
-        var minHeight = document.body.clientHeight * 0.6;
-        el.style.minHeight = minHeight - 50 + 'px';
+        var height = document.body.clientHeight * 0.6;
+        el.style.height = height + 'px';
         // remove old map
         if (this.editorMap){
             this.editorMap.map.setTarget(null);
