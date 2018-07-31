@@ -1,5 +1,5 @@
 define(['views/baseview', 'visualizations/flowmap', 'leaflet',
-        'leaflet/dist/leaflet.css', ],
+        'leaflet/dist/leaflet.css', 'static/css/flowmap.css'],
 
 function(BaseView, FlowMap, L){
 
@@ -25,6 +25,9 @@ function(BaseView, FlowMap, L){
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
             this.render();
+            
+            this.locations = {};
+            this.flows = {};
         },
 
         /*
@@ -55,6 +58,18 @@ function(BaseView, FlowMap, L){
             //reset();
             var collection = this.actors;
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+        },
+        
+        /**
+         *
+         * @param {Object} flow
+         * @param {Object} flow.source   source node with id, name and color
+         * @param {Object} flow.target   target node with id, name and color
+         * @param {String} flow.units
+         * @param {Number} flow.value
+         */
+        addFlow: function(flow){
+            this.flows[flowId] = flow;
         },
 
         /*

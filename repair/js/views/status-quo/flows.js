@@ -27,7 +27,6 @@ var FlowsView = BaseView.extend(
     initialize: function(options){
         var _this = this;
         FlowsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'refreshSankeyMap');
         _.bindAll(this, 'prepareAreas');
 
         this.template = options.template;
@@ -308,10 +307,6 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    refreshSankeyMap: function(){
-        if (this.sankeyMap) this.sankeyMap.refresh();
-    },
-
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
@@ -404,6 +399,7 @@ var FlowsView = BaseView.extend(
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600,
+            onClick: console.log
             //originLevel: displayLevel,
             //destinationLevel: displayLevel
         })

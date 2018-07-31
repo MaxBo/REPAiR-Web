@@ -35,6 +35,7 @@ class Sankey{
             .nodeWidth(15)
             .nodePadding(10)
             .size([this.width, this.height]);
+        this.onClick = options.onClick;
     }
     
     format(d) {
@@ -229,7 +230,8 @@ class Sankey{
                     .style("pointer-events", 'none')
                 })
             .on('mouseover', function(d) { tipLinks.show(d, this); })
-            .on('mouseout', function(d) { tipLinks.hide(d, this); });
+            .on('mouseout', function(d) { tipLinks.hide(d, this); })
+            .on('click', this.onClick);
 
         link.filter( function(d) { return !d.causesCycle} )
             .style("stroke-width", function(d) { return Math.max(1, d.dy); });

@@ -38,6 +38,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         initialize: function(options){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
+            _.bindAll(this, 'clickHandler');
             var _this = this;
             this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
@@ -124,6 +125,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     _this.render(data);
                 })
             });
+            this.onClick = options.onClick;
         },
 
         /*
@@ -134,13 +136,21 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             'change #data-view-type-select': 'renderSankey'
         },
         
+        clickHandler: function(d){
+            var flow = this.flows.get(d.id),
+                origin = this.origins.get(d.source.id),
+                destination = this.destinations.get(d.target.id);
+            console.log(d)
+            origin.color = d.source.color;
+            destination.color = d.target.color;
+            this.onClick(flow, origin, destination);
+        },
+        
         complementData: function(success){
             var originIds = this.origins.pluck('id'),
                 destinationIds = this.destinations.pluck('id'),
                 missingOriginIds = new Set(),
                 missingDestinationIds = new Set(),
-                origins = this.origins,
-                destinations = this.destinations,
                 _this = this;
             this.flows.forEach(function(flow){
                 var origin = flow.get('origin'),
@@ -166,7 +176,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 promises.push(missingOrigins.postfetch({ 
                     body: { 'id': Array.from(missingOriginIds).join() },
                     success: function(){
-                        origins = origins.models.concat(missingOrigins.models);
+                        _this.origins.add(missingOrigins.toJSON(), {silent: true});
                     }
                 }))
             }
@@ -177,14 +187,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 promises.push(missingDestinations.postfetch({ 
                     body: { 'id': Array.from(missingDestinationIds).join() },
                     success: function(){
-                        destinations = destinations.models.concat(missingDestinations.models);
+                        _this.destinations.add(missingDestinations.toJSON(), {silent: true});
                     }
                 }))
             }
             
             Promise.all(promises).then(function(){
                 var data = _this.transformData(
-                    origins, destinations, _this.flows, _this.stocks, _this.materials);
+                    _this.origins, _this.destinations, _this.flows, _this.stocks, _this.materials);
                 success(data);
             })
         },
@@ -208,7 +218,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 width: width,
                 el: div,
                 title: '',
-                language: config.session.get('language')
+                language: config.session.get('language'),
+                onClick: this.clickHandler
             })
             if (data.nodes.length == 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
@@ -317,10 +328,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 if (source == null || target == null) return false;
                 var composition = flow.get('composition');
                 links.push({
+                    id: flow.id,
                     value: flow.get('amount'),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
+                    isStock: false,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + compositionRepr(composition)
                 });
             })
@@ -337,6 +350,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                             alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');
                 links.push({
+                    id: stock.id,
+                    isStock: true,
                     value: stock.get('amount'),
                     units: gettext('t/year'),
                     source: source,
