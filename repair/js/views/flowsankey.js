@@ -140,7 +140,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             var flow = this.flows.get(d.id),
                 origin = this.origins.get(d.source.id),
                 destination = this.destinations.get(d.target.id);
-            console.log(d)
             origin.color = d.source.color;
             destination.color = d.target.color;
             this.onClick(flow, origin, destination);

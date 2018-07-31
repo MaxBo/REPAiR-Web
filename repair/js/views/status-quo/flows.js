@@ -28,6 +28,7 @@ var FlowsView = BaseView.extend(
         var _this = this;
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'prepareAreas');
+        _.bindAll(this, 'clickSankeyCallback');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -399,14 +400,25 @@ var FlowsView = BaseView.extend(
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
             height: 600,
-            onClick: console.log
+            onClick: this.clickSankeyCallback
             //originLevel: displayLevel,
             //destinationLevel: displayLevel
         })
     },
+    
+    clickSankeyCallback: function(flow, origin, destination){
+        // only actors atm
+        if (flow.get('origin_level') !== 'actor') return;
+        this.flowMapView.addNodes([origin, destination]);
+        this.flowMapView.addFlows(flow);
+    },
 
     renderSankeyMap: function(){
-        var flowMapView = new FlowMapView({el: this.el.querySelector('#flow-map')});
+        this.flowMapView = new FlowMapView({
+            el: this.el.querySelector('#flow-map'),
+            caseStudyId: this.caseStudy.id,
+            keyflowId: this.keyflowId,
+        });
         
     },
     

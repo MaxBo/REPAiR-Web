@@ -1,7 +1,9 @@
-define(['views/baseview', 'visualizations/flowmap', 'leaflet',
+define(['views/baseview', 'collections/gdsecollection', 
+        'collections/geolocations',
+        'visualizations/flowmap', 'leaflet',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css'],
 
-function(BaseView, FlowMap, L){
+function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
     /**
     *
@@ -25,9 +27,12 @@ function(BaseView, FlowMap, L){
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
             this.render();
+            this.caseStudyId = options.caseStudyId;
+            this.keyflowId = options.keyflowId;
             
             this.locations = {};
             this.flows = {};
+            this.nodes = {};
         },
 
         /*
@@ -56,20 +61,50 @@ function(BaseView, FlowMap, L){
             }
             //map.on("zoomend", reset);
             //reset();
-            var collection = this.actors;
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
         },
         
-        /**
-         *
-         * @param {Object} flow
-         * @param {Object} flow.source   source node with id, name and color
-         * @param {Object} flow.target   target node with id, name and color
-         * @param {String} flow.units
-         * @param {Number} flow.value
-         */
-        addFlow: function(flow){
-            this.flows[flowId] = flow;
+        addFlows: function(flows){
+            var _this = this;
+                flows = (flows instanceof Array) ? flows: [flows];
+            flows.forEach(function(flow){
+                _this.flows[flow.id] = flow;
+            })
+            
+            //console.log(flow)
+        },
+        addNodes: function(nodes){
+            var _this = this,
+                nodes = (nodes instanceof Array) ? nodes: [nodes];
+            nodes.forEach(function(node){
+                _this.nodes[node.id] = node;
+            })
+            this.prefetchLocations(function(){})
+            //console.log(node)
+        },
+        
+        prefetchLocations: function(callback){
+            var promises = [],
+                _this = this;
+            console.log(this.locations)
+            for (var nodeId in this.nodes) {
+                if (nodeId in _this.locations) continue;
+                var adminLocations = new GeoLocations([], {
+                    apiTag: 'adminLocations',
+                    apiIds: [this.caseStudyId, this.keyflowId]
+                });
+                promises.push(adminLocations.fetch({
+                    data: { actor: nodeId },
+                    success: function(coll){
+                        var adminLoc = coll.first(),
+                            id = adminLoc.get('properties').actor;
+                        console.log(adminLoc)
+                        console.log(id)
+                        _this.locations[id] = adminLoc;
+                    }
+                }));
+            }
+            Promise.all(promises).then(callback);
         },
 
         /*
