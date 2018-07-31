@@ -169,22 +169,30 @@
       <div class="row bordered">
         <div class="row">
           <div class="col-md-4">
-            <label>{% trans "Indicator" %}</label>
-            <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
-              <option disabled selected value="-1"> {% trans "Select" %} </option>
-              <% indicators.forEach(function(indicator) { %>
-                <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
-              <% });  %>
-            </select>
+            <div class="row">
+              <label>{% trans "Indicator" %}</label>
+            </div>
+            <div class="row">
+              <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+                <option disabled selected value="-1"> {% trans "Select" %} </option>
+                <% indicators.forEach(function(indicator) { %>
+                  <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
+                <% });  %>
+              </select>
+            </div>
           </div>
           <div class="col-md-4">
-            <label>{% trans "Spatial level" %}</label>
-            <select name="spatial-level-select" class="form-control" style="max-width: 350px;">
-              <option disabled selected value="-1"> {% trans "Select" %} </option>
-              <% levels.forEach(function(level) { %>
-                  <option value="<%= level.id %>"> <%= level.get('name') %></option>
-              <% }) %>
-            </select>
+            <div class="row">
+              <label>{% trans "Spatial level" %}</label>
+            </div>
+            <div class="row">
+              <select name="spatial-level-select" class="form-control" style="max-width: 500px;">
+                <option disabled selected value="-1"> {% trans "Select" %} </option>
+                <% levels.forEach(function(level) { %>
+                    <option value="<%= level.id %>"> <%= level.get('name') %></option>
+                <% }) %>
+              </select>
+            </div>
           </div>
         </div>
         <div class="col-md-8" style="margin-top: 10px;">
@@ -203,6 +211,10 @@
         <button class="btn btn-primary round" id='add-area-select-item-btn' style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px; margin-top: 50px;">
           <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
         </button>
+      </div>
+      <div class="row overflow bordered" style="overflow-y: hidden;">
+        <div class="col-md-8" id='bar-charts-row' style="float: left;">
+        </div>
       </div>
       <% indicators.forEach(function(indicator) { %>
       <div class="row bordered overflow" data-indicator=<%= indicator.id %>>
@@ -224,6 +236,12 @@
   </button>
   <b style="font-size: <%= fontSize %>"><%= title %></b><br>
   <button class="btn btn-warning select-area" data-id="<%= id %>"><b style="pointer-events: none;">{% trans "Select Areas" %}</b></button>
+</div>
+</script>
+
+<script type="text/template" id="bar-chart-template">
+<div class="item-content bordered noselect" id="<%= id %>" style="margin-bottom: 10px;">
+  <b style="font-size: <%= fontSize %>"><%= title %></b><br>
 </div>
 </script>
 

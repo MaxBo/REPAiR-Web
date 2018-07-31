@@ -86,6 +86,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
+        this.barChartRow = this.el.querySelector('#bar-charts-row');
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
@@ -250,6 +251,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
             _this.renderAreaBox(_this.areaSelectRow, id, id);
+            _this.renderBarChart(_this.barChartRow, id, id);
             
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
@@ -282,11 +284,28 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         return div;
     },
     
+
+    // render item for bar chart
+    renderBarChart: function(el, id, title, fontSize){
+        var html = document.getElementById('bar-chart-template').innerHTML,
+            template = _.template(html),
+            div = document.createElement('div');
+        div.innerHTML = template({
+            title: title, 
+            fontSize: fontSize || '60px',
+            id: id
+        });
+        //_this.selectedAreas contains the selected area's for this bar chart
+        el.appendChild(div);
+    },
+    
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt;
         this.renderAreaBox(
             this.areaSelectRow, id, id);
+        this.renderBarChart(
+            this.barChartRow, id, id);
         this.areaSelects[id] = {
             areas: [],
             level: this.areaLevels.first().id
@@ -313,7 +332,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
         this.areaSelectGrid.remove(div, { removeElements: true });
+        removeBarChartItem(evt);
         this.saveSession();
+    },
+    
+    // remove a bar chart
+    removeBarChartItem: function(evt){
+        var id = evt.target.dataset['id'],
+            div = this.barChartRow.querySelector('[id="' + id + '"]');
+        this.barChartRow.remove(div, { removeElements: true });
     },
     
     // initialize the chlorpleth map
