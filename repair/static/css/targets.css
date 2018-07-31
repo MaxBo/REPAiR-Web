@@ -1,0 +1,24 @@
+.button-panel{
+    min-width: 30px;
+    vertical-align: top;
+}
+
+.fake-cell{
+    /*height: 65px;*/
+    /*vertical-align: middle;*/
+    /*text-align: center;*/
+    /*margin: auto;*/
+    /*padding-top: 60%;*/
+    margin-bottom: 15px;
+    border-bottom: 1px solid lightgrey;
+    list-style-type: none;
+    height: 50px;    
+    margin-right: -40px;
+    padding-right: 40px;
+    /*line-height: 50px;*/
+}
+
+.btn.remove-target{
+    float: none;
+    display: inline-block;
+}

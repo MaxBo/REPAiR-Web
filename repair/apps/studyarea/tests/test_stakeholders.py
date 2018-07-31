@@ -3,8 +3,7 @@ from django.core.validators import ValidationError
 from django.urls import reverse
 
 from test_plus import APITestCase
-from rest_framework import status
-from repair.tests.test import BasicModelPermissionTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              StakeholderCategoryFactory,
@@ -12,9 +11,8 @@ from repair.apps.studyarea.factories import (CaseStudyFactory,
                                              )
 
 
-
 class UniqueStakeholderNames(TestCase):
-
+    """Test that the names are unique within a casestudy"""
 
     def test03_unique_stakeholdercategory(self):
         """Test the unique stakeholder name"""
@@ -39,12 +37,14 @@ class UniqueStakeholderNames(TestCase):
                                                      stakeholdercat2})
 
 
-class StakeholdercategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
+class StakeholdercategoryInCasestudyTest(BasicModelPermissionTest,
+                                         APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
     userincasestudy = 67
     user = 99
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -73,6 +73,7 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
     stakeholder = 21
     userincasestudy = 67
     user = 99
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -96,5 +97,3 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
             stakeholder_category__id=self.stakeholdercategory,
             stakeholder_category__casestudy=self.uic.casestudy,
             )
-
-

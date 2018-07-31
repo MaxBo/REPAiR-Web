@@ -1,3 +1,9 @@
+/**
+ * stylesheet for the data entry subpages
+ *
+ * @author Christoph Franke
+ */
+
 #balance-verify-data-btn, 
 #balance-data-btn, 
 #verify-data-btn, 
@@ -89,6 +95,6 @@ td button {
     margin-right: 3px;
 }
 
-table{
-    /*font-size: 0.9em;*/
+#flow-nodes-modal tr, #actors-table tr, #actor-select-modal td {
+    cursor: pointer;
 }

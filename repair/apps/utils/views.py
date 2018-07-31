@@ -1,9 +1,214 @@
 from rest_framework import viewsets, exceptions, mixins
 from django.views import View
+from django.http import (HttpResponseBadRequest,
+                         HttpResponseForbidden,
+                         )
+from django.db.models import ProtectedError
+from django.utils.translation import ugettext as _
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
-from django.http import (HttpResponseRedirect, JsonResponse,
-                         HttpResponseBadRequest)
+from repair.apps.utils.context_environment import set_env
+from abc import ABC
+
+from django.shortcuts import get_object_or_404
+from django.db.models.sql.constants import QUERY_TERMS
+
+from rest_framework.response import Response
+from rest_framework.utils.serializer_helpers import ReturnDict
+from repair.apps.login.models import CaseStudy
+
+
+class PostGetViewMixin:
+    """
+    mixin for querying resources with POST method to be able to put parameters
+    into the body,
+    the query parameter 'GET=true' when posting signals derived views to call
+    post_get function to look into the body for parameters and to behave like
+    when receiving a GET request (no creation of objects then)
+    WARNING: contradicts the RESTful API, so use only when query parameters
+    are getting too big (browsers have technical restrictions for the
+    length of an url)
+    """
+    def create(self, request, **kwargs):
+        if self.isGET:
+            return self.post_get(request, **kwargs)
+        return super().create(request, **kwargs)
+    
+    @property
+    def isGET(self):
+        if self.request.method == 'GET':
+            return True
+        post_get = self.request.query_params.get('GET', False)
+        if (post_get and post_get in ['True', 'true']):
+            return True
+        return False
+    
+    def post_get(self, request, **kwargs):
+        """
+        override this, should return serialized data of requested resources
+        """
+        return super().list(request, **kwargs)
+
+
+class CasestudyReadOnlyViewSetMixin(ABC):
+    """
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
+    """
+    casestudy_only = True
+    additional_filters = {}
+    serializer_class = None
+    serializers = {}
+    pagination_class = None
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action,
+                                    self.serializer_class)
+
+    def check_casestudy(self, kwargs, request):
+        """check if user has permission to access the casestudy and
+        set the casestudy as a session attribute if its in the kwargs"""
+        # anonymous if not logged in
+        user_id = -1 if request.user.id is None else request.user.id
+        # pk if route is /api/casestudies/ else casestudy_pk
+        casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
+        try:
+            casestudy = CaseStudy.objects.get(id=casestudy_id)
+            if not casestudy.userincasestudy_set.all().filter(user__id=user_id):
+                raise exceptions.PermissionDenied()
+        except CaseStudy.DoesNotExist:
+            # maybe casestudy is about to be posted-> go on
+            pass
+        # check if user is in casestudy, raise exception, if not
+        request.session['url_pks'] = kwargs
+
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        SerializerClass = self.get_serializer_class()
+        if self.casestudy_only:
+            self.check_casestudy(kwargs, request)
+        
+        # special format requested -> let the plugin handle that
+        if ('format' in request.query_params):
+            return super().list(request, **kwargs)
+        
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=SerializerClass)
+        if queryset is None:
+            return Response(status=400)
+        if self.pagination_class:
+            paginator = self.pagination_class()
+            queryset = paginator.paginate_queryset(queryset, request)
+            
+        serializer = SerializerClass(queryset, many=True,
+                                     context={'request': request, })
+            
+        data = self.filter_fields(serializer, request)
+        if self.pagination_class:
+            return paginator.get_paginated_response(data)
+        return Response(data)
+
+    def retrieve(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        SerializerClass = self.get_serializer_class()
+        if self.casestudy_only:
+            self.check_casestudy(kwargs, request)
+        pk = kwargs.pop('pk')
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=SerializerClass)
+        model = get_object_or_404(queryset, pk=pk)
+        serializer = SerializerClass(model, context={'request': request})
+        data = self.filter_fields(serializer, request)
+        return Response(data)
+
+    @staticmethod
+    def filter_fields(serializer, request):
+        """
+        limit amount of fields of response by optional query parameter 'field'
+        """
+        data = serializer.data
+        fields = request.query_params.getlist('field')
+        if fields:
+            if isinstance(data, ReturnDict):
+                data = {k: v for k, v in data.items() if k in fields}
+            else:
+                data = [{k: v for k, v in row.items() if k in fields}
+                        for row in data]
+        return data
+
+    def _filter(self, lookup_args, query_params=None, SerializerClass=None):
+        """
+        return a queryset filtered by lookup arguments and query parameters
+        return None if query parameters are malformed
+        """
+        SerializerClass = SerializerClass or self.get_serializer_class()
+        # filter the lookup arguments
+        filter_args = {v: lookup_args[k] for k, v
+                       in SerializerClass.parent_lookup_kwargs.items()}
+
+        queryset = self.get_queryset()
+        # filter additional expressions
+        filter_args.update(self.get_filter_args(queryset=queryset,
+                                                query_params=query_params)
+                           )
+        queryset = queryset.filter(**filter_args)
+
+        return queryset
+
+    def get_filter_args(self, queryset, query_params=None):
+        """
+        get filter arguments defined by the query_params
+        and by additional filters
+        """
+        # filter any query parameters matching fields of the model
+        filter_args = {k: v for k, v in self.additional_filters.items()}
+        if not query_params:
+            return filter_args
+        for k, v in query_params.items():
+            key_cmp = k.split('__')
+            key = key_cmp[0]
+            if hasattr(queryset.model, key):
+                if len(key_cmp) > 1:
+                    cmp = key_cmp[-1]
+                    if cmp == 'in':
+                        v = v.strip('[]').split(',')
+                filter_args[k] = v
+        return filter_args
+
+
+class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
+    """
+    This Mixin provides general list and create methods filtering by
+    lookup arguments and query-parameters matching fields of the requested objects
+
+    class-variables
+    --------------
+       casestudy_only - if True, get only items of the current casestudy
+       additional_filters - dict, keyword arguments for additional filters
+    """
+    def create(self, request, **kwargs):
+        """set the """
+        if self.casestudy_only:
+            self.check_casestudy(kwargs, request)
+        return super().create(request, **kwargs)
+
+    def perform_create(self, serializer):
+        url_pks = serializer.context['request'].session['url_pks']
+        new_kwargs = {}
+        for k, v in url_pks.items():
+            if k not in self.serializer_class.parent_lookup_kwargs:
+                continue
+            key = self.serializer_class.parent_lookup_kwargs[k].replace('__id', '_id')
+            if '__' in key:
+                continue
+            new_kwargs[key] = v
+        serializer.save(**new_kwargs)
+
 
 
 class CheckPermissionMixin:
@@ -17,7 +222,8 @@ class CheckPermissionMixin:
         app_label = self.serializer_class.Meta.model._meta.app_label
         view_name = self.serializer_class.Meta.model._meta.object_name
         permission = '{}.{}_{}'.format(app_label.lower(),
-                                     permission_name, view_name.lower())
+                                       permission_name,
+                                       view_name.lower())
         # check if user has the required permission
         if not request.user.has_perm(permission):
             raise exceptions.PermissionDenied()
@@ -54,7 +260,23 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         Check if user is permitted to destroy the object.
         """
         self.check_permission(request, 'delete')
-        return super().destroy(request, **kwargs)
+        try:
+            with set_env(PROTECT_FOREIGN_KEY='True'):
+                response = super().destroy(request, **kwargs)
+        except ProtectedError as err:
+            qs = err.protected_objects
+            show = 5
+            n_objects = qs.count()
+            msg_n_referenced = '{} {}:'.format(n_objects,
+                                               _('Referencing Object(s)')
+                                               )
+            msg = '<br/>'.join(list(err.args[:1]) +
+                               [msg_n_referenced] +
+                               [repr(row).strip('<>') for row in qs[:show]] +
+                               ['...' if n_objects > show else '']
+                               )
+            return HttpResponseForbidden(content=msg)
+        return response
 
     def update(self, request, **kwargs):
         """
@@ -71,7 +293,6 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         return super().partial_update(request, **kwargs)
 
 
-
 class ModelPermissionViewSet(ModelReadPermissionMixin,
                              ModelWritePermissionMixin,
                              viewsets.ModelViewSet):
@@ -80,38 +301,6 @@ class ModelPermissionViewSet(ModelReadPermissionMixin,
     update(), retrieve() and list(). Throw exceptions.PermissionDenied() if
     permission is missing.
     """
-
-
-class SessionView(View):
-    modes = {
-        'Workshop': 0,
-        'Setup': 1,
-    }
-
-    def post(self, request):
-        casestudy = request.POST.get('casestudy')
-        mode = request.POST.get('mode')
-        next = request.POST.get('next', '/')
-
-        if casestudy is not None:
-            request.session['casestudy'] = casestudy
-        if mode is not None:
-            try:
-                mode = int(mode)
-            except ValueError:
-                return HttpResponseBadRequest('invalid mode')
-            if mode not in self.modes.values():
-                return HttpResponseBadRequest('invalid mode')
-            request.session['mode'] = mode
-
-        return HttpResponseRedirect(next)
-
-    def get(self, request):
-        response =  {
-            'casestudy': request.session.get('casestudy'),
-            'mode': request.session.get('mode') or self.modes['Workshop']
-        }
-        return JsonResponse(response)
 
 
 class PublicationView(ModelPermissionViewSet):
@@ -130,6 +319,7 @@ class ReadUpdateViewSet(mixins.RetrieveModelMixin,
     No `create()` or `destroy()`
     """
 
+
 class ReadUpdatePermissionViewSet(mixins.RetrieveModelMixin,
                                   mixins.UpdateModelMixin,
                                   mixins.ListModelMixin,
@@ -147,7 +337,7 @@ class ReadUpdatePermissionViewSet(mixins.RetrieveModelMixin,
         app_label = self.serializer_class.Meta.model._meta.app_label
         view_name = self.serializer_class.Meta.model._meta.object_name
         permission = '{}.{}_{}'.format(app_label.lower(),
-                                     permission_name, view_name.lower())
+                                       permission_name, view_name.lower())
         # check if user has the required permission
         if not request.user.has_perm(permission):
             raise exceptions.PermissionDenied()

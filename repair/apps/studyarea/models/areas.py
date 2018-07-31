@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.gis.db import models as geomodels
 
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class AdminLevels(GDSEUniqueNameModel):
@@ -27,7 +28,7 @@ class AdminLevels(GDSEUniqueNameModel):
 class Area(GDSEModel):
     _unique_field = 'code'
 
-    adminlevel = models.ForeignKey(AdminLevels, on_delete=models.CASCADE)
+    adminlevel = models.ForeignKey(AdminLevels, on_delete=PROTECT_CASCADE)
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
@@ -102,19 +103,19 @@ class NUTS3(Area):
                                     , on_delete=models.CASCADE)
 
 
-class LAU1(Area):
+class District(Area):
     """TopLevel"""
     _level = 7
     parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    related_name='lau1_areas'
+                                    related_name='district_areas'
                                     , on_delete=models.CASCADE)
 
 
-class LAU2(Area):
+class Municipality(Area):
     """TopLevel"""
     _level = 8
     parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    related_name='lau2_areas'
+                                    related_name='municipality_areas'
                                     , on_delete=models.CASCADE)
 
 

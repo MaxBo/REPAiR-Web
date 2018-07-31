@@ -17,3 +17,5 @@ src/
 .project
 .dbeaver-data-sources.xml
 ssh_pg_h2020.sh
+*.exe
+/package-lock.json

@@ -1,3 +1,9 @@
+/**
+ * stylesheet for the top navigation bar
+ *
+ * @author Christoph Franke
+ */
+
 .navbar {
     position: fixed;
     width: 100%;
@@ -20,6 +26,8 @@
     padding-top: 12px;
     z-index: 11;
     margin-top: 0px;
+    float: left;
+    background-color: transparent !IMPORTANT;
     /*margin-right: 10px;*/
 }
 
@@ -36,9 +44,10 @@
 }
 
 .navbar-top {
+    position: absolute;
     font-size: 1em;
-    margin-top: -85px;
-    margin-left: 50px;
+    top: -10px;
+    right: 0px;
 }
 
 .navbar-bottom {
@@ -48,6 +57,7 @@
 .navbar-bottom > li{
     z-index: 10;
     background-size:cover;
+    overflow: hidden;
 }
 
 .navbar-bottom > li > a {
@@ -60,6 +70,7 @@
     padding-bottom: 0px !IMPORTANT;
     float: left;
     transition: font-size 0.25s ease-in-out;
+    background-color: transparent !IMPORTANT;
 }
 
 .navbar-bottom > li:hover > a {
@@ -80,7 +91,6 @@
 
 .navbar-bottom > li.active > a, .navbar-top > li.active > a  {
     color: #aad400 !IMPORTANT;
-    background-color: transparent !IMPORTANT;
     /*text-decoration: underline;*/
 }
 
@@ -139,7 +149,7 @@
     min-width: 160px;
     overflow: auto;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    z-index: 10;
 }
 
 .dropdown-content a {
@@ -156,11 +166,11 @@
 }
 
 .dropdown a.active {
-    background-color: #aad400; 
+    background-color: #aad400;
     color: white;
 }
 
-.show {display:block;}
+.show { display:block; }
 /*.navbar-top select option:checked, .navbar-top select option:hover{
     color: white;
     background-color: #aad400;
@@ -179,12 +189,40 @@
 .btn.btn-circle { border-radius: 50px; }
 .btn.btn-outline { background-color: transparent; }
 
+#top-links {
+    float: right;
+}
+
+@media screen and (max-width: 1100px) {
+    .navbar-bottom > li > a{
+        font-size: 1.2em;
+    }
+    
+    .navbar-bottom > li.active > a, .navbar-bottom > li:hover > a{
+        font-size: 1.2em;
+    }
+    
+    .menu-arrow{ display: none; }
+}
 
 @media screen and (max-width: 767px) {
-    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-left: 15px; padding-right: 15px; }
+    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-right: 15px; }
 
     .navbar .nav-collapse { margin: 7.5px auto; padding: 0; }
     .navbar .nav-collapse .navbar-form { margin: 0; }
     .nav-collapse>li { float: none; }
-    .menu-arrow{ visibility: hidden; }
+
+    .navbar-top {
+        position: relative;
+        top: auto;
+        float: right;
+    }
+    .navbar-top > li {
+        float: right;
+    }
+    
+    #top-links {
+        float: none;
+    }
+    
 }

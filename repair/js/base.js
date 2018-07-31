@@ -1,9 +1,13 @@
-define(['jquery', 'document-ready', 'bootstrap', 'utils/overrides'],
-function ($, ready) {  
+define(['jquery', 'document-ready', 'bootstrap', 
+        'bootstrap-select/dist/css/bootstrap-select.css',
+        '@fortawesome/fontawesome-free/css/all.css', 
+        'utils/overrides'],
+function ($, ready) {
   /**
    * EITHER LOAD THIS IN TEMPLATE OR MAKE AN OWN ENTRY POINT IMPORTING THIS!!!!
    *
-   * base entry point loading requirements for base django template and overriding functions as needed by other entry points
+   * base entry point for loading all basic requirements (css files, node modules)
+   * and overriding functions as needed by other entry points
    *
    * @author Christoph Franke
    * @module Base
@@ -24,8 +28,7 @@ function ($, ready) {
      
      function closeDropdowns(){
        var dropdowns = document.getElementsByClassName("dropdown-content");
-       var i;
-       for (i = 0; i < dropdowns.length; i++) {
+       for (var i = 0; i < dropdowns.length; i++) {
          var openDropdown = dropdowns[i];
          if (openDropdown.classList.contains('show')) {
            openDropdown.classList.remove('show');

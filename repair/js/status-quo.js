@@ -1,84 +1,122 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
-        'views/status-quo/challenges-aims', 'views/status-quo/evaluation',
-        'visualizations/mapviewer', 
-        'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView, 
-             EvaluationView, MapViewer, appConfig) {
-  
-  var session = appConfig.getSession(
-    function(session){
-      var mode = session['mode'];
-      if (Number(mode) == 1) {
-        var caseStudyId = session['casestudy'];
-        caseStudy = new CaseStudy({id: caseStudyId});
-      
-        caseStudy.fetch({success: function(){
-          renderSetup(caseStudy)
-        }});
-      }
-      else
-        renderWorkshop()
-  });
+    'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
+    'views/status-quo/setup-flow-assessment', 
+    'views/status-quo/workshop-flow-assessment', 'visualizations/mapviewer', 
+    'app-config', 'utils/overrides', 'base'
+], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
+    SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
+    MapViewer, appConfig) {
 
-  renderWorkshop = function(){
-    var evaluationmap = new MapViewer({
-      divid: 'evaluationmap', 
-      baseLayers: {"Stamen map tiles": new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-            subdomains: ['','a.','b.','c.','d.'],
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-          })},
-      overlayLayers: {}
-    });
+    /**
+     * entry point for views on subpages of "StatusQuo" menu item
+     *
+     * @author Christoph Franke
+     * @module StatusQuo
+     */
+
+    renderFlowsView = function(caseStudy){
+        var flowsView,
+            el = document.getElementById('flows-content'),
+            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+        keyflowSelect.disabled = false;
+        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+        keyflowSelect.addEventListener('change', function(){
+            if (flowsView) flowsView.close();
+            flowsView = new FlowsView({ 
+                caseStudy: caseStudy,
+                el: el,
+                template: 'flows-template',
+                keyflowId: keyflowSelect.value
+            })
+        })
+    };
     
-    var stamen = L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-      subdomains: ['','a.','b.','c.','d.'],
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-    });
+    renderFlowAssessmentView = function(caseStudy, View, template){
+        var assessmentView,
+            el = document.getElementById('flow-assessment-content'),
+            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+        keyflowSelect.disabled = false;
+        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+        keyflowSelect.addEventListener('change', function(){
+            if (assessmentView) assessmentView.close();
+            assessmentView = new View({ 
+                caseStudy: caseStudy,
+                el: el,
+                template: template,
+                keyflowId: keyflowSelect.value
+            })
+        })
+    };
     
-    var mapviewer = new MapViewer({
-      divid: 'mapviewer',
-      baseLayers: {"Stamen map tiles": stamen},
-      overlayLayers: {
-        "PRODUCTION - Manufacture glass": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/0", useCors: false}),
-        "Production Network": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/1", useCors: false}),
-        "PRODUCTION - Manufacture beverages": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/2", useCors: false}),
-        "Production to Distribution Network": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/3", useCors: false}),
-        "DISTRIBUTION - Beverages": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/4", useCors: false}),
-        "Distribution to Retail Network": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/5", useCors: false}),
-        "RETAIL": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/6", useCors: false}),
-        "Retail to Households Network": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/7", useCors: false}),
-        "RETAIL + CONSUMPTION - Restaurants": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/8", useCors: false}),
-        "CONSUMPTION Neighbourhood centers": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/9", useCors: false}),
-        "Household to Facilities Network": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/10", useCors: false}),
-        "WASTE MANAGEMENT - Collection": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/11", useCors: false}),
-        "WASTE MANAGEMENT - Treatment and disposal": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/12", useCors: false}),
-        "WASTE MANAGEMENT - Recovery sorted materials": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/13", useCors: false}),
-        "Municipalities": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/14", useCors: false}),
-        "AMA Focus Area": L.esri.featureLayer({url: "https://arcgis.labs.vu.nl/arcgis/rest/services/DemoGDSE/MapServer/15", useCors: false}),
-      }
+    renderFlowAssessmentWorkshopView = function(caseStudy){
+        var assessmentView,
+            el = document.getElementById('flow-assessment-content'),
+            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+        keyflowSelect.disabled = false;
+        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+        keyflowSelect.addEventListener('change', function(){
+            if (assessmentView) assessmentView.close();
+            assessmentView = new FlowAssessmentWorkshopView({ 
+                caseStudy: caseStudy,
+                el: el,
+                template: 'setup-flow-assessment-template',
+                keyflowId: keyflowSelect.value
+            })
+        })
+    };
+    
+    renderWorkshop = function(caseStudy){
+        renderFlowsView(caseStudy);
+        var challengesView = new ChallengesAimsView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('challenges'),
+            template: 'challenges-aims-template'
+        })
+        var targetsView = new TargetsView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('targets'),
+            template: 'targets-template'
+        })
+        var evaluationView = new SustainabilityView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('sustainability-assessment'),
+            template: 'sustainability-template'
+        })
+        renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
+                                 'workshop-flow-assessment-template');
+    };
+    
+    renderSetup = function(caseStudy){
+        renderFlowsView(caseStudy);
+        var challengesView = new ChallengesAimsView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('challenges'),
+            template: 'challenges-aims-template', 
+            mode: 1
+        })
+        var evaluationView = new SustainabilityView({ 
+            caseStudy: caseStudy,
+            el: document.getElementById('sustainability-assessment'),
+            template: 'sustainability-template'
+        })
+        renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
+                                 'setup-flow-assessment-template');
+    };
+
+    appConfig.session.fetch({
+        success: function(session){
+            var mode = session.get('mode'),
+                caseStudyId = session.get('casestudy'),
+                caseStudy = new CaseStudy({id: caseStudyId});
+
+            caseStudy.fetch({success: function(){
+                if (Number(mode) == 1) {
+                    renderSetup(caseStudy);
+                }
+                else {
+                    renderWorkshop(caseStudy);
+                }
+            }});
+        }
     });
-  }
-  
-  renderSetup = function(caseStudy){
-    var flowsView = new FlowsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('flows-setup'),
-      template: 'flows-template'
-    })
-    var challengesView = new ChallengesAimsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('challenges-aims-setup'),
-      template: 'challenges-aims-template'
-    })
-    var targetsView = new TargetsView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('targets-setup'),
-      template: 'targets-template'
-    })
-    var evaluationView = new EvaluationView({ 
-      caseStudy: caseStudy,
-      el: document.getElementById('evaluation-setup'),
-      template: 'evaluation-template'
-    })
-  };
 });

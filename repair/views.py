@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 from repair.apps.login.models import CaseStudy
 from django.shortcuts import render
+from django.contrib.auth.models import Permission, User, Group
 
 
 class BaseView(TemplateView):
@@ -12,6 +13,7 @@ class BaseView(TemplateView):
             request.session['casestudy'] = None
         if 'mode' not in request.session:
             request.session['mode'] = 0
+        
         return super().get(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
@@ -26,6 +28,8 @@ class BaseView(TemplateView):
         kwargs['mode'] = self.modes[mode]
         kwargs['casestudy'] = casestudy
         kwargs['casestudies'] = self.casestudies()
+        kwargs['setup_mode_permitted'] = self.setup_mode_permitted()
+        kwargs['data_entry_permitted'] = self.data_entry_permitted()
         return kwargs
 
     def casestudies(self):
@@ -35,6 +39,14 @@ class BaseView(TemplateView):
             if len(casestudy.userincasestudy_set.all().filter(user__id=user_id)):
                 casestudies.add(casestudy)
         return casestudies
+    
+    def setup_mode_permitted(self):
+        return ('login.setupmode_casestudy' in
+                self.request.user.get_all_permissions())
+    
+    def data_entry_permitted(self):
+        return ('login.dataentry_casestudy' in
+                self.request.user.get_all_permissions())
 
 
 class ModeView(BaseView):

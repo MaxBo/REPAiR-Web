@@ -14,8 +14,6 @@ from repair.apps.changes.factories import (
     SolutionQuantityFactory,
     ImplementationFactory,
     SolutionInImplementationFactory,
-    SolutionInImplementationGeometryFactory,
-    SolutionInImplementationNoteFactory,
     SolutionInImplementationQuantityFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -49,13 +47,13 @@ class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.implementation)
         cls.post_data = dict(name="Test Implementation",
-                             user=cls.usr_url,
+                             user=cls.userincasestudy,
                              solution_set=cls.sol_set,
-                             coordinating_stakeholder=cls.stakeholder_url)
+                             coordinating_stakeholder=cls.stakeholder)
         cls.put_data = dict(name="Test Implementation",
-                            user=cls.usr_url,
+                            user=cls.userincasestudy,
                             solution_set=cls.sol_set,
-                            coordinating_stakeholder=cls.stakeholder_url)
+                            coordinating_stakeholder=cls.stakeholder)
         cls.patch_data = dict(name="Test New Implementation")
 
     def setUp(self):
@@ -176,11 +174,11 @@ class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestC
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            implementation_pk=cls.implementation)
         cls.url_pk = dict(pk=cls.solution)
-        cls.post_data = dict(solution=cls.solution_url,
+        cls.post_data = dict(solution=cls.solution,
                              implementation=cls.implementation_url)
-        cls.put_data = dict(solution=cls.solution_url,
+        cls.put_data = dict(solution=cls.solution,
                             implementation=cls.implementation_url)
-        cls.patch_data = dict(solution=cls.solution_url,
+        cls.patch_data = dict(solution=cls.solution,
                               implementation=cls.implementation_url)
 
     def setUp(self):
@@ -193,80 +191,6 @@ class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestC
             implementation__id=self.implementation,
             solution__solution_category__id=self.solutioncategory,
             id=self.solution_implementation)
-
-
-class GeometryInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
-                                                        APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    geometry = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationgeometry"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.geometry)
-        cls.post_data = dict(name="test name",
-                             geom=Point(5, 6, srid=4326).geojson)
-        cls.put_data = dict(name="test name",
-                            geom=MultiPoint([Point(5, 6, srid=4326),
-                                             Point(7, 8, srid=4326)]).geojson)
-        cls.patch_data = dict(name="test name",
-                              geom=LineString([(1, 1), (2, 2)]).geojson)
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInImplementationGeometryFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.geometry)
-
-
-class NoteInSolutionInImplementationInCasestudyTest(BasicModelPermissionTest,
-                                                    APITestCase):
-
-    casestudy = 17
-    user = 20
-    implementation = 30
-    solution = 20
-    solutioncategory = 56
-    solution_implementation = 40
-    note = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninimplementationnote"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
-        cls.url_pk = dict(pk=cls.note)
-        cls.post_data = dict(note="test note")
-        cls.put_data = dict(note="test note")
-        cls.patch_data = dict(note="test note")
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInImplementationNoteFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
-            id=self.note)
 
 
 class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,

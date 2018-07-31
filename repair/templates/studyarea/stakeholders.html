@@ -1,0 +1,12 @@
+{% load i18n %}
+{% block content %}
+
+<script type="text/template" id="stakeholders-template">
+<button id= "add-category-button" class="btn btn-primary add" title="{% trans "add aim" %}">
+  <span class="glyphicon glyphicon-plus"></span> {% trans "Stakeholder Category" %}
+</button>
+<div id="categories" class="row"><!-- "overflow">-->
+</div>
+</script>
+
+{% endblock %}

@@ -1,5 +1,3 @@
-from repair.apps.login.views import CasestudyViewSetMixin
-
 from repair.apps.changes.models import (
     Unit,
     SolutionCategory,
@@ -16,12 +14,14 @@ from repair.apps.changes.serializers import (
     SolutionRatioOneUnitSerializer,
     )
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
 
 
 class UnitViewSet(ModelPermissionViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
+    pagination_class = None
 
 
 class SolutionCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):

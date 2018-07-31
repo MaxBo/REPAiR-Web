@@ -1,306 +1,275 @@
-define(['backbone', 'underscore', 'models/actor', 'collections/activities',
-        'collections/actors', 'collections/arealevels', 'views/data-entry/edit-actor',
-        'utils/loader', 'app-config', 'tablesorter'],
-function(Backbone, _, Actor, Activities, Actors, AreaLevels, EditActorView, 
-         Loader, config){
-  /**
-   *
-   * @author Christoph Franke
-   * @name module:views/ActorsView
-   * @augments Backbone.View
-   */
-  var ActorsView = Backbone.View.extend(
+define(['views/baseview', 'underscore', 
+        'collections/gdsecollection', 'views/data-entry/edit-actor',
+        'datatables.net-bs',
+        'datatables.net-bs/css/dataTables.bootstrap.css',
+        'datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+        'bootstrap-select'],
+function(BaseView, _, GDSECollection, EditActorView){
+
+/**
+    *
+    * @author Christoph Franke
+    * @name module:views/ActorsView
+    * @augments module:views/BaseView
+    */
+var ActorsView = BaseView.extend(
     /** @lends module:views/ActorsView.prototype */
     {
 
     /**
-     * render view to edit the actors of a keyflow
-     *
-     * @param {Object} options
-     * @param {HTMLElement} options.el                     element the view will be rendered in
-     * @param {string} options.template                    id of the script element containing the underscore template to render this view
-     * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
-     * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
-     *
-     * @constructs
-     * @see http://backbonejs.org/#View
-     */
+    * render view to edit the actors of a keyflow
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                     element the view will be rendered in
+    * @param {string} options.template                    id of the script element containing the underscore template to render this view
+    * @param {module:collections/Keyflows.Model}          options.model the keyflow the actors belong to
+    * @param {module:models/CaseStudy} options.caseStudy  the casestudy the keyflow belongs to
+    * @param {module:collections/GDSECollection} options.activities  the activities in the keyflow
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
     initialize: function(options){
-      _.bindAll(this, 'render');
-      var _this = this;
-      
-      this.template = options.template;
-      var keyflowId = this.model.id,
-          caseStudyId = this.model.get('casestudy');
-      
-      this.activities = new Activities([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-      this.actors = new Actors([], { caseStudyId: caseStudyId, keyflowId: keyflowId });
-      this.areaLevels = new AreaLevels([], { caseStudyId: caseStudyId })
-      this.showAll = true;
-      this.caseStudy = options.caseStudy;
-      this.caseStudyId = this.model.get('casestudy');
-      
-      this.actorRows = [];
-      
-      var loader = new Loader(document.getElementById('actors-edit'),
-        {disable: true});
-        
-      this.projection = 'EPSG:4326'; 
-      
-      var Reasons = Backbone.Collection.extend({url: config.api.reasons});
-      this.reasons = new Reasons([]);
-        
-      $.when(this.activities.fetch(), this.actors.fetch(), 
-             this.areaLevels.fetch(), this.reasons.fetch()).then(function() {
-          _this.areaLevels.sort();
-          loader.remove();
-          _this.render();
-      });
+        ActorsView.__super__.initialize.apply(this, [options]);
+        _.bindAll(this, 'removeActor');
+        var _this = this;
+
+        this.template = options.template;
+        var keyflowId = this.model.id,
+            caseStudyId = this.model.get('casestudy');
+        this.activities = options.activities;
+        this.actors = new GDSECollection([], { 
+            apiTag: 'actors',
+            apiIds: [ caseStudyId, keyflowId ]
+        });
+        this.areaLevels = new GDSECollection([], { 
+            apiTag: 'arealevels',
+            apiIds: [ caseStudyId ],
+            comparator: 'level'
+        });
+        this.showAll = true;
+        this.caseStudy = options.caseStudy;
+        this.caseStudyId = this.model.get('casestudy');
+
+        this.loader.activate();
+
+        this.projection = 'EPSG:4326'; 
+
+        this.reasons = new GDSECollection([], { 
+            apiTag: 'reasons'
+        });
+
+        Promise.all([
+            this.activities.fetch(), 
+            this.areaLevels.fetch(), 
+            this.reasons.fetch()
+        ]).then(function() {
+            _this.areaLevels.sort();
+            _this.loader.deactivate();
+            _this.render();
+        });
     },
 
     /*
-      * dom events (managed by jquery)
-      */
+    * dom events (managed by jquery)
+    */
     events: {
-      'click #remove-actor-button': 'showRemoveModal',
-      'click #confirm-button': 'removeActorEvent',
-      'click #add-actor-button': 'addActorEvent',
-      'change #included-filter-select': 'changeFilter'
+        'click #remove-actor-button': 'showRemoveModal',
+        'click #add-actor-button': 'addActorEvent',
+        'change #included-filter-select': 'changeFilter',
+        'change select[name="activity-filter"]': 'renderActors'
     },
 
     /*
-     * render the view
-     */
+    * render the view
+    */
     render: function(){
-      var _this = this;
-      var html = document.getElementById(this.template).innerHTML
-      var template = _.template(html);
-      this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
-                                    keyflow: this.model.get('name')});
-      
-      // confirmation modal for deletion of actor
-      html = document.getElementById('confirmation-template').innerHTML
-      template = _.template(html);
-      this.elConfirmation = document.getElementById('confirmation-modal');
-      this.elConfirmation.innerHTML = template({message: ''});
-
-      this.filterSelect = this.el.querySelector('#included-filter-select');
-      this.table = this.el.querySelector('#actors-table');
-
-      // render inFlows
-      this.actors.each(function(actor){_this.addActorRow(actor)}); // you have to define function instead of passing this.addActorRow, else scope is wrong
-      
-      this.setupTable();
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML
+        var template = _.template(html);
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name'),
+            activities: this.activities
+        });
+        this.filterSelect = this.el.querySelector('#included-filter-select');
+        this.datatable = $('#actors-table').DataTable();
+        this.renderActors();
     },
     
-    /* 
-     * set up the actors table (tablesorter)
-     */
-    setupTable: function(){
-      require('libs/jquery.tablesorter.pager');
-      $(this.table).tablesorter({
-        widgets: ['filter'], //, 'zebra']
-        widgetOptions : {
-          filter_placeholder: { search : gettext('Search') + '...' }
-        }
-      });
-      // ToDo: set tablesorter pager if table is empty (atm deactivated in this case, throws errors)
-      if ($(this.table).find('tr').length > 1)
-        $(this.table).tablesorterPager({container: $("#pager")});
-      
-      //workaround for a bug in tablesorter-pager by triggering
-      //event that pager-selection changed to redraw number of visible rows
-      var sel = document.getElementById('pagesize');
-      sel.selectedIndex = 0;
-      sel.dispatchEvent(new Event('change'));
+    renderActors: function(){
+        var _this = this,
+            activityId = this.el.querySelector('select[name="activity-filter"]').value;
+            data = (activityId =="-1") ? {} : { activity: activityId }
+        this.datatable.clear();
+        this.actorRows = [];
+        this.actors.fetch({ 
+            data: data,
+            success: function(){
+                _this.actors.each(
+                    function(actor){_this.addActorRow(actor)
+                }); // you have to define function instead of passing this.addActorRow, else scope is wrong
+            }
+        });
     },
 
     changeFilter: function(event){
-      this.showAll = event.target.value == '0';
-      for (var i = 1, row; row = this.actorRows[i]; i++) {
-        if (!this.showAll && row.classList.contains('dsbld'))
-          row.style.display = "none";
-        else
-          row.style.display = "table-row";
-      }
+        var _this = this;
+        this.showAll = event.target.value == '0';
+        if (!this.showAll){
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(_this.datatable.row(dataIndex).node()).attr('data-included') == 'true';
+                  }
+              );
+        }
+        else $.fn.dataTable.ext.search.pop();
+        this.datatable.draw();
     },
 
     /* 
-     * add given actor to table
-     */
+    * add given actor to table
+    */
     addActorRow: function(actor){
-      var _this = this;
+        var _this = this;
 
-      var row = this.table.getElementsByTagName('tbody')[0].insertRow(-1);
-      this.actorRows.push(row);
-      
-      var nameCell = row.insertCell(-1);
-      var activityCell = row.insertCell(-1);
-      
-      // fill the row with the attributes of the actor and change it's style depending on status of actor
-      function setRowValues(actor){
-        var included = actor.get('included');
-        if (!included){
-          row.classList.add('dsbld');
-          if (!_this.showAll)
-            row.style.display = "none";
-        } else {
-          row.classList.remove('dsbld')
-          row.style.display = "table-row";
+        var dataRow = this.datatable.row.add([
+                actor.get('name'), 
+                actor.get('city'),
+                actor.get('address'),
+            ]).draw(),
+            row = dataRow.node();
+        row.setAttribute('data-included', actor.get('included'));
+        this.actorRows.push(row);
+        
+        function selectRow(r){
+            _.each(_this.actorRows, function(row){
+                row.classList.remove('selected');
+            });
+            r.classList.add('selected');
         }
         
-        nameCell.innerHTML = actor.get('name');
-        var activity = _this.activities.get(actor.get('activity'));
-        activityCell.innerHTML = (activity != null)? activity.get('name'): '-';
-      };
-      setRowValues(actor);
-      
-      // open a view on the actor (showing attributes and locations)
-      function showActor(actor){
-        if (_this.actorView != null) _this.actorView.close();
-        _this.actorView = new EditActorView({
-          el: document.getElementById('edit-actor'),
-          template: 'edit-actor-template',
-          model: actor,
-          activities: _this.activities,
-          keyflow: _this.model,
-          onUpload: function(a) { setRowValues(a); showActor(a); },
-          focusarea: _this.caseStudy.get('properties').focusarea,
-          areaLevels: _this.areaLevels,
-          reasons: _this.reasons
-        });
-      }
-      
-      // row is clicked -> open view and remember that this actor is "active"
-      row.style.cursor = 'pointer';
-      row.addEventListener('click', function() {
-        _.each(_this.actorRows, function(row){
-          row.classList.remove('selected');
-        });
-        row.classList.add('selected');
-        if (_this.activeActor != actor || actor.id == null){
-          _this.activeActor = actor;
-          _this.activeRow = row;
-          showActor(actor);
+        function setIncluded(actor){
+            var included = actor.get('included');
+            if (!included){
+                row.classList.add('dsbld');
+                if (!_this.showAll)
+                    row.style.display = "none";
+            } else {
+                row.classList.remove('dsbld')
+                row.style.display = "table-row";
+            }
+            row.setAttribute('data-included', included);
+        };
+        setIncluded(actor);
+        
+        // open a view on the actor (showing attributes and locations)
+        function showActor(actor){
+            selectRow(row);
+            actor.caseStudyId = _this.caseStudy.id;
+            actor.keyflowId = _this.model.id;
+            _this.activeActor = actor;
+            if (_this.actorView != null) _this.actorView.close();
+            actor.fetch({ success: function(){
+                _this.actorView = new EditActorView({
+                    el: document.getElementById('edit-actor'),
+                    template: 'edit-actor-template',
+                    model: actor,
+                    activities: _this.activities,
+                    keyflow: _this.model,
+                    onUpload: function(a) { 
+                        setIncluded(a); 
+                        dataRow.data([
+                            actor.get('name'), 
+                            actor.get('city'),
+                            actor.get('address')
+                        ]);
+                        showActor(a); 
+                    },
+                    focusarea: _this.caseStudy.get('properties').focusarea,
+                    areaLevels: _this.areaLevels,
+                    reasons: _this.reasons
+                });
+            }})
         }
-      });
 
-      return row;
+        // row is clicked -> open view and remember that this actor is "active"
+        row.addEventListener('click', function() {
+            if (_this.activeActor != actor || actor.id == null){
+                if (_this.actorView != null && _this.actorView.hasChanged()){
+                    var message = gettext('Attributes of the actor have been changed but not uploaded. <br><br>Do you want to discard the changes?');
+                    _this.confirm({ 
+                        message: message,
+                        onConfirm: function() { showActor(actor) }
+                    })
+                }
+                else showActor(actor);
+            }
+        });
+
+        return dataRow;
     },
 
     /* 
-     * add row on button click
-     */
+    * add row on button click
+    */
     addActorEvent: function(event){
-      var _this = this;
-      var buttonId = event.currentTarget.id;
-      var tableId;
-      
-      function onChange(name){
-        var actor = new Actor({
-          "BvDid": "-",
-          "name": name || "-----",
-          "consCode": "-",
-          "year": 0,
-          "turnover": 0,
-          "employees": 0,
-          "BvDii": "-",
-          "website": "www.website.org",
-          "activity": _this.activities.first().id,
-          'reason': null
-          }, {"caseStudyId": _this.model.get('casestudy'), 'keyflowId': _this.model.id});
-        actor.save({}, {success: function(){
-          _this.actors.add(actor);
-          var row = _this.addActorRow(actor);
-          // let tablesorter know, that there is a new row
-          $('table').trigger('addRows', [$(row)]);
-          // workaround for going to last page by emulating click (thats where new row is added)
-          document.getElementById('goto-last-page').click();
-          // click row to show details of new actor in edit view
-          row.click();
-        }});
-      }
-      this.getName({ 
-        title: gettext('Add Actor'),
-        onConfirm: onChange
-      });
-    },
-    
-    /* 
-     * show modal for removal on button click
-     */
-    showRemoveModal: function(){
-      if (this.activeActor == null) return;
-      var modal = this.elConfirmation.querySelector('.modal');
-      // ToDo: translation
-      var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
-      document.getElementById('confirmation-message').innerHTML = message; 
-      $(modal).modal('show'); 
-    },
-    
-    /*
-     * open modal dialog to enter a name
-     * options: onConfirm, name, title
-     */
-    getName: function(options){
-      
-      var options = options || {};
-      
-      var div = document.getElementById('actor-name-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || '' });
-      
-      div.innerHTML = html;
-      var modal = div.querySelector('.modal');
-      var body = modal.querySelector('.modal-body');
-      
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
-      
-      modal.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(modal).modal('hide');
-      });
-      
-      $(modal).modal('show');
-    },
-    
-    /* 
-     * remove selected actor on button click in modal
-     */
-    removeActorEvent: function(){
-      var _this = this;
-      this.activeActor.destroy({success: function(){
-        _this.actorView.close();
-        _this.activeRow.style.display = 'none';
-        //_this.activeRow.parentNode.removeChild(_this.activeRow);
-        //document.getElementById('goto-first-page').click();
-        //$(_this.table).trigger('update');
-        //$(_this.table).trigger("appendCache");
-        _this.activeActor = null;
-        _this.activeRow = null;
-      }});
-    },
-        
-    /**
-     * remove this view from the DOM
-     */
-    close: function(){
-      this.undelegateEvents(); // remove click events
-      this.unbind(); // Unbind all local event bindings
-      this.el.innerHTML = ''; //empty the DOM element
+        var _this = this;
+        var buttonId = event.currentTarget.id;
+        var tableId;
+
+        function onChange(name){
+            var actor = _this.actors.create({
+                "BvDid": "-",
+                "name": name || "-----",
+                "consCode": "-",
+                "year": null,
+                "turnover": null,
+                "employees": null,
+                "BvDii": "-",
+                "website": "www.website.org",
+                "activity": _this.activities.first().id,
+                'reason': null,
+                'description': ''
+            }, { 
+                wait: true, 
+                success: function(){ 
+                    var row = _this.addActorRow(actor);
+                    row.node().click(); 
+                }
+            })
+        }
+        this.getName({ 
+            title: gettext('Add Actor'),
+            onConfirm: onChange
+        });
     },
 
-  });
-  return ActorsView;
+    /* 
+    * show modal for removal on button click
+    */
+    showRemoveModal: function(){
+        if (this.activeActor == null) return;
+        var message = gettext('Do you really want to delete the actor') + ' &#60;' + this.activeActor.get('name') + '&#62; ' + '?';
+        this.confirm({ message: message, onConfirm: this.removeActor });
+    },
+
+    /* 
+    * remove selected actor on button click in modal
+    */
+    removeActor: function(){
+        var _this = this;
+        this.activeActor.destroy({
+            success: function(){
+                _this.actorView.close();
+                _this.activeActor = null;
+                _this.datatable.row('.selected').remove().draw( false );
+            },
+            error: _this.onError
+        });
+    }
+
+});
+return ActorsView;
 }
 );

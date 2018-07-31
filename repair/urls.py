@@ -19,11 +19,15 @@ from django.http import HttpResponse
 from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from repair.views import HomeView
 from django.contrib.auth.views import logout
+from repair.apps.login.views import (SessionView, LoginView,
+                                     PasswordChangeView)
 from django.views.i18n import JavaScriptCatalog
+from django.views.generic import TemplateView
 from repair.apps.wmsresources.views import (WMSProxyView)
+from repair.apps import admin
+#from django.contrib import admin
 
 
 # Wire up our API using automatic URL routing.
@@ -36,14 +40,22 @@ urlpatterns = [
     url(r'^study-area/', include('repair.apps.studyarea.urls')),
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^changes/', include('repair.apps.changes.urls')),
-    url(r'^decisions/', include('repair.apps.decisions.urls')),
+    url(r'^recommendations/', include('repair.apps.decisions.urls')),
     url(r'^impacts/', include('repair.apps.impacts.urls')),
     # API urls
-    url(r'^login/', include('repair.apps.login.urls')),
+    url(r'^login/', LoginView.as_view(template_name='login/login.html'),
+        name='login'),
+    url(r'^password/', PasswordChangeView.as_view(template_name='login/password_change_form.html'),
+        name='password_change_form'),
+    url(r'^password-done/', TemplateView.as_view(template_name='login/password_change_done.html'),
+        name='password_change_done'),
+    url(r'^session', SessionView.as_view(), name='session'), 
+    url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^api/', include('repair.rest_urls')),
     url(r'^publications/', include('publications_bootstrap.urls')),
-    url(r'^logout', logout, {'next_page': '/'}, name='logout'),
     url(r'^jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     url(r'^proxy/layers/(?P<layer_id>[0-9]+)/wms', WMSProxyView.as_view(), name='wms_proxy'),
-    url(r'^wms-client/', include('wms_client.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    url(r'^wms-client/', include('wms_client.urls'))
+] \
++ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
++ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

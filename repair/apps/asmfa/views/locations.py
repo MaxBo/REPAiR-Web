@@ -13,8 +13,8 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationsOfActorSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
 
 
 class AdministrativeLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -24,6 +24,10 @@ class AdministrativeLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_administrativelocation'
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
+    
+    def get_queryset(self):
+        return AdministrativeLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all()
 
 
 class OperationalLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -33,6 +37,10 @@ class OperationalLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_operationallocation'
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationSerializer
+    
+    def get_queryset(self):
+        return OperationalLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all()
 
 
 class AdministrativeLocationOfActorViewSet(RevisionMixin,
@@ -40,9 +48,17 @@ class AdministrativeLocationOfActorViewSet(RevisionMixin,
                                            ModelPermissionViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationOfActorSerializer
+    
+    def get_queryset(self):
+        return AdministrativeLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all()
 
 
 class OperationalLocationsOfActorViewSet(RevisionMixin, CasestudyViewSetMixin,
                                          ModelPermissionViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
+    
+    def get_queryset(self):
+        return OperationalLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all()

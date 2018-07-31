@@ -6,13 +6,14 @@ from repair.apps.login.models import (GDSEModel,
 
 from repair.apps.studyarea.models import Stakeholder
 from .solutions import Solution, SolutionQuantity
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Implementation(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder,
-                                                 on_delete=models.CASCADE)
+                                                 on_delete=PROTECT_CASCADE)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInImplementation')
 
@@ -30,9 +31,12 @@ class Implementation(GDSEModel):
 
 
 class SolutionInImplementation(GDSEModel):
-    solution = models.ForeignKey(Solution, on_delete=models.CASCADE)
-    implementation = models.ForeignKey(Implementation, on_delete=models.CASCADE)
+    solution = models.ForeignKey(Solution, on_delete=PROTECT_CASCADE)
+    implementation = models.ForeignKey(Implementation,
+                                       on_delete=PROTECT_CASCADE)
     participants = models.ManyToManyField(Stakeholder)
+    note = models.TextField(blank=True, null=True)
+    geom = models.GeometryCollectionField(verbose_name='geom', null=True)
 
     def __str__(self):
         text = '{s} in {i}'
@@ -88,16 +92,6 @@ signals.post_save.connect(
     dispatch_uid='models.trigger_solutioninimplementationquantity_quantity')
 
 
-class SolutionInImplementationNote(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation,
-                            on_delete=models.CASCADE)
-    note = models.TextField()
-
-    def __str__(self):
-        text = 'Note for {s}:\n{n}'
-        return text.format(s=self.sii, n=self.note)
-
-
 class SolutionInImplementationQuantity(GDSEModel):
     sii = models.ForeignKey(SolutionInImplementation,
                             on_delete=models.CASCADE)
@@ -109,13 +103,3 @@ class SolutionInImplementationQuantity(GDSEModel):
         text = '{v} {q}'
         return text.format(v=self.value, q=self.quantity)
 
-
-class SolutionInImplementationGeometry(GDSEModel):
-    sii = models.ForeignKey(SolutionInImplementation,
-                            on_delete=models.CASCADE)
-    name = models.TextField(blank=True)
-    geom = models.GeometryField(verbose_name='geom', null=True)
-
-    def __str__(self):
-        text = 'location {n} ({gt})'
-        return text.format(n=self.name, gt=self.geom.geom_type)

@@ -1,78 +1,72 @@
 define(['d3', 'models/casestudy', 'visualizations/sankey-map',
-        'views/study-area/base-maps', 'views/study-area/base-charts',
-        'views/study-area/stakeholders',
-        'app-config', 'base'
-], function(d3, CaseStudy, SankeyMap, BaseMapsView, BaseChartsView, 
-            StakeholdersView, appConfig) {
+    'views/study-area/workshop-maps', 'views/study-area/setup-maps', 
+    'views/study-area/charts',
+    'views/study-area/stakeholders',
+    'app-config', 'base',
+    'static/css/study-area.css'
+], function(d3, CaseStudy, SankeyMap, BaseMapsView, SetupMapsView, BaseChartsView, 
+    StakeholdersView, appConfig) {
 
-  function renderWorkshop(){
-    NodeHandler = function(){
-      this.id = 0;
-      var callbacks = [];
-      
-      this.add = function(callback){
-        callbacks.push(callback);
-      }
-      
-      this.changeActive = function(id){
-        this.id = id;
-        callbacks.forEach(function(callback){
-          callback(id);
+    /**
+     * entry point for views on subpages of "Study Area" menu item
+     *
+     * @author Christoph Franke
+     * @module StudyArea
+     */
+
+    function renderWorkshop(caseStudy){
+        var mapsView = new BaseMapsView({
+            template: 'base-maps-template',
+            el: document.getElementById('base-map-content'),
+            caseStudy: caseStudy
         });
-      }
+        var chartsView = new BaseChartsView({
+            template: 'base-charts-template',
+            el: document.getElementById('base-charts-content'),
+            caseStudy: caseStudy
+        });
+        var stakeholdersView = new StakeholdersView({
+            template: 'stakeholders-template',
+            el: document.getElementById('stakeholders-content'),
+            caseStudy: caseStudy
+        });
     }
-  
-    var handler = new NodeHandler();
     
-    var callbackTest = function(id){
-      document.getElementById('nodeinfo').innerHTML = "Node ID: " + id;
+    function renderSetup(caseStudy){
+        var mapsView = new SetupMapsView({
+            template: 'setup-maps-template',
+            el: document.getElementById('base-map-content'),
+            caseStudy: caseStudy
+        });
+        var chartsView = new BaseChartsView({
+            template: 'base-charts-template',
+            el: document.getElementById('base-charts-content'),
+            caseStudy: caseStudy,
+            mode: 1
+        });
+        var stakeholdersView = new StakeholdersView({
+            template: 'stakeholders-template',
+            el: document.getElementById('stakeholders-content'),
+            caseStudy: caseStudy,
+            mode: 1
+        });
     }
     
-    handler.add(callbackTest);
+    appConfig.session.fetch({
+        success: function(session){
+            var mode = session.get('mode'),
+                caseStudyId = session.get('casestudy'),
+                caseStudy = new CaseStudy({id: caseStudyId});
     
-    var map = new SankeyMap({
-      divid: 'map', 
-      nodes: '/static/data/nodes.geojson', 
-      links: '/static/data/links.csv',
-      nodeHandler: handler
+            caseStudy.fetch({success: function(){
+                if (Number(mode) == 1) {
+                    renderSetup(caseStudy);
+                }
+                else {
+                    renderWorkshop(caseStudy);
+                }
+            }});
+        }
     });
-  }
-  
-  var caseStudyId;
-  var mode;
-  
-  function renderSetup(caseStudy){
-    var mapsView = new BaseMapsView({
-      template: 'base-map-template',
-      el: document.getElementById('base-map-setup'),
-      caseStudy: caseStudy
-    });
-    var chartsView = new BaseChartsView({
-      template: 'base-charts-template',
-      el: document.getElementById('base-charts-setup'),
-      caseStudy: caseStudy
-    });
-    var stakeholdersView = new StakeholdersView({
-      template: 'stakeholders-template',
-      el: document.getElementById('stakeholders-setup'),
-      caseStudy: caseStudy
-    });
-  }
-  
-  var session = appConfig.getSession(
-    function(session){
-      mode = session['mode'];
-      if (Number(mode) == 1) {
-        caseStudyId = session['casestudy'];
-        caseStudy = new CaseStudy({id: caseStudyId});
-      
-        caseStudy.fetch({success: function(){
-          renderSetup(caseStudy)
-        }});
-      }
-      else {
-        renderWorkshop();
-      }
-  });
-  
+
 });

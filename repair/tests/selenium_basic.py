@@ -59,6 +59,7 @@ class SeleniumBasic(object):
     WebElement.driver = driver
 
     def setUp(self):
+        return
         file_dir = os.path.dirname(__file__)
         artifacts_dir = os.path.join(file_dir, 'artifacts')
         screenshots_dir = os.path.join(artifacts_dir, 'screenshots')
@@ -75,7 +76,7 @@ class SeleniumBasic(object):
         self.verificationErrors = []
         self.accept_next_alert = True
         driver = self.driver
-        driver.get("localhost:4444")
+        driver.get("localhost:8000")
         #driver.maximize_window()
         driver.set_window_size(1936, 1056)
         driver.set_window_position(0, 0)
@@ -90,6 +91,7 @@ class SeleniumBasic(object):
         driver.find_element_by_link_text("SandboxCity").click()
 
     def tearDown(self):
+        return
         file_dir = os.path.dirname(__file__)
         artifacts_dir = os.path.join(file_dir, 'artifacts')
         file_dir = os.path.dirname(__file__)

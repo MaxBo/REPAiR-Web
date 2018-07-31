@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib import admin
+from repair.apps import admin
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
+from django.contrib.admin.sites import NotRegistered
 
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
 
@@ -36,18 +37,16 @@ def import_bibtex(request):
         return response
 
 
-
-
 class PublicationInCasestudyInline(admin.StackedInline):
     model = PublicationInCasestudy
     can_delete = False
     verbose_name_plural = 'PublicationInCasestudies'
     fk_name = 'publication'
 
+
 class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
     inlines = PublicationAdmin.inlines + [PublicationInCasestudyInline]
     change_list_template = 'publications/publication_change_list.html'
-
 
     def get_urls(self):
         urls = [url(r'^import_bibtex/$',
@@ -68,5 +67,8 @@ class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
                 casestudy=casestudy,
                 publication=obj)
 
-admin.site.unregister(Publication)
+try:
+    admin.site.unregister(Publication)
+except NotRegistered:
+    pass
 admin.site.register(Publication, CustomPublicationAdmin)

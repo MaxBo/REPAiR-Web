@@ -2,15 +2,18 @@
 
 django==2
 django-webpack-loader>=0.5
-djangorestframework>=3.7
+djangorestframework>=3.8.2
 djangorestframework-gis
-django-filter
+djangorestframework-datatables>=0.3
+django-filter==1.1.0
 django-test-plus
+django-enumfields
 django-money
 django-reversion
 django-reversion-compare
 -e git+https://github.com/MaxBo/django-wms-client.git@feature/django2#egg=django-wms-client>=0.2.1^&subdirectory=django_project
 bibtexparser==0.6.2
+django-pandas
 
 git+https://github.com/MaxBo/django-publications-bootstrap.git#egg=django-publications-bootstrap>=2.4.1
 
@@ -18,7 +21,7 @@ drf-nested-routers
 numpy
 matplotlib
 plotly
-psycopg2
+psycopg2-binary
 geojson
 
 django-debug-toolbar

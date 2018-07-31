@@ -1,5 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
+from django.contrib.gis.geos import GEOSGeometry
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -10,46 +11,90 @@ from repair.apps.asmfa.serializers import (
     ActivityGroupSerializer,
     ActivitySerializer,
     ActorSerializer,
-    AllActivitySerializer,
-    AllActorSerializer,
-    AllActorListSerializer,
+    ActivityListSerializer,
+    ActorListSerializer,
+    ActivityGroupListSerializer
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
+
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
-class ActivityGroupViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                            ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activitygroup'
     change_perm = 'asmfa.change_activitygroup'
     delete_perm = 'asmfa.delete_activitygroup'
     serializer_class = ActivityGroupSerializer
-    queryset = ActivityGroup.objects.all()
+    queryset = ActivityGroup.objects.order_by('id')
+    serializers = {'list': ActivityGroupListSerializer}
+    
+    def get_queryset(self):
+        groups = ActivityGroup.objects
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        if keyflow_pk is not None:
+            groups = groups.filter(keyflow__id=keyflow_pk)
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                groups = groups.filter(id__in=ids)
+        return groups.order_by('id')
 
 
-class ActivityViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                       ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activity'
     change_perm = 'asmfa.change_activity'
     delete_perm = 'asmfa.delete_activity'
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.order_by('id')
+    serializers = {'list': ActivityListSerializer}
+    
+    def get_queryset(self):
+        activities = Activity.objects.\
+            select_related("activitygroup")
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        if keyflow_pk is not None:
+            activities = activities.filter(activitygroup__keyflow__id=keyflow_pk)
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                activities = activities.filter(id__in=ids)
+        return activities.order_by('id')
 
 
-class ActorViewSet(RevisionMixin, CasestudyViewSetMixin,
+class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                    ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_actor'
     change_perm = 'asmfa.change_actor'
     delete_perm = 'asmfa.delete_actor'
     serializer_class = ActorSerializer
-    queryset = Actor.objects.all()
+    queryset = Actor.objects.order_by('id')
+    serializers = {'list': ActorListSerializer}
+    
+    def get_queryset(self):
+        actors = Actor.objects.\
+            select_related("activity__activitygroup").\
+            prefetch_related('administrative_location')
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        if keyflow_pk is not None:
+            actors = actors.filter(
+                activity__activitygroup__keyflow__id=keyflow_pk)
 
+        if (self.isGET):
+            if 'id' in self.request.data:
+                ids = self.request.data['id'].split(",")
+                actors = actors.filter(id__in=ids)
+            if 'area' in self.request.data:
+                geojson = self.request.data['area']
+                poly = GEOSGeometry(geojson)
+                actors = actors.filter(
+                    administrative_location__geom__intersects=poly)
 
-class AllActivityViewSet(ActivityViewSet):
-    serializer_class = AllActivitySerializer
-
-
-class AllActorViewSet(ActorViewSet):
-    serializer_class = AllActorSerializer
-    serializers = {'list': AllActorListSerializer, }
+        return actors.order_by('id')

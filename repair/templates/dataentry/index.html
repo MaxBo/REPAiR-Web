@@ -3,78 +3,66 @@
 {% load render_bundle from webpack_loader %}
 
 {% block sidebar %}
-  <script>
-    document.getElementById("data-entry-link").classList.add('active');
-  </script>
-  <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <div>
-      <select disabled id="keyflow-select" name="keyflow" style="width: 60%;">
-        <option selected disabled>{% trans "Select type of flow" %} </option>
-      {% for keyflow in keyflows %}
-        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
-      {% endfor %}
-      </select>
-      <span class="sub-icon fa fa-cogs"></span>
-    </div>
-    <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
-    <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-users"></span></a></li>
-    <li><a href="#materials-edit" data-toggle="pill"> {% trans "Edit Materials" %} <span class="sub-icon fa fa-gavel"></span></a></li>
-  </ul>
+  {% if data_entry_permitted %}
+    <script>
+      document.getElementById("data-entry-link").classList.add('active');
+    </script>
+    <ul class="nav nav-pills nav-stacked" id="sidebar">
+      <div class="row">
+        <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
+          <option selected disabled>{% trans "Select keyflow" %} </option>
+        {% for keyflow in keyflows %}
+          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+        {% endfor %}
+        </select>
+        <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
+      </div>
+      <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
+      <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-users" style="margin-right: -5px"></span></a></li>
+      <li><a href="#materials-edit" data-toggle="pill"> {% trans "Edit Materials" %} <span class="sub-icon fa fa-gavel"></span></a></li>
+    </ul>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-treeview.min.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/theme.default.min.css">
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/leaflet.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol.css">
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/ol-contextmenu.css">
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/data-entry.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/hierarchy-select.min.css" />
-  <h3 id="casestudy-warning">{% trans "Please select a Casestudy first!" %}</h3>
-  <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of flow inside the side-menu." %}</h3>
-  <div class="tab-content">
-    <!-- Flow editor -->
-    <div class="tab-pane fade in active" id="flows-edit">
-      <button title="{% trans "Refresh Flows" %}" type="button" id="refresh-flowview-btn" class="btn btn-primary round" style="display: none; float: right;">
-        {% trans "Refresh View" %} <span class="glyphicon glyphicon-refresh"></span>
-      </button> 
-      <div id="flows-content"></div>
-    </div>
-    <!-- Actor editor-->
-    <div class="tab-pane fade in" id="actors-edit">
-      <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-actorsview-btn" class="btn btn-primary round" style="display: none; float: right;">
-        {% trans "Refresh Actors" %} <span class="glyphicon glyphicon-refresh"></span>
-      </button> 
-      <div id="actors-content"></div>
-    </div>
-    <!-- Material editor-->
-    <div class="tab-pane fade in" id="materials-edit">
-      <button title="{% trans "Refresh Materials" %}" type="button" id="refresh-materialsview-btn" class="btn btn-primary round" style="display: none; float: right;">
-        {% trans "Refresh Materials" %} <span class="glyphicon glyphicon-refresh"></span>
-      </button> 
-      <div id="materials-content"></div>
-    </div>
-  </div>
-  <div id="alert-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title"><span class="glyphicon glyphicon-warning-sign"></span></h4>
-        </div>
-        <div class="modal-body">
-          <p id="alert-message"></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
-        </div>
+  
+  {% if not data_entry_permitted %}
+    <h3>{% trans "You do not have the permission to enter data for casestudies." %}</h3>
+    {% render_bundle 'Base' %}
+  {% else %}
+    <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+    <div class="tab-content">
+      <!-- Flow editor -->
+      <div class="tab-pane fade in active" id="flows-edit">
+        <button title="{% trans "Refresh Flows" %}" type="button" id="refresh-flowview-btn" class="btn btn-primary round" style="display: none; float: right;">
+          {% trans "Refresh View" %} <span class="glyphicon glyphicon-refresh"></span>
+        </button> 
+        <div id="flows-content"></div>
+      </div>
+      <!-- Actor editor-->
+      <div class="tab-pane fade in" id="actors-edit">
+        <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-actorsview-btn" class="btn btn-primary round" style="display: none; float: right;">
+          {% trans "Refresh Actors" %} <span class="glyphicon glyphicon-refresh"></span>
+        </button> 
+        <div id="actors-content"></div>
+      </div>
+      <!-- Material editor-->
+      <div class="tab-pane fade in" id="materials-edit">
+        <button title="{% trans "Refresh Materials" %}" type="button" id="refresh-materialsview-btn" class="btn btn-primary round" style="display: none; float: right;">
+          {% trans "Refresh Materials" %} <span class="glyphicon glyphicon-refresh"></span>
+        </button> 
+        <div id="materials-content"></div>
       </div>
     </div>
-  </div>
-{% include "dataentry/backbone-templates.html" %}
-{% render_bundle 'vendors' %}
-{% render_bundle 'DataEntry' %}
+    {% include "dataentry/actors.html" %}
+    {% include "dataentry/materials.html" %}
+    {% include "dataentry/flows.html" %}
+    {% include "statusquo/flows.html" %}
+    {% render_bundle 'DataEntry' %}
+  {% endif %}
+
 {% endblock %}
 
 <!--<div>Icons made by <a href="https://www.flaticon.com/authors/simpleicon" title="SimpleIcon">SimpleIcon</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div-->>

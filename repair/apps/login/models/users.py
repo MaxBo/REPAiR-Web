@@ -12,6 +12,11 @@ class CaseStudy(GDSEModel):
     name = models.TextField()
     geom = geomodels.MultiPolygonField(null=True)
     focusarea = geomodels.MultiPolygonField(null=True)
+    description = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        default_permissions = ('add', 'change', 'delete', 'view',
+                               'setupmode', 'dataentry')
 
     @property
     def solution_categories(self):
@@ -50,6 +55,8 @@ class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
     organization = models.TextField(default='', blank=True)
+    session = models.TextField(default='', blank=True)
+    can_change_password = models.BooleanField(default=True)
 
     @property
     def name(self):

@@ -10,9 +10,10 @@ from repair.views import ModeView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 import numpy as np
-from repair.apps.login.views import  CasestudyViewSetMixin
-from repair.apps.utils.views import (ModelPermissionViewSet,
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
+from rest_framework.response import Response
 from repair.apps.statusquo.serializers import (
      AreaOfProtectionSerializer,
      ImpactCategorySerializer,
@@ -41,20 +42,31 @@ class TargetViewSet(CasestudyViewSetMixin,
     queryset = Target.objects.all()
     serializer_class = TargetSerializer
 
+    def list(self, request, *args, **kwargs):
+        
+        if (request.user.id and 'user' not in request.query_params and
+            'user__in' not in request.query_params):
+            self.queryset = self.queryset.filter(user__user__user_id=request.user.id)
+        
+        return super().list(request, *args, **kwargs)
+
 
 class SustainabilityFieldViewSet(ModelPermissionViewSet):
     queryset = SustainabilityField.objects.all()
     serializer_class = SustainabilityFieldSerializer
+    pagination_class = None
 
 
 class ImpactcategoryViewSet(ModelPermissionViewSet):
     queryset = ImpactCategory.objects.all()
     serializer_class = ImpactCategorySerializer
+    pagination_class = None
 
 
 class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
     queryset = ImpactCategory.objects.all()
     serializer_class = ImpactCategorySerializer
+    pagination_class = None
 
     def list(self, request, *args, **kwargs):
         super().check_permission(request, 'view')
@@ -78,13 +90,16 @@ class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
 class AreaOfProtectionViewSet(ModelPermissionViewSet):
     queryset = AreaOfProtection.objects.all()
     serializer_class = AreaOfProtectionSerializer
+    pagination_class = None
 
 
 class TargetValueViewSet(ModelPermissionViewSet):
     queryset = TargetValue.objects.all()
     serializer_class = TargetValueSerializer
+    pagination_class = None
 
 
 class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
     queryset = TargetSpatialReference.objects.all()
     serializer_class = TargetSpatialReferenceSerializer
+    pagination_class = None

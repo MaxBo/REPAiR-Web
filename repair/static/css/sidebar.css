@@ -1,4 +1,9 @@
-
+/**
+ * stylesheet for the side navigation bar
+ *
+ * @author Christoph Franke
+ */
+ 
 #sidebar-wrapper {
     color: #fff;
     left: -185px;
@@ -10,12 +15,11 @@
     position: fixed;
     height: 100%;
     transition: all .4s ease 0s;
-    z-index: 9998; /* 1 below navbar-default */
+    z-index: 1040; 
     box-shadow: 1px 0px 3px 0px rgba(0,0,0,0.1);
 }
 
 #sidebar-wrapper:hover, #sidebar-wrapper.active{
-    background #999;
     left: 0px;
 }
 
@@ -55,6 +59,7 @@
     border: 2px solid #fff;
     /*border-radius: 10px;*/
     margin-top: 20px;
+    background-color: transparent;
 }
 
 #sidebar li.active a, #sidebar li.active a:hover {
@@ -66,11 +71,9 @@
 #sidebar li a:hover {
     border-style: solid;
     border-color: #aad400;
-    background-color: transparent;
 }
 
-#slide-icon
-{
+#slide-icon{
     color: #999;
     float: right;
     padding: 50px 5px 30px 0px;

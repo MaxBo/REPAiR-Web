@@ -10,21 +10,10 @@ from .nodes import Actor
 
 class Geolocation(gis.Model):
 
-    country_choices = (("NL", "The Netherlands"),
-                       ("IT", "Italy"),
-                       ("PL", "Poland"),
-                       ("DE", "Germany"),
-                       ("BE", "Belgium"),
-                       ("HU", "Hungary"),
-                       ("SB", "Sandbox"),
-                       ("EU", "European Union"),
-                       ("-1", "Outside EU"))
-
     name = models.TextField(blank=True, null=True)
     postcode = models.CharField(max_length=10, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, choices=country_choices,
-                               default="-1")
+    country = models.CharField(max_length=255, default='', blank=True)
     city = models.CharField(max_length=255, blank=True, null=True)
     geom = gis.PointField(blank=True, null=True)
     area = models.ForeignKey(Area, on_delete=models.SET_NULL, null=True)

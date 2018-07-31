@@ -1,3 +1,19 @@
+/**
+ * basic stylesheet for the REPAiR website
+ *
+ * @author Christoph Franke
+ */
+
+/* prevent selection of content, some browsers try to select sth. on touch */
+.noselect {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
 body {
   position: absolute;
   width: 100%;
@@ -9,7 +25,34 @@ body {
 }
 
 a {
-  color: #aad400;
+  color: #94b900;
+}
+
+.nav-tabs>li>a {
+  background-color: #f1f1f1;
+  color: grey;
+  border-bottom-color: #e6e6e6;
+}
+
+.nav-tabs>li>a:hover {
+  background-color: #e6e6e6;
+  color: grey;
+  border: 1px solid #cccccc;
+}
+
+.dropdown-menu>li>a {
+  background-color: white;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  background-color: white;
+  color: #94b900;
+  border: 1px solid #e6e6e6;
+  /* make the bottom line white and lay it over the borders of divs to the bottom */
+  border-bottom: 2px solid white;
+  margin-bottom: -1px;
+  z-index: 1000;
+  font-weight: 600;
 }
 
 .row{
@@ -29,6 +72,10 @@ div.fullscreen{
   position: fixed;
   top: 0;
   left: 0;
+}
+
+.popover{
+  z-index: 10000;
 }
 
 .tooltip {
@@ -95,24 +142,46 @@ div.fullscreen{
   font-family: sans-serif;
   font-size: 12px;
 }
-.panel {
-  position: relative;
-  min-height: 700px;
-  border: 2px solid #EEE;
-  border-radius: 10px;
-  margin: 3px;
-  padding: 5px;
-  background-color: white;
-  font-family: sans-serif;
-  font-size: 12px;
+.panel-heading .accordion-toggle{
+  text-decoration: none;
+  padding: 20px 10px 20px 10px;
+  display: block;
+  color: black !important;
 }
-.panel ul {
-  list-style: none;
-  margin: 0px;
-  padding: 0px;
+.panel-heading .accordion-toggle:after {
+  /* symbol for panel */
+  font-family: 'Glyphicons Halflings';  
+  content: "\e114";
+  color: grey;
+  margin-left: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:after {
+  /* symbol for collapsed panel*/
+  content: "\e080"; 
 }
 .title {
-  font-weight: 600;
+  font-weight: 600;    
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.help-icon{
+  margin: 5px 5px 5px 10px;
+  font-size: 24px;
+  color: lightblue;
+  cursor: pointer;
+  text-decoration: none!important;
+}
+.help-icon:hover{
+  color: #44c9f5;
+}
+.help-icon:focus{
+  color: #44c9f5;
+  outline: none;
+}
+.input-label {
+  float: left; 
+  margin-right: 10px; 
+  padding-top: 8px;
 }
 .source {
   position: absolute;
@@ -121,13 +190,6 @@ div.fullscreen{
   left: 50px;
 }
 .graph {
-}
-.selectpicker {
-  height: 30px;
-  border: 2px solid #EEE;
-  border-radius: 5px;
-  color: #fff;
-  background-color: #333;
 }
 .btn-panel {
   background-color: #5688d8;
@@ -178,7 +240,7 @@ tr.strikeout td:before {
     width: 100%;
 }
 tr.selected td{
-    background-color: rgba(170, 212, 0, 0.3) !IMPORTANT;
+    background-color: rgb(240, 255, 179) !IMPORTANT;
     border-bottom: 2px solid #aad400;
     border-top: 2px solid #aad400;
 }
@@ -186,8 +248,13 @@ tr.selected td{
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
 th {
-  background-color:  #aad400;
+  background-color: #aad400;
   color: white;
+}
+
+tfoot th {
+  background-color: #f9f9f9;
+  color: black;
 }
 
 .loader {
@@ -333,6 +400,18 @@ button.square, button.round, .btn.square, .btn.round {
   color: #aad400;
 }
 
+.btn-warning.inverted {
+  background-color: white;
+  border: solid 1px #d58512;
+  color: #d58512;
+}
+
+.btn-danger.inverted {
+  background-color: white;
+  border: solid 1px #ac2925;
+  color: #ac2925;
+}
+
 .btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
   border-color: #93b700 !important;
   background-color: #f9ffe2 !important;
@@ -342,8 +421,31 @@ button.square, button.round, .btn.square, .btn.round {
   color: #93b700;
 }
 
+.btn-warning.inverted:focus, .btn-warning.inverted:hover, .btn-warning.inverted:active {
+  border-color: #b75e00 !important;
+  background-color: #fff0e2 !important;
+}
+
+.btn-warning.inverted:active {
+  color: #b75e00;
+}
+
+.btn-danger.inverted:focus, .btn-danger.inverted:hover, .btn-danger.inverted:active {
+  border-color: #b70000 !important;
+  background-color: #ffefef !important;
+}
+
+.btn-danger.inverted:active {
+  color: #b70000;
+}
+
 button.round, .btn.round{
   border-radius: 20px;
+}
+
+button.small, .btn.small{
+  padding: 0px 4px 0px 2px;
+  font-size: 12px;
 }
 
 button.square:hover, button.round:hover, button.square:focus, button.round:focus{
@@ -354,15 +456,27 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .fullscreen-toggle{
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 20px;
     font-size: 1em;
     opacity: 0.8;
     padding: 3px 7px 3px 7px;
 }
 
+/*div.fullscreen > .fullscreen-toggle{*/
+    /*top: 20px;*/
+/*}*/
+
+.flipped {
+    transform:rotateX(180deg);
+    -ms-transform:rotateX(180deg); /* IE 9 */
+    -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+
 .item-panel{
-  /*min-height: 500px;*/
+  min-width: 100px;
+  margin: 5px;
+  vertical-align: top;
 }
 
 .panel-item {
@@ -386,6 +500,9 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .panel-item label{
   font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .panel-item .button-box{
@@ -425,4 +542,17 @@ div.panel-item:hover label{
 }
 .row.overflow>div{
   display: inline-block;
+  position: relative;
+}
+.shaded{
+  box-shadow: 0px 1px 6px 0px #adadad;
+}
+.shaded:hover{
+  box-shadow: 0px 1px 6px 0px #c4d875;
+}
+.ui-select-choices {
+  position: fixed;
+  top: auto;
+  left: auto;
+  width: inherit;
 }
