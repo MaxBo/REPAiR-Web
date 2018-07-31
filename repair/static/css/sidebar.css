@@ -1,4 +1,9 @@
-
+/**
+ * stylesheet for the side navigation bar
+ *
+ * @author Christoph Franke
+ */
+ 
 #sidebar-wrapper {
     color: #fff;
     left: -185px;

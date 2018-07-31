@@ -4,6 +4,8 @@ function (Session) {
     /**
     * global configuration file
     * @module config
+    *
+    * @author Christoph Franke
     */
     var config = {
         URL: '/' // base application URL

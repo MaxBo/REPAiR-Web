@@ -361,8 +361,11 @@ var SolutionsView = BaseView.extend(
             this.map.close();
             this.map = null;
         }
+        var el = document.getElementById(divid),
+            height = document.body.clientHeight * 0.6;
+        el.style.height = height + 'px';
         this.map = new Map({
-            el: document.getElementById(divid), 
+            el: el, 
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 

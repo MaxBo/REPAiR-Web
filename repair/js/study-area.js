@@ -7,6 +7,13 @@ define(['d3', 'models/casestudy', 'visualizations/sankey-map',
 ], function(d3, CaseStudy, SankeyMap, BaseMapsView, SetupMapsView, BaseChartsView, 
     StakeholdersView, appConfig) {
 
+    /**
+     * entry point for views on subpages of "Study Area" menu item
+     *
+     * @author Christoph Franke
+     * @module StudyArea
+     */
+
     function renderWorkshop(caseStudy){
         var mapsView = new BaseMapsView({
             template: 'base-maps-template',

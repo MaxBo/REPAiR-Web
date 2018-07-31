@@ -1,3 +1,9 @@
+/**
+ * stylesheet for the top navigation bar
+ *
+ * @author Christoph Franke
+ */
+
 .navbar {
     position: fixed;
     width: 100%;

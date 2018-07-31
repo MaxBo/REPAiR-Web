@@ -1,4 +1,10 @@
-  /* prevent selection of content, some browsers try to select sth. on touch */
+/**
+ * basic stylesheet for the REPAiR website
+ *
+ * @author Christoph Franke
+ */
+
+/* prevent selection of content, some browsers try to select sth. on touch */
 .noselect {
   -webkit-touch-callout: none;
     -webkit-user-select: none;
