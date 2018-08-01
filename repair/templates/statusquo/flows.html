@@ -8,9 +8,9 @@
 <div class="panel-group" id="filter-accordion">
   <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
-      <h4 style="margin-top: 0; margin-bottom: 0;"> 
+      <h4 style="margin-top: 0; margin-bottom: 0;">
         <a role="button" data-toggle="collapse" data-parent="#filter-accordion" href="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" class="accordion-toggle collapsed">
-          {% trans "Filters" %} 
+          {% trans "Filters" %}
         </a>
       </h4>
     </div>
@@ -20,13 +20,13 @@
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Nodes Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
             Filter the nodes by the following criteria<br><br>
-            <b>Filter Level</b> - 
+            <b>Filter Level</b> -
             The level hierarchy of the nodes goes from Activitygroup over Activities down to the individual Actors.
-            Depending on the selected level different selects for the nodes of each level appear, from left to right with higher granularity. 
+            Depending on the selected level different selects for the nodes of each level appear, from left to right with higher granularity.
             Each selection on a specific level limits the number of available nodes in the more granular node selects to its right.<br><br>
             <b>Direction</b> - Limits the displayed flows to a set flowing <i>to</i> or <i>from</i> the filtered nodes (or both: <i>from/to</i>)
           {% endblocktrans %}">
-        </a> 
+        </a>
         <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Filter Level" %} </label>
@@ -66,11 +66,11 @@
                       On confirmation the selected areas are used to limit the Actors to those located inside these areas.<br><br>
                       This filter is complementary to the other node filters and available on the Actor level only.
                     {% endblocktrans %}">
-                  </a> 
-                </div> 
+                  </a>
+                </div>
                 <div id="area-selections" class="row">
                   <div id="area-selections"></div>
-                </div> 
+                </div>
             </div>
           </div>
         </div>
@@ -89,15 +89,15 @@
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
             Filter the flows in between the nodes by the following criteria<br><br>
-            <b>Flow Type</b> - 
+            <b>Flow Type</b> -
             Limits the displayed flows to flows of <i>Products</i> or <i>Waste</i> or displays both (<i>Products and Waste</i>).<br><br>
-            <b>Material</b> - 
-            Flows are composed of multiple fractions of different materials. Selecting a material limits the displayed flows 
+            <b>Material</b> -
+            Flows are composed of multiple fractions of different materials. Selecting a material limits the displayed flows
             to a set of flows containing this material and its child materials.<br>
             <b><i>Aggregate materials</i></b> - If this is checked all material fractions and their amounts are summed up to the top level materials (or to the selected material and its direct children).
             If unchecked all fractions will be shown in detail.
           {% endblocktrans %}">
-        </a> 
+        </a>
         <div class="row" style="margin-top: 10px">
           <div class="col-md-3">
             <div class="row">
@@ -131,9 +131,9 @@
       <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filters and Render" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
-          Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above 
+          Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above
           (click the Filters row to expand/collapse it).<br><br>
-          All data is based on flows between actors. The data will be aggregated to the selected <b>Display Level</b>. 
+          All data is based on flows between actors. The data will be aggregated to the selected <b>Display Level</b>.
         {% endblocktrans %}">
       </a>
     </div>
@@ -258,8 +258,9 @@
           <td>{% trans "Type" %}</td>
           <td>
             <select class="form-control" id="indicator-type">
-              <option value="A">Flows A</option>
-              <option value="AB">Flows A / Flows B</option>
+              {% for indicator in indicators %}
+                <option value="{{indicator.value}}" title="{{indicator.description}}">{{indicator.name}}</option>
+              {% endfor %}
             </select>
           </td>
         </tr>
@@ -282,7 +283,7 @@
       </table>
     </div>
   </div>
-  <div class="row">  
+  <div class="row">
     <div class="col-md-12">
       <ul class="nav nav-tabs">
         <li id="flowALi" class="active"><a data-toggle="tab" href="#flow-a-tab" id='data-link'>{% trans "Flow A" %}</a></li>
@@ -338,7 +339,7 @@
     </div>
   </div>
   <div class="row bordered shaded" style="margin-top: 10px;">
-    <h4> {% trans "Origins" %} 
+    <h4> {% trans "Origins" %}
     <!--<span class="far fa-circle" style="margin-right: 5px;"></span><span class="glyphicon glyphicon-arrow-right"></span>-->
     </h4>
     <div class="row">
@@ -368,7 +369,7 @@
     </div>
   </div>
   <div class="row bordered shaded" style="margin-top: 10px; margin-bottom: 10px;">
-    <h4> {% trans "Destinations" %} 
+    <h4> {% trans "Destinations" %}
     <!--<span class="glyphicon glyphicon-arrow-right"></span><span class="far fa-circle" style="margin-right: 5px;"></span>-->
     </h4>
     <div class="row">

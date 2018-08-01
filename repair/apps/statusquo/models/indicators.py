@@ -20,8 +20,8 @@ class NodeLevel(Enum):
 
 
 class IndicatorType(Enum):
-    A = 1
-    AB = 2
+    IndicatorA = 1
+    IndicatorAB = 2
 
 
 class FlowType(Enum):
@@ -57,7 +57,7 @@ class FlowIndicator(GDSEModel):
     description = models.TextField(blank=True)
     
     indicator_type = EnumIntegerField(
-        enum=IndicatorType, default=IndicatorType.A)
+        enum=IndicatorType, default=IndicatorType.IndicatorA)
 
     flow_a = models.ForeignKey(IndicatorFlow,
                                on_delete=models.SET_NULL,

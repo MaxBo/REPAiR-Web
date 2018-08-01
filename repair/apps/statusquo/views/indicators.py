@@ -8,6 +8,7 @@ from enum import Enum
 import numpy as np
 from django.db.models import Q
 from collections import OrderedDict
+from django.utils.translation import ugettext as _
 
 from repair.apps.utils.views import ModelPermissionViewSet
 from repair.apps.asmfa.models import Actor, Actor2Actor, AdministrativeLocation
@@ -32,6 +33,8 @@ class ComputeIndicator(metaclass=ABCMeta):
     '''
     abstract class for computing indicators
     '''
+    description = ''
+    name = ''
     def sum(self, indicator_flow, area=None):
         '''
         aggregation sum
@@ -64,7 +67,7 @@ class ComputeIndicator(metaclass=ABCMeta):
                 origins = filter_actors_by_area(origins, area)
             if spatial == 'DESTINATION' or spatial == 'BOTH':
                 destinations = filter_actors_by_area(destinations, area)
-        
+
         flows = flows.filter(
             Q(origin__in=origins) & Q(destination__in=destinations))
 
@@ -79,7 +82,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         for flow in data:
             amount += flow['amount']
         return amount
-    
+
     def get_actors(self, node_ids, node_level):
         actors = Actor.objects.all()
         if len(node_ids) > 0:
@@ -91,7 +94,7 @@ class ComputeIndicator(metaclass=ABCMeta):
             kwargs = {filter_prefix + 'id__in': node_ids}
             actors = actors.filter(**kwargs)
         return actors
-    
+
     def filter_by_area(self, actors, area):
         return actors
 
@@ -100,6 +103,8 @@ class IndicatorA(ComputeIndicator):
     '''
     Aggregated Flow A
     '''
+    description = _('SUM aggregation Flow A')
+    name = _('Flow A')
     def process(self, indicator, areas=None):
         flow_a = indicator.flow_a
         if not areas:
@@ -116,6 +121,8 @@ class IndicatorAB(ComputeIndicator):
     '''
     Aggregated Flow A / aggregated Flow B
     '''
+    description = _('SUM aggregation Flow A / SUM aggregation Flow B')
+    name = _('Flow A / Flow B')
     def process(self):
         flow_a = indicator.flow_a
         flow_b = indicator.flow_b
@@ -129,24 +136,13 @@ class IndicatorAB(ComputeIndicator):
         return amounts
 
 
-class ComputeIndicators(Enum):
-    A = IndicatorA
-    AB = IndicatorAB
-
-# make sure that the indicators to compute
-# match the indicators how they are stored in db
-assert (np.array_equal(np.sort(ComputeIndicators._member_names_),
-                       np.sort(IndicatorType._member_names_))), \
-       "ComputeIndicators and IndicatorTypes don't match"
-
-
 class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
     '''
     view on indicators in db
     '''
     queryset = FlowIndicator.objects.order_by('id')
     serializer_class = FlowIndicatorSerializer
-    
+
     def destroy(self, request, **kwargs):
         instance = FlowIndicator.objects.get(id=kwargs['pk'])
         for flow in [instance.flow_a, instance.flow_b]:
@@ -160,13 +156,15 @@ class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
         if not indicator:
             raise Http404
         typ = indicator.indicator_type
-        computer = ComputeIndicators[typ.name].value()
+        computer_class = globals().get(typ.name, None)
+        assert issubclass(computer_class, ComputeIndicator)
+        computer = computer_class()
         areas = request.query_params.get('areas', None)
         if areas:
             areas = areas.split(',')
         values = computer.process(indicator, areas)
         return Response(values)
-    
+
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         queryset = self.queryset

@@ -4,7 +4,6 @@ from django.views.generic import TemplateView
 from plotly.offline import plot
 from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
                                Layout, Figure, Data)
-from django.utils.translation import ugettext as _
 from rest_framework import viewsets
 from repair.views import ModeView
 from django.contrib.auth.mixins import LoginRequiredMixin
