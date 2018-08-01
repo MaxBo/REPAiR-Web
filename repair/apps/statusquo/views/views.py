@@ -13,6 +13,7 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
 
+
 class IndicatorTemplate():
     def __init__(self, value, description, name):
         self.value, self.description, self.name = value, description, name

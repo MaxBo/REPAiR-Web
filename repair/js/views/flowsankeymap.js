@@ -1,9 +1,9 @@
-define(['views/baseview', 'collections/gdsecollection', 
+define(['underscore', 'views/baseview', 'collections/gdsecollection',
         'collections/geolocations',
         'visualizations/flowmap', 'leaflet',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css'],
 
-function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
+function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
     /**
     *
@@ -11,7 +11,7 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
     * @name module:views/FlowSankeyMapView
     * @augments module:views/BaseView
     */
-    var FlowSankeyMapView = BaseView.extend( 
+    var FlowSankeyMapView = BaseView.extend(
         /** @lends module:views/FlowSankeyView.prototype */
         {
 
@@ -26,11 +26,12 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
         */
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
+            _.bindAll(this, 'update');
             this.render();
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
-            
+
             this.locations = {};
             this.flows = {};
             this.nodes = {};
@@ -46,26 +47,26 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
         * render the view
         */
         render: function(){
-        
+
             var map = new L.Map(this.el, {
-                    center: [52.41, 4.95], 
-                    zoomSnap: 0.25, 
-                    zoom: 10.5, 
+                    center: [52.41, 4.95],
+                    zoomSnap: 0.25,
+                    zoom: 10.5,
                     minZoom: 5,
                     maxZoom: 18
                 })
                 .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
-            var flowMap = new FlowMap(map);
+            this.flowMap = new FlowMap(map);
             map.on("zoomend", this.update);
             //reset();
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
         },
-        
+
         update: function(){
-            flowMap.reset(this.data.bbox);
-            flowMap.render(this.data.nodes, this.data.flows);
+            this.flowMap.reset(this.data.bbox);
+            this.flowMap.render(this.data.nodes, this.data.flows);
         },
-        
+
         rerender: function(){
             var _this = this;
             this.prefetchLocations(function(){
@@ -73,7 +74,7 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 _this.update();
             })
         },
-        
+
         addFlows: function(flows){
             var _this = this;
                 flows = (flows instanceof Array) ? flows: [flows];
@@ -81,7 +82,7 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 _this.flows[flow.id] = flow;
             })
         },
-        
+
         addNodes: function(nodes){
             var _this = this,
                 nodes = (nodes instanceof Array) ? nodes: [nodes];
@@ -89,7 +90,7 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 _this.nodes[node.id] = node;
             })
         },
-        
+
         prefetchLocations: function(callback){
             var promises = [],
                 _this = this;
@@ -126,16 +127,15 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 topLeft = [10000, 0],
                 bottomRight = [0, 10000];
                 _this = this;
-            
+
             for (var nodeId in this.nodes) {
                 var location = _this.locations[nodeId];
-                console.log(location)
                 var node = this.nodes[nodeId],
                     id = node.id,
                     location = _this.locations[node.id],
                     geom = location.get('geometry');
                 if (!geom) continue;
-                
+
                 var coords = geom.get('coordinates'),
                     lon = coords[0],
                     lat = coords[1];
@@ -146,12 +146,12 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     color: node.color,
                     lon: lon,
                     lat: lat,
-                    radius: 16
+                    level: -1
                 }
                 topLeft = [Math.min(topLeft[0], lon), Math.max(topLeft[1], lat)];
                 bottomRight = [Math.max(bottomRight[0], lon), Math.min(bottomRight[1], lat)];
             };
-            
+
             var uniqueMaterials = new Set();
             var i = 0;
             for (var flowId in this.flows) {
@@ -162,15 +162,18 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 if(!origin || !destination) continue;
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                    flowlabel = origin.name + '&#10132; '  + destination.name,
-                    totalAmount = flow.get('amount');
+                    flowlabel = origin.name + '&#10132; '  + destination.name + '<br>' + wasteLabel,
+                    totalAmount = flow.get('amount'),
+                    labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
 
                 composition.fractions.forEach(function(fraction){
                     var material = _this.materials.get(fraction.material),
-                        amount = totalAmount * fraction.fraction;
+                        amount = totalAmount * fraction.fraction,
+                        label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
                     flowsData[i] = {
                         id: flow.id,
-                        label: flowlabel + '<br>' + wasteLabel,
+                        label: label,
+                        labelTotal: labelTotal,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
                         color: 'grey',
@@ -182,7 +185,7 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     i++;
                 })
             }
-            
+
             //define colors for individual materials and store in styles
             var materialColor = d3.scale.linear()
                 .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
@@ -196,15 +199,15 @@ function(BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 matColors[materialId] = color;
                 i += 1;
             });
-            
+
             for (var flowId in flowsData){
                 var d = flowsData[flowId];
                 d.color = matColors[d.material];
             }
-            
+
             return {
-                flows: flowsData, 
-                nodes: nodesData, 
+                flows: flowsData,
+                nodes: nodesData,
                 bbox: [topLeft, bottomRight]
             }
         }

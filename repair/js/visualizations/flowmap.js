@@ -92,7 +92,6 @@ define([
             var connections = [];
             var strokeWidthArrayPerConnection = {};
             var connectionSourceTarget = {};
-            this.styles = styles;
 
             for (var key in flowsData) {
                 var source = flowsData[key].source,
@@ -226,7 +225,7 @@ define([
                     'level': sourceLevel ,
                     //'style': source['style'] ,
                     // no style attribute added to actual REPAiR data
-                     'style': 2,
+                    'color': source.color,
                     'label': source.label
                 };
                 nodesDataFlow[targetId] = {
@@ -235,7 +234,7 @@ define([
                     'level': targetLevel,
                     //'style': target['style'],
                     // no style attribute added to actual REPAiR data
-                     'style': 3,
+                    'color': target.color,
                     'label': target.label
                 };
 
@@ -249,24 +248,32 @@ define([
             // use addpoint for each node in nodesDataFlow
             Object.values(nodesDataFlow).forEach(function (node) {
                 _this.addPoint(node.lon, node.lat,
-                    node.level, node.style, node.label);
+                    node.level, node.label, node.color);
             });
 
         }
 
 
         // load data asynchronously, define to execute it sumultaneously
-        renderTopo(nodesData, flowsData, styles) {
+        renderTopo(nodesData, flowsData) {
             var _this = this;
             function loaded(error) {
-                _this.render(nodesData, flowsData, styles);
+                _this.render(nodesData, flowsData);
             }
+        }
+
+        defineRadius(level){
+            if (level === 10) return 11;
+            if (level === 8) return 16;
+            if (level === 6) return 21;
+            if (level === 4) return 26;
+            return 6;
         }
 
         // make adjustments if using other datasets
         defineRadiusZoom(level){
             var zoomLevel = this.map.getZoom();
-            var radius = this.styles[level].radius;
+            var radius = this.defineRadius(level);
 
             if (zoomLevel < 10){
                 return radius * (zoomLevel/15);
@@ -300,7 +307,7 @@ define([
 
 
         //function to add source nodes to the map
-        addPoint(lon, lat, level, styleId, nodeLabel) {
+        addPoint(lon, lat, level, nodeLabel, color) {
             var x = this.projection([lon, lat])[0],
                 y = this.projection([lon, lat])[1];
 
@@ -319,7 +326,7 @@ define([
                 .attr("cx", x)
                 .attr("cy", y)
                 .attr("r", radius)
-                .style("fill", this.styles[styleId].nodeColor)
+                .style("fill", color)
                 .style("fill-opacity", 1)
                 .style("stroke", 'lightgrey')
                 .style("stroke-width", 0.4)
@@ -419,7 +426,7 @@ define([
 
         defineTriangleData(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp){
             var triangleData = [];
-            var tReduction = - this.styles[targetLevel].radius,
+            var tReduction = - this.defineRadius(targetLevel),
                 tRatio = tReduction / flowLength,
                 txRValue = dxp * tRatio,
                 tyRValue = dyp * tRatio,
@@ -504,7 +511,7 @@ define([
                             var sourceLevel = source.level,
                                 targetLevel = target.level;
 
-                            Bthis.drawPath(sxp, syp, txp, typ, flow.style, flow.label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection)
+                            Bthis.drawPath(sxp, syp, txp, typ, flow.color, flow.label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection)
                         }
                     }
 
@@ -532,7 +539,7 @@ define([
         }
 
         // function to draw path divided by materials
-        drawPath(sxp, syp, txp, typ, styleId, label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection) {
+        drawPath(sxp, syp, txp, typ, color, label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection) {
 
             var pathLengthValues = this.adjustedPathLength(sxp, syp, txp, typ, sourceLevel, targetLevel);
             var dxp = pathLengthValues[0],
@@ -575,7 +582,7 @@ define([
                 .attr("x2", txpao)
                 .attr("y2", typao)
                 .attr("stroke-width", strokeWidth)
-                .attr("stroke", this.styles[styleId].color)
+                .attr("stroke", color)
                 .attr("stroke-opacity", 0.8)
                 .attr("clip-path", "url(#clip" + uid +")")
                 .on("click", function(){
