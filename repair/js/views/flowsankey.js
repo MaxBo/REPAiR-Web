@@ -14,7 +14,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         {
 
         /**
-        * render view to edit flows of a single keyflow
+        * render flows in sankey diagram
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                   element the view will be rendered in
@@ -124,6 +124,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     _this.render(data);
                 })
             });
+            this.onSelect = options.onSelect;
+            this.onDeselect = options.onDeselect;
         },
 
         /*
@@ -139,8 +141,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 destinationIds = this.destinations.pluck('id'),
                 missingOriginIds = new Set(),
                 missingDestinationIds = new Set(),
-                origins = this.origins,
-                destinations = this.destinations,
                 _this = this;
             this.flows.forEach(function(flow){
                 var origin = flow.get('origin'),
@@ -166,7 +166,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 promises.push(missingOrigins.postfetch({ 
                     body: { 'id': Array.from(missingOriginIds).join() },
                     success: function(){
-                        origins = origins.models.concat(missingOrigins.models);
+                        _this.origins.add(missingOrigins.toJSON(), {silent: true});
                     }
                 }))
             }
@@ -177,14 +177,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 promises.push(missingDestinations.postfetch({ 
                     body: { 'id': Array.from(missingDestinationIds).join() },
                     success: function(){
-                        destinations = destinations.models.concat(missingDestinations.models);
+                        _this.destinations.add(missingDestinations.toJSON(), {silent: true});
                     }
                 }))
             }
             
             Promise.all(promises).then(function(){
                 var data = _this.transformData(
-                    origins, destinations, _this.flows, _this.stocks, _this.materials);
+                    _this.origins, _this.destinations, _this.flows, _this.stocks, _this.materials);
                 success(data);
             })
         },
@@ -208,8 +208,30 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 width: width,
                 el: div,
                 title: '',
-                language: config.session.get('language')
+                language: config.session.get('language'),
+                selectable: true
             })
+            
+            // get models from sankey data and redirect the event
+            function redirectEvent(e){
+                var d = e.detail,
+                    flow = _this.flows.get(d.id),
+                    origin = _this.origins.get(d.source.id),
+                    destination = _this.destinations.get(d.target.id);
+                console.log(d)
+                origin.color = d.source.color;
+                destination.color = d.target.color;
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
+                    flow: flow,
+                    origin: origin,
+                    destination: destination
+                }}))
+            }
+            
+            div.addEventListener('linkSelected', redirectEvent);
+            div.addEventListener('linkDeselected', redirectEvent);
+            
+
             if (data.nodes.length == 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
             else sankey.render(data);
@@ -317,10 +339,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 if (source == null || target == null) return false;
                 var composition = flow.get('composition');
                 links.push({
+                    id: flow.id,
                     value: flow.get('amount'),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
+                    isStock: false,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + compositionRepr(composition)
                 });
             })
@@ -337,6 +361,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                             alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');
                 links.push({
+                    id: stock.id,
+                    isStock: true,
                     value: stock.get('amount'),
                     units: gettext('t/year'),
                     source: source,

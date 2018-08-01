@@ -1,8 +1,8 @@
-define(['views/baseview', 'underscore', 'visualizations/flowmap',
+define(['views/baseview', 'underscore', 'views/flowsankeymap',
         'collections/gdsecollection', 'views/flowsankey', 
         'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
 
-function(BaseView, _, FlowMap, GDSECollection, FlowSankeyView, utils, Map, ol){
+function(BaseView, _, FlowMapView, GDSECollection, FlowSankeyView, utils, Map, ol){
 /**
 *
 * @author Christoph Franke
@@ -27,8 +27,8 @@ var FlowsView = BaseView.extend(
     initialize: function(options){
         var _this = this;
         FlowsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'refreshSankeyMap');
         _.bindAll(this, 'prepareAreas');
+        _.bindAll(this, 'linkSelected');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -148,6 +148,7 @@ var FlowsView = BaseView.extend(
         this.addEventListeners();
         // render with preset selects (group level, all materials etc.)
         this.renderSankey();
+        this.renderSankeyMap();
     },
 
     resetNodeSelects: function(){
@@ -307,10 +308,6 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    refreshSankeyMap: function(){
-        if (this.sankeyMap) this.sankeyMap.refresh();
-    },
-
     renderSankey: function(){
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
@@ -402,27 +399,32 @@ var FlowsView = BaseView.extend(
             flowFilterParams: flowFilterParams,
             stockFilterParams: stockFilterParams,
             hideUnconnected: true,
-            height: 600,
+            height: 600
             //originLevel: displayLevel,
             //destinationLevel: displayLevel
         })
+        
+        el.addEventListener('linkSelected', this.linkSelected);
+        el.addEventListener('linkDeselected', console.log);
+    },
+    
+    linkSelected: function(e){
+        // only actors atm
+        var data = e.detail;
+        console.log(e)
+        if (data.flow.get('origin_level') !== 'actor') return;
+        this.flowMapView.addNodes([data.origin, data.destination]);
+        this.flowMapView.addFlows(data.flow);
     },
 
     renderSankeyMap: function(){
-        var flowMap = new FlowMap("flow-map");
-        var collection = this.actors;
-        flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+        this.flowMapView = new FlowMapView({
+            el: this.el.querySelector('#flow-map'),
+            caseStudyId: this.caseStudy.id,
+            keyflowId: this.keyflowId,
+            materials: this.materials,
+        });
         
-        //function transformNodes(nodes){
-            //var transformed = [];
-            //nodes.forEach(function(node)){
-                //var t = {
-                    //city: node.id,
-                    
-                //};
-                //transformed.append()
-            //}
-        //}
     },
     
     getSelectedNodes: function(nodeSelect){
