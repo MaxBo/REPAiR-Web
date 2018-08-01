@@ -25,7 +25,6 @@ class StatusQuoView(LoginRequiredMixin, ModeView):
 
         context = self.get_context_data()
 
-
         indicators = []
         for ind in IndicatorType:
             ind_class = getattr(status_quo_views, ind.name)

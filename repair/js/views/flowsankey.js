@@ -38,7 +38,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         initialize: function(options){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
-            _.bindAll(this, 'clickHandler');
             var _this = this;
             this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
@@ -125,7 +124,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     _this.render(data);
                 })
             });
-            this.onClick = options.onClick;
+            this.onSelect = options.onSelect;
+            this.onDeselect = options.onDeselect;
         },
 
         /*
@@ -134,15 +134,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'change #data-view-type-select': 'renderSankey'
-        },
-        
-        clickHandler: function(d){
-            var flow = this.flows.get(d.id),
-                origin = this.origins.get(d.source.id),
-                destination = this.destinations.get(d.target.id);
-            origin.color = d.source.color;
-            destination.color = d.target.color;
-            this.onClick(flow, origin, destination);
         },
         
         complementData: function(success){
@@ -218,8 +209,29 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 el: div,
                 title: '',
                 language: config.session.get('language'),
-                onClick: this.clickHandler
+                selectable: true
             })
+            
+            // get models from sankey data and redirect the event
+            function redirectEvent(e){
+                var d = e.detail,
+                    flow = _this.flows.get(d.id),
+                    origin = _this.origins.get(d.source.id),
+                    destination = _this.destinations.get(d.target.id);
+                console.log(d)
+                origin.color = d.source.color;
+                destination.color = d.target.color;
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
+                    flow: flow,
+                    origin: origin,
+                    destination: destination
+                }}))
+            }
+            
+            div.addEventListener('linkSelected', redirectEvent);
+            div.addEventListener('linkDeselected', redirectEvent);
+            
+
             if (data.nodes.length == 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
             else sankey.render(data);

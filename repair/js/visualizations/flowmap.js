@@ -68,7 +68,8 @@ define([
         }
 
 
-        reset(){
+        reset(bbox){
+            if (bbox) this.bbox = bbox;
             var topLeft = this.projection(this.bbox[0]),
                 bottomRight = this.projection(this.bbox[1]);
             topLeft = [topLeft[0] - 250, topLeft[1] - 250];
@@ -80,7 +81,7 @@ define([
             this.g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
         }
 
-        render(nodesData, flowsData, styles) {
+        render(nodesData, flowsData) {
             this.g.selectAll("*").remove();
             // remember scope of 'this' as context for functions with different scope
             var _this = this;

@@ -35,7 +35,7 @@ class Sankey{
             .nodeWidth(15)
             .nodePadding(10)
             .size([this.width, this.height]);
-        this.onClick = options.onClick;
+        this.selectable = options.selectable;
     }
     
     format(d) {
@@ -231,7 +231,16 @@ class Sankey{
                 })
             .on('mouseover', function(d) { tipLinks.show(d, this); })
             .on('mouseout', function(d) { tipLinks.hide(d, this); })
-            .on('click', this.onClick);
+            .on('click', function(d){
+                if (_this.selectable){
+                    var link = d3.select(this),
+                        selected = link.classed("selected");
+                    link.classed("selected", !selected);
+                    var etype = (selected) ? 'linkDeselected': 'linkSelected',
+                        event = new CustomEvent(etype, { detail: d });
+                    _this.el.dispatchEvent(event);
+                }
+            })
 
         link.filter( function(d) { return !d.causesCycle} )
             .style("stroke-width", function(d) { return Math.max(1, d.dy); });
