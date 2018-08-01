@@ -225,7 +225,7 @@ define([
                     'level': sourceLevel ,
                     //'style': source['style'] ,
                     // no style attribute added to actual REPAiR data
-                     'style': 2,
+                    'color': source.color,
                     'label': source.label
                 };
                 nodesDataFlow[targetId] = {
@@ -234,7 +234,7 @@ define([
                     'level': targetLevel,
                     //'style': target['style'],
                     // no style attribute added to actual REPAiR data
-                     'style': 3,
+                    'color': target.color,
                     'label': target.label
                 };
 
