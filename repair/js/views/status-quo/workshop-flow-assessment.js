@@ -1,10 +1,10 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
         'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
-        'muuri', 'app-config'],
+        'muuri', 'app-config', 'highcharts'],
 
 function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, 
-         Muuri, config){
+         Muuri, config, highcharts){
 /**
 *
 * @author Christoph Franke
@@ -283,7 +283,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.add(div, {});
         return div;
     },
-    
 
     // render item for bar chart
     renderBarChart: function(el, id, title, fontSize){
@@ -291,12 +290,103 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             template = _.template(html),
             div = document.createElement('div');
         div.innerHTML = template({
-            title: title, 
+            title: title,
             fontSize: fontSize || '60px',
             id: id
         });
+        
         //_this.selectedAreas contains the selected area's for this bar chart
         el.appendChild(div);
+        div.dataset['id'] = id;
+        
+        //build url and get the data for the bar chart
+        var urlind = config.api.flowIndicators;
+        urlind += "{2}/compute?areas=";
+        for(area in this.selectedAreas){
+            urlind += area + ",";
+        }
+        // remove trailing comma
+        urlind.slice(0,-1);
+        
+        if (this.selectedAreas !== undefined && this.selectedAreas.length != 0) {
+            var url = config.api.flowIndicators.format(this.caseStudy.id, this.keyflowId, this.indicatorSelect.value);
+            $.ajax({
+                url: url,
+                type: 'GET',
+                async: true,
+                dataType: "json",
+                success: function (data) {
+                    var areas = [];
+                    var values = [];
+                    $.each(data.results, function(index, value) {
+                        areas.push(value.area);
+                        values.push(value.value);
+                    });
+                    
+                    //create bar chart
+                    var barChart = highcharts.chart(div,{
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: div.title
+                        },
+                        xAxis: {
+                            categories: areas
+                        },
+                        yAxis: {
+                            min: 0
+                        },
+                        series: [{
+                            data: values
+                        }]
+                    });
+                }
+            });
+        } else {
+            //create empty chart
+            
+            //EXAMPLE
+            data = 
+            [
+                {
+                    "area": "815",
+                    "value": 0
+                },
+                {
+                    "area": "812",
+                    "value": 0
+                },
+                {
+                    "area": "816",
+                    "value": 6541474.784818548
+                }
+            ];
+            
+            var areas = [];
+            var values = [];
+            $.each(data, function(index, value) {
+                areas.push(value.area);
+                values.push(value.value);
+            });
+            var barChart = highcharts.chart(div,{
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: div.title
+                },
+                xAxis: {
+                    categories: areas
+                },
+                yAxis: {
+                    min: 0
+                },
+                series: [{
+                    data: values
+                }]
+            });
+        }
     },
     
     // render an item where the user can setup areas to be shown as bar charts
@@ -332,15 +422,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
         this.areaSelectGrid.remove(div, { removeElements: true });
-        removeBarChartItem(evt);
+        
+        //remove bar chart with it
+        var bardiv = this.barChartRow.querySelector('div[data-id="' + id + '"]');
+        bardiv.parentNode.removeChild(bardiv);
         this.saveSession();
-    },
-    
-    // remove a bar chart
-    removeBarChartItem: function(evt){
-        var id = evt.target.dataset['id'],
-            div = this.barChartRow.querySelector('[id="' + id + '"]');
-        this.barChartRow.remove(div, { removeElements: true });
     },
     
     // initialize the chlorpleth map
