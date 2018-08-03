@@ -12,7 +12,7 @@ Object.keys(config.entry).forEach(function(key, index){
   config.entry[key] = [value, 'webpack/hot/only-dev-server']
 });
 
-config.entry.devServerClient = 'webpack-dev-server/client?http://' + ip + ':' + port;
+config.entry.devServerClient = 'webpack-dev-server/client?http://0.0.0.0:' + port;
 
 config.output.path = path.resolve('./repair/static/bundles/dev/');
 config.output.publicPath = 'http://' + ip + ':' + port + '/static/bundles/dev/';
