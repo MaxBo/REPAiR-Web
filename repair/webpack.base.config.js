@@ -1,7 +1,7 @@
 var path = require('path');
-var webpack = require('webpack'),
-    BundleTracker = require('webpack-bundle-tracker');
-    ExtractTextPlugin = require("extract-text-webpack-plugin");
+var webpack = require('webpack');
+var BundleTracker = require('webpack-bundle-tracker');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var entryPoints = {
     DataEntry: './js/data-entry',
