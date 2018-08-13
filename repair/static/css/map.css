@@ -63,25 +63,25 @@
   outline: 0;
 }
 .drawing-tools > .btn-group{
-  background-color: #f9f9f9; 
+  background-color: #f9f9f9;
   border-radius: 5px 5px;
 }
-/*.map{*/
+/*.olmap{*/
   /*height: 600px;*/
 /*}*/
-.map:-webkit-full-screen{
+.olmap:-webkit-full-screen{
   height: 100%!important;
   width: 100%;
 }
-.map:-moz-full-screen {
+.olmap:-moz-full-screen {
   height: 100%;
   width: 100%;
 }
-.map:-ms-fullscreen {
+.olmap:-ms-fullscreen {
   height: 100%;
   width: 100%;
 }
-.map:fullscreen {
+.olmap:fullscreen {
   height: 100%!important;
   width: 100%;
 }

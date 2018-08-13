@@ -25,7 +25,7 @@
           </tr>
           <tr>
             <td> {% trans "Coordinator" %} </td>
-            <td> 
+            <td>
               <select id="coordinator-select" class="selectpicker" style="width: 100%;">
               <% stakeholderCategories.forEach(function(category){ %>
                 <optgroup label="<%= category.get('name') %>">
@@ -111,7 +111,7 @@
     <h4 class='title' title="<%= solution.get('name') %>"> <%= solution.get('name') %> </h4>
   </div>
   <div class="row">
-    <div class='map' style="min-height: 200px; width: 100%;">
+    <div class='olmap' style="min-height: 200px; width: 100%;">
     </div>
   </div>
   <div class="row handle">
@@ -152,7 +152,7 @@
         <div class="tab-content">
           <div class="tab-pane fade in active" id="implementation-area-tab">
             <div class="col-md-12 bordered">
-              <div class="map" id='editor-map'>
+              <div class="olmap" id='editor-map'>
                 <div class="drawing-tools row">
                   <div class="btn-group btn-group-toggle" data-toggle="buttons">
                     <label class="btn btn-secondary active" title="{% trans "Move Map" %}">
@@ -164,7 +164,7 @@
                       <span class="far fa-hand-point-up"></span>
                     </label>
                     <!--seperate dragbox tool disabled, doesn't work with touch-->
-                    <!-- 
+                    <!--
                     <label class="btn btn-secondary" title="{% trans "Select Features" %}">
                       <input type="radio" class="tool" name="options" data-tool="DragBox" autocomplete="off">
                       <div style="border: 1px black dashed; width: 18px; height: 18px;"></div>
@@ -183,7 +183,7 @@
                       <span class="glyphicon glyphicon-minus"></span>
                     </label>
                   </div>
-                  <input class="freehand" type="checkbox" checked style="transform: scale(2); margin-left: 20px; margin-right: 8px;"> 
+                  <input class="freehand" type="checkbox" checked style="transform: scale(2); margin-left: 20px; margin-right: 8px;">
                   <label style="text-shadow: 0 0 0.2em #fff, 0 0 0.2em #fff, 0 0 0.2em #fff;">{% trans "freehand" %}</label>
                   <button class="remove btn btn-danger round" style="margin-left: 10px; display: none;"> <span class="glyphicon glyphicon-remove-sign" ></span> {% trans "selection" %} </button>
                 </div>

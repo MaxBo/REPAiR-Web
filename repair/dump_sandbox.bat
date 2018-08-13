@@ -1,4 +1,4 @@
-SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_dev
+SET DJANGO_SETTINGS_MODULE=%DJANGO_SITENAME%.settings_dev_local_pg
 python manage.py dump_object --natural-foreign auth.group * --no-follow > repair\fixtures\sandbox_groups.json
 python manage.py dump_object asmfa.reason * > repair\fixtures\sandbox_reason.json
 python manage.py dump_object asmfa.waste * > repair\fixtures\sandbox_wastes.json
