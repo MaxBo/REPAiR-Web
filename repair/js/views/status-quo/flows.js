@@ -29,6 +29,7 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'prepareAreas');
         _.bindAll(this, 'linkSelected');
+        _.bindAll(this, 'linkDeselected');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -405,7 +406,7 @@ var FlowsView = BaseView.extend(
         })
 
         el.addEventListener('linkSelected', this.linkSelected);
-        el.addEventListener('linkDeselected', console.log);
+        el.addEventListener('linkDeselected', this.linkDeselected);
     },
 
     linkSelected: function(e){
@@ -414,6 +415,15 @@ var FlowsView = BaseView.extend(
         if (data.flow.get('origin_level') !== 'actor') return;
         this.flowMapView.addNodes([data.origin, data.destination]);
         this.flowMapView.addFlows(data.flow);
+        this.flowMapView.rerender();
+    },
+
+    linkDeselected: function(e){
+        // only actors atm
+        var data = e.detail;
+        if (data.flow.get('origin_level') !== 'actor') return;
+        this.flowMapView.removeFlows(data.flow);
+        this.flowMapView.removeNodes([data.origin, data.destination], true);
         this.flowMapView.rerender();
     },
 
