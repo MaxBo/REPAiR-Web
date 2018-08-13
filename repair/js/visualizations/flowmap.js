@@ -238,7 +238,7 @@ define([
                 };
 
                 // drawTotalPath, if drawPath is chosen, every path is shown divided by materials which is not intended
-                this.drawTotalPath(sxp, syp, txp, typ, flow.labelTotal, totalStroke, sourceLevel, targetLevel, bothways, connection,Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths)
+                this.drawTotalPath(sxp, syp, txp, typ, flow.labelTotal, flow.totalColor, totalStroke, sourceLevel, targetLevel, bothways, connection,Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths)
                // this.drawPath(sxp, syp, txp, typ, flow.style, flow.label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection)
 
             }
@@ -328,7 +328,7 @@ define([
                 .style("fill", color)
                 .style("fill-opacity", 1)
                 .style("stroke", 'lightgrey')
-                .style("stroke-width", 0.4)
+                .style("stroke-width", 1)
                 .on("mouseover", function (d) {
                     d3.select(this).style("cursor", "pointer"),
                         tooltip.transition()
@@ -446,9 +446,8 @@ define([
 
 
         // function to draw actual paths for the directed quantity flows
-        drawTotalPath(sxp, syp, txp, typ, labelTotal, totalStroke, sourceLevel, targetLevel, bothways, connection,
+        drawTotalPath(sxp, syp, txp, typ, labelTotal, totalColor, totalStroke, sourceLevel, targetLevel, bothways, connection,
                       Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths) {
-
             var totalPoints = this.getPointsFromTotalPath(sxp, syp, txp, typ, totalStroke, sourceLevel, targetLevel, bothways, connection);
             var sxpao = totalPoints[0],
                 sypao = totalPoints[1],
@@ -482,8 +481,8 @@ define([
                 .attr("id", "#line")
                 .attr("clip-path", "url(#clip" + uid +")")
                 .attr("stroke-width", totalStroke)
-                .attr("stroke", "grey")
-                .attr("stroke-opacity", 0.3)
+                .attr("stroke", totalColor)
+                .attr("stroke-opacity", 0.5)
                 .on("click", function(){
                     for (var key in flowsData) {
                         var flow = flowsData[key];
@@ -524,15 +523,13 @@ define([
                         tooltip.html(labelTotal)
                             .style("left", (d3.event.pageX) + "px")
                             .style("top", (d3.event.pageY - 28) + "px")
-                        flowsTotal.attr("stroke-opacity",0.4)
-                            .attr("stroke", "black")
+                        flowsTotal.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function () {
                         tooltip.transition()
                             .duration(500)
                             .style("opacity", 0)
-                        flowsTotal.attr("stroke-opacity",0.3)
-                            .attr("stroke", "grey")
+                        flowsTotal.attr("stroke-opacity", 0.5)
                 })
             ;
         }

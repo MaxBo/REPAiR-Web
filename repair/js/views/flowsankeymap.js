@@ -92,6 +92,31 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             })
         },
 
+        removeFlows: function(flows){
+            var _this = this;
+                flows = (flows instanceof Array) ? flows: [flows];
+            flows.forEach(function(flow){
+                delete _this.flows[flow.id];
+                console.log(_this.flows)
+            })
+        },
+
+        removeNodes: function(nodes, unusedOnly){
+            var _this = this,
+                nodes = (nodes instanceof Array) ? nodes: [nodes],
+                usedNodes = new Set();
+            if (unusedOnly) {
+                Object.values(this.flows).forEach(function(flow){
+                    usedNodes.add(flow.get('origin'));
+                    usedNodes.add(flow.get('destination'));
+                })
+            }
+            nodes.forEach(function(node){
+                if (!usedNodes.has(node.id))
+                    delete _this.nodes[node.id];
+            })
+        },
+
         prefetchLocations: function(callback){
             var promises = [],
                 _this = this;
@@ -177,7 +202,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                         labelTotal: labelTotal,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
-                        color: 'grey',
+                        totalColor: origin.color,
                         value: amount,
                         valueTotal: totalAmount,
                         material: material.id
