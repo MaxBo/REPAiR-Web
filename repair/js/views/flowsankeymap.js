@@ -55,7 +55,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     minZoom: 5,
                     maxZoom: 18
                 })
-                .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
+                .addLayer(new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
             this.flowMap = new FlowMap(map);
             map.on("zoomend", this.update);
             //reset();
