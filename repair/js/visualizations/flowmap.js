@@ -63,7 +63,6 @@ define([
             // get zoom level after each zoom activity
             map.on("zoomend", function(){
                 var zoomLev = map.getZoom();
-                console.log(zoomLev);
             });
         }
 

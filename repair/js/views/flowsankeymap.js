@@ -63,6 +63,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         },
 
         update: function(){
+            if (!this.data) return;
             this.flowMap.reset(this.data.bbox);
             this.flowMap.render(this.data.nodes, this.data.flows);
         },
