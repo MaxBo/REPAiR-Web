@@ -48,12 +48,12 @@
               <br>
               <div class="row bordered">
                 <label>{% trans "Ratios defining one unit" %} </label>
-                <div class="row"> 
-                  {% trans "One unit equals" %} 
+                <div class="row">
+                  {% trans "One unit equals" %}
                   <input name="unit" value="<%= unit %>" style="width: 50%; margin-left: 5px;">
                 </div>
                 <table id="one-unit-ratios">
-                  <tr> 
+                  <tr>
                     <td>{% trans "Name"  %}</td> <td>{% trans "Value"  %}</td> <td>{% trans "Unit"  %}</td> <td>{% trans "delete"  %}</td>
                   </tr>
                 </table>
@@ -65,7 +65,7 @@
               <div class="row bordered">
                 <label>{% trans "Ratios to be set when implementing this solution" %} </label>
                 <table id="required-ratios">
-                  <tr> 
+                  <tr>
                     <td>{% trans "Name"  %}</td> <td>{% trans "Unit"  %}</td> <td>{% trans "delete"  %}</td>
                   </tr>
                 </table>
@@ -110,7 +110,7 @@
           <div class="tab-pane fade in" id="activities-tab">
             <div class="col-md-12 bordered">
               <h4>{% trans "Activities involved" %}</h4>
-              <% if (mode == 1) { %> 
+              <% if (mode == 1) { %>
                 <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
                     <% keyflows.forEach(function(keyflow){ %>
                       <label> <%= keyflow.get('name') %> </label> <br>
@@ -137,7 +137,7 @@
           </div>
           <div class="tab-pane fade in" id="actors-tab">
             <div class="col-md-12 bordered">
-              <div class="map" id='actors-map'>
+              <div class="olmap" id='actors-map'>
               </div>
             </div>
           </div>
