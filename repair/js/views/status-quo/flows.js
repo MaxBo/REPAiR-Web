@@ -310,6 +310,7 @@ var FlowsView = BaseView.extend(
     },
 
     renderSankey: function(){
+        if (this.flowMapView) this.flowMapView.clear();
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
             nodeLevel = this.nodeLevelSelect.value,
@@ -416,7 +417,7 @@ var FlowsView = BaseView.extend(
         function render(nodes, links){
             _this.flowMapView.addNodes(nodes);
             _this.flowMapView.addFlows(links);
-            _this.flowMapView.rerender();
+            _this.flowMapView.rerender(true);
         }
 
         if (data.flow.get('origin_level') === 'actor'){

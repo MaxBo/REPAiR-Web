@@ -48,7 +48,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         */
         render: function(){
 
-            var map = new L.Map(this.el, {
+            this.leafletMap = new L.Map(this.el, {
                     center: [52.41, 4.95],
                     zoomSnap: 0.25,
                     zoom: 10.5,
@@ -56,8 +56,8 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     maxZoom: 18
                 })
                 .addLayer(new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
-            this.flowMap = new FlowMap(map);
-            map.on("zoomend", this.update);
+            this.flowMap = new FlowMap(this.leafletMap);
+            this.leafletMap.on("zoomend", this.update);
             //reset();
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
         },
@@ -68,11 +68,22 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.flowMap.render(this.data.nodes, this.data.flows);
         },
 
-        rerender: function(){
+        zoomToFit: function(){
+            if (!this.data) return;
+            var bbox = this.data.bbox;
+            // leaflet uses lat/lon in different order
+            this.leafletMap.fitBounds([
+                [this.data.bbox[0][1], this.data.bbox[0][0]],
+                [this.data.bbox[1][1], this.data.bbox[1][0]]
+            ]);
+        },
+
+        rerender: function(zoomToFit){
             var _this = this;
             this.prefetchLocations(function(){
                 _this.data = _this.transformData();
                 _this.update();
+                if (zoomToFit) _this.zoomToFit();
             })
         },
 
@@ -122,6 +133,12 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 if (!usedNodes.has(node.id))
                     delete _this.nodes[node.id];
             })
+        },
+
+        clear: function(){
+            this.nodes = {};
+            this.flows = {};
+            this.rerender();
         },
 
         prefetchLocations: function(callback){
