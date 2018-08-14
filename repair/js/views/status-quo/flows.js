@@ -411,19 +411,99 @@ var FlowsView = BaseView.extend(
 
     linkSelected: function(e){
         // only actors atm
-        var data = e.detail;
-        if (data.flow.get('origin_level') !== 'actor') return;
-        this.flowMapView.addNodes([data.origin, data.destination]);
-        this.flowMapView.addFlows(data.flow);
-        this.flowMapView.rerender();
+        var data = e.detail,
+            _this = this;
+        function render(nodes, links){
+            _this.flowMapView.addNodes(nodes);
+            _this.flowMapView.addFlows(links);
+            _this.flowMapView.rerender();
+        }
+
+        if (data.flow.get('origin_level') === 'actor'){
+            render([data.origin, data.destination], data.flow);
+            return;
+        }
+
+        // fetch actors and the flows in between them when group or activity was selected,
+        // render after fetching
+        function fetchRenderData(parentNodes, parentFilter) {
+            var promises = [],
+                actorIds = [],
+                nodes = [];
+
+            _this.loader.activate();
+            parentNodes.forEach(function(parent){
+                var actors = new GDSECollection([], {
+                    apiTag: 'actors',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId]
+                });
+                var data = {};
+                data[parentFilter] = parent.id;
+                promises.push(actors.fetch({
+                    data: data,
+                    success: function(){
+                        actors.forEach(function(actor){
+                            actor.color = parent.color;
+                            nodes.push(actor);
+                        })
+                        actorIds = actorIds.concat(actors.pluck('id'));
+                    }
+                }))
+            })
+            Promise.all(promises).then(function(){
+                var flows = new GDSECollection([], {
+                    apiTag: 'actorToActor',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId]
+                });
+                actorIds = actorIds.join(',');
+                flows.fetch({
+                    data: { origin__in: actorIds, destination__in: actorIds},
+                    success: function(){
+                        _this.loader.deactivate();
+                        flows.forEach(function(flow){
+                            // remember which flow the sub flows belong to (used in deselection)
+                            flow.parent = data.flow.id;
+                        })
+                        render(nodes, flows.models);
+                    }
+                })
+            })
+        }
+        if (data.flow.get('origin_level') === 'activitygroup'){
+            fetchRenderData([data.origin, data.destination], 'activity__activitygroup');
+        }
+        else if (data.flow.get('origin_level') === 'activity'){
+            fetchRenderData([data.origin, data.destination], 'activity');
+        }
     },
 
     linkDeselected: function(e){
         // only actors atm
-        var data = e.detail;
-        if (data.flow.get('origin_level') !== 'actor') return;
-        this.flowMapView.removeFlows(data.flow);
-        this.flowMapView.removeNodes([data.origin, data.destination], true);
+        var data = e.detail,
+            flows = [],
+            nodes = [];
+        if (data.flow.get('origin_level') === 'actor') {
+            nodes = [data.origin, data.destination];
+            flows = data.flow;
+        };
+        if (data.flow.get('origin_level') === 'activitygroup') {
+            var mapNodes = this.flowMapView.getNodes(),
+                mapFlows = this.flowMapView.getFlows(),
+                origId = data.flow.get('origin'),
+                destId = data.flow.get('destination');
+            mapFlows.forEach(function(mapFlow){
+                if (mapFlow.parent === data.flow.id){
+                    flows.push(mapFlow);
+                }
+            })
+            mapNodes.forEach(function(mapNode){
+                if ([origId, destId].includes(mapNode.get('activitygroup'))){
+                    nodes.push(mapNode);
+                }
+            })
+        };
+        this.flowMapView.removeFlows(flows);
+        this.flowMapView.removeNodes(nodes, true);
         this.flowMapView.rerender();
     },
 

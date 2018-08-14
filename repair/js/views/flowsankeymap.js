@@ -92,12 +92,19 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             })
         },
 
+        getNodes: function(){
+            return Object.values(this.nodes);
+        },
+
+        getFlows: function(){
+            return Object.values(this.flows);
+        },
+
         removeFlows: function(flows){
             var _this = this;
                 flows = (flows instanceof Array) ? flows: [flows];
             flows.forEach(function(flow){
                 delete _this.flows[flow.id];
-                console.log(_this.flows)
             })
         },
 
