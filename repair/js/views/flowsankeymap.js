@@ -1,7 +1,8 @@
 define(['underscore', 'views/baseview', 'collections/gdsecollection',
         'collections/geolocations',
-        'visualizations/flowmap', 'leaflet',
-        'leaflet/dist/leaflet.css', 'static/css/flowmap.css'],
+        'visualizations/flowmap', 'leaflet', 'leaflet-fullscreen',
+        'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
+        'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
 function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
@@ -47,7 +48,6 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         * render the view
         */
         render: function(){
-
             this.leafletMap = new L.Map(this.el, {
                     center: [52.41, 4.95],
                     zoomSnap: 0.25,
@@ -57,6 +57,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 })
                 .addLayer(new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
             this.flowMap = new FlowMap(this.leafletMap);
+            this.leafletMap.addControl(new L.Control.Fullscreen());
             this.leafletMap.on("zoomend", this.update);
             //reset();
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
