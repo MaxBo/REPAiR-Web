@@ -316,8 +316,7 @@ define([
             var tooltip = d3.select("body")
                 .append("div")
                 .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
+                .style("opacity", 0.9);
 
             var point = this.g.append("g")
                 .attr("class", "node")
@@ -468,8 +467,7 @@ define([
             var tooltip = d3.select("body")
                 .append("div")
                 .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
+                .style("opacity", 0.9);
 
             this.drawArrowhead(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp, uid);
 
@@ -552,8 +550,7 @@ define([
             // tooltip
             var tooltip = d3.select("body").append("div")
                 .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
+                .style("opacity", 0.9);
 
             var totalOffset = this.totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways, connection);
             var sxpao = totalOffset[0],
