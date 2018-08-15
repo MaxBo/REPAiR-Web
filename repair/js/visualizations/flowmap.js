@@ -111,13 +111,13 @@ define([
                     var strokeWidths = {};
                     var strokeArray = [];
                     var maxValue = Math.max.apply(Math, Object.values(flowsData).map(function (flow) {
-                            return flow.valueTotal
+                            return flow.valueTotal;
                         })),
                         minValue = Math.min.apply(Math, Object.values(flowsData).map(function (flow) {
-                        return flow.valueTotal
-                    })),
-                        maxWidth = 5,
-                        minWidth = 0.5;
+                        return flow.valueTotal;
+                    }));
+                    var maxWidth = 3,
+                        minWidth = 0.2;
 
                     for (var key in flowsData) {
                         var flow = flowsData[key];
@@ -272,7 +272,7 @@ define([
             if (level === 8) return 16;
             if (level === 6) return 21;
             if (level === 4) return 26;
-            return 6;
+            return 11;
         }
 
         // make adjustments if using other datasets
@@ -572,7 +572,7 @@ define([
                 .attr("clip-path", "url(#clip" + uid +")")
                 .on("click", function(){
                     d3.selectAll("line.fraction").remove();
-                    _this.tooltip.remove()
+                    _this.tooltip.style("opacity", 0);
                 })
                 .on("mouseover", function(){
                     d3.select(this).node().parentNode.appendChild(this);

@@ -81,8 +81,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
         rerender: function(zoomToFit){
             var _this = this;
+            this.loader.activate();
             this.prefetchLocations(function(){
                 _this.data = _this.transformData();
+                _this.loader.deactivate();
                 _this.update();
                 if (zoomToFit) _this.zoomToFit();
             })
