@@ -18,6 +18,7 @@ div.tooltip {
     border: 0px;
     border-radius: 0px;
     pointer-events: none;
+    z-index: 999999999999;
 }
 
 .mpoint:hover{
@@ -26,7 +27,7 @@ div.tooltip {
 }
 
 .route{
-    fill: none;	
+    fill: none;
 }
 
 .route:hover{

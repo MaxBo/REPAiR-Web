@@ -486,8 +486,8 @@ var FlowsView = BaseView.extend(
         if (data.flow.get('origin_level') === 'actor') {
             nodes = [data.origin, data.destination];
             flows = data.flow;
-        };
-        if (data.flow.get('origin_level') === 'activitygroup') {
+        }
+        else {
             var mapNodes = this.flowMapView.getNodes(),
                 mapFlows = this.flowMapView.getFlows(),
                 origId = data.flow.get('origin'),
@@ -498,13 +498,16 @@ var FlowsView = BaseView.extend(
                 }
             })
             mapNodes.forEach(function(mapNode){
-                if ([origId, destId].includes(mapNode.get('activitygroup'))){
+                var level = data.flow.get('origin_level');
+                if ([origId, destId].includes(mapNode.get(level))){
                     nodes.push(mapNode);
                 }
             })
         };
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
+        console.log(this.flowMapView.flows)
+        console.log(this.flowMapView.nodes)
         this.flowMapView.rerender();
     },
 
