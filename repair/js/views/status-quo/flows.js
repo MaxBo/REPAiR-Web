@@ -506,8 +506,6 @@ var FlowsView = BaseView.extend(
         };
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
-        console.log(this.flowMapView.flows)
-        console.log(this.flowMapView.nodes)
         this.flowMapView.rerender();
     },
 
