@@ -1,6 +1,12 @@
 require(['models/casestudy', 'views/changes/solutions',
     'views/changes/implementations', 'app-config', 'utils/overrides', 'base'
 ], function (CaseStudy, SolutionsView, ImplementationsView, appConfig) {
+    /**
+     * entry point for views on subpages of "Changes" menu item
+     *
+     * @author Christoph Franke
+     * @module Changes
+     */
 
     renderWorkshop = function(caseStudy){
         var solutionsView = new SolutionsView({ 

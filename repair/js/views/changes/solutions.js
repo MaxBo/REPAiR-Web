@@ -112,9 +112,6 @@ var SolutionsView = BaseView.extend(
                 });
             }
         });
-        $('#solution-modal').on('shown.bs.modal', function () {
-            _this.map.map.updateSize();
-        });
     },
     
     /*
@@ -344,6 +341,12 @@ var SolutionsView = BaseView.extend(
             });
         }
         else okBtn.addEventListener('click', function(){ $(modal).modal('hide'); });
+        
+        // update map, when tab 'Actors' becomes active, else you won't see any map
+        var actorsLink = modal.querySelector('a[href="#actors-tab"]');
+        $(actorsLink).on('shown.bs.tab', function () {
+            _this.map.map.updateSize();
+        });
         $(modal).modal('show');
     },
     
@@ -358,8 +361,11 @@ var SolutionsView = BaseView.extend(
             this.map.close();
             this.map = null;
         }
+        var el = document.getElementById(divid),
+            height = document.body.clientHeight * 0.6;
+        el.style.height = height + 'px';
         this.map = new Map({
-            el: document.getElementById(divid), 
+            el: el, 
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
@@ -402,9 +408,10 @@ var SolutionsView = BaseView.extend(
         var keyflowId = this.getKeyflow(activityId).id,
             actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
         var checkList = document.getElementById('activities-checks');
-        if (checkList)
+        if (checkList){
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
             loader.activate();
+        }
         // fetch them as json instead of a collection, reduces unnessecary memory overhead
         $.ajax({
             url: actorUrl,

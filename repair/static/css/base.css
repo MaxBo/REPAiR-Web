@@ -1,4 +1,10 @@
-  /* prevent selection of content, some browsers try to select sth. on touch */
+/**
+ * basic stylesheet for the REPAiR website
+ *
+ * @author Christoph Franke
+ */
+
+/* prevent selection of content, some browsers try to select sth. on touch */
 .noselect {
   -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -496,6 +502,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .panel-item .button-box{
@@ -537,10 +544,10 @@ div.panel-item:hover label{
   display: inline-block;
   position: relative;
 }
-.row.shaded{
+.shaded{
   box-shadow: 0px 1px 6px 0px #adadad;
 }
-.row.shaded:hover{
+.shaded:hover{
   box-shadow: 0px 1px 6px 0px #c4d875;
 }
 .ui-select-choices {

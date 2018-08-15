@@ -7,6 +7,12 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
     SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
     MapViewer, appConfig) {
 
+    /**
+     * entry point for views on subpages of "StatusQuo" menu item
+     *
+     * @author Christoph Franke
+     * @module StatusQuo
+     */
 
     renderFlowsView = function(caseStudy){
         var flowsView,

@@ -275,10 +275,12 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         new_flow['origin'] = origin
         new_flow['origin_level'] = origin_level
         new_flow['composition'] = custom_composition
+        new_flow['id'] = 'agg-{}'.format(origin)
 
         if not is_stock:
             new_flow['destination'] = destination
             new_flow['destination_level'] = destination_level
+            new_flow['id'] += '-{}'.format(destination)
         else:
             del new_flow['destination']
             del new_flow['destination_level']

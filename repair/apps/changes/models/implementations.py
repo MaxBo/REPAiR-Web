@@ -36,7 +36,7 @@ class SolutionInImplementation(GDSEModel):
                                        on_delete=PROTECT_CASCADE)
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
-    geom = models.MultiPolygonField(verbose_name='geom', null=True)
+    geom = models.GeometryCollectionField(verbose_name='geom', null=True)
 
     def __str__(self):
         text = '{s} in {i}'

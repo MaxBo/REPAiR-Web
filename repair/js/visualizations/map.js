@@ -38,7 +38,10 @@ define([
             // blank map
             if (options.renderOSM != false){
                 initlayers.push(new ol.layer.Tile({
-                    source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+                    source: new ol.source.OSM({crossOrigin: 'anonymous'}),
+                    crossOrigin: 'anonymous',
+                    tileOptions: {crossOriginKeyword: 'anonymous'},
+                }))
             }
 
             var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
@@ -168,8 +171,11 @@ define([
 
             var image = new ol.style.Circle({
                 radius: 5,
-                fill: new ol.style.Fill({ color: 'blue' }),
-                stroke: new ol.style.Stroke({color: 'blue', width: 1})
+                fill: new ol.style.Fill({ color: options.stroke || 'rgb(100, 150, 250)' }),
+                stroke: new ol.style.Stroke({
+                    color: options.fill || 'rgba(100, 150, 250, 0.1)', 
+                    width: options.strokeWidth || 3
+                })
             });
 
             function labelStyle(feature, resolution) {
@@ -208,7 +214,14 @@ define([
                 }
                 layer.selectStyle = function(feature, resolution){ 
                     return new ol.style.Style({
-                        image: image,
+                        image: new ol.style.Circle({
+                            radius: 5,
+                            fill: new ol.style.Fill({ color: select.stroke || 'rgb(230, 230, 0)' }),
+                            stroke: new ol.style.Stroke({
+                                color: select.fill || 'rgba(100, 150, 250, 0.1)', 
+                                width: select.strokeWidth || 3
+                            })
+                        }),
                         stroke: new ol.style.Stroke({
                             color: select.stroke || 'rgb(230, 230, 0)',
                             width: select.strokeWidth || 3
@@ -312,15 +325,23 @@ define([
         *
         */
         addPolygon(coordinates, options){
-            var options = options || {};
-            var proj = options.projection || this.mapProjection;
-            var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
-            var ret = poly.clone();
+            return this.addGeometry(coordinates, options);
+        }
+        
+        addGeometry(coordinates, options){
+            var options = options || {},
+                type = options.type || 'Polygon',
+                proj = options.projection || this.mapProjection;
+            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : 
+                           (type === 'Point') ? new ol.geom.Point(coordinates) :
+                           (type === 'LineString') ? new ol.geom.LineString(coordinates) :
+                           new ol.geom.Polygon(coordinates);
+            var ret = geometry.clone();
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
 
             if (!layer) layer = this.addLayer(layername);
-            var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+            var feature = new ol.Feature({ geometry: geometry.transform(proj, this.mapProjection) });
             feature.set('label', options.label);
             feature.set('tooltip', options.tooltip);
             feature.set('id', options.id);
@@ -643,22 +664,109 @@ define([
         }
 
         /**
-        * centers map on layer with given name, zooms to fit extent of layer
+        * toggle drawing tool, only one is active at a time, disable drawing
+        * by passing type 'None' (or nothing at all)
         *
-        * @param {string} layername                layer to draw on
+        * @param {string} layername          layer to draw on
         * @param {Object} options
-        * @param {string} [options.type='Polygon'] type of geometry to draw
+        * @param {string} [options.type='None']      type of geometry to draw ('Polygon', 'Point', 'Circle', 'LineString', 'None')
+        * @param {Boolean} [options.freehand=false]  freehand drawing or drawing by setting points
         *
         */
-        enableDrawing(layername, options){
-            var options = options || {},
-                layer = this.layers[layername],
-                source = layer.getSource(),
+        toggleDrawing(layername, options){
+            var layer = this.layers[layername],
+                options = options || {},
+                type = options.type || 'None',
+                freehand = options.freehand;
+                
+            if (layer.drawingInteraction)
+                this.map.removeInteraction(layer.drawingInteraction);
+            layer.drawingInteraction = null;
+            if (type === 'None') return;
+            
+            // doesn't work with freehand, so not set atm
+            function oneFingerCondition(olBrowserEvent) {
+                var touchEvent = olBrowserEvent.originalEvent.touches;
+                console.log(touchEvent)
+                if (touchEvent)
+                    return touchEvent.length === 1;
+                return true;
+            }
+            
+            var source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
-                    type: options.type || 'Polygon'
+                    type: type,
+                    freehand: freehand,
+                    //condition: oneFingerCondition
                 });
+            layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
+            }
+            
+        /**
+        * enable/disable drag box to select features
+        * (only works when layer supports selection, see addLayer)
+        *
+        * @param {string} layername   layer whose features to select
+        * @param {Boolean} [enabled=true]    enable if true (or null), disable if false
+        *
+        */
+        enableDragBox(layername, enabled){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enabled == null || enabled === true){
+                // it's already there
+                if (layer.dragBox) return;
+                layer.dragBox = new ol.interaction.DragBox();
+                this.map.addInteraction(layer.dragBox);
+                layer.dragBox.on('boxend', function() {
+                    var extent = layer.dragBox.getGeometry().getExtent();
+                    layer.select.getFeatures().clear();
+                    layer.getSource().forEachFeatureIntersectingExtent(extent, function(feature) {
+                        layer.select.getFeatures().push(feature);
+                        layer.select.dispatchEvent({
+                            type: 'select',
+                            selected: [feature],
+                            deselected: []
+                        });
+                    });
+                });
+            }
+            else if (layer.dragBox){
+                this.map.removeInteraction(layer.dragBox);
+                layer.dragBox = null;
+            }
+        }
+        
+        /**
+        * enable/disable selection of features, requires initialization of layer 
+        * with select options (see addLayer)
+        *
+        * @param {string} layername          layer to enable selection of features in
+        * @param {Boolean} [enable=true]     set to false to disable selection
+        *
+        */
+        enableSelect(layername, enable){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enable === false) this.map.removeInteraction(layer.select);
+            else this.map.addInteraction(layer.select);
+        }
+        
+        /**
+        * remove the selected features from layer
+        *
+        * @param {string} layername  layer to remove features from
+        */
+        removeSelectedFeatures(layername){
+            var layer = this.layers[layername],
+                source = layer.getSource();
+            if (!layer.select) return;
+            layer.select.getFeatures().forEach(function(feat){
+                source.removeFeature(feat);
+            })
+            layer.select.getFeatures().clear();
         }
         
         /**
@@ -670,7 +778,6 @@ define([
         getFeatures(layername){
             var layer = this.layers[layername],
                 source = layer.getSource();
-            
             return source.getFeatures();
         }
 

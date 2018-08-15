@@ -1,11 +1,18 @@
-define(['d3', 'models/casestudy', 'visualizations/sankey-map',
+define(['d3', 'models/casestudy',
     'views/study-area/workshop-maps', 'views/study-area/setup-maps', 
     'views/study-area/charts',
     'views/study-area/stakeholders',
     'app-config', 'base',
     'static/css/study-area.css'
-], function(d3, CaseStudy, SankeyMap, BaseMapsView, SetupMapsView, BaseChartsView, 
+], function(d3, CaseStudy, BaseMapsView, SetupMapsView, BaseChartsView, 
     StakeholdersView, appConfig) {
+
+    /**
+     * entry point for views on subpages of "Study Area" menu item
+     *
+     * @author Christoph Franke
+     * @module StudyArea
+     */
 
     function renderWorkshop(caseStudy){
         var mapsView = new BaseMapsView({

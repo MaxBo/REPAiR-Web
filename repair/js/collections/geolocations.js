@@ -1,7 +1,5 @@
 define(["backbone", "collections/gdsecollection", "models/geolocation"],
-
   function(Backbone, GDSECollection, Location) {
-  
 
    /**
     *

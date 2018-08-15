@@ -1,3 +1,9 @@
+/**
+ * stylesheet for draggable elements (muuri)
+ *
+ * @author Christoph Franke
+ */
+ 
 .grid {
   position: relative;
 }
@@ -15,6 +21,10 @@
   z-index: 1;
   /*background: #000;*/
   /*color: #fff;*/
+}
+.item.large {
+  height: 450px; 
+  width: 300px;
 }
 .item.muuri-item-dragging {
   z-index: 3;

@@ -1,3 +1,9 @@
+/**
+ * stylesheet for the sankey diagrams
+ *
+ * @author Christoph Franke
+ */
+
 .node rect {
   cursor: move;
   fill-opacity: .9;
@@ -12,7 +18,11 @@
 .link {
   fill: none;
   stroke: #000;
-  stroke-opacity: .4;
+  stroke-opacity: .3;
+}
+
+.link.selected, .cycleLink.selected {
+    stroke-opacity: 1;
 }
 
 .cycleLink {

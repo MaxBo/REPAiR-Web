@@ -11,6 +11,7 @@ function(GDSEModel, config) {
         * @param {string} [type='Point']     type of geometry
         *
         * @see http://backbonejs.org/#Model
+        * @author Christoph Franke
         */
         compute: function(options){
             var url = this.url() + '/compute';
