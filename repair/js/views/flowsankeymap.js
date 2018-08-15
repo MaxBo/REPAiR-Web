@@ -154,9 +154,12 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 promises.push(adminLocations.fetch({
                     data: { actor: nodeId },
                     success: function(coll){
-                        var adminLoc = coll.first(),
+                        var adminLoc = coll.first();
+                        // only add nodes with locations
+                        if (adminLoc) {
                             id = adminLoc.get('properties').actor;
-                        _this.locations[id] = adminLoc;
+                            _this.locations[id] = adminLoc;
+                        }
                     }
                 }));
             }
@@ -181,6 +184,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             for (var nodeId in this.nodes) {
                 var location = _this.locations[nodeId];
+                if (!location) continue;
                 var node = this.nodes[nodeId],
                     id = node.id,
                     location = _this.locations[node.id],

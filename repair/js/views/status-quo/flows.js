@@ -310,7 +310,7 @@ var FlowsView = BaseView.extend(
     },
 
     renderSankey: function(){
-        if (this.flowMapView) this.flowMapView.clear();
+        if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
             nodeLevel = this.nodeLevelSelect.value,

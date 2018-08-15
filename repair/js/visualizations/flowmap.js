@@ -64,6 +64,12 @@ define([
             map.on("zoomend", function(){
                 var zoomLev = map.getZoom();
             });
+
+            // tooltip
+            this.tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "sankeymaptooltip")
+                .style("opacity", 0.9);
         }
 
 
@@ -308,15 +314,10 @@ define([
         //function to add source nodes to the map
         addPoint(lon, lat, level, nodeLabel, color) {
             var x = this.projection([lon, lat])[0],
-                y = this.projection([lon, lat])[1];
+                y = this.projection([lon, lat])[1],
+                _this = this;
 
             var radius = this.defineRadiusZoom(level)/2;
-
-            // tooltip
-            var tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9);
 
             var point = this.g.append("g")
                 .attr("class", "node")
@@ -329,18 +330,18 @@ define([
                 .style("stroke", 'lightgrey')
                 .style("stroke-width", 1)
                 .on("mouseover", function (d) {
-                    d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
-                            .duration(200)
-                            .style("opacity", 0.9);
-                        tooltip.html(nodeLabel)
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px")
+                    d3.select(this).style("cursor", "pointer");
+                    _this.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    _this.tooltip.html(nodeLabel)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px")
                 })
                 .on("mouseout", function (d) {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0)
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
                     }
                 );
 
@@ -451,7 +452,8 @@ define([
             var sxpao = totalPoints[0],
                 sypao = totalPoints[1],
                 txpao = totalPoints[2],
-                typao = totalPoints[3];
+                typao = totalPoints[3],
+                _this = this;
 
             var adjustedPathLength = this.adjustedPathLength(sxp, syp, txp, typ, sourceLevel, targetLevel);
             var dxp = adjustedPathLength[0],
@@ -462,12 +464,6 @@ define([
 
             //unique id for each clip path is necessary
             var uid = this.uuidv4();
-
-            // tooltip
-            var tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9);
 
             this.drawArrowhead(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp, uid);
 
@@ -514,20 +510,20 @@ define([
                 })
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
-                    d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
+                    d3.select(this).style("cursor", "pointer");
+                    _this.tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.8);
-                        tooltip.html(labelTotal)
+                    _this.tooltip.html(labelTotal)
                             .style("left", (d3.event.pageX) + "px")
                             .style("top", (d3.event.pageY - 28) + "px")
-                        flowsTotal.attr("stroke-opacity", 1)
+                    flowsTotal.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function () {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0)
-                        flowsTotal.attr("stroke-opacity", 0.5)
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    flowsTotal.attr("stroke-opacity", 0.5)
                 })
             ;
         }
@@ -542,15 +538,11 @@ define([
                 sypa = pathLengthValues[3],
                 txpa = pathLengthValues[4],
                 typa = pathLengthValues[5],
-                flowLength = pathLengthValues[6];
+                flowLength = pathLengthValues[6],
+                _this = this;
 
             //unique id for each clip path is necessary
             var uid = this.uuidv4();
-
-            // tooltip
-            var tooltip = d3.select("body").append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9);
 
             var totalOffset = this.totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways, connection);
             var sxpao = totalOffset[0],
@@ -579,22 +571,22 @@ define([
                 .attr("stroke-opacity", 0.8)
                 .attr("clip-path", "url(#clip" + uid +")")
                 .on("click", function(){
-                        d3.selectAll("line.fraction").remove();
-                        tooltip.remove()
+                    d3.selectAll("line.fraction").remove();
+                    _this.tooltip.remove()
                 })
                 .on("mouseover", function(){
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
+                        _this.tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.9);
-                        tooltip.html(label)
+                        _this.tooltip.html(label)
                             .style("left", (d3.event.pageX) + "px")
                             .style("top", (d3.event.pageY - 28) + "px")
                         flows.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function(d) {
-                        tooltip.transition()
+                        _this.tooltip.transition()
                             .duration(500)
                             .style("opacity", 0)
                         flows.attr("stroke-opacity", 0.8)
