@@ -21,14 +21,14 @@ function(PageableCollection, _, GDSEModel, config) {
         url: function(){
             // if concrete url was passed: take this and ignore the rest
             if (this.baseurl) return this.baseurl;
-            
+
             // take url from api by tag and put the required ids in
             var apiUrl = config.api[this.apiTag]
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
             return apiUrl;
         },
-        
+
         // by default try to fetch 'em all (should never exceed 1Mio hopefully)
         // you may reduce the pageSize to get real paginated results
         state: {
@@ -62,7 +62,7 @@ function(PageableCollection, _, GDSEModel, config) {
                     }
                     return String(value) == String(checkValue);
                 }
-                if (options.operator == '||') 
+                if (options.operator == '||')
                     return keys.some(match)
                 // &&
                 return keys.every(match)
@@ -71,7 +71,7 @@ function(PageableCollection, _, GDSEModel, config) {
         },
 
         /**
-        * fetch the collection with post data 
+        * fetch the collection with post data
         * use this function if a parameter is too big to be send as a query parameter
         * options accepts success and error functions same way as default Collection
         * WARNING: does not work well with pagination yet, use a huge page size to fetch all models at once
@@ -97,7 +97,7 @@ function(PageableCollection, _, GDSEModel, config) {
                 data[key] = (value instanceof Object) ? JSON.stringify(value) : value;
             }
             options.data = data;
-            
+
             // response to models on success, call passed success function
             function onSuccess(response){
                 var method = options.reset ? 'reset' : 'set';
@@ -105,18 +105,18 @@ function(PageableCollection, _, GDSEModel, config) {
                 if (success) success.call(options.context, _this, response, options);
                 _this.trigger('sync', _this, response, options);
             }
-            
+
             options.success = onSuccess;
-            // unfortunately PageableCollection has no seperate function to build 
+            // unfortunately PageableCollection has no seperate function to build
             // query parameters for pagination (all done in fetch())
             // ToDo: set page somehow
             queryData[this.queryParams.page || 'page'] = 1;
             queryData[this.queryParams.pageSize || 'page_size'] = this.state.pageSize;
-            
-            // GDSE API specific: signal the API that resources are requested 
+
+            // GDSE API specific: signal the API that resources are requested
             // via POST method
             queryData.GET = true;
-            
+
             return Backbone.ajax(_.extend({
                 // jquery post does not automatically set the query params
                 url: this.url() + '?' + $.param(queryData),
@@ -129,7 +129,7 @@ function(PageableCollection, _, GDSEModel, config) {
         queryParams: {
             pageSize: "page_size"
         },
-        
+
         // called immediately after fetching, parses the response (json)
         parseRecords: function (response) {
             // paginated api urls return the models under the key 'results'
@@ -137,8 +137,8 @@ function(PageableCollection, _, GDSEModel, config) {
                 return response.results;
             return response;
         },
-        
-        // function to compare models by the preset attribute (id per default) whenever you call sort 
+
+        // function to compare models by the preset attribute (id per default) whenever you call sort
         comparator: function(model) {
           return model.get(this.comparatorAttr);
         },
@@ -164,7 +164,7 @@ function(PageableCollection, _, GDSEModel, config) {
             this.apiIds = options.apiIds || options.apiIDs; // me (the author) tends to mix up both notations of 'Id' randomly and confuses himself by that
             this.comparatorAttr = options.comparator || 'id';
         },
-        
+
         model: GDSEModel
     });
 

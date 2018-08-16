@@ -53,14 +53,14 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
 
         instance = self.Meta.model.objects.create(
             **validated_data)
-        
+
         validated_data['flow_a'] = flow_a
         validated_data['flow_b'] = flow_b
         instance = self.update(instance, validated_data)
         return instance
 
     def update(self, instance, validated_data):
-        
+
         for field in ['flow_a', 'flow_b']:
             val_flow = validated_data.pop(field, None)
             indicator_flow = getattr(instance, field)
@@ -80,7 +80,7 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
                 setattr(indicator_flow, attr, value)
             setattr(instance, field, indicator_flow)
             indicator_flow.save()
-    
+
         # update other attributes
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

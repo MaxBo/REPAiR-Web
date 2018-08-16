@@ -49,30 +49,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.forceSideBySide = options.forceSideBySide || false;
             this.origins = options.origins;
             this.destinations = options.destinations;
-            var originTag = options.originLevel || this.origins.apiTag,
-                destinationTag = options.destinationLevel || this.destinations.apiTag,
-                renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
-            this.originAggregateLevel = (originTag.includes('group')) ? 'activitygroup':
-                                        (originTag.includes('actor')) ? 'actor': 'activity';
-            this.destinationAggregateLevel = (destinationTag.includes('group')) ? 'activitygroup':
-                                             (destinationTag.includes('actor')) ? 'actor': 'activity';
-
-            flowFilterParams = options.flowFilterParams || {};
-            flowFilterParams['aggregation_level'] = {
-                origin: this.originAggregateLevel,
-                destination: this.destinationAggregateLevel
-            };
-            stockFilterParams = options.stockFilterParams || {};
-            stockFilterParams['aggregation_level'] = this.originAggregateLevel;
-
-            this.flows = new GDSECollection([], {
-                apiTag: 'actorToActor',
-                apiIds: [ this.caseStudyId, this.keyflowId]
-            });
-            this.stocks = new GDSECollection([], {
-                apiTag: 'actorStock',
-                apiIds: [ this.caseStudyId, this.keyflowId]
-            });
+            this.flows = options.flows;
+            this.stocks = options.stocks || [];
 
             var fullscreenBtn = document.createElement('button'),
                 zoomControls = document.createElement('div'),
@@ -110,20 +88,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
 
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
 
-            this.loader.activate();
-            var promises = [
-                this.flows.postfetch({body: flowFilterParams})
-            ]
-            if (renderStocks){
-                promises.push(this.stocks.postfetch({body: stockFilterParams}));
-            }
-            Promise.all(promises).then(function(){
-                _this.complementData(function(data){
-                    _this.transformedData = data;
-                    _this.loader.deactivate();
-                    _this.render(data);
-                })
-            });
+            this.transformedData = this.transformData(
+                this.origins, this.destinations, this.flows,
+                this.stocks, this.materials
+            );
+            this.render(this.transformedData);
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
         },
@@ -134,59 +103,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'change #data-view-type-select': 'renderSankey'
-        },
-
-        complementData: function(success){
-            var originIds = this.origins.pluck('id'),
-                destinationIds = this.destinations.pluck('id'),
-                missingOriginIds = new Set(),
-                missingDestinationIds = new Set(),
-                _this = this;
-            this.flows.forEach(function(flow){
-                var origin = flow.get('origin'),
-                    destination = flow.get('destination');
-                if(!originIds.includes(origin)) missingOriginIds.add(origin);
-                if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
-            })
-
-            function getUrl(tag){
-                var url = (tag.includes('group')) ? config.api.activitygroups:
-                          (tag.includes('actor')) ? config.api.actors:
-                          config.api.activities;
-                return url.format(_this.caseStudyId, _this.keyflowId);
-            }
-            var promises = [];
-            // WARNING: postfetch works only with filter actors route, should be
-            // fetched in case of groups and activities, but in fact they should
-            // be complete
-            if (missingOriginIds.size > 0){
-                var missingOrigins = new GDSECollection([], {
-                    url: getUrl(this.originAggregateLevel)
-                })
-                promises.push(missingOrigins.postfetch({
-                    body: { 'id': Array.from(missingOriginIds).join() },
-                    success: function(){
-                        _this.origins.add(missingOrigins.toJSON(), {silent: true});
-                    }
-                }))
-            }
-            if (missingDestinationIds.size > 0){
-                var missingDestinations = new GDSECollection([], {
-                    url: getUrl(this.destinationAggregateLevel)
-                })
-                promises.push(missingDestinations.postfetch({
-                    body: { 'id': Array.from(missingDestinationIds).join() },
-                    success: function(){
-                        _this.destinations.add(missingDestinations.toJSON(), {silent: true});
-                    }
-                }))
-            }
-
-            Promise.all(promises).then(function(){
-                var data = _this.transformData(
-                    _this.origins, _this.destinations, _this.flows, _this.stocks, _this.materials);
-                success(data);
-            })
         },
 
         /*
@@ -229,8 +145,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
 
             div.addEventListener('linkSelected', redirectEvent);
             div.addEventListener('linkDeselected', redirectEvent);
-
-            if (data.nodes.length == 0)
+            if (data.links.length === 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
             else sankey.render(data);
         },
@@ -274,6 +189,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             }
 
             function nConnectionsOut(connections, nodeId){
+                if (connections.length === 0) return 0;
                 return connections.filterBy({ origin: nodeId }).length;
             }
 
@@ -295,10 +211,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     idx += 1;
                 });
             }
-            var sourcePrefix = (this.forceSideBySide) ? 'origin': this.originAggregateLevel,
-                targetPrefix = (this.forceSideBySide) ? 'destination': this.destinationAggregateLevel;
+            var sourcePrefix = (this.forceSideBySide) ? 'origin': origins.apiTag,
+                targetPrefix = (this.forceSideBySide) ? 'destination': destinations.apiTag;
 
-            function checkOrigins(id){ return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0 }
+            function checkOrigins(id){
+                return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0
+            }
             addNodes(origins, sourcePrefix, checkOrigins);
             function checkDestinations(id){ return nConnectionsIn(flows, id) > 0 }
             addNodes(destinations, targetPrefix, checkDestinations);

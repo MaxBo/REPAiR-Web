@@ -27,28 +27,28 @@ var FlowAssessmentSetupView = BaseView.extend(
         FlowAssessmentSetupView.__super__.initialize.apply(this, [options]);
         var _this = this;
          _.bindAll(this, 'renderIndicator');
-        
+
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        this.materials = new GDSECollection([], { 
+        this.materials = new GDSECollection([], {
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ],
             comparator: 'name'
         });
-        this.activities = new GDSECollection([], { 
+        this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId ],
             comparator: 'name'
         });
-        this.activityGroups = new GDSECollection([], { 
+        this.activityGroups = new GDSECollection([], {
             apiTag: 'activitygroups',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
-        this.indicators = new GDSECollection([], { 
+        this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
-        
+
         this.loader.activate();
         var promises = [
             this.activities.fetch(),
@@ -83,10 +83,10 @@ var FlowAssessmentSetupView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({indicators: this.indicators});
-        
+
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
     },
-    
+
     // fetch and show selected indicator
     editIndicator: function(){
         var selected = this.indicatorSelect.value,
@@ -99,26 +99,26 @@ var FlowAssessmentSetupView = BaseView.extend(
             })
         }
     },
-    
+
     // render view on given indicator
     renderIndicator: function(indicator){
         this.el.querySelector('#flowindicator-edit').style.display = 'block';
-        
+
         this.indicator = indicator;
         this.inputs = {
             name: this.el.querySelector('input[name="name"]'),
-            'indicator-type': this.el.querySelector('#indicator-type'),
+            'indicator_type': this.el.querySelector('#indicator-type'),
             unit: this.el.querySelector('input[name="unit"]'),
             description: this.el.querySelector('textarea[name="description"]')
         }
         var type = indicator.get('indicator_type');
-        this.el.querySelector('#flowBLi').style.visibility = (type == 'AB') ? 'visible': 'hidden';
-        
+        this.el.querySelector('#flowBLi').style.visibility = (type == 'IndicatorAB') ? 'visible': 'hidden';
+
         this.inputs.name.value = indicator.get('name');
-        this.inputs['indicator-type'].value = type;
+        this.inputs['indicator_type'].value = type;
         this.inputs.unit.value = indicator.get('unit');
         this.inputs.description.value = indicator.get('description');
-        
+
         // content of Flow A and Flow B tabs
         var tmpltId = 'indicator-flow-edit-template',
             elA = this.el.querySelector('#flow-a-tab'),
@@ -148,7 +148,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         var val = evt.target.value,
             aTab = this.el.querySelector('#flowALi'),
             bTab = this.el.querySelector('#flowBLi');
-        if (val == 'AB'){
+        if (val == 'IndicatorAB'){
             bTab.style.visibility = 'visible';
         }
         else{
@@ -156,7 +156,7 @@ var FlowAssessmentSetupView = BaseView.extend(
             bTab.style.visibility = 'hidden';
         }
     },
-    
+
     // upload the changes made on inputs of currently opened indicator
     uploadIndicator: function(){
         var _this = this;
@@ -174,13 +174,13 @@ var FlowAssessmentSetupView = BaseView.extend(
             _this.alert(gettext('Upload successful'), gettext('Success'));
         }, error: this.onError})
     },
-    
+
     // create, select and show a new indicator
     createIndicator: function(){
         var _this = this;
         function create(name){
-            var indicator = _this.indicators.create( 
-                { name: name }, 
+            var indicator = _this.indicators.create(
+                { name: name },
                 { success: function(){
                     var option = document.createElement('option');
                     option.value = indicator.id;
@@ -193,7 +193,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         }
         this.getName({ onConfirm: create });
     },
-    
+
     // delete selected indicator
     deleteIndicator: function(){
         var selected = this.indicatorSelect.value,
@@ -217,7 +217,7 @@ var FlowAssessmentSetupView = BaseView.extend(
             onConfirm: destroy
         })
     },
-    
+
     close: function(){
         if(this.flowAView) this.flowAView.close();
         if(this.flowBView) this.flowBView.close();
