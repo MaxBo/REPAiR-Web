@@ -411,13 +411,13 @@ var FlowsView = BaseView.extend(
 
         Promise.all(promises).then(function(){
             _this.complementFlowData(flows, collection, collection,
-                function(){
+                function(origins, destinations){
                     _this.loader.deactivate();
                     _this.flowsView = new FlowSankeyView({
                         el: el,
                         width:  el.clientWidth - 10,
-                        origins: collection,
-                        destinations: collection,
+                        origins: origins,
+                        destinations: destinations,
                         flows: flows,
                         stocks: stocks,
                         keyflowId: _this.keyflowId,
@@ -453,6 +453,10 @@ var FlowsView = BaseView.extend(
             return;
         }
 
+        if (this.actors) {
+
+        }
+
         // fetch actors and the flows in between them when group or activity was selected,
         // render after fetching
         function fetchRenderData(origin, destination, levelFilter) {
@@ -473,7 +477,6 @@ var FlowsView = BaseView.extend(
                 data: params,
                 success: function(){
                     _this.loader.deactivate();
-                    console.log(flows)
                     flows.forEach(function(flow){
                         // remember which flow the sub flows belong to (used in deselection)
                         flow.parent = data.flow.id;
@@ -661,8 +664,6 @@ var FlowsView = BaseView.extend(
     // calls success() after completion
     complementFlowData: function(flows, origins, destinations, success){
 
-        console.log(origins)
-        console.log(destinations)
         var originIds = origins.pluck('id'),
             destinationIds = destinations.pluck('id'),
             missingOriginIds = new Set(),
@@ -673,12 +674,15 @@ var FlowsView = BaseView.extend(
             if(!originIds.includes(origin)) missingOriginIds.add(origin);
             if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
         })
-        console.log('complementing')
         var promises = [];
         // WARNING: postfetch works only with filter actors route, should be
         // fetched in case of groups and activities, but in fact they should
         // be complete
         if (missingOriginIds.size > 0){
+            // clone to avoid manipulating the original collection
+            origins = new GDSECollection(origins.toJSON(), {
+                apiTag: origins.apiTag, apiIds: origins.apiIds
+            })
             var missingOrigins = new GDSECollection([], {
                 url: origins.url()
             })
@@ -690,6 +694,10 @@ var FlowsView = BaseView.extend(
             }))
         }
         if (missingDestinationIds.size > 0){
+            // clone to avoid manipulating the original collection
+            destinations = new GDSECollection(destinations.toJSON(), {
+                apiTag: destinations.apiTag, apiIds: destinations.apiIds
+            })
             var missingDestinations = new GDSECollection([], {
                 url: destinations.url()
             })
@@ -702,9 +710,7 @@ var FlowsView = BaseView.extend(
         }
 
         Promise.all(promises).then(function(){
-            console.log(origins)
-            console.log(destinations)
-            success();
+            success(origins, destinations);
         })
     }
 
