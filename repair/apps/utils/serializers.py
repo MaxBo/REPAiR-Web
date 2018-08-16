@@ -12,6 +12,6 @@ class EnumField(serializers.ChoiceField):
 
     def to_internal_value(self, data):
         try:
-            return self.enum[data.upper()]
+            return self.enum[data]
         except KeyError:
             self.fail('invalid_choice', input=data)
