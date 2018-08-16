@@ -366,8 +366,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             }
         }
         '''
-        self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
+        self.check_permission(request, 'view')
+        # filter by query params
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=self.get_serializer_class())
         params = {}
         # values of body keys are not parsed
         for key, value in request.data.items():
