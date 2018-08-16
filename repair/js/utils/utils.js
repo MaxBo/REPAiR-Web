@@ -90,7 +90,7 @@ module.exports = {
             }
             if (model.markedForDeletion){
                 // only already existing models can be destroyed (indicated by id)
-                if (model.id) 
+                if (model.id)
                     model.destroy(params);
                 else uploadModel(models, it+1)
             }
@@ -108,7 +108,7 @@ module.exports = {
     Loader: function(div, options) {
         var loaderDiv = document.createElement('div');
         loaderDiv.className = 'loader';
-        
+
         this.activate = function(opt){
             var opt = opt || {};
             loaderDiv.style.top = null;
@@ -132,5 +132,58 @@ module.exports = {
     range: function(start, end, step) {
         const len = Math.floor((end - start) / step) + 1
         return Array(len).fill().map((_, idx) => start + (idx * step))
+    },
+
+    // checks given flows and adds and fetches missing models to origins and destinations
+    // calls success() after completion
+    complementFlowData: function(flows, origins, destinations, success){
+        var GDSECollection = require('collections/gdsecollection');
+        var originIds = origins.pluck('id'),
+            destinationIds = destinations.pluck('id'),
+            missingOriginIds = new Set(),
+            missingDestinationIds = new Set();
+        // clone to avoid manipulating the original collection
+        origins = new GDSECollection(origins.toJSON(), {
+            apiTag: origins.apiTag, apiIds: origins.apiIds
+        })
+        destinations = new GDSECollection(destinations.toJSON(), {
+            apiTag: destinations.apiTag, apiIds: destinations.apiIds
+        })
+        flows.forEach(function(flow){
+            var origin = flow.get('origin'),
+                destination = flow.get('destination');
+            if(!originIds.includes(origin)) missingOriginIds.add(origin);
+            if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
+        })
+        var promises = [];
+        // WARNING: postfetch works only with filter actors route, should be
+        // fetched in case of groups and activities, but in fact they should
+        // be complete
+        if (missingOriginIds.size > 0){
+            var missingOrigins = new GDSECollection([], {
+                url: origins.url()
+            })
+            promises.push(missingOrigins.postfetch({
+                body: { 'id': Array.from(missingOriginIds).join() },
+                success: function(){
+                    origins.add(missingOrigins.toJSON(), {silent: true});
+                }
+            }))
+        }
+        if (missingDestinationIds.size > 0){
+            var missingDestinations = new GDSECollection([], {
+                url: destinations.url()
+            })
+            promises.push(missingDestinations.postfetch({
+                body: { 'id': Array.from(missingDestinationIds).join() },
+                success: function(){
+                    destinations.add(missingDestinations.toJSON(), {silent: true});
+                }
+            }))
+        }
+
+        Promise.all(promises).then(function(){
+            success(origins, destinations);
+        })
     }
 }

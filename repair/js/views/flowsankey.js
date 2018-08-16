@@ -50,7 +50,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.origins = options.origins;
             this.destinations = options.destinations;
             this.flows = options.flows;
-            this.stocks = options.stocks;
+            this.stocks = options.stocks || [];
 
             var fullscreenBtn = document.createElement('button'),
                 zoomControls = document.createElement('div'),
@@ -189,6 +189,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             }
 
             function nConnectionsOut(connections, nodeId){
+                if (connections.length === 0) return 0;
                 return connections.filterBy({ origin: nodeId }).length;
             }
 
