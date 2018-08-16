@@ -408,7 +408,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             if len(filter_functions) == 1:
                 queryset = queryset.filter(filter_functions[0])
             if len(filter_functions) > 1:
-                queryset = queryset.filter(link_func(*filter_functions))
+                queryset = queryset.filter(link_func.reduce(filter_functions))
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
