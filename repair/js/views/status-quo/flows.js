@@ -315,7 +315,8 @@ var FlowsView = BaseView.extend(
         var el = this.el.querySelector('.sankey-wrapper'),
             nodeLevel = this.nodeLevelSelect.value,
             displayLevel = this.displayLevelSelect.value,
-            direction = this.el.querySelector('input[name="direction"]:checked').value;
+            direction = this.el.querySelector('input[name="direction"]:checked').value,
+            _this = this;
 
         // pass all known nodes to sankey (not only the filtered ones) to avoid
         // fetching missing nodes
@@ -387,27 +388,54 @@ var FlowsView = BaseView.extend(
             stockFilters.push(origin_filter);
         }
 
-        //flowFilterParams.aggregation_level = nodeLevel;
-        //stockFilterParams.aggregation_level = nodeLevel;
 
-        this.flowsView = new FlowSankeyView({
-            el: el,
-            width:  el.clientWidth - 10,
-            origins: collection,
-            destinations: collection,
-            keyflowId: this.keyflowId,
-            caseStudyId: this.caseStudy.id,
-            materials: this.materials,
-            flowFilterParams: flowFilterParams,
-            stockFilterParams: stockFilterParams,
-            hideUnconnected: true,
-            height: 600
-            //originLevel: displayLevel,
-            //destinationLevel: displayLevel
-        })
+        flowFilterParams['aggregation_level'] = {
+            origin: displayLevel,
+            destination: displayLevel
+        };
+        stockFilterParams['aggregation_level'] = displayLevel;
 
-        el.addEventListener('linkSelected', this.linkSelected);
-        el.addEventListener('linkDeselected', this.linkDeselected);
+        var flows = new GDSECollection([], {
+            apiTag: 'actorToActor',
+            apiIds: [ this.caseStudyId, this.keyflowId]
+        });
+        var stocks = new GDSECollection([], {
+            apiTag: 'actorStock',
+            apiIds: [ this.caseStudyId, this.keyflowId]
+        });
+        this.loader.activate();
+        var promises = [
+            flows.postfetch({body: flowFilterParams})
+        ]
+        promises.push(stocks.postfetch({body: stockFilterParams}));
+
+        Promise.all(promises).then(function(){
+            _this.complementFlowData(flows, collection, collection,
+                function(){
+                    _this.loader.deactivate();
+                    _this.flowsView = new FlowSankeyView({
+                        el: el,
+                        width:  el.clientWidth - 10,
+                        origins: collection,
+                        destinations: collection,
+                        flows: flows,
+                        stocks: stocks,
+                        keyflowId: _this.keyflowId,
+                        caseStudyId: _this.caseStudy.id,
+                        materials: _this.materials,
+                        flowFilterParams: flowFilterParams,
+                        stockFilterParams: stockFilterParams,
+                        hideUnconnected: true,
+                        height: 600
+                        //originLevel: displayLevel,
+                        //destinationLevel: displayLevel
+                    })
+                    el.addEventListener('linkSelected', this.linkSelected);
+                    el.addEventListener('linkDeselected', this.linkDeselected);
+                }
+            )
+        });
+
     },
 
     linkSelected: function(e){
@@ -427,54 +455,38 @@ var FlowsView = BaseView.extend(
 
         // fetch actors and the flows in between them when group or activity was selected,
         // render after fetching
-        function fetchRenderData(parentNodes, parentFilter) {
+        function fetchRenderData(origin, destination, levelFilter) {
             var promises = [],
                 actorIds = [],
                 nodes = [];
 
             _this.loader.activate();
-            parentNodes.forEach(function(parent){
-                var actors = new GDSECollection([], {
-                    apiTag: 'actors',
-                    apiIds: [_this.caseStudy.id, _this.keyflowId]
-                });
-                var data = {};
-                data[parentFilter] = parent.id;
-                promises.push(actors.fetch({
-                    data: data,
-                    success: function(){
-                        actors.forEach(function(actor){
-                            actor.color = parent.color;
-                            nodes.push(actor);
-                        })
-                        actorIds = actorIds.concat(actors.pluck('id'));
-                    }
-                }))
-            })
-            Promise.all(promises).then(function(){
-                var flows = new GDSECollection([], {
-                    apiTag: 'actorToActor',
-                    apiIds: [_this.caseStudy.id, _this.keyflowId]
-                });
-                actorIds = actorIds.join(',');
-                flows.fetch({
-                    data: { origin__in: actorIds, destination__in: actorIds},
-                    success: function(){
-                        _this.loader.deactivate();
-                        flows.forEach(function(flow){
-                            // remember which flow the sub flows belong to (used in deselection)
-                            flow.parent = data.flow.id;
-                        })
-                        render(nodes, flows.models);
-                    }
-                })
+            var flows = new GDSECollection([], {
+                apiTag: 'actorToActor',
+                apiIds: [_this.caseStudy.id, _this.keyflowId]
+            });
+            actorIds = actorIds.join(',');
+            var params = {};
+            params['origin__' + levelFilter] = origin.id;
+            params['destination__' + levelFilter] = destination.id;
+            flows.fetch({
+                data: params,
+                success: function(){
+                    _this.loader.deactivate();
+                    console.log(flows)
+                    flows.forEach(function(flow){
+                        // remember which flow the sub flows belong to (used in deselection)
+                        flow.parent = data.flow.id;
+                    })
+                    //render(nodes, flows.models);
+                }
             })
         }
         if (data.flow.get('origin_level') === 'activitygroup'){
-            fetchRenderData([data.origin, data.destination], 'activity__activitygroup');
+            fetchRenderData(data.origin, data.destination, 'activity__activitygroup');
         }
         else if (data.flow.get('origin_level') === 'activity'){
-            fetchRenderData([data.origin, data.destination], 'activity');
+            fetchRenderData(data.origin, data.destination, 'activity');
         }
     },
 
@@ -643,6 +655,57 @@ var FlowsView = BaseView.extend(
             defaultOption: gettext('All materials')
         });
         this.el.querySelector('#material-filter').appendChild(matSelect);
+    },
+
+    // checks given flows and adds and fetches missing models to origins and destinations
+    // calls success() after completion
+    complementFlowData: function(flows, origins, destinations, success){
+
+        console.log(origins)
+        console.log(destinations)
+        var originIds = origins.pluck('id'),
+            destinationIds = destinations.pluck('id'),
+            missingOriginIds = new Set(),
+            missingDestinationIds = new Set();
+        flows.forEach(function(flow){
+            var origin = flow.get('origin'),
+                destination = flow.get('destination');
+            if(!originIds.includes(origin)) missingOriginIds.add(origin);
+            if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
+        })
+        console.log('complementing')
+        var promises = [];
+        // WARNING: postfetch works only with filter actors route, should be
+        // fetched in case of groups and activities, but in fact they should
+        // be complete
+        if (missingOriginIds.size > 0){
+            var missingOrigins = new GDSECollection([], {
+                url: origins.url()
+            })
+            promises.push(missingOrigins.postfetch({
+                body: { 'id': Array.from(missingOriginIds).join() },
+                success: function(){
+                    origins.add(missingOrigins.toJSON(), {silent: true});
+                }
+            }))
+        }
+        if (missingDestinationIds.size > 0){
+            var missingDestinations = new GDSECollection([], {
+                url: destinations.url()
+            })
+            promises.push(missingDestinations.postfetch({
+                body: { 'id': Array.from(missingDestinationIds).join() },
+                success: function(){
+                    destinations.add(missingDestinations.toJSON(), {silent: true});
+                }
+            }))
+        }
+
+        Promise.all(promises).then(function(){
+            console.log(origins)
+            console.log(destinations)
+            success();
+        })
     }
 
 });
