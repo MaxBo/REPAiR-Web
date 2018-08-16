@@ -378,7 +378,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 params[key] = json.loads(value)
             except json.decoder.JSONDecodeError:
                 params[key] = value
-        queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)

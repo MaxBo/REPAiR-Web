@@ -309,23 +309,14 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    renderSankey: function(){
-        if (this.flowMapView != null) this.flowMapView.clear();
-        if (this.flowsView != null) this.flowsView.close();
-        var el = this.el.querySelector('.sankey-wrapper'),
-            nodeLevel = this.nodeLevelSelect.value,
-            displayLevel = this.displayLevelSelect.value,
-            direction = this.el.querySelector('input[name="direction"]:checked').value,
-            _this = this;
-
-        // pass all known nodes to sankey (not only the filtered ones) to avoid
-        // fetching missing nodes
-        var collection = (displayLevel == 'actor') ? this.actors:
-            (displayLevel == 'activity') ? this.activities:
-            this.activityGroups;
+    // returns parameters for filtered post-fetching of flows depending on
+    // selections the user made in Filter section (display level excluded)
+    getFlowFilterParams: function(){
 
         var filterParams = {},
-            waste = this.el.querySelector('select[name="waste"]').value;
+            waste = this.el.querySelector('select[name="waste"]').value,
+            nodeLevel = this.nodeLevelSelect.value,
+            direction = this.el.querySelector('input[name="direction"]:checked').value;
         if (waste) filterParams.waste = waste;
 
         // material options for both stocks and flows
@@ -387,7 +378,24 @@ var FlowsView = BaseView.extend(
             }
             stockFilters.push(origin_filter);
         }
+        return [flowFilterParams, stockFilterParams];
+    },
 
+    renderSankey: function(){
+        if (this.flowMapView != null) this.flowMapView.clear();
+        if (this.flowsView != null) this.flowsView.close();
+        var el = this.el.querySelector('.sankey-wrapper'),
+            displayLevel = this.displayLevelSelect.value,
+            _this = this;
+
+        // pass all known nodes to sankey (not only the filtered ones) to avoid
+        // fetching missing nodes
+        var collection = (displayLevel == 'actor') ? this.actors:
+            (displayLevel == 'activity') ? this.activities:
+            this.activityGroups;
+        var filterParams = this.getFlowFilterParams(),
+            flowFilterParams = filterParams[0],
+            stockFilterParams = filterParams[1];
 
         flowFilterParams['aggregation_level'] = {
             origin: displayLevel,
@@ -397,11 +405,11 @@ var FlowsView = BaseView.extend(
 
         var flows = new GDSECollection([], {
             apiTag: 'actorToActor',
-            apiIds: [ this.caseStudyId, this.keyflowId]
+            apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         var stocks = new GDSECollection([], {
             apiTag: 'actorStock',
-            apiIds: [ this.caseStudyId, this.keyflowId]
+            apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         this.loader.activate();
         var promises = [
@@ -430,8 +438,8 @@ var FlowsView = BaseView.extend(
                         //originLevel: displayLevel,
                         //destinationLevel: displayLevel
                     })
-                    el.addEventListener('linkSelected', this.linkSelected);
-                    el.addEventListener('linkDeselected', this.linkDeselected);
+                    el.addEventListener('linkSelected', _this.linkSelected);
+                    el.addEventListener('linkDeselected', _this.linkDeselected);
                 }
             )
         });
@@ -442,24 +450,16 @@ var FlowsView = BaseView.extend(
         // only actors atm
         var data = e.detail,
             _this = this;
-        function render(nodes, links){
-            _this.flowMapView.addNodes(nodes);
-            _this.flowMapView.addFlows(links);
+        function render(origins, destinations, flows){
+            _this.flowMapView.addNodes(destinations);
+            _this.flowMapView.addNodes(origins);
+            _this.flowMapView.addFlows(flows);
             _this.flowMapView.rerender(true);
-        }
-
-        if (data.flow.get('origin_level') === 'actor'){
-            render([data.origin, data.destination], data.flow);
-            return;
-        }
-
-        if (this.actors) {
-
         }
 
         // fetch actors and the flows in between them when group or activity was selected,
         // render after fetching
-        function fetchRenderData(origin, destination, levelFilter) {
+        function fetchRenderData(origin, destination, queryParams, bodyParams) {
             var promises = [],
                 actorIds = [],
                 nodes = [];
@@ -470,26 +470,44 @@ var FlowsView = BaseView.extend(
                 apiIds: [_this.caseStudy.id, _this.keyflowId]
             });
             actorIds = actorIds.join(',');
-            var params = {};
-            params['origin__' + levelFilter] = origin.id;
-            params['destination__' + levelFilter] = destination.id;
-            flows.fetch({
-                data: params,
+            flows.postfetch({
+                body: bodyParams,
+                data: queryParams,
                 success: function(){
-                    _this.loader.deactivate();
                     flows.forEach(function(flow){
                         // remember which flow the sub flows belong to (used in deselection)
                         flow.parent = data.flow.id;
                     })
-                    //render(nodes, flows.models);
+                    _this.complementFlowData(flows, _this.actors, _this.actors,
+                        function(origins, destinations){
+                            origins.forEach(function(node){ node.color = origin.color; })
+                            destinations.forEach(function(node){ node.color = destination.color; })
+                            _this.loader.deactivate();
+                            render(origins.models, destinations.models, flows.models);
+                        }
+                    )
                 }
             })
         }
-        if (data.flow.get('origin_level') === 'activitygroup'){
-            fetchRenderData(data.origin, data.destination, 'activity__activitygroup');
+        // display level actor
+        if (data.flow.get('origin_level') === 'actor'){
+            render(data.origin, data.destination, data.flow);
         }
-        else if (data.flow.get('origin_level') === 'activity'){
-            fetchRenderData(data.origin, data.destination, 'activity');
+        // display level activity or group
+        else {
+            // put filter params defined by user in filter section into body
+            var bodyParams = this.getFlowFilterParams()[0],
+                filterSuffix = 'activity';
+
+            // put filtering by clicked flow origin/destination into query params
+            if (data.flow.get('origin_level') === 'activitygroup')
+                filterSuffix += '__activitygroup';
+            var queryParams = {};
+            queryParams['origin__' + filterSuffix] = data.origin.id;
+            queryParams['destination__' + filterSuffix] = data.destination.id;
+
+            // fetch flows with filter params
+            fetchRenderData(data.origin, data.destination, queryParams, bodyParams);
         }
     },
 
@@ -534,6 +552,7 @@ var FlowsView = BaseView.extend(
 
     },
 
+    // filter section: get the selected nodes of selected level
     getSelectedNodes: function(nodeSelect){
         if (!nodeSelect){
             var level = this.nodeLevelSelect.value,
