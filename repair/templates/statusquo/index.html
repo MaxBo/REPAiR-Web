@@ -37,13 +37,24 @@
   <div class="tab-pane fade" id="challenges"></div>
   <div class="tab-pane fade" id="flow-assessment">
     <div class="row bordered">
-      <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
-      <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
-        <option disabled selected> {% trans "Select" %} </option>
-        {% for keyflow in keyflows %}
-          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
-        {% endfor %}
-      </select>
+      <div class="row">
+        <h4 style="margin-right: 10px; float: left;">{% trans "Keyflow" %}</h4>
+        <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
+          <option disabled selected> {% trans "Select" %} </option>
+          {% for keyflow in keyflows %}
+            <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="row">
+        <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
+        <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+          <option disabled selected> {% trans "Select" %} </option>
+          {% for indicator in indicators %}
+            <option value="{{ indicator.id }}"> {{ indicator.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
     <div id="flow-assessment-content"></div>
   </div>

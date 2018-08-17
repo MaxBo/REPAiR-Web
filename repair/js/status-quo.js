@@ -26,7 +26,8 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
                 caseStudy: caseStudy,
                 el: el,
                 template: 'flows-template',
-                keyflowId: keyflowSelect.value
+                keyflowId: keyflowSelect.value,
+                IndicatorId: keyflowSelect.value
             })
         })
     };
@@ -43,7 +44,8 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
                 caseStudy: caseStudy,
                 el: el,
                 template: template,
-                keyflowId: keyflowSelect.value
+                keyflowId: keyflowSelect.value,
+                IndicatorId: keyflowSelect.value
             })
         })
     };
@@ -60,7 +62,8 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
                 caseStudy: caseStudy,
                 el: el,
                 template: 'setup-flow-assessment-template',
-                keyflowId: keyflowSelect.value
+                keyflowId: keyflowSelect.value,
+                IndicatorId: keyflowSelect.value
             })
         })
     };

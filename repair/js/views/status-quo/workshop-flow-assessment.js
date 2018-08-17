@@ -31,6 +31,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var _this = this;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.indicatorId = options.indicatorId,
+        
         this.indicators = new GDSECollection([], { 
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId ],
@@ -115,8 +117,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     
     // compute and render the indicator on the map
     computeMapIndicator: function(){
-        var indicatorId = this.indicatorSelect.value,
-            levelId = this.levelSelect.value,
+        var levelId = this.levelSelect.value,
             _this = this;
         // one of the selects is not set to sth. -> nothing to render
         if (indicatorId == -1 || levelId == -1) return;
@@ -246,7 +247,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this = this;
         this.areaSelects = {};
         if (!orderedSelects || orderedSelects.length == 0) return;
-        _this.renderBarChart(_this.barChartRow);
         orderedSelects.forEach(function(areaSelect){
             var id = areaSelect.id;
             areaSelect = Object.assign({}, areaSelect);
@@ -265,8 +265,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 button.classList.add('btn-warning');
                 button.classList.remove('btn-primary');
             }
-        
-        })
+        });
+        _this.renderBarChart(_this.barChartRow);
     },
     
     // render item for area selection
@@ -316,18 +316,18 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     
     // add data to bar chart
     addBarChartData: function(id){
-        var areas = this.areaSelects[id];
+        var areas = this.areaSelects[id].areas;
         // build url and get the data for the bar chart
         var urlind = config.api.flowIndicators;
         urlind += "{2}/compute?areas=";
-        for(area in areas){
+        $.each(areas, function(index, area) {
             urlind += area + ",";
-        }
+        });
         // remove trailing comma
-        urlind.slice(0,-1);
+        urlind = urlind.slice(0,-1);
         
         if (areas !== undefined && areas.length != 0) {
-            var url = urlind.format(this.caseStudy.id, this.keyflowId, this.indicatorSelect.value);
+            var url = urlind.format(this.caseStudy.id, this.keyflowId, 1);// this.indicatorSelect.value);
             $.ajax({
                 url: url,
                 type: 'GET',
