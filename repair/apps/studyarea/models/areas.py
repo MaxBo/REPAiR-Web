@@ -161,7 +161,11 @@ class House(Area):
 
 class _AreaTypesMeta(type):
     def __init__(cls, name, bases, nmspc):
-        """"""
+        """
+        Metaclass that looks for all subclasses of Area
+        (except class Area itself, which has no _level attribute)
+        and add it to the by_level dictionary
+        """
         super().__init__(name, bases, nmspc)
         for k, v in globals().items():
             if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
@@ -169,5 +173,10 @@ class _AreaTypesMeta(type):
 
 
 class Areas(metaclass=_AreaTypesMeta):
-    """"""
+    """
+    Attributes
+    ----------
+    by_level : dict
+        a dictionary with the level as key and the subclass of Area as value
+    """
     by_level = {}
