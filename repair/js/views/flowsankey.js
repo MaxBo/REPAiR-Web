@@ -125,7 +125,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 el: div,
                 title: '',
                 language: config.session.get('language'),
-                selectable: true
+                selectable: true,
+                gradient: false
             })
 
             // get models from sankey data and redirect the event
