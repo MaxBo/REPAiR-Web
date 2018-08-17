@@ -46,6 +46,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelects = {};
         this.areaSelectIdCnt = 0;
         this.selectedAreas = [];
+        this.chartData = [];
 
         this.loader.activate();
         var promises = [
@@ -86,7 +87,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
-        this.barChartRow = this.el.querySelector('#bar-charts-row');
+        this.barChartRow = this.el.querySelector('#bar-chart');
+        this.barChart = {};
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
@@ -244,6 +246,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this = this;
         this.areaSelects = {};
         if (!orderedSelects || orderedSelects.length == 0) return;
+        _this.renderBarChart(_this.barChartRow);
         orderedSelects.forEach(function(areaSelect){
             var id = areaSelect.id;
             areaSelect = Object.assign({}, areaSelect);
@@ -251,7 +254,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
             _this.renderAreaBox(_this.areaSelectRow, id, id);
-            _this.renderBarChart(_this.barChartRow, id, id);
+            _this.addBarChartData(id);
             
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
@@ -281,112 +284,67 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         //el.insertBefore(div, this.addAreaSelectBtn);
         div.dataset['id'] = id;
         this.areaSelectGrid.add(div, {});
+
         return div;
     },
 
     // render item for bar chart
-    renderBarChart: function(el, id, title, fontSize){
-        var html = document.getElementById('bar-chart-template').innerHTML,
-            template = _.template(html),
-            div = document.createElement('div');
-        div.innerHTML = template({
-            title: title,
-            fontSize: fontSize || '60px',
-            id: id
-        });
-        
-        //_this.selectedAreas contains the selected area's for this bar chart
+    renderBarChart: function(el){
+        var div = document.createElement('div');
         el.appendChild(div);
-        div.dataset['id'] = id;
         
-        //build url and get the data for the bar chart
+        //create bar chart
+        this.barChart = highcharts.chart(div, {
+            chart: {
+                type: 'column'
+            },
+            xAxis: {
+                min: 0
+            },
+            yAxis: {
+                min: 0
+            },
+            title: '',
+            legend: {
+                enabled: false
+            },
+            series: [{
+                data: []
+            }]
+        });
+    },
+    
+    // add data to bar chart
+    addBarChartData: function(id){
+        var areas = this.areaSelects[id];
+        // build url and get the data for the bar chart
         var urlind = config.api.flowIndicators;
         urlind += "{2}/compute?areas=";
-        for(area in this.selectedAreas){
+        for(area in areas){
             urlind += area + ",";
         }
         // remove trailing comma
         urlind.slice(0,-1);
         
-        if (this.selectedAreas !== undefined && this.selectedAreas.length != 0) {
-            var url = config.api.flowIndicators.format(this.caseStudy.id, this.keyflowId, this.indicatorSelect.value);
+        if (areas !== undefined && areas.length != 0) {
+            var url = urlind.format(this.caseStudy.id, this.keyflowId, this.indicatorSelect.value);
             $.ajax({
                 url: url,
                 type: 'GET',
                 async: true,
                 dataType: "json",
                 success: function (data) {
-                    var areas = [];
-                    var values = [];
+                    var sum = 0;
                     $.each(data.results, function(index, value) {
-                        areas.push(value.area);
-                        values.push(value.value);
+                        sum += value.value;
                     });
-                    
-                    //create bar chart
-                    var barChart = highcharts.chart(div,{
-                        chart: {
-                            type: 'column'
-                        },
-                        title: {
-                            text: div.title
-                        },
-                        xAxis: {
-                            categories: areas
-                        },
-                        yAxis: {
-                            min: 0
-                        },
-                        series: [{
-                            data: values
-                        }]
-                    });
+                    this.chartData.push([id, sum]);
                 }
-            });
-        } else {
-            //create empty chart
-            
-            //EXAMPLE
-            data = 
-            [
-                {
-                    "area": "815",
-                    "value": 0
-                },
-                {
-                    "area": "812",
-                    "value": 0
-                },
-                {
-                    "area": "816",
-                    "value": 6541474.784818548
-                }
-            ];
-            
-            var areas = [];
-            var values = [];
-            $.each(data, function(index, value) {
-                areas.push(value.area);
-                values.push(value.value);
-            });
-            var barChart = highcharts.chart(div,{
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: div.title
-                },
-                xAxis: {
-                    categories: areas
-                },
-                yAxis: {
-                    min: 0
-                },
-                series: [{
-                    data: values
-                }]
             });
         }
+        //test
+        this.barChart.series[0].setData([[1,1], [2,2], [4,5]]);
+        //this.barChart.series[0].setData(this.chartData);
     },
     
     // render an item where the user can setup areas to be shown as bar charts
@@ -394,13 +352,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var id = this.areaSelectIdCnt;
         this.renderAreaBox(
             this.areaSelectRow, id, id);
-        this.renderBarChart(
-            this.barChartRow, id, id);
         this.areaSelects[id] = {
             areas: [],
             level: this.areaLevels.first().id
         }
         this.areaSelectIdCnt += 1;
+        this.addBarChartData(id);
         this.saveSession();
     },
     
@@ -424,8 +381,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.remove(div, { removeElements: true });
         
         //remove bar chart with it
-        var bardiv = this.barChartRow.querySelector('div[data-id="' + id + '"]');
-        bardiv.parentNode.removeChild(bardiv);
+        //TODO: Remove data from this.chartData
         this.saveSession();
     },
     
