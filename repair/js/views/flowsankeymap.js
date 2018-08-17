@@ -1,7 +1,8 @@
 define(['underscore', 'views/baseview', 'collections/gdsecollection',
         'collections/geolocations',
-        'visualizations/flowmap', 'leaflet',
-        'leaflet/dist/leaflet.css', 'static/css/flowmap.css'],
+        'visualizations/flowmap', 'leaflet', 'leaflet-fullscreen',
+        'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
+        'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
 function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
@@ -47,31 +48,45 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         * render the view
         */
         render: function(){
-
-            var map = new L.Map(this.el, {
+            this.leafletMap = new L.Map(this.el, {
                     center: [52.41, 4.95],
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
                     maxZoom: 18
                 })
-                .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
-            this.flowMap = new FlowMap(map);
-            map.on("zoomend", this.update);
+                .addLayer(new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
+            this.flowMap = new FlowMap(this.leafletMap);
+            this.leafletMap.addControl(new L.Control.Fullscreen());
+            this.leafletMap.on("zoomend", this.update);
             //reset();
             //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
         },
 
         update: function(){
+            if (!this.data) return;
             this.flowMap.reset(this.data.bbox);
             this.flowMap.render(this.data.nodes, this.data.flows);
         },
 
-        rerender: function(){
+        zoomToFit: function(){
+            if (!this.data) return;
+            var bbox = this.data.bbox;
+            // leaflet uses lat/lon in different order
+            this.leafletMap.fitBounds([
+                [this.data.bbox[0][1], this.data.bbox[0][0]],
+                [this.data.bbox[1][1], this.data.bbox[1][0]]
+            ]);
+        },
+
+        rerender: function(zoomToFit){
             var _this = this;
+            this.loader.activate();
             this.prefetchLocations(function(){
                 _this.data = _this.transformData();
+                _this.loader.deactivate();
                 _this.update();
+                if (zoomToFit) _this.zoomToFit();
             })
         },
 
@@ -91,6 +106,44 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             })
         },
 
+        getNodes: function(){
+            return Object.values(this.nodes);
+        },
+
+        getFlows: function(){
+            return Object.values(this.flows);
+        },
+
+        removeFlows: function(flows){
+            var _this = this;
+                flows = (flows instanceof Array) ? flows: [flows];
+            flows.forEach(function(flow){
+                delete _this.flows[flow.id];
+            })
+        },
+
+        removeNodes: function(nodes, unusedOnly){
+            var _this = this,
+                nodes = (nodes instanceof Array) ? nodes: [nodes],
+                usedNodes = new Set();
+            if (unusedOnly) {
+                Object.values(this.flows).forEach(function(flow){
+                    usedNodes.add(flow.get('origin'));
+                    usedNodes.add(flow.get('destination'));
+                })
+            }
+            nodes.forEach(function(node){
+                if (!usedNodes.has(node.id))
+                    delete _this.nodes[node.id];
+            })
+        },
+
+        clear: function(){
+            this.nodes = {};
+            this.flows = {};
+            this.rerender();
+        },
+
         prefetchLocations: function(callback){
             var promises = [],
                 _this = this;
@@ -103,9 +156,12 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 promises.push(adminLocations.fetch({
                     data: { actor: nodeId },
                     success: function(coll){
-                        var adminLoc = coll.first(),
+                        var adminLoc = coll.first();
+                        // only add nodes with locations
+                        if (adminLoc) {
                             id = adminLoc.get('properties').actor;
-                        _this.locations[id] = adminLoc;
+                            _this.locations[id] = adminLoc;
+                        }
                     }
                 }));
             }
@@ -130,6 +186,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             for (var nodeId in this.nodes) {
                 var location = _this.locations[nodeId];
+                if (!location) continue;
                 var node = this.nodes[nodeId],
                     id = node.id,
                     location = _this.locations[node.id],
@@ -176,7 +233,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                         labelTotal: labelTotal,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
-                        color: 'grey',
+                        totalColor: origin.color,
                         value: amount,
                         valueTotal: totalAmount,
                         material: material.id

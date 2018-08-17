@@ -63,8 +63,13 @@ define([
             // get zoom level after each zoom activity
             map.on("zoomend", function(){
                 var zoomLev = map.getZoom();
-                console.log(zoomLev);
             });
+
+            // tooltip
+            this.tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "sankeymaptooltip")
+                .style("opacity", 0.9);
         }
 
 
@@ -106,13 +111,13 @@ define([
                     var strokeWidths = {};
                     var strokeArray = [];
                     var maxValue = Math.max.apply(Math, Object.values(flowsData).map(function (flow) {
-                            return flow.valueTotal
+                            return flow.valueTotal;
                         })),
                         minValue = Math.min.apply(Math, Object.values(flowsData).map(function (flow) {
-                        return flow.valueTotal
-                    })),
-                        maxWidth = 5,
-                        minWidth = 0.5;
+                        return flow.valueTotal;
+                    }));
+                    var maxWidth = 3,
+                        minWidth = 0.2;
 
                     for (var key in flowsData) {
                         var flow = flowsData[key];
@@ -239,7 +244,7 @@ define([
                 };
 
                 // drawTotalPath, if drawPath is chosen, every path is shown divided by materials which is not intended
-                this.drawTotalPath(sxp, syp, txp, typ, flow.labelTotal, totalStroke, sourceLevel, targetLevel, bothways, connection,Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths)
+                this.drawTotalPath(sxp, syp, txp, typ, flow.labelTotal, flow.totalColor, totalStroke, sourceLevel, targetLevel, bothways, connection,Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths)
                // this.drawPath(sxp, syp, txp, typ, flow.style, flow.label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection)
 
             }
@@ -267,7 +272,7 @@ define([
             if (level === 8) return 16;
             if (level === 6) return 21;
             if (level === 4) return 26;
-            return 6;
+            return 11;
         }
 
         // make adjustments if using other datasets
@@ -309,16 +314,10 @@ define([
         //function to add source nodes to the map
         addPoint(lon, lat, level, nodeLabel, color) {
             var x = this.projection([lon, lat])[0],
-                y = this.projection([lon, lat])[1];
+                y = this.projection([lon, lat])[1],
+                _this = this;
 
             var radius = this.defineRadiusZoom(level)/2;
-
-            // tooltip
-            var tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
 
             var point = this.g.append("g")
                 .attr("class", "node")
@@ -329,20 +328,20 @@ define([
                 .style("fill", color)
                 .style("fill-opacity", 1)
                 .style("stroke", 'lightgrey')
-                .style("stroke-width", 0.4)
+                .style("stroke-width", 1)
                 .on("mouseover", function (d) {
-                    d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
-                            .duration(200)
-                            .style("opacity", 0.9);
-                        tooltip.html(nodeLabel)
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px")
+                    d3.select(this).style("cursor", "pointer");
+                    _this.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    _this.tooltip.html(nodeLabel)
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px")
                 })
                 .on("mouseout", function (d) {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0)
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
                     }
                 );
 
@@ -447,14 +446,14 @@ define([
 
 
         // function to draw actual paths for the directed quantity flows
-        drawTotalPath(sxp, syp, txp, typ, labelTotal, totalStroke, sourceLevel, targetLevel, bothways, connection,
+        drawTotalPath(sxp, syp, txp, typ, labelTotal, totalColor, totalStroke, sourceLevel, targetLevel, bothways, connection,
                       Bthis, flowsData, nodesData, strokeWidthPerFlow, totalStrokeWidths) {
-
             var totalPoints = this.getPointsFromTotalPath(sxp, syp, txp, typ, totalStroke, sourceLevel, targetLevel, bothways, connection);
             var sxpao = totalPoints[0],
                 sypao = totalPoints[1],
                 txpao = totalPoints[2],
-                typao = totalPoints[3];
+                typao = totalPoints[3],
+                _this = this;
 
             var adjustedPathLength = this.adjustedPathLength(sxp, syp, txp, typ, sourceLevel, targetLevel);
             var dxp = adjustedPathLength[0],
@@ -466,13 +465,6 @@ define([
             //unique id for each clip path is necessary
             var uid = this.uuidv4();
 
-            // tooltip
-            var tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
-
             this.drawArrowhead(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp, uid);
 
             var flowsTotal = this.g.append("line")
@@ -483,8 +475,8 @@ define([
                 .attr("id", "#line")
                 .attr("clip-path", "url(#clip" + uid +")")
                 .attr("stroke-width", totalStroke)
-                .attr("stroke", "grey")
-                .attr("stroke-opacity", 0.3)
+                .attr("stroke", totalColor)
+                .attr("stroke-opacity", 0.5)
                 .on("click", function(){
                     for (var key in flowsData) {
                         var flow = flowsData[key];
@@ -518,22 +510,20 @@ define([
                 })
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
-                    d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
+                    d3.select(this).style("cursor", "pointer");
+                    _this.tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.8);
-                        tooltip.html(labelTotal)
+                    _this.tooltip.html(labelTotal)
                             .style("left", (d3.event.pageX) + "px")
                             .style("top", (d3.event.pageY - 28) + "px")
-                        flowsTotal.attr("stroke-opacity",0.4)
-                            .attr("stroke", "black")
+                    flowsTotal.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function () {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0)
-                        flowsTotal.attr("stroke-opacity",0.3)
-                            .attr("stroke", "grey")
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    flowsTotal.attr("stroke-opacity", 0.5)
                 })
             ;
         }
@@ -548,16 +538,11 @@ define([
                 sypa = pathLengthValues[3],
                 txpa = pathLengthValues[4],
                 typa = pathLengthValues[5],
-                flowLength = pathLengthValues[6];
+                flowLength = pathLengthValues[6],
+                _this = this;
 
             //unique id for each clip path is necessary
             var uid = this.uuidv4();
-
-            // tooltip
-            var tooltip = d3.select("body").append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0.9)
-                .style("z-index", 500);
 
             var totalOffset = this.totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways, connection);
             var sxpao = totalOffset[0],
@@ -586,22 +571,22 @@ define([
                 .attr("stroke-opacity", 0.8)
                 .attr("clip-path", "url(#clip" + uid +")")
                 .on("click", function(){
-                        d3.selectAll("line.fraction").remove();
-                        tooltip.remove()
+                    d3.selectAll("line.fraction").remove();
+                    _this.tooltip.style("opacity", 0);
                 })
                 .on("mouseover", function(){
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer"),
-                        tooltip.transition()
+                        _this.tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.9);
-                        tooltip.html(label)
+                        _this.tooltip.html(label)
                             .style("left", (d3.event.pageX) + "px")
                             .style("top", (d3.event.pageY - 28) + "px")
                         flows.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function(d) {
-                        tooltip.transition()
+                        _this.tooltip.transition()
                             .duration(500)
                             .style("opacity", 0)
                         flows.attr("stroke-opacity", 0.8)

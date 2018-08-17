@@ -21,7 +21,7 @@
   stroke-opacity: .3;
 }
 
-.link.selected {
+.link.selected, .cycleLink.selected {
     stroke-opacity: 1;
 }
 

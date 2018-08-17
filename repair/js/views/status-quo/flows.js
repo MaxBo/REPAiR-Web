@@ -29,6 +29,7 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'prepareAreas');
         _.bindAll(this, 'linkSelected');
+        _.bindAll(this, 'linkDeselected');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -308,21 +309,14 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    renderSankey: function(){
-        if (this.flowsView != null) this.flowsView.close();
-        var el = this.el.querySelector('.sankey-wrapper'),
-            nodeLevel = this.nodeLevelSelect.value,
-            displayLevel = this.displayLevelSelect.value,
-            direction = this.el.querySelector('input[name="direction"]:checked').value;
-
-        // pass all known nodes to sankey (not only the filtered ones) to avoid
-        // fetching missing nodes
-        var collection = (displayLevel == 'actor') ? this.actors:
-            (displayLevel == 'activity') ? this.activities:
-            this.activityGroups;
+    // returns parameters for filtered post-fetching of flows depending on
+    // selections the user made in Filter section (display level excluded)
+    getFlowFilterParams: function(){
 
         var filterParams = {},
-            waste = this.el.querySelector('select[name="waste"]').value;
+            waste = this.el.querySelector('select[name="waste"]').value,
+            nodeLevel = this.nodeLevelSelect.value,
+            direction = this.el.querySelector('input[name="direction"]:checked').value;
         if (waste) filterParams.waste = waste;
 
         // material options for both stocks and flows
@@ -384,36 +378,165 @@ var FlowsView = BaseView.extend(
             }
             stockFilters.push(origin_filter);
         }
+        return [flowFilterParams, stockFilterParams];
+    },
 
-        //flowFilterParams.aggregation_level = nodeLevel;
-        //stockFilterParams.aggregation_level = nodeLevel;
+    renderSankey: function(){
+        if (this.flowMapView != null) this.flowMapView.clear();
+        if (this.flowsView != null) this.flowsView.close();
+        var el = this.el.querySelector('.sankey-wrapper'),
+            displayLevel = this.displayLevelSelect.value,
+            _this = this;
 
-        this.flowsView = new FlowSankeyView({
-            el: el,
-            width:  el.clientWidth - 10,
-            origins: collection,
-            destinations: collection,
-            keyflowId: this.keyflowId,
-            caseStudyId: this.caseStudy.id,
-            materials: this.materials,
-            flowFilterParams: flowFilterParams,
-            stockFilterParams: stockFilterParams,
-            hideUnconnected: true,
-            height: 600
-            //originLevel: displayLevel,
-            //destinationLevel: displayLevel
-        })
+        // pass all known nodes to sankey (not only the filtered ones) to avoid
+        // fetching missing nodes
+        var collection = (displayLevel == 'actor') ? this.actors:
+            (displayLevel == 'activity') ? this.activities:
+            this.activityGroups;
+        var filterParams = this.getFlowFilterParams(),
+            flowFilterParams = filterParams[0],
+            stockFilterParams = filterParams[1];
 
-        el.addEventListener('linkSelected', this.linkSelected);
-        el.addEventListener('linkDeselected', console.log);
+        flowFilterParams['aggregation_level'] = {
+            origin: displayLevel,
+            destination: displayLevel
+        };
+        stockFilterParams['aggregation_level'] = displayLevel;
+
+        var flows = new GDSECollection([], {
+            apiTag: 'actorToActor',
+            apiIds: [ this.caseStudy.id, this.keyflowId]
+        });
+        var stocks = new GDSECollection([], {
+            apiTag: 'actorStock',
+            apiIds: [ this.caseStudy.id, this.keyflowId]
+        });
+        this.loader.activate();
+        var promises = [
+            flows.postfetch({body: flowFilterParams})
+        ]
+        promises.push(stocks.postfetch({body: stockFilterParams}));
+
+        Promise.all(promises).then(function(){
+            utils.complementFlowData(flows, collection, collection,
+                function(origins, destinations){
+                    _this.loader.deactivate();
+                    _this.flowsView = new FlowSankeyView({
+                        el: el,
+                        width:  el.clientWidth - 10,
+                        origins: origins,
+                        destinations: destinations,
+                        flows: flows,
+                        stocks: stocks,
+                        materials: _this.materials,
+                        flowFilterParams: flowFilterParams,
+                        stockFilterParams: stockFilterParams,
+                        hideUnconnected: true,
+                        height: 600
+                        //originLevel: displayLevel,
+                        //destinationLevel: displayLevel
+                    })
+                    el.addEventListener('linkSelected', _this.linkSelected);
+                    el.addEventListener('linkDeselected', _this.linkDeselected);
+                }
+            )
+        });
+
     },
 
     linkSelected: function(e){
         // only actors atm
-        var data = e.detail;
-        if (data.flow.get('origin_level') !== 'actor') return;
-        this.flowMapView.addNodes([data.origin, data.destination]);
-        this.flowMapView.addFlows(data.flow);
+        var data = e.detail,
+            _this = this;
+        function render(origins, destinations, flows){
+            _this.flowMapView.addNodes(destinations);
+            _this.flowMapView.addNodes(origins);
+            _this.flowMapView.addFlows(flows);
+            _this.flowMapView.rerender(true);
+        }
+
+        // fetch actors and the flows in between them when group or activity was selected,
+        // render after fetching
+        function fetchRenderData(origin, destination, queryParams, bodyParams) {
+            var promises = [],
+                actorIds = [],
+                nodes = [];
+
+            _this.loader.activate();
+            var flows = new GDSECollection([], {
+                apiTag: 'actorToActor',
+                apiIds: [_this.caseStudy.id, _this.keyflowId]
+            });
+            actorIds = actorIds.join(',');
+            flows.postfetch({
+                body: bodyParams,
+                data: queryParams,
+                success: function(){
+                    flows.forEach(function(flow){
+                        // remember which flow the sub flows belong to (used in deselection)
+                        flow.parent = data.flow.id;
+                    })
+                    utils.complementFlowData(flows, _this.actors, _this.actors,
+                        function(origins, destinations){
+                            origins.forEach(function(node){ node.color = origin.color; })
+                            destinations.forEach(function(node){ node.color = destination.color; })
+                            _this.loader.deactivate();
+                            render(origins.models, destinations.models, flows.models);
+                        }
+                    )
+                }
+            })
+        }
+        // display level actor
+        if (data.flow.get('origin_level') === 'actor'){
+            render(data.origin, data.destination, data.flow);
+        }
+        // display level activity or group
+        else {
+            // put filter params defined by user in filter section into body
+            var bodyParams = this.getFlowFilterParams()[0],
+                filterSuffix = 'activity';
+
+            // put filtering by clicked flow origin/destination into query params
+            if (data.flow.get('origin_level') === 'activitygroup')
+                filterSuffix += '__activitygroup';
+            var queryParams = {};
+            queryParams['origin__' + filterSuffix] = data.origin.id;
+            queryParams['destination__' + filterSuffix] = data.destination.id;
+
+            // fetch flows with filter params
+            fetchRenderData(data.origin, data.destination, queryParams, bodyParams);
+        }
+    },
+
+    linkDeselected: function(e){
+        // only actors atm
+        var data = e.detail,
+            flows = [],
+            nodes = [];
+        if (data.flow.get('origin_level') === 'actor') {
+            nodes = [data.origin, data.destination];
+            flows = data.flow;
+        }
+        else {
+            var mapNodes = this.flowMapView.getNodes(),
+                mapFlows = this.flowMapView.getFlows(),
+                origId = data.flow.get('origin'),
+                destId = data.flow.get('destination');
+            mapFlows.forEach(function(mapFlow){
+                if (mapFlow.parent === data.flow.id){
+                    flows.push(mapFlow);
+                }
+            })
+            mapNodes.forEach(function(mapNode){
+                var level = data.flow.get('origin_level');
+                if ([origId, destId].includes(mapNode.get(level))){
+                    nodes.push(mapNode);
+                }
+            })
+        };
+        this.flowMapView.removeFlows(flows);
+        this.flowMapView.removeNodes(nodes, true);
         this.flowMapView.rerender();
     },
 
@@ -427,6 +550,7 @@ var FlowsView = BaseView.extend(
 
     },
 
+    // filter section: get the selected nodes of selected level
     getSelectedNodes: function(nodeSelect){
         if (!nodeSelect){
             var level = this.nodeLevelSelect.value,
@@ -551,7 +675,7 @@ var FlowsView = BaseView.extend(
             defaultOption: gettext('All materials')
         });
         this.el.querySelector('#material-filter').appendChild(matSelect);
-    }
+    },
 
 });
 return FlowsView;
