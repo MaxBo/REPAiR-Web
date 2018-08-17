@@ -304,8 +304,8 @@ Have a look at Workflow.pdf for further information.
 
 -   cd to .../repair\$
 
--   Type "*django-admin.py makemessages -l de*" (This creates the .po-file for
-    german language)
+-   Type "*makemessages -d djangojs -l de -e html,js,py*". This looks up all .html,
+    .js and .py files and generates the file locale/de/LC_MESSAGES/djangojs.po.
 
 ### **c.  Translate .po-file (example)**
 
