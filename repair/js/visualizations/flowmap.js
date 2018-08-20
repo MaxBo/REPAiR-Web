@@ -60,8 +60,12 @@ define([
                 this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
 
             // get zoom level after each zoom activity
+            this.relZoom = 10;
             map.on("zoomend", function(){
-                var zoomLev = map.getZoom();
+
+                var zoomLevel = map.getZoom(),
+                    d = zoomLevel - _this.relZoom;
+                _this.scale = Math.pow(2, d);
             });
 
             // tooltip
@@ -70,8 +74,8 @@ define([
                 .attr("class", "sankeymaptooltip")
                 .style("opacity", 0.9);
 
-           this.maxFlowWidth = 3;
-           this.minFlowWidth = 0.2;
+           this.maxFlowWidth = 50;
+           this.minFlowWidth = 2;
         }
 
 
@@ -88,9 +92,13 @@ define([
             this.g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
         }
 
-        render(nodes, flows) {
-            // remove all prev. drawn flows and nodes
+        // remove all prev. drawn flows and nodes
+        clear(){
             this.g.selectAll("*").remove();
+        }
+
+        render(nodes, flows) {
+            this.clear();
             // remember scope of 'this' as context for functions with different scope
             var _this = this,
                 nodesData = {},
@@ -101,9 +109,12 @@ define([
                 values = flows.map(function(flow){ return flow.value }),
                 maxValue = Math.max(...values),
                 minValue = Math.min(...values);
-
             nodes.forEach(function(node){
                 nodesData[node.id] = node;
+            })
+
+            flows.forEach(function(flow){
+                // collect flows with same target
             })
 
             // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
@@ -151,14 +162,16 @@ define([
                     flowLength = adjustedPathLength[6];
 
                 var clipPath = _this.drawArrowhead(sxpao, sypao, txpao, typao, target.level, strokeWidth, flowLength, dxp, dyp, flow.id);
-
-                var path = _this.drawPath(sxpao, sypao, txpao, typao, flow.label, flow.color, strokeWidth);
+                var linePoints = [
+                    { x: sxpao, y: sypao },
+                    { x: txpao, y: typao }
+                ];
+                var path = _this.drawPath(linePoints, flow.label, flow.color, strokeWidth);
 
                 path.attr("clip-path", clipPath);
                // this.drawPath(sxp, syp, txp, typ, flow.style, flow.label, offset, strokeWidth, totalStroke, sourceLevel, targetLevel, bothways, connection)
 
             });
-
 
             // use addpoint for each node in nodesDataFlow
             nodes.forEach(function (node) {
@@ -190,37 +203,13 @@ define([
 
         // make adjustments if using other datasets
         defineRadiusZoom(level){
-            var zoomLevel = this.map.getZoom();
             var radius = this.defineRadius(level);
-
-            if (zoomLevel < 10){
-                return radius * (zoomLevel/15);
-            }
-            if (zoomLevel < 14){
-                return radius * (zoomLevel/5);
-            }
-            else {
-                return radius * zoomLevel/3;}
+            return radius * this.scale;
         }
 
         // make adjustments if using other datasets
         defineStrokeZoom(stroke){
-            var zoomLevel = this.map.getZoom();
-
-            var stroke = stroke;
-
-            if (zoomLevel < 10) {
-                return stroke * (zoomLevel/2)
-            }
-            if (zoomLevel < 14) {
-                return stroke * (zoomLevel*2)
-            }
-            if (zoomLevel < 17) {
-                return stroke * (zoomLevel*4)
-            }
-            else {
-                return stroke * (zoomLevel*6);
-            }
+            return stroke * this.scale;
         }
 
 
@@ -348,16 +337,18 @@ define([
 
 
         // function to draw actual paths for the directed quantity flows
-        drawPath(sourceX, sourceY, targetX, targetY, label, color, strokeWidth) {
+        drawPath(points, label, color, strokeWidth) {
             var _this = this;
-            var path = this.g.append("line")
-                .attr("x1", sourceX)
-                .attr("y1", sourceY)
-                .attr("x2", targetX)
-                .attr("y2", targetY)
+            console.log(points)
+            var line = d3.svg.line()
+                         .x(function(d) { return d.x; })
+                         .y(function(d) { return d.y; });
+            var path = this.g.append("path")
+                .attr('d', line(points))
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
                 .attr("stroke-opacity", 0.5)
+                .attr('class', 'flowline')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");

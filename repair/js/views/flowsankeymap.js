@@ -108,8 +108,9 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.prefetchLocations(function(){
                 _this.data = _this.transformData();
                 _this.loader.deactivate();
-                _this.update();
+                _this.flowMap.clear();
                 if (zoomToFit) _this.zoomToFit();
+                _this.update();
             })
         },
 
@@ -210,8 +211,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 var location = _this.locations[nodeId];
                 if (!location) continue;
                 var node = this.nodes[nodeId],
-                    id = node.id,
-                    location = _this.locations[node.id],
+                    location = _this.locations[nodeId],
                     geom = location.get('geometry');
                 if (!geom) continue;
 
@@ -220,7 +220,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     lat = coords[1];
 
                 nodes.push({
-                    id: node.id,
+                    id: nodeId,
                     name: node.get('name'),
                     label: node.get('name'),
                     color: node.color,
@@ -237,8 +237,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             for (var flowId in this.flows) {
                 var flow = this.flows[flowId],
                     composition = flow.get('composition'),
-                    origin = _this.nodes[flow.get('origin')],
-                    destination = _this.nodes[flow.get('destination')];
+                    sourceId = flow.get('origin'),
+                    targetId = flow.get('destination'),
+                    origin = _this.nodes[sourceId],
+                    destination = _this.nodes[targetId];
                 if(!origin || !destination) continue;
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
@@ -254,8 +256,8 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                         links.push({
                             id: flow.id,
                             label: label,
-                            source: flow.get('origin'),
-                            target: flow.get('destination'),
+                            source: sourceId,
+                            target: targetId,
                             value: amount,
                             material: material.id
                         })
