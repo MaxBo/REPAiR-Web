@@ -346,6 +346,7 @@ define([
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
                 .attr("stroke-opacity", 0.5)
+                .style("pointer-events", 'all')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
