@@ -90,12 +90,39 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             this.materialCheck.addEventListener ("click", function(){
                 _this.data = _this.transformData(this.checked);
+                _this.toggleMaterialLegend(this.checked);
                 _this.update();
             });
 
             this.animationCheck.addEventListener ("click", function(){
                 _this.flowMap.animate(this.checked);
             });
+
+            var legendControl = L.control({position: 'bottomright'});
+            this.legend = document.createElement('div');
+            this.legend.style.background = "rgba(255, 255, 255, 0.5)";
+            legendControl.onAdd = function () { return _this.legend; };
+            legendControl.addTo(this.leafletMap);
+        },
+
+        toggleMaterialLegend(show){
+            this.legend.innerHTML = '';
+            if(show){
+                var matColors = this.data.materialColors;
+                for (var matId in matColors){
+                    var material = this.materials.get(matId),
+                        color = matColors[matId],
+                        div = document.createElement('div'),
+                        circle = document.createElement('div');
+                    div.innerHTML = material.get('name');
+                    circle.style.width = '10px';
+                    circle.style.height = '10px';
+                    circle.style.background = color;
+                    circle.style.float = 'left';
+                    div.appendChild(circle);
+                    this.legend.appendChild(div);
+                }
+            }
         },
 
         update: function(){
@@ -313,6 +340,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             return {
                 flows: links,
                 nodes: nodes,
+                materialColors: matColors,
                 bbox: [topLeft, bottomRight]
             }
         }
