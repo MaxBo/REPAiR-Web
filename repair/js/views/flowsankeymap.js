@@ -62,28 +62,39 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             var displayMaterial = L.control({position: 'bottomleft'});
             this.materialCheck = document.createElement('input');
+            this.animationCheck = document.createElement('input');
+
             var div = document.createElement('div'),
-                label = document.createElement('label'),
+                matLabel = document.createElement('label'),
+                aniLabel = document.createElement('label'),
                 _this = this;
+
+            matLabel.innerHTML = gettext('Display materials');
+            aniLabel.innerHTML = gettext('Animate flows');
+
             this.materialCheck.type = "checkbox";
-            this.materialCheck.style.pointerEvents = "none";
             this.materialCheck.classList.add('form-control');
+            this.animationCheck.type = "checkbox";
+            this.animationCheck.classList.add('form-control');
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
-            label.innerHTML = gettext('Display materials');
             div.appendChild(this.materialCheck);
-            div.appendChild(label);
+            div.appendChild(matLabel);
+            div.appendChild(this.animationCheck);
+            div.appendChild(aniLabel);
             displayMaterial.onAdd = function (map) {
                 return div;
             };
             displayMaterial.addTo(this.leafletMap);
 
-            div.addEventListener ("click", function(){
-                _this.materialCheck.checked = !_this.materialCheck.checked;
-                var splitByComposition = _this.materialCheck.checked;
-                _this.data = _this.transformData(splitByComposition);
+            this.materialCheck.addEventListener ("click", function(){
+                _this.data = _this.transformData(this.checked);
                 _this.update();
+            });
+
+            this.animationCheck.addEventListener ("click", function(){
+                _this.flowMap.animate(this.checked);
             });
         },
 
@@ -91,6 +102,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             if (!this.data) return;
             this.flowMap.reset(this.data.bbox);
             this.flowMap.render(this.data.nodes, this.data.flows);
+            this.flowMap.animate(this.animationCheck.checked);
         },
 
         zoomToFit: function(){

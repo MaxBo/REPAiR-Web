@@ -346,7 +346,6 @@ define([
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
                 .attr("stroke-opacity", 0.5)
-                .attr('class', 'flowline')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
@@ -365,6 +364,10 @@ define([
                     path.attr("stroke-opacity", 0.5)
                 });
             return path;
+        }
+
+        animate(switchOn){
+            this.g.selectAll('path').classed('flowline', switchOn);
         }
 
         // clip path-function to use on draw path to get arrowheads
