@@ -78,7 +78,6 @@ define([
            this.minFlowWidth = 2;
         }
 
-
         reset(bbox){
             if (bbox) this.bbox = bbox;
             var topLeft = this.projection(this.bbox[0]),
@@ -104,7 +103,6 @@ define([
                 nodesData = {},
                 flowsData = {};
 
-
             nodes.forEach(function(node){
                 nodesData[node.id] = node;
             })
@@ -124,7 +122,6 @@ define([
             })
             var maxValue = Math.max(...totalValues),
                 minValue = Math.min(...totalValues);
-            console.log(flowsData)
 
             // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
             for (var linkId in flowsData) {
@@ -140,14 +137,13 @@ define([
 
                 var totalStroke = _this.minFlowWidth + (_this.defineStrokeZoom(totalValue) / maxValue * _this.maxFlowWidth),
                     offset = - totalStroke / 2;
-                    console.log(offset)
                 combinedFlows.forEach(function(flow){
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
                     var sourceId = flow.source,
                         targetId = flow.target;
-                    source = nodesData[sourceId]
-                    target = nodesData[targetId]
+                    source = nodesData[sourceId];
+                    target = nodesData[targetId];
                     // skip if there is no source or target for some data
                     if (!source || !target) {
                         console.log('Warning: missing actor for flow');
@@ -155,7 +151,6 @@ define([
                     }
                     var share = flow.value / totalValue,
                         strokeWidth = totalStroke * share;
-
                     offset += strokeWidth;
 
                     //var strokeWidth = _this.minFlowWidth + (width / maxValue * _this.maxFlowWidth);
@@ -172,6 +167,7 @@ define([
                         path = _this.drawPath(points, flow.label, flow.color, strokeWidth);
                     paths.push(path);
                 });
+                if (!source || !target) continue;
                 //  clip arrow head (take the last calculated points, same anyway for all combined flows)
                 var points = _this.getPointsFromPath(sxp, syp, txp, typ, totalStroke, source.level, target.level, totalStroke / 2, bothways),
                     clipPath = _this.drawArrowhead(points[0].x, points[0].y, points[1].x, points[1].y, target.level, totalStroke, linkId);
@@ -187,7 +183,6 @@ define([
                     radius = _this.defineRadiusZoom(node.level)/2;
                 _this.addPoint(x, y, node.label, node.color, radius);
             });
-
         }
 
         // load data asynchronously, define to execute it sumultaneously
@@ -308,8 +303,6 @@ define([
                 typa = pathLengthValues[5],
                 flowLength = pathLengthValues[6];
 
-            //var offset = totalStroke / 2;
-
             var totalOffset = this.totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways);
             var sxpao = totalOffset[0],
                 sypao = totalOffset[1],
@@ -339,10 +332,8 @@ define([
             triangleData.push({'tx': sxpl, 'ty': sypl}, {'tx': txplb, 'ty': typlb},
                 {'tx': txpao, 'ty': typao},
                 {'tx': txprb, 'ty': typrb}, {'tx': sxpr, 'ty': sypr});
-
             return triangleData;
         }
-
 
         // function to draw actual paths for the directed quantity flows
         drawPath(points, label, color, strokeWidth) {
@@ -395,8 +386,6 @@ define([
                 );
             return "url(#clip" + id +")";
         }
-
     }
-
     return FlowMap;
 });
