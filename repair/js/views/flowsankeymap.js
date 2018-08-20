@@ -53,14 +53,37 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
-                    maxZoom: 18
+                    maxZoom: 25
                 })
                 .addLayer(new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
             this.flowMap = new FlowMap(this.leafletMap);
-            this.leafletMap.addControl(new L.Control.Fullscreen());
+            this.leafletMap.addControl(new L.Control.Fullscreen({position:'topright'}));
             this.leafletMap.on("zoomend", this.update);
-            //reset();
-            //flowMap.renderCsv("/static/data/countries.topo.json", "/static/data/nodes.csv", "/static/data/flows.csv");
+
+            var displayMaterial = L.control({position: 'bottomleft'});
+            var div = document.createElement('div'),
+                checkbox = document.createElement('input'),
+                label = document.createElement('label'),
+                _this = this;
+            checkbox.type = "checkbox";
+            checkbox.style.pointerEvents = "none";
+            checkbox.classList.add('form-control');
+            div.style.background = "rgba(255, 255, 255, 0.5)";
+            div.style.padding = "10px";
+            div.style.cursor = "pointer";
+            label.innerHTML = gettext('Display materials');
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            displayMaterial.onAdd = function (map) {
+                return div;
+            };
+            displayMaterial.addTo(this.leafletMap);
+
+            div.addEventListener ("click", function(){
+                checkbox.checked = !checkbox.checked;
+                _this.data = _this.transformData();
+                _this.update();
+            });
         },
 
         update: function(){
@@ -173,12 +196,11 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         * transform the models, their links and the stocks to a json-representation
         * readable by the sankey-diagram
         */
-        transformData: function() {
+        transformData: function(splitByComposition) {
 
             // defining object that will store the style information: node color & radius, flow color
-            var styles = {},
-                nodesData = {},
-                flowsData = {},
+            var nodes = [],
+                links = [],
                 // boundingbox
                 topLeft = [10000, 0],
                 bottomRight = [0, 10000];
@@ -197,14 +219,15 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     lon = coords[0],
                     lat = coords[1];
 
-                nodesData[id] = {
+                nodes.push({
+                    id: node.id,
                     name: node.get('name'),
                     label: node.get('name'),
                     color: node.color,
                     lon: lon,
                     lat: lat,
                     level: -1
-                }
+                })
                 topLeft = [Math.min(topLeft[0], lon), Math.max(topLeft[1], lat)];
                 bottomRight = [Math.max(bottomRight[0], lon), Math.min(bottomRight[1], lat)];
             };
@@ -214,57 +237,65 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             for (var flowId in this.flows) {
                 var flow = this.flows[flowId],
                     composition = flow.get('composition'),
-                    origin = nodesData[flow.get('origin')],
-                    destination = nodesData[flow.get('destination')];
+                    origin = _this.nodes[flow.get('origin')],
+                    destination = _this.nodes[flow.get('destination')];
                 if(!origin || !destination) continue;
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                    flowlabel = origin.name + '&#10132; '  + destination.name + '<br>' + wasteLabel,
+                    flowlabel = origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel,
                     totalAmount = flow.get('amount'),
                     labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
 
-                composition.fractions.forEach(function(fraction){
-                    var material = _this.materials.get(fraction.material),
-                        amount = totalAmount * fraction.fraction,
-                        label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
-                    flowsData[i] = {
+                if(splitByComposition){
+                    composition.fractions.forEach(function(fraction){
+                        var material = _this.materials.get(fraction.material),
+                            amount = totalAmount * fraction.fraction,
+                            label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                        links.push({
+                            id: flow.id,
+                            label: label,
+                            source: flow.get('origin'),
+                            target: flow.get('destination'),
+                            value: amount,
+                            material: material.id
+                        })
+                        uniqueMaterials.add(material.id);
+                        i++;
+                    })
+                    //define colors for individual materials and store in styles
+                    var materialColor = d3.scale.linear()
+                        .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
+                        .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
+                        .interpolate(d3.interpolateHsl);
+
+                    var matColors = {};
+                    i = 0;
+                    uniqueMaterials.forEach(function (materialId) {
+                        var color = materialColor(i);
+                        matColors[materialId] = color;
+                        i += 1;
+                    });
+
+                    links.forEach(function(link){
+                        link.color = matColors[link.material];
+                    })
+                }
+                else {
+                    links.push({
                         id: flow.id,
-                        label: label,
-                        labelTotal: labelTotal,
+                        label: labelTotal,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
-                        totalColor: origin.color,
-                        value: amount,
-                        valueTotal: totalAmount,
-                        material: material.id
-                    }
-                    uniqueMaterials.add(material.id);
+                        color: origin.color,
+                        value: totalAmount
+                    })
                     i++;
-                })
-            }
-
-            //define colors for individual materials and store in styles
-            var materialColor = d3.scale.linear()
-                .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
-                .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
-                .interpolate(d3.interpolateHsl);
-
-            var matColors = {};
-            i = 0;
-            uniqueMaterials.forEach(function (materialId) {
-                var color = materialColor(i);
-                matColors[materialId] = color;
-                i += 1;
-            });
-
-            for (var flowId in flowsData){
-                var d = flowsData[flowId];
-                d.color = matColors[d.material];
+                }
             }
 
             return {
-                flows: flowsData,
-                nodes: nodesData,
+                flows: links,
+                nodes: nodes,
                 bbox: [topLeft, bottomRight]
             }
         }
