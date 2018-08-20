@@ -339,7 +339,6 @@ define([
         // function to draw actual paths for the directed quantity flows
         drawPath(points, label, color, strokeWidth) {
             var _this = this;
-            console.log(points)
             var line = d3.svg.line()
                          .x(function(d) { return d.x; })
                          .y(function(d) { return d.y; });

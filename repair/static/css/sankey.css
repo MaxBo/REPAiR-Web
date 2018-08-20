@@ -19,6 +19,7 @@
   stroke-dasharray: 10, 4;
   animation: flow 1s linear infinite;
   -webkit-animation: flow 1s linear infinite;
+  pointer-events: all!important;
 }
 @keyframes flow {
   from {
