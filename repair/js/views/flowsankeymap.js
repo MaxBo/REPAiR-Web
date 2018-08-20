@@ -61,18 +61,18 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.leafletMap.on("zoomend", this.update);
 
             var displayMaterial = L.control({position: 'bottomleft'});
+            this.materialCheck = document.createElement('input');
             var div = document.createElement('div'),
-                checkbox = document.createElement('input'),
                 label = document.createElement('label'),
                 _this = this;
-            checkbox.type = "checkbox";
-            checkbox.style.pointerEvents = "none";
-            checkbox.classList.add('form-control');
+            this.materialCheck.type = "checkbox";
+            this.materialCheck.style.pointerEvents = "none";
+            this.materialCheck.classList.add('form-control');
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
             label.innerHTML = gettext('Display materials');
-            div.appendChild(checkbox);
+            div.appendChild(this.materialCheck);
             div.appendChild(label);
             displayMaterial.onAdd = function (map) {
                 return div;
@@ -80,8 +80,9 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             displayMaterial.addTo(this.leafletMap);
 
             div.addEventListener ("click", function(){
-                checkbox.checked = !checkbox.checked;
-                _this.data = _this.transformData();
+                _this.materialCheck.checked = !_this.materialCheck.checked;
+                var splitByComposition = _this.materialCheck.checked;
+                _this.data = _this.transformData(splitByComposition);
                 _this.update();
             });
         },
@@ -105,8 +106,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         rerender: function(zoomToFit){
             var _this = this;
             this.loader.activate();
+            var splitByComposition =
             this.prefetchLocations(function(){
-                _this.data = _this.transformData();
+                var splitByComposition = _this.materialCheck.checked;
+                _this.data = _this.transformData(splitByComposition);
                 _this.loader.deactivate();
                 _this.flowMap.clear();
                 if (zoomToFit) _this.zoomToFit();
