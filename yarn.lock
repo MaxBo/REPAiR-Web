@@ -3027,6 +3027,10 @@ leaflet-fullscreen@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/leaflet-fullscreen/-/leaflet-fullscreen-1.0.2.tgz#09c61c4bac45f63b2ee126afd87e5cd97650fc1b"
 
+leaflet.markercluster@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/leaflet.markercluster/-/leaflet.markercluster-1.3.0.tgz#58eb0654e90bd3274a660390ab0bc734212b204d"
+
 leaflet@^0.7.3:
   version "0.7.7"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-0.7.7.tgz#1e352ba54e63d076451fa363c900890cb2cf75ee"

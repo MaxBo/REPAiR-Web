@@ -154,14 +154,14 @@ define([
                     offset += strokeWidth;
 
                     //var strokeWidth = _this.minFlowWidth + (width / maxValue * _this.maxFlowWidth);
-                    var sourceCoords = [source['lon'], source['lat']],
-                        targetCoords = [target['lon'], target['lat']];
+                    var sourceCoords = _this.projection([source['lon'], source['lat']]),
+                        targetCoords = _this.projection([target['lon'], target['lat']]);
 
                     //add projection to source and target coordinates
-                    sxp = _this.projection(sourceCoords)[0];
-                    syp = _this.projection(sourceCoords)[1];
-                    txp = _this.projection(targetCoords)[0];
-                    typ = _this.projection(targetCoords)[1];
+                    sxp = sourceCoords[0];
+                    syp = sourceCoords[1];
+                    txp = targetCoords[0];
+                    typ = targetCoords[1];
 
                     var points = _this.getPointsFromPath(sxp, syp, txp, typ, strokeWidth, source.level, target.level, offset, bothways),
                         path = _this.drawPath(points, flow.label, flow.color, strokeWidth);
