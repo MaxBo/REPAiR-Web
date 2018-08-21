@@ -1,7 +1,7 @@
 # first start a container and install jupyter
 
-docker run --rm -v "$(pwd)":/tmp -p 8888:8888 -p 6006:6006 -it -u root -w /home/user tiagopeixoto/graph-tool  bash
+docker run --rm -v "$(pwd)":/tmp -p 8889:8888 -p 6006:6006 -it -u root -w /home/user tiagopeixoto/graph-tool bash 
 
 # start the notebook
 
-#jupyter notebook --ip=0.0.0.0 --allow-root --notebook-dir=/tmp
+jupyter notebook --ip=0.0.0.0 --allow-root --notebook-dir=/tmp
