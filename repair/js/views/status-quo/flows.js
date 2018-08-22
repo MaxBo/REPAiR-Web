@@ -545,7 +545,7 @@ var FlowsView = BaseView.extend(
             el: this.el.querySelector('#flow-map'),
             caseStudyId: this.caseStudy.id,
             keyflowId: this.keyflowId,
-            materials: this.materials,
+            materials: this.materials
         });
 
     },

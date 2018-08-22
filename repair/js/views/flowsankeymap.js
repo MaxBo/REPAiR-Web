@@ -29,7 +29,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         */
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
-            _.bindAll(this, 'update');
+            _.bindAll(this, 'zoomed');
             this.render();
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
@@ -37,7 +37,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             this.locations = {};
             this.flows = {};
-            this.nodes = {};
+            this.actors = {};
         },
 
         /*
@@ -50,7 +50,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
         * render the view
         */
         render: function(){
-            this.backgroundLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+            //this.backgroundLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+            this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{
+                attribution: '© OpenStreetMap contributors, © CartoDB'
+            });
             this.leafletMap = new L.Map(this.el, {
                     center: [52.41, 4.95],
                     zoomSnap: 0.25,
@@ -61,7 +64,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 .addLayer(this.backgroundLayer);
             this.flowMap = new FlowMap(this.leafletMap);
             this.leafletMap.addControl(new L.Control.Fullscreen({position:'topright'}));
-            this.leafletMap.on("zoomend", this.update);
+            this.leafletMap.on("zoomend", this.zoomed);
 
             var displayMaterial = L.control({position: 'bottomleft'});
             this.materialCheck = document.createElement('input');
@@ -101,9 +104,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             displayMaterial.addTo(this.leafletMap);
 
             this.materialCheck.addEventListener ("click", function(){
-                _this.data = _this.transformData({
-                    splitByComposition: this.checked
-                });
+                _this.data = _this.transformData(
+                    _this.actors, _this.flows, _this.locations,
+                    { splitByComposition: this.checked }
+                );
                 _this.toggleMaterialLegend(this.checked);
                 _this.update();
             });
@@ -151,9 +155,15 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             }
         },
 
+        zoomed: function(){
+            this.update();
+            this.clusterGroupsDone = 0;
+            this.clusters = [];
+        },
+
         toggleCluster(show){
             var _this = this;
-
+            // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
@@ -165,25 +175,37 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
-            var clusterGroups = {};
+            var clusterGroups = {},
+                nClusterGroups = 0;
+            // add cluster layers
             nodes.forEach(function(node){
                 // ToDo: cluster by activitygroup/activity (instead of color)
                 var clusterValue = node.color,
                     clusterGroup = clusterGroups[node.color];
                 if (!clusterGroup){
                     clusterGroup = new L.MarkerClusterGroup({
-                        maxClusterRadius: 2 * rmax
+                        maxClusterRadius: 2 * rmax,
+                        animate: false
                     });
                     clusterGroups[node.color] = clusterGroup;
                      _this.leafletMap.addLayer(clusterGroup);
                     clusterGroup.on('animationend', function(){
-                        var clusters = [];
                         clusterGroup._featureGroup.eachLayer(function(layer) {
                             if (layer instanceof L.MarkerCluster) {
-                                clusters.push(layer)
+                                _this.clusters.push(layer)
                             }
                         });
+                        _this.clusterGroupsDone += 1;
+                        // all cluster animations are done -> transform data
+                        // according to current clustering
+                        if (_this.clusterGroupsDone === nClusterGroups){
+                            _this.data = _this.transformData(
+                                _this.actors, _this.flows, _this.locations,
+                                { splitByComposition: _this.materialCheck.checked }
+                            );
+                        }
                     })
+                    nClusterGroups += 1;
                 }
                 var marker = L.marker([node['lat'], node['lon']], {
                     id: node.id,
@@ -209,10 +231,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.loader.activate();
             this.prefetchLocations(function(){
                 var splitByComposition = _this.materialCheck.checked;
-                _this.data = _this.transformData({
-                    splitByComposition: this.checked,
-                    clusterBy: _this.clusterBy
-                });
+                _this.data = _this.transformData(
+                    _this.actors, _this.flows, _this.locations,
+                    { splitByComposition: splitByComposition }
+                );
                 _this.loader.deactivate();
                 _this.flowMap.clear();
                 if (zoomToFit) _this.zoomToFit();
@@ -232,12 +254,12 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             var _this = this,
                 nodes = (nodes instanceof Array) ? nodes: [nodes];
             nodes.forEach(function(node){
-                _this.nodes[node.id] = node;
+                _this.actors[node.id] = node;
             })
         },
 
         getNodes: function(){
-            return Object.values(this.nodes);
+            return Object.values(this.actors);
         },
 
         getFlows: function(){
@@ -264,12 +286,12 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             }
             nodes.forEach(function(node){
                 if (!usedNodes.has(node.id))
-                    delete _this.nodes[node.id];
+                    delete _this.actors[node.id];
             })
         },
 
         clear: function(){
-            this.nodes = {};
+            this.actors = {};
             this.flows = {};
             this.rerender();
         },
@@ -281,7 +303,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 apiTag: 'adminLocations',
                 apiIds: [this.caseStudyId, this.keyflowId]
             });
-            for (var nodeId in this.nodes) {
+            for (var nodeId in this.actors) {
                 if (nodeId in _this.locations) continue;
                 nodeIds.push(nodeId);
             }
@@ -298,30 +320,30 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 }
             });
         },
-        //ToDo: actors, activities, groups may have same id, introduce prefix (to store in locations, nodesData..)
 
         /*
-        * transform the models, their links and the stocks to a json-representation
+        * transform actors and flows to a json-representation
         * readable by the sankey-diagram
+        *
+        * options.splitByComposition - split flows by their compositions (aka materials) into seperate flows
+        * options.clusters - array of objects with keys "point" (location) and "ids" (array of actor ids that belong to that cluster)
         */
-        transformData: function(options) {
+        transformData: function(actors, flows, locations, options) {
 
-            // defining object that will store the style information: node color & radius, flow color
-            var options = options || {},
+            var _this = this,
+                options = options || {},
                 nodes = [],
                 links = [],
-                clusters = [],
-                clusterValues = new Set(),
+                clusters = options.clusters,
+                splitByComposition = options.splitByComposition,
                 // boundingbox
                 topLeft = [10000, 0],
-                bottomRight = [0, 10000],
-                _this = this,
-                splitByComposition = options.splitByComposition;
+                bottomRight = [0, 10000];
 
-            for (var nodeId in this.nodes) {
+            for (var nodeId in actors) {
                 var location = _this.locations[nodeId];
                 if (!location) continue;
-                var node = this.nodes[nodeId],
+                var node = actors[nodeId],
                     location = _this.locations[nodeId],
                     geom = location.get('geometry');
                 if (!geom) continue;
@@ -336,7 +358,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     color: node.color,
                     lon: lon,
                     lat: lat,
-                    level: -1
+                    radius: 10
                 }
                 nodes.push(transNode)
                 topLeft = [Math.min(topLeft[0], lon), Math.max(topLeft[1], lat)];
@@ -345,13 +367,13 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
 
             var uniqueMaterials = new Set();
             var i = 0;
-            for (var flowId in this.flows) {
-                var flow = this.flows[flowId],
+            for (var flowId in flows) {
+                var flow = flows[flowId],
                     composition = flow.get('composition'),
                     sourceId = flow.get('origin'),
                     targetId = flow.get('destination'),
-                    origin = _this.nodes[sourceId],
-                    destination = _this.nodes[targetId];
+                    origin = actors[sourceId],
+                    destination = actors[targetId];
                 if(!origin || !destination) continue;
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
