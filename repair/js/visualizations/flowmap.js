@@ -70,9 +70,6 @@ define([
             this.maxFlowWidth = 50;
             this.minFlowWidth = 2;
             this.maxScale = 2;
-            //this.origin = L.latLng([0, 0]);
-            //this.initialShift = this.map.latLngToLayerPoint(this.origin);
-            //this._scale = 1;
 
             this.map.on("zoomend", function(evt){ _this.resetView() });
 
@@ -84,13 +81,8 @@ define([
         resetView(){
             var svgPos = this.resetBbox(),
                 topLeft = svgPos[0];
-                //scale = this.scale(),
-                //prevTopLeft = (this.prevSvgPos) ? this.prevSvgPos[0]: topLeft;
-            //this.prevSvgPos = svgPos;
-            //var deltaTopLeft = [prevTopLeft[0] - topLeft[0], prevTopLeft[1] - topLeft[1]];
             this.g.attr("transform",
-                        "translate(" + -topLeft[0] + "," + -topLeft[1] + ") " //+ "scale(" + scale + "," + scale + ") "
-                        );
+                        "translate(" + -topLeft[0] + "," + -topLeft[1] + ") ");
             this.draw();
         }
 
@@ -146,23 +138,21 @@ define([
                 if (_this.flowsData[linkId] == null) _this.flowsData[linkId] = [];
                 _this.flowsData[linkId].push(flow);
             })
-        }
 
-        draw() {
-            this.g.selectAll("*").remove();
-            // remember scope of 'this' as context for functions with different scope
-            var _this = this;
-
-            //Define data from flowsData dependending on unique connections
             var totalValues = [];
-
             Object.values(this.flowsData).forEach(function(links){
                 var totalValue = 0;
                 links.forEach(function(c){ totalValue += c.value });
                 totalValues.push(totalValue)
             })
-            var maxValue = Math.max(...totalValues),
-                minValue = Math.min(...totalValues),
+            this.maxFlowValue = Math.max(...totalValues);
+            this.minFlowValue = Math.min(...totalValues);
+        }
+
+        draw() {
+            this.g.selectAll("*").remove();
+            // remember scope of 'this' as context for functions with different scope
+            var _this = this,
                 scale = Math.min(this.scale(), this.maxScale);
 
             // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
@@ -177,7 +167,7 @@ define([
 
                 combinedFlows.forEach(function(c){ totalValue += c.value });
 
-                var totalStroke = _this.minFlowWidth + ((totalValue * scale) / maxValue * _this.maxFlowWidth),
+                var totalStroke = _this.minFlowWidth + ((totalValue * scale) / _this.maxFlowValue * _this.maxFlowWidth),
                     offset = - totalStroke / 2;
                 combinedFlows.forEach(function(flow){
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
@@ -195,7 +185,6 @@ define([
                         strokeWidth = totalStroke * share;
                     offset += strokeWidth;
 
-                    //var strokeWidth = _this.minFlowWidth + (width / maxValue * _this.maxFlowWidth);
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
 
@@ -226,7 +215,7 @@ define([
                 var x = _this.projection([node.lon, node.lat])[0],
                     y = _this.projection([node.lon, node.lat])[1],
                     radius = node.radius * scale / 2;
-                _this.addPoint(x, y, node.label, node.color, radius);
+                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
             });
             this.setAnimation();
         }
@@ -239,34 +228,40 @@ define([
         }
 
         //function to add source nodes to the map
-        addPoint(x, y, label, color, radius) {
+        addPoint(x, y, label, innerLabel, color, radius) {
             var _this = this;
 
-            var point = this.g.append("g")
-                .attr("class", "node")
-                .append("circle")
-                .attr("cx", x)
-                .attr("cy", y)
-                .attr("r", radius)
-                .style("fill", color)
-                .style("fill-opacity", 1)
-                .style("stroke", 'lightgrey')
-                .style("stroke-width", 1)
-                .on("mouseover", function (d) {
-                    d3.select(this).style("cursor", "pointer");
-                    _this.tooltip.transition()
-                        .duration(200)
-                        .style("opacity", 0.9);
-                    _this.tooltip.html(label)
-                        .style("left", (d3.event.pageX) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px")
-                })
-                .on("mouseout", function (d) {
-                    _this.tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0)
-                    }
-                );
+            var point = this.g.append("g").attr("class", "node");
+            point.append("circle")
+                 .attr("cx", x)
+                 .attr("cy", y)
+                 .attr("r", radius)
+                 .style("fill", color)
+                 .style("fill-opacity", 1)
+                 .style("stroke", 'lightgrey')
+                 .style("stroke-width", 1)
+                 .on("mouseover", function (d) {
+                     d3.select(this).style("cursor", "pointer");
+                     _this.tooltip.transition()
+                         .duration(200)
+                         .style("opacity", 0.9);
+                     _this.tooltip.html(label)
+                         .style("left", (d3.event.pageX) + "px")
+                         .style("top", (d3.event.pageY - 28) + "px")
+                 })
+                 .on("mouseout", function (d) {
+                     _this.tooltip.transition()
+                         .duration(500)
+                         .style("opacity", 0)
+                     }
+                 );
+            point.append("text")
+                 .attr("x", x)
+                 .attr("y", y + 5)
+                 .attr("text-anchor", "middle")
+                 .style("font-size", "14px")
+                 .attr('fill','white')
+                 .text(innerLabel || "");
 
         }
 
