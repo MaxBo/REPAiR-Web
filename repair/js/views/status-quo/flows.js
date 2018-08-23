@@ -472,11 +472,17 @@ var FlowsView = BaseView.extend(
                 body: bodyParams,
                 data: queryParams,
                 success: function(){
+                    var originIds = [],
+                        destinationIds = [];
                     flows.forEach(function(flow){
                         // remember which flow the sub flows belong to (used in deselection)
                         flow.parent = data.flow.id;
+                        originIds.push(flow.get('origin'));
+                        destinationIds.push(flow.get('destination'));
                     })
-                    utils.complementFlowData(flows, _this.actors, _this.actors,
+                    var origins = _this.actors.filterBy({id: originIds}),
+                        destinations = _this.actors.filterBy({id: destinationIds});
+                    utils.complementFlowData(flows, origins, destinations,
                         function(origins, destinations){
                             origins.forEach(function(node){ node.color = origin.color; })
                             destinations.forEach(function(node){ node.color = destination.color; })

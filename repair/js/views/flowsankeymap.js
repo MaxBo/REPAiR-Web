@@ -104,15 +104,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             displayMaterial.addTo(this.leafletMap);
 
             this.materialCheck.addEventListener ("click", function(){
-                _this.data = _this.transformData(
-                    _this.actors, _this.flows, _this.locations,
-                    { splitByComposition: this.checked }
-                );
-                _this.toggleMaterialLegend(this.checked);
-                _this.resetMapData(_this.data, false);
+                _this.toggleMaterials(this.checked);
             });
             this.clusterCheck.addEventListener ("click", function(){
-                _this.toggleCluster(this.checked);
+                _this.toggleClusters(this.checked);
             });
 
             this.animationCheck.addEventListener ("click", function(){
@@ -126,7 +121,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             legendControl.addTo(this.leafletMap);
         },
 
-        toggleMaterialLegend(show){
+        toggleMaterials(show){
+            this.data = this.transformData(
+                this.actors, this.flows, this.locations,
+                { splitByComposition: show }
+            );
             this.legend.innerHTML = '';
             if(show){
                 var matColors = this.data.materialColors;
@@ -143,7 +142,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                     div.appendChild(circle);
                     this.legend.appendChild(div);
                 }
-            }
+            };
+            this.resetMapData(this.data, false);
         },
 
         zoomed: function(){
@@ -151,7 +151,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             this.clusterGroupsDone = 0;
         },
 
-        toggleCluster(show){
+        toggleClusters(show){
             var _this = this;
             if (!this.data) return;
             // remove cluster layers from map
@@ -232,12 +232,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
-            if (zoomToFit) this.flowMap.zoomToFit();
             this.flowMap.draw();
+            if (zoomToFit) this.flowMap.zoomToFit();
         },
 
         rerender: function(zoomToFit){
             var _this = this;
+            if(this.actors.length === 0) {
+                this.clear();
+                return;
+            }
             this.loader.activate();
             this.prefetchLocations(function(){
                 var splitByComposition = _this.materialCheck.checked;
@@ -247,6 +251,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 );
                 _this.loader.deactivate();
                 _this.resetMapData(_this.data, true);
+                _this.toggleMaterials(_this.materialCheck.checked);
+                _this.toggleClusters(_this.clusterCheck.checked);
             })
         },
 
@@ -298,7 +304,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
         clear: function(){
             this.actors.reset();
             this.flows.reset();
-            this.rerender();
+            this.flowMap.clear();
         },
 
         prefetchLocations: function(callback){
@@ -312,18 +318,22 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 if (actor.id in _this.locations) return;
                 nodeIds.push(actor.id);
             })
-            var data = {};
-            data['actor__in'] = nodeIds.join(',');
-            adminLocations.fetch({
-                data: data,
-                success: function(){
-                    adminLocations.forEach(function(adminLoc){
-                        id = adminLoc.get('properties').actor;
-                        _this.locations[id] = adminLoc;
-                    })
-                    callback();
-                }
-            });
+            if(nodeIds.length === 0) callback();
+            else {
+                var data = {};
+                data['actor__in'] = nodeIds.join(',');
+                adminLocations.fetch({
+                    data: data,
+                    success: function(){
+                        adminLocations.forEach(function(adminLoc){
+                            id = adminLoc.get('properties').actor;
+                            _this.locations[id] = adminLoc;
+                        })
+                        callback();
+                    }
+                });
+            }
+
         },
 
         transformMarkerClusterData: function(){
