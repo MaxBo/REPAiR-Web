@@ -56,29 +56,37 @@ define([
             var transform = d3.geo.transform({point: projectPoint});
             this.path = d3.geo.path().projection(transform);
 
-            this.svg = d3.select(map.getPanes().overlayPane).append("svg"),
-                this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
+            this.svg = d3.select(map.getPanes().overlayPane).append("svg");
+            this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
 
             // get zoom level after each zoom activity
-            this.relZoom = 10;
-            map.on("zoomend", function(){
-
-                var zoomLevel = map.getZoom(),
-                    d = zoomLevel - _this.relZoom;
-                _this.scale = Math.pow(2, d);
-            });
-
+            this.initialZoom = this.map.getZoom();
             // tooltip
             this.tooltip = d3.select("body")
                 .append("div")
                 .attr("class", "sankeymaptooltip")
                 .style("opacity", 0.9);
 
-           this.maxFlowWidth = 50;
-           this.minFlowWidth = 2;
+            this.maxFlowWidth = 50;
+            this.minFlowWidth = 2;
+            this.maxScale = 2;
+
+            this.map.on("zoomend", function(evt){ _this.resetView() });
+
+            this.nodesData = {};
+            this.flowsData = {};
         }
 
-        reset(bbox){
+        // fit svg layer to map
+        resetView(){
+            var svgPos = this.resetBbox(),
+                topLeft = svgPos[0];
+            this.g.attr("transform",
+                        "translate(" + -topLeft[0] + "," + -topLeft[1] + ") ");
+            this.draw();
+        }
+
+        resetBbox(bbox){
             if (bbox) this.bbox = bbox;
             var topLeft = this.projection(this.bbox[0]),
                 bottomRight = this.projection(this.bbox[1]);
@@ -88,62 +96,86 @@ define([
                 .attr("height", bottomRight[1] - topLeft[1])
                 .style("left", topLeft[0] + "px")
                 .style("top", topLeft[1] + "px");
-            this.g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+            return [topLeft, bottomRight]
         }
 
         // remove all prev. drawn flows and nodes
         clear(){
             this.g.selectAll("*").remove();
+            this.nodesData = {};
+            this.flowsData = {};
         }
 
-        render(nodes, flows) {
-            this.clear();
-            // remember scope of 'this' as context for functions with different scope
+        addNodes(nodes){
             var _this = this,
-                nodesData = {},
-                flowsData = {};
-
+                // boundingbox
+                topLeft = [10000, 0],
+                bottomRight = [0, 10000];
             nodes.forEach(function(node){
-                nodesData[node.id] = node;
+                _this.nodesData[node.id] = node;
             })
+            Object.values(_this.nodesData).forEach(function(node){
+                topLeft = [Math.min(topLeft[0], node.lon), Math.max(topLeft[1], node.lat)];
+                bottomRight = [Math.max(bottomRight[0], node.lon), Math.min(bottomRight[1], node.lat)];
+            })
+            this.resetBbox([topLeft, bottomRight]);
+        }
 
-            //Define data from flowsData dependending on unique connections
-            var totalValues = [];
+        zoomToFit(){
+            if (!this.bbox) return;
+            // leaflet uses lat/lon in different order
+            this.map.fitBounds([
+                [this.bbox[0][1], this.bbox[0][0]],
+                [this.bbox[1][1], this.bbox[1][0]]
+            ]);
+        }
+
+        addFlows(flows){
+            var _this = this;
             flows.forEach(function(flow){
                 // collect flows with same source and target
                 var linkId = flow.source + '-' + flow.target;
-                if (flowsData[linkId] == null) flowsData[linkId] = []
-                flowsData[linkId].push(flow);
+                if (_this.flowsData[linkId] == null) _this.flowsData[linkId] = [];
+                _this.flowsData[linkId].push(flow);
             })
-            Object.values(flowsData).forEach(function(links){
+
+            var totalValues = [];
+            Object.values(this.flowsData).forEach(function(links){
                 var totalValue = 0;
                 links.forEach(function(c){ totalValue += c.value });
                 totalValues.push(totalValue)
             })
-            var maxValue = Math.max(...totalValues),
-                minValue = Math.min(...totalValues);
+            this.maxFlowValue = Math.max(...totalValues);
+            this.minFlowValue = Math.min(...totalValues);
+        }
+
+        draw() {
+            this.g.selectAll("*").remove();
+            // remember scope of 'this' as context for functions with different scope
+            var _this = this,
+                scale = Math.min(this.scale(), this.maxScale);
 
             // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
-            for (var linkId in flowsData) {
-                var combinedFlows = flowsData[linkId],
+            for (var linkId in this.flowsData) {
+                var combinedFlows = _this.flowsData[linkId],
                     totalValue = 0,
                     paths = [],
-                    sxp, syp, txp, typ, source, target;
+                    sxp, syp, txp, typ, sourceRadius, targetRadius;
 
                 // ToDo: reenable "bothways" (meaning flows back and forth between two nodes)
                 var bothways = false;
 
                 combinedFlows.forEach(function(c){ totalValue += c.value });
 
-                var totalStroke = _this.minFlowWidth + (_this.defineStrokeZoom(totalValue) / maxValue * _this.maxFlowWidth),
+                var totalStroke = _this.minFlowWidth + ((totalValue * scale) / _this.maxFlowValue * _this.maxFlowWidth),
                     offset = - totalStroke / 2;
                 combinedFlows.forEach(function(flow){
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
                     var sourceId = flow.source,
-                        targetId = flow.target;
-                    source = nodesData[sourceId];
-                    target = nodesData[targetId];
+                        targetId = flow.target,
+                        source = _this.nodesData[sourceId],
+                        target = _this.nodesData[targetId];
                     // skip if there is no source or target for some data
                     if (!source || !target) {
                         console.log('Warning: missing actor for flow');
@@ -153,108 +185,93 @@ define([
                         strokeWidth = totalStroke * share;
                     offset += strokeWidth;
 
-                    //var strokeWidth = _this.minFlowWidth + (width / maxValue * _this.maxFlowWidth);
-                    var sourceCoords = [source['lon'], source['lat']],
-                        targetCoords = [target['lon'], target['lat']];
+                    var sourceCoords = _this.projection([source['lon'], source['lat']]),
+                        targetCoords = _this.projection([target['lon'], target['lat']]);
 
                     //add projection to source and target coordinates
-                    sxp = _this.projection(sourceCoords)[0];
-                    syp = _this.projection(sourceCoords)[1];
-                    txp = _this.projection(targetCoords)[0];
-                    typ = _this.projection(targetCoords)[1];
+                    sxp = sourceCoords[0];
+                    syp = sourceCoords[1];
+                    txp = targetCoords[0];
+                    typ = targetCoords[1];
 
-                    var points = _this.getPointsFromPath(sxp, syp, txp, typ, strokeWidth, source.level, target.level, offset, bothways),
+                    sourceRadius = source.radius * scale,
+                    targetRadius = target.radius * scale;
+
+                    var points = _this.getPointsFromPath(sxp, syp, txp, typ, strokeWidth, sourceRadius, targetRadius, offset, bothways),
                         path = _this.drawPath(points, flow.label, flow.color, strokeWidth);
                     paths.push(path);
                 });
-                if (!source || !target) continue;
+                if (paths.length === 0) continue;
                 //  clip arrow head (take the last calculated points, same anyway for all combined flows)
-                var points = _this.getPointsFromPath(sxp, syp, txp, typ, totalStroke, source.level, target.level, totalStroke / 2, bothways),
-                    clipPath = _this.drawArrowhead(points[0].x, points[0].y, points[1].x, points[1].y, target.level, totalStroke, linkId);
+                var points = _this.getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceRadius, targetRadius, totalStroke / 2, bothways),
+                    clipPath = _this.drawArrowhead(points[0].x, points[0].y, points[1].x, points[1].y, targetRadius, totalStroke, linkId);
                 paths.forEach(function(path){
                     path.attr("clip-path", clipPath);
                 })
             };
 
             // use addpoint for each node in nodesDataFlow
-            nodes.forEach(function (node) {
+            Object.values(_this.nodesData).forEach(function (node) {
                 var x = _this.projection([node.lon, node.lat])[0],
                     y = _this.projection([node.lon, node.lat])[1],
-                    radius = _this.defineRadiusZoom(node.level)/2;
-                _this.addPoint(x, y, node.label, node.color, radius);
+                    radius = node.radius * scale / 2;
+                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
             });
+            this.setAnimation();
         }
 
-        // load data asynchronously, define to execute it sumultaneously
-        renderTopo(nodesData, flowsData) {
-            var _this = this;
-            function loaded(error) {
-                _this.render(nodesData, flowsData);
-            }
+        scale(){
+            var zoomLevel = this.map.getZoom(),
+                d = zoomLevel - this.initialZoom,
+                scale = Math.pow(2, d);
+            return scale;
         }
-
-        defineRadius(level){
-            if (level === 10) return 11;
-            if (level === 8) return 16;
-            if (level === 6) return 21;
-            if (level === 4) return 26;
-            return 11;
-        }
-
-        // make adjustments if using other datasets
-        defineRadiusZoom(level){
-            var radius = this.defineRadius(level);
-            return radius * this.scale;
-        }
-
-        // make adjustments if using other datasets
-        defineStrokeZoom(stroke){
-            return stroke * this.scale;
-        }
-
 
         //function to add source nodes to the map
-        addPoint(x, y, label, color, radius) {
+        addPoint(x, y, label, innerLabel, color, radius) {
             var _this = this;
 
-            var point = this.g.append("g")
-                .attr("class", "node")
-                .append("circle")
-                .attr("cx", x)
-                .attr("cy", y)
-                .attr("r", radius)
-                .style("fill", color)
-                .style("fill-opacity", 1)
-                .style("stroke", 'lightgrey')
-                .style("stroke-width", 1)
-                .on("mouseover", function (d) {
-                    d3.select(this).style("cursor", "pointer");
-                    _this.tooltip.transition()
-                        .duration(200)
-                        .style("opacity", 0.9);
-                    _this.tooltip.html(label)
-                        .style("left", (d3.event.pageX) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px")
-                })
-                .on("mouseout", function (d) {
-                    _this.tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0)
-                    }
-                );
+            var point = this.g.append("g").attr("class", "node");
+            point.append("circle")
+                 .attr("cx", x)
+                 .attr("cy", y)
+                 .attr("r", radius)
+                 .style("fill", color)
+                 .style("fill-opacity", 1)
+                 .style("stroke", 'lightgrey')
+                 .style("stroke-width", 1)
+                 .on("mouseover", function (d) {
+                     d3.select(this).style("cursor", "pointer");
+                     _this.tooltip.transition()
+                         .duration(200)
+                         .style("opacity", 0.9);
+                     _this.tooltip.html(label)
+                         .style("left", (d3.event.pageX) + "px")
+                         .style("top", (d3.event.pageY - 28) + "px")
+                 })
+                 .on("mouseout", function (d) {
+                     _this.tooltip.transition()
+                         .duration(500)
+                         .style("opacity", 0)
+                     }
+                 );
+            point.append("text")
+                 .attr("x", x)
+                 .attr("y", y + 5)
+                 .attr("text-anchor", "middle")
+                 .style("font-size", "14px")
+                 .attr('fill','white')
+                 .text(innerLabel || "");
 
         }
 
         // function to define line length adjustment
-        adjustedPathLength(sxp, syp, txp, typ, sourceLevel, targetLevel) {
+        adjustedPathLength(sxp, syp, txp, typ, sourceRadius, targetRadius) {
             var dxp = txp - sxp,
                 dyp = typ - syp;
-            // adjust source- & target- Level radius with the zoom level
-            var sourceLevel = this.defineRadiusZoom(sourceLevel),
-                targetLevel = this.defineRadiusZoom(targetLevel);
             var flowLength = Math.sqrt(dxp * dxp + dyp * dyp);
-            var sourceReduction = sourceLevel,
-                targetReduction = - targetLevel;
+            var sourceReduction = sourceRadius,
+                targetReduction = - targetRadius;
 
             // ratio between full line length and shortened line
             var sourceRatio = sourceReduction / flowLength,
@@ -293,8 +310,8 @@ define([
             }
         }
 
-        getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceLevel, targetLevel, offset, bothways){
-            var pathLengthValues = this.adjustedPathLength(sxp, syp, txp, typ, sourceLevel, targetLevel);
+        getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceRadius, targetRadius, offset, bothways){
+            var pathLengthValues = this.adjustedPathLength(sxp, syp, txp, typ, sourceRadius, targetRadius);
             var dxp = pathLengthValues[0],
                 dyp = pathLengthValues[1],
                 sxpa = pathLengthValues[2],
@@ -315,9 +332,9 @@ define([
             ];
         }
 
-        defineTriangleData(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp){
+        defineTriangleData(sxpao, sypao, txpao, typao, targetRadius, totalStroke, flowLength, dxp, dyp){
             var triangleData = [];
-            var tReduction = - this.defineRadius(targetLevel),
+            var tReduction = - targetRadius,
                 tRatio = tReduction / flowLength,
                 txRValue = dxp * tRatio,
                 tyRValue = dyp * tRatio,
@@ -367,16 +384,17 @@ define([
             return path;
         }
 
-        animate(switchOn){
-            this.g.selectAll('path').classed('flowline', switchOn);
+        setAnimation(on){
+            if(on != null) this.doAnimation = on;
+            this.g.selectAll('path').classed('flowline', this.doAnimation);
         }
 
         // clip path-function to use on draw path to get arrowheads
-        drawArrowhead(sxpao, sypao, txpao, typao, targetLevel, totalStroke, id){
+        drawArrowhead(sxpao, sypao, txpao, typao, targetRadius, totalStroke, id){
             var dxp = txpao - sxpao,
                 dyp = typao - sypao;
             var flowLength = Math.sqrt(dxp * dxp + dyp * dyp);
-            var triangleData = this.defineTriangleData(sxpao, sypao, txpao, typao, targetLevel, totalStroke, flowLength, dxp, dyp);
+            var triangleData = this.defineTriangleData(sxpao, sypao, txpao, typao, targetRadius, totalStroke, flowLength, dxp, dyp);
 
             var clip = this.g.append("clipPath")
                 .attr("id", "clip"+id)
