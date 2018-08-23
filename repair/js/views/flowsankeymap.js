@@ -1,12 +1,12 @@
 define(['underscore', 'views/baseview', 'collections/gdsecollection',
-        'collections/geolocations',
+        'collections/geolocations', 'collections/flows',
         'visualizations/flowmap', 'leaflet', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
         'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
-function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
+function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
 
     /**
     *
@@ -36,8 +36,8 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             this.materials = options.materials;
 
             this.locations = {};
-            this.flows = {};
-            this.actors = {};
+            this.flows = new Flows();
+            this.actors = new GDSECollection();
         },
 
         /*
@@ -109,7 +109,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     { splitByComposition: this.checked }
                 );
                 _this.toggleMaterialLegend(this.checked);
-                _this.setMapData(_this.data, false);
+                _this.resetMapData(_this.data, false);
             });
             this.clusterCheck.addEventListener ("click", function(){
                 _this.toggleCluster(this.checked);
@@ -160,14 +160,34 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     _this.leafletMap.removeLayer(layer);
             });
             if (!show) {
-                this.flowMap.draw();
+                this.resetMapData();
                 return;
             }
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
-            _this.clusterGroups = {};
+            this.clusterGroups = {};
             var nClusterGroups = 0;
+                clusterPolygons = [];
+
+            function drawClusters(){
+                var clusterData = _this.transformMarkerClusterData();
+                clusterPolygons.forEach(function(layer){
+                    _this.leafletMap.removeLayer(layer);
+                })
+                clusterPolygons = [];
+                _this.resetMapData(clusterData, false);
+                Object.values(_this.clusterGroups).forEach(function(clusterGroup){
+                    clusterGroup.instance._featureGroup.eachLayer(function(layer) {
+                        if (layer instanceof L.MarkerCluster) {
+                            var clusterPoly = L.polygon(layer.getConvexHull());
+                            clusterPolygons.push(clusterPoly);
+                            _this.leafletMap.addLayer(clusterPoly);
+                        }
+                    })
+                })
+            }
+
             // add cluster layers
             nodes.forEach(function(node){
                 var clusterValue = node.color,
@@ -176,6 +196,9 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 if (!group){
                     var clusterGroup = new L.MarkerClusterGroup({
                         maxClusterRadius: 2 * rmax,
+                        iconCreateFunction: function(cluster) {
+                            return L.divIcon({ iconSize: 0 });
+                        },
                         animate: false
                     });
                     group = {
@@ -189,23 +212,23 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                         // all cluster animations are done -> transform data
                         // according to current clustering
                         if (_this.clusterGroupsDone === nClusterGroups){
-                            var clusterData = _this.transformMarkerClusterData();
-                            clusterData.flows = [];
-                            _this.setMapData(clusterData, false);
+                            drawClusters();
                         }
                     })
                     nClusterGroups++;
                 }
                 var marker = L.marker([node['lat'], node['lon']], {
-                    icon: L.divIcon(),
+                    icon: L.divIcon({ iconSize: 0 }),
                     opacity: 0
                 });
                 marker.id = node.id;
                 group.instance.addLayer(marker);
             });
+            drawClusters();
         },
 
-        setMapData: function(data, zoomToFit) {
+        resetMapData: function(data, zoomToFit) {
+            if (!data) data = this.data;
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
@@ -223,7 +246,7 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                     { splitByComposition: splitByComposition }
                 );
                 _this.loader.deactivate();
-                _this.setMapData(_this.data, true);
+                _this.resetMapData(_this.data, true);
             })
         },
 
@@ -231,32 +254,29 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
             var _this = this;
                 flows = (flows instanceof Array) ? flows: [flows];
             flows.forEach(function(flow){
-                _this.flows[flow.id] = flow;
+                _this.flows.add(flow);
             })
         },
 
         addNodes: function(nodes){
             var _this = this,
                 nodes = (nodes instanceof Array) ? nodes: [nodes];
-            nodes.forEach(function(node){
-                _this.actors[node.id] = node;
+            nodes.forEach(function(actor){
+                _this.actors.add(actor);
             })
         },
 
         getNodes: function(){
-            return Object.values(this.actors);
+            return this.actors.models;
         },
 
         getFlows: function(){
-            return Object.values(this.flows);
+            return this.flows.models;
         },
 
         removeFlows: function(flows){
-            var _this = this;
-                flows = (flows instanceof Array) ? flows: [flows];
-            flows.forEach(function(flow){
-                delete _this.flows[flow.id];
-            })
+            var flows = (flows instanceof Array) ? flows: [flows];
+            this.flows.remove(flows);
         },
 
         removeNodes: function(nodes, unusedOnly){
@@ -264,14 +284,14 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 nodes = (nodes instanceof Array) ? nodes: [nodes],
                 usedNodes = new Set();
             if (unusedOnly) {
-                Object.values(this.flows).forEach(function(flow){
+                this.flows.forEach(function(flow){
                     usedNodes.add(flow.get('origin'));
                     usedNodes.add(flow.get('destination'));
                 })
             }
             nodes.forEach(function(node){
                 if (!usedNodes.has(node.id))
-                    delete _this.actors[node.id];
+                    _this.actors.remove(node);
             })
         },
 
@@ -288,10 +308,10 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 apiTag: 'adminLocations',
                 apiIds: [this.caseStudyId, this.keyflowId]
             });
-            for (var nodeId in this.actors) {
-                if (nodeId in _this.locations) continue;
-                nodeIds.push(nodeId);
-            }
+            this.actors.forEach(function(actor){
+                if (actor.id in _this.locations) return;
+                nodeIds.push(actor.id);
+            })
             var data = {};
             data['actor__in'] = nodeIds.join(',');
             adminLocations.fetch({
@@ -350,17 +370,21 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 links = [],
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
-                clusterMap = {};
+                clusterMap = {},
+                aggregatedFlows = [];
+
             var i = 0;
             clusters.forEach(function(cluster){
+                var nClusters = cluster.ids.length;
                 var clusterNode = {
                     id: 'cluster' + i,
                     name: 'name',
-                    label: cluster.ids.length,
-                    color: 'red',
+                    label: nClusters,
+                    color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: 10 + cluster.ids.length
+                    radius: 20 + nClusters,
+                    innerLabel: nClusters
                 }
                 nodes.push(clusterNode);
                 i++;
@@ -369,94 +393,99 @@ function(_, BaseView, GDSECollection, GeoLocations, FlowMap, L){
                 })
             })
 
-            for (var nodeId in actors) {
+            actors.forEach(function(actor){
                 // actor is clustered
-                if (clusterMap[nodeId]) continue;
+                if (clusterMap[actor.id]) return;
 
-                var location = _this.locations[nodeId];
-                if (!location) continue;
-                var node = actors[nodeId],
-                    location = _this.locations[nodeId],
+                var location = _this.locations[actor.id];
+                if (!location) return;
+                var location = _this.locations[actor.id],
                     geom = location.get('geometry');
-                if (!geom) continue;
+                if (!geom) return;
 
                 var coords = geom.get('coordinates'),
                     lon = coords[0],
                     lat = coords[1];
                 var transNode = {
-                    id: nodeId,
-                    name: node.get('name'),
-                    label: node.get('name'),
-                    color: node.color,
+                    id: actor.id,
+                    name: actor.get('name'),
+                    label: actor.get('name'),
+                    color: actor.color,
                     lon: lon,
                     lat: lat,
                     radius: 10
                 }
                 nodes.push(transNode)
-            };
+            });
 
-            var uniqueMaterials = new Set();
+            var uniqueMaterials = new Set(),
+                matColors = {};
             var i = 0;
-            for (var flowId in flows) {
-                var flow = flows[flowId],
-                    composition = flow.get('composition'),
-                    sourceId = flow.get('origin'),
-                    targetId = flow.get('destination'),
-                    origin = actors[sourceId],
-                    destination = actors[targetId];
-                if(!origin || !destination) continue;
+            function transformFlows (flows) {
+                flows.forEach(function(flow) {
+                    var sourceId = flow.get('origin'),
+                        targetId = flow.get('destination');
+                    // origin or destination is clustered
+                    if (clusterMap[sourceId] || clusterMap[targetId]) return;
 
-                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                    flowlabel = origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel,
-                    totalAmount = flow.get('amount'),
-                    labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
+                    var origin = actors.get(sourceId),
+                        destination = actors.get(targetId),
+                        composition = flow.get('composition');
+                    if(!origin || !destination) return;
 
-                if(splitByComposition){
-                    composition.fractions.forEach(function(fraction){
-                        var material = _this.materials.get(fraction.material),
-                            amount = totalAmount * fraction.fraction,
-                            label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                    var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
+                        flowlabel = origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel,
+                        totalAmount = flow.get('amount'),
+                        labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
+
+                    if(splitByComposition){
+                        composition.fractions.forEach(function(fraction){
+                            var material = _this.materials.get(fraction.material),
+                                amount = totalAmount * fraction.fraction,
+                                label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                            links.push({
+                                id: flow.id,
+                                label: label,
+                                source: sourceId,
+                                target: targetId,
+                                value: amount,
+                                material: material.id
+                            })
+                            uniqueMaterials.add(material.id);
+                            i++;
+                        })
+                        //define colors for individual materials and store in styles
+                        var materialColor = d3.scale.linear()
+                            .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
+                            .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
+                            .interpolate(d3.interpolateHsl);
+
+                        i = 0;
+                        uniqueMaterials.forEach(function (materialId) {
+                            var color = materialColor(i);
+                            matColors[materialId] = color;
+                            i++;
+                        });
+
+                        links.forEach(function(link){
+                            link.color = matColors[link.material];
+                        })
+                    }
+                    else {
                         links.push({
                             id: flow.id,
-                            label: label,
-                            source: sourceId,
-                            target: targetId,
-                            value: amount,
-                            material: material.id
+                            label: labelTotal,
+                            source: flow.get('origin'),
+                            target: flow.get('destination'),
+                            color: origin.color,
+                            value: totalAmount
                         })
-                        uniqueMaterials.add(material.id);
                         i++;
-                    })
-                    //define colors for individual materials and store in styles
-                    var materialColor = d3.scale.linear()
-                        .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
-                        .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
-                        .interpolate(d3.interpolateHsl);
-
-                    var matColors = {};
-                    i = 0;
-                    uniqueMaterials.forEach(function (materialId) {
-                        var color = materialColor(i);
-                        matColors[materialId] = color;
-                        i++;
-                    });
-
-                    links.forEach(function(link){
-                        link.color = matColors[link.material];
-                    })
-                }
-                else {
-                    links.push({
-                        id: flow.id,
-                        label: labelTotal,
-                        source: flow.get('origin'),
-                        target: flow.get('destination'),
-                        color: origin.color,
-                        value: totalAmount
-                    })
-                    i++;
-                }
+                    }
+                })
             }
+            transformFlows(flows);
+            transformFlows(aggregatedFlows);
 
             return {
                 flows: links,
