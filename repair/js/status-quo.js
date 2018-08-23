@@ -1,11 +1,11 @@
 require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
     'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
-    'views/status-quo/setup-flow-assessment', 
-    'views/status-quo/workshop-flow-assessment', 'visualizations/mapviewer', 
+    'views/status-quo/setup-flow-assessment',
+    'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
     SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
-    MapViewer, appConfig) {
+    appConfig) {
 
     /**
      * entry point for views on subpages of "StatusQuo" menu item
@@ -22,7 +22,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
         keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
         keyflowSelect.addEventListener('change', function(){
             if (flowsView) flowsView.close();
-            flowsView = new FlowsView({ 
+            flowsView = new FlowsView({
                 caseStudy: caseStudy,
                 el: el,
                 template: 'flows-template',
@@ -30,7 +30,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
             })
         })
     };
-    
+
     renderFlowAssessmentView = function(caseStudy, View, template){
         var assessmentView,
             el = document.getElementById('flow-assessment-content'),
@@ -39,7 +39,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
         keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
         keyflowSelect.addEventListener('change', function(){
             if (assessmentView) assessmentView.close();
-            assessmentView = new View({ 
+            assessmentView = new View({
                 caseStudy: caseStudy,
                 el: el,
                 template: template,
@@ -47,7 +47,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
             })
         })
     };
-    
+
     renderFlowAssessmentWorkshopView = function(caseStudy){
         var assessmentView,
             el = document.getElementById('flow-assessment-content'),
@@ -56,7 +56,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
         keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
         keyflowSelect.addEventListener('change', function(){
             if (assessmentView) assessmentView.close();
-            assessmentView = new FlowAssessmentWorkshopView({ 
+            assessmentView = new FlowAssessmentWorkshopView({
                 caseStudy: caseStudy,
                 el: el,
                 template: 'setup-flow-assessment-template',
@@ -64,20 +64,20 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
             })
         })
     };
-    
+
     renderWorkshop = function(caseStudy){
         renderFlowsView(caseStudy);
-        var challengesView = new ChallengesAimsView({ 
+        var challengesView = new ChallengesAimsView({
             caseStudy: caseStudy,
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template'
         })
-        var targetsView = new TargetsView({ 
+        var targetsView = new TargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('targets'),
             template: 'targets-template'
         })
-        var evaluationView = new SustainabilityView({ 
+        var evaluationView = new SustainabilityView({
             caseStudy: caseStudy,
             el: document.getElementById('sustainability-assessment'),
             template: 'sustainability-template'
@@ -85,16 +85,16 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
         renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
                                  'workshop-flow-assessment-template');
     };
-    
+
     renderSetup = function(caseStudy){
         renderFlowsView(caseStudy);
-        var challengesView = new ChallengesAimsView({ 
+        var challengesView = new ChallengesAimsView({
             caseStudy: caseStudy,
             el: document.getElementById('challenges'),
-            template: 'challenges-aims-template', 
+            template: 'challenges-aims-template',
             mode: 1
         })
-        var evaluationView = new SustainabilityView({ 
+        var evaluationView = new SustainabilityView({
             caseStudy: caseStudy,
             el: document.getElementById('sustainability-assessment'),
             template: 'sustainability-template'
