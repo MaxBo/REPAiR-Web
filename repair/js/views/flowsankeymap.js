@@ -105,6 +105,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
 
             this.materialCheck.addEventListener ("click", function(){
                 _this.toggleMaterials(this.checked);
+                // ToDo: this call is kind of odd, but else the map is rerendered with no clustering
+                _this.toggleClusters(_this.clusterCheck.checked)
             });
             this.clusterCheck.addEventListener ("click", function(){
                 _this.toggleClusters(this.checked);
