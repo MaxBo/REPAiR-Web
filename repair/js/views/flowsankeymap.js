@@ -325,8 +325,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             else {
                 var data = {};
                 data['actor__in'] = nodeIds.join(',');
-                adminLocations.fetch({
-                    data: data,
+                adminLocations.postfetch({
+                    body: data,
                     success: function(){
                         adminLocations.forEach(function(adminLoc){
                             id = adminLoc.get('properties').actor;
