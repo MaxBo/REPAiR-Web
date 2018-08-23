@@ -304,6 +304,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
         clear: function(){
             this.actors.reset();
             this.flows.reset();
+            this.legend.innerHTML = '';
             this.flowMap.clear();
         },
 
