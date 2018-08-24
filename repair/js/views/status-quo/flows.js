@@ -543,7 +543,7 @@ var FlowsView = BaseView.extend(
         };
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
-        this.flowMapView.rerender();
+        this.flowMapView.rerender(true);
     },
 
     renderSankeyMap: function(){
