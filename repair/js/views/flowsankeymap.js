@@ -319,6 +319,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.actors.reset();
             this.flows.reset();
             this.legend.innerHTML = '';
+            this.data = null;
+            this.clusterGroups = {};
             this.flowMap.clear();
         },
 
