@@ -452,7 +452,7 @@ var FlowsView = BaseView.extend(
             _this.flowMapView.addNodes(destinations);
             _this.flowMapView.addNodes(origins);
             _this.flowMapView.addFlows(flows);
-            _this.flowMapView.rerender(true);
+            _this.flowMapView.rerender();
         }
 
         // fetch actors and the flows in between them when group or activity was selected,
@@ -543,7 +543,7 @@ var FlowsView = BaseView.extend(
         };
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
-        this.flowMapView.rerender(true);
+        this.flowMapView.rerender();
     },
 
     renderSankeyMap: function(){
