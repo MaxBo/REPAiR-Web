@@ -384,7 +384,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
 
             var _this = this,
                 options = options || {},
-                nodes = [],
+                nodes = {},
                 links = [],
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
@@ -393,10 +393,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
 
             var i = 0;
             clusters.forEach(function(cluster){
-                var nNodes = cluster.ids.length;
+                var nNodes = cluster.ids.length,
+                    clusterId = 'cluster' + i;
                 var clusterNode = {
-                    id: 'cluster' + i,
-                    name: 'name',
+                    id: clusterId,
+                    name: nNodes,
                     label: nNodes,
                     color: cluster.color,
                     lon: cluster.lon,
@@ -405,10 +406,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                     innerLabel: nNodes,
                     cluster: cluster
                 }
-                nodes.push(clusterNode);
+                nodes[clusterId] = clusterNode;
                 i++;
                 cluster.ids.forEach(function(id){
-                    clusterMap[id] = 'cluster' + i;
+                    clusterMap[id] = clusterId;
                 })
             })
 
@@ -434,13 +435,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                     lat: lat,
                     radius: 10
                 }
-                nodes.push(transNode)
+                nodes[actor.id] = transNode;
             });
 
             // aggregate flows
-            nodes.forEach(function(source){
-                nodes.forEach(function(target){
-                    // source and target are same or not clustered
+            Object.values(nodes).forEach(function(source){
+                Object.values(nodes).forEach(function(target){
+                    // source and target are same or none of them is clustered
                     if(source === target || (!source.cluster && !target.cluster)) return;
                     var originIds = (source.cluster) ? source.cluster.ids : [source.id],
                         destIds = (target.cluster) ? target.cluster.ids : target.id;
@@ -449,19 +450,21 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                         aggregated = outFlows.aggregate();
                         aggregated.set('origin', source.id);
                         aggregated.set('destination', target.id);
-                        aggregated.color = (source.cluster) ? source.cluster.color : actors.get(source.id).color,
                         pFlows.push(aggregated);
                     }
                 })
             })
-            console.log(pFlows)
-            // add the flows, that don't have to be aggregated, because origin and destination are not clustered
+
+            // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
-                if (!clusterMap[flow.get('origin')] && !clusterMap[flow.get('destination')]){
+                var originId = flow.get('origin'),
+                    destId = flow.get('destination');
+                if (!clusterMap[originId] && !clusterMap[destId]){
+                    // nodes might have no geometry and skipped, don't add flow then
+                    if(!nodes[originId] || !nodes[destId]) return;
                     pFlows.push(flow);
                 }
             })
-            console.log(pFlows)
 
             var uniqueMaterials = new Set(),
                 matColors = {};
@@ -469,22 +472,19 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             pFlows.forEach(function(flow) {
                 var sourceId = flow.get('origin'),
                     targetId = flow.get('destination');
-
-                var origin = actors.get(sourceId),
-                    destination = actors.get(targetId),
+                var sourceNode = nodes[sourceId],
+                    targetNode = nodes[targetId],
                     composition = flow.get('composition');
-                //if(!origin || !destination) return;
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                    flowlabel = (origin && destination) ? origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel : 'aggregated',
                     totalAmount = flow.get('amount'),
-                    labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
+                    flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;;
 
                 if(splitByComposition){
                     composition.fractions.forEach(function(fraction){
                         var material = _this.materials.get(fraction.material),
                             amount = totalAmount * fraction.fraction,
-                            label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                            label = flowLabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
                         links.push({
                             id: flow.id,
                             label: label,
@@ -515,10 +515,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 else {
                     links.push({
                         id: flow.id,
-                        label: labelTotal,
+                        label: flowLabel,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
-                        color: (origin) ? origin.color : flow.color,
+                        color: sourceNode.color,
                         value: totalAmount
                     })
                 }
@@ -526,7 +526,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
 
             return {
                 flows: links,
-                nodes: nodes,
+                nodes: Object.values(nodes),
                 materialColors: matColors
             }
         }
