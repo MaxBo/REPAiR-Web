@@ -70,16 +70,19 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
+            this.hullCheck = document.createElement('input');
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
+                hullLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
+            hullLabel.innerHTML = gettext('Convex Hull');
 
             this.materialCheck.type = "checkbox";
             this.materialCheck.classList.add('form-control');
@@ -87,6 +90,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             this.animationCheck.classList.add('form-control');
             this.clusterCheck.type = "checkbox";
             this.clusterCheck.classList.add('form-control');
+            this.hullCheck.type = "checkbox";
+            this.hullCheck.classList.add('form-control');
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
@@ -97,6 +102,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             div.appendChild(aniLabel);
             div.appendChild(this.clusterCheck);
             div.appendChild(clusterLabel);
+            div.appendChild(this.hullCheck);
+            div.appendChild(hullLabel);
 
             displayMaterial.onAdd = function (map) {
                 return div;
@@ -104,16 +111,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             displayMaterial.addTo(this.leafletMap);
 
             this.materialCheck.addEventListener ("click", function(){
-                _this.toggleMaterials(this.checked);
-                // ToDo: this call is kind of odd, but else the map is rerendered with no clustering
-                _this.toggleClusters(_this.clusterCheck.checked)
+                _this.rerender();
             });
             this.clusterCheck.addEventListener ("click", function(){
-                _this.toggleClusters(this.checked);
+                _this.rerender();
             });
-
             this.animationCheck.addEventListener ("click", function(){
                 _this.flowMap.setAnimation(this.checked);
+            });
+            this.hullCheck.addEventListener ("click", function(){
+                _this.rerender();
             });
 
             var legendControl = L.control({position: 'bottomright'});
@@ -123,11 +130,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             legendControl.addTo(this.leafletMap);
         },
 
-        toggleMaterials(show){
-            this.data = this.transformData(
-                this.actors, this.flows, this.locations,
-                { splitByComposition: show }
-            );
+        toggleMaterials(){
+            var show = this.materialCheck.checked;
             this.legend.innerHTML = '';
             if(show){
                 var matColors = this.data.materialColors;
@@ -145,7 +149,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                     this.legend.appendChild(div);
                 }
             };
-            this.resetMapData(this.data, false);
         },
 
         zoomed: function(){
@@ -153,8 +156,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
             this.clusterGroupsDone = 0;
         },
 
-        toggleClusters(show){
-            var _this = this;
+        toggleClusters(){
+            var _this = this,
+                show = this.clusterCheck.checked;
             if (!this.data) return;
             // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
@@ -179,6 +183,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 })
                 clusterPolygons = [];
                 _this.resetMapData(clusterData, false);
+                if (!_this.hullCheck.checked) return;
                 Object.values(_this.clusterGroups).forEach(function(clusterGroup){
                     clusterGroup.instance._featureGroup.eachLayer(function(layer) {
                         if (layer instanceof L.MarkerCluster) {
@@ -252,9 +257,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                     { splitByComposition: splitByComposition }
                 );
                 _this.loader.deactivate();
-                _this.resetMapData(_this.data, true);
-                _this.toggleMaterials(_this.materialCheck.checked);
-                _this.toggleClusters(_this.clusterCheck.checked);
+                _this.resetMapData(_this.data, zoomToFit);
+                _this.toggleMaterials();
+                _this.toggleClusters();
             })
         },
 
