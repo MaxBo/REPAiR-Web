@@ -384,20 +384,21 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
                 clusterMap = {},
-                aggregatedFlows = [];
+                pFlows = [];
 
             var i = 0;
             clusters.forEach(function(cluster){
-                var nClusters = cluster.ids.length;
+                var nNodes = cluster.ids.length;
                 var clusterNode = {
                     id: 'cluster' + i,
                     name: 'name',
-                    label: nClusters,
+                    label: nNodes,
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: 20 + nClusters,
-                    innerLabel: nClusters
+                    radius: 20 + nNodes,
+                    innerLabel: nNodes,
+                    cluster: cluster
                 }
                 nodes.push(clusterNode);
                 i++;
@@ -431,74 +432,92 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 nodes.push(transNode)
             });
 
-            var uniqueMaterials = new Set(),
-                matColors = {};
-            var i = 0;
-            function transformFlows (flows) {
-                flows.forEach(function(flow) {
-                    var sourceId = flow.get('origin'),
-                        targetId = flow.get('destination');
-                    // origin or destination is clustered
-                    if (clusterMap[sourceId] || clusterMap[targetId]) return;
-
-                    var origin = actors.get(sourceId),
-                        destination = actors.get(targetId),
-                        composition = flow.get('composition');
-                    if(!origin || !destination) return;
-
-                    var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                        flowlabel = origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel,
-                        totalAmount = flow.get('amount'),
-                        labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
-
-                    if(splitByComposition){
-                        composition.fractions.forEach(function(fraction){
-                            var material = _this.materials.get(fraction.material),
-                                amount = totalAmount * fraction.fraction,
-                                label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
-                            links.push({
-                                id: flow.id,
-                                label: label,
-                                source: sourceId,
-                                target: targetId,
-                                value: amount,
-                                material: material.id
-                            })
-                            uniqueMaterials.add(material.id);
-                            i++;
-                        })
-                        //define colors for individual materials and store in styles
-                        var materialColor = d3.scale.linear()
-                            .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
-                            .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
-                            .interpolate(d3.interpolateHsl);
-
-                        i = 0;
-                        uniqueMaterials.forEach(function (materialId) {
-                            var color = materialColor(i);
-                            matColors[materialId] = color;
-                            i++;
-                        });
-
-                        links.forEach(function(link){
-                            link.color = matColors[link.material];
-                        })
-                    }
-                    else {
-                        links.push({
-                            id: flow.id,
-                            label: labelTotal,
-                            source: flow.get('origin'),
-                            target: flow.get('destination'),
-                            color: origin.color,
-                            value: totalAmount
-                        })
-                        i++;
+            // aggregate flows
+            nodes.forEach(function(source){
+                nodes.forEach(function(target){
+                    // source and target are same or not clustered
+                    if(source === target || (!source.cluster && !target.cluster)) return;
+                    var originIds = (source.cluster) ? source.cluster.ids : [source.id],
+                        destIds = (target.cluster) ? target.cluster.ids : target.id;
+                    var outFlows = flows.filterBy({origin: originIds, destination: destIds});
+                    if (outFlows.length > 0){
+                        aggregated = outFlows.aggregate();
+                        aggregated.set('origin', source.id);
+                        aggregated.set('destination', target.id);
+                        aggregated.color = (source.cluster) ? source.cluster.color : actors.get(source.id).color,
+                        pFlows.push(aggregated);
                     }
                 })
-            }
-            transformFlows(flows);
-            transformFlows(aggregatedFlows);
+            })
+            console.log(pFlows)
+            // add the flows, that don't have to be aggregated, because origin and destination are not clustered
+            flows.forEach(function(flow) {
+                if (!clusterMap[flow.get('origin')] && !clusterMap[flow.get('destination')]){
+                    pFlows.push(flow);
+                }
+            })
+            console.log(pFlows)
+
+            var uniqueMaterials = new Set(),
+                matColors = {};
+
+            pFlows.forEach(function(flow) {
+                var sourceId = flow.get('origin'),
+                    targetId = flow.get('destination');
+
+                var origin = actors.get(sourceId),
+                    destination = actors.get(targetId),
+                    composition = flow.get('composition');
+                //if(!origin || !destination) return;
+
+                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
+                    flowlabel = (origin && destination) ? origin.get('name') + '&#10132; '  + destination.get('name') + '<br>' + wasteLabel : 'aggregated',
+                    totalAmount = flow.get('amount'),
+                    labelTotal = flowlabel + ': ' + composition.name + '<b><br>Amount: </b>' + totalAmount + ' t/year';
+
+                if(splitByComposition){
+                    composition.fractions.forEach(function(fraction){
+                        var material = _this.materials.get(fraction.material),
+                            amount = totalAmount * fraction.fraction,
+                            label = flowlabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                        links.push({
+                            id: flow.id,
+                            label: label,
+                            source: sourceId,
+                            target: targetId,
+                            value: amount,
+                            material: material.id
+                        })
+                        uniqueMaterials.add(material.id);
+                    })
+                    //define colors for individual materials and store in styles
+                    var materialColor = d3.scale.linear()
+                        .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
+                        .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
+                        .interpolate(d3.interpolateHsl);
+
+                    var i = 0;
+                    uniqueMaterials.forEach(function (materialId) {
+                        var color = materialColor(i);
+                        matColors[materialId] = color;
+                        i++;
+                    });
+
+                    links.forEach(function(link){
+                        link.color = matColors[link.material];
+                    })
+                }
+                else {
+                    links.push({
+                        id: flow.id,
+                        label: labelTotal,
+                        source: flow.get('origin'),
+                        target: flow.get('destination'),
+                        color: (origin) ? origin.color : flow.color,
+                        value: totalAmount
+                    })
+                }
+            })
 
             return {
                 flows: links,
