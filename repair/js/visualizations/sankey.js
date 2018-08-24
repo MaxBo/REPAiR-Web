@@ -1,5 +1,5 @@
-define(['d3', 'd3-tip', 'cyclesankey'],
-function(d3, d3tip) {
+define(['d3', 'd3-tip', 'utils/utils', 'cyclesankey'],
+function(d3, d3tip, utils) {
 /**
 *
 * sankey diagram of nodes and links between those nodes, supports cycles
@@ -25,7 +25,6 @@ class Sankey{
         this.margin = { top: 1, right: 10, bottom: 6, left: 10 };
         this.height = options.height - this.margin.top - this.margin.bottom;
         this.title = options.title;
-        this.color = d3.scale.category20();
 
         this.div = d3.select(this.el);
         this.bbox = this.div.node().getBoundingClientRect();
@@ -296,7 +295,7 @@ class Sankey{
             .attr("width", nodeWidth)
             .style("fill", function(d) {
                 if (d.color == undefined)
-                    return d.color = _this.color(d.name.replace(/ .*/, "")); //get new color if node.color is null
+                    return d.color = utils.colorByName(d.name); //get new color if node.color is null
                 return d.color;
             })
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
