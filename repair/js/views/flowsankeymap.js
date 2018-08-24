@@ -165,10 +165,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
             });
-            if (!show) {
-                this.resetMapData();
-                return;
-            }
+            if (!show) return;
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
@@ -177,12 +174,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 clusterPolygons = [];
 
             function drawClusters(){
-                _this.data = _this.transformMarkerClusterData();
+                var data = _this.transformMarkerClusterData();
                 clusterPolygons.forEach(function(layer){
                     _this.leafletMap.removeLayer(layer);
                 })
                 clusterPolygons = [];
-                _this.resetMapData(_this.data, false);
+                _this.resetMapData(data, false);
                 if (!_this.hullCheck.checked) return;
                 Object.values(_this.clusterGroups).forEach(function(clusterGroup){
                     clusterGroup.instance._featureGroup.eachLayer(function(layer) {
@@ -235,11 +232,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         },
 
         resetMapData: function(data, zoomToFit) {
-            if (!data) data = this.data;
+            this.data = data;
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
-            this.flowMap.draw();
+            this.flowMap.resetView();
             if (zoomToFit) this.flowMap.zoomToFit();
         },
 
@@ -252,12 +249,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.loader.activate();
             this.prefetchLocations(function(){
                 var splitByComposition = _this.materialCheck.checked;
-                _this.data = _this.transformData(
+                var data = _this.transformData(
                     _this.actors, _this.flows, _this.locations,
                     { splitByComposition: splitByComposition }
                 );
                 _this.loader.deactivate();
-                _this.resetMapData(_this.data, zoomToFit);
+                _this.resetMapData(data, zoomToFit);
                 _this.toggleClusters();
                 _this.toggleMaterials();
             })
