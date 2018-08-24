@@ -1,12 +1,12 @@
 define(['underscore', 'views/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
-        'visualizations/flowmap', 'leaflet', 'leaflet-fullscreen',
+        'visualizations/flowmap', 'utils/utils','leaflet', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
         'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
-function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
+function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
 
     /**
     *
@@ -177,12 +177,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 clusterPolygons = [];
 
             function drawClusters(){
-                var clusterData = _this.transformMarkerClusterData();
+                _this.data = _this.transformMarkerClusterData();
                 clusterPolygons.forEach(function(layer){
                     _this.leafletMap.removeLayer(layer);
                 })
                 clusterPolygons = [];
-                _this.resetMapData(clusterData, false);
+                _this.resetMapData(_this.data, false);
                 if (!_this.hullCheck.checked) return;
                 Object.values(_this.clusterGroups).forEach(function(clusterGroup){
                     clusterGroup.instance._featureGroup.eachLayer(function(layer) {
@@ -258,8 +258,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                 );
                 _this.loader.deactivate();
                 _this.resetMapData(_this.data, zoomToFit);
-                _this.toggleMaterials();
                 _this.toggleClusters();
+                _this.toggleMaterials();
             })
         },
 
@@ -496,14 +496,14 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, L){
                         uniqueMaterials.add(material.id);
                     })
                     //define colors for individual materials and store in styles
-                    var materialColor = d3.scale.linear()
-                        .range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
-                        .domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
-                        .interpolate(d3.interpolateHsl);
+                    //var materialColor = d3.scale.linear()
+                        //.range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
+                        //.domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
+                        //.interpolate(d3.interpolateHsl);
 
                     var i = 0;
                     uniqueMaterials.forEach(function (materialId) {
-                        var color = materialColor(i);
+                        var color = utils.colorByName(_this.materials.get(materialId).get('name'));
                         matColors[materialId] = color;
                         i++;
                     });
