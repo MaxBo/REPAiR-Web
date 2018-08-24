@@ -88,6 +88,7 @@ define([
 
         resetBbox(bbox){
             if (bbox) this.bbox = bbox;
+            if (!this.bbox) return;
             var topLeft = this.projection(this.bbox[0]),
                 bottomRight = this.projection(this.bbox[1]);
             topLeft = [topLeft[0] - 250, topLeft[1] - 250];
@@ -198,16 +199,18 @@ define([
                     targetRadius = target.radius * scale;
 
                     var points = _this.getPointsFromPath(sxp, syp, txp, typ, strokeWidth, sourceRadius, targetRadius, offset, bothways),
-                        path = _this.drawPath(points, flow.label, flow.color, strokeWidth);
+                        path = _this.drawPath(points, flow.label, flow.color, strokeWidth, _this.drawBezier);
                     paths.push(path);
                 });
-                if (paths.length === 0) continue;
+
+                if (_this.drawBezier || paths.length === 0) continue;
                 //  clip arrow head (take the last calculated points, same anyway for all combined flows)
                 var points = _this.getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceRadius, targetRadius, totalStroke / 2, bothways),
                     clipPath = _this.drawArrowhead(points[0].x, points[0].y, points[1].x, points[1].y, targetRadius, totalStroke, linkId);
                 paths.forEach(function(path){
                     path.attr("clip-path", clipPath);
                 })
+
             };
 
             // use addpoint for each node in nodesDataFlow
@@ -353,16 +356,34 @@ define([
         }
 
         // function to draw actual paths for the directed quantity flows
-        drawPath(points, label, color, strokeWidth) {
+        drawPath(points, label, color, strokeWidth, drawBezier) {
             var _this = this;
             var line = d3.svg.line()
                          .x(function(d) { return d.x; })
                          .y(function(d) { return d.y; });
+            var bezier = function(points) {
+                // Set control point inputs
+                var source = points[0],
+                    target = points[1],
+                    dx = source.x - target.x,
+                    dy = source.y - target.y,
+                    sx = 0.4,
+                    sy = 0.1;
+
+                // Determine control point locations for different link styles
+                var controls = [sx*dx, sy*dy, sx*dx, sy*dy];
+                return "M" + source.x + "," + source.y
+                     + "C" + (source.x - controls[0]) + "," + (source.y - controls[1])
+                     + " " + (target.x + controls[2]) + "," + (target.y + controls[3])
+                     + " " + target.x + "," + target.y;
+            };
             var path = this.g.append("path")
-                .attr('d', line(points))
+                .attr('d', (drawBezier) ? bezier(points) : line(points) )
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
+                .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
+                //.attr("stroke-linecap", "round")
                 .style("pointer-events", 'all')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
@@ -387,6 +408,11 @@ define([
         setAnimation(on){
             if(on != null) this.doAnimation = on;
             this.g.selectAll('path').classed('flowline', this.doAnimation);
+        }
+
+        setBezier(on){
+            this.drawBezier = on;
+            this.resetView();
         }
 
         // clip path-function to use on draw path to get arrowheads
