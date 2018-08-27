@@ -4,10 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from repair.views import ModeView
 
 
-class StrategyIndexView(LoginRequiredMixin, ModeView):
+class TargetsIndexView(LoginRequiredMixin, ModeView):
 
     def render_setup(self, request):
-        return render(request, 'strategy/index.html',
+        return render(request, 'targets/index.html',
                       self.get_context_data())
 
     def render_workshop(self, request):

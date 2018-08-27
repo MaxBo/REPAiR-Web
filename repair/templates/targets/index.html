@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block sidebar %}
+  <script>
+    document.getElementById("targets-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    {% if request.session.mode != 1 %}
+    <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
+    <li><a href="#sustainability-targets" data-toggle="pill" style="font-size: 0.8em;">{% trans "Sustainability Targets" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
+
+<div class="tab-content">
+  {% if request.session.mode != 1 %}
+  <div class="tab-pane fade" id="flow-targets"></div>
+  <div class="tab-pane fade" id="sustainability-targets"> <h2> ToDo </h2></div>
+  {% else %}
+  <h2> {% trans "Workshop mode only" %} </h2>
+  {% endif %}
+</div>
+
+{% if request.session.mode != 1 %} <!-- workshop -->
+{% include "targets/flow-targets.html" %}
+{% include "targets/sustainability-targets.html" %}
+{% endif %}
+
+{% render_bundle 'Targets' %}
+
+{% endblock %}

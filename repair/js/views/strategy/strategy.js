@@ -6,11 +6,11 @@ function(BaseView, _, GDSECollection, Map, utils, Muuri, ol){
 /**
 *
 * @author Christoph Franke
-* @name module:views/ImplementationsView
+* @name module:views/StrategyView
 * @augments BaseView
 */
-var ImplementationsView = BaseView.extend(
-    /** @lends module:views/ImplementationsView.prototype */
+var StrategyView = BaseView.extend(
+    /** @lends module:views/StrategyView.prototype */
     {
 
     /**
@@ -25,7 +25,7 @@ var ImplementationsView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        ImplementationsView.__super__.initialize.apply(this, [options]);
+        StrategyView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderImplementation');
         _.bindAll(this, 'renderSolution');
         var _this = this;
@@ -613,6 +613,6 @@ var ImplementationsView = BaseView.extend(
     },
 
 });
-return ImplementationsView;
+return StrategyView;
 }
 );

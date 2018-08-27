@@ -1,6 +1,6 @@
-require(['models/casestudy', 'views/changes/solutions',
-    'views/changes/implementations', 'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, ImplementationsView, appConfig) {
+require(['models/casestudy', 'views/strategy/solutions',
+    'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
+], function (CaseStudy, SolutionsView, StrategyView, appConfig) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -9,20 +9,20 @@ require(['models/casestudy', 'views/changes/solutions',
      */
 
     renderWorkshop = function(caseStudy){
-        var solutionsView = new SolutionsView({ 
+        var solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template'
         });
-        var implementationsView = new ImplementationsView({ 
+        var strategyView = new StrategyView({
             caseStudy: caseStudy,
-            el: document.getElementById('implementations'),
-            template: 'implementations-template'
+            el: document.getElementById('strategy'),
+            template: 'strategy-template'
         })
     }
 
     renderSetup = function(caseStudy){
-        var solutionsView = new SolutionsView({ 
+        var solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',

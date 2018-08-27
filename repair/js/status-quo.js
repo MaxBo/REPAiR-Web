@@ -1,9 +1,9 @@
-require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/targets',
+require(['d3', 'models/casestudy', 'views/status-quo/flows',
     'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
     'views/status-quo/setup-flow-assessment',
     'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
+], function (d3, CaseStudy, FlowsView, ChallengesAimsView,
     SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
     appConfig) {
 
@@ -71,11 +71,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
             caseStudy: caseStudy,
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template'
-        })
-        var targetsView = new TargetsView({
-            caseStudy: caseStudy,
-            el: document.getElementById('targets'),
-            template: 'targets-template'
         })
         var evaluationView = new SustainabilityView({
             caseStudy: caseStudy,

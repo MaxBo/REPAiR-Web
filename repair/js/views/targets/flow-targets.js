@@ -5,11 +5,11 @@ function(_, BaseView, GDSECollection, GDSEModel){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
-    * @name module:views/TargetsView
+    * @name module:views/FlowTargetsView
     * @augments Backbone.View
     */
-    var TargetsView = BaseView.extend(
-        /** @lends module:views/TargetsView.prototype */
+    var FlowTargetsView = BaseView.extend(
+        /** @lends module:views/FlowTargetsView.prototype */
         {
 
         /**
@@ -24,7 +24,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
-            TargetsView.__super__.initialize.apply(this, [options]);
+            FlowTargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
 
             this.template = options.template;
@@ -55,12 +55,12 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.targetValuesModel = new GDSECollection([], {
                 apiTag: 'targetvalues',
             });
-            
+
             _this.spatial = [];
             this.spatialModel = new GDSECollection([], {
                 apiTag: 'targetspatialreference',
             });
-            
+
             var promises = [];
 
             promises.push(this.targetsModel.fetch({
@@ -254,7 +254,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     var span = document.createElement('span');
                     removeBtn.title = gettext('Remove target')
                     span.classList.add('glyphicon', 'glyphicon-minus');
-                    // make span unclickable (caused problems when trying to 
+                    // make span unclickable (caused problems when trying to
                     // delete row, as the span has no id attached)
                     span.style.pointerEvents = 'none';
                     removeBtn.appendChild(span);
@@ -394,6 +394,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
         },
 
     });
-    return TargetsView;
+    return FlowTargetsView;
 }
 );
