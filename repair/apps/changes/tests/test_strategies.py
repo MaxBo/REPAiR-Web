@@ -5,27 +5,27 @@ from django.contrib.gis.geos import Point, MultiPoint, LineString
 
 from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 from repair.apps.changes.models import (
-    SolutionInImplementationQuantity,
+    SolutionInStrategyQuantity,
     SolutionQuantity,
     )
 
 from repair.apps.changes.factories import (
     SolutionFactory,
     SolutionQuantityFactory,
-    ImplementationFactory,
-    SolutionInImplementationFactory,
-    SolutionInImplementationQuantityFactory)
+    StrategyFactory,
+    SolutionInStrategyFactory,
+    SolutionInStrategyQuantityFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
 
-class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
+class StrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
     userincasestudy = 21
-    implementation = 30
+    strategy = 30
     stakeholder = 77
     stakeholdercategory = 88
 
@@ -43,46 +43,46 @@ class ImplementationsInCasestudyTest(BasicModelPermissionTest, APITestCase):
                         stakeholdercategory_pk=cls.stakeholdercategory)
         )
         cls.sol_set = []
-        cls.url_key = "implementation"
+        cls.url_key = "strategy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
-        cls.url_pk = dict(pk=cls.implementation)
-        cls.post_data = dict(name="Test Implementation",
+        cls.url_pk = dict(pk=cls.strategy)
+        cls.post_data = dict(name="Test Strategy",
                              user=cls.userincasestudy,
                              solution_set=cls.sol_set,
                              coordinating_stakeholder=cls.stakeholder)
-        cls.put_data = dict(name="Test Implementation",
+        cls.put_data = dict(name="Test Strategy",
                             user=cls.userincasestudy,
                             solution_set=cls.sol_set,
                             coordinating_stakeholder=cls.stakeholder)
-        cls.patch_data = dict(name="Test New Implementation")
+        cls.patch_data = dict(name="Test New Strategy")
 
     def setUp(self):
         super().setUp()
-        self.obj = ImplementationFactory(id=self.implementation,
+        self.obj = StrategyFactory(id=self.strategy,
                                          user=self.uic)
         self.stakeholder = StakeholderFactory(
             id=self.stakeholder,
             stakeholder_category__id=self.stakeholdercategory,
             stakeholder_category__casestudy=self.uic.casestudy)
 
-    def test_casestudy_implementations(self):
-        """Test the casestudy.implementations property"""
-        implementation1 = self.obj
-        implementation2 = ImplementationFactory(user=self.uic,
+    def test_casestudy_strategys(self):
+        """Test the casestudy.strategys property"""
+        strategy1 = self.obj
+        strategy2 = StrategyFactory(user=self.uic,
                                                 name='Imp2')
         user2 = UserInCasestudyFactory(casestudy=self.uic.casestudy)
-        implementation3 = ImplementationFactory(user=user2,
+        strategy3 = StrategyFactory(user=user2,
                                                 name='Imp3')
 
-        implementations = user2.casestudy.implementations
-        self.assertSetEqual(implementations, {implementation1,
-                                              implementation2,
-                                              implementation3})
+        strategys = user2.casestudy.strategys
+        self.assertSetEqual(strategys, {strategy1,
+                                        strategy2,
+                                        strategy3})
 
-class ModelSolutionInImplementation(TestCase):
+class ModelSolutionInStrategy(TestCase):
 
     def test01_new_solutionininplementation(self):
-        """Test the new solution implementation"""
+        """Test the new solution strategy"""
 
         # Create a solution with two quantities
         solution = SolutionFactory()
@@ -91,16 +91,16 @@ class ModelSolutionInImplementation(TestCase):
         solution_quantity2 = SolutionQuantityFactory(
             solution=solution, name='q2')
 
-        # add solution to an implementation
-        implementation = ImplementationFactory()
-        solution_in_impl = SolutionInImplementationFactory(
+        # add solution to an strategy
+        strategy = StrategyFactory()
+        solution_in_impl = SolutionInStrategyFactory(
             solution=solution,
-            implementation=implementation)
+            strategy=strategy)
 
-        # check, if the SolutionInImplementationQuantity contains
+        # check, if the SolutionInStrategyQuantity contains
         # now the 2 quantities
 
-        solution_in_impl_quantities = SolutionInImplementationQuantity.\
+        solution_in_impl_quantities = SolutionInStrategyQuantity.\
             objects.filter(sii=solution_in_impl)
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
@@ -114,7 +114,7 @@ class ModelSolutionInImplementation(TestCase):
                                                      name='q3')
 
         # check if the new quantity has been added to the related table
-        solution_in_impl_quantities = SolutionInImplementationQuantity.\
+        solution_in_impl_quantities = SolutionInStrategyQuantity.\
             objects.filter(sii=solution_in_impl)
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
@@ -125,36 +125,36 @@ class ModelSolutionInImplementation(TestCase):
         to_delete = SolutionQuantity.objects.filter(solution=solution,
                                                     name='q2')
         solution_id, deleted = to_delete.delete()
-        # assert that 1 row in changes.SolutionInImplementationQuantity
+        # assert that 1 row in changes.SolutionInStrategyQuantity
         # are deleted
-        assert deleted.get('changes.SolutionInImplementationQuantity') == 1
+        assert deleted.get('changes.SolutionInStrategyQuantity') == 1
 
-        # check the related SolutionInImplementationQuantity
-        solution_in_impl_quantities = SolutionInImplementationQuantity.\
+        # check the related SolutionInStrategyQuantity
+        solution_in_impl_quantities = SolutionInStrategyQuantity.\
             objects.filter(sii=solution_in_impl)
         solution_names = solution_in_impl_quantities.values_list(
             'quantity__name', flat=True)
         assert len(solution_names) == 2
         assert set(solution_names) == {'q1', 'q3'}
 
-        # remove the solution_in_implementation
+        # remove the solution_in_strategy
         sii_id, deleted = solution_in_impl.delete()
-        # assert that 2 rows in changes.SolutionInImplementationQuantity
+        # assert that 2 rows in changes.SolutionInStrategyQuantity
         # are deleted
-        assert deleted.get('changes.SolutionInImplementationQuantity') == 2
-        solution_in_impl_quantities = SolutionInImplementationQuantity.\
+        assert deleted.get('changes.SolutionInStrategyQuantity') == 2
+        solution_in_impl_quantities = SolutionInStrategyQuantity.\
             objects.filter(sii=sii_id)
         assert not solution_in_impl_quantities
 
 
-class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestCase):
+class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     user = 20
-    implementation = 30
+    strategy = 30
     solution = 20
     solutioncategory = 56
-    solution_implementation = 40
+    solution_strategy = 40
 
     @classmethod
     def setUpClass(cls):
@@ -164,36 +164,36 @@ class SolutionInImplementationInCasestudyTest(BasicModelPermissionTest, APITestC
                     kwargs=dict(casestudy_pk=cls.casestudy,
                                 solutioncategory_pk=cls.solutioncategory,
                                 pk=cls.solution))
-        cls.implementation_url = cls.baseurl + \
-            reverse('implementation-detail',
+        cls.strategy_url = cls.baseurl + \
+            reverse('strategy-detail',
                     kwargs=dict(casestudy_pk=cls.casestudy,
-                                pk=cls.implementation))
-        cls.post_urls = [cls.solution_url, cls.implementation_url]
+                                pk=cls.strategy))
+        cls.post_urls = [cls.solution_url, cls.strategy_url]
         cls.sol_set = []
-        cls.url_key = "solutioninimplementation"
+        cls.url_key = "solutioninstrategy"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation)
+                           strategy_pk=cls.strategy)
         cls.url_pk = dict(pk=cls.solution)
         cls.post_data = dict(solution=cls.solution,
-                             implementation=cls.implementation_url)
+                             strategy=cls.strategy_url)
         cls.put_data = dict(solution=cls.solution,
-                            implementation=cls.implementation_url)
+                            strategy=cls.strategy_url)
         cls.patch_data = dict(solution=cls.solution,
-                              implementation=cls.implementation_url)
+                              strategy=cls.strategy_url)
 
     def setUp(self):
         super().setUp()
-        self.obj = SolutionInImplementationFactory(
+        self.obj = SolutionInStrategyFactory(
             solution__user=self.uic,
             solution__solution_category__user=self.uic,
             solution__id=self.solution,
-            implementation__user=self.uic,
-            implementation__id=self.implementation,
+            strategy__user=self.uic,
+            strategy__id=self.strategy,
             solution__solution_category__id=self.solutioncategory,
-            id=self.solution_implementation)
+            id=self.solution_strategy)
 
 
-class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,
+class QuantityInSolutionInStrategyInCasestudyTest(BasicModelReadTest,
                                                         APITestCase):
     """
     Test is not working:
@@ -202,20 +202,20 @@ class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,
     """
     casestudy = 17
     user = 20
-    implementation = 30
+    strategy = 30
     solution = 20
     solutioncategory = 56
-    solution_implementation = 40
+    solution_strategy = 40
     quantity = 25
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.sol_set = []
-        cls.url_key = "solutioninimplementationquantity"
+        cls.url_key = "solutioninstrategyquantity"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           implementation_pk=cls.implementation,
-                           solution_pk=cls.solution_implementation)
+                           strategy_pk=cls.strategy,
+                           solution_pk=cls.solution_strategy)
         cls.quantity_url = cls.baseurl + \
             reverse('solutionquantity-detail',
                     kwargs=dict(casestudy_pk=cls.casestudy,
@@ -229,10 +229,10 @@ class QuantityInSolutionInImplementationInCasestudyTest(BasicModelReadTest,
 
     def setUp(self):
         super().setUp()
-        self.obj = SolutionInImplementationQuantityFactory(
+        self.obj = SolutionInStrategyQuantityFactory(
             sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__implementation__user=self.uic,
-            sii__implementation__id=self.implementation,
+            sii__strategy__user=self.uic,
+            sii__strategy__id=self.strategy,
             sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_implementation,
+            sii__id=self.solution_strategy,
             id=self.quantity)

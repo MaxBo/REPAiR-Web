@@ -50,7 +50,7 @@ class SolutionRatioOneUnitFactory(DjangoModelFactory):
 
 class ImplementationFactory(DjangoModelFactory):
     class Meta:
-        model = models.Implementation
+        model = models.Strategy
     name = factory.Sequence(lambda n: "Implementation #%s" % n)
     user = factory.SubFactory(UserInCasestudyFactory)
     coordinating_stakeholder = factory.SubFactory(StakeholderFactory)
@@ -58,7 +58,7 @@ class ImplementationFactory(DjangoModelFactory):
 
 class SolutionInImplementationFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionInImplementation
+        model = models.SolutionInStrategy
     solution = factory.SubFactory(SolutionFactory)
     implementation = factory.SubFactory(ImplementationFactory)
 
@@ -88,26 +88,7 @@ class ImplementationWithTwoSolutionsFactory(UserFactory):
 
 class SolutionInImplementationQuantityFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionInImplementationQuantity
+        model = models.SolutionInStrategyQuantity
     sii = factory.SubFactory(SolutionInImplementationFactory)
     quantity = factory.SubFactory(SolutionQuantityFactory)
     value = 24.3
-
-
-class StrategyFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Strategy
-    user = factory.SubFactory(UserInCasestudyFactory)
-    name = 'Strategy 1'
-    coordinator = factory.SubFactory(StakeholderFactory)
-
-    @factory.post_generation
-    def implementations(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            # A list of implementations were passed in, use them
-            for implementation in extracted:
-                self.implementations.add(implementation)

@@ -20,12 +20,11 @@ from repair.apps.changes.views import (
     UnitViewSet,
     SolutionCategoryViewSet,
     SolutionViewSet,
-    ImplementationViewSet,
-    SolutionInImplementationViewSet,
+    StrategyViewSet,
+    SolutionInStrategyViewSet,
     SolutionQuantityViewSet,
     SolutionRatioOneUnitViewSet,
-    SolutionInImplementationQuantityViewSet,
-    StrategyViewset,
+    SolutionInStrategyQuantityViewSet,
 )
 
 from repair.apps.asmfa.views import (
@@ -97,8 +96,7 @@ cs_router.register(r'users', login_views.UserInCasestudyViewSet)
 cs_router.register(r'solutioncategories', SolutionCategoryViewSet)
 cs_router.register(r'stakeholdercategories', StakeholderCategoryViewSet)
 cs_router.register(r'chartcategories', ChartCategoryViewSet)
-cs_router.register(r'implementations', ImplementationViewSet)
-cs_router.register(r'strategies', StrategyViewset)
+cs_router.register(r'strategies', StrategyViewSet)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
@@ -139,15 +137,15 @@ sol_router = NestedSimpleRouter(scat_router, r'solutions',
 sol_router.register(r'solutionquantities', SolutionQuantityViewSet)
 sol_router.register(r'solutionratiooneunits', SolutionRatioOneUnitViewSet)
 
-# /casestudies/*/implementations/...
-imp_router = NestedSimpleRouter(cs_router, r'implementations',
+# /casestudies/*/strategies/...
+imp_router = NestedSimpleRouter(cs_router, r'strategies',
                                  lookup='implementation')
-imp_router.register(r'solutions', SolutionInImplementationViewSet)
+imp_router.register(r'solutions', SolutionInStrategyViewSet)
 
-# /casestudies/*/implementations/*/solutions...
+# /casestudies/*/strategies/*/solutions...
 sii_router = NestedSimpleRouter(imp_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'quantities', SolutionInImplementationQuantityViewSet)
+sii_router.register(r'quantities', SolutionInStrategyQuantityViewSet)
 
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
