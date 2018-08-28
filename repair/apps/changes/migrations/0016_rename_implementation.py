@@ -7,6 +7,7 @@ import repair.apps.utils.protect_cascade
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('login', '0013_profile_can_change_password'),
@@ -19,99 +20,22 @@ class Migration(migrations.Migration):
             old_name='SolutionInImplementationQuantity',
             new_name='SolutionInStrategyQuantity',
         ),
-        migrations.AlterField(
-            model_name='solutioninstrategyquantity',
-            name='sii',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.SolutionInStrategy'),
-        ),
         migrations.RenameModel(
             old_name='Implementation',
-            new_name='Strategy',
+            new_name='Strategy'
         ),
         migrations.RenameModel(
             old_name='SolutionInImplementation',
-            new_name='SolutionInStrategy',
+            new_name='SolutionInStrategy'
         ),
         migrations.RenameField(
             'solutioninstrategy',
             'implementation',
             'strategy'
         ),
-        #migrations.AlterField(
-            #model_name='solutioninstrategy',
-            #name='strategy',
-            #field=models.ForeignKey(on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, to='changes.Strategy'),
-        #),
-        #migrations.CreateModel(
-            #name='SolutionInStrategy',
-            #fields=[
-                #('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                #('note', models.TextField(blank=True, null=True)),
-                #('geom', django.contrib.gis.db.models.fields.GeometryCollectionField(null=True, srid=4326, verbose_name='geom')),
-                #('participants', models.ManyToManyField(to='studyarea.Stakeholder')),
-                #('solution', models.ForeignKey(on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, to='changes.Solution')),
-            #],
-            #options={
-                #'abstract': False,
-                #'default_permissions': ('add', 'change', 'delete', 'view'),
-            #},
-        #),
-        #migrations.CreateModel(
-            #name='Strategy',
-            #fields=[
-                #('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                #('name', models.TextField()),
-                #('coordinating_stakeholder', models.ForeignKey(on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, to='studyarea.Stakeholder')),
-                #('solutions', models.ManyToManyField(through='changes.SolutionInStrategy', to='changes.Solution')),
-                #('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='login.UserInCasestudy')),
-            #],
-            #options={
-                #'abstract': False,
-                #'default_permissions': ('add', 'change', 'delete', 'view'),
-            #},
-        #),
-        #migrations.RemoveField(
-            #model_name='implementation',
-            #name='coordinating_stakeholder',
-        #),
-        #migrations.RemoveField(
-            #model_name='implementation',
-            #name='solutions',
-        #),
-        #migrations.RemoveField(
-            #model_name='implementation',
-            #name='user',
-        #),
-        #migrations.RemoveField(
-            #model_name='solutioninimplementation',
-            #name='implementation',
-        #),
-        #migrations.RemoveField(
-            #model_name='solutioninimplementation',
-            #name='participants',
-        #),
-        #migrations.RemoveField(
-            #model_name='solutioninimplementation',
-            #name='solution',
-        #),
-        #migrations.AlterField(
-            #model_name='solutioninstrategyquantity',
-            #name='sii',
-            #field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.SolutionInStrategy'),
-        #),
-        #migrations.RenameModel(
-            #old_name='SolutionInImplementationQuantity',
-            #new_name='SolutionInStrategyQuantity',
-        #),
-        #migrations.DeleteModel(
-            #name='Implementation',
-        #),
-        #migrations.DeleteModel(
-            #name='SolutionInImplementation',
-        #),
-        #migrations.AddField(
-            #model_name='solutioninstrategy',
-            #name='strategy',
-            #field=models.ForeignKey(on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, to='changes.Strategy'),
-        #),
+        migrations.AlterField(
+            model_name='solutioninstrategyquantity',
+            name='sii',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='changes.SolutionInStrategy'),
+        )
     ]
