@@ -33,7 +33,7 @@ class Strategy(GDSEModel):
 class SolutionInStrategy(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=PROTECT_CASCADE)
     strategy = models.ForeignKey(Strategy,
-                                       on_delete=PROTECT_CASCADE)
+                                 on_delete=PROTECT_CASCADE)
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
     geom = models.GeometryCollectionField(verbose_name='geom', null=True)
