@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'visualizations/sankey', 
+define(['views/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config){
@@ -9,12 +9,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
     * @name module:views/FlowSankeyView
     * @augments module:views/BaseView
     */
-    var FlowSankeyView = BaseView.extend( 
+    var FlowSankeyView = BaseView.extend(
         /** @lends module:views/FlowSankeyView.prototype */
         {
 
         /**
-        * render view to edit flows of a single keyflow
+        * render flows in sankey diagram
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                   element the view will be rendered in
@@ -49,31 +49,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.forceSideBySide = options.forceSideBySide || false;
             this.origins = options.origins;
             this.destinations = options.destinations;
-            var originTag = options.originLevel || this.origins.apiTag,
-                destinationTag = options.destinationLevel || this.destinations.apiTag,
-                renderStocks = (options.renderStocks != null) ? options.renderStocks : true;
-            this.originAggregateLevel = (originTag.includes('group')) ? 'activitygroup': 
-                                        (originTag.includes('actor')) ? 'actor': 'activity';
-            this.destinationAggregateLevel = (destinationTag.includes('group')) ? 'activitygroup': 
-                                             (destinationTag.includes('actor')) ? 'actor': 'activity';
+            this.flows = options.flows;
+            this.stocks = options.stocks || [];
 
-            flowFilterParams = options.flowFilterParams || {};
-            flowFilterParams['aggregation_level'] = {
-                origin: this.originAggregateLevel,
-                destination: this.destinationAggregateLevel
-            };
-            stockFilterParams = options.stockFilterParams || {};
-            stockFilterParams['aggregation_level'] = this.originAggregateLevel;
-            
-            this.flows = new GDSECollection([], {
-                apiTag: 'actorToActor',
-                apiIds: [ this.caseStudyId, this.keyflowId] 
-            });
-            this.stocks = new GDSECollection([], {
-                apiTag: 'actorStock',
-                apiIds: [ this.caseStudyId, this.keyflowId] 
-            });
-            
             var fullscreenBtn = document.createElement('button'),
                 zoomControls = document.createElement('div'),
                 zoomIn = document.createElement('a'),
@@ -82,48 +60,41 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 outSpan = document.createElement('span'),
                 zoomToFit = document.createElement('a'),
                 fitSpan = document.createElement('span');
-                
+
             fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
-            
+
             zoomIn.classList.add("btn", "square");
             zoomIn.setAttribute('data-zoom', "+0.5");
             inSpan.classList.add("fa", "fa-plus");
             zoomIn.appendChild(inSpan);
-            
+
             zoomOut.classList.add("btn", "square");
             zoomOut.setAttribute('data-zoom', "-0.5");
             outSpan.classList.add("fa", "fa-minus");
             zoomOut.appendChild(outSpan);
-            
+
             zoomToFit.classList.add("btn", "square");
             zoomToFit.setAttribute('data-zoom', "0");
             fitSpan.classList.add("fa", "fa-crosshairs");
             zoomToFit.appendChild(fitSpan);
-            
+
             zoomControls.classList.add("d3-zoom-controls");
             zoomControls.appendChild(zoomIn);
             zoomControls.appendChild(zoomOut);
             zoomControls.appendChild(zoomToFit);
-            
+
             this.el.appendChild(zoomControls);
             this.el.appendChild(fullscreenBtn);
-            
+
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
 
-            this.loader.activate();
-            var promises = [
-                this.flows.postfetch({body: flowFilterParams})
-            ]
-            if (renderStocks){
-                promises.push(this.stocks.postfetch({body: stockFilterParams}));
-            }
-            Promise.all(promises).then(function(){
-                _this.complementData(function(data){
-                    _this.transformedData = data;
-                    _this.loader.deactivate();
-                    _this.render(data);
-                })
-            });
+            this.transformedData = this.transformData(
+                this.origins, this.destinations, this.flows,
+                this.stocks, this.materials
+            );
+            this.render(this.transformedData);
+            this.onSelect = options.onSelect;
+            this.onDeselect = options.onDeselect;
         },
 
         /*
@@ -132,61 +103,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'change #data-view-type-select': 'renderSankey'
-        },
-        
-        complementData: function(success){
-            var originIds = this.origins.pluck('id'),
-                destinationIds = this.destinations.pluck('id'),
-                missingOriginIds = new Set(),
-                missingDestinationIds = new Set(),
-                origins = this.origins,
-                destinations = this.destinations,
-                _this = this;
-            this.flows.forEach(function(flow){
-                var origin = flow.get('origin'),
-                    destination = flow.get('destination');
-                if(!originIds.includes(origin)) missingOriginIds.add(origin);
-                if(!destinationIds.includes(destination)) missingDestinationIds.add(destination);
-            })
-            
-            function getUrl(tag){
-                var url = (tag.includes('group')) ? config.api.activitygroups:
-                          (tag.includes('actor')) ? config.api.actors:
-                          config.api.activities;
-                return url.format(_this.caseStudyId, _this.keyflowId);
-            }
-            var promises = [];
-            // WARNING: postfetch works only with filter actors route, should be
-            // fetched in case of groups and activities, but in fact they should
-            // be complete
-            if (missingOriginIds.size > 0){
-                var missingOrigins = new GDSECollection([], {
-                    url: getUrl(this.originAggregateLevel)
-                })
-                promises.push(missingOrigins.postfetch({ 
-                    body: { 'id': Array.from(missingOriginIds).join() },
-                    success: function(){
-                        origins = origins.models.concat(missingOrigins.models);
-                    }
-                }))
-            }
-            if (missingDestinationIds.size > 0){
-                var missingDestinations = new GDSECollection([], {
-                    url: getUrl(this.destinationAggregateLevel)
-                })
-                promises.push(missingDestinations.postfetch({ 
-                    body: { 'id': Array.from(missingDestinationIds).join() },
-                    success: function(){
-                        destinations = destinations.models.concat(missingDestinations.models);
-                    }
-                }))
-            }
-            
-            Promise.all(promises).then(function(){
-                var data = _this.transformData(
-                    origins, destinations, _this.flows, _this.stocks, _this.materials);
-                success(data);
-            })
         },
 
         /*
@@ -208,9 +124,29 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 width: width,
                 el: div,
                 title: '',
-                language: config.session.get('language')
+                language: config.session.get('language'),
+                selectable: true,
+                gradient: false
             })
-            if (data.nodes.length == 0)
+
+            // get models from sankey data and redirect the event
+            function redirectEvent(e){
+                var d = e.detail,
+                    flow = _this.flows.get(d.id),
+                    origin = _this.origins.get(d.source.id),
+                    destination = _this.destinations.get(d.target.id);
+                origin.color = d.source.color;
+                destination.color = d.target.color;
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
+                    flow: flow,
+                    origin: origin,
+                    destination: destination
+                }}))
+            }
+
+            div.addEventListener('linkSelected', redirectEvent);
+            div.addEventListener('linkDeselected', redirectEvent);
+            if (data.links.length === 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
             else sankey.render(data);
         },
@@ -229,7 +165,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.height = options.height || this.width / 3;
             this.render();
         },
-        
+
         format: function(value){
             return value.toLocaleString(this.language);
         },
@@ -248,17 +184,18 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             function nConnectionsInOut(connections, nodeId){
                 return connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' }).length;
             }
-            
+
             function nConnectionsIn(connections, nodeId){
                 return connections.filterBy({ destination: nodeId }).length;
             }
-            
+
             function nConnectionsOut(connections, nodeId){
+                if (connections.length === 0) return 0;
                 return connections.filterBy({ origin: nodeId }).length;
             }
-            
+
             var idx = 0;
-            
+
             function addNodes(collection, prefix, check){
                 collection.forEach(function(model){
                     var id = model.id,
@@ -267,7 +204,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     if(indices[prefix+id] != null) return;
                     // no connections -> skip it (if requested)
                     if (_this.hideUnconnected && !check(id)) return;
-                    
+
                     var color = colorCat(name.replace(/ .*/, ""));
                     nodes.push({ id: id, name: name, color: color });
                     indices[prefix+id] = idx;
@@ -275,10 +212,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                     idx += 1;
                 });
             }
-            var sourcePrefix = (this.forceSideBySide) ? 'origin': this.originAggregateLevel,
-                targetPrefix = (this.forceSideBySide) ? 'destination': this.destinationAggregateLevel;
-            
-            function checkOrigins(id){ return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0 }
+            var sourcePrefix = (this.forceSideBySide) ? 'origin': origins.apiTag,
+                targetPrefix = (this.forceSideBySide) ? 'destination': destinations.apiTag;
+
+            function checkOrigins(id){
+                return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0
+            }
             addNodes(origins, sourcePrefix, checkOrigins);
             function checkDestinations(id){ return nConnectionsIn(flows, id) > 0 }
             addNodes(destinations, targetPrefix, checkDestinations);
@@ -306,7 +245,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             function typeRepr(flow){
                 return flow.get('waste') ? 'Waste': 'Product';
             }
-            
+
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 var originId = flow.get('origin'),
@@ -317,10 +256,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 if (source == null || target == null) return false;
                 var composition = flow.get('composition');
                 links.push({
+                    id: flow.id,
                     value: flow.get('amount'),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
+                    isStock: false,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + compositionRepr(composition)
                 });
             })
@@ -332,11 +273,13 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 // continue if node does not exist
                 if (source == null) return false;
                 nodes.push({id: id, name: 'Stock ',
-                            text: sourceName, 
-                            color: 'darkgray', 
+                            text: sourceName,
+                            color: 'darkgray',
                             alignToSource: {x: 80, y: 0}});
                 var composition = stock.get('composition');
                 links.push({
+                    id: stock.id,
+                    isStock: true,
                     value: stock.get('amount'),
                     units: gettext('t/year'),
                     source: source,

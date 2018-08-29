@@ -150,17 +150,17 @@ div.fullscreen{
 }
 .panel-heading .accordion-toggle:after {
   /* symbol for panel */
-  font-family: 'Glyphicons Halflings';  
+  font-family: 'Glyphicons Halflings';
   content: "\e114";
   color: grey;
   margin-left: 10px;
 }
 .panel-heading .accordion-toggle.collapsed:after {
   /* symbol for collapsed panel*/
-  content: "\e080"; 
+  content: "\e080";
 }
 .title {
-  font-weight: 600;    
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -179,8 +179,8 @@ div.fullscreen{
   outline: none;
 }
 .input-label {
-  float: left; 
-  margin-right: 10px; 
+  float: left;
+  margin-right: 10px;
   padding-top: 8px;
 }
 .source {
@@ -261,7 +261,7 @@ tfoot th {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 1;
+  z-index: 500;
   width: 150px;
   height: 150px;
   /*margin: -75px 0 0 -75px;*/

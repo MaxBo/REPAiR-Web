@@ -275,10 +275,12 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         new_flow['origin'] = origin
         new_flow['origin_level'] = origin_level
         new_flow['composition'] = custom_composition
+        new_flow['id'] = 'agg-{}'.format(origin)
 
         if not is_stock:
             new_flow['destination'] = destination
             new_flow['destination_level'] = destination_level
+            new_flow['id'] += '-{}'.format(destination)
         else:
             del new_flow['destination']
             del new_flow['destination_level']
@@ -364,8 +366,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             }
         }
         '''
-        self.check_permission(request, 'view')
         SerializerClass = self.get_serializer_class()
+        self.check_permission(request, 'view')
+        # filter by query params
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=self.get_serializer_class())
         params = {}
         # values of body keys are not parsed
         for key, value in request.data.items():
@@ -373,7 +378,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                 params[key] = json.loads(value)
             except json.decoder.JSONDecodeError:
                 params[key] = value
-        queryset = self.get_queryset()
 
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
@@ -406,7 +410,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             if len(filter_functions) == 1:
                 queryset = queryset.filter(filter_functions[0])
             if len(filter_functions) > 1:
-                queryset = queryset.filter(link_func(*filter_functions))
+                queryset = queryset.filter(link_func.reduce(filter_functions))
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
