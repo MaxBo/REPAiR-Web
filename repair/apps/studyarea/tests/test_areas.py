@@ -13,25 +13,25 @@ from repair.apps.login.factories import CaseStudyFactory
 from repair.tests.test import LoginTestCase, CompareAbsURIMixin
 
 
-class AreaModels(LoginTestCase, APITestCase):
+class AreaModelsTest(LoginTestCase, APITestCase):
     @classmethod
     def setUpClass(cls):
-        super(AreaModels, cls).setUpClass()
+        super(AreaModelsTest, cls).setUpClass()
         # create a casestudy
         casestudy = cls.uic.casestudy
 
         adminlevels = models.AdminLevels.objects
         cls.planet = adminlevels.create(name='Planet',
-                                        level=models.World._level,
+                                        level=1,
                                         casestudy=casestudy)
         cls.continent = adminlevels.create(name='Continent',
-                                           level=models.Continent._level,
+                                           level=2,
                                            casestudy=casestudy)
         cls.country = adminlevels.create(name='Country',
-                                         level=models.Country._level,
+                                         level=3,
                                          casestudy=casestudy)
         cls.land = adminlevels.create(name='Province',
-                                      level=models.NUTS1._level,
+                                      level=4,
                                       casestudy=casestudy)
 
 
@@ -45,12 +45,12 @@ class AreaModels(LoginTestCase, APITestCase):
         catalunia = self.land.create_area(name='Catalunia')
         castilia = self.land.create_area(name='Castilia')
 
-        eu.parent_area = world
-        spain.parent_area = eu
-        de.parent_area = eu
-        hh.parent_area = de
-        castilia.parent_area = spain
-        catalunia.parent_area = eu
+        eu._parent_area = world
+        spain._parent_area = eu
+        de._parent_area = eu
+        hh._parent_area = de
+        castilia._parent_area = spain
+        catalunia._parent_area = eu
 
         eu.save()
         spain.save()
@@ -62,41 +62,44 @@ class AreaModels(LoginTestCase, APITestCase):
         areas = models.Area.objects.all()
         assert areas.count() == 7
 
-        self.assertSetEqual(set(eu.countries.all()), {spain, de})
-        self.assertSetEqual(set(eu.nuts1_areas.all()), {catalunia})
-        self.assertSetEqual(set(spain.nuts1_areas.all()), {castilia})
+        self.assertSetEqual(set(eu.area_set.filter(adminlevel__level=3)),
+                            {spain, de})
+        self.assertSetEqual(set(eu.area_set.filter(adminlevel__level=4)),
+                            {catalunia})
+        self.assertSetEqual(set(spain.area_set.filter(adminlevel__level=4)),
+                            {castilia})
 
-        self.assertEqual(models.Area.objects.get(name='ES').country, spain)
+        self.assertEqual(models.Area.objects.get(name='ES'), spain)
 
 
-class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
+class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(AdminLevels, cls).setUpClass()
+        super(AdminLevelsTest, cls).setUpClass()
         # create a casestudy
         casestudy = cls.uic.casestudy
 
         planet = models.AdminLevels.objects.create(name='Planet',
-                                                   level=models.World._level,
+                                                   level=1,
                                                    casestudy=casestudy)
         land = models.AdminLevels.objects.create(name='Bundesland',
-                                                 level=models.NUTS1._level,
+                                                 level=4,
                                                  casestudy=casestudy)
         kreis = models.AdminLevels.objects.create(name='Kreis',
-                                                  level=models.NUTS3._level,
+                                                  level=6,
                                                   casestudy=casestudy)
         amt = models.AdminLevels.objects.create(name='Amt',
-                                                level=models.District._level,
+                                                level=7,
                                                 casestudy=casestudy)
         gemeinde = models.AdminLevels.objects.create(
             name='Gemeinde',
-            level=models.Municipality._level,
+            level=8,
             casestudy=casestudy
         )
         ortsteil = models.AdminLevels.objects.create(
             name='Ortsteil',
-            level=models.CityNeighbourhood._level,
+            level=10,
             casestudy=casestudy)
 
         cls.casestudy = casestudy
@@ -104,47 +107,62 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         cls.gemeinde = gemeinde
         cls.ortsteil = ortsteil
 
-        world = planet.create_area(name='Earth')
+        world = models.Area.objects.create(name='Earth',
+                                           adminlevel=planet)
 
-        saturn = planet.create_area(code='SATURN')
+        saturn = models.Area.objects.create(name='Saturn',
+                                            adminlevel=planet)
 
-        hh = models.NUTS1.objects.create(name='Hamburg',
-                                         parent_area=world)
-        sh = models.NUTS1.objects.create(name='Schleswig-Holstein',
-                                         parent_area=world)
-        kreis_pi = models.NUTS3.objects.create(
+        hh = models.Area.objects.create(name='Hamburg',
+                                        _parent_area=world,
+                                        adminlevel=land)
+        sh = models.Area.objects.create(name='Schleswig-Holstein',
+                                         _parent_area=world,
+                                         adminlevel=land,
+                                         code='iamcode')
+        kreis_pi = models.Area.objects.create(
             name='Kreis PI',
-            parent_area=sh)
-        elmshorn = models.Municipality.objects.create(
+            _parent_area=sh,
+            adminlevel=kreis)
+        elmshorn = models.Area.objects.create(
             name='Elmshorn',
-            parent_area=kreis_pi)
-        pinneberg = models.Municipality.objects.create(
+            _parent_area=kreis_pi,
+            adminlevel=gemeinde)
+        pinneberg = models.Area.objects.create(
             name='Pinneberg',
-            parent_area=kreis_pi)
-        amt_pinnau = models.District.objects.create(
+            _parent_area=kreis_pi,
+            adminlevel=gemeinde)
+        amt_pinnau = models.Area.objects.create(
             name='Amt Pinnau',
-            parent_area=kreis_pi)
-        ellerbek = models.Municipality.objects.create(
+            _parent_area=kreis_pi,
+            adminlevel=amt)
+        ellerbek = models.Area.objects.create(
             name='Ellerbek',
-            parent_area=amt_pinnau)
-
-        schnelsen = models.CityNeighbourhood.objects.create(
+            _parent_area=amt_pinnau,
+            adminlevel=gemeinde)
+        schnelsen = models.Area.objects.create(
             name='Schnelsen',
-            parent_area=hh)
-        burgwedel = models.CityNeighbourhood.objects.create(
+            _parent_area=hh,
+            adminlevel=ortsteil)
+        burgwedel = models.Area.objects.create(
             name='Burgwedel',
-            parent_area=hh)
-        egenbuettel = models.CityNeighbourhood.objects.create(
+            _parent_area=hh,
+            adminlevel=ortsteil)
+        egenbuettel = models.Area.objects.create(
             name='Egenbüttel',
-            parent_area=ellerbek)
-        langenmoor = models.CityNeighbourhood.objects.create(
+            _parent_area=ellerbek,
+            adminlevel=ortsteil)
+        langenmoor = models.Area.objects.create(
             name='Langenmoor',
-            parent_area=elmshorn)
-        elmshorn_mitte = models.CityNeighbourhood.objects.create(
+            _parent_area=elmshorn,
+            adminlevel=ortsteil)
+        elmshorn_mitte = models.Area.objects.create(
             name='Elmshorn-Mitte',
-            parent_area=elmshorn)
+            _parent_area=elmshorn,
+            adminlevel=ortsteil)
 
         cls.kreis_pi = kreis_pi
+        cls.elmshorn = elmshorn
         cls.sh = sh
 
     @classmethod
@@ -155,16 +173,6 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         del cls.ortsteil
         del cls.kreis_pi
         super().tearDownClass()
-
-    def test_invalid_areas(self):
-        # try to instanciate the Area directly
-        planet = models.AdminLevels.objects.get(name='Planet')
-        with self.assertRaises(FieldError):
-            jupiter = models.Area.objects.create(name='juputer',
-                                                 adminlevel=planet)
-
-        with self.assertRaises(FieldError):
-            mars = models.World.objects.create(name='Mars')
 
     def test_get_levels(self):
         """Test the list of all levels of a casestudy"""
@@ -213,20 +221,20 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         response = self.get_check_200('area-list',
                                       casestudy_pk=casestudy.pk,
                                       level_pk=self.ortsteil.pk,
-                                      data={'parent_level': models.NUTS3._level,
-                                            'parent_id': self.kreis_pi.pk,})
+                                      data={  #'parent_level': 6,
+                                            '_parent_area': self.elmshorn.pk,})
 
         assert response.status_code == status.HTTP_200_OK
         data = response.data
 
         self.assertSetEqual({a['name'] for a in data},
-                            {'Egenbüttel', 'Langenmoor', 'Elmshorn-Mitte'})
+                            {'Langenmoor', 'Elmshorn-Mitte'})
 
         # test if we can use lookups like name__istartswith
         response = self.get_check_200('area-list',
                                       casestudy_pk=casestudy.pk,
                                       level_pk=self.ortsteil.pk,
-                                      data={'parent_level': models.NUTS3._level,
+                                      data={'parent_level': 6,
                                             'parent_id': self.kreis_pi.pk,
                                             'name__istartswith': 'e',})
 
@@ -294,9 +302,9 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         kreis2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                  properties={'name': 'Kreis2',
                                              'code': '01002',
-                                             'parent_area': self.sh.code,})
+                                             '_parent_area': self.sh.code,})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
-        kreise['parent_level'] = str(models.NUTS1._level)
+        kreise['parent_level'] = str(4)
         self.post('area-list',
                   casestudy_pk=self.casestudy.pk,
                   level_pk=self.kreis.pk,
@@ -309,9 +317,9 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
         assert k2.name == 'Kreis2'
         assert k1.name == 'Kreis1'
 
-        k2 = models.NUTS3.objects.get(code='01002')
+        k2 = models.Area.objects.get(code='01002')
         assert k2.name == 'Kreis2'
-        assert k2.parent_area == self.sh.area_ptr
+        assert k2._parent_area == self.sh
 
         response = self.get_check_200('area-list',
                                       casestudy_pk=self.casestudy.pk,
@@ -328,38 +336,40 @@ class AdminLevels(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                                  'code': '01001',})
         kreis2 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
                                      properties={'name': 'Kreis2',
-                                                     'code': '01002',})
+                                                 'code': '01002',})
         gem1 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                properties={'name': 'Gemeinde1',
                                            'code': '01002001',
-                                           'parent_area': '01002',})
+                                           '_parent_area': \
+                                           kreis2['properties']['code'],})
         gem2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                properties={'name': 'Gemeinde2',
                                            'code': '01001002',
-                                           'parent_area': '01001',})
+                                           '_parent_area': \
+                                           kreis1['properties']['code'],})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
         self.post('area-list',
-                      casestudy_pk=self.casestudy.pk,
-                      level_pk=self.kreis.pk,
-                      data=kreise,
-                      extra=dict(content_type='application/json'),
-                      )
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.kreis.pk,
+                  data=kreise,
+                  extra=dict(content_type='application/json'),
+                  )
         self.response_201()
 
         gemeinden = geojson.FeatureCollection([gem1, gem2])
-        gemeinden['parent_level'] = models.NUTS3._level
+        gemeinden['parent_level'] = 6
         self.post('area-list',
-                      casestudy_pk=self.casestudy.pk,
-                          level_pk=self.gemeinde.pk,
-                          data=gemeinden,
-                          extra=dict(content_type='application/json',),
-                          )
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.gemeinde.pk,
+                  data=gemeinden,
+                  extra=dict(content_type='application/json',),
+                  )
         self.response_201()
 
-        gem1 = models.Municipality.objects.get(code='01002001')
-        assert gem1.parent_area.code == '01002'
-        gem2 = models.Municipality.objects.get(code='01001002')
-        assert gem2.parent_area.code == '01001'
+        gem1 = models.Area.objects.get(code='01002001')
+        assert gem1._parent_area.code == '01002'
+        gem2 = models.Area.objects.get(code='01001002')
+        assert gem2._parent_area.code == '01001'
 
 
 
