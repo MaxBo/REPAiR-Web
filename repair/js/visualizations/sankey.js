@@ -1,5 +1,5 @@
-define(['d3', 'd3-tip', 'cyclesankey'], 
-function(d3, d3tip) {
+define(['d3', 'd3-tip', 'utils/utils', 'cyclesankey'],
+function(d3, d3tip, utils) {
 /**
 *
 * sankey diagram of nodes and links between those nodes, supports cycles
@@ -17,14 +17,14 @@ class Sankey{
     * @param {string=} options.title    title of the diagram (displayed on top)
     * @param {string=} options.width    width of the diagram, defaults to bounding box of el
     * @param {string} [options.language='en-US'] language code
-    * 
+    * @param {Boolean} options.gradient render links as gradients from source.color to target.color, else render in source.color only
+    *
     */
     constructor(options){
         this.el = options.el;
         this.margin = { top: 1, right: 10, bottom: 6, left: 10 };
         this.height = options.height - this.margin.top - this.margin.bottom;
         this.title = options.title;
-        this.color = d3.scale.category20();
 
         this.div = d3.select(this.el);
         this.bbox = this.div.node().getBoundingClientRect();
@@ -36,15 +36,16 @@ class Sankey{
             .nodePadding(10)
             .size([this.width, this.height]);
         this.selectable = options.selectable;
+        this.gradient = options.gradient;
     }
-    
+
     format(d) {
         return d.toLocaleString(this.language);
     }
 
     /**
     * object describing a node
-    * 
+    *
     * @typedef {Object} Sankey~Nodes
     * @property {string} id                    - unique id
     * @property {string} name                  - name to be displayed
@@ -55,7 +56,7 @@ class Sankey{
 
     /**
     * object describing a link between two nodes
-    * 
+    *
     * @typedef {Object} Sankey~Links
     * @property {number} source - index of source-node
     * @property {string} target - index of target-node
@@ -83,8 +84,8 @@ class Sankey{
             {
                 svg.call(zoom);
             // Record the coordinates (in data space) of the center (in screen space).
-            var center0 = zoom.center(), 
-                translate0 = zoom.translate(), 
+            var center0 = zoom.center(),
+                translate0 = zoom.translate(),
                 coordinates0 = coordinates(center0);
             zoom.scale(zoom.scale() * Math.pow(2, +valueZoom));
 
@@ -145,18 +146,18 @@ class Sankey{
             var inUnits, outUnits;
             for (var i = 0; i < d.targetLinks.length; i++) {
                 var link = d.targetLinks[i];
-                inSum += link.value; 
+                inSum += link.value;
                 if (!inUnits) inUnits = link.units; // in fact take first occuring unit, ToDo: can there be different units in the future?
             }
             for (var i = 0; i < d.sourceLinks.length; i++) {
                 var link = d.sourceLinks[i];
-                outSum += link.value; 
+                outSum += link.value;
                 if (!outUnits) outUnits = link.units;
             }
             var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
                 out = "out: " + _this.format(outSum) + " " + (outUnits || "");
             var text = (d.text) ? d.text + '<br>': '';
-            return "<h1>" + d.name + "</h1>" + text + "<br>" + ins + "<br>" + out; 
+            return "<h1>" + d.name + "</h1>" + text + "<br>" + ins + "<br>" + out;
         });
 
         function dragstarted(d) {
@@ -191,7 +192,7 @@ class Sankey{
             .call(tipNodes)
             .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-        
+
         // filter for text background
         var defs = svg.append("defs");
         var filter = defs.append("filter")
@@ -210,6 +211,23 @@ class Sankey{
             .links(data.links)
             .layout({ iterations: 32, adjustSize: true });
 
+        function strokeColor(d){
+            if (_this.gradient && !d.isStock) {
+                var gradientId = d.id + "-linear-gradient",
+                    linearGradient = svg.append("defs")
+                    .append("linearGradient")
+                    .attr("id", gradientId);
+                linearGradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", d.source.color);
+                linearGradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", d.target.color);
+                return "url(#" + gradientId + ")";
+            }
+            return d.source.color || '#000';
+        }
+
         var link = svg.append("g").attr("class", "link-container")
             .selectAll(".link")
             .data(data.links)
@@ -217,7 +235,7 @@ class Sankey{
             .attr("class", function(d) { return (d.causesCycle ? "cycleLink" : "link") })
             .attr("d", path)
             .sort(function(a, b) { return b.dy - a.dy; })
-            .style("stroke", function(d){ return d.source.color || '#000'; })
+            .style("stroke", strokeColor)
             .on('mousemove', function(event) {
                 tipLinks
                     .style("top", function() {
@@ -250,8 +268,8 @@ class Sankey{
             .data(data.nodes)
         .enter().append("g")
             .attr("class", "node")
-            .attr("transform", function(d) { 
-                return "translate(" + d.x + "," + d.y + ")"; 
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
             })
             .on('mousemove', function(event) {
                 tipNodes
@@ -265,24 +283,24 @@ class Sankey{
             .on('mouseout', function(d) { tipNodes.hide(d, this); })
         .call(d3.behavior.drag()
             .origin(function(d) { return d; })
-            .on("dragstart", function() { 
+            .on("dragstart", function() {
                 d3.event.sourceEvent.stopPropagation();  //Disable drag sankey on node select
                 this.parentNode.appendChild(this); })
             .on("drag", dragmove))
         .call(alignToSource);
-        
+
         var nodeWidth = this.sankey.nodeWidth();
         node.append("rect")
             .attr("height", function(d) { return d.dy; }) //Math.max(d.dy, 3); })
             .attr("width", nodeWidth)
             .style("fill", function(d) {
                 if (d.color == undefined)
-                    return d.color = _this.color(d.name.replace(/ .*/, "")); //get new color if node.color is null
+                    return d.color = utils.colorByName(d.name); //get new color if node.color is null
                 return d.color;
             })
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
         // scale the font depending on zoom
-        
+
         var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([100, 25, 18, 3.5, 3]);
         var rectRange = d3.scale.linear().domain([0, 0.5, 1, 5]).range([nodeWidth * 5, nodeWidth * 2, nodeWidth, nodeWidth]);
         function scaleFont(){ return fontRange(zoom.scale()) + "px"; }
@@ -307,7 +325,7 @@ class Sankey{
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + scale + ")");
         }
         function dragmove(d) {
-            d3.select(this).attr("transform", 
+            d3.select(this).attr("transform",
                 "translate(" + (
                     d.x = Math.max(0, d3.event.x)
                 ) + "," + (
@@ -331,7 +349,7 @@ class Sankey{
                     node.x = source.x + offsetX;
                     node.y = source.y + targetLink.sy + offsetY;
                     var gNode = gNodes[0][j];
-                    d3.select(gNode).attr("transform", 
+                    d3.select(gNode).attr("transform",
                         "translate(" + node.x + "," + node.y + ")");
                 }
             }

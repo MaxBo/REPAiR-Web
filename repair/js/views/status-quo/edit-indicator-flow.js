@@ -143,7 +143,25 @@ var IndicatorFlowEditView = BaseView.extend(
         var _this = this;
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects;
 
-        selectGroup.groupSelect.addEventListener('change', function(){
+        function multiCheck(evt, clickedIndex, checked){
+            console.log('möp')
+            var select = evt.target;
+            if(checked){
+                // 'All' clicked -> deselect other options
+                if (clickedIndex == 0){
+                   $(select).selectpicker('deselectAll');
+                    select.value = -1;
+                }
+                // other option clicked -> deselect 'All'
+                else {
+                    select.options[0].selected = false;
+                }
+                $(select).selectpicker('refresh');
+            }
+        }
+
+        $(selectGroup.groupSelect).on('changed.bs.select', function(evt, index, val){
+            multiCheck(evt, index, val);
             var level = selectGroup.levelSelect.value;
             if (level == 'group') return;
             var groupId = this.value;
@@ -155,11 +173,14 @@ var IndicatorFlowEditView = BaseView.extend(
                 _this.filterActors(tag);
         })
 
-        selectGroup.activitySelect.addEventListener('change', function(){
-            // render actors only if their level is selected
+        $(selectGroup.activitySelect).on('changed.bs.select', function(evt, index, val){
+            multiCheck(evt, index, val);
+            // nodelevel actor is selected -> filter actors
             if (selectGroup.levelSelect.value == 'actor')
                 _this.filterActors(tag);
         })
+
+        $(selectGroup.actorSelect).on('changed.bs.select', multiCheck);
     },
 
     // reset the options of the selects
@@ -452,7 +473,7 @@ var IndicatorFlowEditView = BaseView.extend(
     },
 
     close: function(){
-        this.flowsView.close();
+        if (this.flowsView != null) this.flowsView.close();
         IndicatorFlowEditView.__super__.close.call(this);
     }
 

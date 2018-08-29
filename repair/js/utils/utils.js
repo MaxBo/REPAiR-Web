@@ -2,8 +2,13 @@
 * utility functions for frontend scripts
 * @author Christoph Franke
 */
-
+var color = d3.scale.category20();
 module.exports = {
+
+    colorByName: function(name){
+        return color(name.replace(/ .*/, ""));
+    },
+
     clearSelect: function(select, stop){
         var stop = stop || 0;
         for(var i = select.options.length - 1 ; i >= stop ; i--) { select.remove(i); }
