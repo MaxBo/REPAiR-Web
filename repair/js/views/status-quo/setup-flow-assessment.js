@@ -26,7 +26,7 @@ var FlowAssessmentSetupView = BaseView.extend(
     initialize: function(options){
         FlowAssessmentSetupView.__super__.initialize.apply(this, [options]);
         var _this = this;
-         _.bindAll(this, 'renderIndicator');
+        _.bindAll(this, 'renderIndicator');
 
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
