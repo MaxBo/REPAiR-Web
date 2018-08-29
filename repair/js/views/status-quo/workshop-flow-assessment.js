@@ -337,7 +337,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 type: 'column'
             },
             xAxis: {
-                min: 0
+                minorTickLength: 0,
+                tickLength: 0
             },
             yAxis: {
                 min: 0
@@ -347,6 +348,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 enabled: false
             },
             series: [{
+                colorByPoint: true,
                 data: []
             }]
         });
@@ -355,8 +357,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     // add data to bar chart
     addBarChartData: function(orderedSelects){
         var _this = this,
-            promises = [],
-            results = [];
+            promises = [];
         if(this.indicatorId == -1) return;
         
         var barChartTab = this.el.querySelector('#bar-charts-tab'),
@@ -398,6 +399,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         $.when.apply($, promises).then(function() {
             _this.updateBarChart();
+            _this.updateAreaColors();
             chartLoader.deactivate();
         }).catch(function(err) {
             chartLoader.deactivate();
@@ -417,6 +419,17 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.chart.xAxis[0].setCategories(categories);
         this.chart.series[0].update({
             data: data
+        });
+    },
+
+    updateAreaColors: function(){
+        var _this = this;
+        // update grid colors
+        var i = 0;
+        $.each(this.chartData[this.indicatorId], function(id) {
+            var div = _this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]').children[0];
+            div.style.backgroundColor = _this.chart.series[0].points[i].color;
+            i++;
         });
     },
     
