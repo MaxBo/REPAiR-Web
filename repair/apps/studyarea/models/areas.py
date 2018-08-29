@@ -5,7 +5,6 @@ from django.contrib.gis.db import models as geomodels
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
-
 class AdminLevels(GDSEUniqueNameModel):
     """Administrative levels to be defined for a casestudy"""
     name = models.TextField()
@@ -20,8 +19,7 @@ class AdminLevels(GDSEUniqueNameModel):
 
     def create_area(self, **kwargs):
         """Create an area of the according level"""
-        area_model = Areas.by_level[self.level]
-        area = area_model.objects.create(adminlevel=self, **kwargs)
+        area = Area.objects.create(adminlevel=self, **kwargs)
         return area
 
 
@@ -32,30 +30,32 @@ class Area(GDSEModel):
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
+    _parent_area = models.ForeignKey("self", null=True, blank=True,
+                                     on_delete=models.CASCADE)
 
-    def save(self, *args, **kwargs):
-        if not hasattr(self, '_level') and not self.pk:
-            raise FieldError('model {} cannot be created directly. '
-                             'Please create a submodel with a level attribute!')
-        # use name as code, if code not provided
-        if not self.code:
-            self.code = self.name
-        try:
-            adminlevel = self.adminlevel
-        except AdminLevels.DoesNotExist:
-                level = self._level
-                # casestudy from the parent_area
-                try:
+    #def save(self, *args, **kwargs):
+        #if not hasattr(self, '_level') and not self.pk:
+            #raise FieldError('model {} cannot be created directly. '
+                             #'Please create a submodel with a level attribute!')
+        ## use name as code, if code not provided
+        #if not self.code:
+            #self.code = self.name
+        #try:
+            #adminlevel = self.adminlevel
+        #except AdminLevels.DoesNotExist:
+                #level = self._level
+                ## casestudy from the parent_area
+                #try:
 
-                    casestudy = self.parent_area.adminlevel.casestudy
-                except AttributeError:
-                    raise FieldError('you have to provide the adminlevel'
-                                     ' or the parent_area')
-                self.adminlevel = AdminLevels.objects.get(level=level,
-                                                          casestudy=casestudy,
-                                                          )
+                    #casestudy = self.parent_area.adminlevel.casestudy
+                #except AttributeError:
+                    #raise FieldError('you have to provide the adminlevel'
+                                     #' or the parent_area')
+                #self.adminlevel = AdminLevels.objects.get(level=level,
+                                                          #casestudy=casestudy,
+                                                          #)
 
-        super().save(*args, **kwargs)
+        #super().save(*args, **kwargs)
 
 
 class World(Area):
@@ -161,11 +161,7 @@ class House(Area):
 
 class _AreaTypesMeta(type):
     def __init__(cls, name, bases, nmspc):
-        """
-        Metaclass that looks for all subclasses of Area
-        (except class Area itself, which has no _level attribute)
-        and add it to the by_level dictionary
-        """
+        """"""
         super().__init__(name, bases, nmspc)
         for k, v in globals().items():
             if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
@@ -173,10 +169,5 @@ class _AreaTypesMeta(type):
 
 
 class Areas(metaclass=_AreaTypesMeta):
-    """
-    Attributes
-    ----------
-    by_level : dict
-        a dictionary with the level as key and the subclass of Area as value
-    """
+    """"""
     by_level = {}
