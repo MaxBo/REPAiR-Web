@@ -7,7 +7,6 @@ from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
 
 from repair.apps.studyarea.models import (AdminLevels,
                                           Area,
-                                          Areas
                                           )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -45,13 +44,11 @@ class AdminLevelField(InCasestudyField):
 class ParentAreaField(serializers.IntegerField):
     def to_representation(self, value):
         concrete_area = self.get_concrete_area()
-        return str(concrete_area.parent_area_id)
+        return str(concrete_area._parent_area_id)
 
     def get_concrete_area(self):
         obj = self.root.instance
-        level = obj.adminlevel.level
-        area_class = Areas.by_level[level]
-        concrete_area = area_class.objects.get(pk=obj.pk)
+        concrete_area = Area.objects.get(pk=obj.pk)
         return concrete_area
 
     def get_attribute(self, instance):
@@ -62,7 +59,7 @@ class ParentAreaField(serializers.IntegerField):
 class ParentAreaLevel(ParentAreaField):
     def to_representation(self, value):
         concrete_area = self.get_concrete_area()
-        return str(concrete_area.parent_area.adminlevel_id)
+        return str(concrete_area._parent_area.adminlevel_id)
 
     def get_attribute(self, instance):
         """get the level attribute"""
@@ -86,7 +83,7 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id',
                   'casestudy',
                   'name', 'code',
-                  'point_on_surface'
+                  'point_on_surface',
                   )
 
 
@@ -100,16 +97,16 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
     adminlevel = AdminLevelField(view_name='adminlevels-detail')
 
     geometry = GeometryField(source='geom')
-    parent_area = ParentAreaField(read_only=True, allow_null=True)
-    parent_level = ParentAreaLevel(read_only=True,
-                                   allow_null=True,
-                                   source='parent_area')
+    _parent_area = ParentAreaField()
+    parent_level = serializers.IntegerField(read_only=True,
+                                           allow_null=True,
+                                           source='_parent_area_adminlevel_level')
 
     class Meta(AreaSerializer.Meta):
         geo_field = 'geometry'
         fields = ('url', 'id', 'casestudy', 'name', 'code',
                   'adminlevel',
-                  'parent_area',
+                  '_parent_area',
                   'parent_level',
                   'point_on_surface'
                   )
@@ -120,7 +117,7 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
         return super().update(instance, validated_data)
 
     def create(self, validated_data):
-        """Create a new user and its profile"""
+        """Create a new areas"""
         adminlevel = self.get_level(validated_data=validated_data)
 
         if 'features' not in validated_data:
@@ -133,25 +130,17 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
         if parent_level_pk is not None:
             parent_adminlevel = AdminLevels.objects.get(level=parent_level_pk)
 
-            parent_area_class = Areas.by_level.get(parent_adminlevel.level)
-        else:
-            parent_area_class = None
-
         for feature in validated_data['features']:
-            parent_area_code = feature.pop('parent_area', None)
+            parent_area_code = feature.pop('_parent_area', None)
             self.convert2multi(feature, 'geom')
-            model = Areas.by_level[adminlevel.level]
-            obj = model.objects.create(
+            obj = Area.objects.create(
                 adminlevel=adminlevel,
                 **feature)
-            if parent_area_class is not None:
-                try:
-                    parent_area = parent_area_class.objects.get(
-                        adminlevel=parent_adminlevel,
-                        code=parent_area_code)
-                    obj.parent_area = parent_area
-                except ObjectDoesNotExist:
-                    pass
+            if parent_area_code:
+                _parent_area = Area.objects.get(
+                    adminlevel=parent_adminlevel,
+                    code=parent_area_code)
+                obj._parent_area = _parent_area
             obj.save()
 
         return obj
@@ -166,18 +155,21 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
 
 
 class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
-    parent_level = serializers.IntegerField(write_only=True, required=False)
-    parent_area = serializers.CharField(write_only=True, required=False)
+    parent_level = serializers.IntegerField(write_only=True, required=False,
+                                            allow_null=True)
+    _parent_area = serializers.CharField(write_only=True, required=False,
+                                         allow_null=True, allow_blank=True)
 
     class Meta(AreaGeoJsonSerializer.Meta):
         fields = ('url', 'id', 'name', 'code',
-                  'parent_level', 'parent_area')
+                  'parent_level', '_parent_area')
 
     def to_internal_value(self, data):
         """
         Override the parent method to parse all features and
         remove the GeoJSON formatting
         """
+        data = data.copy()
         parent_level = data.pop('parent_level', None)
 
         if data.get('type') == 'FeatureCollection':
