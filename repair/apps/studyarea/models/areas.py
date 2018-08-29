@@ -58,116 +58,116 @@ class Area(GDSEModel):
         #super().save(*args, **kwargs)
 
 
-#class World(Area):
-    #"""TopLevel"""
-    #_level = 1
+class World(Area):
+    """TopLevel"""
+    _level = 1
 
 
-#class Continent(Area):
-    #"""TopLevel"""
-    #_level = 2
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='continents'
-                                    #, on_delete=models.CASCADE)
+class Continent(Area):
+    """TopLevel"""
+    _level = 2
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='continents'
+                                    , on_delete=models.CASCADE)
 
 
-#class Country(Area):
-    #"""TopLevel"""
-    #_level = 3
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='countries'
-                                    #, on_delete=models.CASCADE)
+class Country(Area):
+    """TopLevel"""
+    _level = 3
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='countries'
+                                    , on_delete=models.CASCADE)
 
 
-#class NUTS1(Area):
-    #"""TopLevel"""
-    #_level = 4
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='nuts1_areas'
-                                    #, on_delete=models.CASCADE)
+class NUTS1(Area):
+    """TopLevel"""
+    _level = 4
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='nuts1_areas'
+                                    , on_delete=models.CASCADE)
 
 
-#class NUTS2(Area):
-    #"""TopLevel"""
-    #_level = 5
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='nuts2_areas'
-                                    #, on_delete=models.CASCADE)
+class NUTS2(Area):
+    """TopLevel"""
+    _level = 5
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='nuts2_areas'
+                                    , on_delete=models.CASCADE)
 
 
-#class NUTS3(Area):
-    #"""TopLevel"""
-    #_level = 6
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='nuts3_areas'
-                                    #, on_delete=models.CASCADE)
+class NUTS3(Area):
+    """TopLevel"""
+    _level = 6
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='nuts3_areas'
+                                    , on_delete=models.CASCADE)
 
 
-#class District(Area):
-    #"""TopLevel"""
-    #_level = 7
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='district_areas'
-                                    #, on_delete=models.CASCADE)
+class District(Area):
+    """TopLevel"""
+    _level = 7
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='district_areas'
+                                    , on_delete=models.CASCADE)
 
 
-#class Municipality(Area):
-    #"""TopLevel"""
-    #_level = 8
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='municipality_areas'
-                                    #, on_delete=models.CASCADE)
+class Municipality(Area):
+    """TopLevel"""
+    _level = 8
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='municipality_areas'
+                                    , on_delete=models.CASCADE)
 
 
-#class CityDistrict(Area):
-    #"""TopLevel"""
-    #_level = 9
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='citydistricts'
-                                    #, on_delete=models.CASCADE)
+class CityDistrict(Area):
+    """TopLevel"""
+    _level = 9
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='citydistricts'
+                                    , on_delete=models.CASCADE)
 
 
-#class CityNeighbourhood(Area):
-    #"""TopLevel"""
-    #_level = 10
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='neighbourhoods'
-                                    #, on_delete=models.CASCADE)
+class CityNeighbourhood(Area):
+    """TopLevel"""
+    _level = 10
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='neighbourhoods'
+                                    , on_delete=models.CASCADE)
 
 
-#class CityBlock(Area):
-    #"""TopLevel"""
-    #_level = 11
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='blocks'
-                                    #, on_delete=models.CASCADE)
+class CityBlock(Area):
+    """TopLevel"""
+    _level = 11
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='blocks'
+                                    , on_delete=models.CASCADE)
 
 
-#class StreetSection(Area):
-    #"""TopLevel"""
-    #_level = 12
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='streetsections'
-                                    #, on_delete=models.CASCADE)
+class StreetSection(Area):
+    """TopLevel"""
+    _level = 12
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='streetsections'
+                                    , on_delete=models.CASCADE)
 
 
-#class House(Area):
-    #"""TopLevel"""
-    #_level = 13
-    #parent_area = models.ForeignKey("Area", null=True, blank=True,
-                                    #related_name='houses'
-                                    #, on_delete=models.CASCADE)
+class House(Area):
+    """TopLevel"""
+    _level = 13
+    parent_area = models.ForeignKey("Area", null=True, blank=True,
+                                    related_name='houses'
+                                    , on_delete=models.CASCADE)
 
 
-#class _AreaTypesMeta(type):
-    #def __init__(cls, name, bases, nmspc):
-        #""""""
-        #super().__init__(name, bases, nmspc)
-        #for k, v in globals().items():
-            #if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
-                #cls.by_level[v._level] = v
+class _AreaTypesMeta(type):
+    def __init__(cls, name, bases, nmspc):
+        """"""
+        super().__init__(name, bases, nmspc)
+        for k, v in globals().items():
+            if isinstance(v, type) and issubclass(v, Area) and hasattr(v, '_level'):
+                cls.by_level[v._level] = v
 
 
-#class Areas(metaclass=_AreaTypesMeta):
-    #""""""
-    #by_level = {}
+class Areas(metaclass=_AreaTypesMeta):
+    """"""
+    by_level = {}
