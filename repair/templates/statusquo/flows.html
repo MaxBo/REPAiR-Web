@@ -161,7 +161,7 @@
 <div class="row bordered">
   <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
   <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
-    <option disabled selected> {% trans "Select" %} </option>
+    <option disabled selected value="-1"> {% trans "Select" %} </option>
     <% indicators.each(function(indicator) { %>
       <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
     <% });  %>
@@ -226,7 +226,7 @@
 <div class="row bordered">
   <h4 style="margin-right: 10px; float: left;">{% trans "Indicator" %}</h4>
   <select name="indicator" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
-    <option disabled selected> {% trans "Select" %} </option>
+    <option disabled selected value="-1"> {% trans "Select" %} </option>
     <% indicators.each(function(indicator) { %>
       <option value="<%= indicator.id %>"> <%= indicator.get('name') %></option>
     <% });  %>

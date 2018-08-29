@@ -72,7 +72,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         'click button.remove-item': 'removeAreaSelectItem',
         'click button.select-area': 'showAreaModal',
         'click .area-select.modal .confirm': 'confirmAreaSelection',
-        'change select[name="level-select"]': 'changeAreaLevel'
+        'change select[name="area-level-select"]': 'changeAreaLevel'
     },
 
     /*
@@ -86,13 +86,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                                       levels: this.areaLevels});
 
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
+        this.indicatorId = this.indicatorSelect.value;
         this.levelSelect = this.el.querySelector('select[name="spatial-level-select"]');
         this.levelSelect.disabled = true;
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
-        this.addAreaSelectBtn.disabled = true;
-        this.barChart = {};
+        this.barChart = this.el.querySelector('#bar-chart');
+        this.chart = {};
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
@@ -116,6 +117,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.renderAreaModal();
         this.addFocusAreaItem();
         this.renderBarChart();
+        this.computeMapIndicator();
+        this.restoreSession();
     },
 
     // fetch and show selected indicator
@@ -123,8 +126,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var selected = this.indicatorSelect.value,
             indicator = this.indicators.get(selected);
         this.indicatorId = indicator.id;
+        if(this.chartData[this.indicatorId] == undefined){
+            this.chartData[this.indicatorId] = {};
+        }
         this.levelSelect.disabled = false;
-        this.addAreaSelectBtn.disabled = false;
         if (indicator){
             // fetch the indicator to reload it
             indicator.fetch({
@@ -151,19 +156,21 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         var indicator = this.indicators.get(this.indicatorId);;
         
+        var mapTab = this.el.querySelector('#indicator-map-tab'),
+            mapLoader = new utils.Loader(mapTab, {disable: true});
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
             
             indicator.compute({
                 data: { areas: areaIds.join(',') },
                 success: function(data){ 
-                    _this.loader.deactivate();
+                    mapLoader.deactivate();
                     _this.renderIndicatorOnMap(data, areas, indicator) 
                 },
                 error: _this.onError
             })
         }
-        this.loader.activate();
+        mapLoader.activate();
         this.getAreas(levelId, fetchCompute);
     },
     
@@ -190,6 +197,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 });
                 Promise.all(promises).then(function(){
                     onSuccess(areas);
+                }).catch((err) => {
+                    _this.onError
                 });
             },
             error: this.onError
@@ -268,22 +277,23 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
         config.session.save({areaSelects: orderedSelects});
         // fetch and redraw Bar Chart information
-        _this.addBarChartData(orderedSelects);
+        this.addBarChartData(orderedSelects);
     },
     
     restoreSession: function(){
         var orderedSelects = config.session.get('areaSelects'),
             _this = this;
-        _this.areaSelects = {};
+        this.areaSelects = {};
         if (!orderedSelects || orderedSelects.length == 0) return;
         orderedSelects.forEach(function(areaSelect){
-            var id = areaSelect.id;
+        var id = areaSelect.id;
             areaSelect = Object.assign({}, areaSelect);
             delete areaSelect.id;
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
-            _this.renderAreaBox(_this.areaSelectRow, id, id);
-            
+            if(_this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]') == null){
+                _this.renderAreaBox(_this.areaSelectRow, id, id);
+            }
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
             if (areas.length > 0){
@@ -294,7 +304,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 button.classList.remove('btn-primary');
             }
         });
-        _this.addBarChartData(orderedSelects);
+        this.addBarChartData(orderedSelects);
     },
     
     // render item for area selection
@@ -317,12 +327,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
     // render item for bar chart
     renderBarChart: function(){
-        var el = this.el.querySelector('#bar-chart');
+        var el = this.barChart;
         var div = document.createElement('div');
         el.appendChild(div);
         
         //create bar chart
-        this.barChart = highcharts.chart(div, {
+        this.chart = highcharts.chart(div, {
             chart: {
                 type: 'column'
             },
@@ -344,13 +354,19 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     
     // add data to bar chart
     addBarChartData: function(orderedSelects){
-        var _this = this;
-        var promises = [];
-        var results = [];
+        var _this = this,
+            promises = [],
+            results = [];
+        if(this.indicatorId == -1) return;
+        
+        var barChartTab = this.el.querySelector('#bar-charts-tab'),
+            chartLoader = new utils.Loader(barChartTab, {disable: true});
         if (orderedSelects !== undefined && orderedSelects.length > 0) {
+            chartLoader.activate();
             orderedSelects.forEach(function(areaSelect){
-                var id = areaSelect.id;
-                if(!_this.chartData[id]){
+                var id = areaSelect.id,
+                    indicatorId = _this.indicatorId;
+                if(_this.chartData[indicatorId] == undefined || _this.chartData[indicatorId][id] == undefined){
                     var areas = areaSelect.areas;
                     if (areas.length > 0){
                         // build url and get the data for the bar chart
@@ -360,18 +376,18 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                         });
                         // remove trailing comma
                         urlind = urlind.slice(0,-1);
-                        var url = urlind.format(_this.caseStudy.id, _this.keyflowId, _this.indicatorId);
+                        var url = urlind.format(_this.caseStudy.id, _this.keyflowId, indicatorId);
                         var call = $.ajax({
                             url: url,
                             type: 'GET',
                             async: true,
                             dataType: "json",
-                            success: function (index, data) {
+                            success: function (data) {
                                 var sum = 0;
-                                $.each(data.results, function(value) {
+                                $.each(data, function(index, value) {
                                     sum += value.value;
                                 });
-                                _this.chartData[id] = sum;
+                                _this.chartData[indicatorId][id] = sum;
                             }
                         });
                         promises.push(call);
@@ -382,20 +398,25 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         
         $.when.apply($, promises).then(function() {
             _this.updateBarChart();
+            chartLoader.deactivate();
+        }).catch(function(err) {
+            chartLoader.deactivate();
+            _this.onError;
         });
     },
     
     updateBarChart: function(){
-        var data = [];
-        if (this.chartData !== undefined && this.chartData.length > 0) {
-            $.each(this.chartData, function(id, value) {
-                data.push([id,value]);
+        var categories = [],
+            data = [];
+        if (this.chartData[this.indicatorId] !== undefined) {
+            $.each(this.chartData[this.indicatorId], function(id, value) {
+                categories.push(id);
+                data.push(value);
             });
         }
-        this.barChart.series[0].update({
-            series: {
-                data: data
-            }
+        this.chart.xAxis[0].setCategories(categories);
+        this.chart.series[0].update({
+            data: data
         });
     },
     
@@ -432,7 +453,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.remove(div, { removeElements: true });
         
         //remove bar chart data with it
-        delete this.chartData[id];
+        delete this.chartData[this.indicatorId][id];
         this.saveSession();
     },
     
