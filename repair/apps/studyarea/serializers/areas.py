@@ -1,5 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from django.utils.translation import ugettext as _
+from django.contrib.gis.geos import Polygon, MultiPolygon
 
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
@@ -41,35 +43,6 @@ class AdminLevelField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
 
 
-class ParentAreaField(serializers.IntegerField):
-    def to_representation(self, value):
-        concrete_area = self.get_concrete_area()
-        return str(concrete_area._parent_area_id)
-
-    def get_concrete_area(self):
-        obj = self.root.instance
-        concrete_area = Area.objects.get(pk=obj.pk)
-        return concrete_area
-
-    def get_attribute(self, instance):
-        """get the attribute"""
-        return super().get_attribute(self.get_concrete_area())
-
-
-class ParentAreaLevel(ParentAreaField):
-    def to_representation(self, value):
-        concrete_area = self.get_concrete_area()
-        return str(concrete_area._parent_area.adminlevel_id)
-
-    def get_attribute(self, instance):
-        """get the level attribute"""
-        concrete_area = super().get_attribute(self.get_concrete_area())
-        if concrete_area is None:
-            return None
-        else:
-            return concrete_area.adminlevel
-
-
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
@@ -83,7 +56,7 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id',
                   'casestudy',
                   'name', 'code',
-                  'point_on_surface',
+                  'point_on_surface'
                   )
 
 
@@ -95,19 +68,27 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
     and returning a geojson
     """
     adminlevel = AdminLevelField(view_name='adminlevels-detail')
-
-    geometry = GeometryField(source='geom')
-    _parent_area = ParentAreaField()
+    parent_area = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        source='parent_area.id')
+    parent_area_code = serializers.StringRelatedField(
+        required=False,
+        allow_null=True,
+        source='parent_area.code')
     parent_level = serializers.IntegerField(read_only=True,
-                                           allow_null=True,
-                                           source='_parent_area_adminlevel_level')
+                                            required=False,
+                                            allow_null=True,
+                                            source='parent_area.adminlevel.id')
+    geometry = GeometryField(source='geom')
 
     class Meta(AreaSerializer.Meta):
         geo_field = 'geometry'
         fields = ('url', 'id', 'casestudy', 'name', 'code',
                   'adminlevel',
-                  '_parent_area',
+                  'parent_area',
                   'parent_level',
+                  'parent_area_code',
                   'point_on_surface'
                   )
 
@@ -121,28 +102,49 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
         adminlevel = self.get_level(validated_data=validated_data)
 
         if 'features' not in validated_data:
+            parent_area_id = validated_data.pop('parent_area', None)
+            # ignore code here
+            parent_code = validated_data.pop('parent_area_code', None)
+            if (parent_area_id):
+                validated_data['parent_area'] = \
+                    Area.objects.get(**parent_area_id)
+            if isinstance(validated_data['geom'], Polygon):
+                validated_data['geom'] = MultiPolygon(validated_data['geom'])
             obj = self.Meta.model.objects.create(
                 adminlevel=adminlevel,
                 **validated_data)
             return obj
 
-        parent_level_pk = validated_data.pop('parent_level')
+        parent_level_pk = validated_data.pop('parent_level', None)
         if parent_level_pk is not None:
             parent_adminlevel = AdminLevels.objects.get(level=parent_level_pk)
 
         for feature in validated_data['features']:
-            parent_area_code = feature.pop('_parent_area', None)
+            parent_area_id = feature.pop('parent_area', None)
+            parent_area_code = feature.pop('parent_area_code', None)
+            if (parent_area_id is not None) and (parent_area_code is not None):
+                raise serializers.ValidationError(_(
+                    "you may only pass parent_area_id OR "
+                    "parent_area_code (not both)"))
             self.convert2multi(feature, 'geom')
             obj = Area.objects.create(
                 adminlevel=adminlevel,
                 **feature)
+            parent_area = None
+            if parent_area_id:
+                parent_area = Area.objects.get(**parent_area_id)
+                obj.parent_area = parent_area
             if parent_area_code:
-                _parent_area = Area.objects.get(
+                if not parent_level_pk:
+                    raise serializers.ValidationError(_(
+                        "parent_level is required when relating to "
+                        "parents by code"))
+                parent_area = Area.objects.get(
                     adminlevel=parent_adminlevel,
                     code=parent_area_code)
-                obj._parent_area = _parent_area
+            if parent_area:
+                obj.parent_area = parent_area
             obj.save()
-
         return obj
 
     def get_level(self, validated_data=None):
@@ -155,14 +157,11 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
 
 
 class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
-    parent_level = serializers.IntegerField(write_only=True, required=False,
-                                            allow_null=True)
-    _parent_area = serializers.CharField(write_only=True, required=False,
-                                         allow_null=True, allow_blank=True)
 
     class Meta(AreaGeoJsonSerializer.Meta):
         fields = ('url', 'id', 'name', 'code',
-                  'parent_level', '_parent_area')
+                  'parent_level', 'parent_area',
+                  'parent_area_code')
 
     def to_internal_value(self, data):
         """
@@ -178,6 +177,8 @@ class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
                 if 'properties' in feature:
                     feature = self.unformat_geojson(feature)
                 internal_data = super().to_internal_value(feature)
+                internal_data['parent_area_code'] = \
+                    feature.get('parent_area_code')
                 internal_data_list.append(internal_data)
 
             return {'features': internal_data_list,
