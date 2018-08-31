@@ -364,8 +364,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var indicator = this.indicators.get(this.indicatorId),
             geom = this.caseStudy.get('properties').focusarea,
             indicatorId = _this.indicatorId;
-        console.log(geom)
-
         promises.push(
             indicator.compute({
                 method: "POST",
@@ -417,7 +415,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         $.when.apply($, promises).then(function() {
             _this.updateBarChart();
-            _this.updateAreaColors();
+            //_this.updateAreaColors();
             chartLoader.deactivate();
         }).catch(function(err) {
             chartLoader.deactivate();
