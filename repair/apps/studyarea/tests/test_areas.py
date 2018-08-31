@@ -45,12 +45,12 @@ class AreaModelsTest(LoginTestCase, APITestCase):
         catalunia = self.land.create_area(name='Catalunia')
         castilia = self.land.create_area(name='Castilia')
 
-        eu._parent_area = world
-        spain._parent_area = eu
-        de._parent_area = eu
-        hh._parent_area = de
-        castilia._parent_area = spain
-        catalunia._parent_area = eu
+        eu.parent_area = world
+        spain.parent_area = eu
+        de.parent_area = eu
+        hh.parent_area = de
+        castilia.parent_area = spain
+        catalunia.parent_area = eu
 
         eu.save()
         spain.save()
@@ -114,51 +114,51 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                             adminlevel=planet)
 
         hh = models.Area.objects.create(name='Hamburg',
-                                        _parent_area=world,
+                                        parent_area=world,
                                         adminlevel=land)
         sh = models.Area.objects.create(name='Schleswig-Holstein',
-                                         _parent_area=world,
+                                         parent_area=world,
                                          adminlevel=land,
                                          code='iamcode')
         kreis_pi = models.Area.objects.create(
             name='Kreis PI',
-            _parent_area=sh,
+            parent_area=sh,
             adminlevel=kreis)
         elmshorn = models.Area.objects.create(
             name='Elmshorn',
-            _parent_area=kreis_pi,
+            parent_area=kreis_pi,
             adminlevel=gemeinde)
         pinneberg = models.Area.objects.create(
             name='Pinneberg',
-            _parent_area=kreis_pi,
+            parent_area=kreis_pi,
             adminlevel=gemeinde)
         amt_pinnau = models.Area.objects.create(
             name='Amt Pinnau',
-            _parent_area=kreis_pi,
+            parent_area=kreis_pi,
             adminlevel=amt)
         ellerbek = models.Area.objects.create(
             name='Ellerbek',
-            _parent_area=amt_pinnau,
+            parent_area=amt_pinnau,
             adminlevel=gemeinde)
         schnelsen = models.Area.objects.create(
             name='Schnelsen',
-            _parent_area=hh,
+            parent_area=hh,
             adminlevel=ortsteil)
         burgwedel = models.Area.objects.create(
             name='Burgwedel',
-            _parent_area=hh,
+            parent_area=hh,
             adminlevel=ortsteil)
         egenbuettel = models.Area.objects.create(
             name='Egenbüttel',
-            _parent_area=ellerbek,
+            parent_area=ellerbek,
             adminlevel=ortsteil)
         langenmoor = models.Area.objects.create(
             name='Langenmoor',
-            _parent_area=elmshorn,
+            parent_area=elmshorn,
             adminlevel=ortsteil)
         elmshorn_mitte = models.Area.objects.create(
             name='Elmshorn-Mitte',
-            _parent_area=elmshorn,
+            parent_area=elmshorn,
             adminlevel=ortsteil)
 
         cls.kreis_pi = kreis_pi
@@ -222,7 +222,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                       casestudy_pk=casestudy.pk,
                                       level_pk=self.ortsteil.pk,
                                       data={  #'parent_level': 6,
-                                            '_parent_area': self.elmshorn.pk,})
+                                            'parent_area': self.elmshorn.id,})
 
         assert response.status_code == status.HTTP_200_OK
         data = response.data
@@ -298,11 +298,11 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         polygon2 = geos.Polygon(((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
         kreis1 = geojson.Feature(geometry=geojson.loads(polygon1.geojson),
                                  properties={'name': 'Kreis1',
-                                             'code': '01001',})
+                                             'code': '01001'})
         kreis2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                  properties={'name': 'Kreis2',
                                              'code': '01002',
-                                             '_parent_area': self.sh.code,})
+                                             'parent_area_code': self.sh.code,})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
         kreise['parent_level'] = str(4)
         self.post('area-list',
@@ -319,12 +319,56 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
 
         k2 = models.Area.objects.get(code='01002')
         assert k2.name == 'Kreis2'
-        assert k2._parent_area == self.sh
+        assert k2.parent_area == self.sh
 
         response = self.get_check_200('area-list',
                                       casestudy_pk=self.casestudy.pk,
                                       level_pk=self.kreis.pk)
         assert len(response.data) == num_kreise + 2
+
+        # posting with relating to parents by area code
+        # should fail, when parent_level is missing
+        del kreise['parent_level']
+        self.post('area-list',
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.kreis.pk,
+                  data=kreise,
+                  extra=dict(content_type='application/json'),
+                  )
+        self.response_400()
+
+        # relate to parent by id
+        kreis3 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
+                                 properties={'name': 'Kreis3',
+                                             'code': '01003',
+                                             'parent_area': self.sh.id})
+        self.post('area-list',
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.kreis.pk,
+                  data=kreis3,
+                  extra=dict(content_type='application/json'),
+                  )
+        self.response_201()
+
+        k3 = models.Area.objects.get(code='01003')
+        assert k3.parent_area == self.sh
+
+        # posting with both parent_area_code and parent_area_id should fail
+        # (only one allowed at a time)
+        kreis4 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
+                                 properties={'name': 'Kreis4',
+                                             'code': '01004',
+                                             'parent_area_code': self.sh.code,
+                                             'parent_area': 1})
+        kreise = geojson.FeatureCollection([kreis4])
+        kreise['parent_level'] = str(4)
+        self.post('area-list',
+                  casestudy_pk=self.casestudy.pk,
+                  level_pk=self.kreis.pk,
+                  data=kreise,
+                  extra=dict(content_type='application/json'),
+                  )
+        self.response_400()
 
 
     def test_add_geometry_with_parent_area(self):
@@ -340,12 +384,12 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         gem1 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                properties={'name': 'Gemeinde1',
                                            'code': '01002001',
-                                           '_parent_area': \
+                                           'parent_area_code': \
                                            kreis2['properties']['code'],})
         gem2 = geojson.Feature(geometry=geojson.loads(polygon2.geojson),
                                properties={'name': 'Gemeinde2',
                                            'code': '01001002',
-                                           '_parent_area': \
+                                           'parent_area_code': \
                                            kreis1['properties']['code'],})
         kreise = geojson.FeatureCollection([kreis1, kreis2])
         self.post('area-list',
@@ -367,9 +411,9 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         self.response_201()
 
         gem1 = models.Area.objects.get(code='01002001')
-        assert gem1._parent_area.code == '01002'
+        assert gem1.parent_area.code == '01002'
         gem2 = models.Area.objects.get(code='01001002')
-        assert gem2._parent_area.code == '01001'
+        assert gem2.parent_area.code == '01001'
 
 
 

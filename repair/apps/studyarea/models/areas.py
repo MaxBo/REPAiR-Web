@@ -30,7 +30,7 @@ class Area(GDSEModel):
     name = models.TextField(null=True, blank=True)
     code = models.TextField()
     geom = geomodels.MultiPolygonField(null=True, blank=True)
-    _parent_area = models.ForeignKey("self", null=True, blank=True,
+    parent_area = models.ForeignKey("self", null=True, blank=True,
                                      on_delete=models.CASCADE)
 
 
