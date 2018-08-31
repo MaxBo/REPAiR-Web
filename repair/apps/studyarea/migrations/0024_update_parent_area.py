@@ -22,5 +22,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(update_parent_area)
+        # used to migrate the productive database
+        #migrations.RunPython(update_parent_area)
     ]
