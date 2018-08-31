@@ -5,19 +5,23 @@ function(GDSEModel, config) {
     var Indicator = GDSEModel.extend({
 
         /**
-        * set the geometry of the location
+        * compute the indicator
         *
-        * @param {Array.<number>} coordinates  (x, y) coordinates
-        * @param {string} [type='Point']     type of geometry
+        * @param {Object} options
+        * @param {Object} options.data  query parameters (GET) or body params (POST)
+        * @param {string} [options.method='GET']  post or fetch for computation
+        * @param {function} options.success  callback for success
+        * @param {function} options.error  callback for error
         *
-        * @see http://backbonejs.org/#Model
         * @author Christoph Franke
         */
         compute: function(options){
-            var url = this.url() + '/compute';
-            
+            var url = this.url() + '/compute/',
+                options = options || {};
+
             Backbone.ajax({
                 url: url,
+                method: options.method || 'GET',
                 data: options.data,
                 success: options.success,
                 error: options.error

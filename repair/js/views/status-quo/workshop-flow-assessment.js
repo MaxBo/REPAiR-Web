@@ -3,7 +3,7 @@ define(['views/baseview', 'underscore',
         'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
         'muuri', 'app-config', 'highcharts'],
 
-function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, 
+function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils,
          Muuri, config, highcharts){
 /**
 *
@@ -32,14 +32,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         _.bindAll(this, 'renderIndicator');
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        
-        this.indicators = new GDSECollection([], { 
+
+        this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name',
             model: Indicator
         });
-        this.areaLevels = new GDSECollection([], { 
+        this.areaLevels = new GDSECollection([], {
             apiTag: 'arealevels',
             apiIds: [this.caseStudy.id],
             comparator: 'level'
@@ -82,7 +82,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template({indicators: this.indicators, 
+        this.el.innerHTML = template({indicators: this.indicators,
                                       levels: this.areaLevels});
 
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
@@ -94,7 +94,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         this.barChart = this.el.querySelector('#bar-chart');
         this.chart = {};
-        
+
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
             layoutDuration: 400,
@@ -112,7 +112,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.on('dragEnd', function (items) {
             _this.saveSession();
         });
-        
+
         this.initIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
@@ -138,7 +138,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             })
         }
     },
-    
+
     /*
     * render view on given indicator
     */
@@ -146,26 +146,26 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.computeMapIndicator();
         this.restoreSession();
     },
-    
+
     // compute and render the indicator on the map
     computeMapIndicator: function(){
         var levelId = this.levelSelect.value,
             _this = this;
         // one of the selects is not set to sth. -> nothing to render
         if (this.indicatorId == -1 || levelId == -1) return;
-        
+
         var indicator = this.indicators.get(this.indicatorId);;
-        
+
         var mapTab = this.el.querySelector('#indicator-map-tab'),
             mapLoader = new utils.Loader(mapTab, {disable: true});
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
-            
+
             indicator.compute({
                 data: { areas: areaIds.join(',') },
-                success: function(data){ 
+                success: function(data){
                     mapLoader.deactivate();
-                    _this.renderIndicatorOnMap(data, areas, indicator) 
+                    _this.renderIndicatorOnMap(data, areas, indicator)
                 },
                 error: _this.onError
             })
@@ -173,7 +173,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         mapLoader.activate();
         this.getAreas(levelId, fetchCompute);
     },
-    
+
     // fetch the areas of given area level
     // call success(areas) on successful fetch
     getAreas: function(level, onSuccess){
@@ -183,7 +183,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             onSuccess(areas);
             return;
         }
-        areas = this.areas[level] = new GDSECollection([], { 
+        areas = this.areas[level] = new GDSECollection([], {
             apiTag: 'areas',
             apiIds: [ this.caseStudy.id, level ]
         });
@@ -204,7 +204,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             error: this.onError
         });
     },
-    
+
     // render given indicator and its data into the areas into the chlorpleth map
     renderIndicatorOnMap: function(data, areas, indicator){
         var _this = this,
@@ -218,12 +218,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             maxValue = Math.max(value, maxValue);
             minValue = Math.min(value, minValue);
         })
-        
+
         var colorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']) //'Spectral')//['yellow', 'navy'])
                                .domain([minValue, maxValue]);
         var step = (maxValue - minValue) / 10,
             entries = (step > 0) ? utils.range(minValue, maxValue, step): [0];
-            
+
         this.elLegend.innerHTML = '';
         entries.forEach(function(entry){
             var color = colorRange(entry).hex(),
@@ -239,8 +239,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.elLegend.appendChild(document.createElement('br'));
         })
         this.map.addLayer(
-            'areas', 
-            { 
+            'areas',
+            {
                 stroke: 'rgb(100, 150, 250)',
                 //strokeWidth: 3,
                 fill: 'rgba(100, 150, 250, 0.5)',
@@ -252,8 +252,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
                 value = values[area.id]
-            _this.map.addPolygon(coords, { 
-                projection: 'EPSG:4326', layername: 'areas', 
+            _this.map.addPolygon(coords, {
+                projection: 'EPSG:4326', layername: 'areas',
                 type: 'MultiPolygon', tooltip: name + ': ' + value + ' ' + unit,
                 label: value + ' ' + unit, id: area.id,
                 value: value
@@ -261,7 +261,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         })
         this.map.centerOnLayer('areas');
     },
-    
+
     saveSession: function(){
         var items = this.areaSelectGrid.getItems(),
             _this = this;
@@ -279,7 +279,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         // fetch and redraw Bar Chart information
         this.addBarChartData(orderedSelects);
     },
-    
+
     restoreSession: function(){
         var orderedSelects = config.session.get('areaSelects'),
             _this = this;
@@ -306,14 +306,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
         this.addBarChartData(orderedSelects);
     },
-    
+
     // render item for area selection
     renderAreaBox: function(el, id, title, fontSize){
         var html = document.getElementById('row-box-template').innerHTML,
             template = _.template(html),
             div = document.createElement('div');
         div.innerHTML = template({
-            title: title, 
+            title: title,
             fontSize: fontSize || '60px',
             id: id
         });
@@ -330,7 +330,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var el = this.barChart;
         var div = document.createElement('div');
         el.appendChild(div);
-        
+
         //create bar chart
         this.chart = highcharts.chart(div, {
             chart: {
@@ -353,20 +353,38 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             }]
         });
     },
-    
+
     // add data to bar chart
     addBarChartData: function(orderedSelects){
         var _this = this,
             promises = [];
         if(this.indicatorId == -1) return;
-        
+
+        // focus area
+        var indicator = this.indicators.get(this.indicatorId),
+            geom = this.caseStudy.get('properties').focusarea,
+            indicatorId = _this.indicatorId;
+        console.log(geom)
+
+        promises.push(
+            indicator.compute({
+                method: "POST",
+                data: { geom: JSON.stringify(geom) },
+                success: function(data){
+                    value = data[0].value;
+                    _this.chartData[indicatorId]['focusarea'] = value;
+                },
+                error: _this.onError
+            })
+        )
+
+        // user defined areas
         var barChartTab = this.el.querySelector('#bar-charts-tab'),
             chartLoader = new utils.Loader(barChartTab, {disable: true});
         if (orderedSelects !== undefined && orderedSelects.length > 0) {
             chartLoader.activate();
             orderedSelects.forEach(function(areaSelect){
-                var id = areaSelect.id,
-                    indicatorId = _this.indicatorId;
+                var id = areaSelect.id;
                 if(_this.chartData[indicatorId] == undefined || _this.chartData[indicatorId][id] == undefined){
                     var areas = areaSelect.areas;
                     if (areas.length > 0){
@@ -396,7 +414,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 }
             });
         }
-        
+
         $.when.apply($, promises).then(function() {
             _this.updateBarChart();
             _this.updateAreaColors();
@@ -406,7 +424,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.onError;
         });
     },
-    
+
     updateBarChart: function(){
         var categories = [],
             data = [];
@@ -432,7 +450,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             i++;
         });
     },
-    
+
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt;
@@ -445,11 +463,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectIdCnt += 1;
         this.saveSession();
     },
-    
+
     // item for focus area
     addFocusAreaItem: function(){
         var div = this.renderAreaBox(
-                this.areaSelectRow, this.areaSelectIdCnt, 
+                this.areaSelectRow, this.areaSelectIdCnt,
                 'Focus <br> Area', '40px'
             ),
             buttons = div.querySelectorAll('button');
@@ -457,19 +475,19 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         for(var i = 0; i < buttons.length; i++)
             buttons[i].style.display = 'none';
     },
-    
+
     // remove an area item
     removeAreaSelectItem: function(evt){
         var id = evt.target.dataset['id'],
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
         this.areaSelectGrid.remove(div, { removeElements: true });
-        
+
         //remove bar chart data with it
         delete this.chartData[this.indicatorId][id];
         this.saveSession();
     },
-    
+
     // initialize the chlorpleth map
     initIndicatorMap: function(){
         var _this = this;
@@ -484,7 +502,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
     },
-    
+
     // render the modal for area selections
     renderAreaModal: function(){
         this.areaModal = this.el.querySelector('.area-select.modal');
@@ -494,16 +512,16 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaModal.innerHTML = template({ levels: this.areaLevels });
         this.areaLevelSelect = this.areaModal.querySelector('select[name="area-level-select"]');
         this.areaMap = new Map({
-            el: this.areaModal.querySelector('.map'), 
+            el: this.areaModal.querySelector('.map'),
         });
         this.areaMap.addLayer(
-            'areas', 
-            { 
-                stroke: 'rgb(100, 150, 250)', 
+            'areas',
+            {
+                stroke: 'rgb(100, 150, 250)',
                 fill: 'rgba(100, 150, 250, 0.5)',
                 select: {
                     selectable: true,
-                    stroke: 'rgb(230, 230, 0)', 
+                    stroke: 'rgb(230, 230, 0)',
                     fill: 'rgba(230, 230, 0, 0.5)',
                     onChange: function(areaFeats){
                         var modalSelDiv = _this.el.querySelector('.selections'),
@@ -525,7 +543,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.areaMap.map.updateSize();
         });
     },
-    
+
     // show the modal for area selections
     showAreaModal: function(evt){
         var id = evt.target.dataset['id'],
@@ -546,7 +564,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.el.querySelector('.selections').innerHTML = labels.join(', ');
         $(this.areaModal).modal('show');
     },
-    
+
     // event listener for change the area level inside the area selection modal
     changeAreaLevel: function(evt){
         var level = evt.target.value;
@@ -564,8 +582,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             areas.forEach(function(area){
                 var coords = area.get('geometry').coordinates,
                     name = area.get('name');
-                _this.areaMap.addPolygon(coords, { 
-                    projection: 'EPSG:4326', layername: 'areas', 
+                _this.areaMap.addPolygon(coords, {
+                    projection: 'EPSG:4326', layername: 'areas',
                     type: 'MultiPolygon', tooltip: name,
                     label: name, id: area.id
                 });
@@ -577,7 +595,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         loader.activate();
         this.getAreas(level, draw);
     },
-    
+
     // user confirmation of selected areas in modal
     confirmAreaSelection: function(){
         var id = this.activeAreaSelectId;
@@ -593,7 +611,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         }
         this.saveSession();
     }
-    
+
 });
 return FlowAssessmentWorkshopView;
 }
