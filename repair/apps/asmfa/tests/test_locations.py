@@ -131,10 +131,10 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         delft = AreaFactory(adminlevel__level=6,
                             adminlevel__name='Gemeende',
                             name='Delft',
-                            _parent_area=zuidholland)
+                            parent_area=zuidholland)
         rotterdam = AreaFactory(adminlevel__level=6,
                                 name='Rotterdam',
-                                _parent_area=zuidholland)
+                                parent_area=zuidholland)
         return delft, rotterdam
 
     @staticmethod
@@ -208,7 +208,7 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # post new operational location
         new_streetname = 'Pecsallée 4'
         new_geom = Point(x=8, y=10, srid=4326)
-        zuid_holland = rotterdam._parent_area
+        zuid_holland = rotterdam.parent_area
         data = {'properties':
                 {'address': new_streetname,
                  'actor': actor.id,

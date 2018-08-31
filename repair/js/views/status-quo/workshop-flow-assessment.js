@@ -1,10 +1,10 @@
 define(['views/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
         'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
-        'muuri', 'app-config'],
+        'muuri', 'app-config', 'highcharts'],
 
 function(BaseView, _, GDSECollection, Indicator, Map, ol, chroma, utils, 
-         Muuri, config){
+         Muuri, config, highcharts){
 /**
 *
 * @author Christoph Franke
@@ -29,11 +29,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     initialize: function(options){
         FlowAssessmentWorkshopView.__super__.initialize.apply(this, [options]);
         var _this = this;
+        _.bindAll(this, 'renderIndicator');
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        
         this.indicators = new GDSECollection([], { 
             apiTag: 'flowIndicators',
-            apiIds: [this.caseStudy.id, this.keyflowId ],
+            apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name',
             model: Indicator
         });
@@ -46,6 +48,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelects = {};
         this.areaSelectIdCnt = 0;
         this.selectedAreas = [];
+        this.chartData = {};
 
         this.loader.activate();
         var promises = [
@@ -63,29 +66,34 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="indicator"]': 'computeMapIndicator',
+        'change select[name="indicator"]': 'changeIndicator',
         'change select[name="spatial-level-select"]': 'computeMapIndicator',
         'click #add-area-select-item-btn': 'addAreaSelectItem',
         'click button.remove-item': 'removeAreaSelectItem',
         'click button.select-area': 'showAreaModal',
         'click .area-select.modal .confirm': 'confirmAreaSelection',
-        'change select[name="level-select"]': 'changeAreaLevel'
+        'change select[name="area-level-select"]': 'changeAreaLevel'
     },
 
     /*
     * render the view
     */
     render: function(){
-        var _this = this,
-            html = document.getElementById(this.template).innerHTML,
+        var _this = this;
+        var html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
         this.el.innerHTML = template({indicators: this.indicators, 
                                       levels: this.areaLevels});
+
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
+        this.indicatorId = this.indicatorSelect.value;
         this.levelSelect = this.el.querySelector('select[name="spatial-level-select"]');
+        this.levelSelect.disabled = true;
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
+        this.barChart = this.el.querySelector('#bar-chart');
+        this.chart = {};
         
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
@@ -104,35 +112,65 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectGrid.on('dragEnd', function (items) {
             _this.saveSession();
         });
+        
         this.initIndicatorMap();
         this.renderAreaModal();
         this.addFocusAreaItem();
+        this.renderBarChart();
+        this.computeMapIndicator();
+        this.restoreSession();
+    },
+
+    // fetch and show selected indicator
+    changeIndicator: function(){
+        var selected = this.indicatorSelect.value,
+            indicator = this.indicators.get(selected);
+        this.indicatorId = indicator.id;
+        if(this.chartData[this.indicatorId] == undefined){
+            this.chartData[this.indicatorId] = {};
+        }
+        this.levelSelect.disabled = false;
+        if (indicator){
+            // fetch the indicator to reload it
+            indicator.fetch({
+                success: this.renderIndicator,
+                error: this.onError
+            })
+        }
+    },
+    
+    /*
+    * render view on given indicator
+    */
+    renderIndicator: function(){
+        this.computeMapIndicator();
         this.restoreSession();
     },
     
     // compute and render the indicator on the map
     computeMapIndicator: function(){
-        var indicatorId = this.indicatorSelect.value,
-            levelId = this.levelSelect.value,
+        var levelId = this.levelSelect.value,
             _this = this;
         // one of the selects is not set to sth. -> nothing to render
-        if (indicatorId == -1 || levelId == -1) return;
+        if (this.indicatorId == -1 || levelId == -1) return;
         
-        var indicator = this.indicators.get(indicatorId);;
+        var indicator = this.indicators.get(this.indicatorId);;
         
+        var mapTab = this.el.querySelector('#indicator-map-tab'),
+            mapLoader = new utils.Loader(mapTab, {disable: true});
         function fetchCompute(areas){
             var areaIds = areas.pluck('id');
             
             indicator.compute({
                 data: { areas: areaIds.join(',') },
                 success: function(data){ 
-                    _this.loader.deactivate();
+                    mapLoader.deactivate();
                     _this.renderIndicatorOnMap(data, areas, indicator) 
                 },
                 error: _this.onError
             })
         }
-        this.loader.activate();
+        mapLoader.activate();
         this.getAreas(levelId, fetchCompute);
     },
     
@@ -159,6 +197,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 });
                 Promise.all(promises).then(function(){
                     onSuccess(areas);
+                }).catch((err) => {
+                    _this.onError
                 });
             },
             error: this.onError
@@ -236,6 +276,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             }
         });
         config.session.save({areaSelects: orderedSelects});
+        // fetch and redraw Bar Chart information
+        this.addBarChartData(orderedSelects);
     },
     
     restoreSession: function(){
@@ -244,13 +286,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelects = {};
         if (!orderedSelects || orderedSelects.length == 0) return;
         orderedSelects.forEach(function(areaSelect){
-            var id = areaSelect.id;
+        var id = areaSelect.id;
             areaSelect = Object.assign({}, areaSelect);
             delete areaSelect.id;
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
-            _this.renderAreaBox(_this.areaSelectRow, id, id);
-            
+            if(_this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]') == null){
+                _this.renderAreaBox(_this.areaSelectRow, id, id);
+            }
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
             if (areas.length > 0){
@@ -260,8 +303,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 button.classList.add('btn-warning');
                 button.classList.remove('btn-primary');
             }
-        
-        })
+        });
+        this.addBarChartData(orderedSelects);
     },
     
     // render item for area selection
@@ -276,10 +319,118 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
         div.classList.add('item');
         el.appendChild(div);
-        //el.insertBefore(div, this.addAreaSelectBtn);
         div.dataset['id'] = id;
         this.areaSelectGrid.add(div, {});
+
         return div;
+    },
+
+    // render item for bar chart
+    renderBarChart: function(){
+        var el = this.barChart;
+        var div = document.createElement('div');
+        el.appendChild(div);
+        
+        //create bar chart
+        this.chart = highcharts.chart(div, {
+            chart: {
+                type: 'column'
+            },
+            xAxis: {
+                minorTickLength: 0,
+                tickLength: 0
+            },
+            yAxis: {
+                min: 0
+            },
+            title: '',
+            legend: {
+                enabled: false
+            },
+            series: [{
+                colorByPoint: true,
+                data: []
+            }]
+        });
+    },
+    
+    // add data to bar chart
+    addBarChartData: function(orderedSelects){
+        var _this = this,
+            promises = [];
+        if(this.indicatorId == -1) return;
+        
+        var barChartTab = this.el.querySelector('#bar-charts-tab'),
+            chartLoader = new utils.Loader(barChartTab, {disable: true});
+        if (orderedSelects !== undefined && orderedSelects.length > 0) {
+            chartLoader.activate();
+            orderedSelects.forEach(function(areaSelect){
+                var id = areaSelect.id,
+                    indicatorId = _this.indicatorId;
+                if(_this.chartData[indicatorId] == undefined || _this.chartData[indicatorId][id] == undefined){
+                    var areas = areaSelect.areas;
+                    if (areas.length > 0){
+                        // build url and get the data for the bar chart
+                        var urlind = config.api.flowIndicators + "{2}/compute?areas=";
+                        $.each(areas, function(index, area) {
+                            urlind += area + ",";
+                        });
+                        // remove trailing comma
+                        urlind = urlind.slice(0,-1);
+                        var url = urlind.format(_this.caseStudy.id, _this.keyflowId, indicatorId);
+                        var call = $.ajax({
+                            url: url,
+                            type: 'GET',
+                            async: true,
+                            dataType: "json",
+                            success: function (data) {
+                                var sum = 0;
+                                $.each(data, function(index, value) {
+                                    sum += value.value;
+                                });
+                                _this.chartData[indicatorId][id] = sum;
+                            }
+                        });
+                        promises.push(call);
+                    }
+                }
+            });
+        }
+        
+        $.when.apply($, promises).then(function() {
+            _this.updateBarChart();
+            _this.updateAreaColors();
+            chartLoader.deactivate();
+        }).catch(function(err) {
+            chartLoader.deactivate();
+            _this.onError;
+        });
+    },
+    
+    updateBarChart: function(){
+        var categories = [],
+            data = [];
+        if (this.chartData[this.indicatorId] !== undefined) {
+            $.each(this.chartData[this.indicatorId], function(id, value) {
+                categories.push(id);
+                data.push(value);
+            });
+        }
+        this.chart.xAxis[0].setCategories(categories);
+        this.chart.series[0].update({
+            data: data
+        });
+    },
+
+    updateAreaColors: function(){
+        var _this = this;
+        // update grid colors
+        var i = 0;
+        $.each(this.chartData[this.indicatorId], function(id) {
+            var div = _this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]').children[0];
+            div.style.backgroundColor = _this.chart.series[0].points[i].color;
+            i++;
+        });
     },
     
     // render an item where the user can setup areas to be shown as bar charts
@@ -313,6 +464,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
         delete this.areaSelects[id];
         this.areaSelectGrid.remove(div, { removeElements: true });
+        
+        //remove bar chart data with it
+        delete this.chartData[this.indicatorId][id];
         this.saveSession();
     },
     
