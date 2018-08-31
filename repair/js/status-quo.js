@@ -47,24 +47,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows',
             })
         })
     };
-
-    renderFlowAssessmentWorkshopView = function(caseStudy){
-        var assessmentView,
-            el = document.getElementById('flow-assessment-content'),
-            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
-        keyflowSelect.disabled = false;
-        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
-        keyflowSelect.addEventListener('change', function(){
-            if (assessmentView) assessmentView.close();
-            assessmentView = new FlowAssessmentWorkshopView({
-                caseStudy: caseStudy,
-                el: el,
-                template: 'setup-flow-assessment-template',
-                keyflowId: keyflowSelect.value
-            })
-        })
-    };
-
+    
     renderWorkshop = function(caseStudy){
         renderFlowsView(caseStudy);
         var challengesView = new ChallengesAimsView({

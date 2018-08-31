@@ -1,6 +1,7 @@
 define([
-    'openlayers', 'ol-contextmenu', 'openlayers/css/ol.css', 
-    'ol-contextmenu/dist/ol-contextmenu.min.css',
+    'openlayers', //'ol-contextmenu',
+    'openlayers/css/ol.css',
+    //'ol-contextmenu/dist/ol-contextmenu.min.css',
     'static/css/map.css'
 ], function(ol, ContextMenu)
 {
@@ -47,7 +48,7 @@ define([
             var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
             initlayers.push(basicLayer);
 
-            this.layers = { basic: basicLayer }; 
+            this.layers = { basic: basicLayer };
 
             this.map = new ol.Map({
                 layers: initlayers,
@@ -149,14 +150,14 @@ define([
         * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
         * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
         * @param {string} [options.select.labelColor='#e69d00']     color of label selected feature
-        * @param {Object} options.select.onChange                   callback 
+        * @param {Object} options.select.onChange                   callback
         *
         * @returns {ol.layer.Vector}                                the added vector layer
         */
         addLayer(name, options){
-            
+
             if (this.layers[name] != null) this.removeLayer(name)
-            
+
             var options = options || {},
                 sourceopt = options.source || {},
                 source,
@@ -173,7 +174,7 @@ define([
                 radius: 5,
                 fill: new ol.style.Fill({ color: options.stroke || 'rgb(100, 150, 250)' }),
                 stroke: new ol.style.Stroke({
-                    color: options.fill || 'rgba(100, 150, 250, 0.1)', 
+                    color: options.fill || 'rgba(100, 150, 250, 0.1)',
                     width: options.strokeWidth || 3
                 })
             });
@@ -189,16 +190,16 @@ define([
                     overflow: false
                 })
             }
-            
-            var layer = new ol.layer.Vector({ 
+
+            var layer = new ol.layer.Vector({
                 source: source || new ol.source.Vector(),
                 style: (options.colorRange != null) ? colorRangeStyle: defaultStyle
             });
-            
+
             this.layers[name] = layer;
             this.map.addLayer(layer);
             if (options.zIndex) layer.setZIndex(options.zIndex);
-            
+
             var select = options.select || {};
 
             if (select.selectable){
@@ -212,13 +213,13 @@ define([
                         text: feature.get('label'),
                     })
                 }
-                layer.selectStyle = function(feature, resolution){ 
+                layer.selectStyle = function(feature, resolution){
                     return new ol.style.Style({
                         image: new ol.style.Circle({
                             radius: 5,
                             fill: new ol.style.Fill({ color: select.stroke || 'rgb(230, 230, 0)' }),
                             stroke: new ol.style.Stroke({
-                                color: select.fill || 'rgba(100, 150, 250, 0.1)', 
+                                color: select.fill || 'rgba(100, 150, 250, 0.1)',
                                 width: select.strokeWidth || 3
                             })
                         }),
@@ -269,15 +270,15 @@ define([
                     text: labelStyle(feature, resolution)
                 });
             }
-            
+
             var alpha = options.alphaFill || 1;
-            
+
             function colorRangeStyle(feature, resolution){
                 var value = feature.get('value');
                 if (value == null) return defaultStyle(feature, resolution);
                 return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
             }
-            
+
             return layer;
         }
 
@@ -327,12 +328,12 @@ define([
         addPolygon(coordinates, options){
             return this.addGeometry(coordinates, options);
         }
-        
+
         addGeometry(coordinates, options){
             var options = options || {},
                 type = options.type || 'Polygon',
                 proj = options.projection || this.mapProjection;
-            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : 
+            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) :
                            (type === 'Point') ? new ol.geom.Point(coordinates) :
                            (type === 'LineString') ? new ol.geom.LineString(coordinates) :
                            new ol.geom.Polygon(coordinates);
@@ -349,12 +350,12 @@ define([
             layer.getSource().addFeature(feature);
             return ret;
         }
-        
+
         getFeatures(layername){
             var layer = this.layers[layername];
             return layer.getSource().getFeatures();
         }
-        
+
         getFeature(layername, id){
             var features = this.getFeatures(layername);
             for (var i = 0; i < features.length; i++){
@@ -363,7 +364,7 @@ define([
             }
             return null;
         }
-        
+
         selectFeature(layername, id){
             var feature = this.getFeature(layername, id),
                 layer = this.layers[layername];
@@ -644,7 +645,7 @@ define([
             this.centerOnPoint(centroid, options);
             return centroid;
         }
-        
+
         centerOnCoordinates(coordinates, options){
             var poly = new ol.geom.Polygon(coordinates);
             this.centerOnPolygon(poly, options);
@@ -678,12 +679,12 @@ define([
                 options = options || {},
                 type = options.type || 'None',
                 freehand = options.freehand;
-                
+
             if (layer.drawingInteraction)
                 this.map.removeInteraction(layer.drawingInteraction);
             layer.drawingInteraction = null;
             if (type === 'None') return;
-            
+
             // doesn't work with freehand, so not set atm
             function oneFingerCondition(olBrowserEvent) {
                 var touchEvent = olBrowserEvent.originalEvent.touches;
@@ -692,7 +693,7 @@ define([
                     return touchEvent.length === 1;
                 return true;
             }
-            
+
             var source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
@@ -703,7 +704,7 @@ define([
             layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
             }
-            
+
         /**
         * enable/disable drag box to select features
         * (only works when layer supports selection, see addLayer)
@@ -738,9 +739,9 @@ define([
                 layer.dragBox = null;
             }
         }
-        
+
         /**
-        * enable/disable selection of features, requires initialization of layer 
+        * enable/disable selection of features, requires initialization of layer
         * with select options (see addLayer)
         *
         * @param {string} layername          layer to enable selection of features in
@@ -753,7 +754,7 @@ define([
             if (enable === false) this.map.removeInteraction(layer.select);
             else this.map.addInteraction(layer.select);
         }
-        
+
         /**
         * remove the selected features from layer
         *
@@ -768,7 +769,7 @@ define([
             })
             layer.select.getFeatures().clear();
         }
-        
+
         /**
         * get the feature inside layer with given name
         *
