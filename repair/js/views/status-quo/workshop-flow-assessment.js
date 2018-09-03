@@ -214,19 +214,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             apiIds: [ this.caseStudy.id, level ]
         });
         areas.fetch({
-            success: function(areas){
-                var promises = [];
-                areas.forEach(function(area){
-                    promises.push(
-                        area.fetch({ error: _this.onError })
-                    )
-                });
-                Promise.all(promises).then(function(){
-                    onSuccess(areas);
-                }).catch((err) => {
-                    _this.onError
-                });
-            },
+            success: onSuccess,
             error: this.onError
         });
     },

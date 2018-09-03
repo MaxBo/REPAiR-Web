@@ -208,17 +208,10 @@ var FlowsView = BaseView.extend(
             loader.activate();
             areas.fetch({
                 success: function(){
-                    var promises = [];
-                    areas.forEach(function(area){
-                        promises.push(
-                            area.fetch({ error: _this.onError })
-                        )
-                    });
-                    Promise.all(promises).then(function(){
-                        loader.deactivate();
-                        _this.drawAreas(areas)
-                    });
-                }, error: function(res) {
+                    loader.deactivate();
+                    _this.drawAreas(areas)
+                },
+                error: function(res) {
                     loader.deactivate();
                     _this.onError(res);
                 }
