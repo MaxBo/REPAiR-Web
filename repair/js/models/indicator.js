@@ -19,7 +19,7 @@ function(GDSEModel, config) {
             var url = this.url() + '/compute/',
                 options = options || {};
 
-            Backbone.ajax({
+            return Backbone.ajax({
                 url: url,
                 method: options.method || 'GET',
                 data: options.data,
