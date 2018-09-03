@@ -19,12 +19,12 @@ from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
 
 
-def filter_actors_by_area(actors, area):
+def filter_actors_by_area(actors, geom):
     '''
-    get actors in an area (by administrative location)
+    get actors in a polygon (by administrative location)
     '''
     locations = AdministrativeLocation.objects.filter(actor__in=actors)
-    locations = locations.filter(geom__intersects=area.geom)
+    locations = locations.filter(geom__intersects=geom)
     actors_in_area = actors.filter(id__in=locations.values('actor'))
     return actors_in_area
 
@@ -35,7 +35,7 @@ class ComputeIndicator(metaclass=ABCMeta):
     '''
     description = ''
     name = ''
-    def sum(self, indicator_flow, area=None):
+    def sum(self, indicator_flow, geom=None):
         '''
         aggregation sum
         '''
@@ -60,13 +60,12 @@ class ComputeIndicator(metaclass=ABCMeta):
         destinations = self.get_actors(destination_node_ids,
                                        indicator_flow.destination_node_level)
 
-        if area:
-            area = Area.objects.get(id=area)
+        if geom:
             spatial = indicator_flow.spatial_application.name
             if spatial == 'ORIGIN' or spatial == 'BOTH':
-                origins = filter_actors_by_area(origins, area)
+                origins = filter_actors_by_area(origins, geom)
             if spatial == 'DESTINATION' or spatial == 'BOTH':
-                destinations = filter_actors_by_area(destinations, area)
+                destinations = filter_actors_by_area(destinations, geom)
 
         flows = flows.filter(
             Q(origin__in=origins) & Q(destination__in=destinations))
@@ -105,14 +104,18 @@ class IndicatorA(ComputeIndicator):
     '''
     description = _('SUM aggregation Flow A')
     name = _('Flow A')
-    def process(self, indicator, areas=None):
+    def process(self, indicator, areas=[], geom=None):
         flow_a = indicator.flow_a
-        if not areas:
+        if not areas and not geom:
             amount = self.sum(flow_a)
             return [OrderedDict({'area': -1, 'value': amount})]
         amounts = []
+        if geom:
+            amount = self.sum(flow_a, geom)
+            amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
         for area in areas:
-            amount = self.sum(flow_a, area)
+            geom = Area.objects.get(id=area).geom
+            amount = self.sum(flow_a, geom)
             amounts.append(OrderedDict({'area': area, 'value': amount}))
         return amounts
 
@@ -123,13 +126,16 @@ class IndicatorAB(ComputeIndicator):
     '''
     description = _('SUM aggregation Flow A / SUM aggregation Flow B')
     name = _('Flow A / Flow B')
-    def process(self):
+    def process(self, indicator, areas=[], geom=None):
         flow_a = indicator.flow_a
         flow_b = indicator.flow_b
-        if not areas:
+        if not areas and not geom:
             amount = self.sum(flow_a) / self.sum(flow_b)
             return [OrderedDict({'area': -1, 'value': amount})]
         amounts = []
+        if geom:
+            amount = self.sum(flow_a, geom) / self.sum(flow_b, geom)
+            amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
         for area in areas:
             amount = self.sum(flow_a, area) / self.sum(flow_b, area)
             amounts.append(OrderedDict({'area': area, 'value': amount}))
@@ -150,19 +156,23 @@ class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
                 flow.delete()
         return super().destroy(request, **kwargs)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get', 'post'], detail=True)
     def compute(self, request, **kwargs):
         indicator = self.get_queryset().get(id=kwargs.get('pk', None))
+        query_params = request.query_params
+        body_params = request.data
         if not indicator:
             raise Http404
         typ = indicator.indicator_type
         computer_class = globals().get(typ.name, None)
         assert issubclass(computer_class, ComputeIndicator)
         computer = computer_class()
-        areas = request.query_params.get('areas', None)
+        geom = body_params.get('geom', None) or query_params.get('geom', None)
+        areas = (body_params.get('areas', None) or
+                 query_params.get('areas', None))
         if areas:
             areas = areas.split(',')
-        values = computer.process(indicator, areas)
+        values = computer.process(indicator, areas=areas or [], geom=geom)
         return Response(values)
 
     def get_queryset(self):
