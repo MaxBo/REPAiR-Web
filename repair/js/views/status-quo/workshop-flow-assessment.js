@@ -30,8 +30,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         FlowAssessmentWorkshopView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'renderIndicator');
+        _.bindAll(this, 'addAreaSelectItem');
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+
+        this.focusAreaColor = '#aad400';
 
         this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
@@ -49,6 +52,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelectIdCnt = 1;
         this.selectedAreas = [];
         this.chartData = {};
+
+        this.mapColorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']); //'Spectral')//['yellow', 'navy'])
+        // ToDo: replace with another scale
+        this.barChartColor = utils.colorByName;
 
         this.loader.activate();
         var promises = [
@@ -230,10 +237,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             minValue = Math.min(value, minValue);
         })
 
-        var colorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']) //'Spectral')//['yellow', 'navy'])
-                               .domain([minValue, maxValue]);
         var step = (maxValue - minValue) / 10,
-            entries = (step > 0) ? utils.range(minValue, maxValue, step): [0];
+            entries = (step > 0) ? utils.range(minValue, maxValue, step): [0],
+            colorRange = this.mapColorRange.domain([minValue, maxValue]);
 
         this.elLegend.innerHTML = '';
         entries.forEach(function(entry){
@@ -300,12 +306,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.areaSelects = {};
         if (!orderedSelects || orderedSelects.length == 0) return;
         orderedSelects.forEach(function(areaSelect){
-            var id = areaSelect.id,
-                areaSelect = Object.assign({}, areaSelect);
+            var id = areaSelect.id;
+            areaSelect.color = _this.barChartColor(id);
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
             if(_this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]') == null){
-                _this.renderAreaBox(_this.areaSelectRow, id, id);
+                _this.renderAreaBox(_this.areaSelectRow, id, id, { color: areaSelect.color });
             }
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
@@ -321,14 +327,17 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     },
 
     // render item for area selection
-    renderAreaBox: function(el, id, title, fontSize){
+    renderAreaBox: function(el, id, title, options){
         var html = document.getElementById('row-box-template').innerHTML,
             template = _.template(html),
-            div = document.createElement('div');
+            div = document.createElement('div'),
+            options = options || {},
+            color = options.color || 'grey';
         div.innerHTML = template({
             title: title,
-            fontSize: fontSize || '60px',
-            id: id
+            fontSize: options.fontSize || '60px',
+            id: id,
+            color: color
         });
         div.classList.add('item');
         el.appendChild(div);
@@ -388,7 +397,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                     var sum = data.reduce((a, b) => a + b.value, 0);
                     _this.chartData[indicator.id][id] = {
                         name: id,
-                        value: sum
+                        value: sum,
+                        color: item.color
                     };
                 },
                 error: _this.onError
@@ -399,7 +409,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 name: id,
                 value: 0
             };
-            // no return needed
+            // no promise to return
         }
     },
 
@@ -432,13 +442,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         if (orderedSelects !== undefined && orderedSelects.length > 0) {
             this.chartLoader.activate();
             orderedSelects.forEach(function(areaSelect){
-                promises.push(_this.addBarChartItem(areaSelect))
+                var item = _this.areaSelects[areaSelect.id]
+                promises.push(_this.addBarChartItem(item))
             });
         }
 
         $.when.apply($, promises).then(function() {
             _this.updateBarChart();
-            //_this.updateAreaColors();
             _this.chartLoader.deactivate();
         }).catch(function(err) {
             _this.chartLoader.deactivate();
@@ -452,16 +462,23 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             chartData = this.chartData[this.indicatorId],
             orderedSelects = this.getOrderedSelects();
         if (!chartData) return;
+        // focus area is fixed on pos 0, render first
         var focusData = chartData[0];
         categories.push(focusData.name);
-        data.push(focusData.value);
-        // keep order as defined by user
+        data.push({
+            color: this.focusAreaColor,
+            y: focusData.value
+        });
+        // keep order of user defined area selects
         orderedSelects.forEach(function(areaSelect){
             var id = areaSelect.id,
                 d = chartData[id];
             if (!d) return;
             categories.push(d.name);
-            data.push(d.value);
+            data.push({
+                color: d.color,
+                y: d.value
+            });
         })
         this.chart.xAxis[0].setCategories(categories);
         this.chart.series[0].update({
@@ -469,26 +486,20 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
     },
 
-    updateAreaColors: function(){
-        var _this = this;
-        // update grid colors
-        var i = 0;
-        $.each(this.chartData[this.indicatorId], function(id) {
-            var div = _this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]').children[0];
-            div.style.backgroundColor = _this.chart.series[0].points[i].color;
-            i++;
-        });
-    },
-
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
-        var id = this.areaSelectIdCnt;
+        var id = this.areaSelectIdCnt,
+            title = id,
+            // ToDo: another coloring function
+            color = this.barChartColor(id);
         this.renderAreaBox(
-            this.areaSelectRow, id, id);
+            this.areaSelectRow, id, title, { color: color });
         var item = {
             id: id,
+            name: title,
             areas: [],
-            level: this.areaLevels.first().id
+            level: this.areaLevels.first().id,
+            color: color
         };
         this.areaSelects[id] = item;
         this.areaSelectIdCnt += 1;
@@ -507,8 +518,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     addFocusAreaItem: function(){
         var div = this.renderAreaBox(
                 this.areaSelectRow, 0,
-                'Focus <br> Area', '40px',
-                true
+                'Focus <br> Area',
+                {
+                    fontSize: '40px',
+                    color: this.focusAreaColor
+                }
             ),
             buttons = div.querySelectorAll('button');
         for(var i = 0; i < buttons.length; i++)

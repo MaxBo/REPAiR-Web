@@ -6,6 +6,7 @@ var color = d3.scale.category20();
 module.exports = {
 
     colorByName: function(name){
+        name = String(name);
         return color(name.replace(/ .*/, ""));
     },
 
