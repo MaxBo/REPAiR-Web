@@ -103,6 +103,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.barChart = this.el.querySelector('#bar-chart');
         this.chart = {};
 
+        this.showFocusArea = true;
+
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
             layoutDuration: 400,
@@ -458,13 +460,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             chartData = this.chartData[this.indicatorId],
             orderedSelects = this.getOrderedSelects();
         if (!chartData) return;
-        // focus area is fixed on pos 0, render first
-        var focusData = chartData[0];
-        categories.push(focusData.name);
-        data.push({
-            color: this.focusAreaColor,
-            y: focusData.value
-        });
+        if (this.showFocusArea) {
+            // focus area is fixed on pos 0, render first
+            var focusData = chartData[0];
+            categories.push(focusData.name);
+            data.push({
+                color: this.focusAreaColor,
+                y: focusData.value
+            });
+        };
         // keep order of user defined area selects
         orderedSelects.forEach(function(areaSelect){
             var id = areaSelect.id,
@@ -520,9 +524,18 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                     color: this.focusAreaColor
                 }
             ),
-            buttons = div.querySelectorAll('button');
+            buttons = div.querySelectorAll('button'),
+            content = div.querySelector('.item-content');
+            _this = this;
         for(var i = 0; i < buttons.length; i++)
             buttons[i].style.display = 'none';
+        function toggleFocusArea(){
+            _this.showFocusArea = !_this.showFocusArea;
+            content.style.opacity = (_this.showFocusArea) ? 1 : 0.7;
+            content.style.backgroundColor = (_this.showFocusArea) ? 'white' : '#eaeaea';
+            _this.updateBarChart();
+        }
+        div.addEventListener('click', toggleFocusArea);
     },
 
     // remove an area item
