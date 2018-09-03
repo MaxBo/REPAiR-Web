@@ -125,7 +125,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
               return Muuri.ItemDrag.defaultStartPredicate(item, event);
             }
         });
-        this.areaSelectGrid.on('dragEnd', function (items) {
+        this.areaSelectGrid.on('dragEnd', function (item) {
+            // you may drag items in front of focus area, move it to 2nd position
+            var dragPos = _this.areaSelectGrid.getItems().indexOf(item);
+            if (dragPos === 0){
+                var id = item.getElement().dataset['id'];
+                if ( id !== 0 )
+                    _this.areaSelectGrid.move(item, 1);
+            }
             _this.saveSession();
             _this.updateBarChart();
         });
