@@ -33,7 +33,7 @@ class PostGetViewMixin:
         if self.isGET:
             return self.post_get(request, **kwargs)
         return super().create(request, **kwargs)
-    
+
     @property
     def isGET(self):
         if self.request.method == 'GET':
@@ -42,7 +42,7 @@ class PostGetViewMixin:
         if (post_get and post_get in ['True', 'true']):
             return True
         return False
-    
+
     def post_get(self, request, **kwargs):
         """
         override this, should return serialized data of requested resources
@@ -92,11 +92,11 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         SerializerClass = self.get_serializer_class()
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
-        
+
         # special format requested -> let the plugin handle that
         if ('format' in request.query_params):
             return super().list(request, **kwargs)
-        
+
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=SerializerClass)
         if queryset is None:
@@ -104,10 +104,10 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         if self.pagination_class:
             paginator = self.pagination_class()
             queryset = paginator.paginate_queryset(queryset, request)
-            
+
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
-            
+
         data = self.filter_fields(serializer, request)
         if self.pagination_class:
             return paginator.get_paginated_response(data)

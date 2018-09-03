@@ -125,7 +125,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
               return Muuri.ItemDrag.defaultStartPredicate(item, event);
             }
         });
-        this.areaSelectGrid.on('dragEnd', function (items) {
+        this.areaSelectGrid.on('dragEnd', function (item) {
+            // you may drag items in front of focus area, move it to 2nd position
+            var dragPos = _this.areaSelectGrid.getItems().indexOf(item);
+            if (dragPos === 0){
+                var id = item.getElement().dataset['id'];
+                if ( id !== 0 )
+                    _this.areaSelectGrid.move(item, 1);
+            }
             _this.saveSession();
             _this.updateBarChart();
         });
@@ -180,6 +187,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var areaIds = areas.pluck('id');
 
             indicator.compute({
+                method: "POST",
                 data: { areas: areaIds.join(',') },
                 success: function(data){
                     mapLoader.deactivate();
@@ -206,19 +214,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             apiIds: [ this.caseStudy.id, level ]
         });
         areas.fetch({
-            success: function(areas){
-                var promises = [];
-                areas.forEach(function(area){
-                    promises.push(
-                        area.fetch({ error: _this.onError })
-                    )
-                });
-                Promise.all(promises).then(function(){
-                    onSuccess(areas);
-                }).catch((err) => {
-                    _this.onError
-                });
-            },
+            success: onSuccess,
             error: this.onError
         });
     },
