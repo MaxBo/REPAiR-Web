@@ -187,6 +187,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var areaIds = areas.pluck('id');
 
             indicator.compute({
+                method: "POST",
                 data: { areas: areaIds.join(',') },
                 success: function(data){
                     mapLoader.deactivate();
