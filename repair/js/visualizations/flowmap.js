@@ -68,7 +68,7 @@ define([
                 .style("opacity", 0.9);
 
             this.maxFlowWidth = 50;
-            this.minFlowWidth = 1;
+            this.minFlowWidth = 2;
             this.maxScale = 2;
 
             this.map.on("zoomend", function(evt){ _this.resetView() });
@@ -175,12 +175,30 @@ define([
                         return;
                     }
                     //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
-                    var strokeWidth = Math.max(_this.minFlowWidth, (flow.value) / _this.maxFlowValue * _this.maxFlowWidth );
+                    var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
+                        strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
 
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
 
-                    console.log(xshift + ' ' + yshift)
+                    if(_this.animate){
+                        var dash = {
+                            length: 10,
+                            gap: 4,
+                            offset: 0
+                        };
+                        if (strokeWidth > calcWidth) {
+                            var dashLength = _this.minFlowWidth,
+                                dashGaps = 204 - (calcWidth * 200) / _this.minFlowWidth,
+                                offset = Math.floor(Math.random() * Math.floor(dashGaps));
+                            dash = {
+                                length: dashLength,
+                                gap: dashGaps,
+                                offset: offset
+                            };
+                        }
+                    }
+
                     var path = _this.drawPath(
                         [
                             {x: sourceCoords[0], y: sourceCoords[1]},
@@ -189,7 +207,9 @@ define([
                         flow.label, flow.color, strokeWidth,
                         {
                             xshift: xshift,
-                            yshift: yshift
+                            yshift: yshift,
+                            animate: _this.animate,
+                            dash: dash
                         }
                     );
                     xshift -= shiftStep;
@@ -205,7 +225,6 @@ define([
                     radius = node.radius / 2;// * scale / 2;
                 _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
             });
-            this.setAnimation();
         }
 
         scale(){
@@ -301,13 +320,21 @@ define([
                         .duration(500)
                         .style("opacity", 0)
                     path.attr("stroke-opacity", 0.5)
-                });
+                })
+                .classed('flow', true)
+                .classed('animated', options.animate);
+            if (options.dash){
+                var dash = options.dash;
+                path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
+                path.attr("stroke-dashoffset", dash.offset);
+            }
             return path;
         }
 
         setAnimation(on){
-            if(on != null) this.doAnimation = on;
-            this.g.selectAll('path').classed('flowline', this.doAnimation);
+            if(on != null) this.animate = on;
+            //this.g.selectAll('path').classed('flowline', this.animate);
+            this.draw();
         }
 
     }
