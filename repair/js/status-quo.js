@@ -2,7 +2,8 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
     'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
     'views/status-quo/setup-flow-assessment',
     'views/status-quo/workshop-flow-assessment',
-    'app-config', 'utils/overrides', 'base'
+    'app-config', 'utils/overrides', 'base',
+    'static/css/status-quo.css'
 ], function (d3, CaseStudy, FlowsView, TargetsView, ChallengesAimsView,
     SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
     appConfig) {
@@ -47,7 +48,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/flows', 'views/status-quo/t
             })
         })
     };
-    
+
     renderWorkshop = function(caseStudy){
         renderFlowsView(caseStudy);
         var challengesView = new ChallengesAimsView({

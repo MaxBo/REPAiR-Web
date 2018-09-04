@@ -103,6 +103,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.barChart = this.el.querySelector('#bar-chart');
         this.chart = {};
 
+        this.showFocusArea = true;
+
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
             layoutDuration: 400,
@@ -161,6 +163,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 error: this.onError
             })
         }
+        var label = this.el.querySelector('#indicator-description');
+        label.innerHTML = indicator.get('description');
     },
 
     /*
@@ -246,7 +250,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             square.style.width = '50px';
             square.style.float = 'left';
             square.style.backgroundColor = color;
-            label.innerHTML = Math.round(entry) + ' ' + unit;
+            square.style.marginRight = '5px';
+            label.innerHTML = _this.format(Math.round(entry)) + ' ' + unit;
             _this.elLegend.appendChild(square);
             _this.elLegend.appendChild(label);
             _this.elLegend.appendChild(document.createElement('br'));
@@ -254,9 +259,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map.addLayer(
             'areas',
             {
-                stroke: 'rgb(100, 150, 250)',
-                //strokeWidth: 3,
-                fill: 'rgba(100, 150, 250, 0.5)',
+                stroke: 'grey',
+                strokeWidth: 1,
                 colorRange: colorRange,
                 //alphaFill: 0.8
             }
@@ -264,11 +268,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         areas.forEach(function(area){
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
-                value = values[area.id]
+                value = values[area.id],
+                fValue = _this.format(value);
             _this.map.addPolygon(coords, {
                 projection: 'EPSG:4326', layername: 'areas',
-                type: 'MultiPolygon', tooltip: name + ': ' + value + ' ' + unit,
-                label: value + ' ' + unit, id: area.id,
+                type: 'MultiPolygon', tooltip: name + ': ' + fValue + ' ' + unit,
+                label: fValue + ' ' + unit, id: area.id,
                 value: value
             });
         })
@@ -458,13 +463,15 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             chartData = this.chartData[this.indicatorId],
             orderedSelects = this.getOrderedSelects();
         if (!chartData) return;
-        // focus area is fixed on pos 0, render first
-        var focusData = chartData[0];
-        categories.push(focusData.name);
-        data.push({
-            color: this.focusAreaColor,
-            y: focusData.value
-        });
+        if (this.showFocusArea) {
+            // focus area is fixed on pos 0, render first
+            var focusData = chartData[0];
+            categories.push(focusData.name);
+            data.push({
+                color: this.focusAreaColor,
+                y: focusData.value
+            });
+        };
         // keep order of user defined area selects
         orderedSelects.forEach(function(areaSelect){
             var id = areaSelect.id,
@@ -520,9 +527,19 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                     color: this.focusAreaColor
                 }
             ),
-            buttons = div.querySelectorAll('button');
+            buttons = div.querySelectorAll('button'),
+            content = div.querySelector('.item-content');
+            _this = this;
         for(var i = 0; i < buttons.length; i++)
             buttons[i].style.display = 'none';
+        content.classList.remove('shaded');
+        function toggleFocusArea(){
+            _this.showFocusArea = !_this.showFocusArea;
+            content.style.opacity = (_this.showFocusArea) ? 1 : 0.7;
+            content.style.backgroundColor = (_this.showFocusArea) ? 'white' : '#eaeaea';
+            _this.updateBarChart();
+        }
+        div.addEventListener('click', toggleFocusArea);
     },
 
     // remove an area item

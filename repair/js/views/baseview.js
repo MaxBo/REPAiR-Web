@@ -1,6 +1,6 @@
-define(['backbone', 'underscore', 'utils/utils', 'hierarchy-select', 
-        'hierarchy-select/dist/hierarchy-select.min.css'],
-function(Backbone, _, utils){
+define(['backbone', 'underscore', 'utils/utils', 'app-config',
+        'hierarchy-select', 'hierarchy-select/dist/hierarchy-select.min.css'],
+function(Backbone, _, utils, config){
 /**
 *
 * @author Christoph Franke
@@ -10,7 +10,7 @@ function(Backbone, _, utils){
 var BaseView = Backbone.View.extend(
     /** @lends module:views/BaseView.prototype */
     {
-    
+
     /**
     * Basic View with common functions, may be extended by other views
     *
@@ -32,7 +32,7 @@ var BaseView = Backbone.View.extend(
         this.loader = new utils.Loader(options.el, {disable: true});
         this.projection = 'EPSG:4326';
     },
-    
+
     /**
     * DOM events (jQuery style)
     */
@@ -48,6 +48,11 @@ var BaseView = Backbone.View.extend(
         this.el.innerHTML = template();
     },
 
+    /** format a number to currently set language **/
+    format: function(value){
+        return value.toLocaleString(this.language);
+    },
+
     /**
     * callback for selecting items in the hierarchical select
     *
@@ -56,7 +61,7 @@ var BaseView = Backbone.View.extend(
     */
 
     /**
-    * build a hierarchical selection of a collection, the collection has to be 
+    * build a hierarchical selection of a collection, the collection has to be
     * of tree structure where the parents of a child are referenced by an attribute (options.parentAttr)
     * absence of parent indicates a root item
     *
@@ -64,8 +69,8 @@ var BaseView = Backbone.View.extend(
     * @param {HTMLElement}                          the element to append the rendered hierarchical select to
     * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
     * @param {module:views/BaseView~onSelect=} options.onSelect  function is called on selection of an item
-    * @param {Number=} options.selected             preselects the model with given id 
-    * @param {Number} [options.selected=400]        preselects the model with given id 
+    * @param {Number=} options.selected             preselects the model with given id
+    * @param {Number} [options.selected=400]        preselects the model with given id
     */
     hierarchicalSelect: function(collection, parent, options){
 
@@ -92,7 +97,7 @@ var BaseView = Backbone.View.extend(
 
         var treeList = utils.treeify(items);
 
-        // converts tree to list sorted by appearance in tree, 
+        // converts tree to list sorted by appearance in tree,
         // stores the level inside the tree as an attribute in each node
         function treeToLevelList(root, level){
             var children = root['nodes'] || [];
@@ -146,7 +151,7 @@ var BaseView = Backbone.View.extend(
             })
         }
     },
-    
+
     /**
     * show a modal with given alert message
     *
@@ -158,11 +163,11 @@ var BaseView = Backbone.View.extend(
         var el = document.getElementById('alert-modal'),
             html = document.getElementById('alert-modal-template').innerHTML,
             template = _.template(html);
-        
+
         el.innerHTML = template({ title: title, message: message });
-        $(el).modal('show'); 
+        $(el).modal('show');
     },
-    
+
     /**
     * show a modal with error message on server error
     * you may pass the model and response or response only
@@ -177,21 +182,21 @@ var BaseView = Backbone.View.extend(
             message += '<b>' + gettext('The server responded with: ') + '</b><br>' + '<i>' + response.responseText + '</i>';
         this.alert(message, gettext('Error <b>' + response.status + '</b>'));
     },
-    
-    
+
+
     /**
     * callback for confirming a confirmation modal
     *
     * @callback module:views/BaseView~onConfirm
     */
-    
+
     /**
     * callback for confirming user input of name
     *
     * @callback module:views/BaseView~onNameConfirm
     * @param {String} name  the user input
     */
-    
+
     /**
     * show a modal to enter a name
     *
@@ -199,17 +204,17 @@ var BaseView = Backbone.View.extend(
     * @param {module:views/BaseView~onNameConfirm} options.onConfirm  called when user confirms input
     */
     getName: function(options){
-      
+
       var options = options || {};
-      
+
       var el = document.getElementById('generic-modal'),
           inner = document.getElementById('empty-modal-template').innerHTML;
           template = _.template(inner),
           html = template({ header:  options.title || 'Name' });
-      
+
       el.innerHTML = html;
       var body = el.querySelector('.modal-body');
-      
+
       var row = document.createElement('div');
       row.classList.add('row');
       var label = document.createElement('div');
@@ -220,15 +225,15 @@ var BaseView = Backbone.View.extend(
       body.appendChild(row);
       row.appendChild(label);
       row.appendChild(input);
-      
+
       el.querySelector('.confirm').addEventListener('click', function(){
         if (options.onConfirm) options.onConfirm(input.value);
         $(el).modal('hide');
       });
-      
+
       $(el).modal('show');
     },
-    
+
     /**
     * show a modal to confirm sth
     *
@@ -252,7 +257,7 @@ var BaseView = Backbone.View.extend(
     },
 
     /**
-    * unbind the events and remove this view from the DOM and 
+    * unbind the events and remove this view from the DOM and
     */
     close: function(){
         this.undelegateEvents(); // remove click events

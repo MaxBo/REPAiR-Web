@@ -166,10 +166,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.render();
         },
 
-        format: function(value){
-            return value.toLocaleString(this.language);
-        },
-
         /*
         * transform the models, their links and the stocks to a json-representation
         * readable by the sankey-diagram
