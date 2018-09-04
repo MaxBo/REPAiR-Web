@@ -142,6 +142,7 @@ define([
         * @param {string} [options.fill='rgba(100, 150, 250, 0.1)'] color of filling
         * @param {string} [options.labelColor='#4253f4']            color of label
         * @param {string=} options.zIndex                           z-index of the layer
+        * @param {Object=} options.colorRange                       function to color feature by value (fill and stroke, options.stroke overrides stroke by colorRange)
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
         * @param {Object=} options.select                           options for selectable features inside this layer
@@ -276,7 +277,11 @@ define([
             function colorRangeStyle(feature, resolution){
                 var value = feature.get('value');
                 if (value == null) return defaultStyle(feature, resolution);
-                return defaultStyle(feature, resolution, options.colorRange(value).rgba(), options.colorRange(value).alpha(alpha).rgba());
+                return defaultStyle(
+                    feature, resolution,
+                    options.stroke || options.colorRange(value).rgba(),
+                    options.colorRange(value).alpha(alpha).rgba()
+                );
             }
 
             return layer;
