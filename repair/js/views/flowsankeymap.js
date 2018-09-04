@@ -22,7 +22,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         * view on a leaflet map with flows and nodes overlayed
         *
         * @param {Object} options
-        * @param {HTMLElement} options.el      element the view will be rendered in
+        * @param {HTMLElement} options.el      element the map will be rendered in
+        * @param {string} options.template     id of the script element containing the underscore template to render this view
+        * @param {Number} options.caseStudyId  id of the casestudy
+        * @param {Number} options.keyflowId    id of the keyflow
+        * @param {Number} options.materials    materials, should contain all materials used inside the keyflow
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -169,13 +173,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         toggleClusters(){
             var _this = this,
                 show = this.clusterCheck.checked;
-            if (!this.data) return;
+            // no clustering without data or clustering unchecked
+            if (!this.data || !show) return;
             // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
             });
-            if (!show) return;
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
@@ -185,6 +189,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
 
             function drawClusters(){
                 var data = _this.transformMarkerClusterData();
+                // remove old cluster layers
                 clusterPolygons.forEach(function(layer){
                     _this.leafletMap.removeLayer(layer);
                 })
@@ -204,10 +209,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
 
             // add cluster layers
             nodes.forEach(function(node){
-                var clusterValue = node.color,
-                    // ToDo: cluster by activitygroup/activity (instead of color)
-                    group = _this.clusterGroups[clusterValue];
-                if (!group){
+                if (!node.group) return;
+                var clusterId = node.group.id,
+                    group = _this.clusterGroups[clusterId];
+                // create group if not existing
+                if (!group && node.group != null){
                     var clusterGroup = new L.MarkerClusterGroup({
                         maxClusterRadius: 2 * rmax,
                         iconCreateFunction: function(cluster) {
@@ -216,10 +222,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                         animate: false
                     });
                     group = {
-                        color: node.color,
+                        color: node.group.color,
+                        label: node.group.name,
                         instance: clusterGroup
                     };
-                    _this.clusterGroups[clusterValue] = group;
+                    _this.clusterGroups[clusterId] = group;
                     _this.leafletMap.addLayer(clusterGroup);
                     clusterGroup.on('animationend', function(){
                         _this.clusterGroupsDone++;
@@ -261,7 +268,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 var splitByComposition = _this.materialCheck.checked;
                 var data = _this.transformData(
                     _this.actors, _this.flows, _this.locations,
-                    { splitByComposition: splitByComposition }
+                    {
+                        splitByComposition: splitByComposition
+                    }
                 );
                 _this.loader.deactivate();
                 _this.resetMapData(data, zoomToFit);
@@ -270,6 +279,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             })
         },
 
+        /*
+        additional to the usual attributes the flow should have the attribute
+        'color'
+        */
         addFlows: function(flows){
             var _this = this;
                 flows = (flows instanceof Array) ? flows: [flows];
@@ -278,6 +291,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             })
         },
 
+        /*
+        additional to the usual attributes the nodes should have the attributes
+        'color' and 'group' (object with attr. 'color', 'name' and 'id')
+        */
         addNodes: function(nodes){
             var _this = this,
                 nodes = (nodes instanceof Array) ? nodes: [nodes];
@@ -362,6 +379,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                             cluster = {
                             ids: [],
                             color: clusterGroup.color,
+                            label: clusterGroup.label,
                             lat: point.lat,
                             lon: point.lng
                         }
@@ -403,11 +421,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             var i = 0;
             clusters.forEach(function(cluster){
                 var nNodes = cluster.ids.length,
-                    clusterId = 'cluster' + i;
+                    clusterId = 'cluster' + i,
+                    label = cluster.label + ' (' + nNodes + ' ' + gettext('actors') + ')';
                 var clusterNode = {
                     id: clusterId,
-                    name: nNodes,
-                    label: nNodes,
+                    name: label,
+                    label: label,
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
@@ -440,6 +459,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     name: actor.get('name'),
                     label: actor.get('name'),
                     color: actor.color,
+                    group: actor.group,
                     lon: lon,
                     lat: lat,
                     radius: 10
@@ -485,7 +505,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     targetNode = nodes[targetId],
                     composition = flow.get('composition');
 
-                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
+                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>' : '<b>Product</b>',
                     totalAmount = flow.get('amount'),
                     flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;;
 
