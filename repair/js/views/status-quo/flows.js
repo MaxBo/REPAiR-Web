@@ -147,9 +147,9 @@ var FlowsView = BaseView.extend(
         this.resetNodeSelects();
         this.renderMatFilter();
         this.addEventListeners();
+        this.renderSankeyMap();
         // render with preset selects (group level, all materials etc.)
         this.renderSankey();
-        this.renderSankeyMap();
     },
 
     resetNodeSelects: function(){
@@ -377,6 +377,7 @@ var FlowsView = BaseView.extend(
     renderSankey: function(){
         if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowsView != null) this.flowsView.close();
+
         var el = this.el.querySelector('.sankey-wrapper'),
             displayLevel = this.displayLevelSelect.value,
             _this = this;
@@ -477,8 +478,23 @@ var FlowsView = BaseView.extend(
                         destinations = _this.actors.filterBy({id: destinationIds});
                     utils.complementFlowData(flows, origins, destinations,
                         function(origins, destinations){
-                            origins.forEach(function(node){ node.color = origin.color; })
-                            destinations.forEach(function(node){ node.color = destination.color; })
+                            // assign colors and groups
+                            origins.forEach(function(node){
+                                node.color = origin.color;
+                                node.group = {
+                                    color: origin.color,
+                                    name: origin.get('name'),
+                                    id: origin.id
+                                }
+                            })
+                            destinations.forEach(function(node){
+                                node.color = destination.color;
+                                node.group = {
+                                    color: destination.color,
+                                    name: destination.get('name'),
+                                    id: destination.id
+                                }
+                            })
                             _this.loader.deactivate();
                             render(origins.models, destinations.models, flows.models);
                         }
@@ -544,7 +560,7 @@ var FlowsView = BaseView.extend(
             el: this.el.querySelector('#flow-map'),
             caseStudyId: this.caseStudy.id,
             keyflowId: this.keyflowId,
-            materials: this.materials
+            materials: this.materials,
         });
 
     },
