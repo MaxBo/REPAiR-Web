@@ -163,6 +163,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 error: this.onError
             })
         }
+        var label = this.el.querySelector('#indicator-description');
+        label.innerHTML = indicator.get('description');
     },
 
     /*
