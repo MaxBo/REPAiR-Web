@@ -529,6 +529,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this = this;
         for(var i = 0; i < buttons.length; i++)
             buttons[i].style.display = 'none';
+        content.classList.remove('shaded');
         function toggleFocusArea(){
             _this.showFocusArea = !_this.showFocusArea;
             content.style.opacity = (_this.showFocusArea) ? 1 : 0.7;
