@@ -173,17 +173,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         toggleClusters(){
             var _this = this,
                 show = this.clusterCheck.checked;
-            // no clustering without data or clustering unchecked
-            if (!this.data || !show) return;
             // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
             });
+            this.clusterGroups = {};
+            // no clustering without data or clustering unchecked
+            if (!this.data || !show) return;
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
-            this.clusterGroups = {};
             var nClusterGroups = 0;
                 clusterPolygons = [];
 
@@ -506,14 +506,14 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     composition = flow.get('composition');
 
                 var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>' : '<b>Product</b>',
-                    totalAmount = flow.get('amount'),
+                    totalAmount = Math.round(flow.get('amount')),
                     flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;;
 
                 if(splitByComposition){
                     composition.fractions.forEach(function(fraction){
                         var material = _this.materials.get(fraction.material),
-                            amount = totalAmount * fraction.fraction,
-                            label = flowLabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                            amount = Math.round(totalAmount * fraction.fraction),
+                            label = flowLabel + ': ' + composition.name + '<br><b>Material: </b>' + material.get('name') + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year';
                         links.push({
                             id: flow.id,
                             label: label,
@@ -542,9 +542,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     })
                 }
                 else {
+                    var label = flowLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
                     links.push({
                         id: flow.id,
-                        label: flowLabel,
+                        label: label,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
                         color: sourceNode.color,
