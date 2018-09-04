@@ -173,17 +173,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         toggleClusters(){
             var _this = this,
                 show = this.clusterCheck.checked;
-            // no clustering without data or clustering unchecked
-            if (!this.data || !show) return;
             // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
             });
+            this.clusterGroups = {};
+            // no clustering without data or clustering unchecked
+            if (!this.data || !show) return;
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
-            this.clusterGroups = {};
             var nClusterGroups = 0;
                 clusterPolygons = [];
 
