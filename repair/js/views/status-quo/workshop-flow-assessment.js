@@ -248,7 +248,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             square.style.width = '50px';
             square.style.float = 'left';
             square.style.backgroundColor = color;
-            label.innerHTML = Math.round(entry) + ' ' + unit;
+            square.style.marginRight = '5px';
+            label.innerHTML = _this.format(Math.round(entry)) + ' ' + unit;
             _this.elLegend.appendChild(square);
             _this.elLegend.appendChild(label);
             _this.elLegend.appendChild(document.createElement('br'));
@@ -256,9 +257,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map.addLayer(
             'areas',
             {
-                stroke: 'rgb(100, 150, 250)',
-                //strokeWidth: 3,
-                fill: 'rgba(100, 150, 250, 0.5)',
+                stroke: 'grey',
+                strokeWidth: 1,
                 colorRange: colorRange,
                 //alphaFill: 0.8
             }
@@ -266,11 +266,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         areas.forEach(function(area){
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
-                value = values[area.id]
+                value = values[area.id],
+                fValue = _this.format(value);
             _this.map.addPolygon(coords, {
                 projection: 'EPSG:4326', layername: 'areas',
-                type: 'MultiPolygon', tooltip: name + ': ' + value + ' ' + unit,
-                label: value + ' ' + unit, id: area.id,
+                type: 'MultiPolygon', tooltip: name + ': ' + fValue + ' ' + unit,
+                label: fValue + ' ' + unit, id: area.id,
                 value: value
             });
         })
