@@ -161,7 +161,8 @@ define([
                 var combinedFlows = _this.flowsData[linkId],
                     shiftStep = 0.3 / combinedFlows.length,
                     xshift = 0.4,
-                    yshift = (combinedFlows.length > 1) ? 0.1 : 0.4; // straight line if only one
+                    yshift = 0.1,
+                    curve = (combinedFlows.length > 1) ? 'arc' : 'bezier';
                 combinedFlows.forEach(function(flow){
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
@@ -209,7 +210,8 @@ define([
                             xshift: xshift,
                             yshift: yshift,
                             animate: _this.animate,
-                            dash: dash
+                            dash: dash,
+                            curve: curve
                         }
                     );
                     xshift -= shiftStep;
@@ -288,8 +290,8 @@ define([
                     dy = source.y - target.y,
                     sx = options.xshift || 0.4,
                     sy = options.yshift || 0.1;
-                //var controls = [sx*dx, sy*dy, sx*dx, sy*dy];
-                var controls = [sx*dx, sy*dy, sy*dx, sx*dy];
+                //bezier or arc
+                var controls = (options.curve === 'arc') ? [sx*dx, sy*dy, sy*dx, sx*dy] : [sx*dx, sy*dy, sx*dx, sy*dy];
 
                 return "M" + source.x + "," + source.y
                      + "C" + (source.x - controls[0]) + "," + (source.y - controls[1])
