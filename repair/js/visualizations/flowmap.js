@@ -68,7 +68,7 @@ define([
                 .style("opacity", 0.9);
 
             this.maxFlowWidth = 50;
-            this.minFlowWidth = 2;
+            this.minFlowWidth = 1;
             this.maxScale = 2;
 
             this.map.on("zoomend", function(evt){ _this.resetView() });
@@ -188,8 +188,8 @@ define([
                             offset: 0
                         };
                         if (strokeWidth > calcWidth) {
-                            var dashLength = _this.minFlowWidth,
-                                dashGaps = 204 - (calcWidth * 200) / _this.minFlowWidth,
+                            var dashLength = 2,
+                                dashGaps = 204 - (calcWidth * 200) / 2,
                                 offset = Math.floor(Math.random() * Math.floor(dashGaps));
                             dash = {
                                 length: dashLength,
