@@ -1,5 +1,5 @@
 define(['views/common/baseview', 'underscore',
-        'views/data-entry/edit-node', 'views/status-quo/flows',
+        'views/data-entry/edit-node', 'views/common/flows',
         'collections/gdsecollection', 'models/gdsemodel',
         'app-config', 'patternfly-bootstrap-treeview',
         'datatables.net-bs',

@@ -4,13 +4,29 @@
 <!--for some reason i can't load this with require and css loader-->
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
 
+<!-- template for setting up flow filters -->
+<script type="text/template" id="setup-flows-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Filter" %}</h4>
+  <select name="filter" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+    <option disabled selected value="-1"> {% trans "Select" %} </option>
+  </select>
+  <button class="btn btn-primary" id="edit-flowfilter-button"> {% trans "Edit" %} </button>
+  <button class="btn btn-primary" id="new-flowfilter-button"> {% trans "New" %} </button>
+  <button class="btn btn-warning" id="delete-flowfilter-button"> {% trans "Delete" %} </button>
+</div>
+<div id="setup-flows-content">
+</div>
+</script>
+
+<!-- template for filtering and viewing flows as sankey or map -->
 <script type="text/template" id="flows-template">
 <div class="panel-group" id="filter-accordion">
   <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
       <h4 style="margin-top: 0; margin-bottom: 0;">
-        <a role="button" data-toggle="collapse" data-parent="#filter-accordion" href="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" class="accordion-toggle collapsed">
-          {% trans "Filters" %}
+        <a id="toggle-filter-section" role="button" data-toggle="collapse" data-parent="#filter-accordion" href="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" class="accordion-toggle collapsed">
+          {% trans "Filter Settings" %}
         </a>
       </h4>
     </div>
@@ -129,7 +145,7 @@
         <option value="actor">{% trans "Actor" %} </option>
       </select>
       <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
-      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filters and Render" style="float: left;" data-html="true" tabindex="0"
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Apply Filter Settings and Render" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
           Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above
           (click the Filters row to expand/collapse it).<br><br>
@@ -219,6 +235,8 @@
   <button class="btn btn-warning select-area" data-id="<%= id %>"><b style="pointer-events: none;">{% trans "Select Areas" %}</b></button>
 </div>
 </script>
+
+<!--flow assessment setup mode-->
 
 <script type="text/template" id="setup-flow-assessment-template">
 <div class="row bordered">

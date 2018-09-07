@@ -1,5 +1,5 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'views/flowsankey', 'utils/utils', 'bootstrap-select',
+        'views/common/flowsankey', 'utils/utils', 'bootstrap-select',
         'bootstrap-tagsinput'],
 
 function(BaseView, _, GDSECollection, FlowSankeyView, utils){

@@ -72,6 +72,8 @@ var FlowsView = BaseView.extend(
             _this.activityGroups.sort();
             _this.loader.deactivate();
             _this.render();
+            if (options.callback)
+                options.callback();
         })
 
     },
@@ -149,7 +151,7 @@ var FlowsView = BaseView.extend(
         this.addEventListeners();
         this.renderSankeyMap();
         // render with preset selects (group level, all materials etc.)
-        this.renderSankey();
+        //this.renderSankey();
     },
 
     resetNodeSelects: function(){
