@@ -1,4 +1,4 @@
-define(['underscore','views/baseview', 'collections/gdsecollection',
+define(['underscore','views/common/baseview', 'collections/gdsecollection',
         'models/gdsemodel'],
 
 function(_, BaseView, GDSECollection, GDSEModel){
@@ -55,12 +55,12 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.targetValuesModel = new GDSECollection([], {
                 apiTag: 'targetvalues',
             });
-            
+
             _this.spatial = [];
             this.spatialModel = new GDSECollection([], {
                 apiTag: 'targetspatialreference',
             });
-            
+
             var promises = [];
 
             promises.push(this.targetsModel.fetch({
@@ -254,7 +254,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     var span = document.createElement('span');
                     removeBtn.title = gettext('Remove target')
                     span.classList.add('glyphicon', 'glyphicon-minus');
-                    // make span unclickable (caused problems when trying to 
+                    // make span unclickable (caused problems when trying to
                     // delete row, as the span has no id attached)
                     span.style.pointerEvents = 'none';
                     removeBtn.appendChild(span);

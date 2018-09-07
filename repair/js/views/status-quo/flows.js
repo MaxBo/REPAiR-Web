@@ -1,5 +1,5 @@
-define(['views/baseview', 'underscore', 'views/flowsankeymap',
-        'collections/gdsecollection', 'views/flowsankey',
+define(['views/common/baseview', 'underscore', 'views/common/flowsankeymap',
+        'collections/gdsecollection', 'views/common/flowsankey',
         'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
 
 function(BaseView, _, FlowMapView, GDSECollection, FlowSankeyView, utils, Map, ol){

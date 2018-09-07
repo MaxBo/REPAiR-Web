@@ -1,4 +1,4 @@
-define(['underscore', 'views/baseview', 'collections/gdsecollection',
+define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
         'visualizations/flowmap', 'utils/utils','leaflet', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',

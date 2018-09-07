@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'views/data-entry/edit-actor',
         'datatables.net-bs',
         'datatables.net-bs/css/dataTables.bootstrap.css',
@@ -38,11 +38,11 @@ var ActorsView = BaseView.extend(
         var keyflowId = this.model.id,
             caseStudyId = this.model.get('casestudy');
         this.activities = options.activities;
-        this.actors = new GDSECollection([], { 
+        this.actors = new GDSECollection([], {
             apiTag: 'actors',
             apiIds: [ caseStudyId, keyflowId ]
         });
-        this.areaLevels = new GDSECollection([], { 
+        this.areaLevels = new GDSECollection([], {
             apiTag: 'arealevels',
             apiIds: [ caseStudyId ],
             comparator: 'level'
@@ -53,15 +53,15 @@ var ActorsView = BaseView.extend(
 
         this.loader.activate();
 
-        this.projection = 'EPSG:4326'; 
+        this.projection = 'EPSG:4326';
 
-        this.reasons = new GDSECollection([], { 
+        this.reasons = new GDSECollection([], {
             apiTag: 'reasons'
         });
 
         Promise.all([
-            this.activities.fetch(), 
-            this.areaLevels.fetch(), 
+            this.activities.fetch(),
+            this.areaLevels.fetch(),
             this.reasons.fetch()
         ]).then(function() {
             _this.areaLevels.sort();
@@ -96,14 +96,14 @@ var ActorsView = BaseView.extend(
         this.datatable = $('#actors-table').DataTable();
         this.renderActors();
     },
-    
+
     renderActors: function(){
         var _this = this,
             activityId = this.el.querySelector('select[name="activity-filter"]').value;
             data = (activityId =="-1") ? {} : { activity: activityId }
         this.datatable.clear();
         this.actorRows = [];
-        this.actors.fetch({ 
+        this.actors.fetch({
             data: data,
             success: function(){
                 _this.actors.each(
@@ -127,28 +127,28 @@ var ActorsView = BaseView.extend(
         this.datatable.draw();
     },
 
-    /* 
+    /*
     * add given actor to table
     */
     addActorRow: function(actor){
         var _this = this;
 
         var dataRow = this.datatable.row.add([
-                actor.get('name'), 
+                actor.get('name'),
                 actor.get('city'),
                 actor.get('address'),
             ]).draw(),
             row = dataRow.node();
         row.setAttribute('data-included', actor.get('included'));
         this.actorRows.push(row);
-        
+
         function selectRow(r){
             _.each(_this.actorRows, function(row){
                 row.classList.remove('selected');
             });
             r.classList.add('selected');
         }
-        
+
         function setIncluded(actor){
             var included = actor.get('included');
             if (!included){
@@ -162,7 +162,7 @@ var ActorsView = BaseView.extend(
             row.setAttribute('data-included', included);
         };
         setIncluded(actor);
-        
+
         // open a view on the actor (showing attributes and locations)
         function showActor(actor){
             selectRow(row);
@@ -177,14 +177,14 @@ var ActorsView = BaseView.extend(
                     model: actor,
                     activities: _this.activities,
                     keyflow: _this.model,
-                    onUpload: function(a) { 
-                        setIncluded(a); 
+                    onUpload: function(a) {
+                        setIncluded(a);
                         dataRow.data([
-                            actor.get('name'), 
+                            actor.get('name'),
                             actor.get('city'),
                             actor.get('address')
                         ]);
-                        showActor(a); 
+                        showActor(a);
                     },
                     focusarea: _this.caseStudy.get('properties').focusarea,
                     areaLevels: _this.areaLevels,
@@ -198,7 +198,7 @@ var ActorsView = BaseView.extend(
             if (_this.activeActor != actor || actor.id == null){
                 if (_this.actorView != null && _this.actorView.hasChanged()){
                     var message = gettext('Attributes of the actor have been changed but not uploaded. <br><br>Do you want to discard the changes?');
-                    _this.confirm({ 
+                    _this.confirm({
                         message: message,
                         onConfirm: function() { showActor(actor) }
                     })
@@ -210,7 +210,7 @@ var ActorsView = BaseView.extend(
         return dataRow;
     },
 
-    /* 
+    /*
     * add row on button click
     */
     addActorEvent: function(event){
@@ -231,21 +231,21 @@ var ActorsView = BaseView.extend(
                 "activity": _this.activities.first().id,
                 'reason': null,
                 'description': ''
-            }, { 
-                wait: true, 
-                success: function(){ 
+            }, {
+                wait: true,
+                success: function(){
                     var row = _this.addActorRow(actor);
-                    row.node().click(); 
+                    row.node().click();
                 }
             })
         }
-        this.getName({ 
+        this.getName({
             title: gettext('Add Actor'),
             onConfirm: onChange
         });
     },
 
-    /* 
+    /*
     * show modal for removal on button click
     */
     showRemoveModal: function(){
@@ -254,7 +254,7 @@ var ActorsView = BaseView.extend(
         this.confirm({ message: message, onConfirm: this.removeActor });
     },
 
-    /* 
+    /*
     * remove selected actor on button click in modal
     */
     removeActor: function(){

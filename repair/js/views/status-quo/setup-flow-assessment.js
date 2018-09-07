@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flow',
+define(['views/common/baseview', 'underscore', 'views/status-quo/edit-indicator-flow',
         'collections/gdsecollection'],
 
 function(BaseView, _, IndicatorFlowEditView, GDSECollection){

@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'collections/gdsecollection',
+define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'views/flowsankey', 'utils/utils', 'bootstrap-select',
         'bootstrap-tagsinput'],
 
