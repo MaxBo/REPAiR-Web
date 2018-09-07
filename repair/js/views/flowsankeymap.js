@@ -74,22 +74,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
-            this.hullCheck = document.createElement('input');
-            this.bezierCheck = document.createElement('input');
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
-                hullLabel = document.createElement('label'),
-                bezierLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
-            hullLabel.innerHTML = gettext('Convex Hull');
-            bezierLabel.innerHTML = gettext('Bezier Curves');
 
             this.materialCheck.type = "checkbox";
             this.materialCheck.classList.add('form-control');
@@ -97,10 +91,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.animationCheck.classList.add('form-control');
             this.clusterCheck.type = "checkbox";
             this.clusterCheck.classList.add('form-control');
-            this.hullCheck.type = "checkbox";
-            this.hullCheck.classList.add('form-control');
-            this.bezierCheck.type = "checkbox";
-            this.bezierCheck.classList.add('form-control');
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
@@ -111,10 +101,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             div.appendChild(aniLabel);
             div.appendChild(this.clusterCheck);
             div.appendChild(clusterLabel);
-            div.appendChild(this.hullCheck);
-            div.appendChild(hullLabel);
-            div.appendChild(this.bezierCheck);
-            div.appendChild(bezierLabel);
 
             displayMaterial.onAdd = function (map) {
                 return div;
@@ -129,12 +115,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             });
             this.animationCheck.addEventListener ("click", function(){
                 _this.flowMap.setAnimation(this.checked);
-            });
-            this.hullCheck.addEventListener ("click", function(){
-                _this.rerender();
-            });
-            this.bezierCheck.addEventListener ("click", function(){
-                _this.flowMap.setBezier(this.checked);
             });
 
             var legendControl = L.control({position: 'bottomright'});
@@ -195,16 +175,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 })
                 clusterPolygons = [];
                 _this.resetMapData(data, false);
-                if (!_this.hullCheck.checked) return;
-                Object.values(_this.clusterGroups).forEach(function(clusterGroup){
-                    clusterGroup.instance._featureGroup.eachLayer(function(layer) {
-                        if (layer instanceof L.MarkerCluster) {
-                            var clusterPoly = L.polygon(layer.getConvexHull());
-                            clusterPolygons.push(clusterPoly);
-                            _this.leafletMap.addLayer(clusterPoly);
-                        }
-                    })
-                })
+                //if (!_this.hullCheck.checked) return;
+                //Object.values(_this.clusterGroups).forEach(function(clusterGroup){
+                    //clusterGroup.instance._featureGroup.eachLayer(function(layer) {
+                        //if (layer instanceof L.MarkerCluster) {
+                            //var clusterPoly = L.polygon(layer.getConvexHull());
+                            //clusterPolygons.push(clusterPoly);
+                            //_this.leafletMap.addLayer(clusterPoly);
+                        //}
+                    //})
+                //})
             }
 
             // add cluster layers
@@ -430,7 +410,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: 20 + nNodes,
+                    radius: Math.max(30, 5 + nNodes / 2),
                     innerLabel: nNodes,
                     cluster: cluster
                 }
