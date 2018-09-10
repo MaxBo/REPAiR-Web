@@ -1,8 +1,10 @@
 define(['views/common/baseview', 'underscore', 'views/common/flowsankeymap',
-        'collections/gdsecollection', 'views/common/flowsankey',
-        'utils/utils', 'visualizations/map', 'openlayers', 'bootstrap-select'],
+        'collections/gdsecollection', 'models/gdsemodel',
+        'views/common/flowsankey', 'utils/utils', 'visualizations/map',
+        'openlayers', 'bootstrap-select'],
 
-function(BaseView, _, FlowMapView, GDSECollection, FlowSankeyView, utils, Map, ol){
+function(BaseView, _, FlowMapView, GDSECollection, GDSEModel,
+         FlowSankeyView, utils, Map, ol){
 /**
 *
 * @author Christoph Franke
@@ -140,15 +142,18 @@ var FlowsView = BaseView.extend(
         });
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
-        this.groupSelect = this.el.querySelector('select[name="group"]'),
-        this.activitySelect = this.el.querySelector('select[name="activity"]'),
+        this.groupSelect = this.el.querySelector('select[name="group"]');
+        this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
+        this.flowTypeSelect = this.el.querySelector('select[name="waste"]');
+        this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
         this.resetNodeSelects();
         this.renderMatFilter();
         this.addEventListeners();
+        this.selectedAreas = [];
         this.renderSankeyMap();
         // render with preset selects (group level, all materials etc.)
         //this.renderSankey();
@@ -158,8 +163,7 @@ var FlowsView = BaseView.extend(
 
         var level = this.nodeLevelSelect.value,
             hide = [],
-            selects = [this.actorSelect, this.groupSelect, this.activitySelect],
-            areaSelectWrapper = this.el.querySelector('.area-select-wrapper');
+            selects = [this.actorSelect, this.groupSelect, this.activitySelect];
 
         // show the grandparents
         selects.forEach(function(sel){
@@ -167,13 +171,12 @@ var FlowsView = BaseView.extend(
             sel.selectedIndex = 0;
             sel.style.height ='100%'; // resets size, in case it was expanded
         })
-        areaSelectWrapper.parentElement.parentElement.style.display = 'block';
 
         if (level == 'activity'){
-            hide = [this.actorSelect, areaSelectWrapper];
+            hide = [this.actorSelect];
         }
         if (level == 'activitygroup'){
-            hide = [this.actorSelect, this.activitySelect, areaSelectWrapper];
+            hide = [this.actorSelect, this.activitySelect];
         }
 
         // hide the grandparents
@@ -187,18 +190,19 @@ var FlowsView = BaseView.extend(
             this.renderNodeSelectOptions(this.actorSelect);
     },
 
-    changeAreaLevel: function(){
+    changeAreaLevel: function(onSuccess){
+        console.log('change')
         var levelId = this.areaLevelSelect.value;
         this.el.querySelector('.selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
-        this.prepareAreas(levelId);
+        this.prepareAreas(levelId, onSuccess);
     },
 
-    prepareAreas: function(levelId){
+    prepareAreas: function(levelId, onSuccess){
         var _this = this;
-        this.areaMap.clearLayer('areas');
         var areas = this.areas[levelId];
         if (areas){
             this.drawAreas(areas)
+            if (onSuccess) onSuccess();
         }
         else {
             areas = new GDSECollection([], {
@@ -206,15 +210,16 @@ var FlowsView = BaseView.extend(
                 apiIds: [ this.caseStudy.id, levelId ]
             });
             this.areas[levelId] = areas;
-            var loader = new utils.Loader(this.areaModal, {disable: true});
-            loader.activate();
+            //var loader = new utils.Loader(this.areaModal, {disable: true});
+            this.loader.activate();
             areas.fetch({
                 success: function(){
-                    loader.deactivate();
-                    _this.drawAreas(areas)
+                    _this.loader.deactivate();
+                    _this.drawAreas(areas);
+                    if (onSuccess) onSuccess();
                 },
                 error: function(res) {
-                    loader.deactivate();
+                    _this.loader.deactivate();
                     _this.onError(res);
                 }
             });
@@ -223,6 +228,7 @@ var FlowsView = BaseView.extend(
 
     drawAreas: function(areas){
         var _this = this;
+        this.areaMap.clearLayer('areas');
         areas.forEach(function(area){
             var coords = area.get('geometry').coordinates,
                 name = area.get('name');
@@ -244,7 +250,8 @@ var FlowsView = BaseView.extend(
         var modalSelDiv = this.el.querySelector('.selections'),
             selDiv = this.el.querySelector('#area-selections');
         selDiv.innerHTML = modalSelDiv.innerHTML;
-        this.filterActors();
+        var level = this.nodeLevelSelect.value;
+        if (level === 'actor') this.filterActors();
     },
 
     filterActors: function(){
@@ -315,7 +322,7 @@ var FlowsView = BaseView.extend(
         if (waste) filterParams.waste = waste;
 
         // material options for both stocks and flows
-        var aggregateMaterials = this.el.querySelector('input[name="aggregateMaterials"]').checked;
+        var aggregateMaterials = this.aggregateCheck.checked;
         filterParams.materials = {
             aggregate: aggregateMaterials
         }
@@ -360,7 +367,7 @@ var FlowsView = BaseView.extend(
                 values: nodeIds
             };
 
-        if (nodeIds.length>0){
+        if (nodeIds.length > 0){
             if (direction == 'to'){
                 flowFilters.push(destination_filter);
             }
@@ -682,10 +689,12 @@ var FlowsView = BaseView.extend(
 
     renderMatFilter: function(){
         var _this = this;
+        this.selectedMaterial = null;
         // select material
         var matSelect = document.createElement('div');
         matSelect.classList.add('materialSelect');
-        this.hierarchicalSelect(this.materials, matSelect, {
+        var select = this.el.querySelector('.hierarchy-select');
+        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
                  _this.selectedMaterial = model;
             },
@@ -693,6 +702,82 @@ var FlowsView = BaseView.extend(
         });
         this.el.querySelector('#material-filter').appendChild(matSelect);
     },
+
+    // return a model representing the current filter settings
+    // overwrites properties of given filter or creates a new one, if not given
+    getFilter: function(filter){
+        var filter = filter || new GDSEModel();
+        filter.set('area_level', this.areaLevelSelect.value);
+        var material = this.selectedMaterial;
+        filter.set('material', (material) ? material.id : null);
+        var direction = this.el.querySelector('input[name="direction"]:checked').value;
+        filter.set('direction', direction);
+        filter.set('aggregate_materials', this.aggregateCheck.checked)
+        filter.set('flow_type', this.flowTypeSelect.value);
+
+        var areas = [];
+        this.selectedAreas.forEach(function(area){
+            areas.push(area.id)
+        })
+        filter.set('areas', areas);
+
+        // get the nodes by level
+        var nodeLevel = this.nodeLevelSelect.value;
+        filter.set('filter_level', nodeLevel);
+        return filter;
+    },
+
+    applyFilter: function(filter){
+        var _this = this
+            areaLevel = filter.get('area_level'),
+            areas = filter.get('areas');
+
+        this.nodeLevelSelect.value = filter.get('filter_level').toLowerCase();
+        this.resetNodeSelects();
+
+        if (areaLevel == null) {
+            this.areaLevelSelect.selectedIndex = 0;
+            this.changeAreaLevel();
+        }
+        else {
+            this.areaLevelSelect.value = areaLevel;
+            var labels = [];
+            if (areas) {
+                this.prepareAreas(areaLevel, function(){
+                    areas.forEach(function(areaId){
+                        var area = _this.areas[areaLevel].get(areaId);
+                        console.log(area)
+                        _this.areaMap.selectFeature('areas', areaId);
+                        labels.push(area.get('name'));
+                        var areasLabel = labels.join(', ');
+                        _this.el.querySelector('.selections').innerHTML = areasLabel;
+                        _this.el.querySelector('#area-selections').innerHTML = areasLabel;
+                    })
+                });
+            }
+            else _this.changeAreaLevel();
+        }
+
+        var direction = filter.get('direction'),
+            directionOption = document.querySelector('input[name="direction"][value="' + direction.toLowerCase() + '"]')
+        directionOption.checked = true;
+        this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
+        this.aggregateCheck.checked = filter.get('aggregate_materials');
+
+        // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
+        var material = filter.get('material'),
+            li = this.matSelect.querySelector('li[data-value="' + material + '"]');
+        if(li){
+            matItem = li.querySelector('a');
+            matItem.click();
+        }
+        // click first one, if no material
+        else{
+            this.matSelect.querySelector('a').click();
+        }
+
+        // level actor -> filter actors
+    }
 
 });
 return FlowsView;

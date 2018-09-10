@@ -6,6 +6,7 @@ from enumfields import EnumIntegerField
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 from repair.apps.statusquo.models.indicators import NodeLevel, FlowType
+from repair.apps.studyarea.models import Area, AdminLevels
 
 
 class Direction(Enum):
@@ -20,9 +21,7 @@ class FlowFilter(GDSEModel):
     '''
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    keyflow = models.ForeignKey(KeyflowInCasestudy,
-                                on_delete=models.CASCADE)
-
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     filter_level = EnumIntegerField(
         enum=NodeLevel, default=NodeLevel.ACTIVITYGROUP)
     node_ids = models.TextField(
@@ -35,4 +34,9 @@ class FlowFilter(GDSEModel):
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
+    aggregate_materials = models.BooleanField(default=True)
+    area_level = models.ForeignKey(AdminLevels,
+                                   on_delete=models.SET_NULL,
+                                   null=True)
+    areas = models.ManyToManyField(Area, blank=True)
 

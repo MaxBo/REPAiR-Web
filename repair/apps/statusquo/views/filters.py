@@ -1,11 +1,13 @@
 from reversion.views import RevisionMixin
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     CasestudyViewSetMixin)
 from repair.apps.statusquo.models import FlowFilter
 from repair.apps.statusquo.serializers import FlowFilterSerializer
 
 
-class FlowFilterViewSet(RevisionMixin, ModelPermissionViewSet):
+class FlowFilterViewSet(RevisionMixin, CasestudyViewSetMixin,
+                        ModelPermissionViewSet):
     '''
     view on flow filters in db
     '''

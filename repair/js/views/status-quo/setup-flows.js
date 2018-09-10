@@ -1,6 +1,7 @@
-define(['views/common/baseview', 'views/common/flows', 'underscore'],
+define(['views/common/baseview', 'views/common/flows',
+        'collections/gdsecollection', 'underscore'],
 
-function(BaseView, FlowsView, _){
+function(BaseView, FlowsView, GDSECollection, _){
 /**
 *
 * @author Christoph Franke
@@ -23,10 +24,23 @@ var FlowsSetupView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        var _this = this;
         FlowsSetupView.__super__.initialize.apply(this, [options]);
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        this.render();
+        this.filters = new GDSECollection([], {
+            apiTag: 'flowFilters',
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
+        })
+        this.loader.activate();
+        this.filters.fetch({
+            success: function(){
+                _this.loader.deactivate();
+                _this.render();
+            },
+            error: _this.onError
+        })
     },
 
     /*
@@ -35,7 +49,7 @@ var FlowsSetupView = BaseView.extend(
     events: {
         'click #edit-flowfilter-button': 'editFilter',
         'click #new-flowfilter-button': 'createFilter',
-        //'click #upload-flowindicator-button': 'uploadIndicator',
+        'click #upload-flowfilter-button': 'uploadFilter',
         'click #delete-flowfilter-button': 'deleteFilter'
     },
 
@@ -46,14 +60,17 @@ var FlowsSetupView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ filters: this.filters });
+        this.toggleVisibility(false);
         this.renderFlowsView();
+        this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
+        this.nameInput = this.el.querySelector('input[name="name"]');
+        this.descriptionInput = this.el.querySelector('textarea[name="description"]');
     },
 
     renderFlowsView: function(){
         var el = this.el.querySelector('#setup-flows-content'),
             _this = this;
-        el.style.visibility = 'hidden';
         this.loader.activate();
         this.flowsView = new FlowsView({
             caseStudy: this.caseStudy,
@@ -69,7 +86,57 @@ var FlowsSetupView = BaseView.extend(
     },
 
     createFilter: function(){
-        this.flowsView.el.style.visibility = 'visible';
+        this.toggleVisibility(true);
+        var _this = this;
+        function create(name){
+            var filter = _this.filters.create(
+                { name: name },
+                { success: function(){
+                    var option = document.createElement('option');
+                    option.value = filter.id;
+                    option.innerHTML = name;
+                    _this.flowFilterSelect.appendChild(option);
+                    _this.flowFilterSelect.value = filter.id;
+                    _this.flowsView.setFilter(filter);
+                }, error: _this.onError, wait: true }
+            );
+        }
+        this.getName({ onConfirm: create });
+    },
+
+    uploadFilter: function(){
+        var selected = this.flowFilterSelect.value,
+            filter = this.filters.get(selected),
+            _this = this;
+        this.flowsView.getFilter(filter);
+        filter.set('name', this.nameInput.value);
+        filter.set('description', this.descriptionInput.value);
+        filter.save(null, {
+            success: function(model){
+                // update name in select
+                var option = _this.flowFilterSelect.querySelector('option[value="'+model.id+'"]');
+                option.innerHTML = model.get('name');
+                _this.alert(gettext('Upload successful'), gettext('Success'));
+            },
+            error: this.onError
+        });
+    },
+
+    toggleVisibility(on){
+        var visibility = (on) ? 'visible': 'hidden';
+        this.el.querySelector('#setup-flows-content').style.visibility = visibility;
+        this.el.querySelector('#filter-attributes').style.visibility = visibility;
+    },
+
+    editFilter: function(){
+        var selected = this.flowFilterSelect.value,
+            filter = this.filters.get(selected);
+        if (!filter) return;
+        this.toggleVisibility(true);
+        this.nameInput.value = filter.get('name');
+        this.descriptionInput.value = filter.get('description');
+
+        this.flowsView.applyFilter(filter);
     }
 
 
