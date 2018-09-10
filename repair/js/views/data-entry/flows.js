@@ -1,5 +1,5 @@
 define(['views/common/baseview', 'underscore',
-        'views/data-entry/edit-node', 'views/common/flows',
+        'views/data-entry/edit-node', 'views/common/filter-flows',
         'collections/gdsecollection', 'models/gdsemodel',
         'app-config', 'patternfly-bootstrap-treeview',
         'datatables.net-bs',
@@ -90,7 +90,7 @@ var FlowsEditView = BaseView.extend(
         var flowsView = new FlowsView({
             caseStudy: this.caseStudy,
             el: this.el.querySelector('#sankey-tab'),
-            template: 'flows-template',
+            template: 'filter-flows-template',
             keyflowId: this.keyflowId
         })
     },

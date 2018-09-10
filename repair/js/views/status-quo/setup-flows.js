@@ -1,7 +1,7 @@
-define(['views/common/baseview', 'views/common/flows',
+define(['views/common/baseview', 'views/common/filter-flows',
         'collections/gdsecollection', 'underscore'],
 
-function(BaseView, FlowsView, GDSECollection, _){
+function(BaseView, FilterFlowsView, GDSECollection, _){
 /**
 *
 * @author Christoph Franke
@@ -62,20 +62,20 @@ var FlowsSetupView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template({ filters: this.filters });
         this.toggleVisibility(false);
-        this.renderFlowsView();
+        this.renderFilterFlowsView();
         this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
         this.nameInput = this.el.querySelector('input[name="name"]');
         this.descriptionInput = this.el.querySelector('textarea[name="description"]');
     },
 
-    renderFlowsView: function(){
+    renderFilterFlowsView: function(){
         var el = this.el.querySelector('#setup-flows-content'),
             _this = this;
         this.loader.activate();
-        this.flowsView = new FlowsView({
+        this.filterFlowsView = new FilterFlowsView({
             caseStudy: this.caseStudy,
             el: el,
-            template: 'flows-template',
+            template: 'filter-flows-template',
             keyflowId: this.keyflowId,
             callback: function(){
                 _this.loader.deactivate();
@@ -97,7 +97,7 @@ var FlowsSetupView = BaseView.extend(
                     option.innerHTML = name;
                     _this.flowFilterSelect.appendChild(option);
                     _this.flowFilterSelect.value = filter.id;
-                    _this.flowsView.setFilter(filter);
+                    _this.filterFlowsView.setFilter(filter);
                 }, error: _this.onError, wait: true }
             );
         }
@@ -108,7 +108,7 @@ var FlowsSetupView = BaseView.extend(
         var selected = this.flowFilterSelect.value,
             filter = this.filters.get(selected),
             _this = this;
-        this.flowsView.getFilter(filter);
+        this.filterFlowsView.getFilter(filter);
         filter.set('name', this.nameInput.value);
         filter.set('description', this.descriptionInput.value);
         filter.save(null, {
@@ -136,7 +136,7 @@ var FlowsSetupView = BaseView.extend(
         this.nameInput.value = filter.get('name');
         this.descriptionInput.value = filter.get('description');
 
-        this.flowsView.applyFilter(filter);
+        this.filterFlowsView.applyFilter(filter);
     }
 
 
