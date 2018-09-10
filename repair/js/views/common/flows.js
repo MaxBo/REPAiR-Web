@@ -8,15 +8,15 @@ function(BaseView, _, FlowMapView, GDSECollection, GDSEModel,
 /**
 *
 * @author Christoph Franke
-* @name module:views/FlowsView
+* @name module:views/FilterFlowsView
 * @augments module:views/BaseView
 */
-var FlowsView = BaseView.extend(
-    /** @lends module:views/FlowsView.prototype */
+var FilterFlowsView = BaseView.extend(
+    /** @lends module:views/FilterFlowsView.prototype */
     {
 
     /**
-    * render view to show keyflows in casestudy
+    * render view to filter flows, calls FlowsView to render filtered flows on map and in sankey
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                     element the view will be rendered in
@@ -28,7 +28,7 @@ var FlowsView = BaseView.extend(
     */
     initialize: function(options){
         var _this = this;
-        FlowsView.__super__.initialize.apply(this, [options]);
+        FilterFlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'prepareAreas');
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
@@ -655,8 +655,12 @@ var FlowsView = BaseView.extend(
                 else {
                     select.options[0].selected = false;
                 }
-                $(select).selectpicker('refresh');
             }
+            // nothing selected anymore -> select 'All'
+            if (select.value == null || select.value == ''){
+                select.value = -1;
+            }
+            $(select).selectpicker('refresh');
         }
 
         $(this.groupSelect).on('changed.bs.select', function(evt, index, val){
@@ -722,8 +726,26 @@ var FlowsView = BaseView.extend(
         filter.set('areas', areas);
 
         // get the nodes by level
-        var nodeLevel = this.nodeLevelSelect.value;
+        // check descending from actors, where sth is selected
+        // take this as the actual level
+        var levelSelects = [this.actorSelect, this.activitySelect, this.groupSelect],
+            nodeLevels = ['actor', 'activity', 'activitygroup'],
+            nodeLevel = 'activitygroup',
+            selectedNodes = [],
+            levelIdx = nodeLevels.indexOf(this.nodeLevelSelect.value); // start at selected level, ignore more granular ones
+
+        for(var i = levelIdx; i < levelSelects.length; i++){
+            var select = levelSelects[i];
+            nodeLevel = nodeLevels[i];
+            console.log(select.value)
+            // sth is selected
+            if (select.value >= 0){
+                selectedNodes = this.getSelectedNodes(select);
+                break;
+            }
+        }
         filter.set('filter_level', nodeLevel);
+        filter.set('node_ids', selectedNodes.join(','));
         return filter;
     },
 
@@ -777,9 +799,35 @@ var FlowsView = BaseView.extend(
         }
 
         // level actor -> filter actors
+        var nodeLevel = filter.get('filter_level').toLowerCase(),
+            nodeIds = filter.get('node_ids');
+        this.resetNodeSelects();
+        if(nodeIds) {
+            this.nodeLevelSelect.value = nodeLevel;
+            var select;
+            // actors are special, they are not fetched in bulk and most likely unknown yet
+            if (nodeLevel === 'actor'){
+                select = this.actorSelect;
+                this.actors.fetch(
+                    {
+                        data: { 'id__in': nodeIds, fields: ['id', 'name'].join() },
+                        success: function(){
+                            _this.renderNodeSelectOptions(select, _this.actors);
+                            // could also just select all of them
+                            $(select).selectpicker('val', nodeIds.split(','));
+                        },
+                        error: _this.onError
+                    }
+                );
+            }
+            else{
+                select = (nodeLevel === 'activity') ? this.activitySelect : this.groupSelect;
+                $(select).selectpicker('val', nodeIds.split(','))
+            }
+        }
     }
 
 });
-return FlowsView;
+return FilterFlowsView;
 }
 );
