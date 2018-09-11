@@ -21,6 +21,28 @@ div.sankeymaptooltip {
     z-index: 999999999999;
 }
 
+.flow {
+    /*stroke-linecap: round;*/
+}
+
+.animated.flow {
+  /*stroke-dasharray: 10, 4;*/
+  animation: flow 60s linear infinite;
+  -webkit-animation: flow 60s linear infinite;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+@-webkit-keyframes flow {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
 .mpoint:hover{
     stroke:white;
     stroke-width: 2px;

@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'collections/gdsecollection'],
+define(['views/common/baseview', 'underscore', 'collections/gdsecollection'],
 
 function(BaseView, _, GDSECollection){
     /**
@@ -172,8 +172,8 @@ function(BaseView, _, GDSECollection){
         addStakeholder: function(category){
             var _this = this;
             function onConfirm(name){
-                var stakeholder = category.stakeholders.create( 
-                    { name: name }, 
+                var stakeholder = category.stakeholders.create(
+                    { name: name },
                     { success: _this.render, error: _this.onError, wait: true }
                 );
             }
@@ -203,8 +203,8 @@ function(BaseView, _, GDSECollection){
         removeStakeholder: function(stakeholder, category){
             var _this = this;
             function onConfirm(){
-                stakeholder.destroy({ 
-                    success: _this.render, 
+                stakeholder.destroy({
+                    success: _this.render,
                     error: _this.onError,
                     wait: true
                 })
@@ -234,8 +234,8 @@ function(BaseView, _, GDSECollection){
             var _this = this;
             var message = gettext('Do you really want to delete the stakeholder category?');
             function onConfirm(){
-                category.destroy({ 
-                    success: _this.render, 
+                category.destroy({
+                    success: _this.render,
                     error: _this.onError,
                     wait: true
                 })

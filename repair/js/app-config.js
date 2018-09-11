@@ -66,6 +66,7 @@ function (Session) {
         activityStock:          '/api/casestudies/{0}/keyflows/{1}/activitystock/',
         actorStock:             '/api/casestudies/{0}/keyflows/{1}/actorstock/',
         flowIndicators:         '/api/casestudies/{0}/keyflows/{1}/flowindicators/',
+        flowFilters:            '/api/casestudies/{0}/keyflows/{1}/flowfilters/',
         arealevels:             '/api/casestudies/{0}/levels/',
         areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
         wmsresources:           '/api/casestudies/{0}/wmsresources/'

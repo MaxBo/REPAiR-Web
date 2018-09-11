@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'views/status-quo/edit-indicator-flow',
+define(['views/common/baseview', 'underscore', 'views/status-quo/edit-indicator-flow',
         'collections/gdsecollection'],
 
 function(BaseView, _, IndicatorFlowEditView, GDSECollection){
@@ -79,9 +79,9 @@ var FlowAssessmentSetupView = BaseView.extend(
     * render the view
     */
     render: function(){
-        var _this = this;
-        var html = document.getElementById(this.template).innerHTML
-        var template = _.template(html);
+        var _this = this,
+            html = document.getElementById(this.template).innerHTML,
+            template = _.template(html);
         this.el.innerHTML = template({indicators: this.indicators});
 
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');

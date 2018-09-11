@@ -193,9 +193,15 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
         """
         Test if user can post without permission
         """
-        filterdata = json.dumps([
-            {'function': 'origin__activity__activitygroup__id__in',
-             'values': [self.activitygroup1.id, self.activitygroup2.id],}])
+        filterdata = json.dumps([{
+            'link': 'or',
+            'functions': [
+                {
+                    'function': 'origin__activity__activitygroup__id__in',
+                    'values': [self.activitygroup1.id, self.activitygroup2.id],
+                }
+            ]
+        }])
         post_data1 = dict(aggregation_level=json.dumps(
             dict(origin='activitygroup', destination='activitygroup')),
                           materials=json.dumps(dict(aggregate=True,

@@ -161,9 +161,15 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         """
         Test if user can post without permission
         """
-        filterdata = json.dumps([
-            {'function': 'origin__activity__activitygroup__id__in',
-             'values': [1, 2],}])
+        filterdata = json.dumps([{
+            'link': 'or',
+            'functions': [
+                {
+                    'function': 'origin__activity__activitygroup__id__in',
+                    'values': [1, 2],
+                }
+            ]
+        }])
         post_data1 = dict(aggregation_level='activitygroup',
                              materials=json.dumps(dict(aggregate=True,
                                                        id=[self.material_1])),
