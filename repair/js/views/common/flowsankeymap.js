@@ -1,6 +1,7 @@
 define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
-        'visualizations/flowmap', 'utils/utils','leaflet', 'leaflet-fullscreen',
+        'visualizations/flowmap', 'utils/utils','leaflet',
+        'leaflet-easyprint', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
@@ -68,6 +69,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 .addLayer(this.backgroundLayer);
             this.flowMap = new FlowMap(this.leafletMap);
             this.leafletMap.addControl(new L.Control.Fullscreen({position:'topright'}));
+            this.leafletMap.addControl(new L.easyPrint({
+                position: 'topright',
+                filename: 'sankeymap',
+                exportOnly: true,
+                hideControlContainer: true
+            }));
             this.leafletMap.on("zoomend", this.zoomed);
 
             var displayMaterial = L.control({position: 'bottomleft'});
