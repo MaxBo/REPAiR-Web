@@ -1,7 +1,7 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
-        'collections/gdsecollection', 'd3', 'app-config'],
+        'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png'],
 
-function(BaseView, _, Sankey, GDSECollection, d3, config){
+function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
 
     /**
     *
@@ -38,6 +38,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
         initialize: function(options){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
+            _.bindAll(this, 'exportPNG');
             var _this = this;
             this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
@@ -53,6 +54,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.stocks = options.stocks || [];
 
             var fullscreenBtn = document.createElement('button'),
+                exportImgBtn = document.createElement('button'),
                 zoomControls = document.createElement('div'),
                 zoomIn = document.createElement('a'),
                 inSpan = document.createElement('span'),
@@ -61,7 +63,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 zoomToFit = document.createElement('a'),
                 fitSpan = document.createElement('span');
 
-            fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle");
+            fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
+            exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay");
+            exportImgBtn.style.top = "70px";
+            exportImgBtn.style.right = "20px";
+            exportImgBtn.style.height = "30px";
 
             zoomIn.classList.add("btn", "square");
             zoomIn.setAttribute('data-zoom', "+0.5");
@@ -85,8 +91,10 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
 
             this.el.appendChild(zoomControls);
             this.el.appendChild(fullscreenBtn);
+            this.el.appendChild(exportImgBtn);
 
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+            exportImgBtn.addEventListener('click', this.exportPNG);
 
             this.transformedData = this.transformData(
                 this.origins, this.destinations, this.flows,
@@ -105,6 +113,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             'change #data-view-type-select': 'renderSankey'
         },
 
+        exportPNG: function(){
+            var svg = this.sankeyDiv.querySelector('svg');
+            saveSvgAsPng.saveSvgAsPng(svg, "sankey.png", {scale: 2, backgroundColor: "#FFFFFF"});
+        },
+
         /*
         * render the view
         */
@@ -119,6 +132,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
                 div.classList.add('sankey', 'bordered');
                 this.el.appendChild(div);
             }
+            this.sankeyDiv = div;
             var sankey = new Sankey({
                 height: height,
                 width: width,
