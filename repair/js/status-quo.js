@@ -74,19 +74,19 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     };
 
     renderSetup = function(caseStudy){
-        //var challengesView = new ChallengesAimsView({
-            //caseStudy: caseStudy,
-            //el: document.getElementById('challenges'),
-            //template: 'challenges-aims-template',
-            //mode: 1
-        //})
-        //var evaluationView = new SustainabilityView({
-            //caseStudy: caseStudy,
-            //el: document.getElementById('sustainability-assessment'),
-            //template: 'sustainability-template'
-        //})
-        //renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
-                                 //'setup-flow-assessment-template');
+        var challengesView = new ChallengesAimsView({
+            caseStudy: caseStudy,
+            el: document.getElementById('challenges'),
+            template: 'challenges-aims-template',
+            mode: 1
+        })
+        var evaluationView = new SustainabilityView({
+            caseStudy: caseStudy,
+            el: document.getElementById('sustainability-assessment'),
+            template: 'sustainability-template'
+        })
+        renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
+                                 'setup-flow-assessment-template');
         renderFlowsView(caseStudy, FlowsSetupView, 'setup-flows-template');
     };
 

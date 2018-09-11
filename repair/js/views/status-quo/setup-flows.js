@@ -86,12 +86,12 @@ var FlowsSetupView = BaseView.extend(
     },
 
     createFilter: function(){
-        this.toggleVisibility(true);
         var _this = this;
         function create(name){
             var filter = _this.filters.create(
                 { name: name },
                 { success: function(){
+                    _this.toggleVisibility(true);
                     var option = document.createElement('option');
                     option.value = filter.id;
                     option.innerHTML = filter.get('name');
