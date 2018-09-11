@@ -513,7 +513,7 @@ var FilterFlowsView = BaseView.extend(
         else {
             this.areaLevelSelect.value = areaLevel;
             var labels = [];
-            if (areas) {
+            if (areas && areas.length > 0) {
                 this.prepareAreas(areaLevel, function(){
                     areas.forEach(function(areaId){
                         var area = _this.areas[areaLevel].get(areaId);
