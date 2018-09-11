@@ -1,11 +1,11 @@
-require(['d3', 'models/casestudy', 'views/common/filter-flows',
+require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows', 'views/status-quo/targets',
     'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
     'views/status-quo/setup-flow-assessment',
     'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base',
     'static/css/status-quo.css'
-], function (d3, CaseStudy, FlowsView, FlowsSetupView,
+], function (d3, CaseStudy, FlowsWorkshopView, FlowsSetupView,
     TargetsView, ChallengesAimsView,
     SustainabilityView, FlowAssessmentSetupView, FlowAssessmentWorkshopView,
     appConfig) {
@@ -69,7 +69,7 @@ require(['d3', 'models/casestudy', 'views/common/filter-flows',
         })
         renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
                                  'workshop-flow-assessment-template');
-        renderFlowsView(caseStudy, FlowsView, 'filter-flows-template');
+        renderFlowsView(caseStudy, FlowsWorkshopView, 'workshop-flows-template');
 
     };
 
