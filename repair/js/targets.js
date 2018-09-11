@@ -9,16 +9,37 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
      * @module Targets
      */
 
-    renderWorkshop = function(caseStudy){
-        var flowTargetsView = new SustainabilityTargetsView({
+    var sustainabilityTargetsView, flowTargetsView;
+
+    renderWorkshop = function(caseStudy, keyflow){
+        if (sustainabilityTargetsView) sustainabilityTargetsView.close();
+        sustainabilityTargetsView = new SustainabilityTargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('sustainability-targets'),
             template: 'sustainability-targets-template'
         })
     };
 
-    renderSetup = function(caseStudy){
+    renderSetup = function(caseStudy, keyflow){
     };
+
+
+    function render(caseStudy, mode){
+
+        var keyflowSelect = document.getElementById('keyflow-select');
+        document.getElementById('keyflow-warning').style.display = 'block';
+        keyflowSelect.addEventListener('change', function(){
+            var keyflowId = this.value;
+            document.getElementById('keyflow-warning').style.display = 'none';
+            if (Number(mode) == 1) {
+                renderSetup(caseStudy, keyflowId);
+            }
+            else {
+                renderWorkshop(caseStudy, keyflowId);
+            }
+        });
+        document.getElementById('keyflow-select').disabled = false;
+    }
 
     appConfig.session.fetch({
         success: function(session){
@@ -27,12 +48,7 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
                 caseStudy = new CaseStudy({id: caseStudyId});
 
             caseStudy.fetch({success: function(){
-                if (Number(mode) == 1) {
-                    renderSetup(caseStudy);
-                }
-                else {
-                    renderWorkshop(caseStudy);
-                }
+                render(caseStudy, mode);
             }});
         }
     });
