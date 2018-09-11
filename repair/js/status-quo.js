@@ -57,11 +57,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template'
         })
-        var targetsView = new TargetsView({
-            caseStudy: caseStudy,
-            el: document.getElementById('targets'),
-            template: 'targets-template'
-        })
         var evaluationView = new SustainabilityView({
             caseStudy: caseStudy,
             el: document.getElementById('sustainability-assessment'),

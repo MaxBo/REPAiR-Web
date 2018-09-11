@@ -5,15 +5,15 @@ function(_, BaseView, GDSECollection, GDSEModel){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
-    * @name module:views/FlowTargetsView
+    * @name module:views/SustainabilityTargetsView
     * @augments Backbone.View
     */
-    var FlowTargetsView = BaseView.extend(
-        /** @lends module:views/FlowTargetsView.prototype */
+    var SustainabilityTargetsView = BaseView.extend(
+        /** @lends module:views/SustainabilityTargetsView.prototype */
         {
 
         /**
-        * render setup view on targets
+        * render workshop view on sustainability targets
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                      element the view will be rendered in
@@ -24,7 +24,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
-            FlowTargetsView.__super__.initialize.apply(this, [options]);
+            SustainabilityTargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
 
             this.template = options.template;
@@ -207,7 +207,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             _this.aims.forEach(function(aim){
                 var row = document.createElement('div');
                 row.classList.add('row', 'overflow', 'bordered');
-                var html = document.getElementById('target-row-template').innerHTML
+                var html = document.getElementById('sustainability-target-row-template').innerHTML
                 var template = _.template(html);
                 row.innerHTML = template({ aim: aim.text, aimId: aim.id });
                 row.setAttribute("rowAimId", aim.id);
@@ -394,6 +394,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
         },
 
     });
-    return FlowTargetsView;
+    return SustainabilityTargetsView;
 }
 );

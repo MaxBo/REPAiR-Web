@@ -1,6 +1,6 @@
-require(['d3', 'models/casestudy', 'views/targets/flow-targets',
+require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
          'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, FlowTargetsView, appConfig) {
+], function (d3, CaseStudy, SustainabilityTargetsView, appConfig) {
 
     /**
      * entry point for views on subpages of "Targets" menu item
@@ -10,10 +10,10 @@ require(['d3', 'models/casestudy', 'views/targets/flow-targets',
      */
 
     renderWorkshop = function(caseStudy){
-        var flowTargetsView = new FlowTargetsView({
+        var flowTargetsView = new SustainabilityTargetsView({
             caseStudy: caseStudy,
-            el: document.getElementById('flow-targets'),
-            template: 'targets-template'
+            el: document.getElementById('sustainability-targets'),
+            template: 'sustainability-targets-template'
         })
     };
 
