@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore',
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'models/gdsemodel',
         'collections/geolocations', 'models/geolocation',
         'visualizations/map', 'utils/utils', 'bootstrap'],

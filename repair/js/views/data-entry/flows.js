@@ -1,5 +1,5 @@
-define(['views/baseview', 'underscore',
-        'views/data-entry/edit-node', 'views/status-quo/flows',
+define(['views/common/baseview', 'underscore',
+        'views/data-entry/edit-node', 'views/common/filter-flows',
         'collections/gdsecollection', 'models/gdsemodel',
         'app-config', 'patternfly-bootstrap-treeview',
         'datatables.net-bs',
@@ -14,7 +14,7 @@ function(BaseView, _, EditNodeView, FlowsView, GDSECollection, GDSEModel, config
 * @name module:views/FlowsEditView
 * @augments module:views/BaseView
 */
-var FlowsEditView = BaseView.extend( 
+var FlowsEditView = BaseView.extend(
     /** @lends module:views/FlowsEditView.prototype */
     {
 
@@ -44,18 +44,18 @@ var FlowsEditView = BaseView.extend(
         this.materials = options.materials;
 
         // collections of nodes associated to the casestudy
-        this.activityGroups = new GDSECollection([], { 
+        this.activityGroups = new GDSECollection([], {
             apiTag: 'activitygroups',
             apiIds: [ this.caseStudyId, this.keyflowId ]
         });
         this.activities = options.activities;
-        this.publications = new GDSECollection([], { 
+        this.publications = new GDSECollection([], {
             apiTag: 'publicationsInCasestudy',
             apiIds: [ this.caseStudyId ]
         });
 
         this.loader.activate();
-        
+
         var promises = [ this.activityGroups.fetch(), this.publications.fetch() ]
         Promise.all(promises).then(function(){
             _this.loader.deactivate();
@@ -87,10 +87,10 @@ var FlowsEditView = BaseView.extend(
     },
 
     renderSankey: function(){
-        var flowsView = new FlowsView({ 
+        var flowsView = new FlowsView({
             caseStudy: this.caseStudy,
             el: this.el.querySelector('#sankey-tab'),
-            template: 'flows-template',
+            template: 'filter-flows-template',
             keyflowId: this.keyflowId
         })
     },
@@ -140,7 +140,7 @@ var FlowsEditView = BaseView.extend(
             // check and warn if previous view was changed
             if (_this.editNodeView != null && _this.editNodeView.hasChanged()){
                 var message = gettext('Attributes of the node have been changed but not uploaded. <br><br>Do you want to discard the changes?');
-                _this.confirm({ 
+                _this.confirm({
                     message: message,
                     onConfirm: function(){
                         _this.renderNodeView(node);
@@ -162,7 +162,7 @@ var FlowsEditView = BaseView.extend(
             });
         $(divid).treeview('collapseAll', {silent: true});
     },
-    
+
     setupActorsTable: function(){
         var _this = this;
         var columns = [
@@ -174,7 +174,7 @@ var FlowsEditView = BaseView.extend(
             {data: 'address', title: gettext('Address'), name: 'administrative_location.address'},
         ];
         var table = this.el.querySelector('#actor-select-modal table');
-        
+
         var url = config.api.actors.format(this.caseStudyId, this.keyflowId);
         this.actorsDatatable = $(table).DataTable({
             serverSide: true,
@@ -192,7 +192,7 @@ var FlowsEditView = BaseView.extend(
                 $(this).addClass('selected');
             }
         } );
-        
+
         // add individual search fields for all columns
         $(table).append('<tfoot><tr></tr></tfoot>');
         var footer = $('tfoot tr', table);
@@ -233,12 +233,12 @@ var FlowsEditView = BaseView.extend(
         var options = options || {},
             model = node.model,
             _this = this;
-        
+
         function selectActor(onConfirm){
             _this.onConfirmActor = function(id){
-                model = new GDSEModel( {id: id}, { 
+                model = new GDSEModel( {id: id}, {
                     apiTag: 'actors',
-                    apiIds: [ _this.caseStudyId, _this.keyflowId ] 
+                    apiIds: [ _this.caseStudyId, _this.keyflowId ]
                 });
                 node.model = model;
                 onConfirm();
@@ -249,17 +249,17 @@ var FlowsEditView = BaseView.extend(
                 activity = _this.activities.get(node.parentActivityId),
                 activityInput = $('input[name="activity_name"]', modal);
             activityInput.val(activity.get('name'));
-            activityInput.trigger('change'); 
+            activityInput.trigger('change');
             //_this.actorsDatatable.search( activity.get('name') ).draw();
             modal.modal('show');
         }
-    
+
         function render(){
             if (_this.editNodeView != null) _this.editNodeView.close();
             _this.selectedNode = node;
             model.caseStudyId = _this.caseStudyId;
             model.keyflowId = _this.keyflowId;
-            model.fetch({ 
+            model.fetch({
                 success: function(){
                     // currently selected keyflow
                     _this.editNodeView = new EditNodeView({
@@ -275,7 +275,7 @@ var FlowsEditView = BaseView.extend(
                 }, error: _this.onError
             })
         }
-        
+
         if (node.tag == 'actorSelect' && !options.rerender){
             // patternfly-bootstrap-treeview bug workaround
            if (this.selectedNode){
@@ -283,7 +283,7 @@ var FlowsEditView = BaseView.extend(
                 $('#data-tree').treeview('getNodes').forEach(function(node){
                     if (node.nodeId == _this.selectedNode.nodeId) _node = node;
                 })
-                
+
                 // select previous node (so that "Select Actor" is not highlighted on cancel)
                 $('#data-tree').treeview('selectNode', [_node, { silent: true }]);
             }
@@ -291,7 +291,7 @@ var FlowsEditView = BaseView.extend(
         }
         else render();
     },
-    
+
     confirmActorSelection: function(){
         var selected = this.actorsDatatable.row('.selected');
         this.actorsDatatable.$('tr.selected').removeClass('selected');

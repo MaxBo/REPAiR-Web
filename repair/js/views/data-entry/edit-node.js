@@ -1,6 +1,6 @@
-define(['views/baseview', 'underscore', 
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'models/gdsemodel',
-        'app-config', 'datatables.net', 
+        'app-config', 'datatables.net',
         'datatables.net-buttons/js/buttons.html5.js','bootstrap-select'],
 function(BaseView, _, GDSECollection, GDSEModel, config){
 /**
@@ -51,43 +51,43 @@ var EditNodeView = BaseView.extend(
         this.publications = options.publications;
 
         this.onUpload = options.onUpload;
-        this.flowTag = (this.model.apiTag == 'actors') ? 'actorToActor': 
+        this.flowTag = (this.model.apiTag == 'actors') ? 'actorToActor':
                        (this.model.apiTag == 'activities') ? 'activityToActivity':
                        'groupToGroup';
-        this.stockTag = (this.model.apiTag == 'actors') ? 'actorStock': 
+        this.stockTag = (this.model.apiTag == 'actors') ? 'actorStock':
                         (this.model.apiTag == 'activities') ? 'activityStock':
                         'groupStock';
 
-        this.inFlows = new GDSECollection([], { 
-            apiTag: this.flowTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        this.inFlows = new GDSECollection([], {
+            apiTag: this.flowTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
         });
-        this.outFlows = new GDSECollection([], { 
-            apiTag: this.flowTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        this.outFlows = new GDSECollection([], {
+            apiTag: this.flowTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
         });
-        this.stocks = new GDSECollection([], { 
-            apiTag: this.stockTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
-        });
-        
-        this.newInFlows = new GDSECollection([], { 
-            apiTag: this.flowTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
-        });
-        this.newOutFlows = new GDSECollection([], { 
-            apiTag: this.flowTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
-        });
-        this.newStocks = new GDSECollection([], { 
-            apiTag: this.stockTag, 
-            apiIds: [ this.caseStudyId, this.keyflowId ] 
+        this.stocks = new GDSECollection([], {
+            apiTag: this.stockTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
         });
 
-        this.outProducts = new GDSECollection([], { 
+        this.newInFlows = new GDSECollection([], {
+            apiTag: this.flowTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
+        this.newOutFlows = new GDSECollection([], {
+            apiTag: this.flowTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
+        this.newStocks = new GDSECollection([], {
+            apiTag: this.stockTag,
+            apiIds: [ this.caseStudyId, this.keyflowId ]
+        });
+
+        this.outProducts = new GDSECollection([], {
             apiTag: 'products'
         });
-        this.outWastes = new GDSECollection([], { 
+        this.outWastes = new GDSECollection([], {
             apiTag: 'wastes'
         });
 
@@ -100,7 +100,7 @@ var EditNodeView = BaseView.extend(
         // join list of nace codes to comma seperated query param
         if (nace instanceof Array)
             nace = nace.join();
-        
+
         var promises = [
             this.inFlows.fetch({ data: { destination: this.model.id } }),
             this.outFlows.fetch({ data: { origin: this.model.id } }),
@@ -108,7 +108,7 @@ var EditNodeView = BaseView.extend(
             this.outProducts.getFirstPage({ data: { nace: nace } }),
             this.outWastes.getFirstPage({ data: { nace: nace } })
         ]
-        
+
         Promise.all(promises).then(function() {
             _this.loader.deactivate();
             _this.render();
@@ -134,7 +134,7 @@ var EditNodeView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
         this.el.innerHTML = template({name: this.model.get('name')});
-        
+
         var content = this.nodePopoverContent(this.model);
 
         var popOverSettings = {
@@ -143,7 +143,7 @@ var EditNodeView = BaseView.extend(
             html: true,
             content: content
         }
-        
+
         require('bootstrap');
         this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
@@ -157,7 +157,7 @@ var EditNodeView = BaseView.extend(
         this.stocks.each(function(stock){
             _this.addFlowRow('stock-table', stock, 'origin', true);
         });
-        
+
         var table = this.el.querySelector('#publications-table');
         this.datatable = $(table).DataTable({
             "columnDefs": [{
@@ -196,7 +196,7 @@ var EditNodeView = BaseView.extend(
     },
 
     // add a flow to table (which one is depending on type of flow)
-    // targetIdentifier is the attribute of the flow with the id of the node connected with this node 
+    // targetIdentifier is the attribute of the flow with the id of the node connected with this node
     // set isStock to True for stocks
     addFlowRow: function(tableId, flow, targetIdentifier, isStock){
         var _this = this;
@@ -217,8 +217,8 @@ var EditNodeView = BaseView.extend(
             flow.markedForDeletion = checkbox.checked;
         });
 
-        /* add an input-field to the row, 
-            * tracking changes made by user to the attribute and automatically updating the model 
+        /* add an input-field to the row,
+            * tracking changes made by user to the attribute and automatically updating the model
             */
         var addInput = function(attribute, inputType, unit){
             var input = document.createElement("input");
@@ -235,7 +235,7 @@ var EditNodeView = BaseView.extend(
                 wrapper.style.whiteSpace = "nowrap";
                 input.style.float = 'left';
                 // need space for units
-                input.style.maxWidth = '70%'; 
+                input.style.maxWidth = '70%';
                 cell.appendChild(wrapper);
             }
 
@@ -257,7 +257,7 @@ var EditNodeView = BaseView.extend(
                 targetId = flow.get(targetIdentifier),
                 target,
                 targetButton = document.createElement('button');
-            
+
             targetCell.appendChild(targetButton);
             targetButton.name = 'target';
             targetButton.style.width = '100%';
@@ -267,20 +267,20 @@ var EditNodeView = BaseView.extend(
             targetButton.style.maxWidth = '200px';
             targetButton.classList.add('btn', 'inverted', 'square', 'btn-danger');
             targetButton.innerHTML = '-';
-            
+
             function setTarget(id){
                 target = new GDSEModel({ id : id }, { url: _this.model.urlRoot() });
                 target.fetch({
                     success: function(){
                         toggleBtnClass(targetButton, 'btn-primary');
                         targetButton.innerHTML = target.get('name');
-                        
-                    }, error: this.onError 
+
+                    }, error: this.onError
                 })
             }
-            
+
             if (targetId) setTarget(targetId);
-    
+
             var popOverSettings = {
                 placement: 'right',
                 container: 'body',
@@ -290,9 +290,9 @@ var EditNodeView = BaseView.extend(
                     return _this.nodePopoverContent(target);
                 }
             }
-            
+
             this.setupPopover($(targetButton).popover(popOverSettings));
-            
+
             targetButton.addEventListener('click', function(){
                 //_this.selectActor(onConfirm);
                 _this.onConfirmNode = function(id, name){
@@ -301,13 +301,13 @@ var EditNodeView = BaseView.extend(
                 }
                 $('#flow-nodes-modal').modal('show');
             })
-           
+
         };
 
         var itemWrapper = document.createElement("span");
-        // prevent breaking 
+        // prevent breaking
         itemWrapper.setAttribute("style", "white-space: nowrap");
-        row.insertCell(-1).appendChild(itemWrapper); 
+        row.insertCell(-1).appendChild(itemWrapper);
 
         // input for product
         var wasteOption = document.createElement("option")
@@ -328,7 +328,7 @@ var EditNodeView = BaseView.extend(
         itemWrapper.appendChild(typeSelect);
         var pencil = document.createElement('span'),
             btnClass = (flow.get('composition')) ? 'btn-primary' : 'btn-danger';
-        
+
         editFractionsBtn.classList.add('btn', 'square');
         toggleBtnClass(editFractionsBtn, btnClass);
         editFractionsBtn.appendChild(pencil);
@@ -347,7 +347,7 @@ var EditNodeView = BaseView.extend(
             else {
                 var origin = target;
                 if (origin == null) return;
-                var options = { 
+                var options = {
                     state: {
                         pageSize: 1000000,
                         firstPage: 1,
@@ -358,10 +358,10 @@ var EditNodeView = BaseView.extend(
                 _this.loader.activate();
                 var apiTag = (flow.get('waste') == 'true') ? 'wastes': 'products',
                     items = new GDSECollection([], { apiTag: apiTag });
-                items.getFirstPage({ data: { nace: nace } }).then( 
-                    function(){ 
+                items.getFirstPage({ data: { nace: nace } }).then(
+                    function(){
                         _this.loader.deactivate();
-                        _this.editFractions(flow, items, editFractionsBtn); 
+                        _this.editFractions(flow, items, editFractionsBtn);
                     }
                 )
             }
@@ -377,9 +377,9 @@ var EditNodeView = BaseView.extend(
                 var composition = flow.get('composition') || {};
                 var html = document.getElementById('popover-fractions-template').innerHTML;
                 var template = _.template(html);
-                var content = template({ 
+                var content = template({
                     title: composition.name,
-                    fractions: composition.fractions, 
+                    fractions: composition.fractions,
                     materials: _this.materials
                 });
                 return content;
@@ -407,7 +407,7 @@ var EditNodeView = BaseView.extend(
         // datasource of flow
 
         var sourceCell = row.insertCell(-1);
-        this.addPublicationInput(sourceCell, flow.get('publication'), 
+        this.addPublicationInput(sourceCell, flow.get('publication'),
             function(id){ flow.set('publication', id) })
 
         return row;
@@ -448,7 +448,7 @@ var EditNodeView = BaseView.extend(
             else {
                 sourceButton.innerHTML = '-';
                 toggleBtnClass(sourceButton, 'btn-warning');
-            } 
+            }
         };
         sourceButton.addEventListener('click', function(){
             _this.editDatasource(onConfirm);
@@ -477,7 +477,7 @@ var EditNodeView = BaseView.extend(
     },
 
     /*
-    * open modal dialog for editing the fractions of a flow 
+    * open modal dialog for editing the fractions of a flow
     * items are the available products/wastes the user can select from
     */
     editFractions: function(flow, items, button){
@@ -565,13 +565,13 @@ var EditNodeView = BaseView.extend(
             });
             matSelect.style.float = 'left';
             row.insertCell(-1).appendChild(matSelect);
-            
+
             var avoidCheck = document.createElement('input');
             avoidCheck.type = 'checkbox';
             avoidCheck.name = 'avoidable';
             avoidCheck.checked = fraction.avoidable;
             row.insertCell(-1).appendChild(avoidCheck);
-        
+
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -668,7 +668,7 @@ var EditNodeView = BaseView.extend(
                     f = fInput.value / 100,
                     id = row.getAttribute('data-id');
                 if (id == "null") id = null;
-                var fraction = { 
+                var fraction = {
                     'id': id,
                     'fraction': Number(Math.round(f+'e5')+'e-5'),
                     'material': matSelect.getAttribute('data-material-id'),
@@ -753,10 +753,10 @@ var EditNodeView = BaseView.extend(
             }
         }
     },
-    
+
     nodePopoverContent: function(model){
         if (!model) return '-';
-        var templateId = (this.flowType == 'activitygroup') ? 'group-attributes-template' : 
+        var templateId = (this.flowType == 'activitygroup') ? 'group-attributes-template' :
                          (this.flowType == 'activity') ? 'activity-attributes-template' :
                          'actor-attributes-template';
         var html = document.getElementById(templateId).innerHTML,
@@ -765,7 +765,7 @@ var EditNodeView = BaseView.extend(
             model: model
         });
     },
-    
+
     setupNodeTable: function(){
         var _this = this;
         var columns = [
@@ -835,7 +835,7 @@ var EditNodeView = BaseView.extend(
             });
         }
     },
-    
+
     confirmNodeSelection: function(){
         var selected = this.nodeDatatable.row('.selected');
         this.nodeDatatable.$('tr.selected').removeClass('selected');
@@ -850,7 +850,7 @@ var EditNodeView = BaseView.extend(
         this.activePublication = null;
         _.each(this.dsRows, function(row){ row.classList.remove('selected'); });
         this.onPubConfirmed = onConfirm;
-        $('#datasource-modal').modal('show'); 
+        $('#datasource-modal').modal('show');
     },
 
     confirmDatasource: function(){
@@ -873,7 +873,7 @@ var EditNodeView = BaseView.extend(
     renderDatasources: function(publications){
         var _this = this;
         this.datatable.clear();
-        
+
         this.dsRows = [];
         publications.each(function(publication){
             var dataRow = _this.datatable.row.add([
@@ -894,7 +894,7 @@ var EditNodeView = BaseView.extend(
             });
         });
     },
-    
+
     getChangedModels: function(){
         var changed = [];
         // update existing models
@@ -914,28 +914,28 @@ var EditNodeView = BaseView.extend(
         this.newInFlows.each(checkCreate);
         this.newOutFlows.each(checkCreate);
         this.newStocks.each(checkCreate);
-        
+
         return changed;
     },
-    
+
     hasChanged: function(){
         return (this.getChangedModels().length > 0)
     },
-    
+
     getDefaultComposition: function(model, onSuccess){
         // activity groups have no default
         if(model == null || model.tag == 'activitygroup'){
             onSuccess(null);
             return;
         }
-        
+
         model.fetch({success: function(){
             var nace = model.get('nace') || 'None';
             var items = new GDSECollection([], { apiTag: 'products' });
-            items.getFirstPage({ data: { nace: nace } }).then( 
-                function(){ 
+            items.getFirstPage({ data: { nace: nace } }).then(
+                function(){
                     var item = (items.length > 0) ? items.first() : null;
-                    onSuccess(item); 
+                    onSuccess(item);
                 }
             )
         }})
@@ -948,7 +948,7 @@ var EditNodeView = BaseView.extend(
         this.loader.activate();
 
         var onError = function(model, response){
-            _this.onError(response); 
+            _this.onError(response);
             _this.loader.deactivate();
         };
 

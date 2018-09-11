@@ -12,6 +12,7 @@ import copy
 import json
 from collections import defaultdict, OrderedDict
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.gis.db.models import Union
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -287,6 +288,17 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         new_flows.append(new_flow)
     return new_flows
 
+def build_area_filter(function_name, values, keyflow_id):
+    actors = Actor.objects.filter(
+        activity__activitygroup__keyflow__id = keyflow_id)
+    areas = Area.objects.filter(id__in = values).aggregate(area=Union('geom'))
+    actors = actors.filter(
+        administrative_location__geom__intersects=areas['area'])
+    rest_func = 'origin__id__in' if function_name == 'origin__areas' \
+        else 'destination__id__in'
+    return rest_func, actors.values_list('id')
+
+
 class FlowViewSet(RevisionMixin,
                   CasestudyViewSetMixin,
                   ModelPermissionViewSet,
@@ -332,10 +344,17 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             waste: true / false,  # products or waste, don't pass for both
 
             # prefilter flows
+            # list of subfilters, subfilters are 'and' linked
             filters: [
                 {
-                     function: django filter function (e.g. origin__id__in)
-                     values: values for filter function (e.g. [1,5,10])
+                    link : 'and' or 'or' (default 'or')
+                    functions: [
+                        {
+                             function: django filter function (e.g. origin__id__in)
+                             values: values for filter function (e.g. [1,5,10])
+                        },
+                        ...
+                    ]
                 },
                 ...
             ],
@@ -381,10 +400,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
-        filter_link = params.get('filter_link', None)
         material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
+        origin_areas = params.get('origin_areas', None)
+        destination_areas = params.get('destination_areas', None)
 
         if spatial_aggregation and level_aggregation:
             return HttpResponseBadRequest(_(
@@ -394,23 +414,37 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         # filter products (waste=False) or waste (waste=True)
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
-
+        keyflow = kwargs['keyflow_pk']
         # filter queryset based on passed filters
         if filters:
-            filter_functions = []
-            for f in filters:
-                func = f['function']
-                v = f['values']
-                filter_function = Q(**{func: v})
-                filter_functions.append(filter_function)
-            if filter_link == 'and':
-                link_func = np.bitwise_and
-            else:
-                link_func = np.bitwise_or
-            if len(filter_functions) == 1:
-                queryset = queryset.filter(filter_functions[0])
-            if len(filter_functions) > 1:
-                queryset = queryset.filter(link_func.reduce(filter_functions))
+            for sub_filter in filters:
+                filter_link = sub_filter.get('link', None)
+                filter_functions = []
+                for f in sub_filter['functions']:
+                    func = f['function']
+                    v = f['values']
+                    if func.endswith('__areas'):
+                        func, v = build_area_filter(func, v, keyflow)
+                    filter_function = Q(**{func: v})
+                    filter_functions.append(filter_function)
+                if filter_link == 'and':
+                    link_func = np.bitwise_and
+                else:
+                    link_func = np.bitwise_or
+                if len(filter_functions) == 1:
+                    queryset = queryset.filter(filter_functions[0])
+                if len(filter_functions) > 1:
+                    queryset = queryset.filter(link_func.reduce(filter_functions))
+
+        keyflow = kwargs['keyflow_pk']
+        actors = Actor.objects.filter(
+            activity__activitygroup__keyflow__id=keyflow)
+        if origin_areas:
+            print()
+            pass
+
+        if destination_areas:
+            pass
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))

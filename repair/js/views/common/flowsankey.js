@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'visualizations/sankey',
+define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config){

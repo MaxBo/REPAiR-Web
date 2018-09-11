@@ -150,6 +150,7 @@ var BaseView = Backbone.View.extend(
                 if (options.onSelect) options.onSelect(model);
             })
         }
+        return select;
     },
 
     /**

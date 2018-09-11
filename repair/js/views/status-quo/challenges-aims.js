@@ -1,4 +1,4 @@
-define(['underscore','views/baseview', 'collections/gdsecollection', 
+define(['underscore','views/common/baseview', 'collections/gdsecollection',
         'models/gdsemodel', 'muuri'],
 
 function(_, BaseView, GDSECollection, GDSEModel, Muuri){
@@ -41,7 +41,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 apiIds: [this.caseStudy.id],
                 comparator: 'priority'
             });
-            
+
             var promises = [this.challenges.fetch(), this.aims.fetch()]
 
             Promise.all(promises).then(this.render)
@@ -78,7 +78,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragReleaseDuration: 400,
                 dragReleaseEasing: 'ease'
             })
-            this.challengesGrid.on('dragReleaseEnd', function () { 
+            this.challengesGrid.on('dragReleaseEnd', function () {
                 _this.uploadPriorities(_this.challengesGrid, _this.challenges) } );
             this.aimsGrid = new Muuri(aimsPanel, {
                 items: '.panel-item',
@@ -90,7 +90,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragReleaseDuration: 400,
                 dragReleaseEasing: 'ease'
             })
-            this.aimsGrid.on('dragReleaseEnd', function () { 
+            this.aimsGrid.on('dragReleaseEnd', function () {
                 _this.uploadPriorities(_this.aimsGrid, _this.aims) } );
 
             this.renderPanel(this.challengesGrid, this.challenges, gettext('Challenge'));
@@ -112,7 +112,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 });
             }
         },
-        
+
         uploadPriorities(grid, collection){
             var items = grid.getItems(),
                 priority = 0;
@@ -131,7 +131,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 _this.renderItem(grid, model, type);
             });
         },
-        
+
         renderItem(grid, model, type){
             var html = document.getElementById('panel-item-template').innerHTML,
                 template = _.template(html),

@@ -21,7 +21,7 @@ from repair.apps.asmfa.serializers import (
 )
 
 from repair.apps.asmfa.views import (filter_by_material, aggregate_fractions,
-                                     aggregate_to_level)
+                                     aggregate_to_level, build_area_filter)
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
@@ -32,7 +32,7 @@ class StockViewSet(RevisionMixin,
                    CasestudyViewSetMixin,
                    ModelPermissionViewSet,
                    ABC):
-    
+
     def get_queryset(self):
         model = self.serializer_class.Meta.model
         return model.objects.\
@@ -72,15 +72,15 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         body params:
         body = {
             waste: true / false,  # products or waste, don't pass for both
-            
-            # filter/aggregate by given material 
+
+            # filter/aggregate by given material
             materials: {
                 ids: id, # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
-            
+
             filter_link: and/or, # logical linking of filters, defaults to 'or'
-            
+
             # prefilter stocks
             filters: [
                 {
@@ -89,7 +89,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
                 },
                 ...
             ],
-            
+
         }
         '''
         self.check_permission(request, 'view')
@@ -112,31 +112,36 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         # filter products (waste=False) or waste (waste=True)
         if waste_filter is not None:
             queryset = queryset.filter(waste=waste_filter)
-    
+
+        keyflow = kwargs['keyflow_pk']
         # filter queryset based on passed filters
         if filters:
-            filter_functions = []
-            for f in filters:
-                func = f['function']
-                v = f['values']
-                filter_function = Q(**{func: v})
-                filter_functions.append(filter_function)
-            if filter_link == 'and':
-                link_func = np.bitwise_and
-            else:
-                link_func = np.bitwise_or
-            if len(filter_functions) == 1:
-                queryset = queryset.filter(filter_functions[0])
-            if len(filter_functions) > 1:
-                queryset = queryset.filter(link_func(*filter_functions))
-        
+            for sub_filter in filters:
+                filter_link = sub_filter.get('link', None)
+                filter_functions = []
+                for f in sub_filter['functions']:
+                    func = f['function']
+                    v = f['values']
+                    if func.endswith('__areas'):
+                        func, v = build_area_filter(func, v, keyflow)
+                    filter_function = Q(**{func: v})
+                    filter_functions.append(filter_function)
+                if filter_link == 'and':
+                    link_func = np.bitwise_and
+                else:
+                    link_func = np.bitwise_or
+                if len(filter_functions) == 1:
+                    queryset = queryset.filter(filter_functions[0])
+                if len(filter_functions) > 1:
+                    queryset = queryset.filter(link_func.reduce(filter_functions))
+
         aggregate_materials = (False if material_filter is None
                                    else material_filter.get('aggregate', False))
         material_ids = (None if material_filter is None
                             else material_filter.get('ids', None))
         unaltered_material_ids = ([] if material_filter is None
                                   else material_filter.get('unaltered', []))
-    
+
         materials = None
         unaltered_materials = None
         # filter the stocks by their fractions excluding flows whose
@@ -147,18 +152,18 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
                     id__in=unaltered_material_ids)
             queryset = filter_by_material(
                     list(materials) + list(unaltered_materials), queryset)
-        
+
         serializer = SerializerClass(queryset, many=True,
                                          context={'request': request, })
         data = serializer.data
-    
+
         # POSTPROCESSING: all following operations are performed on serialized
         # data
-        
+
         if level_aggregation and level_aggregation != 'actors':
             data = aggregate_to_level(data, queryset, level_aggregation, None,
                                       is_stock=True)
-        
+
         # materials were given and/or materials shall be aggregated
         if materials or aggregate_materials:
             data = aggregate_fractions(
@@ -166,6 +171,6 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
                 unaltered_materials=unaltered_materials
             )
             return Response(data)
-        
+
         return Response(data)
 
