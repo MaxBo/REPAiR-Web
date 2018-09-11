@@ -60,7 +60,8 @@ from repair.apps.statusquo.views import (
     AreaOfProtectionViewSet,
     TargetValueViewSet,
     TargetSpatialReferenceViewSet,
-    FlowIndicatorViewSet
+    FlowIndicatorViewSet,
+    FlowFilterViewSet
 )
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
@@ -163,6 +164,8 @@ kf_router.register(r'actors', ActorViewSet)
 kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
 kf_router.register(r'operationallocations', OperationalLocationViewSet)
 kf_router.register(r'flowindicators', FlowIndicatorViewSet)
+kf_router.register(r'flowfilters', FlowFilterViewSet)
+
 
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',

@@ -68,7 +68,7 @@ define([
                 .style("opacity", 0.9);
 
             this.maxFlowWidth = 50;
-            this.minFlowWidth = 2;
+            this.minFlowWidth = 1;
             this.maxScale = 2;
 
             this.map.on("zoomend", function(evt){ _this.resetView() });
@@ -79,8 +79,9 @@ define([
 
         // fit svg layer to map
         resetView(){
-            var svgPos = this.resetBbox(),
-                topLeft = svgPos[0];
+            var svgPos = this.resetBbox();
+            if (!svgPos) return;
+            var topLeft = svgPos[0];
             this.g.attr("transform",
                         "translate(" + -topLeft[0] + "," + -topLeft[1] + ") ");
             this.draw();
@@ -159,17 +160,10 @@ define([
             // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
             for (var linkId in this.flowsData) {
                 var combinedFlows = _this.flowsData[linkId],
-                    totalValue = 0,
-                    paths = [],
-                    sxp, syp, txp, typ, sourceRadius, targetRadius;
-
-                // ToDo: reenable "bothways" (meaning flows back and forth between two nodes)
-                var bothways = false;
-
-                combinedFlows.forEach(function(c){ totalValue += c.value });
-
-                var totalStroke = _this.minFlowWidth + ((totalValue * scale) / _this.maxFlowValue * _this.maxFlowWidth),
-                    offset = - totalStroke / 2;
+                    shiftStep = 0.3 / combinedFlows.length,
+                    xshift = 0.4,
+                    yshift = 0.1,
+                    curve = (combinedFlows.length > 1) ? 'arc' : 'bezier';
                 combinedFlows.forEach(function(flow){
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
@@ -182,34 +176,48 @@ define([
                         console.log('Warning: missing actor for flow');
                         return;
                     }
-                    var share = flow.value / totalValue,
-                        strokeWidth = totalStroke * share;
-                    offset += strokeWidth;
+                    //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
+                    var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
+                        strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
 
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
 
-                    //add projection to source and target coordinates
-                    sxp = sourceCoords[0];
-                    syp = sourceCoords[1];
-                    txp = targetCoords[0];
-                    typ = targetCoords[1];
+                    if(_this.animate){
+                        var dash = {
+                            length: 10,
+                            gap: 4,
+                            offset: 0
+                        };
+                        if (strokeWidth > calcWidth) {
+                            var dashLength = 2,
+                                dashGaps = 204 - (calcWidth * 200) / 2,
+                                offset = Math.floor(Math.random() * Math.floor(dashGaps));
+                            dash = {
+                                length: dashLength,
+                                gap: dashGaps,
+                                offset: offset
+                            };
+                        }
+                    }
 
-                    sourceRadius = source.radius * scale,
-                    targetRadius = target.radius * scale;
-
-                    var points = _this.getPointsFromPath(sxp, syp, txp, typ, strokeWidth, sourceRadius, targetRadius, offset, bothways),
-                        path = _this.drawPath(points, flow.label, flow.color, strokeWidth, _this.drawBezier);
-                    paths.push(path);
+                    var path = _this.drawPath(
+                        [
+                            {x: sourceCoords[0], y: sourceCoords[1]},
+                            {x: targetCoords[0], y: targetCoords[1]}
+                        ],
+                        flow.label, flow.color, strokeWidth,
+                        {
+                            xshift: xshift,
+                            yshift: yshift,
+                            animate: _this.animate,
+                            dash: dash,
+                            curve: curve
+                        }
+                    );
+                    xshift -= shiftStep;
+                    yshift += shiftStep;
                 });
-
-                if (_this.drawBezier || paths.length === 0) continue;
-                //  clip arrow head (take the last calculated points, same anyway for all combined flows)
-                var points = _this.getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceRadius, targetRadius, totalStroke / 2, bothways),
-                    clipPath = _this.drawArrowhead(points[0].x, points[0].y, points[1].x, points[1].y, targetRadius, totalStroke, linkId);
-                paths.forEach(function(path){
-                    path.attr("clip-path", clipPath);
-                })
 
             };
 
@@ -217,10 +225,9 @@ define([
             Object.values(_this.nodesData).forEach(function (node) {
                 var x = _this.projection([node.lon, node.lat])[0],
                     y = _this.projection([node.lon, node.lat])[1],
-                    radius = node.radius * scale / 2;
+                    radius = node.radius / 2;// * scale / 2;
                 _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
             });
-            this.setAnimation();
         }
 
         scale(){
@@ -268,117 +275,32 @@ define([
 
         }
 
-        // function to define line length adjustment
-        adjustedPathLength(sxp, syp, txp, typ, sourceRadius, targetRadius) {
-            var dxp = txp - sxp,
-                dyp = typ - syp;
-            var flowLength = Math.sqrt(dxp * dxp + dyp * dyp);
-            var sourceReduction = sourceRadius,
-                targetReduction = - targetRadius;
-
-            // ratio between full line length and shortened line
-            var sourceRatio = sourceReduction / flowLength,
-                targetRatio = targetReduction / flowLength;
-
-            // value by which line gets shorter
-            var sxReductionValue = dxp * sourceRatio,
-                syReductionValue = dyp * sourceRatio,
-                txReductionValue = dxp * targetRatio,
-                tyReductionValue = dyp * targetRatio;
-
-            // source and target coordinates + projection + offset + adjusted length
-            var sxpa = sxp + sxReductionValue,
-                sypa = syp + syReductionValue,
-                txpa = txp + txReductionValue,
-                typa = typ + tyReductionValue;
-
-            return [dxp, dyp, sxpa, sypa, txpa, typa, flowLength];
-        }
-
-        // function to calculate total offset for each flow by connection
-        totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways){
-            if (bothways) {
-                var sxpao = sxpa + (offset) * (dyp / flowLength),
-                    sypao = sypa - (offset) * (dxp / flowLength),
-                    txpao = txpa + (offset) * (dyp / flowLength),
-                    typao = typa - (offset) * (dxp / flowLength);
-                return [sxpao, sypao, txpao, typao];
-            }
-            else {
-                var sxpao = sxpa + (offset - (totalStroke / 2)) * (dyp / flowLength),
-                    sypao = sypa - (offset - (totalStroke / 2)) * (dxp / flowLength),
-                    txpao = txpa + (offset - (totalStroke / 2)) * (dyp / flowLength),
-                    typao = typa - (offset - (totalStroke / 2)) * (dxp / flowLength);
-                return [sxpao, sypao, txpao, typao];
-            }
-        }
-
-        getPointsFromPath(sxp, syp, txp, typ, totalStroke, sourceRadius, targetRadius, offset, bothways){
-            var pathLengthValues = this.adjustedPathLength(sxp, syp, txp, typ, sourceRadius, targetRadius);
-            var dxp = pathLengthValues[0],
-                dyp = pathLengthValues[1],
-                sxpa = pathLengthValues[2],
-                sypa = pathLengthValues[3],
-                txpa = pathLengthValues[4],
-                typa = pathLengthValues[5],
-                flowLength = pathLengthValues[6];
-
-            var totalOffset = this.totalOffset(sxpa, sypa, txpa, typa, dxp, dyp, flowLength, offset, totalStroke, bothways);
-            var sxpao = totalOffset[0],
-                sypao = totalOffset[1],
-                txpao = totalOffset[2],
-                typao = totalOffset[3];
-
-            return [
-                { x: sxpao, y: sypao },
-                { x: txpao, y: typao }
-            ];
-        }
-
-        defineTriangleData(sxpao, sypao, txpao, typao, targetRadius, totalStroke, flowLength, dxp, dyp){
-            var triangleData = [];
-            var tReduction = - targetRadius,
-                tRatio = tReduction / flowLength,
-                txRValue = dxp * tRatio,
-                tyRValue = dyp * tRatio,
-                sxpl = sxpao + (totalStroke / 2) * (dyp / flowLength),
-                sypl = sypao - (totalStroke / 2) * (dxp / flowLength),
-                txplb = (txpao + (totalStroke / 2) * (dyp / flowLength))+ txRValue*(totalStroke/5),
-                typlb = (typao - (totalStroke / 2) * (dxp / flowLength))+ tyRValue*(totalStroke/5),
-                sxpr = sxpao - (totalStroke / 2) * (dyp / flowLength),
-                sypr = sypao + (totalStroke / 2) * (dxp / flowLength),
-                txprb = (txpao - (totalStroke / 2) * (dyp / flowLength))+ txRValue*(totalStroke/5),
-                typrb = (typao + (totalStroke / 2) * (dxp / flowLength))+ tyRValue*(totalStroke/5);
-            triangleData.push({'tx': sxpl, 'ty': sypl}, {'tx': txplb, 'ty': typlb},
-                {'tx': txpao, 'ty': typao},
-                {'tx': txprb, 'ty': typrb}, {'tx': sxpr, 'ty': sypr});
-            return triangleData;
-        }
-
         // function to draw actual paths for the directed quantity flows
-        drawPath(points, label, color, strokeWidth, drawBezier) {
-            var _this = this;
+        drawPath(points, label, color, strokeWidth, options ) {
+            var _this = this,
+                options = options || {};
             var line = d3.svg.line()
                          .x(function(d) { return d.x; })
                          .y(function(d) { return d.y; });
+            // Determine control point locations for different link styles
             var bezier = function(points) {
                 // Set control point inputs
                 var source = points[0],
                     target = points[1],
                     dx = source.x - target.x,
                     dy = source.y - target.y,
-                    sx = 0.4,
-                    sy = 0.1;
+                    sx = options.xshift || 0.4,
+                    sy = options.yshift || 0.1;
+                //bezier or arc
+                var controls = (options.curve === 'arc') ? [sx*dx, sy*dy, sy*dx, sx*dy] : [sx*dx, sy*dy, sx*dx, sy*dy];
 
-                // Determine control point locations for different link styles
-                var controls = [sx*dx, sy*dy, sx*dx, sy*dy];
                 return "M" + source.x + "," + source.y
                      + "C" + (source.x - controls[0]) + "," + (source.y - controls[1])
                      + " " + (target.x + controls[2]) + "," + (target.y + controls[3])
                      + " " + target.x + "," + target.y;
             };
             var path = this.g.append("path")
-                .attr('d', (drawBezier) ? bezier(points) : line(points) )
+                .attr('d', bezier(points))
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
                 .attr("fill", 'none')
@@ -401,39 +323,23 @@ define([
                         .duration(500)
                         .style("opacity", 0)
                     path.attr("stroke-opacity", 0.5)
-                });
+                })
+                .classed('flow', true)
+                .classed('animated', options.animate);
+            if (options.dash){
+                var dash = options.dash;
+                path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
+                path.attr("stroke-dashoffset", dash.offset);
+            }
             return path;
         }
 
         setAnimation(on){
-            if(on != null) this.doAnimation = on;
-            this.g.selectAll('path').classed('flowline', this.doAnimation);
+            if(on != null) this.animate = on;
+            //this.g.selectAll('path').classed('flowline', this.animate);
+            this.draw();
         }
 
-        setBezier(on){
-            this.drawBezier = on;
-            this.resetView();
-        }
-
-        // clip path-function to use on draw path to get arrowheads
-        drawArrowhead(sxpao, sypao, txpao, typao, targetRadius, totalStroke, id){
-            var dxp = txpao - sxpao,
-                dyp = typao - sypao;
-            var flowLength = Math.sqrt(dxp * dxp + dyp * dyp);
-            var triangleData = this.defineTriangleData(sxpao, sypao, txpao, typao, targetRadius, totalStroke, flowLength, dxp, dyp);
-
-            var clip = this.g.append("clipPath")
-                .attr("id", "clip"+id)
-                .append("polygon")
-                .data(triangleData)
-                .attr("points", triangleData.map(function (d) {
-                        var x = d.tx,
-                            y = d.ty;
-                        return [x, y].join(",");
-                    }).join(" ")
-                );
-            return "url(#clip" + id +")";
-        }
     }
     return FlowMap;
 });

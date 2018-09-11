@@ -1,4 +1,4 @@
-define(['underscore', 'views/baseview', 'collections/gdsecollection',
+define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
         'visualizations/flowmap', 'utils/utils','leaflet', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
@@ -22,7 +22,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         * view on a leaflet map with flows and nodes overlayed
         *
         * @param {Object} options
-        * @param {HTMLElement} options.el      element the view will be rendered in
+        * @param {HTMLElement} options.el      element the map will be rendered in
+        * @param {string} options.template     id of the script element containing the underscore template to render this view
+        * @param {Number} options.caseStudyId  id of the casestudy
+        * @param {Number} options.keyflowId    id of the keyflow
+        * @param {Number} options.materials    materials, should contain all materials used inside the keyflow
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -70,22 +74,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
-            this.hullCheck = document.createElement('input');
-            this.bezierCheck = document.createElement('input');
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
-                hullLabel = document.createElement('label'),
-                bezierLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
-            hullLabel.innerHTML = gettext('Convex Hull');
-            bezierLabel.innerHTML = gettext('Bezier Curves');
 
             this.materialCheck.type = "checkbox";
             this.materialCheck.classList.add('form-control');
@@ -93,10 +91,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.animationCheck.classList.add('form-control');
             this.clusterCheck.type = "checkbox";
             this.clusterCheck.classList.add('form-control');
-            this.hullCheck.type = "checkbox";
-            this.hullCheck.classList.add('form-control');
-            this.bezierCheck.type = "checkbox";
-            this.bezierCheck.classList.add('form-control');
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
@@ -107,10 +101,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             div.appendChild(aniLabel);
             div.appendChild(this.clusterCheck);
             div.appendChild(clusterLabel);
-            div.appendChild(this.hullCheck);
-            div.appendChild(hullLabel);
-            div.appendChild(this.bezierCheck);
-            div.appendChild(bezierLabel);
 
             displayMaterial.onAdd = function (map) {
                 return div;
@@ -125,12 +115,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             });
             this.animationCheck.addEventListener ("click", function(){
                 _this.flowMap.setAnimation(this.checked);
-            });
-            this.hullCheck.addEventListener ("click", function(){
-                _this.rerender();
-            });
-            this.bezierCheck.addEventListener ("click", function(){
-                _this.flowMap.setBezier(this.checked);
             });
 
             var legendControl = L.control({position: 'bottomright'});
@@ -169,45 +153,47 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         toggleClusters(){
             var _this = this,
                 show = this.clusterCheck.checked;
-            if (!this.data) return;
             // remove cluster layers from map
             this.leafletMap.eachLayer(function (layer) {
                 if (layer !== _this.backgroundLayer)
                     _this.leafletMap.removeLayer(layer);
             });
-            if (!show) return;
+            this.clusterGroups = {};
+            // no clustering without data or clustering unchecked
+            if (!this.data || !show) return;
             this.flowMap.clear();
             var nodes = Object.values(_this.data.nodes),
                 rmax = 30;
-            this.clusterGroups = {};
             var nClusterGroups = 0;
                 clusterPolygons = [];
 
             function drawClusters(){
                 var data = _this.transformMarkerClusterData();
+                // remove old cluster layers
                 clusterPolygons.forEach(function(layer){
                     _this.leafletMap.removeLayer(layer);
                 })
                 clusterPolygons = [];
                 _this.resetMapData(data, false);
-                if (!_this.hullCheck.checked) return;
-                Object.values(_this.clusterGroups).forEach(function(clusterGroup){
-                    clusterGroup.instance._featureGroup.eachLayer(function(layer) {
-                        if (layer instanceof L.MarkerCluster) {
-                            var clusterPoly = L.polygon(layer.getConvexHull());
-                            clusterPolygons.push(clusterPoly);
-                            _this.leafletMap.addLayer(clusterPoly);
-                        }
-                    })
-                })
+                //if (!_this.hullCheck.checked) return;
+                //Object.values(_this.clusterGroups).forEach(function(clusterGroup){
+                    //clusterGroup.instance._featureGroup.eachLayer(function(layer) {
+                        //if (layer instanceof L.MarkerCluster) {
+                            //var clusterPoly = L.polygon(layer.getConvexHull());
+                            //clusterPolygons.push(clusterPoly);
+                            //_this.leafletMap.addLayer(clusterPoly);
+                        //}
+                    //})
+                //})
             }
 
             // add cluster layers
             nodes.forEach(function(node){
-                var clusterValue = node.color,
-                    // ToDo: cluster by activitygroup/activity (instead of color)
-                    group = _this.clusterGroups[clusterValue];
-                if (!group){
+                if (!node.group) return;
+                var clusterId = node.group.id,
+                    group = _this.clusterGroups[clusterId];
+                // create group if not existing
+                if (!group && node.group != null){
                     var clusterGroup = new L.MarkerClusterGroup({
                         maxClusterRadius: 2 * rmax,
                         iconCreateFunction: function(cluster) {
@@ -216,10 +202,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                         animate: false
                     });
                     group = {
-                        color: node.color,
+                        color: node.group.color,
+                        label: node.group.name,
                         instance: clusterGroup
                     };
-                    _this.clusterGroups[clusterValue] = group;
+                    _this.clusterGroups[clusterId] = group;
                     _this.leafletMap.addLayer(clusterGroup);
                     clusterGroup.on('animationend', function(){
                         _this.clusterGroupsDone++;
@@ -261,7 +248,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 var splitByComposition = _this.materialCheck.checked;
                 var data = _this.transformData(
                     _this.actors, _this.flows, _this.locations,
-                    { splitByComposition: splitByComposition }
+                    {
+                        splitByComposition: splitByComposition
+                    }
                 );
                 _this.loader.deactivate();
                 _this.resetMapData(data, zoomToFit);
@@ -270,6 +259,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             })
         },
 
+        /*
+        additional to the usual attributes the flow should have the attribute
+        'color'
+        */
         addFlows: function(flows){
             var _this = this;
                 flows = (flows instanceof Array) ? flows: [flows];
@@ -278,6 +271,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             })
         },
 
+        /*
+        additional to the usual attributes the nodes should have the attributes
+        'color' and 'group' (object with attr. 'color', 'name' and 'id')
+        */
         addNodes: function(nodes){
             var _this = this,
                 nodes = (nodes instanceof Array) ? nodes: [nodes];
@@ -362,6 +359,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                             cluster = {
                             ids: [],
                             color: clusterGroup.color,
+                            label: clusterGroup.label,
                             lat: point.lat,
                             lon: point.lng
                         }
@@ -403,15 +401,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             var i = 0;
             clusters.forEach(function(cluster){
                 var nNodes = cluster.ids.length,
-                    clusterId = 'cluster' + i;
+                    clusterId = 'cluster' + i,
+                    label = cluster.label + ' (' + nNodes + ' ' + gettext('actors') + ')';
                 var clusterNode = {
                     id: clusterId,
-                    name: nNodes,
-                    label: nNodes,
+                    name: label,
+                    label: label,
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: 20 + nNodes,
+                    radius: Math.max(30, 5 + nNodes / 2),
                     innerLabel: nNodes,
                     cluster: cluster
                 }
@@ -440,6 +439,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     name: actor.get('name'),
                     label: actor.get('name'),
                     color: actor.color,
+                    group: actor.group,
                     lon: lon,
                     lat: lat,
                     radius: 10
@@ -485,15 +485,15 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     targetNode = nodes[targetId],
                     composition = flow.get('composition');
 
-                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>b>' : '<b>Product</b>',
-                    totalAmount = flow.get('amount'),
+                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>' : '<b>Product</b>',
+                    totalAmount = Math.round(flow.get('amount')),
                     flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;;
 
                 if(splitByComposition){
                     composition.fractions.forEach(function(fraction){
                         var material = _this.materials.get(fraction.material),
-                            amount = totalAmount * fraction.fraction,
-                            label = flowLabel + ': ' + composition.name + '<b><br>Material: </b>' + material.get('name') + '<b><br>Amount: </b>' + amount + ' t/year';
+                            amount = Math.round(totalAmount * fraction.fraction),
+                            label = flowLabel + ': ' + composition.name + '<br><b>Material: </b>' + material.get('name') + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year';
                         links.push({
                             id: flow.id,
                             label: label,
@@ -522,9 +522,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     })
                 }
                 else {
+                    var label = flowLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
                     links.push({
                         id: flow.id,
-                        label: flowLabel,
+                        label: label,
                         source: flow.get('origin'),
                         target: flow.get('destination'),
                         color: sourceNode.color,

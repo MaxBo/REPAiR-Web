@@ -100,7 +100,7 @@ div.fullscreen{
   width: 100%;
   height: auto;
   padding-top: 120px;
-  background-color: white;
+  background-color: #fdfdfd;
 }
 
 #tab-content {
@@ -261,7 +261,7 @@ tfoot th {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 500;
+  z-index: 50000000;
   width: 150px;
   height: 150px;
   /*margin: -75px 0 0 -75px;*/
@@ -545,7 +545,7 @@ div.panel-item:hover label{
   position: relative;
 }
 .shaded{
-  box-shadow: 0px 1px 6px 0px #adadad;
+  box-shadow: 0px 1px 6px 0px #d6d6d6;
 }
 .shaded:hover{
   box-shadow: 0px 1px 6px 0px #c4d875;

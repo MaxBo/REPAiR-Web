@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore',
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'models/gdsemodel',
         'collections/geolocations', 'models/geolocation',
         'visualizations/map', 'utils/utils', 'bootstrap'],
@@ -39,6 +39,8 @@ var EditActorView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        // workaround for brackets in query params
+        $.ajaxSetup({ traditional: true });
         EditActorView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderLocation');
 
@@ -109,7 +111,7 @@ var EditActorView = BaseView.extend(
                 apiIds: [ this.caseStudyId, topLevel.id ],
                 comparator: 'name'
             });
-            deferreds.push(this.topLevelAreas.fetch());
+            deferreds.push(this.topLevelAreas.fetch({ data: { field: ['id', 'name'] }}));
         }
 
             $.when.apply($, deferreds).then(function(){
@@ -420,7 +422,10 @@ var EditActorView = BaseView.extend(
             comparator: 'name'
         });
         childAreas.fetch({
-            data: { parent_id: area.id },
+            data: {
+                parent_id: area.id,
+                field: ['id', 'name']
+            },
             success: function(){ _this.addAreaOptions(childAreas, directChild); }
         });
     },
@@ -449,7 +454,10 @@ var EditActorView = BaseView.extend(
             comparator: 'name'
         });
         areas.fetch({
-            data:  { parent_id: parentId },
+            data:  {
+                parent_id: parentId,
+                field: ['id', 'name']
+            },
             success: function(){
                 _this.addAreaOptions(areas, select);
                 select.value = area.id;
@@ -702,10 +710,15 @@ var EditActorView = BaseView.extend(
                         apiIds: [ _this.caseStudyId, levelId ],
                         comparator: 'name'
                     });
-                    areas.fetch({ data: { parent_id: parentId }, success: function(){
-                        _this.setAreaSelects(
-                            area, selectIdx,
-                            { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); }
+                    areas.fetch({
+                        data: {
+                            parent_id: parentId,
+                            field: ['id', 'name']
+                        },
+                        success: function(){
+                            _this.setAreaSelects(
+                                area, selectIdx,
+                                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); }
                         });
                     }});
                 }

@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'visualizations/sankey',
+define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config){
@@ -164,10 +164,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config){
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.render();
-        },
-
-        format: function(value){
-            return value.toLocaleString(this.language);
         },
 
         /*

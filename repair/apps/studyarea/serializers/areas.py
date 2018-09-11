@@ -50,13 +50,15 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
     casestudy = CasestudyField(source='adminlevel.casestudy',
                                view_name='casestudy-detail')
     point_on_surface = GeometryField(source='pnt', read_only=True)
+    geometry = GeometryField(source='geom')
 
     class Meta:
         model = Area
         fields = ('url', 'id',
                   'casestudy',
                   'name', 'code',
-                  'point_on_surface'
+                  'point_on_surface',
+                  'geometry'
                   )
 
 

@@ -1,4 +1,4 @@
-define(['underscore','views/baseview', 'collections/gdsecollection',
+define(['underscore','views/common/baseview', 'collections/gdsecollection',
         'models/gdsemodel'],
 
 function(_, BaseView, GDSECollection, GDSEModel){

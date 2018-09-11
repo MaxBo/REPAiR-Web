@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', "models/gdsemodel", 
+define(['views/common/baseview', 'underscore', "models/gdsemodel",
         'utils/utils', 'patternfly-bootstrap-treeview',
         'patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.css'],
 
@@ -67,10 +67,10 @@ var MaterialsView = BaseView.extend(
         this.renderDataTree();
 
     },
-    
+
     materialToNode: function(material){
-        var node = { 
-            id: material.id, 
+        var node = {
+            id: material.id,
             parent: material.get('parent'),
             text: material.get('name'),
             model: material,
@@ -106,7 +106,7 @@ var MaterialsView = BaseView.extend(
             state: { collapsed: false }
         }]
 
-        function hideEdits(event, node){ 
+        function hideEdits(event, node){
             _this.buttonBox.style.display = 'None';
             // patternfly has problems to get the nodes right, so this does not work unfortunately
             //if (_this.selectedNode){
@@ -137,7 +137,7 @@ var MaterialsView = BaseView.extend(
         $(this.materialTree).treeview('remove');
         this.renderDataTree();
     },
-    
+
     unselectAll: function(){
         var selected = $(this.materialTree).treeview('getSelected');
         selected.forEach(function(node){
@@ -154,12 +154,12 @@ var MaterialsView = BaseView.extend(
         var removeBtn = document.getElementById('remove-material-button');
         // root can't be deleted or edited (root has no model)
         if (!node.model) {
-            editBtn.style.display = 'None'; 
-            removeBtn.style.display = 'None'; 
+            editBtn.style.display = 'None';
+            removeBtn.style.display = 'None';
         }
         else {
             editBtn.style.display = 'inline';
-            removeBtn.style.display = 'inline'; 
+            removeBtn.style.display = 'inline';
         }
         var li = this.materialTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
         if (!li) return;
@@ -176,11 +176,11 @@ var MaterialsView = BaseView.extend(
         var _this = this;
 
         function onChange(name){
-            var material = new GDSEModel( 
-                { parent: node.id, name: name }, 
+            var material = new GDSEModel(
+                { parent: node.id, name: name },
                 { apiTag: 'materials', apiIds:[ _this.caseStudyId, _this.keyflowId ] }
             );
-            material.save({}, { 
+            material.save({}, {
                 success: function(){
                     _this.materials.add(material);
                     _this.addNode(material, node);
@@ -188,12 +188,12 @@ var MaterialsView = BaseView.extend(
                 error: _this.onError
             });
         }
-        this.getName({ 
+        this.getName({
             title: gettext('Add Material'),
             onConfirm: onChange
         });
     },
-    
+
     addNode: function(material, parentNode){
         // patternfly-bootstrap-treeview bug workaround
         if (parentNode){
@@ -208,7 +208,7 @@ var MaterialsView = BaseView.extend(
     },
 
     /*
-    * edit the selected material 
+    * edit the selected material
     */
     editMaterial: function(){
         var node = this.selectedNode;
@@ -221,22 +221,22 @@ var MaterialsView = BaseView.extend(
             node.model.set('name', name);
             node.model.caseStudyId = _this.caseStudyId;
             node.model.keyflowId = _this.keyflowId;
-            node.model.save(null, { 
+            node.model.save(null, {
                 success: function(){
                     _this.rerender(node.id);
                 },
                 error: _this.onError
             });
         };
-        this.getName({ 
-            name: this.selectedNode.model.get('name'), 
+        this.getName({
+            name: this.selectedNode.model.get('name'),
             title: gettext('Edit Material'),
             onConfirm: onChange
         });
     },
 
     /*
-    * remove the selected material 
+    * remove the selected material
     */
     removeMaterial: function(){
         var node = this.selectedNode;
@@ -246,7 +246,7 @@ var MaterialsView = BaseView.extend(
             node.model.destroy( { success: function(){
                 // fetch the materials again because all children of this node will be removed in backend
                 _this.loader.activate();
-                _this.materials.fetch({ 
+                _this.materials.fetch({
                     success: function(){
                         $(_this.materialTree).treeview('removeNode', node);
                         _this.buttonBox.style.display = 'None';
@@ -261,7 +261,7 @@ var MaterialsView = BaseView.extend(
         }
 
         var message = gettext("Do you really want to delete the selected material and all of its children from the database?");
-        _this.confirm({ 
+        _this.confirm({
             message: message,
             onConfirm: destroy
         })
