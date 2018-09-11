@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore', 'collections/gdsecollection',
+define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'visualizations/map', 'app-config', 'utils/utils', 'bootstrap'],
 
 function(BaseView, _, GDSECollection, Map, config, utils){
@@ -34,14 +34,14 @@ var SolutionsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.projection = 'EPSG:4326';
         this.mode = options.mode || 0;
-        
+
         // ToDo: replace with collections fetched from server
-        this.categories = new GDSECollection([], { 
+        this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories', apiIds: [this.caseStudy.id]
         }),
-        
+
         this.loader.activate();
-        this.keyflows = new GDSECollection([], { 
+        this.keyflows = new GDSECollection([], {
             apiTag: 'keyflowsInCaseStudy', apiIds: [this.caseStudy.id]
         });
         var promises = [];
@@ -61,7 +61,7 @@ var SolutionsView = BaseView.extend(
                         }
                     }));
                 })
-                
+
                Promise.all(promises).then(function(){
                     _this.loader.deactivate();
                     _this.render();
@@ -92,7 +92,7 @@ var SolutionsView = BaseView.extend(
         this.el.innerHTML = template({ mode: this.mode });
         var promises = [];
         this.categories.forEach(function(category){
-            category.solutions = new GDSECollection([], { 
+            category.solutions = new GDSECollection([], {
                 apiTag: 'solutions', apiIds: [_this.caseStudy.id, category.id]
             }),
             promises.push(category.solutions.fetch());
@@ -102,7 +102,7 @@ var SolutionsView = BaseView.extend(
             _this.categories.forEach(function(category){
                 _this.renderCategory(category);
             });
-        
+
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
             if (_this.mode == 0){
@@ -113,7 +113,7 @@ var SolutionsView = BaseView.extend(
             }
         });
     },
-    
+
     /*
     * adds a "Ratio defining one unit" to the "Units/Ratios" tab inside
     * the solution detail modal
@@ -121,13 +121,13 @@ var SolutionsView = BaseView.extend(
     addSolutionQuanitityRow: function(squantity){
         var table = document.getElementById('required-ratios'),
             row = table.insertRow(-1);
-        
+
         var nameInput = document.createElement('input');
         row.insertCell(-1).appendChild(nameInput);
         nameInput.value = squantity.get('name');
         nameInput.classList.add('form-control');
         nameInput.addEventListener('change', function(){ squantity.set('name', nameInput.value); })
-        
+
         var unitSelect = document.createElement('select');
         row.insertCell(-1).appendChild(unitSelect);
         this.units.forEach(function(unit){
@@ -139,7 +139,7 @@ var SolutionsView = BaseView.extend(
         unitSelect.value = squantity.get('unit');
         unitSelect.classList.add('form-control');
         unitSelect.addEventListener('change', function(){ squantity.set('unit', unitSelect.value); })
-        
+
         var checkbox = document.createElement("input");
         checkbox.type = 'checkbox';
         row.insertCell(-1).appendChild(checkbox);
@@ -150,7 +150,7 @@ var SolutionsView = BaseView.extend(
             squantity.markedForDeletion = checkbox.checked;
         });
     },
-    
+
     /*
     * adds a "Ratio to be set when implementing this solution" to the "Units/Ratios" tab inside
     * the solution detail modal
@@ -158,20 +158,20 @@ var SolutionsView = BaseView.extend(
     addSolutionRatioOneUnitRow: function(sratio){
         var table = document.getElementById('one-unit-ratios'),
             row = table.insertRow(-1);
-        
+
         var nameInput = document.createElement('input');
         row.insertCell(-1).appendChild(nameInput);
         nameInput.value = sratio.get('name');
         nameInput.classList.add('form-control');
         nameInput.addEventListener('change', function(){ sratio.set('name', nameInput.value); })
-        
+
         var valueInput = document.createElement('input');
         valueInput.type = 'number';
         row.insertCell(-1).appendChild(valueInput);
         valueInput.value = sratio.get('value');
         valueInput.classList.add('form-control');
         valueInput.addEventListener('change', function(){ sratio.set('value', valueInput.value); })
-        
+
         var unitSelect = document.createElement('select');
         row.insertCell(-1).appendChild(unitSelect);
         this.units.forEach(function(unit){
@@ -183,7 +183,7 @@ var SolutionsView = BaseView.extend(
         unitSelect.value = sratio.get('unit');
         unitSelect.classList.add('form-control');
         unitSelect.addEventListener('change', function(){ sratio.set('unit', unitSelect.value); })
-        
+
         var checkbox = document.createElement("input");
         checkbox.type = 'checkbox';
         row.insertCell(-1).appendChild(checkbox);
@@ -194,7 +194,7 @@ var SolutionsView = BaseView.extend(
             sratio.markedForDeletion = checkbox.checked;
         });
     },
-    
+
     /*
     * open a modal containing details about the solution
     * onConfirm is called when user confirms modal by clicking OK button
@@ -202,7 +202,7 @@ var SolutionsView = BaseView.extend(
     showSolution: function(solution, onConfirm){
         var _this = this,
             changedImages = {};
-        
+
         function swapImage(input, imgId, field){
             if (input.files && input.files[0]){
                 var reader = new FileReader();
@@ -215,16 +215,16 @@ var SolutionsView = BaseView.extend(
         };
         var squantities = new GDSECollection([], {
                 apiTag: 'solutionQuantities',
-                apiIds: [this.caseStudy.id, solution.get('solution_category'), 
+                apiIds: [this.caseStudy.id, solution.get('solution_category'),
                          solution.id]
             }),
-        
+
             sratios = new GDSECollection([], {
                 apiTag: 'solutionRatioOneUnits',
-                apiIds: [this.caseStudy.id, solution.get('solution_category'), 
+                apiIds: [this.caseStudy.id, solution.get('solution_category'),
                          solution.id]
             });
-        
+
         if (solution.id){
             squantities.fetch({success: function(){
                 squantities.forEach(_this.addSolutionQuanitityRow)
@@ -233,13 +233,13 @@ var SolutionsView = BaseView.extend(
                 sratios.forEach(_this.addSolutionRatioOneUnitRow)
             }});
         }
-    
+
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
             template = _.template(html),
             modal = this.el.querySelector('#solution-modal');
-    
-        modal.innerHTML = template({ 
+
+        modal.innerHTML = template({
             name: solution.get('name'),
             description: solution.get('description'),
             unit: solution.get('one_unit_equals'),
@@ -247,13 +247,13 @@ var SolutionsView = BaseView.extend(
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
             checkedActivities: solution.get('activities'),
-            category: category.get('name'), 
+            category: category.get('name'),
             mode: this.mode,
             keyflows: this.keyflows
         });
         this.renderMap('actors-map', solution.get('activities'));
         var okBtn = modal.querySelector('.confirm');
-        
+
         // add buttons and listeners for editing the solution in setup mode
         if (this.mode == 1){
             var nameInput = modal.querySelector('input[name="name"]'),
@@ -265,7 +265,7 @@ var SolutionsView = BaseView.extend(
                 activityInputs = modal.querySelectorAll('input[name="activity"]'),
                 addRatioBtn = modal.querySelector('#add-one-unit-ratio'),
                 addQuantityBtn = modal.querySelector('#add-required-ratio');
-            
+
             stateImgInput.addEventListener('change', function(){
                 swapImage(stateImgInput, 'state-image', 'currentstate_image');
             })
@@ -275,36 +275,36 @@ var SolutionsView = BaseView.extend(
             activitiesImgInput.addEventListener('change', function(){
                 swapImage(activitiesImgInput, 'activities-image', 'activities_image');
             })
-            
+
             addQuantityBtn.addEventListener('click', function(){
-                squantity = new squantities.model({ 
+                squantity = new squantities.model({
                     name: '', unit: _this.units.first().id
                 })
                 squantities.add(squantity);
                 _this.addSolutionQuanitityRow(squantity);
             })
             addRatioBtn.addEventListener('click', function(){
-                sratio = new sratios.model({ 
+                sratio = new sratios.model({
                     name: '', unit: _this.units.first().id, value: 0
                 })
                 sratios.add(sratio);
                 _this.addSolutionRatioOneUnitRow(sratio);
             })
-            
+
             for(var i = 0; i < activityInputs.length; i++){
                 var checkbox = activityInputs[i];
                 checkbox.addEventListener('change', function(event){
                     var id = event.target.value;
                     if (event.target.checked)
                         _this.renderActivityOnMap(id);
-                    else 
+                    else
                         _this.removeActivityFromMap(id);
                 })
             }
-            
+
             // on confirming the dialog save the solution and the ratios
             okBtn.addEventListener('click', function(){
-                
+
                 var activities = [];
                 for (i = 0; i < activityInputs.length; i++) {
                     var input = activityInputs[i];
@@ -321,12 +321,12 @@ var SolutionsView = BaseView.extend(
                 for (file in changedImages){
                   data[file] = changedImages[file];
                 }
-                solution.save(data, { 
+                solution.save(data, {
                     success: function(){
                         var ratioModels = [];
                         squantities.forEach(function(m) {ratioModels.push(m)});
                         sratios.forEach(function(m) {ratioModels.push(m)});
-                        
+
                         utils.queuedUpload(ratioModels, {
                             success: function(){
                                 $(modal).modal('hide');
@@ -341,7 +341,7 @@ var SolutionsView = BaseView.extend(
             });
         }
         else okBtn.addEventListener('click', function(){ $(modal).modal('hide'); });
-        
+
         // update map, when tab 'Actors' becomes active, else you won't see any map
         var actorsLink = modal.querySelector('a[href="#actors-tab"]');
         $(actorsLink).on('shown.bs.tab', function () {
@@ -349,10 +349,10 @@ var SolutionsView = BaseView.extend(
         });
         $(modal).modal('show');
     },
-    
+
     /*
-    * render a map containing the administrative locations of actors of the given 
-    * activities 
+    * render a map containing the administrative locations of actors of the given
+    * activities
     */
     renderMap: function(divid, activities){
         var _this = this;
@@ -365,7 +365,7 @@ var SolutionsView = BaseView.extend(
             height = document.body.clientHeight * 0.6;
         el.style.height = height + 'px';
         this.map = new Map({
-            el: el, 
+            el: el,
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
@@ -377,31 +377,31 @@ var SolutionsView = BaseView.extend(
         });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], { 
-                projection: this.projection, 
-                layername: 'background', 
-                tooltip: gettext('Focus area') 
+            var poly = this.map.addPolygon(focusarea.coordinates[0], {
+                projection: this.projection,
+                layername: 'background',
+                tooltip: gettext('Focus area')
             });
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
         var deferreds = [];
-        
+
         activities.forEach(function(activityId){
             _this.renderActivityOnMap(activityId);
         })
     },
-        
+
     // search for the keyflow of an activity
     getKeyflow: function(activityId){
-        var keyflow = this.keyflows.find(function(keyflow){ 
+        var keyflow = this.keyflows.find(function(keyflow){
             var found = keyflow.activities.find(function(activity){
                 return activity.id == activityId;
-            }); 
+            });
             return found != null;
         })
         return keyflow;
     },
-    
+
     // render the administrative locations of all actors of activity with given id
     renderActivityOnMap: function(activityId){
         var _this = this;
@@ -434,7 +434,7 @@ var SolutionsView = BaseView.extend(
             }
         })
     },
-    
+
     // remove the actors of activity with given id from map
     removeActivityFromMap: function(activityId){
         this.map.removeLayer('actors' + activityId);
@@ -457,7 +457,7 @@ var SolutionsView = BaseView.extend(
             removeBtn = document.createElement('button');
         label.innerHTML = category.get('name');
         label.style.marginBottom = '20px';
-        
+
         removeBtn.classList.add("btn", "btn-warning", "square", "remove");
         removeBtn.style.float = 'right';
         var span = document.createElement('span');
@@ -473,7 +473,7 @@ var SolutionsView = BaseView.extend(
                 })
             }});
         })
-        
+
         button.classList.add("btn", "btn-primary", "square", "add");
         span = document.createElement('span');
         span.classList.add('glyphicon', 'glyphicon-plus');
@@ -483,7 +483,7 @@ var SolutionsView = BaseView.extend(
         button.addEventListener('click', function(){
             _this.addSolution(panel, category);
         })
-        
+
         panelList.appendChild(div);
         div.appendChild(removeBtn);
         div.appendChild(label);
@@ -496,7 +496,7 @@ var SolutionsView = BaseView.extend(
             });
         }
     },
-    
+
     /*
     * render a solution item in the panel
     */
@@ -526,7 +526,7 @@ var SolutionsView = BaseView.extend(
             }});
         })
     },
-    
+
     /*
     * add a solution category and save it
     */
@@ -534,7 +534,7 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         function onConfirm(name){
             var category = _this.categories.create( { name: name }, {success: function(){
-                category.solutions = new GDSECollection([], { 
+                category.solutions = new GDSECollection([], {
                     apiTag: 'solutions',
                     apiIds: [_this.caseStudy.id, category.id]
                 });
@@ -546,15 +546,15 @@ var SolutionsView = BaseView.extend(
         }
         _this.getName({ onConfirm: onConfirm });
     },
-    
+
     /*
     * add a solution and save it
     */
     addSolution: function(panel, category){
         var _this = this;
         var solutions = category.solutions,
-            solution = new solutions.model( 
-                { name: name, solution_category: category.id }, 
+            solution = new solutions.model(
+                { name: name, solution_category: category.id },
             );
         function onConfirm(){
             solutions.add(solution);

@@ -1,4 +1,4 @@
-define(['views/baseview', 'underscore',
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'models/indicator',
         'visualizations/map', 'openlayers', 'chroma-js', 'utils/utils',
         'muuri', 'app-config', 'highcharts'],

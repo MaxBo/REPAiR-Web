@@ -1,6 +1,6 @@
-define(['views/baseview', 'backbone', 'underscore',
+define(['views/common/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
-        'app-config', 'openlayers', 'jstree', 
+        'app-config', 'openlayers', 'jstree',
         'static/css/jstree/gdsetouch/style.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
@@ -44,11 +44,11 @@ var BaseMapsView = BaseView.extend(
 
         this.projection = 'EPSG:4326';
 
-        this.wmsResources = new GDSECollection([], { 
+        this.wmsResources = new GDSECollection([], {
             apiTag: 'wmsresources',
             apiIds: [ this.caseStudy.id ]
         });
-        this.layerCategories = new GDSECollection([], { 
+        this.layerCategories = new GDSECollection([], {
             apiTag: 'layerCategories',
             apiIds: [ this.caseStudy.id ],
             comparator: 'order'
@@ -72,7 +72,7 @@ var BaseMapsView = BaseView.extend(
     */
     events: {
     },
-    
+
     // determines if a layer is checked on start (stored in session for workshop mode)
     isChecked: function(layer){
         var checked = config.session.get('checkedMapLayers');
@@ -89,7 +89,7 @@ var BaseMapsView = BaseView.extend(
         // per category
         this.layerCategories.sort();
         this.layerCategories.each(function(category){
-            var layers = new GDSECollection([], { 
+            var layers = new GDSECollection([], {
                 apiTag: 'layers',
                 apiIds: [ _this.caseStudy.id, category.id ],
                 comparator: 'order'
@@ -127,7 +127,7 @@ var BaseMapsView = BaseView.extend(
             _this.render();
         })
     },
-    
+
     // store checked layers in session
     saveCheckstates(){
         var checkedItems = $(this.layerTree).jstree('get_checked', { full: true }),
@@ -138,7 +138,7 @@ var BaseMapsView = BaseView.extend(
         })
         config.session.save({ checkedMapLayers: checkedIds });
     },
-    
+
     saveOrder: function(){
         var catNodes = $(this.layerTree).jstree('get_json'),
             order = [],
@@ -154,7 +154,7 @@ var BaseMapsView = BaseView.extend(
         })
         config.session.save({ layerOrder: order });
     },
-    
+
     // restore order from session
     restoreOrder: function(){
         var order = config.session.get('layerOrder'),
@@ -247,7 +247,7 @@ var BaseMapsView = BaseView.extend(
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
         $(this.layerTree).on("move_node.jstree", this.nodeDropped);
     },
-    
+
     nodeSelected: function(event, data){
         var node = data.node;
         console.log(node)
@@ -255,20 +255,20 @@ var BaseMapsView = BaseView.extend(
         if (node.type === 'layer'){
             if (node.state.checked) $(this.layerTree).jstree('uncheck_node', node);
             else $(this.layerTree).jstree('check_node', node);
-        } 
+        }
     },
-    
+
     nodeDropped: function(event, data){
         this.saveOrder();
         this.setMapZIndices();
     },
-    
+
     applyCheckState: function(node){
         var _this = this;
         function applyLayerCheck(layerNode){
             var isChecked = layerNode.state.checked,
                 layer = layerNode.original.layer;
-                
+
             _this.map.setVisible(_this.layerPrefix + layer.id, isChecked);
             var legendDiv = document.getElementById(_this.legendPrefix + layer.id),
                 display = (isChecked) ? 'block': 'none';
@@ -278,7 +278,7 @@ var BaseMapsView = BaseView.extend(
             applyLayerCheck(node)
         // cascading checks don't fire check_node event -> update child layers if category is checked
         else {
-            node.children.forEach(function(child){ 
+            node.children.forEach(function(child){
                 applyLayerCheck($(_this.layerTree).jstree('get_node', child));
             });
         }
