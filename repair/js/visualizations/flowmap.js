@@ -79,8 +79,9 @@ define([
 
         // fit svg layer to map
         resetView(){
-            var svgPos = this.resetBbox(),
-                topLeft = svgPos[0];
+            var svgPos = this.resetBbox();
+            if (!svgPos) return;
+            var topLeft = svgPos[0];
             this.g.attr("transform",
                         "translate(" + -topLeft[0] + "," + -topLeft[1] + ") ");
             this.draw();

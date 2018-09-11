@@ -201,10 +201,10 @@ var FilterFlowsView = BaseView.extend(
             this.renderNodeSelectOptions(this.actorSelect);
     },
 
-    changeAreaLevel: function(onSuccess){
+    changeAreaLevel: function(){
         var levelId = this.areaLevelSelect.value;
         this.el.querySelector('.selections').innerHTML = this.el.querySelector('#area-selections').innerHTML= '';
-        this.prepareAreas(levelId, onSuccess);
+        this.prepareAreas(levelId);
     },
 
     prepareAreas: function(levelId, onSuccess){

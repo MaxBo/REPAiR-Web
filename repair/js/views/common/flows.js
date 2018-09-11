@@ -1,8 +1,8 @@
 define(['views/common/baseview', 'underscore', 'views/common/flowsankeymap',
-        'collections/gdsecollection',  'views/common/flowsankey'],
+        'collections/gdsecollection', 'views/common/flowsankey', 'utils/utils'],
 
 function(BaseView, _, FlowMapView, GDSECollection,
-         FlowSankeyView){
+         FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -85,24 +85,23 @@ var FlowsView = BaseView.extend(
         direction = direction.toLowerCase();
 
         if (flowType != 'both') {
-            filterParams.waste = (flow_type == 'waste') ? true : false;
+            filterParams.waste = (flowType == 'waste') ? true : false;
         }
 
         // material options for both stocks and flows
         filterParams.materials = {
-            aggregate: filter.get('aggregate_materials');
+            aggregate: filter.get('aggregate_materials')
         }
         var material = filter.get('material'),
             materialIds = [];
-
-        // material is selected -> filter/aggregate by this material and its direct children
+        // material -> filter/aggregate by this material and its direct children
         if (material != null) {
-            var childMaterials = this.materials.filterBy({ parent: material.id });
+            var childMaterials = this.materials.filterBy({ parent: material });
             materialIds = childMaterials.pluck('id');
             // the selected material should be included as well
-            filterParams.materials.unaltered = [material.id];
+            filterParams.materials.unaltered = [material];
         }
-        // take top level materials to filter, if no material is selected
+        // take top level materials to filter, if no material filter
         else {
             var materials = this.materials.filterBy({ parent: null });
             materialIds = materials.pluck('id');
@@ -110,38 +109,75 @@ var FlowsView = BaseView.extend(
         filterParams.materials.ids = materialIds;
 
         // if the collections are filtered build matching query params for the flows
-        var flowFilterParams = Object.assign({}, filterParams);
-        var stockFilterParams = Object.assign({}, filterParams);
-        var nodeIds = [];
+        var flowFilterParams = Object.assign({}, filterParams),
+            stockFilterParams = Object.assign({}, filterParams);
 
         var nodeIds = filter.get('node_ids');
+        if (nodeIds) nodeIds = nodeIds.split(',');
 
         var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
             (nodeLevel == 'activity') ? 'activity__': '';
 
         var flowFilters = flowFilterParams['filters'] = [],
-            stockFilters = stockFilterParams['filters'] = [],
-            origin_filter = {
-                'function': 'origin__'+ levelFilterMidSec + 'id__in',
-                values: nodeIds
-            },
-            destination_filter = {
-                'function': 'destination__'+ levelFilterMidSec + 'id__in',
-                values: nodeIds
-            };
+            stockFilters = stockFilterParams['filters'] = [];
 
+        // filter origins/destinations by ids
         if (nodeIds.length > 0){
+            var origin_id_filter = {
+                    'function': 'origin__'+ levelFilterMidSec + 'id__in',
+                    values: nodeIds
+                },
+                destination_id_filter = {
+                    'function': 'destination__'+ levelFilterMidSec + 'id__in',
+                    values: nodeIds
+                };
+            var id_filter = {
+                link: 'or',
+                functions: []
+            }
             if (direction == 'to'){
-                flowFilters.push(destination_filter);
+                id_filter['functions'].push(destination_id_filter);
             }
-            if (direction == 'from') {
-                flowFilters.push(origin_filter);
+            else if (direction == 'from') {
+                id_filter['functions'].push(origin_id_filter);
             }
-            if (direction == 'both') {
-                flowFilters.push(origin_filter);
-                flowFilters.push(destination_filter);
+            else if (direction == 'both') {
+                id_filter['functions'].push(origin_id_filter);
+                id_filter['functions'].push(destination_id_filter);
             }
-            stockFilters.push(origin_filter);
+            flowFilters.push(id_filter);
+            stockFilters.push({ functions: [origin_id_filter] });
+        }
+
+        var areas = filter.get('areas');
+        console.log(areas)
+
+        // filter origins/destinations by areas
+        if (areas && areas.length > 0){
+            var area_filter = {
+                link: 'or',
+                functions: []
+            }
+            var origin_area_filter = {
+                'function': 'origin__areas',
+                values: areas
+            }
+            var destination_area_filter = {
+                'function': 'destination__areas',
+                values: areas
+            }
+            if (direction == 'to'){
+                area_filter['functions'].push(destination_area_filter);
+            }
+            else if (direction == 'from'){
+                area_filter['functions'].push(origin_area_filter);
+            }
+            else if (direction == 'both') {
+                area_filter['functions'].push(origin_area_filter);
+                area_filter['functions'].push(destination_area_filter);
+            }
+            flowFilters.push(area_filter);
+            stockFilters.push({ functions: [origin_area_filter] });
         }
         return [flowFilterParams, stockFilterParams];
     },
@@ -150,7 +186,6 @@ var FlowsView = BaseView.extend(
         if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowSankeyView != null) this.flowSankeyView.close();
         var displayLevel = displayLevel || 'activitygroup';
-        console.log(this.filter);
 
         var el = this.el.querySelector('.sankey-wrapper'),
             _this = this;
