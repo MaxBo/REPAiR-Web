@@ -94,10 +94,12 @@ var FlowsSetupView = BaseView.extend(
                 { success: function(){
                     var option = document.createElement('option');
                     option.value = filter.id;
-                    option.innerHTML = name;
+                    option.innerHTML = filter.get('name');
+                    _this.nameInput.value = filter.get('name');
+                    _this.descriptionInput.value = filter.get('description');
                     _this.flowFilterSelect.appendChild(option);
                     _this.flowFilterSelect.value = filter.id;
-                    _this.filterFlowsView.setFilter(filter);
+                    _this.filterFlowsView.applyFilter(filter);
                 }, error: _this.onError, wait: true }
             );
         }

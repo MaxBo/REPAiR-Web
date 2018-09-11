@@ -150,7 +150,6 @@ var FlowsView = BaseView.extend(
         }
 
         var areas = filter.get('areas');
-        console.log(areas)
 
         // filter origins/destinations by areas
         if (areas && areas.length > 0){
