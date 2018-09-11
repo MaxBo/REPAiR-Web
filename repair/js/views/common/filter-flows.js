@@ -501,6 +501,8 @@ var FilterFlowsView = BaseView.extend(
             areaLevel = filter.get('area_level'),
             areas = filter.get('areas');
 
+        if (this.flowsView) this.flowsView.close();
+
         this.nodeLevelSelect.value = filter.get('filter_level').toLowerCase();
         this.resetNodeSelects();
 
@@ -571,6 +573,11 @@ var FilterFlowsView = BaseView.extend(
                 $(select).selectpicker('val', nodeIds.split(','))
             }
         }
+    },
+
+    close: function(){
+        if (this.flowsView) this.flowsView.close();
+        FilterFlowsView.__super__.close.call(this);
     }
 
 });

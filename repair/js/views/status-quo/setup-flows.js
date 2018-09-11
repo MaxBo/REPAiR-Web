@@ -100,6 +100,7 @@ var FlowsSetupView = BaseView.extend(
                     _this.flowFilterSelect.appendChild(option);
                     _this.flowFilterSelect.value = filter.id;
                     _this.filterFlowsView.applyFilter(filter);
+                    _this.filter = filter;
                 }, error: _this.onError, wait: true }
             );
         }
@@ -108,7 +109,7 @@ var FlowsSetupView = BaseView.extend(
 
     uploadFilter: function(){
         var selected = this.flowFilterSelect.value,
-            filter = this.filters.get(selected),
+            filter = this.filter,
             _this = this;
         this.filterFlowsView.getFilter(filter);
         filter.set('name', this.nameInput.value);
@@ -134,13 +135,42 @@ var FlowsSetupView = BaseView.extend(
         var selected = this.flowFilterSelect.value,
             filter = this.filters.get(selected);
         if (!filter) return;
+        this.filter = filter;
         this.toggleVisibility(true);
         this.nameInput.value = filter.get('name');
         this.descriptionInput.value = filter.get('description');
 
         this.filterFlowsView.applyFilter(filter);
-    }
+    },
 
+    // delete selected filter
+    deleteFilter: function(){
+        var selected = this.flowFilterSelect.value,
+            filter = this.filters.get(selected),
+            id = filter.id
+            _this = this;
+        if (!filter) return;
+        function destroy(){
+            if (filter == _this.filter)
+                _this.toggleVisibility(false);
+            filter.destroy({
+                success: function(){
+                    var option = _this.flowFilterSelect.querySelector('option[value="' + id + '"]');
+                    _this.flowFilterSelect.removeChild(option);
+                },
+                error: _this.onError
+            });
+        };
+        this.confirm({
+            message: gettext('Do you want to delete the Filter') + ' "' + filter.get('name') + '"?',
+            onConfirm: destroy
+        })
+    },
+
+    close: function(){
+        if (this.filterFlowsView) this.filterFlowsView.close();
+        FlowsSetupView.__super__.close.call(this);
+    }
 
 });
 return FlowsSetupView;
