@@ -82,6 +82,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 exportImgBtn = document.createElement('button');
             exportImgBtn.classList.add('fas', 'fa-camera', 'btn', 'btn-primary', 'inverted');
             exportImgBtn.style.height = "30px";
+            exportImgBtn.style.width = "30px";
+            exportImgBtn.style.padding = "0px";
             exportDiv.appendChild(exportImgBtn);
             exportControls.onAdd = function (map) {
                 return exportDiv;

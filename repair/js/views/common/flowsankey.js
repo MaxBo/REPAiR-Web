@@ -1,7 +1,9 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
-        'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png'],
+        'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png',
+        'file-saver'],
 
-function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
+function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
+         FileSaver){
 
     /**
     *
@@ -39,6 +41,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
             FlowSankeyView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'toggleFullscreen');
             _.bindAll(this, 'exportPNG');
+            _.bindAll(this, 'exportCSV');
             var _this = this;
             this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
@@ -55,6 +58,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
 
             var fullscreenBtn = document.createElement('button'),
                 exportImgBtn = document.createElement('button'),
+                exportCsvBtn = document.createElement('button'),
                 zoomControls = document.createElement('div'),
                 zoomIn = document.createElement('a'),
                 inSpan = document.createElement('span'),
@@ -65,9 +69,13 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
 
             fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
             exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
-            exportImgBtn.style.top = "70px";
+            exportImgBtn.style.top = "100px";
             exportImgBtn.style.right = "20px";
             exportImgBtn.style.height = "30px";
+            exportCsvBtn.classList.add("glyphicon", "glyphicon-file", "btn", "btn-primary", "d3-overlay", "inverted");
+            exportCsvBtn.style.top = "140px";
+            exportCsvBtn.style.right = "20px";
+            exportCsvBtn.style.height = "30px";
 
             zoomIn.classList.add("btn", "square");
             zoomIn.setAttribute('data-zoom', "+0.5");
@@ -92,9 +100,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
             this.el.appendChild(zoomControls);
             this.el.appendChild(fullscreenBtn);
             this.el.appendChild(exportImgBtn);
+            this.el.appendChild(exportCsvBtn);
 
             fullscreenBtn.addEventListener('click', this.toggleFullscreen);
             exportImgBtn.addEventListener('click', this.exportPNG);
+            exportCsvBtn.addEventListener('click', this.exportCSV);
 
             this.transformedData = this.transformData(
                 this.origins, this.destinations, this.flows,
@@ -111,11 +121,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'change #data-view-type-select': 'renderSankey'
-        },
-
-        exportPNG: function(){
-            var svg = this.sankeyDiv.querySelector('svg');
-            saveSvgAsPng.saveSvgAsPng(svg, "sankey.png", {scale: 2, backgroundColor: "#FFFFFF"});
         },
 
         /*
@@ -264,7 +269,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
                     target = indices[targetPrefix+destinationId];
                 // continue if one of the linked nodes does not exist
                 if (source == null || target == null) return false;
-                var composition = flow.get('composition');
+                var composition = flow.get('composition'),
+                    crepr = compositionRepr(composition);
                 links.push({
                     id: flow.id,
                     value: flow.get('amount'),
@@ -272,7 +278,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
                     source: source,
                     target: target,
                     isStock: false,
-                    text: '<u>' + typeRepr(flow) + '</u><br>' + compositionRepr(composition)
+                    text: '<u>' + typeRepr(flow) + '</u><br>' + crepr,
+                    composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
             })
             stocks.forEach(function(stock){
@@ -286,7 +293,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
                             text: sourceName,
                             color: 'darkgray',
                             alignToSource: {x: 80, y: 0}});
-                var composition = stock.get('composition');
+                var composition = stock.get('composition'),
+                    crepr = compositionRepr(composition);
                 links.push({
                     id: stock.id,
                     isStock: true,
@@ -294,13 +302,39 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
                     units: gettext('t/year'),
                     source: source,
                     target: idx,
-                    text: typeRepr(stock) + '<br>' + compositionRepr(composition)
+                    text: typeRepr(stock) + '<br>' + crepr,
+                    composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
                 idx += 1;
             });
 
             var transformed = {nodes: nodes, links: links};
             return transformed;
+        },
+
+        exportPNG: function(){
+            var svg = this.sankeyDiv.querySelector('svg');
+            saveSvgAsPng.saveSvgAsPng(svg, "sankey.png", {scale: 2, backgroundColor: "#FFFFFF"});
+        },
+
+        exportCSV: function(){
+            if (!this.transformedData) return;
+
+            var header = [gettext('origin'), gettext('destination'), gettext('amount'), gettext('composition')],
+                rows = [],
+                _this = this;
+            rows.push(header.join('\t'));
+            this.transformedData.links.forEach(function(link){
+                var origin = link.source.name,
+                    destination = (!link.isStock) ? link.target.name : gettext('Stock'),
+                    amount = _this.format(link.value) + ' ' + link.units,
+                    composition = link.composition;
+                var row = [origin, destination, amount, composition];
+                rows.push(row.join('\t'));
+            });
+            var text = rows.join('\r\n');
+            var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+            FileSaver.saveAs(blob, "sankey.csv");
         },
 
         /*
