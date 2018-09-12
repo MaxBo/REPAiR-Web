@@ -43,6 +43,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.locations = {};
             this.flows = new Flows();
             this.actors = new GDSECollection();
+            this.hideMaterials = {};
         },
 
         /*
@@ -71,7 +72,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.leafletMap.addControl(new L.Control.Fullscreen({position:'topright'}));
             this.leafletMap.addControl(new L.easyPrint({
                 position: 'topright',
-                filename: 'sankeymap',
+                filename: 'sankey-map',
                 exportOnly: true,
                 hideControlContainer: true
             }));
@@ -142,35 +143,57 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 _this.rerender();
             });
             this.animationCheck.addEventListener ("click", function(){
-                _this.flowMap.setAnimation(this.checked);
+                _this.flowMap.toggleAnimation(this.checked);
             });
 
             var legendControl = L.control({position: 'bottomright'});
             this.legend = document.createElement('div');
             this.legend.style.background = "rgba(255, 255, 255, 0.5)";
+            this.legend.style.visibility = 'hidden';
             legendControl.onAdd = function () { return _this.legend; };
             legendControl.addTo(this.leafletMap);
         },
 
         toggleMaterials(){
-            var show = this.materialCheck.checked;
+            var show = this.materialCheck.checked,
+                visibility = (show) ? 'visible': 'hidden';
+            this.legend.style.visibility = visibility;
+        },
+
+        updateLegend(data){
+            var data = data || this.data,
+                _this = this;
             this.legend.innerHTML = '';
-            if(show){
-                var matColors = this.data.materialColors;
-                for (var matId in matColors){
-                    var material = this.materials.get(matId),
-                        color = matColors[matId],
-                        div = document.createElement('div'),
-                        circle = document.createElement('div');
-                    div.innerHTML = material.get('name');
-                    circle.style.width = '10px';
-                    circle.style.height = '10px';
-                    circle.style.background = color;
-                    circle.style.float = 'left';
-                    div.appendChild(circle);
-                    this.legend.appendChild(div);
-                }
-            };
+            var matColors = data.materialColors;
+            // ToDo: inefficient, done too often for just toggling visibility
+            Object.keys(matColors).forEach(function(matId){
+                var material = _this.materials.get(matId),
+                    color = matColors[matId],
+                    div = document.createElement('div'),
+                    check = document.createElement('input'),
+                    colorDiv = document.createElement('div');
+                div.innerHTML = material.get('name');
+                div.style.height = '25px';
+                div.style.fontSize = '1.2em';
+                div.style.cursor = 'pointer';
+                colorDiv.style.width = '20px';
+                colorDiv.style.height = '100%';
+                colorDiv.style.textAlign = 'center';
+                colorDiv.style.background = color;
+                colorDiv.style.float = 'left';
+                check.type = 'checkbox';
+                check.checked = !_this.hideMaterials[matId];
+                check.style.pointerEvents = 'none';
+                div.appendChild(colorDiv);
+                colorDiv.appendChild(check);
+                _this.legend.appendChild(div);
+                div.addEventListener('click', function(){
+                    check.checked = !check.checked;
+                    _this.hideMaterials[matId] = !check.checked;
+                    _this.flowMap.toggleTag(matId, check.checked);
+                })
+                _this.flowMap.toggleTag(matId, check.checked)
+            });
         },
 
         zoomed: function(){
@@ -262,6 +285,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
             this.flowMap.resetView();
+            this.updateLegend();
             if (zoomToFit) this.flowMap.zoomToFit();
         },
 
@@ -528,7 +552,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                             source: sourceId,
                             target: targetId,
                             value: amount,
-                            material: material.id
+                            material: material.id,
+                            tag: material.id
                         })
                         uniqueMaterials.add(material.id);
                     })
