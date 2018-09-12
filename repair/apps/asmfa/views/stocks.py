@@ -142,8 +142,8 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         unaltered_material_ids = ([] if material_filter is None
                                   else material_filter.get('unaltered', []))
 
-        materials = None
-        unaltered_materials = None
+        materials = []
+        unaltered_materials = []
         # filter the stocks by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
         if material_ids is not None:
@@ -171,6 +171,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
                 unaltered_materials=unaltered_materials
             )
             return Response(data)
+
 
         return Response(data)
 
