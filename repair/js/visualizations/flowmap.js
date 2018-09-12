@@ -75,6 +75,7 @@ define([
 
             this.nodesData = {};
             this.flowsData = {};
+            this.hideTags = {};
         }
 
         // fit svg layer to map
@@ -106,6 +107,7 @@ define([
             this.g.selectAll("*").remove();
             this.nodesData = {};
             this.flowsData = {};
+            this.hideTags = {};
         }
 
         addNodes(nodes){
@@ -212,7 +214,8 @@ define([
                             yshift: yshift,
                             animate: _this.animate,
                             dash: dash,
-                            curve: curve
+                            curve: curve,
+                            tag: flow.tag
                         }
                     );
                     xshift -= shiftStep;
@@ -305,6 +308,7 @@ define([
                 .attr("stroke", color)
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
+                .attr("tag", options.tag)
                 //.attr("stroke-linecap", "round")
                 .style("pointer-events", 'all')
                 .on("mouseover", function () {
@@ -331,13 +335,21 @@ define([
                 path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
                 path.attr("stroke-dashoffset", dash.offset);
             }
+            if(this.hideTags[options.tag])
+                path.style("opacity", 0);
             return path;
         }
 
-        setAnimation(on){
+        toggleAnimation(on){
             if(on != null) this.animate = on;
             //this.g.selectAll('path').classed('flowline', this.animate);
             this.draw();
+        }
+
+        toggleTag(tag, on){
+            this.hideTags[tag] = !on;
+            var opacity = (on) ? 1: 0
+            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
         }
 
     }
