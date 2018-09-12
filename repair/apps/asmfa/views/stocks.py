@@ -106,7 +106,7 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         waste_filter = params.get('waste', None)
         filters = params.get('filters', None)
         filter_link = params.get('filter_link', None)
-        material_filter = params.get('material', None)
+        material_filter = params.get('materials', None)
         level_aggregation = params.get('aggregation_level', None)
 
         # filter products (waste=False) or waste (waste=True)
