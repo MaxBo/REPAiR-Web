@@ -77,7 +77,26 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             }));
             this.leafletMap.on("zoomend", this.zoomed);
 
-            var displayMaterial = L.control({position: 'bottomleft'});
+            var exportControls = L.control({position: 'topright'}),
+                exportDiv = document.createElement('div'),
+                exportImgBtn = document.createElement('button');
+            exportImgBtn.classList.add('fas', 'fa-camera', 'btn', 'btn-primary', 'inverted');
+            exportImgBtn.style.height = "30px";
+            exportDiv.appendChild(exportImgBtn);
+            exportControls.onAdd = function (map) {
+                return exportDiv;
+            };
+            exportControls.addTo(this.leafletMap);
+            // easyprint is not customizable enough (buttons, remove menu etc.) and not touch friendly
+            // workaround: hide it and pass on clicks (actually strange, but easyprint was still easiest to use export plugin out there)
+            var easyprintCtrl = this.el.querySelector('.leaflet-control-easyPrint'),
+                easyprintCsBtn = this.el.querySelector('.easyPrintHolder .CurrentSize');
+            easyprintCtrl.style.visibility = 'hidden';
+            exportImgBtn.addEventListener('click', function(){
+                easyprintCsBtn.click();
+            })
+
+            var customControls = L.control({position: 'bottomleft'});
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
@@ -109,10 +128,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             div.appendChild(this.clusterCheck);
             div.appendChild(clusterLabel);
 
-            displayMaterial.onAdd = function (map) {
+            customControls.onAdd = function (map) {
                 return div;
             };
-            displayMaterial.addTo(this.leafletMap);
+            customControls.addTo(this.leafletMap);
 
             this.materialCheck.addEventListener ("click", function(){
                 _this.rerender();

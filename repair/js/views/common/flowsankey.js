@@ -64,7 +64,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng){
                 fitSpan = document.createElement('span');
 
             fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
-            exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay");
+            exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
             exportImgBtn.style.top = "70px";
             exportImgBtn.style.right = "20px";
             exportImgBtn.style.height = "30px";
