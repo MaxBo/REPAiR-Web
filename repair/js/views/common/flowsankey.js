@@ -314,11 +314,13 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
         exportPNG: function(){
             var svg = this.sankeyDiv.querySelector('svg');
-            saveSvgAsPng.saveSvgAsPng(svg, "sankey.png", {scale: 2, backgroundColor: "#FFFFFF"});
+            saveSvgAsPng.saveSvgAsPng(svg, "sankey-diagram.png", {scale: 2, backgroundColor: "#FFFFFF"});
         },
 
         exportCSV: function(){
             if (!this.transformedData) return;
+
+            var filter
 
             var header = [gettext('origin'), gettext('destination'), gettext('amount'), gettext('composition')],
                 rows = [],
@@ -334,7 +336,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             });
             var text = rows.join('\r\n');
             var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-            FileSaver.saveAs(blob, "sankey.csv");
+            FileSaver.saveAs(blob, "data.csv");
         },
 
         /*
