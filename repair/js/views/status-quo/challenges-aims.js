@@ -31,28 +31,41 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
 
-            this.challenges = new GDSECollection([], {
-                apiTag: 'challenges',
-                apiIds: [this.caseStudy.id],
-                comparator: 'priority'
-            });
-            this.aims = new GDSECollection([], {
-                apiTag: 'aims',
+            this.keyflows = new GDSECollection([], {
+                apiTag: 'keyflowsInCaseStudy',
                 apiIds: [this.caseStudy.id],
                 comparator: 'priority'
             });
 
-            var promises = [this.challenges.fetch(), this.aims.fetch()]
+            this.challengesGrids = {};
+            this.aimsGrids = {};
 
-            Promise.all(promises).then(this.render)
+            this.keyflows.fetch({
+                success: function(){
+                    _this.challenges = new GDSECollection([], {
+                        apiTag: 'challenges',
+                        apiIds: [_this.caseStudy.id],
+                        comparator: 'priority'
+                    });
+                    _this.aims = new GDSECollection([], {
+                        apiTag: 'aims',
+                        apiIds: [_this.caseStudy.id],
+                        comparator: 'priority'
+                    });
+
+                    var promises = [_this.challenges.fetch(), _this.aims.fetch()]
+                    Promise.all(promises).then(_this.render)
+                },
+                error: _this.onError
+            })
         },
 
         /*
         * dom events (managed by jquery)
         */
         events: {
-            'click #add-challenge-button': 'addChallenge',
-            'click #add-aim-button': 'addAim',
+            'click .add-challenge-button': 'addChallenge',
+            'click .add-aim-button': 'addAim',
             'click #remove-ch-aim-confirmation-modal .confirm': 'confirmRemoval'
         },
 
@@ -60,41 +73,23 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         * render the view
         */
         render: function(){
-            var _this = this;
-            var html = document.getElementById(this.template).innerHTML
-            var template = _.template(html);
+            var _this = this,
+                html = document.getElementById(this.template).innerHTML,
+                template = _.template(html);
             this.el.innerHTML = template();
+            var keyflowIds = this.keyflows.pluck('id');
 
-            var challengesPanel = this.el.querySelector('#challenges').querySelector('.item-panel'),
-                aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel'),
-                dragEnabled = this.mode == 1;
-            this.challengesGrid = new Muuri(challengesPanel, {
-                items: '.panel-item',
-                dragAxis: 'y',
-                layoutDuration: 400,
-                layoutEasing: 'ease',
-                dragEnabled: dragEnabled,
-                dragSortInterval: 0,
-                dragReleaseDuration: 400,
-                dragReleaseEasing: 'ease'
-            })
-            this.challengesGrid.on('dragReleaseEnd', function () {
-                _this.uploadPriorities(_this.challengesGrid, _this.challenges) } );
-            this.aimsGrid = new Muuri(aimsPanel, {
-                items: '.panel-item',
-                dragAxis: 'y',
-                layoutDuration: 400,
-                layoutEasing: 'ease',
-                dragEnabled: dragEnabled,
-                dragSortInterval: 0,
-                dragReleaseDuration: 400,
-                dragReleaseEasing: 'ease'
-            })
-            this.aimsGrid.on('dragReleaseEnd', function () {
-                _this.uploadPriorities(_this.aimsGrid, _this.aims) } );
+            // the general keyflows without a casestudy
+            var generalChallenges = this.challenges.filterBy({ keyflow: null }),
+                generalAims = this.aims.filterBy({ keyflow: null });
+            this.renderKeyflow(gettext('General'), 'general', generalAims, generalChallenges);
 
-            this.renderPanel(this.challengesGrid, this.challenges, gettext('Challenge'));
-            this.renderPanel(this.aimsGrid, this.aims, gettext('Aim'));
+            // the other ones in this casestudy
+            this.keyflows.forEach(function(keyflow){
+                var challenges = _this.challenges.filterBy({ keyflow: keyflow.id }),
+                    aims = _this.aims.filterBy({ keyflow: keyflow.id });
+                _this.renderKeyflow(keyflow.get('name'), keyflow.id, aims, challenges);
+            })
 
             var html_modal = document.getElementById(
                 'empty-modal-template').innerHTML;
@@ -111,6 +106,49 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     button.style.display = 'none';
                 });
             }
+        },
+
+        renderKeyflow(title, id, aims, challenges){
+            var el = document.createElement('div'),
+                html = document.getElementById('challenges-aims-detail-template').innerHTML,
+                template = _.template(html);
+            this.el.appendChild(el);
+            el.innerHTML = template({ id: id, title: title });
+            // expand the filter (else rendering of panels messed up)
+            el.querySelector('.toggle-details').click();
+
+            var challengesPanel = el.querySelector('.challenges').querySelector('.item-panel'),
+                aimsPanel = el.querySelector('.aims').querySelector('.item-panel'),
+                dragEnabled = this.mode == 1;
+            var challengesGrid = new Muuri(challengesPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })
+            challengesGrid.on('dragReleaseEnd', function () {
+                _this.uploadPriorities(challengesGrid, _this.challenges) } );
+            this.challengesGrids[id] = challengesGrid;
+            var aimsGrid = new Muuri(aimsPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })
+            aimsGrid.on('dragReleaseEnd', function () {
+                _this.uploadPriorities(aimsGrid, _this.aims) } );
+            this.aimsGrids[id] = aimsGrid;
+
+            this.renderPanel(challengesGrid, challenges, gettext('Challenge'));
+            this.renderPanel(aimsGrid, aims, gettext('Aim'));
         },
 
         uploadPriorities(grid, collection){
@@ -156,8 +194,11 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             grid.add(panelItem);
         },
 
-        addChallenge: function(){
-            var _this = this;
+        addChallenge: function(evt){
+            var _this = this,
+                button = evt.target;
+            console.log(button)
+            console.log(button.dataset.id)
             function onConfirm(text){
                 var challenge = new GDSEModel({ text: text }, {
                     apiTag: 'challenges',
@@ -181,7 +222,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             });
         },
 
-        addAim: function(){
+        addAim: function(evt){
             var _this = this;
             function onConfirm(text){
                 var aim = new GDSEModel({ text: text }, {
