@@ -1,6 +1,7 @@
 require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
-         'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, SustainabilityTargetsView, appConfig) {
+         'views/common/baseview', 'app-config', 'utils/overrides', 'base'
+], function (d3, CaseStudy, SustainabilityTargetsView, FlowTargetsView,
+            appConfig) {
 
     /**
      * entry point for views on subpages of "Targets" menu item
@@ -18,6 +19,13 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
             el: document.getElementById('sustainability-targets'),
             template: 'sustainability-targets-template'
         })
+        if (flowTargetsView) flowTargetsView.close();
+        flowTargetsView = new FlowTargetsView({
+            caseStudy: caseStudy,
+            el: document.getElementById('flow-targets'),
+            template: 'flow-targets-template'
+        })
+        flowTargetsView.render();
     };
 
     renderSetup = function(caseStudy, keyflow){
@@ -26,19 +34,32 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
 
     function render(caseStudy, mode){
 
-        var keyflowSelect = document.getElementById('keyflow-select');
+        var keyflowSelect = document.getElementById('keyflow-select'),
+            session = appConfig.session;
         document.getElementById('keyflow-warning').style.display = 'block';
+        keyflowSelect.disabled = false;
+
+        function renderKeyflow(keyflowId){
+            document.getElementById('keyflow-warning').style.display = 'none';
+            if (Number(mode) == 1)
+                renderSetup(caseStudy, keyflowId);
+            else
+                renderWorkshop(caseStudy, keyflowId);
+        }
+
+        var keyflowSession = session.get('keyflow');
+        console.log(keyflowSession)
+        if (keyflowSession != null){
+            keyflowSelect.value = keyflowSession;
+            renderKeyflow(parseInt('keyflowSession'));
+        }
+
         keyflowSelect.addEventListener('change', function(){
             var keyflowId = this.value;
-            document.getElementById('keyflow-warning').style.display = 'none';
-            if (Number(mode) == 1) {
-                renderSetup(caseStudy, keyflowId);
-            }
-            else {
-                renderWorkshop(caseStudy, keyflowId);
-            }
+            session.set('keyflow', keyflowId);
+            session.save();
+            renderKeyflow(keyflowId);
         });
-        document.getElementById('keyflow-select').disabled = false;
     }
 
     appConfig.session.fetch({
