@@ -454,14 +454,18 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   /*color: white;*/
 }
 
-.fullscreen-toggle{
+.d3-overlay{
     position: absolute;
-    top: 20px;
-    right: 20px;
     font-size: 1em;
     opacity: 0.8;
     padding: 3px 7px 3px 7px;
 }
+
+.fullscreen-toggle {
+    top: 20px;
+    right: 20px;
+}
+
 
 /*div.fullscreen > .fullscreen-toggle{*/
     /*top: 20px;*/

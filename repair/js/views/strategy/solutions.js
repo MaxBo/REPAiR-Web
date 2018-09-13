@@ -78,7 +78,7 @@ var SolutionsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
+        'click .chart-control.fullscreen-toggle ': 'toggleFullscreen',
         'click #add-solution-category': 'addCategory'
     },
 

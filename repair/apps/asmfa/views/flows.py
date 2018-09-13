@@ -403,8 +403,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
-        origin_areas = params.get('origin_areas', None)
-        destination_areas = params.get('destination_areas', None)
 
         if spatial_aggregation and level_aggregation:
             return HttpResponseBadRequest(_(
@@ -439,12 +437,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         keyflow = kwargs['keyflow_pk']
         actors = Actor.objects.filter(
             activity__activitygroup__keyflow__id=keyflow)
-        if origin_areas:
-            print()
-            pass
-
-        if destination_areas:
-            pass
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))

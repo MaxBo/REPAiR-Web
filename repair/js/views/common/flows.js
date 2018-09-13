@@ -122,7 +122,7 @@ var FlowsView = BaseView.extend(
             stockFilters = stockFilterParams['filters'] = [];
 
         // filter origins/destinations by ids
-        if (nodeIds.length > 0){
+        if (nodeIds && nodeIds.length > 0){
             var origin_id_filter = {
                     'function': 'origin__'+ levelFilterMidSec + 'id__in',
                     values: nodeIds
