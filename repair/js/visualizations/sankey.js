@@ -43,6 +43,22 @@ class Sankey{
         return d.toLocaleString(this.language);
     }
 
+    setSize(width, height) {
+        this.width = width - this.margin.left - this.margin.right;
+        this.height = height;
+        this.svg.attr("width", width)
+                .attr("height", height);
+    }
+
+    zoomToFit(duration) {
+        var size = this.sankey.size(),
+            ratio = this.width / size[0],
+            scale = ratio * 0.8,
+            duration = duration || 0,
+            g = this.svg.select('g');
+        g.transition().duration(duration).call(this.zoom.translate([50,10]).scale(scale).event);
+    }
+
     /**
     * object describing a node
     *
@@ -74,46 +90,39 @@ class Sankey{
 
         //sankey.nodeAlign(d3.sankeyLeft)
         var _this = this;
-        var zoom = {};
+        this.zoom = {};
         var drag = {};
-        var svg = {};
+        var g = {};
         d3.selectAll("a[data-zoom]").on("click", clicked);
         function clicked() {
             var valueZoom = this.getAttribute("data-zoom");
             if (valueZoom != 0)
             {
-                svg.call(zoom);
+                g.call(this.zoom);
             // Record the coordinates (in data space) of the center (in screen space).
-            var center0 = zoom.center(),
-                translate0 = zoom.translate(),
+            var center0 = this.zoom.center(),
+                translate0 = this.zoom.translate(),
                 coordinates0 = coordinates(center0);
-            zoom.scale(zoom.scale() * Math.pow(2, +valueZoom));
+            this.zoom.scale(this.zoom.scale() * Math.pow(2, +valueZoom));
 
             // Translate back to the center.
             var center1 = point(coordinates0);
-            zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]);
+            this.zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]);
 
-            svg.transition().duration(750).call(zoom.event);
+            g.transition().duration(750).call(this.zoom.event);
             } else {
-                fitZoom(500);
+                _this.zoomToFit(500);
             }
         }
 
-        function fitZoom(duration) {
-            var size = _this.sankey.size(),
-                ratio = _this.width / size[0],
-                scale = ratio * 0.8,
-                duration = duration || 0;
-            svg.transition().duration(duration).call(zoom.translate([50,10]).scale(scale).event);
-        }
 
         function coordinates(point) {
-            var scale = zoom.scale(), translate = zoom.translate();
+            var scale = this.zoom.scale(), translate = this.zoom.translate();
             return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
         }
 
         function point(coordinates) {
-            var scale = zoom.scale(), translate = zoom.translate();
+            var scale = this.zoom.scale(), translate = this.zoom.translate();
             return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
         }
 
@@ -178,23 +187,24 @@ class Sankey{
         .on("drag", dragged)
         .on("dragend", dragended);
 
-        zoom = d3.behavior.zoom()
-            .scaleExtent([0, 5])
-            .center([this.width / 2, this.height / 2])
-            .on("zoom", zoomed);
+        this.zoom = d3.behavior.zoom()
+                          .scaleExtent([0, 5])
+                          .center([this.width / 2, this.height / 2])
+                          .on("zoom", zoomed);
 
-        var svg = this.div.append("svg")
+        this.svg = this.div.append("svg")
             //.attr( "preserveAspectRatio", "xMinYMid meet" )
             .attr("width", this.width)
             .attr("height", this.height)
-            .call(zoom)
+            .call(this.zoom)
             .call(tipLinks)
             .call(tipNodes)
-            .append("g")
-            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+        g = this.svg.append("g")
+                    .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
         // filter for text background
-        var defs = svg.append("defs");
+        var defs = g.append("defs");
         var filter = defs.append("filter")
             .attr("id", "text-bg")
             .attr("width", "1")
@@ -214,7 +224,7 @@ class Sankey{
         function strokeColor(d){
             if (_this.gradient && !d.isStock) {
                 var gradientId = d.id + "-linear-gradient",
-                    linearGradient = svg.append("defs")
+                    linearGradient = g.append("defs")
                     .append("linearGradient")
                     .attr("id", gradientId);
                 linearGradient.append("stop")
@@ -228,7 +238,7 @@ class Sankey{
             return d.source.color || '#000';
         }
 
-        var link = svg.append("g").attr("class", "link-container")
+        var link = g.append("g").attr("class", "link-container")
             .selectAll(".link")
             .data(data.links)
         .enter().append("path")
@@ -263,7 +273,7 @@ class Sankey{
         link.filter( function(d) { return !d.causesCycle} )
             .style("stroke-width", function(d) { return Math.max(1, d.dy); });
 
-        var node = svg.append("g").attr("class", "node-container")
+        var node = g.append("g").attr("class", "node-container")
             .selectAll(".node")
             .data(data.nodes)
         .enter().append("g")
@@ -299,12 +309,13 @@ class Sankey{
                 return d.color;
             })
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
-        // scale the font depending on zoom
 
+        // scale the font depending on zoom
         var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([100, 25, 18, 3.5, 3]);
         var rectRange = d3.scale.linear().domain([0, 0.5, 1, 5]).range([nodeWidth * 5, nodeWidth * 2, nodeWidth, nodeWidth]);
-        function scaleFont(){ return fontRange(zoom.scale()) + "px"; }
-        function scaleRectWidth(){ return rectRange(zoom.scale()); }
+        function scaleFont(){ return fontRange(_this.zoom.scale()) + "px"; }
+        function scaleRectWidth(){ return rectRange(_this.zoom.scale()); }
+
         node.append("text")
            // .style("filter", "url(#text-bg)")
             .attr("x", -6)
@@ -322,7 +333,7 @@ class Sankey{
             var scale = d3.event.scale;
             node.selectAll('text').style("font-size", scaleFont);
             node.selectAll('rect').attr("width", scaleRectWidth);
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + scale + ")");
+            g.attr("transform", "translate(" + d3.event.translate + ")scale(" + scale + ")");
         }
         function dragmove(d) {
             d3.select(this).attr("transform",
@@ -357,7 +368,7 @@ class Sankey{
             link.attr("d", path);
         }
 
-        fitZoom();
+        this.zoomToFit();
 
     };
 };
