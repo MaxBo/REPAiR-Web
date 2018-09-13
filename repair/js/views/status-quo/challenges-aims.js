@@ -139,6 +139,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 itemContent = document.createElement('div'),
                 _this = this;
             panelItem.classList.add('panel-item');
+            if (this.mode == 1) panelItem.classList.add('draggable');
             panelItem.style.position = 'absolute';
             panelItem.dataset.id = model.id;
             itemContent.classList.add('noselect', 'item-content');

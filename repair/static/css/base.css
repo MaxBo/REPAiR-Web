@@ -509,6 +509,10 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   cursor: pointer;
 }
 
+.panel-item.draggable, .panel-item.draggable label {
+  cursor: move;
+}
+
 .panel-item .button-box{
   display: none;
   /*float: right;  <-- does not work in Firefox*/
