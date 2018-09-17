@@ -68,6 +68,9 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
                 caseStudyId = session.get('casestudy'),
                 caseStudy = new CaseStudy({id: caseStudyId});
 
+            // atm there is nothing to do in setup mode
+            if (Number(mode) == 1) return;
+
             caseStudy.fetch({success: function(){
                 render(caseStudy, mode);
             }});

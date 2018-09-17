@@ -3,11 +3,11 @@
 {% load render_bundle from webpack_loader %}
 
 {% block sidebar %}
+  {% if request.session.mode != 1 %}
   <script>
     document.getElementById("targets-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    {% if request.session.mode != 1 %}
     <div class="row">
       <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
         <option selected disabled>{% trans "Select keyflow" %} </option>
@@ -19,8 +19,8 @@
     </div>
     <li class="active"><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
     <li><a href="#sustainability-targets" data-toggle="pill" style="font-size: 0.8em;">{% trans "Sustainability Targets" %} <span class="sub-icon fas fa-leaf"></span></a></li>
-    {% endif %}
   </ul>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
