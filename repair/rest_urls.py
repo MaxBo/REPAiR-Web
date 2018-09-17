@@ -105,7 +105,11 @@ cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
-cs_router.register(r'targets', TargetViewSet)
+
+# /casestudies/*/aims/...
+aimscat_router = NestedSimpleRouter(cs_router, r'aims',
+                                    lookup='aim')
+aimscat_router.register(r'targets', TargetViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
@@ -193,5 +197,6 @@ urlpatterns = [
     url(r'^', include(kf_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
-    url(r'^', include(layercat_router.urls))
+    url(r'^', include(layercat_router.urls)),
+    url(r'^', include(aimscat_router.urls))
 ]
