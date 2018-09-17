@@ -191,7 +191,7 @@ define([
                             gap: 4,
                             offset: 0
                         };
-                        if (strokeWidth > calcWidth) {
+                        if (_this.dottedLines && strokeWidth > calcWidth) {
                             var dashLength = 2,
                                 dashGaps = 204 - (calcWidth * 200) / 2,
                                 offset = Math.floor(Math.random() * Math.floor(dashGaps));
