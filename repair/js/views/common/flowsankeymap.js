@@ -115,36 +115,98 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             clusterLabel.innerHTML = gettext('Cluster locations');
 
             this.materialCheck.type = "checkbox";
-            this.materialCheck.classList.add('form-control');
             this.animationCheck.type = "checkbox";
-            this.animationCheck.classList.add('form-control');
             this.clusterCheck.type = "checkbox";
-            this.clusterCheck.classList.add('form-control');
+            this.materialCheck.style.transform = "scale(2)";
+            this.animationCheck.style.transform = "scale(2)";
+            this.clusterCheck.style.transform = "scale(2)";
+            this.materialCheck.style.pointerEvents = "none";
+            this.animationCheck.style.pointerEvents = "none";
+            this.clusterCheck.style.pointerEvents = "none";
+            this.materialCheck.style.marginRight = "10px";
+            this.animationCheck.style.marginRight = "10px";
+            this.clusterCheck.style.marginRight = "10px";
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
 
-            div.appendChild(this.materialCheck);
-            div.appendChild(matLabel);
-            div.appendChild(this.animationCheck);
-            div.appendChild(aniLabel);
-            div.appendChild(this.clusterCheck);
-            div.appendChild(clusterLabel);
+            var matDiv = document.createElement('div'),
+                aniDiv = document.createElement('div'),
+                aniCheckWrap = document.createElement('div'),
+                aniToggleDiv = document.createElement('div'),
+                toggleAniBtn = document.createElement('button'),
+                clusterDiv = document.createElement('div');
+
+            toggleAniBtn.classList.add('glyphicon', 'glyphicon-chevron-right');
+            matDiv.appendChild(this.materialCheck);
+            matDiv.appendChild(matLabel);
+            matDiv.style.cursor = 'pointer';
+            clusterDiv.appendChild(this.clusterCheck);
+            clusterDiv.appendChild(clusterLabel);
+            clusterDiv.style.cursor = 'pointer';
+            aniCheckWrap.appendChild(this.animationCheck);
+            aniCheckWrap.appendChild(aniLabel);
+            aniDiv.appendChild(aniCheckWrap);
+            aniDiv.appendChild(toggleAniBtn);
+            aniCheckWrap.style.cursor = 'pointer';
+            aniToggleDiv.style.visibility = 'hidden';
+
+            var aniLinesLabel = document.createElement('label'),
+                aniDotsLabel = document.createElement('label');
+
+            this.aniLinesRadio = document.createElement('input');
+            this.aniLinesRadio.checked = true;
+            this.aniDotsRadio = document.createElement('input');
+            this.aniLinesRadio.type = 'radio';
+            this.aniDotsRadio.type = 'radio';
+            this.aniLinesRadio.name = 'animation';
+            this.aniDotsRadio.name = 'animation';
+
+            aniCheckWrap.style.float = 'left';
+            aniCheckWrap.style.marginRight = '5px';
+            aniToggleDiv.style.float = 'left';
+            toggleAniBtn.style.float = 'left';
+            aniLinesLabel.style.marginRight = '3px';
+
+            aniLinesLabel.innerHTML = 'lines only';
+            aniDotsLabel.innerHTML = 'dotted';
+            aniLinesLabel.appendChild(this.aniLinesRadio);
+            aniDotsLabel.appendChild(this.aniDotsRadio);
+            aniToggleDiv.appendChild(aniLinesLabel);
+            aniToggleDiv.appendChild(aniDotsLabel);
 
             customControls.onAdd = function (map) {
                 return div;
             };
             customControls.addTo(this.leafletMap);
 
-            this.materialCheck.addEventListener ("click", function(){
+            matDiv.addEventListener("click", function(){
+                _this.materialCheck.checked = !_this.materialCheck.checked;
                 _this.rerender();
             });
-            this.clusterCheck.addEventListener ("click", function(){
+            clusterDiv.addEventListener("click", function(){
+                _this.clusterCheck.checked = !_this.clusterCheck.checked;
                 _this.rerender();
             });
-            this.animationCheck.addEventListener ("click", function(){
-                _this.flowMap.toggleAnimation(this.checked);
+            aniCheckWrap.addEventListener("click", function(){
+                _this.animationCheck.checked = !_this.animationCheck.checked;
+                _this.flowMap.toggleAnimation(_this.animationCheck.checked);
             });
+            toggleAniBtn.addEventListener("click", function(){
+                aniToggleDiv.style.visibility = (aniToggleDiv.style.visibility == 'hidden') ? 'visible': 'hidden';
+            });
+            aniToggleDiv.addEventListener("click", function(){
+                _this.rerender();
+            });
+
+            div.appendChild(matDiv);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(clusterDiv);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(aniDiv);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(aniToggleDiv);
+            div.appendChild(document.createElement('br'));
 
             var legendControl = L.control({position: 'bottomright'});
             this.legend = document.createElement('div');
@@ -284,6 +346,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
+            this.flowMap.dottedLines = (this.aniDotsRadio.checked) ? true: false;
             this.flowMap.resetView();
             this.updateLegend();
             if (zoomToFit) this.flowMap.zoomToFit();
@@ -462,7 +525,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: Math.max(30, 5 + nNodes / 2),
+                    radius: Math.min(40, 15 + nNodes / 2),
                     innerLabel: nNodes,
                     cluster: cluster
                 }
