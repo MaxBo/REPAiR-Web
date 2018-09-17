@@ -462,7 +462,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     color: cluster.color,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: Math.max(30, 5 + nNodes / 2),
+                    radius: Math.min(40, 15 + nNodes / 2),
                     innerLabel: nNodes,
                     cluster: cluster
                 }
