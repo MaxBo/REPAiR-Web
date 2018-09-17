@@ -32,7 +32,7 @@ function (Session) {
         keyflows:               '/api/keyflows/',
         qualities:              '/api/qualities/',
         reasons:                '/api/reasons/',
-        targets:                '/api/casestudies/{0}/targets',
+        targets:                '/api/casestudies/{0}/aims/{1}/targets',
         targetvalues:           '/api/targetvalues',
         targetspatialreference: '/api/targetspecialreference/',
         impactcategories:       '/api/impactcategories/',

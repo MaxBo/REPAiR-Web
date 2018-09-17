@@ -29,104 +29,59 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
+            this.keyflowId = options.keyflowId;
             this.mode = options.mode || 0;
 
-            _this.targets = [];
-            this.targetsModel = new GDSECollection([], {
-                apiTag: 'targets',
-                apiIds: [this.caseStudy.id]
-            });
-
-            _this.aims = [];
-            this.aimsModel = new GDSECollection([], {
+            this.aims = new GDSECollection([], {
                 apiTag: 'aims',
                 apiIds: [this.caseStudy.id],
                 comparator: 'priority'
             });
+            this.targets = {};
 
             // there is a spelling or conceptual error here, because
             // impactcategories == indicators
-            _this.impactcategories = []
-            this.impactCategoriesModel = new GDSECollection([], {
+            this.impactcategories = new GDSECollection([], {
                 apiTag: 'impactcategories'
             });
 
-            _this.targetvalues = [];
-            this.targetValuesModel = new GDSECollection([], {
+            this.targetvalues = new GDSECollection([], {
                 apiTag: 'targetvalues',
             });
 
-            _this.spatial = [];
-            this.spatialModel = new GDSECollection([], {
+            this.spatial = new GDSECollection([], {
                 apiTag: 'targetspatialreference',
             });
 
             var promises = [];
 
-            promises.push(this.targetsModel.fetch({
-                success: function(targets){
-                    var temp = [];
-                    targets.forEach(function(target){
-                        temp.push({
-                            "id": target.get('id'),
-                            "aim": target.get('aim'),
-                            "impact_category": target.get('impact_category'),
-                            "target_value": target.get('target_value'),
-                            "spatial_reference": target.get('spatial_reference'),
-                            "user": target.get('user')
+            promises.push(this.targets.fetch({
+                error: _this.onError
+            }));
+            promises.push(this.aims.fetch({
+                data: {
+                    keyflow: this.keyflowId
+                },
+                success: function(){
+                    _this.aims.forEach(function(aim){
+                        _this.targets[aim.id] = new GDSECollection([], {
+                            apiTag: 'targets',
+                            apiIds: [_this.caseStudy.id, aim.id]
                         });
-                    });
-                    _this.targets = _.sortBy(temp, 'aim' );
+                    })
                 },
                 error: _this.onError
             }));
 
-            promises.push(this.aimsModel.fetch({
-                success: function(aims){
-                    aims.sort();
-                    _this.initItems(aims, _this.aims, "Aim");
-                },
+            promises.push(this.impactCategories.fetch({
                 error: _this.onError
             }));
 
-            promises.push(this.impactCategoriesModel.fetch({
-                success: function(impactcategories){
-                    impactcategories.forEach(function(impact){
-                        _this.impactcategories.push({
-                            "id": impact.get('id'),
-                            "name": impact.get('name'),
-                            "area_of_protection": impact.get('area_of_protection'),
-                            "spatial_differentiation": impact.get('spatial_differentiation')
-                        });
-                    });
-                },
+            promises.push(this.targetValues.fetch({
                 error: _this.onError
             }));
 
-            promises.push(this.targetValuesModel.fetch({
-                success: function(targets){
-                    targets.forEach(function(target){
-                        _this.targetvalues.push({
-                            "text": target.get('text'),
-                            "id": target.get('id'),
-                            "number": target.get('number'),
-                            "factor": target.get('factor')
-                        });
-                    });
-                },
-                error: _this.onError
-            }));
-
-            promises.push(this.spatialModel.fetch({
-                success: function(areas){
-                    areas.forEach(function(area){
-                        _this.spatial.push({
-                            "text": area.get('text'),
-                            "name": area.get('name'),
-                            "id": area.get('id')
-                        });
-                    });
-                },
+            promises.push(this.spatial.fetch({
                 error: _this.onError
             }));
 
@@ -138,16 +93,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
         */
         events: {
             'click .add-target': 'addTarget'
-        },
-
-        initItems: function(items, list, type){
-            items.forEach(function(item){
-                list.push({
-                    "text": item.get('text'),
-                    "id": item.get('id'),
-                    "type": type
-                });
-            });
         },
 
         /*
@@ -224,10 +169,8 @@ function(_, BaseView, GDSECollection, GDSEModel){
                         spatial = _this.getObject(_this.spatial,
                             target.spatial_reference);
                     var removeBtn = document.createElement('button');
-
                     if (i == 0 || this.targets[i-1].aim != target.aim) {
                         var row = _this.el.querySelector("[rowaimid=" + CSS.escape(target.aim) + "]");
-
                         var indicatorPanel = row.querySelector('.indicators').querySelector('.item-panel'),
                             targetPanel = row.querySelector('.targets').querySelector('.item-panel'),
                             spatialPanel = row.querySelector('.spatial').querySelector('.item-panel'),

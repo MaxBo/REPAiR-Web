@@ -12,23 +12,25 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
 
     var sustainabilityTargetsView, flowTargetsView;
 
-    renderWorkshop = function(caseStudy, keyflow){
+    renderWorkshop = function(caseStudy, keyflowId){
         if (sustainabilityTargetsView) sustainabilityTargetsView.close();
         sustainabilityTargetsView = new SustainabilityTargetsView({
             caseStudy: caseStudy,
+            keyflowId: keyflowId,
             el: document.getElementById('sustainability-targets'),
             template: 'sustainability-targets-template'
         })
         if (flowTargetsView) flowTargetsView.close();
         flowTargetsView = new FlowTargetsView({
             caseStudy: caseStudy,
+            keyflowId: keyflowId,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template'
         })
         flowTargetsView.render();
     };
 
-    renderSetup = function(caseStudy, keyflow){
+    renderSetup = function(caseStudy, keyflowId){
     };
 
 
@@ -48,10 +50,9 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
         }
 
         var keyflowSession = session.get('keyflow');
-        console.log(keyflowSession)
         if (keyflowSession != null){
             keyflowSelect.value = keyflowSession;
-            renderKeyflow(parseInt('keyflowSession'));
+            renderKeyflow(parseInt(keyflowSession));
         }
 
         keyflowSelect.addEventListener('change', function(){
