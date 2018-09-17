@@ -184,9 +184,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 options = options || {},
                 width = (isFullScreen) ? this.el.clientWidth : (options.width) ? options.width : this.width,
                 height = (isFullScreen) ? this.el.clientHeight : (options.height) ? options.height : this.height;
-            console.log(isFullScreen)
-            console.log(width)
-            console.log(height)
             this.sankey.setSize(width, height);
             this.sankey.zoomToFit();
         },
@@ -270,8 +267,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 var originId = flow.get('origin'),
-                    destinationId = flow.get('destination'),
-                    source = indices[sourcePrefix+originId],
+                    destinationId = flow.get('destination');
+                if (originId == destinationId) {
+                    console.log('Warning: self referencing cycle at node id ' + originId);
+                    return;
+                }
+                var source = indices[sourcePrefix+originId],
                     target = indices[targetPrefix+destinationId];
                 // continue if one of the linked nodes does not exist
                 if (source == null || target == null) return false;

@@ -478,7 +478,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 if (clusterMap[actor.id]) return;
 
                 var location = _this.locations[actor.id];
-                if (!location) return;
+                if (!location) {
+                    console.log('Warning: missing location at node id ' + actor.id);
+                    return;
+                }
                 var location = _this.locations[actor.id],
                     geom = location.get('geometry');
                 if (!geom) return;
