@@ -88,6 +88,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             this.keyflows.forEach(function(keyflow){
                 var challenges = _this.challenges.filterBy({ keyflow: keyflow.id }),
                     aims = _this.aims.filterBy({ keyflow: keyflow.id });
+                challenges.sort();
+                aims.sort();
                 _this.renderKeyflow(keyflow.get('name'), keyflow.id, aims, challenges);
             })
 
@@ -111,7 +113,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         renderKeyflow(title, id, aims, challenges){
             var el = document.createElement('div'),
                 html = document.getElementById('challenges-aims-detail-template').innerHTML,
-                template = _.template(html);
+                template = _.template(html),
+                _this = this;
             this.el.appendChild(el);
             el.innerHTML = template({ id: id, title: title });
             // expand the filter (else rendering of panels messed up)
@@ -144,7 +147,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 dragReleaseEasing: 'ease'
             })
             aimsGrid.on('dragReleaseEnd', function () {
-                _this.uploadPriorities(aimsGrid, _this.aims) } );
+                _this.uploadPriorities(aimsGrid, _this.aims)
+            });
             this.aimsGrids[id] = aimsGrid;
 
             this.renderPanel(challengesGrid, challenges, gettext('Challenge'));
@@ -196,22 +200,27 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
 
         addChallenge: function(evt){
             var _this = this,
-                button = evt.target;
-            console.log(button)
-            console.log(button.dataset.id)
+                button = evt.target,
+                keyflowId = button.dataset.id,
+                grid = this.challengesGrids[keyflowId];
             function onConfirm(text){
-                var challenge = new GDSEModel({ text: text }, {
-                    apiTag: 'challenges',
-                    apiIds: [_this.caseStudy.id]
-                });
+                var challenge = new GDSEModel(
+                    {   keyflow: keyflowId,
+                        text: text
+                    },
+                    {
+                        apiTag: 'challenges',
+                        apiIds: [_this.caseStudy.id]
+                    }
+                );
                 challenge.save(null, {
                     success: function(){
                         _this.challenges.push({
                             "text": challenge.get('text'),
                             "id": challenge.get('id')
                         });
-                        _this.renderItem(_this.challengesGrid, challenge, gettext('Challenge'));
-                        _this.uploadPriorities(_this.challengesGrid, _this.challenges);
+                        _this.renderItem(grid, challenge, gettext('Challenge'));
+                        _this.uploadPriorities(grid, _this.challenges);
                     },
                     error: _this.onError
                 });
@@ -223,20 +232,28 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         },
 
         addAim: function(evt){
-            var _this = this;
+            var _this = this,
+                button = evt.target,
+                keyflowId = button.dataset.id,
+                grid = this.aimsGrids[keyflowId];
             function onConfirm(text){
-                var aim = new GDSEModel({ text: text }, {
-                    apiTag: 'aims',
-                    apiIds: [_this.caseStudy.id]
-                });
+                var aim = new GDSEModel(
+                    {   keyflow: keyflowId,
+                        text: text
+                    },
+                    {
+                        apiTag: 'aims',
+                        apiIds: [_this.caseStudy.id]
+                    }
+                );
                 aim.save(null, {
                     success: function(){
                         _this.aims.push({
                             "text": aim.get('text'),
                             "id": aim.get('id')
                         });
-                        _this.renderItem(_this.aimsGrid, aim, gettext('Aim'));
-                        _this.uploadPriorities(_this.aimsGrid, _this.aims);
+                        _this.renderItem(grid, aim, gettext('Aim'));
+                        _this.uploadPriorities(grid, _this.aims);
                     },
                     error: function(){
                         console.error("cannot save Aim");
@@ -250,9 +267,9 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         },
 
         editPanelItem: function(item, model, type){
-            var _this = this;
-            var id = item.id;
-            var title = gettext("Edit") + " " + type;
+            var _this = this,
+                id = item.id,
+                title = gettext("Edit") + " " + type;
             function onConfirm(name){
                 model.save({ text: name }, {
                     success: function(){
@@ -270,8 +287,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         },
 
         removePanelItem: function(item, model, grid, type){
-            var _this = this;
-            var message = gettext("Do you want to delete the selected item?");
+            var _this = this,
+                message = gettext("Do you want to delete the selected item?");
             this.confirmationModal.querySelector('.modal-body').innerHTML = message;
             this.activeModel = model;
             function onConfirm(name){
