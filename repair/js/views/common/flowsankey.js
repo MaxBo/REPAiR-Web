@@ -138,7 +138,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 this.el.appendChild(div);
             }
             this.sankeyDiv = div;
-            var sankey = new Sankey({
+            this.sankey = new Sankey({
                 height: height,
                 width: width,
                 el: div,
@@ -167,7 +167,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             div.addEventListener('linkDeselected', redirectEvent);
             if (data.links.length === 0)
                 _this.el.innerHTML = gettext("No flow data found for applied filters.")
-            else sankey.render(data);
+            else this.sankey.render(data);
         },
 
         /*
@@ -175,14 +175,17 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         */
         toggleFullscreen: function(){
             this.el.classList.toggle('fullscreen');
-            this.render(this.transformedData);
+            this.refresh()
+            //this.render(this.transformedData);
         },
 
         refresh: function(options){
-            var options = options || {};
-            this.width = options.width || this.el.clientWidth;
-            this.height = options.height || this.width / 3;
-            this.render();
+            var isFullScreen = this.el.classList.contains('fullscreen'),
+                options = options || {},
+                width = (isFullScreen) ? this.el.clientWidth : (options.width) ? options.width : this.width,
+                height = (isFullScreen) ? this.el.clientHeight : (options.height) ? options.height : this.height;
+            this.sankey.setSize(width, height);
+            this.sankey.zoomToFit();
         },
 
         /*
@@ -264,8 +267,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 var originId = flow.get('origin'),
-                    destinationId = flow.get('destination'),
-                    source = indices[sourcePrefix+originId],
+                    destinationId = flow.get('destination');
+                if (originId == destinationId) {
+                    console.log('Warning: self referencing cycle at node id ' + originId);
+                    return;
+                }
+                var source = indices[sourcePrefix+originId],
                     target = indices[targetPrefix+destinationId];
                 // continue if one of the linked nodes does not exist
                 if (source == null || target == null) return false;
@@ -319,8 +326,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
         exportCSV: function(){
             if (!this.transformedData) return;
-
-            var filter
 
             var header = [gettext('origin'), gettext('destination'), gettext('amount'), gettext('composition')],
                 rows = [],
