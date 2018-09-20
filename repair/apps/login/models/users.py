@@ -19,17 +19,6 @@ class CaseStudy(GDSEModel):
                                'setupmode', 'dataentry')
 
     @property
-    def solution_categories(self):
-        """
-        look for all solution categories created by the users of the casestudy
-        """
-        solution_categories = set()
-        for uic in self.userincasestudy_set.all():
-            for solution_category in uic.solutioncategory_set.all():
-                solution_categories.add(solution_category)
-        return solution_categories
-
-    @property
     def stakeholder_categories(self):
         """
         look for all stakeholder categories created by the users of the casestudy
