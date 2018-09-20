@@ -7,6 +7,15 @@
     document.getElementById("strategy-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <div class="row">
+      <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
+        <option selected disabled>{% trans "Select keyflow" %} </option>
+      {% for keyflow in keyflows %}
+        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+      {% endfor %}
+      </select>
+      <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
+    </div>
     <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon fas fa-puzzle-piece" style="margin-right: -5px"></span></a></li>
     {% if request.session.mode != 1 %}
     <li><a href="#strategy" data-toggle="pill">{% trans "Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
@@ -19,6 +28,7 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 <div class="tab-content">
+  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
   <div class="tab-pane fade in active" id="solutions">
   </div>
   {% if request.session.mode != 1 %}

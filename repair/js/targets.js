@@ -33,7 +33,6 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
     renderSetup = function(caseStudy, keyflowId){
     };
 
-
     function render(caseStudy, mode){
 
         var keyflowSelect = document.getElementById('keyflow-select'),
