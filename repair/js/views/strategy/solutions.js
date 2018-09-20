@@ -32,12 +32,13 @@ var SolutionsView = BaseView.extend(
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
-        this.projection = 'EPSG:4326';
+        this.keyflowId = options.keyflowId;
         this.mode = options.mode || 0;
 
         // ToDo: replace with collections fetched from server
         this.categories = new GDSECollection([], {
-            apiTag: 'solutionCategories', apiIds: [this.caseStudy.id]
+            apiTag: 'solutionCategories',
+            apiIds: [this.caseStudy.id, this.keyflowId]
         }),
 
         this.loader.activate();
@@ -93,7 +94,8 @@ var SolutionsView = BaseView.extend(
         var promises = [];
         this.categories.forEach(function(category){
             category.solutions = new GDSECollection([], {
-                apiTag: 'solutions', apiIds: [_this.caseStudy.id, category.id]
+                apiTag: 'solutions',
+                apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
             }),
             promises.push(category.solutions.fetch());
         });
@@ -215,14 +217,14 @@ var SolutionsView = BaseView.extend(
         };
         var squantities = new GDSECollection([], {
                 apiTag: 'solutionQuantities',
-                apiIds: [this.caseStudy.id, solution.get('solution_category'),
-                         solution.id]
+                apiIds: [this.caseStudy.id, this.keyflowId,
+                         solution.get('solution_category'), solution.id]
             }),
 
             sratios = new GDSECollection([], {
                 apiTag: 'solutionRatioOneUnits',
-                apiIds: [this.caseStudy.id, solution.get('solution_category'),
-                         solution.id]
+                apiIds: [this.caseStudy.id, this.keyflowId,
+                         solution.get('solution_category'), solution.id]
             });
 
         if (solution.id){
@@ -246,12 +248,12 @@ var SolutionsView = BaseView.extend(
             effectSrc: solution.get('effect_image'),
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
-            checkedActivities: solution.get('activities'),
+            checkedActivities: solution.get('activities') || [],
             category: category.get('name'),
             mode: this.mode,
             keyflows: this.keyflows
         });
-        this.renderMap('actors-map', solution.get('activities'));
+        this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
 
         // add buttons and listeners for editing the solution in setup mode
@@ -317,7 +319,6 @@ var SolutionsView = BaseView.extend(
                     solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
                 }
-                console.log(changedImages)
                 for (file in changedImages){
                   data[file] = changedImages[file];
                 }
@@ -533,16 +534,19 @@ var SolutionsView = BaseView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = _this.categories.create( { name: name }, {success: function(){
-                category.solutions = new GDSECollection([], {
-                    apiTag: 'solutions',
-                    apiIds: [_this.caseStudy.id, category.id]
-                });
-                    _this.categories.add(category);
-                    _this.renderCategory(category);
-                },
-                error: _this.onError
-            })
+            var category = _this.categories.create(
+                { name: name }, {
+                success: function(){
+                    category.solutions = new GDSECollection([], {
+                        apiTag: 'solutions',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
+                    });
+                        _this.categories.add(category);
+                        _this.renderCategory(category);
+                    },
+                    error: _this.onError
+                }
+            )
         }
         _this.getName({ onConfirm: onConfirm });
     },
@@ -551,16 +555,30 @@ var SolutionsView = BaseView.extend(
     * add a solution and save it
     */
     addSolution: function(panel, category){
-        var _this = this;
-        var solutions = category.solutions,
-            solution = new solutions.model(
-                { name: name, solution_category: category.id },
-            );
-        function onConfirm(){
-            solutions.add(solution);
-            _this.renderSolutionItem(panel, solution);
-        }
-        _this.showSolution(solution, onConfirm);
+        var _this = this,
+            solutions = category.solutions;
+        function onConfirm(name){
+            var solution = solutions.create(
+                {
+                    name: name,
+                    solution_category: category.id,
+                    description: '-',
+                    one_unit_equals: '-',
+                    activities: []
+                },
+                {
+                    wait: true,
+                    success: function(){
+                        _this.renderSolutionItem(panel, solution);
+                    },
+                    error: _this.onError
+                }
+            )
+        };
+        this.getName({
+            title: gettext('Add Solution'),
+            onConfirm: onConfirm
+        });
     },
 
     toggleFullscreen: function(event){
