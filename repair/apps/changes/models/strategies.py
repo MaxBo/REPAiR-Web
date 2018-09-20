@@ -16,7 +16,8 @@ class Strategy(GDSEModel):
                                 on_delete=models.CASCADE)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder,
-                                                 on_delete=PROTECT_CASCADE)
+                                                 on_delete=PROTECT_CASCADE,
+                                                 null=True)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInStrategy')
 
