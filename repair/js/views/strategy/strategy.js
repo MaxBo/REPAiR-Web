@@ -14,40 +14,42 @@ var StrategyView = BaseView.extend(
     {
 
     /**
-    * render workshop view on implementations
+    * render workshop view on strategies
     *
     * @param {Object} options
     * @param {HTMLElement} options.el                          element the view will be rendered in
     * @param {string} options.template                         id of the script element containing the underscore template to render this view
-    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add implementations to
+    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add strategies to
     *
     * @constructs
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
         StrategyView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'renderImplementation');
         _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
+
         this.stakeholderCategories = new GDSECollection([], {
             apiTag: 'stakeholderCategories',
             apiIds: [_this.caseStudy.id]
         });
 
-        this.implementations = new GDSECollection([], {
-            apiTag: 'implementations',
-            apiIds: [this.caseStudy.id]
+        this.strategies = new GDSECollection([], {
+            apiTag: 'strategies',
+            apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
         this.units = new GDSECollection([], {
             apiTag: 'units'
         });
 
+        // ToDo: replace with collections fetched from server
         this.solutionCategories = new GDSECollection([], {
             apiTag: 'solutionCategories',
-            apiIds: [this.caseStudy.id]
-        });
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        })
 
         var focusarea = this.caseStudy.get('properties').focusarea;
         if (focusarea != null){
@@ -59,7 +61,7 @@ var StrategyView = BaseView.extend(
         this.projection = 'EPSG:4326';
 
         var promises = [
-            this.implementations.fetch(),
+            this.strategies.fetch(),
             this.stakeholderCategories.fetch(),
             this.solutionCategories.fetch(),
             this.units.fetch()
@@ -80,7 +82,7 @@ var StrategyView = BaseView.extend(
             _this.solutionCategories.forEach(function(category){
                 var solutions = new GDSECollection([], {
                     apiTag: 'solutions',
-                    apiIds: [_this.caseStudy.id, category.id]
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
                 });
                 category.solutions = solutions;
                 deferreds.push(solutions.fetch({ error: _this.onError }))
@@ -95,7 +97,8 @@ var StrategyView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #add-implementation': 'addImplementation',
+        'click #add-solution-strategy-btn': 'addSolution',
+        'click #add-solution-modal .confirm': 'confirmNewSolution'
     },
 
     /*
@@ -110,66 +113,19 @@ var StrategyView = BaseView.extend(
             stakeholderCategories: this.stakeholderCategories,
             solutionCategories: this.solutionCategories
         });
-        $('#coordinator-select').selectpicker();
         $('#solution-select').selectpicker();
 
-        this.implementations.forEach(this.renderImplementation);
+        // there is only one strategy allowed per user
+        this.strategy = this.strategies.first();
 
-        document.querySelector('#implementation-modal .confirm').addEventListener(
-            'click', function(){ _this.confirmImplementation() })
-        document.querySelector('#add-solution-modal .confirm').addEventListener(
-            'click', function(){ _this.confirmNewSolution() })
-    },
+        var addBtn = this.el.querySelector('.add');
 
-    getStakeholder: function(id){
-        var stakeholder = null;
-        for (var i = 0; i < this.stakeholderCategories.length; i++){
-            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(id);
-            if (stakeholder != null) break;
-        }
-        return stakeholder
-    },
-
-    /*
-    * render an implementation item
-    */
-    renderImplementation: function(implementation){
-        var html = document.getElementById('implementation-item-template').innerHTML,
-            el = document.createElement('div'),
-            template = _.template(html),
-            coordId = implementation.get('coordinating_stakeholder'),
-            implDiv = this.el.querySelector('#implementations'),
-            stakeholder = this.getStakeholder(coordId),
-            _this = this;
-
-        implDiv.appendChild(el);
-        el.innerHTML = template({ implementation: implementation, stakeholder: stakeholder });
-
-        var editBtn = el.querySelector('.edit'),
-            removeBtn = el.querySelector('.remove'),
-            addBtn = el.querySelector('.add');
-
-        editBtn.addEventListener('click', function(){
-            _this.editImplementation(implementation, el);
-        })
-
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the implementation and all of its solutions?');
-            _this.confirm({ message: message, onConfirm: function(){
-                implementation.destroy({
-                    success: function() { implDiv.removeChild(el); },
-                    error: _this.onError,
-                    wait: true
-                })
-            }});
-        })
-
-        var solutionsInImpl = new GDSECollection([], {
-            apiTag: 'solutionsInImplementation',
-            apiIds: [this.caseStudy.id, implementation.id]
+        this.solutionsInStrategy = new GDSECollection([], {
+            apiTag: 'solutionsInStrategy',
+            apiIds: [this.caseStudy.id, this.keyflowId, this.strategy.id]
         });
 
-        var implementationGrid = new Muuri(el.querySelector('.solutions'), {
+        this.strategyGrid = new Muuri(this.el.querySelector('.solutions'), {
             dragAxis: 'x',
             layoutDuration: 400,
             layoutEasing: 'ease',
@@ -187,51 +143,61 @@ var StrategyView = BaseView.extend(
             }
         });
 
-        solutionsInImpl.fetch({
+        this.solutionsInStrategy.fetch({
             success: function(){
-                solutionsInImpl.forEach(function(solInImpl){
-                    _this.renderSolution(solInImpl, implementation, implementationGrid);
+                _this.solutionsInStrategy.forEach(function(solInStrategy){
+                    _this.renderSolution(solInStrategy);
                 })
             }
         });
+    },
 
+    addSolution: function(){
         var addModal = this.el.querySelector('#add-solution-modal');
-        addBtn.addEventListener('click', function(){
-            _this.confirmNewSolution = function(){
-                var solutionId = _this.el.querySelector('#solution-select').value;
-                var solInImpl = solutionsInImpl.create(
-                    {
-                        solution: solutionId
-                    },
-                    {
-                        wait: true,
-                        success: function(){
-                            $(addModal).modal('hide');
-                            var solItem = _this.renderSolution(solInImpl, implementation, implementationGrid);
-                            _this.editSolution(solInImpl, implementation, solItem);
-                        },
-                        error: _this.onError
-                    },
-                )
-            };
+            solutionSelect = addModal.querySelector('#solution-select');
 
-            var solutionSelect = addModal.querySelector('#solution-select');
+        solutionSelect.selectedIndex = 0;
+        $(solutionSelect).selectpicker('refresh');
 
-            solutionSelect.selectedIndex = 0;
-            $(solutionSelect).selectpicker('refresh');
+        $(addModal).modal('show');
+    },
 
-            $(addModal).modal('show');
-        })
+    confirmNewSolution: function(){
+        var _this = this,
+            addModal = this.el.querySelector('#add-solution-modal');
+            solutionId = addModal.querySelector('#solution-select').value;
+        var solInStrategy = this.solutionsInStrategy.create(
+            {
+                solution: solutionId
+            },
+            {
+                wait: true,
+                success: function(){
+                    $(addModal).modal('hide');
+                    var solItem = _this.renderSolution(solInStrategy);
+                },
+                error: _this.onError
+            },
+        )
+    },
+
+    getStakeholder: function(id){
+        var stakeholder = null;
+        for (var i = 0; i < this.stakeholderCategories.length; i++){
+            stakeholder = this.stakeholderCategories.at(i).stakeholders.get(id);
+            if (stakeholder != null) break;
+        }
+        return stakeholder
     },
 
     /*
-    * render a solution item into the given implementation item
+    * render a solution item into the given strategy item
     */
-    renderSolution: function(solutionInImpl, implementation, grid){
+    renderSolution: function(solutionInStrategy){
         var html = document.getElementById('solution-item-template').innerHTML,
             el = document.createElement('div'),
             template = _.template(html),
-            solId = solutionInImpl.get('solution'),
+            solId = solutionInStrategy.get('solution'),
             _this = this;
 
         var solution;
@@ -240,7 +206,7 @@ var StrategyView = BaseView.extend(
             if (solution != null) break;
         }
 
-        var stakeholderIds = solutionInImpl.get('participants'),
+        var stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
 
         stakeholderIds.forEach(function(id){
@@ -251,11 +217,11 @@ var StrategyView = BaseView.extend(
 
         var squantities = new GDSECollection([], {
             apiTag: 'quantitiesInImplementedSolution',
-            apiIds: [this.caseStudy.id, implementation.id, solutionInImpl.id]
+            apiIds: [this.caseStudy.id, this.keyflowId, this.strategy.id, solutionInStrategy.id]
         });
 
         el.innerHTML = template({
-            solutionInImpl: solutionInImpl,
+            solutionInStrategy: solutionInStrategy,
             solution: solution,
             stakeholderNames: stakeholderNames.join(', ')
         });
@@ -271,97 +237,33 @@ var StrategyView = BaseView.extend(
             removeBtn = el.querySelector('.remove');
 
         editBtn.addEventListener('click', function(){
-            _this.editSolution(solutionInImpl, implementation, el);
+            _this.editSolution(solutionInStrategy, el);
         })
         el.classList.add('item', 'large');
-        grid.add(el, {});
+        this.strategyGrid.add(el, {});
         removeBtn.addEventListener('click', function(){
             var message = gettext('Do you really want to delete your solution?');
             _this.confirm({ message: message, onConfirm: function(){
-                solutionInImpl.destroy({
-                    success: function() { grid.remove(el, { removeElements: true }); },
+                solutionInStrategy.destroy({
+                    success: function() { _this.strategyGrid.remove(el, { removeElements: true }); },
                     error: _this.onError,
                     wait: true
                 })
             }});
         })
-        this.renderSolutionPreviewMap(solutionInImpl, el);
+        this.renderSolutionPreviewMap(solutionInStrategy, el);
         return el;
     },
 
-    /*
-    * open modal for editing an implementation
-    */
-    editImplementation: function(implementation, item){
-        var modal = this.el.querySelector('#implementation-modal'),
-            nameInput = modal.querySelector('#implementation-name-input'),
-            coordSelect = modal.querySelector('#coordinator-select'),
-            _this = this;
-
-        nameInput.value = implementation.get('name');
-        coordSelect.value = implementation.get('coordinating_stakeholder');
-        $(coordSelect).selectpicker('refresh');
-
-        this.confirmImplementation = function(){
-            implementation.save(
-                {
-                    name: nameInput.value,
-                    coordinating_stakeholder: coordSelect.value
-                },
-                {
-                    success: function(){
-                        item.querySelector('.title').innerHTML = nameInput.value;
-                        item.querySelector('.coordinator').innerHTML = coordSelect[coordSelect.selectedIndex].text;
-                        $(modal).modal('hide');
-                },
-                error: _this.onError
-            })
-        };
-
-        $(modal).modal('show');
-    },
 
     /*
-    * add a implementation and save it
+    * open the modal for editing the solution in strategy
     */
-    addImplementation: function(){
-        var modal = this.el.querySelector('#implementation-modal'),
-            nameInput = modal.querySelector('#implementation-name-input'),
-            coordSelect = modal.querySelector('#coordinator-select'),
-            _this = this;
-
-        nameInput.value = '';
-        coordSelect.selectedIndex = 0;
-        $(coordSelect).selectpicker('refresh');
-
-        this.confirmImplementation = function(){
-            var implementation = _this.implementations.create(
-                {
-                    name: nameInput.value,
-                    coordinating_stakeholder: coordSelect.value
-                },
-                {
-                    wait: true,
-                    success: function(){
-                        _this.renderImplementation(implementation);
-                        $(modal).modal('hide');
-                    },
-                    error: _this.onError
-                },
-            )
-        };
-
-        $(modal).modal('show');
-    },
-
-    /*
-    * open the modal for editing the solution in implementation
-    */
-    editSolution: function(solutionImpl, implementation, item){
+    editSolution: function(solutionImpl, item){
         var _this = this;
-        var html = document.getElementById('view-solution-implementation-template').innerHTML,
+        var html = document.getElementById('view-solution-strategy-template').innerHTML,
             template = _.template(html);
-        var modal = this.el.querySelector('#solution-implementation-modal');
+        var modal = this.el.querySelector('#solution-strategy-modal');
 
         var solution = null,
             solId = solutionImpl.get('solution');
@@ -373,13 +275,12 @@ var StrategyView = BaseView.extend(
 
         modal.innerHTML = template({
             solutionCategories: this.solutionCategories,
-            implementation: implementation,
             solutionImpl: solutionImpl,
             solution: solution,
             stakeholderCategories: this.stakeholderCategories
         });
 
-        var stakeholderSelect = modal.querySelector('#implementation-stakeholders'),
+        var stakeholderSelect = modal.querySelector('#strategy-stakeholders'),
             stakeholders = solutionImpl.get('participants').map(String);
         for (var i = 0; i < stakeholderSelect.options.length; i++) {
             if (stakeholders.indexOf(stakeholderSelect.options[i].value) >= 0) {
@@ -390,12 +291,12 @@ var StrategyView = BaseView.extend(
 
         var squantities = new GDSECollection([], {
             apiTag: 'quantitiesInImplementedSolution',
-            apiIds: [this.caseStudy.id, implementation.id, solutionImpl.id]
+            apiIds: [this.caseStudy.id, this.keyflowId, this.strategy.id, solutionImpl.id]
         });
 
         var sratios = new GDSECollection([], {
             apiTag: 'solutionRatioOneUnits',
-            apiIds: [this.caseStudy.id, solution.get('solution_category'), solution.id]
+            apiIds: [this.caseStudy.id, this.keyflowId, solution.get('solution_category'), solution.id]
         });
 
         var quantityTable = modal.querySelector('#implemented-quantities');
