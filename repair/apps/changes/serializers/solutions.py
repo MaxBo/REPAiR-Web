@@ -92,10 +92,11 @@ class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
     user = UserInCasestudyField(
         view_name='userincasestudy-detail', read_only=True
     )
+    keyflow = IDRelatedField(required=False)
 
     class Meta:
         model = SolutionCategory
-        fields = ('url', 'id', 'name', 'user', 'solution_set', 'solution_list')
+        fields = ('url', 'id', 'name', 'user', 'keyflow', 'solution_set', 'solution_list')
         read_only_fields = ('url', 'id')
 
 
