@@ -24,36 +24,46 @@ class UnitSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SolutionCategoryField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id'
+    }
 
 
 class SolutionField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'solution_category__user__casestudy__id',
-                            'solutioncategory_pk': 'solution_category__id', }
-    extra_lookup_kwargs = {'casestudy_pk':
-                           'implementation__user__casestudy__id'}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution_category__id'
+    }
 
 
 class SolutionSetField(InCasestudyField):
     """Returns a List of links to the solutions"""
     lookup_url_kwarg = 'solutioncategory_pk'
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'solution_category__user__casestudy__id',
-                            'solutioncategory_pk': 'solution_category__id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution_category__id'
+    }
 
 
 class SolutionListField(IdentityFieldMixin, SolutionSetField):
     """Returns a Link to the solutions--list view"""
     lookup_url_kwarg = 'solutioncategory_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'solutioncategory_pk': 'id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+        'solutioncategory_pk': 'id'
+    }
 
 
 class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'solutioncategory_pk': 'solution_category__id',
-                            'casestudy_pk':
-                            'solution_category__user__casestudy__id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution_category__id'
+    }
 
     class Meta:
         model = Solution
@@ -67,7 +77,10 @@ class UnitField(serializers.HyperlinkedRelatedField):
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
                                  NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
     solution_set = SolutionListField(
         view_name='solution-list')
     solution_list = SolutionSetField(
@@ -111,9 +124,10 @@ class SolutionQuantitySerializer(SolutionDetailCreateMixin,
     unit = IDRelatedField()
     solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
-        'casestudy_pk': 'solution__user__casestudy__id',
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
         'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id',
+        'solution_pk': 'solution__id'
     }
 
     class Meta:
@@ -123,10 +137,12 @@ class SolutionQuantitySerializer(SolutionDetailCreateMixin,
 
 class SolutionDetailListField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'solution_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'solutioncategory_pk': 'solution_category__id',
-                            'solution_pk': 'id',
-                            }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution_category__id',
+        'solution_pk': 'id'
+    }
 
 
 class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
@@ -135,9 +151,10 @@ class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
     solution = IDRelatedField(read_only=True)
     value = serializers.DecimalField(max_digits=10, decimal_places=3)
     parent_lookup_kwargs = {
-        'casestudy_pk': 'solution__user__casestudy__id',
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
         'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id',
+        'solution_pk': 'solution__id'
     }
 
     class Meta:
@@ -147,11 +164,12 @@ class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
-
     parent_lookup_kwargs = {
-        'casestudy_pk': 'user__casestudy__id',
+        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution_category__keyflow__id',
         'solutioncategory_pk': 'solution_category__id',
     }
+
     user = UserInCasestudyField(view_name='userincasestudy-detail',
                                 read_only=True)
     solution_category = IDRelatedField()

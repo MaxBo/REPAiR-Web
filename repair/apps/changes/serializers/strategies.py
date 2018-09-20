@@ -23,22 +23,29 @@ class SolutionInStrategySetField(InCasestudyField):
     """Returns a list of links to the solutions"""
     lookup_url_kwarg = 'strategy_pk'
     parent_lookup_kwargs = {
-        'casestudy_pk': 'strategy__user__casestudy__id',
-        'strategy_pk': 'strategy__id', }
+        'casestudy_pk': 'strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'strategy__keyflow__id',
+        'strategy_pk': 'strategy__id'
+    }
 
 
 class SolutionIISetField(InCasestudyField):
     """Returns a list of links to the solutions"""
-    lookup_url_kwarg = 'solutioncategory_pk'
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'solutioncategory_pk': 'id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+        'solutioncategory_pk': 'id'
+    }
 
 
 class SolutionInStrategyListField(IdentityFieldMixin,
                                   SolutionInStrategySetField):
     """Returns a Link to the solutions--list view"""
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'strategy_pk': 'id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+        'strategy_pk': 'id'
+    }
 
 
 class StakeholderOfStrategyField(InCasestudyField):
@@ -49,7 +56,10 @@ class StakeholderOfStrategyField(InCasestudyField):
 
 class StrategySerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
     solution_list = SolutionInStrategyListField(
         source='solutioninstrategy_set',
         view_name='solutioninstrategy-list')
@@ -99,25 +109,28 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
 
 
 class StrategyField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id'}
-    extra_lookup_kwargs = {'casestudy_pk':
-                           'strategy__user__casestudy__id'}
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'strategy__keyflow__id'
+    }
 
 
 class SolutionInStrategyDetailListField(InCaseStudyIdentityField):
     lookup_url_kwarg = 'solution_pk'
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'strategy__user__casestudy__id',
-                            'strategy_pk': 'strategy__id',
-                            'solution_pk': 'id',
-                            }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'strategy__keyflow__id',
+        'strategy_pk': 'strategy__id',
+        'solution_pk': 'id'
+    }
 
 
 class SolutionInStrategySerializer(serializers.ModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'strategy__user__casestudy__id',
-                            'strategy_pk': 'strategy__id',
-                            }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'strategy__keyflow__id',
+        'strategy_pk': 'strategy__id'
+    }
     participants = IDRelatedField(many=True, required=False)
 
     class Meta:
@@ -131,8 +144,10 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
 
 class SolutionInStrategyField(InCasestudyField):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'strategy__user__casestudy__id',
-        'strategy_pk': 'strategy__id', }
+        'casestudy_pk': 'strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'strategy__keyflow__id',
+        'strategy_pk': 'strategy__id'
+    }
 
 
 class SolutionInStrategyDetailCreateMixin:
@@ -154,16 +169,20 @@ class SolutionInStrategyChildSerializer(SolutionInStrategyDetailCreateMixin,
         view_name='solutioninstrategy-detail',
         read_only=True)
     parent_lookup_kwargs = {
-        'casestudy_pk': 'sii__strategy__user__casestudy__id',
+        'casestudy_pk': 'sii__strategy__keyflow__casestudy__id',
+        'keyflow_pk': 'sii__strategy__keyflow__id',
         'strategy_pk': 'sii__strategy__id',
-        'solution_pk': 'sii__id', }
+        'solution_pk': 'sii__id'
+    }
 
 
 class SolutionQuantityField(InSolutionField):
-    parent_lookup_kwargs = {'casestudy_pk':
-                            'solution__solution_category__user__casestudy__id',
-                            'solutioncategory_pk': 'solution__solution_category__id',
-                            'solution_pk': 'solution__id', }
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution__solution_category__id',
+        'solution_pk': 'solution__id'
+    }
 
 
 class SolutionInStrategyQuantitySerializer(SolutionInStrategyChildSerializer):
