@@ -3,6 +3,7 @@ from django.db.models import signals
 from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEModel,
                                       UserInCasestudy)
+from repair.apps.asmfa.models import KeyflowInCasestudy
 
 from repair.apps.studyarea.models import Stakeholder
 from .solutions import Solution, SolutionQuantity
@@ -11,6 +12,8 @@ from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 class Strategy(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
+    keyflow = models.ForeignKey(KeyflowInCasestudy,
+                                on_delete=models.CASCADE)
     name = models.TextField()
     coordinating_stakeholder = models.ForeignKey(Stakeholder,
                                                  on_delete=PROTECT_CASCADE)

@@ -3,7 +3,7 @@ from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       UserInCasestudy)
-from repair.apps.asmfa.models import Activity
+from repair.apps.asmfa.models import Activity, KeyflowInCasestudy
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
@@ -14,6 +14,8 @@ class Unit(GDSEModel):
 class SolutionCategory(GDSEUniqueNameModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
+    keyflow = models.ForeignKey(KeyflowInCasestudy,
+                                on_delete=models.CASCADE)
 
     @property
     def casestudy(self):
