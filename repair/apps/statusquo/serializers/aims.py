@@ -19,6 +19,7 @@ class AimSerializer(InCasestudySerializerMixin,
                     NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
+    keyflow = IDRelatedField(allow_null=True)
     text = serializers.CharField()
 
     class Meta:
@@ -27,6 +28,7 @@ class AimSerializer(InCasestudySerializerMixin,
                   'id',
                   'text',
                   'casestudy',
+                  'keyflow',
                   'priority')
 
 
@@ -34,10 +36,12 @@ class AimPostSerializer(InCasestudySerializerMixin,
                         NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     text = serializers.CharField()
+    keyflow = IDRelatedField(allow_null=True, required=False)
 
     class Meta:
         model = Aim
         fields = ('url',
                   'id',
+                  'keyflow',
                   'text',
                   'priority')

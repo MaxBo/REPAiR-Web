@@ -7,7 +7,8 @@ var entryPoints = {
     DataEntry: './js/data-entry',
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
-    Changes:   './js/changes',
+    Targets:   './js/targets',
+    Strategy:   './js/strategy',
     Base:      './js/base',
 };
 

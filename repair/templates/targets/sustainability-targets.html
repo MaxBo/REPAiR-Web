@@ -1,0 +1,50 @@
+{% load i18n %}
+{% block content %}
+
+<script type="text/template" id="sustainability-targets-template">
+<div class="row overflow">
+  <div class="col-md-3">
+    <b>{% trans "Aim" %}</b>
+  </div>
+  <div class="col-md-2">
+    <b>{% trans "Target value" %}</b>
+  </div>
+  <div class="col-md-3">
+    <b>{% trans "Indicator" %}</b>
+  </div>
+  <div class="col-md-2">
+    <b>{% trans "Spatial reference" %}</b>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="sustainability-target-row-template">
+<div class="col-md-3">
+  <div class="panel-item noselect" style="pointer-events: none;">
+    <label> <%= aim %> </label>
+  </div>
+</div>
+<div class="col-md-2 targets">
+  <div class="item-panel" style="min-height: 25px;">
+  </div>
+  <button class="add-target btn btn-primary square add"
+   title="{% trans "add target" %}" aimId="<%= aimId %>">
+    <span class="glyphicon glyphicon-plus"></span> {% trans "Target" %}
+  </button>
+</div>
+<div id="indicator-panel" class="col-md-3 indicators">
+  <div class="item-panel" style="min-height: 25px;">
+  </div>
+</div>
+<div class="col-md-2 spatial">
+  <div class="item-panel" style="min-height: 25px;">
+  </div>
+</div>
+<div class="col-md-1 remove">
+  <div class="item-panel" style="min-height: 25px;">
+  </div>
+</div>
+</script>
+
+{% endblock %}
+

@@ -23,3 +23,10 @@ class AimViewSet(CasestudyViewSetMixin,
     serializer_class = AimSerializer
     serializers = {'create': AimPostSerializer,
                    'update': AimPostSerializer, }
+
+    def get_queryset(self):
+        aims = Aim.objects.all()
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        if casestudy_pk is not None:
+            aims = aims.filter(casestudy__id=casestudy_pk)
+        return aims

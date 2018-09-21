@@ -24,3 +24,10 @@ class ChallengeViewSet(CasestudyViewSetMixin,
     serializer_class = ChallengeSerializer
     serializers = {'create': ChallengePostSerializer,
                    'update': ChallengePostSerializer, }
+
+    def get_queryset(self):
+        challenges = Challenge.objects.all()
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        if casestudy_pk is not None:
+            challenges = challenges.filter(casestudy__id=casestudy_pk)
+        return challenges

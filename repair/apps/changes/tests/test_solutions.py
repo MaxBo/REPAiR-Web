@@ -13,9 +13,10 @@ from repair.apps.changes.models import Solution
 from repair.apps.login.factories import UserInCasestudyFactory
 
 
-class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
+class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
+    keyflow = 23
     solutioncategory = 21
     user = 99
 
@@ -23,7 +24,8 @@ class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.url_key = "solutioncategory"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pks = dict(casestudy_pk=cls.casestudy,
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solutioncategory)
         cls.post_data = dict(
             name='posttestname',
@@ -36,21 +38,8 @@ class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
         super().setUp()
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
                                            user=self.uic,
+                                           keyflow=self.kic
                                            )
-
-    def test_casestudy_solutioncategories(self):
-        """Test the casestudy.solutioncategories property"""
-        solcat1 = self.obj
-        solcat2 = SolutionCategoryFactory(user=self.uic,
-                                          name='SolCat2')
-        user2 = UserInCasestudyFactory(casestudy=self.uic.casestudy)
-        solcat3 = SolutionCategoryFactory(user=user2,
-                                          name='SolCat3')
-
-        solution_categories = user2.casestudy.solution_categories
-        self.assertSetEqual(solution_categories, {solcat1,
-                                                  solcat2,
-                                                  solcat3})
 
     def test_protection_of_deletion(self):
         """
@@ -86,14 +75,15 @@ class SolutioncategoryInCasestudyTest(BasicModelPermissionTest, APITestCase):
         assert not qs
 
 
-class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest,
-                                                APITestCase):
+class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
+                                              APITestCase):
 
     casestudy = 17
     solutioncategory = 21
     solution = 36
     userincasestudy = 67
     user = 99
+    keyflow = 23
 
     @classmethod
     def setUpClass(cls):
@@ -101,10 +91,12 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest,
         cls.solutioncategory_url = cls.baseurl + \
             reverse('solutioncategory-detail',
                     kwargs=dict(pk=cls.solutioncategory,
-                                casestudy_pk=cls.casestudy))
+                                casestudy_pk=cls.casestudy,
+                                keyflow_pk=cls.keyflow))
         cls.url_key = "solution"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory)
+                           solutioncategory_pk=cls.solutioncategory,
+                            keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solution)
         user = cls.baseurl + reverse('userincasestudy-detail',
                                      kwargs=dict(pk=cls.uic.id,
@@ -124,15 +116,17 @@ class SolutionInSolutioncategoryInCasestudyTest(BasicModelPermissionTest,
         self.obj = SolutionFactory(
             id=self.solution,
             solution_category__id=self.solutioncategory,
+            solution_category__keyflow=self.kic,
             solution_category__user=self.uic,
             user=self.uic,
         )
 
 
-class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
+class SolutionquantityInSolutionInSolutioncategoryInKeyflowTest(
     BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
+    keyflow = 23
     solutioncategory = 21
     solution = 36
     solutionquantity = 28
@@ -149,7 +143,8 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
         cls.url_key = "solutionquantity"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution)
+                           solution_pk=cls.solution,
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solutionquantity)
         cls.post_data = dict(name='posttestname',
                              unit=cls.unit,
@@ -165,14 +160,16 @@ class SolutionquantityInSolutionInSolutioncategoryInCasestudyTest(
             unit__id=self.unit,
             solution__solution_category__id=self.solutioncategory,
             solution__solution_category__user=self.uic,
+            solution__solution_category__keyflow=self.kic,
             solution__user=self.uic,
             )
 
 
-class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(
+class SolutionratiooneunitInSolutionInSolutioncategoryInKeyflowTest(
     BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
+    keyflow = 23
     solutioncategory = 21
     solution = 36
     solutionquantity = 28
@@ -190,7 +187,8 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(
         cls.url_key = "solutionratiooneunit"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution)
+                           solution_pk=cls.solution,
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solutionratiooneunit)
         cls.post_data = dict(name='posttestname',
                              value=345,
@@ -207,5 +205,6 @@ class SolutionratiooneunitInSolutionInSolutioncategoryInCasestudyTest(
             unit__id=self.unit,
             solution__solution_category__id=self.solutioncategory,
             solution__solution_category__user=self.uic,
+            solution__solution_category__keyflow=self.kic,
             solution__user=self.uic,
             )

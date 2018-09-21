@@ -9,9 +9,6 @@ import numpy as np
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.statusquo.models import IndicatorType
 from repair.apps.statusquo import views as status_quo_views
-from repair.apps.utils.views import (CasestudyViewSetMixin,
-                                     ModelPermissionViewSet,
-                                     ReadUpdatePermissionViewSet)
 
 
 class IndicatorTemplate():
