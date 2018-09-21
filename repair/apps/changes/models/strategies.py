@@ -48,7 +48,7 @@ class SolutionInStrategy(GDSEModel):
 
 
 def trigger_solutioninstrategyquantity_sii(sender, instance,
-                                                 created, **kwargs):
+                                           created, **kwargs):
     """
     Create SolutionInStrategyQuantity
     for each SolutionQuantity
@@ -65,7 +65,7 @@ def trigger_solutioninstrategyquantity_sii(sender, instance,
 
 
 def trigger_solutioninstrategyquantity_quantity(sender, instance,
-                                                      created, **kwargs):
+                                                created, **kwargs):
     """
     Create SolutionInStrategyQuantity
     for each SolutionQuantity

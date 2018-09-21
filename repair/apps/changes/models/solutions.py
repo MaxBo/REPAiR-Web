@@ -11,7 +11,7 @@ class Unit(GDSEModel):
     name = models.TextField()
 
 
-class SolutionCategory(GDSEUniqueNameModel):
+class SolutionCategory(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     keyflow = models.ForeignKey(KeyflowInCasestudy,
@@ -22,7 +22,7 @@ class SolutionCategory(GDSEUniqueNameModel):
         return self.user.casestudy
 
 
-class Solution(GDSEUniqueNameModel):
+class Solution(GDSEModel):
     user = models.ForeignKey(UserInCasestudy, on_delete=PROTECT_CASCADE)
     solution_category = models.ForeignKey(SolutionCategory,
                                           on_delete=PROTECT_CASCADE)
