@@ -29,14 +29,14 @@ class TestModelRepresentation(TestCase):
             model = model_class(name="MyName")
             self.assertEqual(str(model), "MyName")
 
-    def test_repr_of_solutions_in_implementations(self):
-        """Test the solutions in implementations"""
+    def test_repr_of_solutions_in_strategies(self):
+        """Test the solutions in strategies"""
         solution = Solution(name='Sol1')
-        implementation = Strategy(name='Impl2')
+        strategy = Strategy(name='Impl2')
 
         solution_in_impl = SolutionInStrategy(
             solution=solution,
-            implementation=implementation)
+            strategy=strategy)
         self.assertEqual(str(solution_in_impl), 'Sol1 in Impl2')
 
         unit = Unit(name='tons')

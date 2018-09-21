@@ -77,7 +77,6 @@ class TargetSerializer(CreateWithUserInCasestudyMixin,
                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
                             'aim_pk': 'aim__id'}
-    aim = IDRelatedField()
     impact_category = IDRelatedField()
     target_value = IDRelatedField()
     spatial_reference = IDRelatedField()
@@ -87,7 +86,6 @@ class TargetSerializer(CreateWithUserInCasestudyMixin,
         model = Target
         fields = ('url',
                   'id',
-                  'aim',
                   'impact_category',
                   'target_value',
                   'spatial_reference',
