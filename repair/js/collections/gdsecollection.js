@@ -67,7 +67,14 @@ function(PageableCollection, _, GDSEModel, config) {
                 // &&
                 return keys.every(match)
             });
-            return new this.__proto__.constructor(filtered, {apiTag: this.apiTag, apiIds: this.apiIds});
+            var ret = new this.__proto__.constructor(filtered,
+                {
+                    apiTag: this.apiTag,
+                    apiIds: this.apiIds,
+                    comparator: this.comparatorAttr
+                }
+            );
+            return ret;
         },
 
         /**

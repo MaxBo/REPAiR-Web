@@ -32,30 +32,25 @@ class SolutionAdmin(VersionAdmin):
 
 
 class SolutionsInline(admin.StackedInline):
-    model = models.Implementation.solutions.through
+    model = models.Strategy.solutions.through
 
 
-@admin.register(models.Implementation)
+@admin.register(models.Strategy)
 class ImplementationAdmin(VersionAdmin):
     """Implementation Admin"""
     inlines = (SolutionsInline, )
 
 
-@admin.register(models.Strategy)
-class StrategyAdmin(VersionAdmin):
-    """Strategy Admin"""
-
-
-@admin.register(models.SolutionInImplementationQuantity)
+@admin.register(models.SolutionInStrategyQuantity)
 class SolutionInImplementationQuantityAdmin(VersionAdmin):
     """"""
 
 
 class SolutionInImplementationQuantityInline(admin.StackedInline):
-    model = models.SolutionInImplementationQuantity
+    model = models.SolutionInStrategyQuantity
 
 
-@admin.register(models.SolutionInImplementation)
+@admin.register(models.SolutionInStrategy)
 class SolutionInImplementationAdmin(VersionAdmin):
     """SolutionInImplementation Admin"""
     inlines = (SolutionInImplementationQuantityInline,

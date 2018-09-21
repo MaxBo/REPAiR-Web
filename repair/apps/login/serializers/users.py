@@ -116,8 +116,6 @@ class CaseStudySerializer(ForceMultiMixin,
         view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
         view_name='stakeholdercategory-list')
-    solution_categories = InCasestudyListField(
-        view_name='solutioncategory-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
@@ -129,7 +127,7 @@ class CaseStudySerializer(ForceMultiMixin,
         model = CaseStudy
         geo_field = 'geom'
         fields = ('url', 'id', 'name', 'userincasestudy_set',
-                  'solution_categories', 'stakeholder_categories',
+                  'stakeholder_categories',
                   'keyflows',
                   'levels',
                   'focusarea',
