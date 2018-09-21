@@ -34,7 +34,6 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
     };
 
     function render(caseStudy, mode){
-
         var keyflowSelect = document.getElementById('keyflow-select'),
             session = appConfig.session;
         document.getElementById('keyflow-warning').style.display = 'block';
@@ -51,7 +50,11 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
         var keyflowSession = session.get('keyflow');
         if (keyflowSession != null){
             keyflowSelect.value = keyflowSession;
-            renderKeyflow(parseInt(keyflowSession));
+            // stored keyflow is not in select (most likely casestudy was accessed)
+            if (keyflowSelect.selectedIndex === -1){
+                keyflowSelect.selectedIndex = 0;
+            }
+            else renderKeyflow(parseInt(keyflowSession));
         }
 
         keyflowSelect.addEventListener('change', function(){
