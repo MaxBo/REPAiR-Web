@@ -133,6 +133,9 @@ class CreateWithUserInCasestudyMixin:
             if hasattr(field, 'blank') and not field.blank:
                 if field.name in validated_data:
                     required_fields[field.name] = validated_data.pop(field.name)
+                elif field.name + '_id' in validated_data:
+                    required_fields[field.name + '_id'] = \
+                        validated_data.pop(field.name + '_id')
         try:
             obj = Model.objects.create(**required_fields)
         except ValidationError as e:
