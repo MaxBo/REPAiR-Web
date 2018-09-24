@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
+{% block title %}{% trans "REPAiR | Targets" %}{% endblock %}
+
 {% block sidebar %}
   {% if request.session.mode != 1 %}
   <script>

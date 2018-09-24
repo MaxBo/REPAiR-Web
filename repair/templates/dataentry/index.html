@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
+{% block title %}{% trans "REPAiR | Data Entry" %}{% endblock %}
+
 {% block sidebar %}
   {% if data_entry_permitted %}
     <script>
@@ -27,7 +29,7 @@
 {% block content %}
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/data-entry.css" />
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
-  
+
   {% if not data_entry_permitted %}
     <h3>{% trans "You do not have the permission to enter data for casestudies." %}</h3>
     {% render_bundle 'Base' %}
@@ -38,21 +40,21 @@
       <div class="tab-pane fade in active" id="flows-edit">
         <button title="{% trans "Refresh Flows" %}" type="button" id="refresh-flowview-btn" class="btn btn-primary round" style="display: none; float: right;">
           {% trans "Refresh View" %} <span class="glyphicon glyphicon-refresh"></span>
-        </button> 
+        </button>
         <div id="flows-content"></div>
       </div>
       <!-- Actor editor-->
       <div class="tab-pane fade in" id="actors-edit">
         <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-actorsview-btn" class="btn btn-primary round" style="display: none; float: right;">
           {% trans "Refresh Actors" %} <span class="glyphicon glyphicon-refresh"></span>
-        </button> 
+        </button>
         <div id="actors-content"></div>
       </div>
       <!-- Material editor-->
       <div class="tab-pane fade in" id="materials-edit">
         <button title="{% trans "Refresh Materials" %}" type="button" id="refresh-materialsview-btn" class="btn btn-primary round" style="display: none; float: right;">
           {% trans "Refresh Materials" %} <span class="glyphicon glyphicon-refresh"></span>
-        </button> 
+        </button>
         <div id="materials-content"></div>
       </div>
     </div>
