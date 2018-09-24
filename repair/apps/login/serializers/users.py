@@ -123,7 +123,6 @@ class CaseStudySerializer(ForceMultiMixin,
         view_name='publicationincasestudy-list')
     aims = InCasestudyListField(view_name='aim-list')
     challenges = InCasestudyListField(view_name='challenge-list')
-    point_on_surface = GeometryField(source='pnt', read_only=True)
 
     class Meta:
         model = CaseStudy
@@ -136,8 +135,7 @@ class CaseStudySerializer(ForceMultiMixin,
                   'publications',
                   'aims',
                   'challenges',
-                  'description',
-                  'point_on_surface'
+                  'description'
                   )
 
     def update(self, instance, validated_data):

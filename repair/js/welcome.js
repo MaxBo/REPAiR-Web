@@ -41,9 +41,11 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
 
         caseStudies.forEach(function(caseStudy){
             var properties = caseStudy.get('properties'),
-                centroid = properties.point_on_surface;
-            if (!centroid) return;
-            var projCentroid = ol.proj.fromLonLat(centroid.coordinates);
+                focusarea = properties.focusarea;
+            if (!focusarea) return;
+            var poly = new ol.geom.MultiPolygon(focusarea.coordinates),
+                interior = poly.getInteriorPoints(),
+                projCentroid = ol.proj.fromLonLat(interior.getCoordinates()[0]);
             // wrong projection returned from api, should be 4326
             if (isNaN(projCentroid[0]) || isNaN(projCentroid[1])) return;
             var feature = new ol.Feature({

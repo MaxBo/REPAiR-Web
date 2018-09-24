@@ -57,11 +57,8 @@ class CaseStudyViewSet(RevisionMixin,
     # override list view (don't check permission, everyone can see the
     # overview of the casestudies)
     def list(self, request, **kwargs):
-        if request.query_params.get('all'):
-            queryset = CaseStudy.objects.all()
-            queryset = queryset.annotate(pnt=PointOnSurface('focusarea'))
-        else:
-            queryset = self.get_queryset()
+        queryset = CaseStudy.objects.all() if request.query_params.get('all') \
+            else self.get_queryset()
         serializer = self.serializer_class(queryset, many=True,
                                            context={'request': request, })
         return Response(serializer.data)
@@ -69,11 +66,11 @@ class CaseStudyViewSet(RevisionMixin,
     def get_queryset(self):
         user_id = -1 if self.request.user.id is None else self.request.user.id
         ids = []
-        for casestudy in self.queryset:
+        queryset = CaseStudy.objects.all()
+        for casestudy in queryset:
             if casestudy.userincasestudy_set.all().filter(user__id=user_id):
                 ids.append(casestudy.id)
-        casestudies = self.queryset.filter(id__in=ids)
-        casestudies = casestudies.annotate(pnt=PointOnSurface('focusarea'))
+        casestudies = queryset.filter(id__in=ids)
         return casestudies
 
 
