@@ -6,7 +6,8 @@ from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
-                                            GeoFeatureModelListSerializer)
+                                            GeoFeatureModelListSerializer,
+                                            GeometryField)
 from publications_bootstrap.models import Publication
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
@@ -122,6 +123,7 @@ class CaseStudySerializer(ForceMultiMixin,
         view_name='publicationincasestudy-list')
     aims = InCasestudyListField(view_name='aim-list')
     challenges = InCasestudyListField(view_name='challenge-list')
+    point_on_surface = GeometryField(source='pnt', read_only=True)
 
     class Meta:
         model = CaseStudy
@@ -134,7 +136,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   'publications',
                   'aims',
                   'challenges',
-                  'description'
+                  'description',
+                  'point_on_surface'
                   )
 
     def update(self, instance, validated_data):
