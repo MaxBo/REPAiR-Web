@@ -101,14 +101,20 @@ var ActorsView = BaseView.extend(
         var _this = this,
             activityId = this.el.querySelector('select[name="activity-filter"]').value;
             data = (activityId =="-1") ? {} : { activity: activityId }
-        this.datatable.clear();
+        this.datatable.clear().draw();
         this.actorRows = [];
+        this.loader.activate();
         this.actors.fetch({
             data: data,
             success: function(){
                 _this.actors.each(
                     function(actor){_this.addActorRow(actor)
                 }); // you have to define function instead of passing this.addActorRow, else scope is wrong
+                _this.loader.deactivate();
+            },
+            error: function(e){
+                _this.loader.deactivate();
+                _this.onError(e);
             }
         });
     },
