@@ -33,6 +33,7 @@ var SolutionsView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.keyflowName = options.keyflowName;
         this.mode = options.mode || 0;
 
         // ToDo: replace with collections fetched from server
@@ -90,7 +91,10 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({ mode: this.mode });
+        this.el.innerHTML = template({
+            mode: this.mode,
+            keyflowName: this.keyflowName
+        });
         var promises = [];
         this.categories.forEach(function(category){
             category.solutions = new GDSECollection([], {

@@ -29,6 +29,7 @@ var StrategyView = BaseView.extend(
         _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
+        this.keyflowName = options.keyflowName;
         this.keyflowId = options.keyflowId;
 
         this.stakeholderCategories = new GDSECollection([], {
@@ -105,13 +106,13 @@ var StrategyView = BaseView.extend(
     * render the view
     */
     render: function(){
-
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
         this.el.innerHTML = template({
             stakeholderCategories: this.stakeholderCategories,
-            solutionCategories: this.solutionCategories
+            solutionCategories: this.solutionCategories,
+            keyflowName: this.keyflowName
         });
         $('#solution-select').selectpicker();
 
@@ -175,6 +176,7 @@ var StrategyView = BaseView.extend(
                 success: function(){
                     $(addModal).modal('hide');
                     var solItem = _this.renderSolution(solInStrategy);
+                    _this.editSolution(solInStrategy, solItem);
                 },
                 error: _this.onError
             },
@@ -205,6 +207,8 @@ var StrategyView = BaseView.extend(
             solution = this.solutionCategories.at(i).solutions.get(solId);
             if (solution != null) break;
         }
+
+        if (!solution) return;
 
         var stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
