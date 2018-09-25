@@ -86,6 +86,9 @@ var FlowsWorkshopView = BaseView.extend(
         this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
         this.descriptionLabel = this.el.querySelector('#filter-description');
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
+        this.flowsEl = this.el.querySelector('#flows-render-content');
+        this.displayLevelSelect.disabled = true;
+        this.flowsEl.style.visibility = 'hidden';
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
     },
@@ -97,10 +100,12 @@ var FlowsWorkshopView = BaseView.extend(
     changeFilter: function(){
         var selected = this.flowFilterSelect.value,
             filter = this.filters.get(selected);
+        this.displayLevelSelect.disabled = false;
+        this.flowsEl.style.visibility = 'visible';
         this.descriptionLabel.innerHTML = filter.get('description');
         if (this.flowsView) this.flowsView.close();
         this.flowsView = new FlowsView({
-            el: this.el.querySelector('#flows-render-content'),
+            el: this.flowsEl,
             template: 'flows-render-template',
             materials: this.materials,
             actors: this.actors,

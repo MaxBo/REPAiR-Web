@@ -90,6 +90,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     aims = _this.aims.filterBy({ keyflow: keyflow.id });
                 challenges.sort();
                 aims.sort();
+                // don't render empty keyflow panels in workshop mode
+                if (_this.mode == 0 && challenges.length === 0 && aims.length === 0) return;
                 _this.renderKeyflow(keyflow.get('name'), keyflow.id, aims, challenges);
             })
 
