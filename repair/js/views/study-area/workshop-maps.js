@@ -250,7 +250,6 @@ var BaseMapsView = BaseView.extend(
 
     nodeSelected: function(event, data){
         var node = data.node;
-        console.log(node)
         if (node.type === 'category') $(this.layerTree).jstree('toggle_node', node);
         if (node.type === 'layer'){
             if (node.state.checked) $(this.layerTree).jstree('uncheck_node', node);
