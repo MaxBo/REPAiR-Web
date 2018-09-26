@@ -96,13 +96,17 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.indicatorSelect = this.el.querySelector('select[name="indicator"]');
         this.indicatorId = this.indicatorSelect.value;
         this.levelSelect = this.el.querySelector('select[name="spatial-level-select"]');
-        this.levelSelect.disabled = true;
         this.elLegend = this.el.querySelector('.legend');
         this.areaSelectRow = this.el.querySelector('#indicator-area-row');
         this.addAreaSelectBtn = this.el.querySelector('#add-area-select-item-btn');
         this.barChart = this.el.querySelector('#bar-chart');
         this.chart = {};
 
+        // select a default area level (the middle one)
+        if(this.areaLevels.length > 0){
+            var idx = Math.floor(this.areaLevels.length / 2);
+            this.levelSelect.selectedIndex = idx;
+        }
         this.showFocusArea = true;
 
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
@@ -155,7 +159,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         if(this.chartData[this.indicatorId] == undefined){
             this.chartData[this.indicatorId] = [];
         }
-        this.levelSelect.disabled = false;
         if (indicator){
             // fetch the indicator to reload it
             indicator.fetch({

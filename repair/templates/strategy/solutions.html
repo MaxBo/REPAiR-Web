@@ -113,11 +113,8 @@
               <h4>{% trans "Activities involved" %}</h4>
               <% if (mode == 1) { %>
                 <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
-                    <% keyflows.forEach(function(keyflow){ %>
-                      <label> <%= keyflow.get('name') %> </label> <br>
-                      <% keyflow.activities.forEach(function(activity){ %>
-                        <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
-                      <% }) %>
+                    <% activities.forEach(function(activity){ %>
+                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
                     <% }) %>
                 </div>
               <% } %>
