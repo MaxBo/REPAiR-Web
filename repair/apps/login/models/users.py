@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.gis.db import models as geomodels
 
+#from repair.apps.studyarea.models import AdminLevels
 from .bases import GDSEModel
 
 
@@ -13,6 +14,10 @@ class CaseStudy(GDSEModel):
     geom = geomodels.MultiPolygonField(null=True)
     focusarea = geomodels.MultiPolygonField(null=True)
     description = models.TextField(blank=True, null=True)
+    show_on_welcome_map = models.BooleanField(default=True)
+    #default_area_level = models.ForeignKey(AdminLevels,
+                                           #on_delete=models.SET_NULL,
+                                           #null=True)
 
     class Meta:
         default_permissions = ('add', 'change', 'delete', 'view',

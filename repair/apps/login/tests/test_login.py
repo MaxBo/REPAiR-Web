@@ -74,6 +74,11 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
     put_data = {'name': 'puttestname', }
     patch_data = dict(name='patchtestname')
 
+    # exception to other permitted routes:
+    # you can always query the list of casestudies
+    def test_list_permission(self):
+        pass
+
     def test_post(self):
         url = self.url_key + '-list'
         # post
@@ -93,7 +98,8 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
 
         # grant access to new casestudy
         casestudy = CaseStudy.objects.get(id=new_id)
-        casestudy.userincasestudy_set.add(self.uic)
+        uic = UserInCasestudy(user=self.uic.user, casestudy=casestudy)
+        uic.save()
         response = self.get_check_200(url, pk=new_id, **self.url_pks)
 
     def setUp(self):
