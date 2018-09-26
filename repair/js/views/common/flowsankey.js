@@ -67,12 +67,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 zoomToFit = document.createElement('a'),
                 fitSpan = document.createElement('span');
 
-            fullscreenBtn.classList.add("glyphicon", "glyphicon-fullscreen", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
+            fullscreenBtn.classList.add("fas", "fa-expand", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
             exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
             exportImgBtn.style.top = "100px";
             exportImgBtn.style.right = "20px";
             exportImgBtn.style.height = "30px";
-            exportCsvBtn.classList.add("glyphicon", "glyphicon-file", "btn", "btn-primary", "d3-overlay", "inverted");
+            exportCsvBtn.classList.add("fas", "fa-file", "btn", "btn-primary", "d3-overlay", "inverted");
             exportCsvBtn.style.top = "140px";
             exportCsvBtn.style.right = "20px";
             exportCsvBtn.style.height = "30px";
