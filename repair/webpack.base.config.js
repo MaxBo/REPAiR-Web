@@ -46,7 +46,8 @@ module.exports = {
             d3: 'd3',
             $: "jquery",
             jQuery: "jquery"
-        })
+        }),
+        new webpack.IgnorePlugin(/^codemirror$/)
     ],
 
     node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true },
