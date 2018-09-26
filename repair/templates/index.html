@@ -6,10 +6,33 @@
 
 {% block content %}
   {% render_bundle 'Welcome' %}
-  <div id='welcome-map' style="position: relative; overflow: hidden; width: 100%; height: 100%; touch-action: none;">
+  <div class='row' id='welcome-map' style="position: relative; overflow: hidden; width: 100%; <!--height: 700px;--> touch-action: none; padding: 0px;">
     <h1 style="text-align: center; position: relative; margin-left: 50px; top: 150px; text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; z-index: 5000; pointer-events: none;">
       {% trans "Welcome to the Peri-Urban Living Lab Workshop" %}
     </h1>
-    <div id="popup"></div>
   </div>
+  <!--
+  <div class='row' style='padding-top: 50px; padding-bottom: 50px;'>
+    <div style="max-width: 1200px; margin: auto;">
+      <img style="margin: 20px; float: right;" src="http://h2020repair.eu/wp-content/uploads/2017/09/logo-500.png" alt="" width="200" height="200">
+      <p style='text-align: justify; text-indent: 2em;'>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+      <p style='text-align: justify; text-indent: 2em;'>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+    </div>
+  </div>
+  <div class='row' style='padding: 0px; background-image: url("http://h2020repair.eu/wp-content/uploads/2017/09/back_1.jpg"); height: 300px; background-size: cover; background-position: 50% 50%;'>
+  </div>
+  <div class='row' style='padding-top: 50px; padding-bottom: 50px;'>
+    <div style="max-width: 1200px; margin: auto;">
+      <p style='text-align: justify; text-indent: 2em;'>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+      <p style='text-align: justify; text-indent: 2em;'>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+      </p>
+    </div>
+  </div>-->
 {% endblock %}

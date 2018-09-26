@@ -1,6 +1,6 @@
-require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
-         'app-config', 'openlayers/css/ol.css', 'base'
-], function (d3, CaseStudy, GeoLocations, ol, config) {
+require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
+         'openlayers', 'app-config', 'openlayers/css/ol.css', 'base'
+], function (d3, _, CaseStudy, GeoLocations, ol, config) {
 
     document.getElementById('wrapper').style.overflow = 'hidden';
     document.getElementById('content').style.padding = '0px';
@@ -29,7 +29,7 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
         }),
         target: 'welcome-map',
         view: new ol.View({
-            center: ol.proj.fromLonLat([9, 45]),
+            center: ol.proj.fromLonLat([9, 46]),
             zoom: 5
         })
     });
@@ -42,11 +42,11 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
         caseStudies.forEach(function(caseStudy){
             var properties = caseStudy.get('properties'),
                 focusarea = properties.focusarea;
-            if (!focusarea) return;
+            if (!focusarea || !properties.show_on_welcome_map) return;
             var poly = new ol.geom.MultiPolygon(focusarea.coordinates),
                 interior = poly.getInteriorPoints(),
                 projCentroid = ol.proj.fromLonLat(interior.getCoordinates()[0]);
-            // wrong projection returned from api, should be 4326
+            // don't render if wrong projection was returned from api, should be 4326
             if (isNaN(projCentroid[0]) || isNaN(projCentroid[1])) return;
             var feature = new ol.Feature({
                 geometry: new ol.geom.Point(projCentroid),
@@ -60,7 +60,20 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
                     //offset: [imgWidth, 0],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
-                    src: '/static/img/repair-logo-wo-text.png'
+                    src: '/static/img/repair-logo-wo-inner-text.png'
+                }),
+                text: new ol.style.Text({
+                    text: properties.name,
+                    font: '18px sans-serif',
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    fill: new ol.style.Fill({
+                        color: 'white',
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#444444',
+                        width: 3
+                    })
                 })
             });
             feature.setStyle(iconStyle);
@@ -74,6 +87,8 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
             source: vectorSource
         });
         map.addLayer(vectorLayer);
+        // workaround for misplaced bboxes of icons
+        map.updateSize();
     }
 
     var caseStudies = new GeoLocations([], {
@@ -88,39 +103,17 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
         }
     })
 
-    function featureHTML(feature){
-        var div = document.createElement('div'),
-            title = document.createElement('h4'),
-            enterBtn = document.createElement('button');
-        enterBtn.innerHTML = gettext('Enter');
-        title.innerHTML = feature.get('name');
-        title.style.margin = '5px';
-        div.appendChild(title);
-        div.appendChild(document.createElement('br'));
-        div.appendChild(enterBtn);
+    function alert(e){
+        var title = gettext('Error'),
+            message = e.responseText,
+            el = document.getElementById('alert-modal'),
+            html = document.getElementById('alert-modal-template').innerHTML,
+            template = _.template(html);
+        console.log(e)
 
-        enterBtn.addEventListener('click', function(){
-            var csId = feature.get('id');
-            config.session.switchCaseStudy(csId, {
-                success: function(){
-                    window.location.href = '/study-area';
-                },
-                error: function(e){
-                    alert(e.responseText)
-                }
-            });
-        })
-        return div;
+        el.innerHTML = template({ title: title, message: message });
+        $(el).modal('show');
     }
-
-    var element = document.getElementById('popup');
-    var popup = new ol.Overlay({
-        element: element,
-        positioning: 'bottom-center',
-        stopEvent: false,
-        offset: [imgWidth / 2, -50]
-    });
-    map.addOverlay(popup);
 
     // display popup on click
     map.on('click', function(evt) {
@@ -131,17 +124,15 @@ require(['d3', 'models/casestudy', 'collections/geolocations', 'openlayers',
                 return feature;
             });
         if (feature) {
-            var coordinates = feature.getGeometry().getCoordinates();
-            $(element).popover({
-                placement: 'top',
-                html: true
+            var csId = feature.get('id');
+            config.session.switchCaseStudy(csId, {
+                success: function(){
+                    window.location.href = '/study-area';
+                },
+                error: function(e){
+                    alert(e)
+                }
             });
-            var popover = $(element).data('bs.popover')
-            popover.options.content = featureHTML(feature);
-            popup.setPosition(coordinates);
-            $(element).popover('show');
-        } else {
-            $(element).popover('destroy');
         }
     });
 
