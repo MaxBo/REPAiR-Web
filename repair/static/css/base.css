@@ -409,6 +409,8 @@ button.square, button.round, .btn.square, .btn.round {
 .btn-primary {
   background-color: #aad400;
   border: solid 1px #aad400;
+  min-height: 30px;
+  min-width: 30px;
 }
 
 .btn-primary:focus, .btn-primary:hover, .btn-primary:active {
