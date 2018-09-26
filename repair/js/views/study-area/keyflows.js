@@ -67,9 +67,10 @@ var KeyflowsView = BaseView.extend(
         this.keyflows.forEach(function(keyflow){
             var row = document.createElement('div'),
                 title = document.createElement('h3');
-            row.classList.add('row');
+            row.classList.add('row', 'bordered');
             title.innerHTML = keyflow.get('name');
             title.style.float = 'left';
+            row.style.marginBottom = '20px';
             row.appendChild(title);
             _this.el.appendChild(row);
             // render editor only in setup mode
