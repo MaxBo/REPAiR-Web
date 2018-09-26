@@ -45,7 +45,6 @@
 
 .navbar-top {
     position: absolute;
-    font-size: 1em;
     top: -10px;
     right: 0px;
 }
@@ -197,11 +196,11 @@
     .navbar-bottom > li > a{
         font-size: 1.2em;
     }
-    
+
     .navbar-bottom > li.active > a, .navbar-bottom > li:hover > a{
         font-size: 1.2em;
     }
-    
+
     .menu-arrow{ display: none; }
 }
 
@@ -220,9 +219,9 @@
     .navbar-top > li {
         float: right;
     }
-    
+
     #top-links {
         float: none;
     }
-    
+
 }

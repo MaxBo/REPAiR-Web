@@ -75,18 +75,18 @@ class CreateWithUserInCasestudyMixin:
         for field_name, relation_info in info.relations.items():
             if relation_info.to_many and (field_name in validated_data):
                 many_to_many[field_name] = validated_data.pop(field_name)
-                
+
         # update other attributes
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        
+
         # Save many-to-many relationships after the instance is created.
         if many_to_many:
             for field_name, value in many_to_many.items():
                 field = getattr(instance, field_name)
                 field.set(value)
-                
+
         return instance
 
     def create(self, validated_data):
@@ -133,6 +133,9 @@ class CreateWithUserInCasestudyMixin:
             if hasattr(field, 'blank') and not field.blank:
                 if field.name in validated_data:
                     required_fields[field.name] = validated_data.pop(field.name)
+                elif field.name + '_id' in validated_data:
+                    required_fields[field.name + '_id'] = \
+                        validated_data.pop(field.name + '_id')
         try:
             obj = Model.objects.create(**required_fields)
         except ValidationError as e:
@@ -321,7 +324,7 @@ class InCasestudyField(NestedHyperlinkedRelatedField2):
 class InSolutionField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk':
-        'solution__solution_category__user__casestudy__id',
+        'solution__solution_category__keyflow__id',
         'solutioncategory_pk': 'solution__solution_category__id',
         'solution_pk': 'solution__id', }
     extra_lookup_kwargs = {

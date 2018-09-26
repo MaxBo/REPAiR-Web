@@ -1,5 +1,5 @@
-/* theme for GDSE touch-friendly with larger rows/icons 
-   derived from Proton UI Responsive Admin Panel Theme 
+/* theme for GDSE touch-friendly with larger rows/icons
+   derived from Proton UI Responsive Admin Panel Theme
    https://github.com/orangehill/jstree-bootstrap-theme */
 .jstree-node,
 .jstree-children,
@@ -275,7 +275,7 @@
   font-size: 0;
   line-height: 0;
   z-index: 2147483648; /* thats one number higher than -webkit-fullscreen z-index*/
-  
+
 }
 #vakata-dnd{
   z-index: 2147483648!important; /* thats one number higher than -webkit-fullscreen z-index*/
@@ -744,13 +744,13 @@ filter: gray;
   line-height: 32px;
   margin: 1px 0 2px;
   height: 32px;
-  font-size: 16px;
+  font-size: 1em;
 }
 .jstree-gdsetouch-large .jstree-icon {
   width: 40px;
   height: 32px;
   line-height: 32px;
-  transform: scale(1.3);
+  transform: scale(1.2);
 }
 .jstree-gdsetouch-large .jstree-icon:empty {
   width: 40px;
@@ -777,11 +777,11 @@ filter: gray;
 }
 .jstree-gdsetouch-large .jstree-open > .jstree-ocl {
   background-position: -128px 0px;
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 .jstree-gdsetouch-large .jstree-closed > .jstree-ocl {
   background-position: -96px 0px;
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 .jstree-gdsetouch-large .jstree-leaf > .jstree-ocl {
   background-position: -64px 0px;

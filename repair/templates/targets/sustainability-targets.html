@@ -1,25 +1,24 @@
 {% load i18n %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/targets.css">
 
-<script type="text/template" id="targets-template">
+<script type="text/template" id="sustainability-targets-template">
 <div class="row overflow">
   <div class="col-md-3">
-    <b>{% trans "Aim" %}</b>
+    <h4>{% trans "Aim" %}</h4>
   </div>
   <div class="col-md-2">
-    <b>{% trans "Target value" %}</b>
+    <h4>{% trans "Target value" %}</h4>
   </div>
   <div class="col-md-3">
-    <b>{% trans "Indicator" %}</b>
+    <h4>{% trans "Indicator" %}</h4>
   </div>
   <div class="col-md-2">
-    <b>{% trans "Spatial reference" %}</b>
+    <h4>{% trans "Spatial reference" %}</h4>
   </div>
 </div>
 </script>
 
-<script type="text/template" id="target-row-template">
+<script type="text/template" id="sustainability-target-row-template">
 <div class="col-md-3">
   <div class="panel-item noselect" style="pointer-events: none;">
     <label> <%= aim %> </label>
@@ -48,3 +47,4 @@
 </script>
 
 {% endblock %}
+

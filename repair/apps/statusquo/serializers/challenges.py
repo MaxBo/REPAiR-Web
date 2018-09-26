@@ -18,6 +18,7 @@ from repair.apps.statusquo.models import Challenge
 class ChallengeSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     casestudy = IDRelatedField()
+    keyflow = IDRelatedField(allow_null=True)
     text = serializers.CharField()
 
     class Meta:
@@ -25,6 +26,7 @@ class ChallengeSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'casestudy',
+                  'keyflow',
                   'text',
                   'priority')
 
@@ -32,10 +34,12 @@ class ChallengeSerializer(NestedHyperlinkedModelSerializer):
 class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     text = serializers.CharField()
+    keyflow = IDRelatedField(allow_null=True, required=False)
 
     class Meta:
         model = Challenge
         fields = ('url',
                   'id',
                   'text',
+                  'keyflow',
                   'priority')

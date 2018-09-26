@@ -206,10 +206,9 @@ class TargetTest(BasicModelPermissionTest, APITestCase):
                            kwargs=dict(pk=cls.userincasestudy,
                                        casestudy_pk=cls.casestudy))
         cls.url_key = "target"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy)
+        cls.url_pks = dict(casestudy_pk=cls.casestudy, aim_pk=cls.aim)
         cls.url_pk = dict(pk=cls.target)
-        cls.post_data = dict(aim=cls.aim,
-                             impact_category=cls.impact_category,
+        cls.post_data = dict(impact_category=cls.impact_category,
                              target_value=cls.target_value,
                              spatial_reference=cls.spatial_reference)
         cls.put_data = cls.post_data
