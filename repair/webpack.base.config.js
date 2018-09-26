@@ -8,7 +8,8 @@ var entryPoints = {
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
     Targets:   './js/targets',
-    Strategy:   './js/strategy',
+    Strategy:  './js/strategy',
+    Welcome:   './js/welcome',
     Base:      './js/base',
 };
 

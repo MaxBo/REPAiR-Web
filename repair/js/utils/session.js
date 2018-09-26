@@ -48,14 +48,29 @@ define(['browser-cookies'], function(cookies)
                 credentials: 'include'
             }).then(response => response.json()).then(json => success(json));
         }
-        
+
+        switchCaseStudy(caseStudyId, options){
+            var options = options || {};
+            console.log(options)
+            $.ajax({
+                type: "POST",
+                url: this.url,
+                data: {
+                    casestudy: caseStudyId,
+                    //next: '/status-quo'
+                },
+                success: options.success,
+                error: options.error
+            });
+        }
+
         setAttributes(json){
             this.attributes = {};
             for (var key in json) {
                 this.attributes[key] = json[key];
             }
         }
-        
+
         /**
         * get value of attribute by name
         *
@@ -65,7 +80,7 @@ define(['browser-cookies'], function(cookies)
         get(attribute){
             return this.attributes[attribute];
         }
-        
+
         /**
         * set attribute
         *
@@ -75,7 +90,7 @@ define(['browser-cookies'], function(cookies)
         set(attribute, value){
             this.attributes[attribute] = value;
         }
-        
+
         /**
         * save the current session object from the server
         *
