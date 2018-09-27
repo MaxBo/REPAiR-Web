@@ -1,6 +1,6 @@
 require(['d3', 'models/casestudy', 'collections/gdsecollection',
          'views/targets/sustainability-targets',
-         'views/common/baseview', 'views/targets/ranking-objectives',
+         'views/targets/flow-targets', 'views/targets/ranking-objectives',
          'app-config', 'utils/utils', 'utils/overrides', 'base'
 ], function (d3, CaseStudy, GDSECollection,
              SustainabilityTargetsView, FlowTargetsView,
@@ -27,6 +27,9 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
         flowTargetsView = new FlowTargetsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            aims: aims,
+            userObjectives: userObjectives,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template'
         })
