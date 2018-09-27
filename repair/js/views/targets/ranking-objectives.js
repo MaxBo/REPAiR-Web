@@ -92,6 +92,8 @@ function(_, BaseView, GDSECollection, Muuri){
                 template = _.template(html),
                 panelItem = document.createElement('div'),
                 itemContent = document.createElement('div'),
+                rankDiv = document.createElement('div'),
+                priority = objective.get('priority'),
                 _this = this;
             var aim = this.aims.get(objective.get('aim'));
             panelItem.classList.add('panel-item');
@@ -102,12 +104,20 @@ function(_, BaseView, GDSECollection, Muuri){
             itemContent.innerHTML = template({ name: aim.get('text') });
             panelItem.appendChild(itemContent);
             this.grid.add(panelItem);
-            if (objective.get('priority') < 0) panelItem.style.background = '#d1d1d1';
+
+            panelItem.querySelector('.item-content').append(rankDiv)
+            if (priority < 1)
+                panelItem.style.background = '#d1d1d1';
+            else {
+                var overlay = panelItem.querySelector('.overlay');
+                overlay.style.display = 'inline-block';
+                overlay.innerHTML = priority;
+            }
         },
 
         uploadPriorities: function(draggedId){
             var items = this.grid.getItems(),
-                priority = 0,
+                priority = 1,
                 _this = this;
             items.forEach(function(item){
                 var el = item.getElement(),
@@ -115,10 +125,13 @@ function(_, BaseView, GDSECollection, Muuri){
                     objective = _this.userObjectives.get(id);
                 // only update priorities for the dragged item and those whose
                 // priority was assigned before
-                if (draggedId == id || parseInt(objective.get('priority')) >= 0) {
+                if (draggedId == id || parseInt(objective.get('priority')) >= 1) {
                     el.style.background = null;
                     objective.set('priority', priority);
                     objective.save();
+                    var overlay = el.querySelector('.overlay');
+                    overlay.style.display = 'inline-block';
+                    overlay.innerHTML = priority;
                     priority++;
                 }
             })
