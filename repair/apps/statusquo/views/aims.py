@@ -57,10 +57,12 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
         for aim in missing_aims:
             objective = UserObjective(aim=aim, user=user)
             objective.save()
-        # query changed objectives
+        # requery changed objectives
         if len(missing_aims) > 0:
             objectives = UserObjective.objects.filter(
                 aim__casestudy__id=casestudy_pk,
                 user=user
             )
+            if keyflow is not None:
+                objectives = objectives.filter(aim__keyflow__id=keyflow)
         return objectives
