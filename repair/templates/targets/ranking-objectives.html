@@ -1,0 +1,21 @@
+{% load i18n %}
+{% block content %}
+
+<script type="text/template" id="ranking-objectives-template">
+<div class="row">
+    <div class='col-md-5'>
+        <h3> {% trans "Ranking objectives for the keyflow" %} <i> <%= keyflowName %> </i></h3>
+        <p> Below you find a list of objectives defined in the plenary discussion (see <i>Status Quo > Objectives</i>). </p>
+        <p>
+            Try to find an agreement on their relative importance within your small group.
+            Move the objectives by dragging and dropping them inside the list so that their order reflects your ranking:
+            The objective most important to you should be on top. The least important at the bottom.
+        </p>
+    </div>
+</div>
+<div class="row">
+    <div class='item-panel col-md-5 bordered'></div>
+</div>
+</script>
+{% endblock %}
+{% load i18n %}

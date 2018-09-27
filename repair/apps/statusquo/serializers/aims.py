@@ -57,7 +57,8 @@ class UserObjectiveSerializer(InCasestudySerializerMixin,
 
     class Meta:
         model = UserObjective
-        fields = ('aim',
+        fields = ('id',
+                  'aim',
                   'user',
                   'priority',
                   'keyflow')

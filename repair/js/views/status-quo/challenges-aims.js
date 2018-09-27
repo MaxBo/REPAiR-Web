@@ -161,7 +161,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             var items = grid.getItems(),
                 priority = 0;
             items.forEach(function(item){
-                var id = item._element.dataset.id,
+                var id = item.getElement().dataset.id,
                     model = collection.get(id);
                 model.set('priority', priority);
                 model.save();

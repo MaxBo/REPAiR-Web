@@ -30,7 +30,7 @@ class AimViewSet(CasestudyViewSetMixin,
         casestudy_pk = self.kwargs.get('casestudy_pk')
         if casestudy_pk is not None:
             aims = aims.filter(casestudy__id=casestudy_pk)
-        return aims
+        return aims.order_by('keyflow', 'priority')
 
 
 class UserObjectiveViewSet(CasestudyViewSetMixin,
