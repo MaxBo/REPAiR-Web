@@ -550,6 +550,24 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   margin-right: 20px;
 }
 
+.panel-item .overlay{
+  height: 30px;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: #bbb;
+  border-radius: 50%;
+  background-color: #aad400;
+  display: None;float: right;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  top: 0px;
+  margin: auto;
+  color: white;
+  font-family: 'Roboto', 'sans-serif';
+}
+
 div.panel-item{
   box-shadow: 0px 1px 6px 0px rgba(0,0,0,0.2);
 }

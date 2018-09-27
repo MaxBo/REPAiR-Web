@@ -39,6 +39,7 @@ function (Session) {
         units:                  '/api/units/',
         challenges:             '/api/casestudies/{0}/challenges',
         aims:                   '/api/casestudies/{0}/aims',
+        userObjectives:         '/api/casestudies/{0}/userobjectives',
         chartCategories:        '/api/casestudies/{0}/chartcategories/',
         charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
         stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
