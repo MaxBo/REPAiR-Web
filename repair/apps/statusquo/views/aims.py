@@ -40,6 +40,7 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
 
     def get_queryset(self):
         user = self.request.user
+        keyflow = self.request.query_params.get('keyflow')
         casestudy_pk = self.kwargs.get('casestudy_pk')
         keyflow_pk = self.kwargs.get('keyflow_pk')
         aims = Aim.objects.filter(casestudy__id=casestudy_pk)
@@ -47,6 +48,9 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
             aim__casestudy__id=casestudy_pk,
             user=user
         )
+        if keyflow is not None:
+            aims = aims.filter(keyflow__id=keyflow)
+            objectives = objectives.filter(aim__keyflow__id=keyflow)
         aims_in_objectives = objectives.values_list('aim__id', flat=True)
         missing_aims = aims.exclude(id__in=aims_in_objectives)
         # create missing objectives
