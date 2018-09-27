@@ -13,8 +13,9 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
 from repair.apps.statusquo.serializers import (AimSerializer,
-                                               AimPostSerializer)
-from repair.apps.statusquo.models import Aim
+                                               AimPostSerializer,
+                                               UserObjectiveSerializer)
+from repair.apps.statusquo.models import Aim, UserObjective
 
 
 class AimViewSet(CasestudyViewSetMixin,
@@ -30,3 +31,32 @@ class AimViewSet(CasestudyViewSetMixin,
         if casestudy_pk is not None:
             aims = aims.filter(casestudy__id=casestudy_pk)
         return aims
+
+
+class UserObjectiveViewSet(CasestudyViewSetMixin,
+                           ModelPermissionViewSet):
+    queryset = UserObjective.objects.all()
+    serializer_class = UserObjectiveSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        aims = Aim.objects.filter(casestudy__id=casestudy_pk)
+        objectives = UserObjective.objects.filter(
+            aim__casestudy__id=casestudy_pk,
+            user=user
+        )
+        aims_in_objectives = objectives.values_list('aim__id', flat=True)
+        missing_aims = aims.exclude(id__in=aims_in_objectives)
+        # create missing objectives
+        for aim in missing_aims:
+            objective = UserObjective(aim=aim, user=user)
+            objective.save()
+        # query changed objectives
+        if len(missing_aims) > 0:
+            objectives = UserObjective.objects.filter(
+                aim__casestudy__id=casestudy_pk,
+                user=user
+            )
+        return objectives

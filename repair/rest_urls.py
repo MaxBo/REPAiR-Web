@@ -52,6 +52,7 @@ from repair.apps.asmfa.views import (
 
 from repair.apps.statusquo.views import (
     AimViewSet,
+    UserObjectiveViewSet,
     ChallengeViewSet,
     TargetViewSet,
     SustainabilityFieldViewSet,
@@ -101,6 +102,7 @@ cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
+cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 

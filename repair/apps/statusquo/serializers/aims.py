@@ -12,7 +12,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            CreateWithUserInCasestudyMixin,
                                            UserInCasestudyField)
 from rest_framework.serializers import HyperlinkedModelSerializer
-from repair.apps.statusquo.models import Aim
+from repair.apps.statusquo.models import Aim, UserObjective
 
 
 class AimSerializer(InCasestudySerializerMixin,
@@ -45,3 +45,19 @@ class AimPostSerializer(InCasestudySerializerMixin,
                   'keyflow',
                   'text',
                   'priority')
+
+
+class UserObjectiveSerializer(InCasestudySerializerMixin,
+                              NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'aim__casestudy__id'}
+    aim = IDRelatedField()
+    user = IDRelatedField()
+    keyflow = serializers.IntegerField(source='aim.keyflow.id',
+                                       allow_null=True, read_only=True)
+
+    class Meta:
+        model = UserObjective
+        fields = ('aim',
+                  'user',
+                  'priority',
+                  'keyflow')

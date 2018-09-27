@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from repair.apps.login.models import CaseStudy, GDSEModel
+from repair.apps.login.models import CaseStudy, GDSEModel, User
 from repair.apps.asmfa.models import KeyflowInCasestudy
 
 
@@ -18,3 +18,9 @@ class Aim(GDSEModel):
             return self.text or ''
         except Exception:
             return ''
+
+
+class UserObjective(GDSEModel):
+    aim = models.ForeignKey(Aim, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    priority = models.IntegerField(default=-1)
