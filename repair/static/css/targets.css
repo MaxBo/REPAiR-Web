@@ -1,24 +1,30 @@
-.button-panel{
-    min-width: 30px;
-    vertical-align: top;
+.target-table {
+    margin: 20px;
 }
 
-.fake-cell{
-    /*height: 65px;*/
-    /*vertical-align: middle;*/
-    /*text-align: center;*/
-    /*margin: auto;*/
-    /*padding-top: 60%;*/
-    margin-bottom: 15px;
+.target-table th {
+    min-width: 200px;
+}
+
+.target-table tr {
     border-bottom: 1px solid lightgrey;
-    list-style-type: none;
-    height: 50px;    
-    margin-right: -40px;
-    padding-right: 40px;
-    /*line-height: 50px;*/
 }
 
-.btn.remove-target{
-    float: none;
-    display: inline-block;
+.target-table tr:first-child, .target-table tr:last-child {
+    border-bottom: 0px;
 }
+
+.target-table td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.target-table td:last-child {
+    border-bottom: 1px solid white;
+}
+
+.target-table btn.remove {
+    margin-left: 15px;
+}
+
+

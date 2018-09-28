@@ -243,21 +243,21 @@ div.fullscreen{
   left: 0;
 }
 
-table {
+.entry-table {
   border-collapse: collapse;
   width: 100%;
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
-th, td {
+.entry-table th, td {
   text-align: left;
   padding: 6px;
   position: relative;
   /*font-weight: normal;*/
 }
 
-tr.strikeout td:before {
+.entry-table tr.strikeout td:before {
     content: " ";
     position: absolute;
     top: 50%;
@@ -265,7 +265,7 @@ tr.strikeout td:before {
     border-bottom: 2px solid red;
     width: 100%;
 }
-tr.selected td{
+.entry-table tr.selected td{
     background-color: rgb(240, 255, 179) !IMPORTANT;
     border-bottom: 2px solid #aad400;
     border-top: 2px solid #aad400;
@@ -273,12 +273,12 @@ tr.selected td{
 
 /*tr:nth-child(even){background-color: #f2f2f2}*/
 
-th {
+.entry-table th {
   background-color: #aad400;
   color: white;
 }
 
-tfoot th {
+.entry-table tfoot th {
   background-color: #f9f9f9;
   color: black;
 }

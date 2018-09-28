@@ -9,7 +9,7 @@
     <div class="col-md-6">
       <form id="login-form" method="post" action="{% url 'login' %}">
         {% csrf_token %}
-        <table class="table">
+        <table class="table entry-table">
           <tr>
             <td><label for="id_username">Username</label></td>
             <td><input id="id_username" name="username" type="text" class="form-control"></td>
