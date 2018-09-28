@@ -12,15 +12,16 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            CreateWithUserInCasestudyMixin,
                                            UserInCasestudyField)
 from rest_framework.serializers import HyperlinkedModelSerializer
-from repair.apps.statusquo.models import Aim
-from repair.apps.statusquo.models import (AreaOfProtection,
+from repair.apps.statusquo.models import (Aim,
+                                          AreaOfProtection,
                                           ImpactCategory,
                                           ImpactCategoryInSustainability,
                                           SustainabilityField,
                                           Target,
                                           TargetSpatialReference,
                                           TargetValue,
-                                          IndicatorCharacterisation)
+                                          IndicatorCharacterisation,
+                                          FlowTarget)
 
 
 class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
@@ -130,6 +131,20 @@ class IndicatorCharacterisationSerializer(NestedHyperlinkedModelSerializer):
                   'name')
 
 
+class FlowTargetSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'userobjective__aim__casestudy__id',
+                            'userobjective_pk': 'userobjective__id'}
+    indicator = IDRelatedField()
+    target_value = IDRelatedField()
+    user = IDRelatedField(source='userobjective.user.id',
+                          allow_null=True, read_only=True)
+    keyflow = IDRelatedField(source='userobjective.aim.keyflow.id',
+                             allow_null=True, read_only=True)
 
-
-
+    class Meta:
+        model = FlowTarget
+        fields = ('id',
+                  'indicator',
+                  'target_value',
+                  'user',
+                  'keyflow')
