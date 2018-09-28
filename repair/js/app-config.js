@@ -35,6 +35,7 @@ function (Session) {
         targets:                '/api/casestudies/{0}/aims/{1}/targets',
         targetvalues:           '/api/targetvalues',
         targetspatialreference: '/api/targetspecialreference/',
+        areasOfProtection:      '/api/areasofprotection/',
         impactcategories:       '/api/impactcategories/',
         units:                  '/api/units/',
         challenges:             '/api/casestudies/{0}/challenges',

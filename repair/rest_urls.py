@@ -85,6 +85,7 @@ router.register(r'sustainabilities', SustainabilityFieldViewSet)
 router.register(r'impactcategories', ImpactcategoryViewSet)
 router.register(r'targetvalues', TargetValueViewSet)
 router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
+router.register(r'areasofprotection', AreaOfProtectionViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 # / sustainabilities/../

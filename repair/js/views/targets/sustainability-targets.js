@@ -51,7 +51,12 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 apiTag: 'targetvalues',
             });
 
+            this.areasOfProtection = new GDSECollection([], {
+                apiTag: 'areasOfProtection',
+            });
+
             promises.push(this.targetValues.fetch({error: _this.onError}))
+            promises.push(this.areasOfProtection.fetch({error: _this.onError}))
 
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
@@ -79,19 +84,19 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.objectivesPanel = document.createElement('div');
             this.el.appendChild(this.objectivesPanel);
             this.userObjectives.forEach(function(objective){
-                var panel = _this.renderObjective(objective);
-                _this.objectivesPanel.appendChild(panel)
+                _this.renderObjective(objective, _this.objectivesPanel);
             });
         },
 
         renderObjective: function(objective, panel){
             var _this = this,
                 objectivePanel = document.createElement('div'),
-                html = document.getElementById('flow-targets-detail-template').innerHTML,
+                html = document.getElementById('sustainability-targets-detail-template').innerHTML,
                 template = _.template(html),
                 aim = this.aims.get(objective.get('aim')),
-                targets = this.targets[objective.id];
+                targets = this.targets[objective.id].first();
 
+            panel.appendChild(objectivePanel);
             objectivePanel.classList.add('objective-panel');
             objectivePanel.dataset['id'] = objective.id;
 
@@ -102,11 +107,24 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             objectivePanel.querySelector('.overlay').innerHTML = '#' + objective.get('priority');
 
-            targets.forEach(function(target){
-                //_this.renderTargetRow(target, objective);
-            })
+            var btnGroup = objectivePanel.querySelector('.btn-group-toggle');
 
-            return objectivePanel;
+            this.areasOfProtection.forEach(function(aop){
+                var label = document.createElement('label'),
+                    input = document.createElement('input');
+                label.classList.add('btn', 'btn-primary');
+                label.innerHTML = aop.get('name');
+                input.type = 'checkbox';
+                input.checked = false;
+                label.appendChild(input);
+                btnGroup.appendChild(label);
+            })
+        },
+
+        renderTargetRow: function(btnGroup, target, objective){
+            this.areasOfProtection.forEach(function(aop){
+
+            })
         },
 
         updateOrder(){

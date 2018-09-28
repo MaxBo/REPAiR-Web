@@ -93,7 +93,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             //this.userObjectives.on("sort", _this.reOrder)
         },
 
-        renderObjective: function(objective, panel){
+        renderObjective: function(objective){
             var _this = this,
                 objectivePanel = document.createElement('div'),
                 html = document.getElementById('flow-targets-detail-template').innerHTML,
