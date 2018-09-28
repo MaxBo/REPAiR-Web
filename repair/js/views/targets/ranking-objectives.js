@@ -111,7 +111,7 @@ function(_, BaseView, GDSECollection, Muuri){
             else {
                 var overlay = panelItem.querySelector('.overlay');
                 overlay.style.display = 'inline-block';
-                overlay.innerHTML = priority;
+                overlay.innerHTML = '#' + priority;
             }
         },
 
@@ -131,7 +131,7 @@ function(_, BaseView, GDSECollection, Muuri){
                     objective.save();
                     var overlay = el.querySelector('.overlay');
                     overlay.style.display = 'inline-block';
-                    overlay.innerHTML = priority;
+                    overlay.innerHTML = '#' + priority;
                     priority++;
                 }
             })

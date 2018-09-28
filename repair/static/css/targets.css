@@ -27,4 +27,19 @@
     margin-left: 15px;
 }
 
+.objective-panel .overlay{
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: #aad400;
+    float: right;
+    margin-right: 15px;
+    margin-top: 15px;
+    color: white;
+    font-family: 'Roboto', 'sans-serif';
+    /*font-size: 1.5em;*/
+}
+
 

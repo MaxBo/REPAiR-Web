@@ -185,6 +185,11 @@ div.fullscreen{
   /* symbol for collapsed panel*/
   content: "\e080";
 }
+.panel-heading a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .title {
   font-weight: 600;
   overflow: hidden;

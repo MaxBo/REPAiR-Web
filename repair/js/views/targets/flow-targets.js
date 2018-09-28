@@ -107,9 +107,10 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             objectivePanel.innerHTML = template({
                 id: objective.id,
-                title: aim.get('text'),
-                rank: objective.get('priority')
+                title: aim.get('text')
             });
+
+            objectivePanel.querySelector('.overlay').innerHTML = '#' + objective.get('priority');
 
             var addBtn = objectivePanel.querySelector('button.add'),
                 table = objectivePanel.querySelector('.target-table');
@@ -152,7 +153,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
             indicatorSelect.classList.add('form-control');
             targetSelect.classList.add('form-control');
 
-
             removeBtn.classList.add("btn", "btn-warning", "square", "remove");
             // removeBtn.style.float = 'right';
             var span = document.createElement('span');
@@ -164,6 +164,8 @@ function(_, BaseView, GDSECollection, GDSEModel){
             removeBtn.addEventListener('click', function(){
                 target.destroy({ success: function(){
                     table.deleteRow(row.rowIndex);
+                    if (_this.targets[objective.id].length === 0)
+                        table.style.visibility = 'hidden';
                 }})
             })
 
@@ -212,6 +214,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 first = this.objectivesPanel.firstChild;
             objIds.reverse().forEach(function(id){
                 var panel = _this.objectivesPanel.querySelector('.objective-panel[data-id="' + id + '"]');
+                panel.querySelector('.overlay').innerHTML = '#' + _this.userObjectives.get(id).get('priority');
                 _this.objectivesPanel.insertBefore(panel, first);
                 first = panel;
             });
