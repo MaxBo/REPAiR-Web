@@ -47,22 +47,6 @@ class TargetValue(GDSEModel):
             return ''
 
 
-class Target(GDSEModel):
-    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
-    aim = models.ForeignKey(Aim, on_delete=PROTECT_CASCADE)
-    impact_category = models.ForeignKey(ImpactCategory,
-                                        on_delete=PROTECT_CASCADE)
-    target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
-    spatial_reference = models.ForeignKey(TargetSpatialReference,
-                                          on_delete=models.CASCADE)
-
-    def __str__(self):
-        try:
-            return 'Target {}'.format(self.id) or ''
-        except Exception:
-            return ''
-
-
 class IndicatorCharacterisation(GDSEModel):
     name = models.CharField(max_length=255)
 
@@ -71,3 +55,9 @@ class FlowTarget(GDSEModel):
     indicator = models.ForeignKey(FlowIndicator, on_delete=models.CASCADE)
     target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
     userobjective = models.ForeignKey(UserObjective, on_delete=models.CASCADE)
+
+
+class SustainabilityTarget(GDSEModel):
+    areas_of_protection = models.ManyToManyField(AreaOfProtection)
+    userobjective = models.ForeignKey(UserObjective, on_delete=models.CASCADE)
+

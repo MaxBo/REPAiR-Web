@@ -19,7 +19,7 @@ from repair.apps.statusquo.serializers import (
      ImpactCategorySerializer,
      ImpactCategoryInSustainabilitySerializer,
      SustainabilityFieldSerializer,
-     TargetSerializer,
+     SustainabilityTargetSerializer,
      TargetSpatialReferenceSerializer,
      TargetValueSerializer,
      FlowTargetSerializer,
@@ -32,33 +32,12 @@ from repair.apps.statusquo.models import (
     ImpactCategory,
     ImpactCategoryInSustainability,
     SustainabilityField,
-    Target,
+    SustainabilityTarget,
     TargetSpatialReference,
     TargetValue,
     FlowTarget,
     Aim
 )
-
-
-class TargetViewSet(CasestudyViewSetMixin,
-                    ModelPermissionViewSet):
-    queryset = Target.objects.all()
-    serializer_class = TargetSerializer
-
-    def list(self, request, *args, **kwargs):
-
-        if (request.user.id and 'user' not in request.query_params and
-            'user__in' not in request.query_params):
-            self.queryset = self.queryset.filter(
-                user__user__user_id=request.user.id)
-
-        return super().list(request, *args, **kwargs)
-
-
-class FlowTargetViewSet(CasestudyViewSetMixin,
-                        ModelPermissionViewSet):
-    queryset = FlowTarget.objects.all()
-    serializer_class = FlowTargetSerializer
 
 
 class SustainabilityFieldViewSet(ModelPermissionViewSet):
@@ -113,3 +92,15 @@ class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
     queryset = TargetSpatialReference.objects.all()
     serializer_class = TargetSpatialReferenceSerializer
     pagination_class = None
+
+
+class SustainabilityTargetViewSet(CasestudyViewSetMixin,
+                                  ModelPermissionViewSet):
+    queryset = SustainabilityTarget.objects.all()
+    serializer_class = SustainabilityTargetSerializer
+
+
+class FlowTargetViewSet(CasestudyViewSetMixin,
+                        ModelPermissionViewSet):
+    queryset = FlowTarget.objects.all()
+    serializer_class = FlowTargetSerializer

@@ -17,7 +17,7 @@ from repair.apps.statusquo.models import (Aim,
                                           ImpactCategory,
                                           ImpactCategoryInSustainability,
                                           SustainabilityField,
-                                          Target,
+                                          SustainabilityTarget,
                                           TargetSpatialReference,
                                           TargetValue,
                                           IndicatorCharacterisation,
@@ -74,25 +74,6 @@ class SustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
                   'name')
 
 
-class TargetSerializer(CreateWithUserInCasestudyMixin,
-                       NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'aim_pk': 'aim__id'}
-    impact_category = IDRelatedField()
-    target_value = IDRelatedField()
-    spatial_reference = IDRelatedField()
-    user = IDRelatedField(read_only=True)
-
-    class Meta:
-        model = Target
-        fields = ('url',
-                  'id',
-                  'impact_category',
-                  'target_value',
-                  'spatial_reference',
-                  'user')
-
-
 class TargetValueSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     text = serializers.CharField()
@@ -146,5 +127,23 @@ class FlowTargetSerializer(NestedHyperlinkedModelSerializer):
         fields = ('id',
                   'indicator',
                   'target_value',
+                  'user',
+                  'keyflow')
+
+
+class SustainabilityTargetSerializer(CreateWithUserInCasestudyMixin,
+                                     NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'userobjective__aim__casestudy__id',
+                            'userobjective_pk': 'userobjective__id'}
+    areas_of_protection = IDRelatedField()
+    user = IDRelatedField(source='userobjective.user.id',
+                          allow_null=True, read_only=True)
+    keyflow = IDRelatedField(source='userobjective.aim.keyflow.id',
+                             allow_null=True, read_only=True)
+
+    class Meta:
+        model = SustainabilityTarget
+        fields = ('id',
+                  'areas_of_protection',
                   'user',
                   'keyflow')
