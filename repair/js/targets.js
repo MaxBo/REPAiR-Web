@@ -15,6 +15,13 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
 
     var sustainabilityTargetsView, flowTargetsView, rankingObjectivesView;
 
+    $('#sidebar a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href") // activated tab
+        if (target === '#flow-targets' && flowTargetsView){
+            flowTargetsView.reOrder();
+        }
+    });
+
     renderWorkshop = function(caseStudy, keyflowId, userObjectives, aims, keyflowName){
         if (sustainabilityTargetsView) sustainabilityTargetsView.close();
         sustainabilityTargetsView = new SustainabilityTargetsView({
@@ -33,7 +40,6 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template'
         })
-        flowTargetsView.render();
         if (rankingObjectivesView) rankingObjectivesView.close();
         rankingObjectivesView = new RankingObjectivesView({
             caseStudy: caseStudy,
@@ -44,7 +50,6 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
             el: document.getElementById('ranking-objectives'),
             template: 'ranking-objectives-template'
         })
-
     };
 
     renderSetup = function(caseStudy, keyflowId){

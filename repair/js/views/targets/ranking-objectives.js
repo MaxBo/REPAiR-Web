@@ -135,6 +135,8 @@ function(_, BaseView, GDSECollection, Muuri){
                     priority++;
                 }
             })
+            _this.userObjectives.sort();
+            //_this.userObjectives.trigger('priorities-changed')
         }
 
     });

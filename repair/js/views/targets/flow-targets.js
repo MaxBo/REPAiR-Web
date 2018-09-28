@@ -28,6 +28,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             FlowTargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
             _.bindAll(this, 'renderObjective');
+            _.bindAll(this, 'reOrder');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -84,26 +85,34 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.el.innerHTML = template({
                 keyflowName: this.keyflowName
             });
-            this.userObjectives.forEach(this.renderObjective);
+            this.objectivesPanel = document.createElement('div');
+            this.el.appendChild(this.objectivesPanel);
+            this.userObjectives.forEach(function(objective){
+                var panel = _this.renderObjective(objective);
+                _this.objectivesPanel.appendChild(panel)
+            });
+            //this.userObjectives.on("sort", _this.reOrder)
         },
 
-        renderObjective: function(objective){
+        renderObjective: function(objective, panel){
             var _this = this,
-                el = document.createElement('div'),
+                objectivePanel = document.createElement('div'),
                 html = document.getElementById('flow-targets-detail-template').innerHTML,
                 template = _.template(html),
                 aim = this.aims.get(objective.get('aim')),
                 targets = this.targets[objective.id];
 
-            this.el.appendChild(el);
-            el.innerHTML = template({
+            objectivePanel.classList.add('objective-panel');
+            objectivePanel.dataset['id'] = objective.id;
+
+            objectivePanel.innerHTML = template({
                 id: objective.id,
                 title: aim.get('text'),
                 rank: objective.get('priority')
             });
 
-            var addBtn = el.querySelector('button.add'),
-                table = el.querySelector('.target-table');
+            var addBtn = objectivePanel.querySelector('button.add'),
+                table = objectivePanel.querySelector('.target-table');
 
             if (targets.length === 0)
                 table.style.visibility = 'hidden';
@@ -129,6 +138,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     }
                 );
             })
+            return objectivePanel;
         },
 
         renderTargetRow: function(table, target, objective){
@@ -192,6 +202,19 @@ function(_, BaseView, GDSECollection, GDSEModel){
             row.insertCell(-1).appendChild(targetSelect);
             row.insertCell(-1).appendChild(removeBtn);
 
+        },
+
+        reOrder(){
+            var _this = this;
+            // not ready yet (doesn't matter, order comes right after creation)
+            if (!this.objectivesPanel) return;
+            var objIds = this.userObjectives.pluck('id'),
+                first = this.objectivesPanel.firstChild;
+            objIds.reverse().forEach(function(id){
+                var panel = _this.objectivesPanel.querySelector('.objective-panel[data-id="' + id + '"]');
+                _this.objectivesPanel.insertBefore(panel, first);
+                first = panel;
+            });
         }
 
     });
