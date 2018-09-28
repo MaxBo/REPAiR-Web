@@ -21,7 +21,11 @@ from repair.apps.statusquo.serializers import (
      SustainabilityFieldSerializer,
      TargetSerializer,
      TargetSpatialReferenceSerializer,
-     TargetValueSerializer)
+     TargetValueSerializer,
+     FlowTargetSerializer,
+     AimSerializer,
+     AimPostSerializer
+)
 
 from repair.apps.statusquo.models import (
     AreaOfProtection,
@@ -30,11 +34,10 @@ from repair.apps.statusquo.models import (
     SustainabilityField,
     Target,
     TargetSpatialReference,
-    TargetValue)
-
-from repair.apps.statusquo.models import Aim
-from repair.apps.statusquo.serializers import (AimSerializer,
-                                               AimPostSerializer)
+    TargetValue,
+    FlowTarget,
+    Aim
+)
 
 
 class TargetViewSet(CasestudyViewSetMixin,
@@ -50,6 +53,12 @@ class TargetViewSet(CasestudyViewSetMixin,
                 user__user__user_id=request.user.id)
 
         return super().list(request, *args, **kwargs)
+
+
+class FlowTargetViewSet(CasestudyViewSetMixin,
+                        ModelPermissionViewSet):
+    queryset = FlowTarget.objects.all()
+    serializer_class = FlowTargetSerializer
 
 
 class SustainabilityFieldViewSet(ModelPermissionViewSet):

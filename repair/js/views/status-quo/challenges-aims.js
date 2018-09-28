@@ -112,7 +112,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             }
         },
 
-        renderKeyflow(title, id, aims, challenges){
+        renderKeyflow: function(title, id, aims, challenges){
             var el = document.createElement('div'),
                 html = document.getElementById('challenges-aims-detail-template').innerHTML,
                 template = _.template(html),

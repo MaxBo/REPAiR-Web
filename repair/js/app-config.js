@@ -40,6 +40,7 @@ function (Session) {
         challenges:             '/api/casestudies/{0}/challenges',
         aims:                   '/api/casestudies/{0}/aims',
         userObjectives:         '/api/casestudies/{0}/userobjectives',
+        flowTargets:            '/api/casestudies/{0}/userobjectives/{1}/flowtargets',
         chartCategories:        '/api/casestudies/{0}/chartcategories/',
         charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
         stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
