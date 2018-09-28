@@ -41,6 +41,7 @@ function (Session) {
         aims:                   '/api/casestudies/{0}/aims',
         userObjectives:         '/api/casestudies/{0}/userobjectives',
         flowTargets:            '/api/casestudies/{0}/userobjectives/{1}/flowtargets',
+        sustainabilityTargets:  '/api/casestudies/{0}/userobjectives/{1}/sustainabilitytargets',
         chartCategories:        '/api/casestudies/{0}/chartcategories/',
         charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
         stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',

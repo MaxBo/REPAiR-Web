@@ -28,7 +28,6 @@ function(_, BaseView, GDSECollection, GDSEModel){
             FlowTargetsView.__super__.initialize.apply(this, [options]);
             var _this = this;
             _.bindAll(this, 'renderObjective');
-            _.bindAll(this, 'reOrder');
 
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -206,7 +205,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
         },
 
-        reOrder(){
+        updateOrder(){
             var _this = this;
             // not ready yet (doesn't matter, order comes right after creation)
             if (!this.objectivesPanel) return;

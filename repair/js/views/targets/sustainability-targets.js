@@ -31,7 +31,32 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.caseStudy = options.caseStudy;
             this.keyflowId = options.keyflowId;
             this.keyflowName = options.keyflowName;
-            this.render();
+            this.aims = options.aims;
+            this.userObjectives = options.userObjectives;
+            this.targets = {};
+            var promises = [];
+
+            this.loader.activate();
+
+            this.userObjectives.forEach(function(objective){
+                var targets = new GDSECollection([], {
+                    apiTag: 'sustainabilityTargets',
+                    apiIds: [_this.caseStudy.id, objective.id]
+                })
+                _this.targets[objective.id] = targets;
+                promises.push(targets.fetch({error: _this.onError}));
+            })
+
+            this.targetValues = new GDSECollection([], {
+                apiTag: 'targetvalues',
+            });
+
+            promises.push(this.targetValues.fetch({error: _this.onError}))
+
+            Promise.all(promises).then(function(){
+                _this.loader.deactivate();
+                _this.render();
+            })
 
         },
 
@@ -45,10 +70,57 @@ function(_, BaseView, GDSECollection, GDSEModel){
         * render the view
         */
         render: function(){
+            var _this = this,
+                html = document.getElementById(this.template).innerHTML,
+                template = _.template(html);
+            this.el.innerHTML = template({
+                keyflowName: this.keyflowName
+            });
+            this.objectivesPanel = document.createElement('div');
+            this.el.appendChild(this.objectivesPanel);
+            this.userObjectives.forEach(function(objective){
+                var panel = _this.renderObjective(objective);
+                _this.objectivesPanel.appendChild(panel)
+            });
+        },
+
+        renderObjective: function(objective, panel){
+            var _this = this,
+                objectivePanel = document.createElement('div'),
+                html = document.getElementById('flow-targets-detail-template').innerHTML,
+                template = _.template(html),
+                aim = this.aims.get(objective.get('aim')),
+                targets = this.targets[objective.id];
+
+            objectivePanel.classList.add('objective-panel');
+            objectivePanel.dataset['id'] = objective.id;
+
+            objectivePanel.innerHTML = template({
+                id: objective.id,
+                title: aim.get('text')
+            });
+
+            objectivePanel.querySelector('.overlay').innerHTML = '#' + objective.get('priority');
+
+            targets.forEach(function(target){
+                //_this.renderTargetRow(target, objective);
+            })
+
+            return objectivePanel;
+        },
+
+        updateOrder(){
             var _this = this;
-            var html = document.getElementById(this.template).innerHTML
-            var template = _.template(html);
-            this.el.innerHTML = template();
+            // not ready yet (doesn't matter, order comes right after creation)
+            if (!this.objectivesPanel) return;
+            var objIds = this.userObjectives.pluck('id'),
+                first = this.objectivesPanel.firstChild;
+            objIds.reverse().forEach(function(id){
+                var panel = _this.objectivesPanel.querySelector('.objective-panel[data-id="' + id + '"]');
+                panel.querySelector('.overlay').innerHTML = '#' + _this.userObjectives.get(id).get('priority');
+                _this.objectivesPanel.insertBefore(panel, first);
+                first = panel;
+            });
         }
 
     });
