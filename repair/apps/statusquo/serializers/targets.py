@@ -13,28 +13,13 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            UserInCasestudyField)
 from rest_framework.serializers import HyperlinkedModelSerializer
 from repair.apps.statusquo.models import (Aim,
-                                          AreaOfProtection,
                                           ImpactCategory,
                                           ImpactCategoryInSustainability,
                                           SustainabilityField,
-                                          SustainabilityTarget,
                                           TargetSpatialReference,
                                           TargetValue,
                                           IndicatorCharacterisation,
                                           FlowTarget)
-
-
-class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'sustainability_pk': 'sustainability_field__id'}
-    name = serializers.CharField()
-    sustainability_field = IDRelatedField()
-
-    class Meta:
-        model = AreaOfProtection
-        fields = ('url',
-                  'id',
-                  'name',
-                  'sustainability_field')
 
 
 class ImpactCategorySerializer(NestedHyperlinkedModelSerializer):
@@ -127,23 +112,5 @@ class FlowTargetSerializer(NestedHyperlinkedModelSerializer):
         fields = ('id',
                   'indicator',
                   'target_value',
-                  'user',
-                  'keyflow')
-
-
-class SustainabilityTargetSerializer(CreateWithUserInCasestudyMixin,
-                                     NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'userobjective__aim__casestudy__id',
-                            'userobjective_pk': 'userobjective__id'}
-    areas_of_protection = IDRelatedField()
-    user = IDRelatedField(source='userobjective.user.id',
-                          allow_null=True, read_only=True)
-    keyflow = IDRelatedField(source='userobjective.aim.keyflow.id',
-                             allow_null=True, read_only=True)
-
-    class Meta:
-        model = SustainabilityTarget
-        fields = ('id',
-                  'areas_of_protection',
                   'user',
                   'keyflow')

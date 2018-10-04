@@ -13,9 +13,9 @@ class ChallengeAdmin(VersionAdmin):
     """Versioning of Challenge"""
 
 
-@admin.register(models.SustainabilityTarget)
-class SustainabilityTargetAdmin(VersionAdmin):
-    """Versioning of SustainabilityTarget"""
+@admin.register(models.UserObjective)
+class UserObjectiveAdmin(VersionAdmin):
+    """Versioning of Challenge"""
 
 
 @admin.register(models.FlowTarget)

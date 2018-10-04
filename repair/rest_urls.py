@@ -54,7 +54,6 @@ from repair.apps.statusquo.views import (
     AimViewSet,
     UserObjectiveViewSet,
     ChallengeViewSet,
-    SustainabilityTargetViewSet,
     FlowTargetViewSet,
     SustainabilityFieldViewSet,
     ImpactcategoryViewSet,
@@ -113,7 +112,6 @@ cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
                                lookup='userobjective')
 uo_router.register(r'flowtargets', FlowTargetViewSet)
-uo_router.register(r'sustainabilitytargets', SustainabilityTargetViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',

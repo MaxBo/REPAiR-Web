@@ -15,11 +15,9 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ReadUpdatePermissionViewSet)
 from rest_framework.response import Response
 from repair.apps.statusquo.serializers import (
-     AreaOfProtectionSerializer,
      ImpactCategorySerializer,
      ImpactCategoryInSustainabilitySerializer,
      SustainabilityFieldSerializer,
-     SustainabilityTargetSerializer,
      TargetSpatialReferenceSerializer,
      TargetValueSerializer,
      FlowTargetSerializer,
@@ -28,11 +26,9 @@ from repair.apps.statusquo.serializers import (
 )
 
 from repair.apps.statusquo.models import (
-    AreaOfProtection,
     ImpactCategory,
     ImpactCategoryInSustainability,
     SustainabilityField,
-    SustainabilityTarget,
     TargetSpatialReference,
     TargetValue,
     FlowTarget,
@@ -76,12 +72,6 @@ class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
         return Response(serializer.data)
 
 
-class AreaOfProtectionViewSet(ModelPermissionViewSet):
-    queryset = AreaOfProtection.objects.all()
-    serializer_class = AreaOfProtectionSerializer
-    pagination_class = None
-
-
 class TargetValueViewSet(ModelPermissionViewSet):
     queryset = TargetValue.objects.all()
     serializer_class = TargetValueSerializer
@@ -92,12 +82,6 @@ class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
     queryset = TargetSpatialReference.objects.all()
     serializer_class = TargetSpatialReferenceSerializer
     pagination_class = None
-
-
-class SustainabilityTargetViewSet(CasestudyViewSetMixin,
-                                  ModelPermissionViewSet):
-    queryset = SustainabilityTarget.objects.all()
-    serializer_class = SustainabilityTargetSerializer
 
 
 class FlowTargetViewSet(CasestudyViewSetMixin,

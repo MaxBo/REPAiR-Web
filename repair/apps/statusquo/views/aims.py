@@ -14,8 +14,15 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ReadUpdatePermissionViewSet)
 from repair.apps.statusquo.serializers import (AimSerializer,
                                                AimPostSerializer,
-                                               UserObjectiveSerializer)
-from repair.apps.statusquo.models import Aim, UserObjective
+                                               UserObjectiveSerializer,
+                                               AreaOfProtectionSerializer)
+from repair.apps.statusquo.models import Aim, UserObjective, AreaOfProtection
+
+
+class AreaOfProtectionViewSet(ModelPermissionViewSet):
+    queryset = AreaOfProtection.objects.all()
+    serializer_class = AreaOfProtectionSerializer
+    pagination_class = None
 
 
 class AimViewSet(CasestudyViewSetMixin,
