@@ -70,6 +70,8 @@ class UserObjectiveSerializer(InCasestudySerializerMixin,
 
     class Meta:
         model = UserObjective
+        extra_kwargs = {'target_areas': {'required': False,
+                                         'allow_empty': True}}
         fields = ('id',
                   'aim',
                   'user',
