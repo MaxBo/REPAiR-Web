@@ -2,7 +2,10 @@
 {% block content %}
 
 <script type="text/template" id="flow-targets-template">
-<h3> {% trans "Flow targets for the keyflow" %} <i> <%= keyflowName %> </i></h3>
+<h3 class='warning'> {% trans "You may only set your targets after ranking all of the objectives!" %}</h3>
+<div class='targets'>
+  <h3> {% trans "Flow targets for the keyflow" %} <i> <%= keyflowName %> </i></h3>
+</div>
 </script>
 
 <script type="text/template" id="flow-targets-detail-template">

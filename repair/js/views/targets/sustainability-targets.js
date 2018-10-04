@@ -72,10 +72,11 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 keyflowName: this.keyflowName
             });
             this.objectivesPanel = document.createElement('div');
-            this.el.appendChild(this.objectivesPanel);
+            this.el.querySelector('.targets').appendChild(this.objectivesPanel);
             this.userObjectives.forEach(function(objective){
                 _this.renderObjective(objective, _this.objectivesPanel);
             });
+            if (!this.rankingIsValid()) return;
         },
 
         renderObjective: function(objective, panel){
@@ -132,10 +133,32 @@ function(_, BaseView, GDSECollection, GDSEModel){
             )
         },
 
+        rankingIsValid: function(){
+            var valid = true;
+            this.userObjectives.forEach(function(objective){
+                var priority = objective.get('priority');
+                if (priority < 0){
+                    valid = false;
+                    return;
+                }
+            })
+            var warning = this.el.querySelector('.warning'),
+                content = this.el.querySelector('.targets');
+            if (valid) {
+                warning.style.display = 'none';
+                content.style.display = 'block';
+            }
+            else {
+                warning.style.display = 'block';
+                content.style.display = 'none';
+            }
+            return valid;
+        },
+
         updateOrder: function(){
             var _this = this;
             // not ready yet (doesn't matter, order comes right after creation)
-            if (!this.objectivesPanel) return;
+            if (!this.objectivesPanel || !this.rankingIsValid()) return;
             var objIds = this.userObjectives.pluck('id'),
                 first = this.objectivesPanel.firstChild;
             objIds.reverse().forEach(function(id){
