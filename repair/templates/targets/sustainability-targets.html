@@ -2,46 +2,27 @@
 {% block content %}
 
 <script type="text/template" id="sustainability-targets-template">
-<div class="row overflow">
-  <div class="col-md-3">
-    <h4>{% trans "Aim" %}</h4>
-  </div>
-  <div class="col-md-2">
-    <h4>{% trans "Target value" %}</h4>
-  </div>
-  <div class="col-md-3">
-    <h4>{% trans "Indicator" %}</h4>
-  </div>
-  <div class="col-md-2">
-    <h4>{% trans "Spatial reference" %}</h4>
-  </div>
-</div>
+<h3> {% trans "Sustainability targets for the keyflow" %} <i> <%= keyflowName %> </i></h3>
 </script>
 
-<script type="text/template" id="sustainability-target-row-template">
-<div class="col-md-3">
-  <div class="panel-item noselect" style="pointer-events: none;">
-    <label> <%= aim %> </label>
-  </div>
-</div>
-<div class="col-md-2 targets">
-  <div class="item-panel" style="min-height: 25px;">
-  </div>
-  <button class="add-target btn btn-primary square add"
-   title="{% trans "add target" %}" aimId="<%= aimId %>">
-    <span class="glyphicon glyphicon-plus"></span> {% trans "Target" %}
-  </button>
-</div>
-<div id="indicator-panel" class="col-md-3 indicators">
-  <div class="item-panel" style="min-height: 25px;">
-  </div>
-</div>
-<div class="col-md-2 spatial">
-  <div class="item-panel" style="min-height: 25px;">
-  </div>
-</div>
-<div class="col-md-1 remove">
-  <div class="item-panel" style="min-height: 25px;">
+<script type="text/template" id="sustainability-targets-detail-template">
+<div class="row">
+  <div class="col-md-8">
+    <div class="panel panel-default">
+      <div class="overlay"> </div>
+      <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+        <h4 style="margin-top: 0; margin-bottom: 0;">
+          <a role="button" data-toggle="collapse" href="#sustainability-targets-<%= id %>" aria-expanded="false" aria-controls="#sustainability-targets-<%= id %>" class="toggle-details accordion-toggle collapsed">
+            <!-- {% trans "Objective" %} --><%= title %>
+          </a>
+        </h4>
+      </div>
+      <div id="sustainability-targets-<%= id %>" class="panel-collapse collapse" style="padding: 10px;">
+        <p>{% trans "... for us translates into the aim of reaching a higher level of protection in these selected areas:" %}</p>
+        <div class="btn-group-toggle"> <!--data-toggle="buttons"-->
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 </script>

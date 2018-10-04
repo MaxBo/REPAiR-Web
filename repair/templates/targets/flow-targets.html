@@ -2,8 +2,40 @@
 {% block content %}
 
 <script type="text/template" id="flow-targets-template">
+<h3> {% trans "Flow targets for the keyflow" %} <i> <%= keyflowName %> </i></h3>
+</script>
+
+<script type="text/template" id="flow-targets-detail-template">
 <div class="row">
-    <h2>Not implemented yet</h2>
+  <div class="col-md-8">
+    <div class="panel panel-default">
+      <div class="overlay"> </div>
+      <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+        <h4 style="margin-top: 0; margin-bottom: 0;">
+          <a role="button" data-toggle="collapse" href="#flow-targets-<%= id %>" aria-expanded="false" aria-controls="#flow-targets-<%= id %>" class="toggle-details accordion-toggle collapsed">
+            <!-- {% trans "Objective" %} --><%= title %>
+          </a>
+        </h4>
+      </div>
+      <div id="flow-targets-<%= id %>" class="panel-collapse collapse" style="padding: 10px;">
+        <p>{% trans "... for us translates into the following flow targets:" %}</p>
+        <div style="overflow: auto;">
+          <table class="target-table">
+            <tr>
+              <th >{% trans "Flow Indicator" %}</th>
+              <th>{% trans "Spatial reference" %}</th>
+              <th>{% trans "Target" %}</th>
+            </tr>
+            <tr></tr>
+          </table>
+        </div>
+        <button class="btn btn-primary square add" title="{% trans "add target" %}">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Target" %}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 </script>
+
 {% endblock %}

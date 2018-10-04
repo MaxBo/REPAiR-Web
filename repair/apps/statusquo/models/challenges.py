@@ -4,6 +4,7 @@ from django.db import models
 from repair.apps.login.models import CaseStudy, GDSEModel
 from repair.apps.asmfa.models import KeyflowInCasestudy
 
+
 class Challenge(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     keyflow = models.ForeignKey(KeyflowInCasestudy,

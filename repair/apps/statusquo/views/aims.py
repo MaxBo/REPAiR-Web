@@ -13,8 +13,16 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
 from repair.apps.statusquo.serializers import (AimSerializer,
-                                               AimPostSerializer)
-from repair.apps.statusquo.models import Aim
+                                               AimPostSerializer,
+                                               UserObjectiveSerializer,
+                                               AreaOfProtectionSerializer)
+from repair.apps.statusquo.models import Aim, UserObjective, AreaOfProtection
+
+
+class AreaOfProtectionViewSet(ModelPermissionViewSet):
+    queryset = AreaOfProtection.objects.all()
+    serializer_class = AreaOfProtectionSerializer
+    pagination_class = None
 
 
 class AimViewSet(CasestudyViewSetMixin,
@@ -29,4 +37,39 @@ class AimViewSet(CasestudyViewSetMixin,
         casestudy_pk = self.kwargs.get('casestudy_pk')
         if casestudy_pk is not None:
             aims = aims.filter(casestudy__id=casestudy_pk)
-        return aims
+        return aims.order_by('keyflow', 'priority')
+
+
+class UserObjectiveViewSet(CasestudyViewSetMixin,
+                           ModelPermissionViewSet):
+    queryset = UserObjective.objects.all()
+    serializer_class = UserObjectiveSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        keyflow = self.request.query_params.get('keyflow')
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        aims = Aim.objects.filter(casestudy__id=casestudy_pk)
+        objectives = UserObjective.objects.filter(
+            aim__casestudy__id=casestudy_pk,
+            user=user
+        )
+        if keyflow is not None:
+            aims = aims.filter(keyflow__id=keyflow)
+            objectives = objectives.filter(aim__keyflow__id=keyflow)
+        aims_in_objectives = objectives.values_list('aim__id', flat=True)
+        missing_aims = aims.exclude(id__in=aims_in_objectives)
+        # create missing objectives
+        for aim in missing_aims:
+            objective = UserObjective(aim=aim, user=user)
+            objective.save()
+        # requery changed objectives
+        if len(missing_aims) > 0:
+            objectives = UserObjective.objects.filter(
+                aim__casestudy__id=casestudy_pk,
+                user=user
+            )
+            if keyflow is not None:
+                objectives = objectives.filter(aim__keyflow__id=keyflow)
+        return objectives

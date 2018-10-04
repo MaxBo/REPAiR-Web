@@ -13,6 +13,7 @@ from repair.apps.statusquo.models.indicators import (SpatialChoice,
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from . import models
 
+
 class AimFactory(DjangoModelFactory):
     casestudy = factory.SubFactory(CaseStudyFactory)
     text = 'aim text'
@@ -33,7 +34,7 @@ class SustainabilityFieldFactory(DjangoModelFactory):
     name = 'name Sustainability Field'
 
     class Meta:
-        model = models.targets.SustainabilityField
+        model = models.aims.SustainabilityField
 
 
 class TargetValueFactory(DjangoModelFactory):
@@ -58,7 +59,7 @@ class AreaOfProtectionFactory(DjangoModelFactory):
     sustainability_field = factory.SubFactory(SustainabilityFieldFactory)
 
     class Meta:
-        model = models.targets.AreaOfProtection
+        model = models.aims.AreaOfProtection
 
 
 class ImpactCategoryFactory(DjangoModelFactory):
@@ -68,17 +69,6 @@ class ImpactCategoryFactory(DjangoModelFactory):
 
     class Meta:
         model = models.targets.ImpactCategory
-
-
-class TargetFactory(DjangoModelFactory):
-    user = factory.SubFactory(UserInCasestudyFactory)
-    aim = factory.SubFactory(AimFactory)
-    impact_category = factory.SubFactory(ImpactCategoryFactory)
-    target_value = factory.SubFactory(TargetValueFactory)
-    spatial_reference = factory.SubFactory(TargetSpatialReferenceFactory)
-
-    class Meta:
-        model = models.targets.Target
 
 
 class IndicatorFlowFactory(DjangoModelFactory):
