@@ -13,28 +13,13 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            UserInCasestudyField)
 from rest_framework.serializers import HyperlinkedModelSerializer
 from repair.apps.statusquo.models import (Aim,
-                                          AreaOfProtection,
                                           ImpactCategory,
                                           ImpactCategoryInSustainability,
                                           SustainabilityField,
-                                          Target,
                                           TargetSpatialReference,
                                           TargetValue,
                                           IndicatorCharacterisation,
                                           FlowTarget)
-
-
-class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'sustainability_pk': 'sustainability_field__id'}
-    name = serializers.CharField()
-    sustainability_field = IDRelatedField()
-
-    class Meta:
-        model = AreaOfProtection
-        fields = ('url',
-                  'id',
-                  'name',
-                  'sustainability_field')
 
 
 class ImpactCategorySerializer(NestedHyperlinkedModelSerializer):
@@ -72,25 +57,6 @@ class SustainabilityFieldSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url',
                   'id',
                   'name')
-
-
-class TargetSerializer(CreateWithUserInCasestudyMixin,
-                       NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'user__casestudy__id',
-                            'aim_pk': 'aim__id'}
-    impact_category = IDRelatedField()
-    target_value = IDRelatedField()
-    spatial_reference = IDRelatedField()
-    user = IDRelatedField(read_only=True)
-
-    class Meta:
-        model = Target
-        fields = ('url',
-                  'id',
-                  'impact_category',
-                  'target_value',
-                  'spatial_reference',
-                  'user')
 
 
 class TargetValueSerializer(NestedHyperlinkedModelSerializer):

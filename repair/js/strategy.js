@@ -53,12 +53,14 @@ require(['models/casestudy', 'views/strategy/solutions',
         var keyflowSession = session.get('keyflow');
         if (keyflowSession != null){
             keyflowSelect.value = keyflowSession;
-            var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
             // stored keyflow is not in select (most likely casestudy was accessed)
             if (keyflowSelect.selectedIndex === -1){
                 keyflowSelect.selectedIndex = 0;
             }
-            else renderKeyflow(parseInt(keyflowSession), keyflowName);
+            else {
+                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+                renderKeyflow(parseInt(keyflowSession), keyflowName);
+            }
         }
 
         keyflowSelect.addEventListener('change', function(){

@@ -18,7 +18,10 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
     $('#sidebar a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr("href") // activated tab
         if (target === '#flow-targets' && flowTargetsView){
-            flowTargetsView.reOrder();
+            flowTargetsView.updateOrder();
+        }
+        if (target === '#sustainability-targets' && sustainabilityTargetsView){
+            sustainabilityTargetsView.updateOrder();
         }
     });
 
@@ -27,6 +30,9 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
         sustainabilityTargetsView = new SustainabilityTargetsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            aims: aims,
+            userObjectives: userObjectives,
             el: document.getElementById('sustainability-targets'),
             template: 'sustainability-targets-template'
         })
@@ -101,12 +107,14 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
         var keyflowSession = session.get('keyflow');
         if (keyflowSession != null){
             keyflowSelect.value = keyflowSession;
-            var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
             // stored keyflow is not in select (most likely casestudy was accessed)
             if (keyflowSelect.selectedIndex === -1){
                 keyflowSelect.selectedIndex = 0;
             }
-            else renderKeyflow(parseInt(keyflowSession), keyflowName);
+            else {
+                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+                renderKeyflow(parseInt(keyflowSession), keyflowName);
+            }
         }
 
         keyflowSelect.addEventListener('change', function(){
