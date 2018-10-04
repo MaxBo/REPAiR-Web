@@ -487,6 +487,24 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   /*color: white;*/
 }
 
+.btn-group-toggle > .btn{
+  background-color: #f3f3f3;
+  border: solid 1px #c7c7c7;
+  color: #a5a5a5;;
+  padding: 15px;
+}
+
+.btn-group-toggle > .btn.active{
+  background-color: #a0c700;
+  border: solid 1px #a0c700;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-group-toggle > .btn:hover{
+  color: white;
+}
+
 .d3-overlay{
     position: absolute;
     font-size: 1em;

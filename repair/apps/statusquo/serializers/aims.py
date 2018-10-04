@@ -60,7 +60,7 @@ class AimPostSerializer(InCasestudySerializerMixin,
 
 
 class UserObjectiveSerializer(InCasestudySerializerMixin,
-                              NestedHyperlinkedModelSerializer):
+                              serializers.ModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'aim__casestudy__id'}
     aim = IDRelatedField()
     user = IDRelatedField()
