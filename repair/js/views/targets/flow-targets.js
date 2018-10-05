@@ -227,6 +227,10 @@ function(_, BaseView, GDSECollection, GDSEModel){
             })
             var warning = this.el.querySelector('.warning'),
                 content = this.el.querySelector('.targets');
+            if (this.indicators.length === 0) {
+                valid = false;
+                warning.innerHTML = gettext('No indicators available for the target definition. Please contact your workshop leader.');
+            }
             if (valid) {
                 warning.style.display = 'none';
                 content.style.display = 'block';
