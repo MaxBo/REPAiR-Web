@@ -291,7 +291,7 @@ class WasteSerializer(CompositionSerializer):
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
-    keyflow = IDRelatedField(allow_null=True)
+    #keyflow = IDRelatedField(allow_null=True)
     parent = IDRelatedField(allow_null=True)
     level = serializers.IntegerField(required=False, default=0)
 
@@ -302,13 +302,17 @@ class AllMaterialSerializer(serializers.ModelSerializer):
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
                          AllMaterialSerializer):
-    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      read_only=True)
+    #keyflow = IDRelatedField(allow_null=True)
+    #keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      #read_only=True)
     # keyflow filtering is done by "get_queryset"
     parent_lookup_kwargs = {}
         #'casestudy_pk': 'keyflow__casestudy__id',
         #'keyflow_pk': 'keyflow__id',
     #}
+    class Meta:
+        model = Material
+        fields = ('id', 'name', 'level', 'parent', 'keyflow')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):

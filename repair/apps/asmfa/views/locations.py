@@ -29,7 +29,10 @@ class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
 
     def get_queryset(self):
         locations = AdministrativeLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
@@ -48,7 +51,10 @@ class OperationalLocationViewSet(PostGetViewMixin, RevisionMixin,
 
     def get_queryset(self):
         locations = OperationalLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
@@ -64,7 +70,10 @@ class AdministrativeLocationOfActorViewSet(PostGetViewMixin, RevisionMixin,
 
     def get_queryset(self):
         locations = AdministrativeLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
@@ -80,7 +89,10 @@ class OperationalLocationsOfActorViewSet(PostGetViewMixin, RevisionMixin,
 
     def get_queryset(self):
         locations = OperationalLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")

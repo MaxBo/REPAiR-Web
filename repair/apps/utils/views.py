@@ -78,7 +78,7 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         # pk if route is /api/casestudies/ else casestudy_pk
         casestudy_id = kwargs.get('casestudy_pk') or kwargs.get('pk')
         try:
-            casestudy = CaseStudy.objects.get(id=casestudy_id)
+            casestudy = CaseStudy.objects.defer('geom', 'focusarea').get(id=casestudy_id)
             if not casestudy.userincasestudy_set.all().filter(user__id=user_id):
                 raise exceptions.PermissionDenied()
         except CaseStudy.DoesNotExist:
