@@ -31,8 +31,8 @@ class FlowType(Enum):
 
 
 class SpatialType(Enum):
-    BOTH = 1
-    WASTE = 2
+    REGION = 1
+    FOCUSAREA = 2
 
 
 class IndicatorFlow(GDSEModel):
@@ -75,3 +75,6 @@ class FlowIndicator(GDSEModel):
 
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
+
+    spatial_reference = EnumIntegerField(
+        enum=SpatialType, default=SpatialType.REGION)

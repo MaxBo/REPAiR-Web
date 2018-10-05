@@ -146,12 +146,14 @@ function(_, BaseView, GDSECollection, GDSEModel){
             var _this = this,
                 row = table.insertRow(-1),
                 indicatorSelect = document.createElement('select'),
-                spatialDiv = document.createElement('div'),
+                spatialInput = document.createElement('input'),
                 targetSelect = document.createElement('select'),
                 removeBtn = document.createElement('button');
 
             indicatorSelect.classList.add('form-control');
             targetSelect.classList.add('form-control');
+            spatialInput.classList.add('form-control');
+            spatialInput.disabled = true;
 
             removeBtn.classList.add("btn", "btn-warning", "square", "remove");
             // removeBtn.style.float = 'right';
@@ -185,11 +187,19 @@ function(_, BaseView, GDSECollection, GDSEModel){
             });
             targetSelect.value = target.get('target_value');
 
+            function setSpatialRef(indicatorId){
+                var spatialRef = _this.indicators.get(indicatorId).get('spatial_reference'),
+                    label = (spatialRef === 'REGION') ? gettext('Casestudy Region') : gettext('Focus Area');
+                spatialInput.value = label;
+            }
+            setSpatialRef(target.get('indicator'));
+
             indicatorSelect.addEventListener('change', function(){
                 target.save(
                     { indicator: this.value },
                     { patch: true, error: _this.onError }
-                )
+                );
+                setSpatialRef(this.value);
             })
 
             targetSelect.addEventListener('change', function(){
@@ -200,7 +210,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             })
 
             row.insertCell(-1).appendChild(indicatorSelect);
-            row.insertCell(-1).appendChild(spatialDiv);
+            row.insertCell(-1).appendChild(spatialInput);
             row.insertCell(-1).appendChild(targetSelect);
             row.insertCell(-1).appendChild(removeBtn);
 
