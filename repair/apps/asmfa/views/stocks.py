@@ -40,7 +40,10 @@ class StockViewSet(RevisionMixin,
                select_related('publication').\
                select_related("origin").\
                prefetch_related("composition__fractions").\
-               all()
+               all().defer(
+                "keyflow__note",
+                "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
 
 
 class GroupStockViewSet(StockViewSet):

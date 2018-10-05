@@ -72,17 +72,37 @@ fractions_struct = OrderedDict(material=None,
                                fraction=0
                                )
 
+def get_descendants(mat_id, mat_dict):
+    descendants = []
+    children = mat_dict.get(mat_id, [])
+    for child_id in children:
+        descendants.append(child_id)
+        descendants.extend(get_descendants(child_id, mat_dict))
+    return descendants
+
 def filter_by_material(materials, queryset):
     """filter queryset by their compositions,
     their fractions have to contain the given material or children
     of the material"""
     mats = []
+    all_materials = Material.objects.values_list('id', 'parent__id')
+    mat_dict = {}
+    for mat_id, parent_id in all_materials:
+        if not parent_id:
+            continue
+        parent_entry = mat_dict.get(parent_id)
+        if not parent_entry:
+            parent_entry = []
+            mat_dict[parent_id] = parent_entry
+        parent_entry.append(mat_id)
+
     for material in materials:
         # get the children of the given material
-        mats.extend(material.descendants)
+        mats.extend(get_descendants(material.id, mat_dict))
+        #mats.extend(material.descendants)
         # fractions have to contain children and the material itself
-        mats.append(material)
-    fractions = ProductFraction.objects.filter(material__in=mats)
+        mats.append(material.id)
+    fractions = ProductFraction.objects.filter(material__id__in=mats)
     # the compositions containing the filtered fractions
     compositions = fractions.values('composition')
     # the flows containing the filtered compositions
@@ -507,11 +527,14 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         model = self.serializer_class.Meta.model
         flows = model.objects.\
             select_related('keyflow__casestudy').\
-                select_related('publication').\
-                select_related("origin").\
-                select_related("destination").\
-                prefetch_related("composition__fractions").\
-                all()
+            select_related('publication').\
+            select_related("origin").\
+            select_related("destination").\
+            prefetch_related("composition__fractions").\
+            all().\
+            defer('keyflow__note').\
+            defer('keyflow__casestudy__geom').\
+            defer('keyflow__casestudy__focusarea')
 
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
