@@ -111,11 +111,11 @@ class IndicatorA(ComputeIndicator):
             return [OrderedDict({'area': -1, 'value': amount})]
         amounts = []
         if geom:
-            amount = self.sum(flow_a, geom)
+            amount = self.sum(flow_a, geom) if flow_a else 0
             amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
         for area in areas:
             geom = Area.objects.get(id=area).geom
-            amount = self.sum(flow_a, geom)
+            amount = self.sum(flow_a, geom) if flow_a else 0
             amounts.append(OrderedDict({'area': area, 'value': amount}))
         return amounts
 
