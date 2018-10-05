@@ -32,7 +32,7 @@ class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixi
     serializer_class = ActivityGroupSerializer
     queryset = ActivityGroup.objects.order_by('id')
     serializers = {'list': ActivityGroupListSerializer}
-    
+
     def get_queryset(self):
         groups = ActivityGroup.objects
         keyflow_pk = self.kwargs.get('keyflow_pk')
@@ -54,10 +54,13 @@ class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     serializer_class = ActivitySerializer
     queryset = Activity.objects.order_by('id')
     serializers = {'list': ActivityListSerializer}
-    
+
     def get_queryset(self):
         activities = Activity.objects.\
-            select_related("activitygroup")
+            select_related("activitygroup__keyflow__casestudy").defer(
+                "activitygroup__keyflow__note",
+                "activitygroup__keyflow__casestudy__geom",
+                "activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             activities = activities.filter(activitygroup__keyflow__id=keyflow_pk)
@@ -77,11 +80,14 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     serializer_class = ActorSerializer
     queryset = Actor.objects.order_by('id')
     serializers = {'list': ActorListSerializer}
-    
+
     def get_queryset(self):
         actors = Actor.objects.\
-            select_related("activity__activitygroup").\
-            prefetch_related('administrative_location')
+            select_related("activity__activitygroup__keyflow__casestudy").\
+            prefetch_related('administrative_location').defer(
+                "activity__activitygroup__keyflow__note",
+                "activity__activitygroup__keyflow__casestudy__geom",
+                "activity__activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             actors = actors.filter(

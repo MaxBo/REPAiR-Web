@@ -30,6 +30,11 @@ class FlowType(Enum):
     PRODUCT = 3
 
 
+class SpatialType(Enum):
+    BOTH = 1
+    WASTE = 2
+
+
 class IndicatorFlow(GDSEModel):
     origin_node_level = EnumIntegerField(
         enum=NodeLevel, default=NodeLevel.ACTOR)
