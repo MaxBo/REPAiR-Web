@@ -34,7 +34,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
 
-        this.focusAreaColor = '#aad400';
+        this.spatialItemColor = '#aad400';
 
         this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
@@ -107,7 +107,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var idx = Math.floor(this.areaLevels.length / 2);
             this.levelSelect.selectedIndex = idx;
         }
-        this.showFocusArea = true;
+        this.showSpatialItem = true;
 
         this.areaSelectGrid = new Muuri('#indicator-area-row', {
             dragAxis: 'x',
@@ -145,7 +145,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         this.initIndicatorMap();
         this.renderAreaModal();
-        this.addFocusAreaItem();
+        this.addSpatialItem();
         this.computeMapIndicator();
         this.renderBarChart();
         this.restoreSession();
@@ -425,8 +425,18 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         // focus area
         var indicator = this.indicators.get(this.indicatorId),
-            geom = this.caseStudy.get('properties').focusarea,
+            spatialRef = indicator.get('spatial_reference'),
+            geom = (spatialRef == 'REGION') ? this.caseStudy.get('geom') : this.caseStudy.get('properties').focusarea,
+            text = (spatialRef == 'REGION') ? gettext('Casestudy <br> Region') : gettext('Focus <br> Area'),
+            fontSize = (spatialRef == 'REGION') ? '35px' : '40px',
             indicatorId = _this.indicatorId;
+
+        var spatialItem = _this.areaSelectRow.querySelector('div.item[data-id="0"]'),
+            // ToDo: query by class (did not change the template yet to avoid git conflicts)
+            label = spatialItem.querySelector('.item-content>b');
+        label.style.fontSize = fontSize;
+        label.innerHTML = text;
+
         promises.push(
             indicator.compute({
                 method: "POST",
@@ -435,7 +445,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                     value = data[0].value;
                     // always prepend focus area
                     _this.chartData[indicatorId][0] = {
-                        name: gettext('Focus Area'),
+                        name: text,
                         value: value
                     };
                 },
@@ -466,12 +476,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             chartData = this.chartData[this.indicatorId],
             orderedSelects = this.getOrderedSelects();
         if (!chartData) return;
-        if (this.showFocusArea) {
+        if (this.showSpatialItem) {
             // focus area is fixed on pos 0, render first
             var focusData = chartData[0];
             categories.push(focusData.name);
             data.push({
-                color: this.focusAreaColor,
+                color: this.spatialItemColor,
                 y: focusData.value
             });
         };
@@ -521,13 +531,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     },
 
     // item for focus area
-    addFocusAreaItem: function(){
+    addSpatialItem: function(){
         var div = this.renderAreaBox(
                 this.areaSelectRow, 0,
-                'Focus <br> Area',
+                gettext('Region'),
                 {
                     fontSize: '40px',
-                    color: this.focusAreaColor
+                    color: this.spatialItemColor
                 }
             ),
             buttons = div.querySelectorAll('button'),
@@ -536,13 +546,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         for(var i = 0; i < buttons.length; i++)
             buttons[i].style.display = 'none';
         content.classList.remove('shaded');
-        function toggleFocusArea(){
-            _this.showFocusArea = !_this.showFocusArea;
-            content.style.opacity = (_this.showFocusArea) ? 1 : 0.7;
-            content.style.backgroundColor = (_this.showFocusArea) ? 'white' : '#eaeaea';
+        function toggleSpatialItem(){
+            _this.showSpatialItem = !_this.showSpatialItem;
+            content.style.opacity = (_this.showSpatialItem) ? 1 : 0.7;
+            content.style.backgroundColor = (_this.showSpatialItem) ? 'white' : '#eaeaea';
             _this.updateBarChart();
         }
-        div.addEventListener('click', toggleFocusArea);
+        div.addEventListener('click', toggleSpatialItem);
     },
 
     // remove an area item
@@ -568,7 +578,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         });
         var focusarea = this.caseStudy.get('properties').focusarea;
 
-        // add polygon of focusarea to both maps and center on their centroid
+        // and center on focus area
         if (focusarea != null){
             var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
             this.map.centerOnPolygon(poly, { projection: this.projection });
