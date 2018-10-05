@@ -163,7 +163,15 @@ class SessionView(View):
         response = self._session_dict
         response['mode'] = request.session.get('mode', self.MODES['Workshop'])
         response['language'] = request.LANGUAGE_CODE
-        #response['ssl'] = request.is_secure()
+
+        # sometimes (seems random) django forgets its latest session changes
+        # workaround: load them from the db
+        profile = Profile.objects.get(user=self.request.user)
+        persist = profile.session
+        if len(persist) > 0:
+            for k, v in json.loads(persist).items():
+                response[k] = v
+
         return JsonResponse(response)
 
 
