@@ -4,12 +4,13 @@
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-tagsinput.css" />
 
 <script type="text/template" id="strategy-template">
-<div class="row overflow bordered" style="overflow-y: hidden;">
-  <div class="grid solutions" style="float: left; height: 450px;">
-  </div>
-  <button title="{% trans "Add solution to your strategy" %}" id="add-solution-strategy-btn" class="btn btn-primary round" style="font-size: 25px; border-radius: 45px; position: relative; height: 45px; min-width: 45px; margin: 10px; margin-top: 200px;">
-    <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
-  </button>
+<h3> {% trans "Define your strategy for the keyflow" %} <i><%= keyflowName %></i> </h3>
+<button title="{% trans "Add implementation of solution to your strategy" %}" id="add-solution-strategy-btn" class="btn btn-primary">
+  <span class="glyphicon glyphicon-plus"></span>
+  {% trans "Implementation" %}
+</button>
+<div class="row overflow bordered" style="overflow-y: hidden; margin-top: 10px;">
+  <div class="grid solutions" style="float: left; height: 450px;"></div>
 </div>
 <div id="solution-strategy-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </div>
@@ -52,20 +53,20 @@
     <button class="btn btn-primary square edit" title="Edit solution" style="float: right; margin-right: 5px;">
       <span class="glyphicon glyphicon-pencil"></span>
     </button>
-    <h4 class='title' title="<%= solution.get('name') %>"> <%= solution.get('name') %> </h4>
+    <h5 class='title' title="<%= solution.get('name') %>"> <%= solution.get('name') %> </h5>
   </div>
   <div class="row">
     <div class='olmap' style="min-height: 200px; width: 100%;">
     </div>
   </div>
-  <div class="row handle">
-    <table style="margin: 0px; table-layout: fixed; width: 100%;">
+  <div class="row handle" style="font-size: 0.9em;">
+    <table style="margin: 0px; table-layout: fixed; width: 100%;" class="entry-table">
       <tr>
-        <td> {% trans "Quantity" %}:&nbsp; </td>
+        <td><label> {% trans "Quantity" %}:&nbsp; </label></td>
         <td class="quantity" style="overflow: hidden; text-overflow: ellipsis;"></td>
       </tr>
       <tr>
-        <td> {% trans "Implemented by" %}:&nbsp; </td>
+        <td><label> {% trans "Implemented by" %}:&nbsp; </label></td>
         <td class="implemented-by" style="overflow: hidden; text-overflow: ellipsis;">
           <%= stakeholderNames %>
         </td>
@@ -83,7 +84,7 @@
   <div class="modal-content col-md-12">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <h4 class="modal-title">{% trans "Edit solution " %} <b> <%= solution.get('name') %> </b></h4>
+      <h4 class="modal-title">{% trans "Edit the implementation of the solution " %} <i> <%= solution.get('name') %> </i></h4>
     </div>
     <div class="modal-body">
       <div class="row">
@@ -145,7 +146,7 @@
               <div class="row">
                 <h4> {% trans "Your strategy" %} </h4>
                 {% trans "In the strategy area, this quantities shall be implemented:" %}
-                <table id="implemented-quantities"></table>
+                <table id="implemented-quantities" class="entry-table"></table>
               </div>
             </div>
           </div>

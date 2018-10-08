@@ -5,7 +5,7 @@
 {% load render_bundle from webpack_loader %}
 
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans|Roboto" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
 
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
@@ -163,7 +163,7 @@
     <div id="page-content-wrapper">
       <!-- Keep all page content within the page-content inset div! -->
       <div class="page-content inset">
-        <div class="row">
+        <div class="row" style="padding: 0px;">
           <div id="content" class="col-md-12">
               {% block content %}{% endblock %}
             </div>

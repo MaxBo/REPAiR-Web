@@ -138,7 +138,8 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
         fields = ('id',
                   'solution',
                   'note', 'geom',
-                  'participants'
+                  'participants',
+                  'priority'
                   )
 
 

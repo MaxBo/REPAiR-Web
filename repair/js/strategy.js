@@ -8,28 +8,31 @@ require(['models/casestudy', 'views/strategy/solutions',
      * @module Changes
      */
 
-    renderWorkshop = function(caseStudy, keyflowId){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName){
         var solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
-            keyflowId: keyflowId
+            keyflowId: keyflowId,
+            keyflowName: keyflowName
         });
         var strategyView = new StrategyView({
             caseStudy: caseStudy,
             el: document.getElementById('strategy'),
             template: 'strategy-template',
-            keyflowId: keyflowId
+            keyflowId: keyflowId,
+            keyflowName: keyflowName
         })
     }
 
-    renderSetup = function(caseStudy, keyflowId){
+    renderSetup = function(caseStudy, keyflowId, keyflowName){
         var solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
             mode: 1,
-            keyflowId: keyflowId
+            keyflowId: keyflowId,
+            keyflowName: keyflowName
         })
     };
 
@@ -39,12 +42,12 @@ require(['models/casestudy', 'views/strategy/solutions',
         document.getElementById('keyflow-warning').style.display = 'block';
         keyflowSelect.disabled = false;
 
-        function renderKeyflow(keyflowId){
+        function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
             if (Number(mode) == 1)
-                renderSetup(caseStudy, keyflowId);
+                renderSetup(caseStudy, keyflowId, keyflowName);
             else
-                renderWorkshop(caseStudy, keyflowId);
+                renderWorkshop(caseStudy, keyflowId, keyflowName);
         }
 
         var keyflowSession = session.get('keyflow');
@@ -54,14 +57,18 @@ require(['models/casestudy', 'views/strategy/solutions',
             if (keyflowSelect.selectedIndex === -1){
                 keyflowSelect.selectedIndex = 0;
             }
-            else renderKeyflow(parseInt(keyflowSession));
+            else {
+                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+                renderKeyflow(parseInt(keyflowSession), keyflowName);
+            }
         }
 
         keyflowSelect.addEventListener('change', function(){
-            var keyflowId = this.value;
+            var keyflowId = this.value,
+                keyflowName = this.options[this.selectedIndex].text;
             session.set('keyflow', keyflowId);
             session.save();
-            renderKeyflow(keyflowId);
+            renderKeyflow(keyflowId, keyflowName);
         });
     }
 

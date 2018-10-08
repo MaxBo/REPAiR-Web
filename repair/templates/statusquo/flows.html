@@ -22,7 +22,7 @@
   <button id='upload-flowfilter-button' title="{% trans "upload changes made to filter" %}" class="btn btn-danger btn-upload">
     <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
   </button>
-  <table>
+  <table class="entry-table">
     <tr>
       <td style="width:1%;">{% trans "Name" %}</td>
       <td>
@@ -56,7 +56,7 @@
   </div>
   <div class="row">
     <div class="row" style="padding: 10px; border-top: 1px solid lightgrey;">
-      <label class="input-label">{% trans "Level" %} </label>
+      <h4 style="margin-right: 10px; margin-left: -10px; float: left;">{% trans "Level" %} </h4>
       <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
@@ -321,7 +321,7 @@
   </div>
   <div class="row">
     <div class="col-md-4">
-      <table>
+      <table class="entry-table">
         <tr>
           <td style="width:1%;">{% trans "Name" %}</td>
           <td>
@@ -344,10 +344,19 @@
             <input class="form-control" name="unit">
           </td>
         </tr>
+        <tr>
+          <td>{% trans "Spatial Reference" %}</td>
+          <td>
+            <select class="form-control" id="spatial-reference">
+              <option value='REGION'> {% trans "Casestudy Region" %} </option>
+              <option value='FOCUSAREA'> {% trans "Focus Area" %} </option>
+            </select>
+          </td>
+        </tr>
       </table>
     </div>
     <div class="col-md-4">
-      <table>
+      <table class="entry-table">
         <tr>
           <td valign="top" style="width:1%;">{% trans "Description" %}</td>
           <td>

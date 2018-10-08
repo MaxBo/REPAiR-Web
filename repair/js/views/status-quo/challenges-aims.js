@@ -90,6 +90,8 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     aims = _this.aims.filterBy({ keyflow: keyflow.id });
                 challenges.sort();
                 aims.sort();
+                // don't render empty keyflow panels in workshop mode
+                if (_this.mode == 0 && challenges.length === 0 && aims.length === 0) return;
                 _this.renderKeyflow(keyflow.get('name'), keyflow.id, aims, challenges);
             })
 
@@ -110,7 +112,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             }
         },
 
-        renderKeyflow(title, id, aims, challenges){
+        renderKeyflow: function(title, id, aims, challenges){
             var el = document.createElement('div'),
                 html = document.getElementById('challenges-aims-detail-template').innerHTML,
                 template = _.template(html),
@@ -159,7 +161,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             var items = grid.getItems(),
                 priority = 0;
             items.forEach(function(item){
-                var id = item._element.dataset.id,
+                var id = item.getElement().dataset.id,
                     model = collection.get(id);
                 model.set('priority', priority);
                 model.save();

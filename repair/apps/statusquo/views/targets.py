@@ -15,41 +15,25 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ReadUpdatePermissionViewSet)
 from rest_framework.response import Response
 from repair.apps.statusquo.serializers import (
-     AreaOfProtectionSerializer,
      ImpactCategorySerializer,
      ImpactCategoryInSustainabilitySerializer,
      SustainabilityFieldSerializer,
-     TargetSerializer,
      TargetSpatialReferenceSerializer,
-     TargetValueSerializer)
+     TargetValueSerializer,
+     FlowTargetSerializer,
+     AimSerializer,
+     AimPostSerializer
+)
 
 from repair.apps.statusquo.models import (
-    AreaOfProtection,
     ImpactCategory,
     ImpactCategoryInSustainability,
     SustainabilityField,
-    Target,
     TargetSpatialReference,
-    TargetValue)
-
-from repair.apps.statusquo.models import Aim
-from repair.apps.statusquo.serializers import (AimSerializer,
-                                               AimPostSerializer)
-
-
-class TargetViewSet(CasestudyViewSetMixin,
-                    ModelPermissionViewSet):
-    queryset = Target.objects.all()
-    serializer_class = TargetSerializer
-
-    def list(self, request, *args, **kwargs):
-
-        if (request.user.id and 'user' not in request.query_params and
-            'user__in' not in request.query_params):
-            self.queryset = self.queryset.filter(
-                user__user__user_id=request.user.id)
-
-        return super().list(request, *args, **kwargs)
+    TargetValue,
+    FlowTarget,
+    Aim
+)
 
 
 class SustainabilityFieldViewSet(ModelPermissionViewSet):
@@ -88,12 +72,6 @@ class ImpactCategoryInSustainabilityViewSet(ModelPermissionViewSet):
         return Response(serializer.data)
 
 
-class AreaOfProtectionViewSet(ModelPermissionViewSet):
-    queryset = AreaOfProtection.objects.all()
-    serializer_class = AreaOfProtectionSerializer
-    pagination_class = None
-
-
 class TargetValueViewSet(ModelPermissionViewSet):
     queryset = TargetValue.objects.all()
     serializer_class = TargetValueSerializer
@@ -104,3 +82,9 @@ class TargetSpatialReferenceViewSet(ModelPermissionViewSet):
     queryset = TargetSpatialReference.objects.all()
     serializer_class = TargetSpatialReferenceSerializer
     pagination_class = None
+
+
+class FlowTargetViewSet(CasestudyViewSetMixin,
+                        ModelPermissionViewSet):
+    queryset = FlowTarget.objects.all()
+    serializer_class = FlowTargetSerializer

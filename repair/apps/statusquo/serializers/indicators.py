@@ -2,7 +2,7 @@ from rest_framework import serializers
 from repair.apps.statusquo.models import (FlowIndicator, IndicatorFlow,
                                           KeyflowInCasestudy,
                                           IndicatorType, SpatialChoice,
-                                          FlowType, NodeLevel)
+                                          FlowType, NodeLevel, SpatialType)
 from repair.apps.utils.serializers import EnumField
 
 
@@ -32,6 +32,7 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
         'keyflow_pk': 'keyflow__id',
     }
     indicator_type = EnumField(enum=IndicatorType, required=False)
+    spatial_reference = EnumField(enum=SpatialType, required=False)
 
     class Meta:
         model = FlowIndicator
@@ -41,7 +42,8 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
                   'description',
                   'indicator_type',
                   'flow_a',
-                  'flow_b')
+                  'flow_b',
+                  'spatial_reference')
 
     def create(self, validated_data):
         flow_a = validated_data.pop('flow_a', None)

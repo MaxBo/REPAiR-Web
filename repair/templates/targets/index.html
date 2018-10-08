@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
+{% block title %}{% trans "REPAiR | Targets" %}{% endblock %}
+
 {% block sidebar %}
   {% if request.session.mode != 1 %}
   <script>
@@ -17,7 +19,8 @@
       </select>
       <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
     </div>
-    <li class="active"><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon glyphicon glyphicon-screenshot"></span></a></li>
+    <li class="active"><a href="#ranking-objectives" data-toggle="pill" style="font-size: 0.8em;">{% trans "Ranking Objectives" %} <span class="sub-icon fas fa-star" style="padding-top: 15px;"></span></a></li>
+    <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
     <li><a href="#sustainability-targets" data-toggle="pill" style="font-size: 0.8em;">{% trans "Sustainability Targets" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   </ul>
   {% endif %}
@@ -31,7 +34,8 @@
 <div class="tab-content">
   {% if request.session.mode != 1 %}
   <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
-  <div class="tab-pane fade active in" id="flow-targets"></div>
+  <div class="tab-pane fade active in" id="ranking-objectives"></div>
+  <div class="tab-pane fade" id="flow-targets"></div>
   <div class="tab-pane fade" id="sustainability-targets"></div>
   {% else %}
   <h2> {% trans "Workshop mode only" %} </h2>
@@ -39,6 +43,7 @@
 </div>
 
 {% if request.session.mode != 1 %} <!-- workshop -->
+{% include "targets/ranking-objectives.html" %}
 {% include "targets/flow-targets.html" %}
 {% include "targets/sustainability-targets.html" %}
 {% endif %}

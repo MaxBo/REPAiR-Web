@@ -33,6 +33,7 @@ var SolutionsView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.keyflowName = options.keyflowName;
         this.mode = options.mode || 0;
 
         // ToDo: replace with collections fetched from server
@@ -41,38 +42,21 @@ var SolutionsView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId]
         }),
 
-        this.loader.activate();
-        this.keyflows = new GDSECollection([], {
-            apiTag: 'keyflowsInCaseStudy', apiIds: [this.caseStudy.id]
+        this.activities = new GDSECollection([], {
+            apiTag: 'activities',
+            apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promises = [];
         this.units = new GDSECollection([], { apiTag: 'units' });
-        this.keyflows.fetch({
-            success: function(){
-                promises.push(_this.categories.fetch());
-                promises.push(_this.units.fetch());
-                _this.keyflows.forEach(function(keyflow){
-                    var activities = new GDSECollection([], {
-                        apiTag: 'activities',
-                        apiIds: [_this.caseStudy.id, keyflow.id]
-                    })
-                    promises.push(activities.fetch({
-                        success: function(response){
-                            keyflow.activities = response;
-                        }
-                    }));
-                })
+        promises.push(this.categories.fetch());
+        promises.push(this.units.fetch());
+        promises.push(this.activities.fetch());
 
-               Promise.all(promises).then(function(){
-                    _this.loader.deactivate();
-                    _this.render();
-                });
-            },
-            error: function(res){
-                _this.loader.deactivate();
-                _this.onError(res);
-            }
-        })
+        this.loader.activate();
+        Promise.all(promises).then(function(){
+            _this.loader.deactivate();
+            _this.render();
+        });
     },
 
     /*
@@ -90,7 +74,10 @@ var SolutionsView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({ mode: this.mode });
+        this.el.innerHTML = template({
+            mode: this.mode,
+            keyflowName: this.keyflowName
+        });
         var promises = [];
         this.categories.forEach(function(category){
             category.solutions = new GDSECollection([], {
@@ -251,7 +238,7 @@ var SolutionsView = BaseView.extend(
             checkedActivities: solution.get('activities') || [],
             category: category.get('name'),
             mode: this.mode,
-            keyflows: this.keyflows
+            activities: this.activities
         });
         this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
@@ -392,22 +379,10 @@ var SolutionsView = BaseView.extend(
         })
     },
 
-    // search for the keyflow of an activity
-    getKeyflow: function(activityId){
-        var keyflow = this.keyflows.find(function(keyflow){
-            var found = keyflow.activities.find(function(activity){
-                return activity.id == activityId;
-            });
-            return found != null;
-        })
-        return keyflow;
-    },
-
     // render the administrative locations of all actors of activity with given id
     renderActivityOnMap: function(activityId){
         var _this = this;
-        var keyflowId = this.getKeyflow(activityId).id,
-            actorUrl = config.api.actors.format(this.caseStudy.id, keyflowId);
+        var actorUrl = config.api.actors.format(this.caseStudy.id, this.keyflowId);
         var checkList = document.getElementById('activities-checks');
         if (checkList){
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
@@ -424,7 +399,7 @@ var SolutionsView = BaseView.extend(
                 var actorIds = [];
                 response.results.forEach(function(actor){ actorIds.push(actor.id) });
                 if (actorIds.length > 0){
-                    var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, keyflowId);
+                    var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, _this.keyflowId);
                     adminLocUrl += '?actor__in=' + actorIds.toString();
                     _this.map.addLayer('actors' + activityId, {
                         source: {

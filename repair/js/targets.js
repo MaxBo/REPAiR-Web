@@ -1,7 +1,10 @@
-require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
-         'views/common/baseview', 'app-config', 'utils/overrides', 'base'
-], function (d3, CaseStudy, SustainabilityTargetsView, FlowTargetsView,
-            appConfig) {
+require(['d3', 'models/casestudy', 'collections/gdsecollection',
+         'views/targets/sustainability-targets',
+         'views/targets/flow-targets', 'views/targets/ranking-objectives',
+         'app-config', 'utils/utils', 'utils/overrides', 'base'
+], function (d3, CaseStudy, GDSECollection,
+             SustainabilityTargetsView, FlowTargetsView,
+             RankingObjectivesView, appConfig, utils) {
 
     /**
      * entry point for views on subpages of "Targets" menu item
@@ -10,13 +13,26 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
      * @module Targets
      */
 
-    var sustainabilityTargetsView, flowTargetsView;
+    var sustainabilityTargetsView, flowTargetsView, rankingObjectivesView;
 
-    renderWorkshop = function(caseStudy, keyflowId){
+    $('#sidebar a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href") // activated tab
+        if (target === '#flow-targets' && flowTargetsView){
+            flowTargetsView.updateOrder();
+        }
+        if (target === '#sustainability-targets' && sustainabilityTargetsView){
+            sustainabilityTargetsView.updateOrder();
+        }
+    });
+
+    renderWorkshop = function(caseStudy, keyflowId, userObjectives, aims, keyflowName){
         if (sustainabilityTargetsView) sustainabilityTargetsView.close();
         sustainabilityTargetsView = new SustainabilityTargetsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            aims: aims,
+            userObjectives: userObjectives,
             el: document.getElementById('sustainability-targets'),
             template: 'sustainability-targets-template'
         })
@@ -24,10 +40,22 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
         flowTargetsView = new FlowTargetsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            aims: aims,
+            userObjectives: userObjectives,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template'
         })
-        flowTargetsView.render();
+        if (rankingObjectivesView) rankingObjectivesView.close();
+        rankingObjectivesView = new RankingObjectivesView({
+            caseStudy: caseStudy,
+            keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            aims: aims,
+            userObjectives: userObjectives,
+            el: document.getElementById('ranking-objectives'),
+            template: 'ranking-objectives-template'
+        })
     };
 
     renderSetup = function(caseStudy, keyflowId){
@@ -39,12 +67,41 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
         document.getElementById('keyflow-warning').style.display = 'block';
         keyflowSelect.disabled = false;
 
-        function renderKeyflow(keyflowId){
+        function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
-            if (Number(mode) == 1)
-                renderSetup(caseStudy, keyflowId);
-            else
-                renderWorkshop(caseStudy, keyflowId);
+            // all sub views of Targets work on the same aims and objectives
+            var loader = new utils.Loader(document.getElementById('content'),
+                                         { disable: true });
+            loader.activate();
+            var aims = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [caseStudy.id],
+                comparator: 'priority'
+            });
+            var userObjectives = new GDSECollection([], {
+                apiTag: 'userObjectives',
+                apiIds: [caseStudy.id],
+                comparator: 'priority'
+            });
+            userObjectives.sort();
+
+            var promises = [];
+            promises.push(aims.fetch({
+                data: { keyflow: keyflowId },
+                error: alert
+            }));
+            promises.push(userObjectives.fetch({
+                data: { keyflow: keyflowId },
+                error: alert
+            }));
+
+            Promise.all(promises).then(function(){
+                loader.deactivate();
+                if (Number(mode) == 1)
+                    renderSetup(caseStudy, keyflowId);
+                else
+                    renderWorkshop(caseStudy, keyflowId, userObjectives, aims, keyflowName);
+            });
         }
 
         var keyflowSession = session.get('keyflow');
@@ -54,14 +111,18 @@ require(['d3', 'models/casestudy', 'views/targets/sustainability-targets',
             if (keyflowSelect.selectedIndex === -1){
                 keyflowSelect.selectedIndex = 0;
             }
-            else renderKeyflow(parseInt(keyflowSession));
+            else {
+                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+                renderKeyflow(parseInt(keyflowSession), keyflowName);
+            }
         }
 
         keyflowSelect.addEventListener('change', function(){
-            var keyflowId = this.value;
+            var keyflowId = this.value,
+                keyflowName = this.options[this.selectedIndex].text;
             session.set('keyflow', keyflowId);
             session.save();
-            renderKeyflow(keyflowId);
+            renderKeyflow(keyflowId, keyflowName);
         });
     }
 

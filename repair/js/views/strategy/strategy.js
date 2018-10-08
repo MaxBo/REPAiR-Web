@@ -1,8 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection/',
-        'visualizations/map', 'utils/utils', 'muuri', 'openlayers', 'bootstrap',
-        'bootstrap-select'],
+        'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
+        'app-config', 'bootstrap', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Map, utils, Muuri, ol){
+function(BaseView, _, GDSECollection, Map, utils, Muuri, ol, config){
 /**
 *
 * @author Christoph Franke
@@ -29,6 +29,7 @@ var StrategyView = BaseView.extend(
         _.bindAll(this, 'renderSolution');
         var _this = this;
         this.caseStudy = options.caseStudy;
+        this.keyflowName = options.keyflowName;
         this.keyflowId = options.keyflowId;
 
         this.stakeholderCategories = new GDSECollection([], {
@@ -105,13 +106,13 @@ var StrategyView = BaseView.extend(
     * render the view
     */
     render: function(){
-
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
         this.el.innerHTML = template({
             stakeholderCategories: this.stakeholderCategories,
-            solutionCategories: this.solutionCategories
+            solutionCategories: this.solutionCategories,
+            keyflowName: this.keyflowName
         });
         $('#solution-select').selectpicker();
 
@@ -122,7 +123,8 @@ var StrategyView = BaseView.extend(
 
         this.solutionsInStrategy = new GDSECollection([], {
             apiTag: 'solutionsInStrategy',
-            apiIds: [this.caseStudy.id, this.keyflowId, this.strategy.id]
+            apiIds: [this.caseStudy.id, this.keyflowId, this.strategy.id],
+            comparator: 'priority'
         });
 
         this.strategyGrid = new Muuri(this.el.querySelector('.solutions'), {
@@ -143,8 +145,13 @@ var StrategyView = BaseView.extend(
             }
         });
 
+        this.strategyGrid.on('dragEnd', function (item) {
+            _this.saveOrder();
+        });
+
         this.solutionsInStrategy.fetch({
             success: function(){
+                _this.solutionsInStrategy.sort();
                 _this.solutionsInStrategy.forEach(function(solInStrategy){
                     _this.renderSolution(solInStrategy);
                 })
@@ -175,6 +182,8 @@ var StrategyView = BaseView.extend(
                 success: function(){
                     $(addModal).modal('hide');
                     var solItem = _this.renderSolution(solInStrategy);
+                    _this.saveOrder();
+                    _this.editSolution(solInStrategy, solItem);
                 },
                 error: _this.onError
             },
@@ -206,6 +215,8 @@ var StrategyView = BaseView.extend(
             if (solution != null) break;
         }
 
+        if (!solution) return;
+
         var stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
 
@@ -225,6 +236,7 @@ var StrategyView = BaseView.extend(
             solution: solution,
             stakeholderNames: stakeholderNames.join(', ')
         });
+        el.dataset['id'] = solutionInStrategy.id;
 
         squantities.fetch({success: function(){
             squantities.forEach(function(quantity){
@@ -409,6 +421,8 @@ var StrategyView = BaseView.extend(
         mapDiv.innerHTML = '';
         previewMap = new Map({
             el: document.getElementById(divid),
+            enableZoom: false,
+            showControls: false
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
@@ -512,6 +526,17 @@ var StrategyView = BaseView.extend(
             _this.editorMap.removeSelectedFeatures('drawing');
         })
     },
+
+    saveOrder: function(){
+        var items = this.strategyGrid.getItems(),
+            i = 0,
+            _this = this;
+        items.forEach(function(item){
+            var id = item.getElement().dataset['id'];
+            _this.solutionsInStrategy.get(id).save({ priority: i })
+            i++;
+        });
+    }
 
 });
 return StrategyView;

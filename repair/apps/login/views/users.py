@@ -23,6 +23,7 @@ from repair.apps.login.serializers import (UserSerializer,
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ReadUpdatePermissionViewSet)
+from django.contrib.gis.db.models.functions import PointOnSurface
 from repair.apps.login.models import Profile
 
 
@@ -53,18 +54,24 @@ class CaseStudyViewSet(RevisionMixin,
     serializer_class = CaseStudySerializer
     serializers = {'list': CaseStudyListSerializer,}
 
+    # override list view (don't check permission, everyone can see the
+    # overview of the casestudies)
     def list(self, request, **kwargs):
-        # TODO: this overwrites the list function of ModelPermissionTest
-        # -> Permission is not checked!
-        self.check_permission(request, 'view')
-        user_id = -1 if request.user.id is None else request.user.id
-        casestudies = set()
-        for casestudy in self.queryset:
-            if casestudy.userincasestudy_set.all().filter(user__id=user_id):
-                casestudies.add(casestudy)
-        serializer = self.serializer_class(casestudies, many=True,
+        queryset = CaseStudy.objects.all() if request.query_params.get('all') \
+            else self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True,
                                            context={'request': request, })
         return Response(serializer.data)
+
+    def get_queryset(self):
+        user_id = -1 if self.request.user.id is None else self.request.user.id
+        ids = []
+        queryset = CaseStudy.objects.all()
+        for casestudy in queryset:
+            if casestudy.userincasestudy_set.all().filter(user__id=user_id):
+                ids.append(casestudy.id)
+        casestudies = queryset.filter(id__in=ids)
+        return casestudies
 
 
 class UserInCasestudyViewSet(CasestudyViewSetMixin,
@@ -100,7 +107,7 @@ class SessionView(View):
         'Setup': 1,
     }
     EXCLUDE_PERSIST = ['url_pks', 'csrfmiddlewaretoken', 'language']
-    
+
     def persist(self):
         profile = Profile.objects.get(user=self.request.user)
         persist = self._session_dict
@@ -111,7 +118,7 @@ class SessionView(View):
         if not request.user.is_authenticated:
             return HttpResponse(_('Unauthorized'), status=401)
         _next = None
-        
+
         # form data
         if request.content_type in ['application/x-www-form-urlencoded',
                                     'multipart/form-data']:
@@ -136,14 +143,14 @@ class SessionView(View):
             if mode not in self.MODES.values():
                 return HttpResponseBadRequest('invalid mode')
             request.session['mode'] = mode
-        
+
         self.persist()
-        
+
         if (_next):
             return HttpResponseRedirect(_next)
         else:
             return self.get(request)
-    
+
     @property
     def _session_dict(self):
         return {k: v for k, v in self.request.session.items()
@@ -156,18 +163,25 @@ class SessionView(View):
         response = self._session_dict
         response['mode'] = request.session.get('mode', self.MODES['Workshop'])
         response['language'] = request.LANGUAGE_CODE
-        #response['ssl'] = request.is_secure()
+
+        # sometimes (seems random) django forgets its latest session changes
+        # workaround: load them from the db
+        profile = Profile.objects.get(user=self.request.user)
+        persist = profile.session
+        if len(persist) > 0:
+            for k, v in json.loads(persist).items():
+                response[k] = v
+
         return JsonResponse(response)
 
 
 class PasswordChangeView(auth_views.PasswordChangeView):
     def get(self, request, *args, **kwargs):
         if not request.user.profile.can_change_password:
-            return HttpResponse(_('Unauthorized'), status=401) 
+            return HttpResponse(_('Unauthorized'), status=401)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if not request.user.profile.can_change_password:
-            return HttpResponse(_('Unauthorized'), status=401) 
+            return HttpResponse(_('Unauthorized'), status=401)
         return super().post(request, *args, **kwargs)
-    

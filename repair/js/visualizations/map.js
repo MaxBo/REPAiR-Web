@@ -18,6 +18,8 @@ define([
         * @param {Object} options
         * @param {string} options.el                           the HTMLElement to render the map into
         * @param {boolean} [options.renderOSM=true]            render default background map
+        * @param {boolean} [options.showControls=true]         show zoom and fullscreen controls as overlay
+        * @param {boolean} [options.enableZoom=true]   enable zoom interactions
         * @param {string} [options.projection='EPSG:3857']     projection of the map
         * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
         *
@@ -27,6 +29,8 @@ define([
             this.idCounter = 0;
             this.mapProjection = options.projection || 'EPSG:3857';
             this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
+            var showControls = (options.showControls != false) ? true : false,
+                enableZoom = (options.enableZoom != false) ? true : false;
 
             this.view = new ol.View({
                 projection: this.mapProjection,
@@ -48,18 +52,29 @@ define([
             var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
             initlayers.push(basicLayer);
 
+            var controls = (showControls) ? ol.control.defaults({
+                                    attributionOptions: ({
+                                        collapsible: false
+                                    })}).extend([
+                                        new ol.control.FullScreen({source: options.el})
+                                    ]) : [];
+            var interactions = (enableZoom) ? null : ol.interaction.defaults({
+                                                        doubleClickZoom :false,
+                                                        dragAndDrop: false,
+                                                        keyboardPan: false,
+                                                        keyboardZoom: false,
+                                                        mouseWheelZoom: false,
+                                                        pointer: false,
+                                                        select: false
+                                                    });
+
             this.layers = { basic: basicLayer };
 
             this.map = new ol.Map({
                 layers: initlayers,
+                interactions: interactions,
                 target: options.el,
-                controls: ol.control.defaults({
-                    attributionOptions: ({
-                        collapsible: false
-                    })
-                }).extend([
-                    new ol.control.FullScreen({source: options.el})
-                ]),
+                controls: controls,
                 view: this.view
             });
 

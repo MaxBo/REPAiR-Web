@@ -52,8 +52,9 @@ from repair.apps.asmfa.views import (
 
 from repair.apps.statusquo.views import (
     AimViewSet,
+    UserObjectiveViewSet,
     ChallengeViewSet,
-    TargetViewSet,
+    FlowTargetViewSet,
     SustainabilityFieldViewSet,
     ImpactcategoryViewSet,
     ImpactCategoryInSustainabilityViewSet,
@@ -83,6 +84,7 @@ router.register(r'sustainabilities', SustainabilityFieldViewSet)
 router.register(r'impactcategories', ImpactcategoryViewSet)
 router.register(r'targetvalues', TargetValueViewSet)
 router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
+router.register(r'areasofprotection', AreaOfProtectionViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 # / sustainabilities/../
@@ -101,13 +103,15 @@ cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
+cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 
-# /casestudies/*/aims/...
-aimscat_router = NestedSimpleRouter(cs_router, r'aims',
-                                    lookup='aim')
-aimscat_router.register(r'targets', TargetViewSet)
+
+# /casestudies/*/userobjectives/...
+uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
+                               lookup='userobjective')
+uo_router.register(r'flowtargets', FlowTargetViewSet)
 
 # /casestudies/*/layercategories/...
 layercat_router = NestedSimpleRouter(cs_router, r'layercategories',
@@ -197,5 +201,5 @@ urlpatterns = [
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),
     url(r'^', include(layercat_router.urls)),
-    url(r'^', include(aimscat_router.urls))
+    url(r'^', include(uo_router.urls))
 ]

@@ -30,6 +30,11 @@ class FlowType(Enum):
     PRODUCT = 3
 
 
+class SpatialType(Enum):
+    REGION = 1
+    FOCUSAREA = 2
+
+
 class IndicatorFlow(GDSEModel):
     origin_node_level = EnumIntegerField(
         enum=NodeLevel, default=NodeLevel.ACTOR)
@@ -45,17 +50,17 @@ class IndicatorFlow(GDSEModel):
 
     spatial_application = EnumIntegerField(
         enum=SpatialChoice, default=SpatialChoice.BOTH)
-    
+
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
 
 
 class FlowIndicator(GDSEModel):
-    
+
     name = models.CharField(max_length=255)
     unit = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
-    
+
     indicator_type = EnumIntegerField(
         enum=IndicatorType, default=IndicatorType.IndicatorA)
 
@@ -70,4 +75,6 @@ class FlowIndicator(GDSEModel):
 
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
-    
+
+    spatial_reference = EnumIntegerField(
+        enum=SpatialType, default=SpatialType.REGION)

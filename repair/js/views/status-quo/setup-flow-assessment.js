@@ -108,6 +108,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.inputs = {
             name: this.el.querySelector('input[name="name"]'),
             'indicator_type': this.el.querySelector('#indicator-type'),
+            'spatial_reference': this.el.querySelector('#spatial-reference'),
             unit: this.el.querySelector('input[name="unit"]'),
             description: this.el.querySelector('textarea[name="description"]')
         }
@@ -116,6 +117,7 @@ var FlowAssessmentSetupView = BaseView.extend(
 
         this.inputs.name.value = indicator.get('name');
         this.inputs['indicator_type'].value = type;
+        this.inputs['spatial_reference'].value = indicator.get('spatial_reference');
         this.inputs.unit.value = indicator.get('unit');
         this.inputs.description.value = indicator.get('description');
 

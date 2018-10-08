@@ -8,7 +8,8 @@ var entryPoints = {
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
     Targets:   './js/targets',
-    Strategy:   './js/strategy',
+    Strategy:  './js/strategy',
+    Welcome:   './js/welcome',
     Base:      './js/base',
 };
 
@@ -45,7 +46,8 @@ module.exports = {
             d3: 'd3',
             $: "jquery",
             jQuery: "jquery"
-        })
+        }),
+        new webpack.IgnorePlugin(/^codemirror$/)
     ],
 
     node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true },

@@ -112,7 +112,7 @@
     <div class="col-md-1"></div>
     <div class="col-md-11">
       <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
-      <table style="margin: 0px;">
+      <table style="margin: 0px;" class="entry-table">
       <% _.each(resource.get('layers'), function(layer){ %>
         <tr>
           <td><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
