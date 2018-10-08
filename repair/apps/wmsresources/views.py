@@ -61,7 +61,9 @@ class WMSProxyView(View):
             session.auth = (res.username, res.password)
         session.params = query_params
         try:
-            response = retry_session(session=session).get(uri, auth=(res.username, res.password))
+            response = retry_session(session=session).get(
+                uri, auth=(res.username, res.password),
+                timeout=0.5)
         except Exception as e:
             print(e)
             return HttpResponse(status=502)
