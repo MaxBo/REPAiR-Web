@@ -114,6 +114,12 @@ div.fullscreen{
   color: white;
 }
 
+/*summernote tooltip*/
+.tooltip[role="tooltip"]{
+  position: absolute!important;
+  background: white;
+}
+
 #wrapper {
   /*transition: all .4s ease 0s;*/
   height: 100%;
