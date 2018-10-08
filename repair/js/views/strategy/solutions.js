@@ -1,7 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'visualizations/map', 'app-config', 'utils/utils', 'bootstrap'],
+        'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
+        'utils/utils', 'bootstrap', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, Map, config, utils){
+function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config, utils){
 /**
 *
 * @author Christoph Franke
@@ -242,6 +243,8 @@ var SolutionsView = BaseView.extend(
         });
         this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
+        if (this.viewer) this.viewer.destroy();
+        this.viewer = new Viewer.default(modal);
 
         // add buttons and listeners for editing the solution in setup mode
         if (this.mode == 1){
@@ -379,41 +382,94 @@ var SolutionsView = BaseView.extend(
         })
     },
 
+    addToLegend: function(activityId, color){
+        var legend = this.el.querySelector('#legend'),
+            itemsDiv = legend.querySelector('.items'),
+            legendDiv = document.createElement('li'),
+            square = document.createElement('div'),
+            textDiv = document.createElement('div'),
+            head = document.createElement('b'),
+            img = document.createElement('img'),
+            activity = this.activities.get(activityId);
+        legendDiv.dataset['id'] = activityId;
+        textDiv.innerHTML = activity.get('name');
+        textDiv.style.overflow = 'hidden';
+        textDiv.style.textOverflow = 'ellipsis';
+        legendDiv.appendChild(square);
+        legendDiv.appendChild(textDiv);
+        square.style.backgroundColor = color;
+        square.style.float = 'left';
+        square.style.width = '20px';
+        square.style.height = '20px';
+        square.style.marginRight = '5px';
+        itemsDiv.appendChild(legendDiv);
+    },
+
+    removeFromLegend: function(activityId){
+        var legend = this.el.querySelector('#legend'),
+            itemsDiv = legend.querySelector('.items');
+            entry = itemsDiv.querySelector('li[data-id="' + activityId + '"]');
+        itemsDiv.removeChild(entry);
+    },
+
     // render the administrative locations of all actors of activity with given id
     renderActivityOnMap: function(activityId){
-        var _this = this;
-        var actorUrl = config.api.actors.format(this.caseStudy.id, this.keyflowId);
-        var checkList = document.getElementById('activities-checks');
+        var _this = this,
+            activity = this.activities.get(activityId),
+            activityName = activity.get('name'),
+            checkList = document.getElementById('activities-checks');
         if (checkList){
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
             loader.activate();
         }
-        // fetch them as json instead of a collection, reduces unnessecary memory overhead
-        $.ajax({
-            url: actorUrl,
-            type: "GET",
-            dataType: "json",
-            data: { activity: activityId, page_size: 100000, included: "True" },
-            success: function(response){
-                if (checkList) loader.deactivate();
-                var actorIds = [];
-                response.results.forEach(function(actor){ actorIds.push(actor.id) });
-                if (actorIds.length > 0){
-                    var adminLocUrl = config.api.adminLocations.format(_this.caseStudy.id, _this.keyflowId);
-                    adminLocUrl += '?actor__in=' + actorIds.toString();
-                    _this.map.addLayer('actors' + activityId, {
-                        source: {
-                            url: adminLocUrl
-                        }
-                    })
-                }
+        var actors = new GDSECollection([], {
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        })
+        var color = utils.colorByName(activity.get('name')),
+            layername = 'actors' + activityId;
+        _this.map.addLayer(layername, {
+            stroke: 'black',
+            fill: color,
+            strokeWidth: 1,
+            zIndex: 1
+        });
+        actors.fetch({
+            data: { activity: activityId, included: "True" },
+            success: function(){
+                var actorIds = actors.pluck('id'),
+                    locations = new GeoLocations([],{
+                        apiTag: 'adminLocations',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId]
+                    });
+                var data = {};
+                data['actor__in'] = actorIds.toString();
+                locations.fetch({
+                    data: data,
+                    success: function(){
+                        locations.forEach(function(loc){
+                            var properties = loc.get('properties'),
+                                actor = actors.get(properties.actor),
+                                geom = loc.get('geometry');
+                            _this.map.addGeometry(geom.get('coordinates'), {
+                                projection: _this.projection,
+                                layername: layername,
+                                tooltip: activityName + '<br>' + actor.get('name'),
+                                type: 'Point'
+                            });
+                        })
+                        loader.deactivate();
+                    }
+                })
             }
         })
+        this.addToLegend(activityId, color);
     },
 
     // remove the actors of activity with given id from map
     removeActivityFromMap: function(activityId){
         this.map.removeLayer('actors' + activityId);
+        this.removeFromLegend(activityId);
     },
 
     /*

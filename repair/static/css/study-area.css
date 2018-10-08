@@ -66,8 +66,3 @@
     font-size: 10px;
     text-align: center;
 }
-
-/* put overlay viewerjs on top of navbar*/
-.viewer-container.viewer-in{
-    z-index: 10000!important;
-}

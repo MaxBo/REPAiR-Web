@@ -188,9 +188,9 @@ define([
 
             var image = new ol.style.Circle({
                 radius: 5,
-                fill: new ol.style.Fill({ color: options.stroke || 'rgb(100, 150, 250)' }),
+                fill: new ol.style.Fill({ color: options.fill || 'rgb(100, 150, 250)' }),
                 stroke: new ol.style.Stroke({
-                    color: options.fill || 'rgba(100, 150, 250, 0.1)',
+                    color: options.stroke || 'rgba(100, 150, 250, 0.1)',
                     width: options.strokeWidth || 3
                 })
             });

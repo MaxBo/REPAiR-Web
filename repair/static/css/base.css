@@ -644,3 +644,9 @@ div.panel-item:hover label{
   left: auto;
   width: inherit;
 }
+
+/* put overlay viewerjs on top of navbar*/
+.viewer-container.viewer-in{
+    z-index: 10000!important;
+}
+
