@@ -420,6 +420,11 @@ button.square, button.round, .btn.square, .btn.round {
 .btn-primary {
   background-color: #aad400;
   border: solid 1px #aad400;
+  min-height: 25px;
+  min-width: 25px;
+}
+
+button.d3-overlay {
   min-height: 30px;
   min-width: 30px;
 }
