@@ -1,8 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'models/gdsemodel', 'app-config', 'jstree',
-        'static/css/jstree/gdsetouch/style.css'],
+        'models/gdsemodel', 'viewerjs', 'app-config', 'jstree',
+        'static/css/jstree/gdsetouch/style.css', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config){
+function(BaseView, _, GDSECollection, GDSEModel, Viewer, config){
 /**
 *
 * @author Christoph Franke
@@ -58,7 +58,6 @@ var BaseChartsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
         'click #chart-tree-buttons>.add': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
@@ -196,6 +195,9 @@ var BaseChartsView = BaseView.extend(
         if (node.type === 'chart'){
             preview.src = node.original.chart.get('image');
             preview.style.display = 'inline';
+            preview.alt = node.original.chart.get('name');
+            if (this.viewer) this.viewer.destroy();
+            this.viewer = new Viewer.default(preview);
         }
         else {
             // category selected in setup mode -> no image; keep previous one in workshop mode
@@ -381,10 +383,6 @@ var BaseChartsView = BaseView.extend(
             title: gettext('Edit Name'),
             onConfirm: onConfirm
         })
-    },
-
-    toggleFullscreen: function(event){
-        event.target.parentElement.classList.toggle('fullscreen');
     }
 
 });
