@@ -1,7 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'visualizations/map', 'app-config', 'utils/utils', 'bootstrap'],
+        'visualizations/map', 'viewerjs', 'app-config', 'utils/utils',
+        'bootstrap', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, Map, config, utils){
+function(BaseView, _, GDSECollection, Map, Viewer, config, utils){
 /**
 *
 * @author Christoph Franke
@@ -242,6 +243,8 @@ var SolutionsView = BaseView.extend(
         });
         this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
+        if (this.viewer) this.viewer.destroy();
+        this.viewer = new Viewer.default(modal);
 
         // add buttons and listeners for editing the solution in setup mode
         if (this.mode == 1){
