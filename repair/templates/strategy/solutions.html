@@ -40,7 +40,7 @@
           <div class="tab-pane fade in active" id="description-tab">
             <div class="col-md-12 bordered">
               <div class="row">
-                <textarea name="description" rows="10" cols="100" style="max-width: 100%;" <% if (mode == 0) { %> disabled <% } %>><%= description %></textarea>
+                <textarea name="description" rows="10" cols="100" style="max-width: 100%;" <% if (mode == 0) { %> readonly <% } %>><%= description %></textarea>
               </div>
             </div>
           </div>
@@ -87,8 +87,7 @@
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
-                    <button class="fas fa-expand btn btn-primary chart-control fullscreen-toggle d3-overlay"></button>
+                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "Current state" %}">
                   </div>
                 </div>
               </div>
@@ -101,8 +100,7 @@
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
-                    <button class="fas fa-expand btn btn-primary chart-control fullscreen-toggle d3-overlay"></button>
+                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "Effect of Solution" %}">
                   </div>
                 </div>
               </div>
@@ -126,8 +124,7 @@
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%" alt="{% trans "No Image found" %}">
-                    <button class="fas fa-expand btn btn-primary chart-control fullscreen-toggle d3-overlay"></button>
+                    <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%" alt="{% trans "Activities involved" %}">
                   </div>
                 </div>
               </div>
@@ -136,6 +133,16 @@
           <div class="tab-pane fade in" id="actors-tab">
             <div class="col-md-12 bordered">
               <div class="olmap" id='actors-map'>
+                <div id='legend' class="bordered workshop">
+                  <div class="row" data-toggle="collapse" data-target="#legend>.items">
+                    <button class="btn btn-primary square inverted">
+                      <span class="glyphicon glyphicon-eye-open"></span>
+                    </button>
+                    <h4> {% trans "Legend" %} </h4>
+                  </div>
+                  <div class="items collapse" style="padding: 5px; list-style: none;">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
