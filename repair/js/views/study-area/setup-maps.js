@@ -1,4 +1,4 @@
-define(['backbone', 'underscore', 'views/study-area/workshop-maps', 
+define(['backbone', 'underscore', 'views/study-area/workshop-maps',
         'collections/gdsecollection', 'models/gdsemodel',
         'visualizations/map', 'app-config'],
 
@@ -32,7 +32,7 @@ var SetupMapsView = BaseMapView.extend(
         'click #layer-tree-buttons>.edit': 'editName',
         'click #refresh-wms-services-button': 'renderAvailableServices',
     },
-    
+
     // determines if a layer is checked on start ('included' layers in setup mode)
     isChecked: function(layer){
         return layer.get('included');
@@ -65,12 +65,12 @@ var SetupMapsView = BaseMapView.extend(
         this.renderAvailableServices();
         this.renderMap();
     },
-    
+
     rerenderTree: function(){
         $(this.layerTree).jstree("destroy");
         this.renderLayerTree();
     },
-    
+
     renderLayerTree: function(){
         SetupMapsView.__super__.renderLayerTree.call(this);
         var _this = this;
@@ -91,7 +91,7 @@ var SetupMapsView = BaseMapView.extend(
         this.buttonBox.style.top = li.offsetTop + this.layerTree.offsetTop + 'px';
         this.buttonBox.style.display = 'inline';
     },
-    
+
     nodeDropped: function(event, data){
         var node = data.node,
             parent = $(this.layerTree).jstree("get_node", node.parent),
@@ -124,7 +124,7 @@ var SetupMapsView = BaseMapView.extend(
         }
         this.repositionButtons();
     },
-    
+
     applyCheckState: function(node){
         var _this = this;
         function applyLayerCheck(layerNode){
@@ -141,7 +141,7 @@ var SetupMapsView = BaseMapView.extend(
             applyLayerCheck(node)
         // cascading checks don't fire check_node event -> update child layers if category is checked
         else {
-            node.children.forEach(function(child){ 
+            node.children.forEach(function(child){
                 applyLayerCheck($(_this.layerTree).jstree('get_node', child));
             });
         }
@@ -175,7 +175,7 @@ var SetupMapsView = BaseMapView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = _this.layerCategories.create( { name: name }, { 
+            var category = _this.layerCategories.create( { name: name }, {
                 success: function(){
                     var catNode = {
                         text: name,
@@ -200,7 +200,7 @@ var SetupMapsView = BaseMapView.extend(
             onConfirm: onConfirm
         });
     },
-    
+
     addNode: function(node, parentNode){
         var parent = parentNode || null;
         $(this.layerTree).jstree('create_node', parent, node, 'last');
@@ -219,8 +219,8 @@ var SetupMapsView = BaseMapView.extend(
                 { name: wmsLayerName,
                   included: true,
                   wms_layer: wmsLayerId,
-                  style: null }, 
-                { apiTag: 'layers', 
+                  style: null },
+                { apiTag: 'layers',
                   apiIds: [ _this.caseStudy.id, category.id ] }
             );
             newLayers.push(layer);
@@ -228,11 +228,12 @@ var SetupMapsView = BaseMapView.extend(
 
         function onSuccess(){
             newLayers.forEach(function(layer){
-                var layerNode = { 
+                var layerNode = {
+                    id: _this.layerPrefix + layer.id,
                     text: layer.get('name'),
                     layer: layer,
                     type: 'layer',
-                    state: { checked: layer.get('included') } 
+                    state: { checked: layer.get('included') }
                 };
                 catNode.children.push(layerNode);
                 _this.addNode(layerNode, _this.selectedNode);
@@ -266,9 +267,9 @@ var SetupMapsView = BaseMapView.extend(
             message = (!isCategory) ? gettext('Do you really want to delete the selected chart?') :
                       gettext('Do you really want to delete the selected category and all its charts?');
         function confirmRemoval(){
-            $(_this.confirmationModal).modal('hide'); 
+            $(_this.confirmationModal).modal('hide');
             var model = _this.selectedNode.original.layer || _this.selectedNode.original.category;
-            model.destroy({ 
+            model.destroy({
                 success: function(){
                     var selectCatId = 0;
                     // remove category from tree (if category was selected)
@@ -315,7 +316,7 @@ var SetupMapsView = BaseMapView.extend(
             model = this.selectedNode.original.layer || this.selectedNode.original.category;
         function onConfirm(name){
             model.set('name', name);
-            model.save(null, { 
+            model.save(null, {
                 success: function(){
                     $(_this.layerTree).jstree('set_text', _this.selectedNode, name);
             }})

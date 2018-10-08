@@ -114,6 +114,12 @@ div.fullscreen{
   color: white;
 }
 
+/*summernote tooltip*/
+.tooltip[role="tooltip"]{
+  position: absolute!important;
+  background: white;
+}
+
 #wrapper {
   /*transition: all .4s ease 0s;*/
   height: 100%;
@@ -414,6 +420,11 @@ button.square, button.round, .btn.square, .btn.round {
 .btn-primary {
   background-color: #aad400;
   border: solid 1px #aad400;
+  min-height: 25px;
+  min-width: 25px;
+}
+
+button.d3-overlay {
   min-height: 30px;
   min-width: 30px;
 }

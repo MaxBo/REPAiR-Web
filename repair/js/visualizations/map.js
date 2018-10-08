@@ -327,7 +327,9 @@ define([
         }
 
         setZIndex(layername, zIndex){
-            this.layers[layername].setZIndex(zIndex);
+            var layer = this.layers[layername];
+            if (layer) layer.setZIndex(zIndex);
+            else console.log(layername + ' not found');
         }
 
         /**
@@ -708,7 +710,6 @@ define([
             // doesn't work with freehand, so not set atm
             function oneFingerCondition(olBrowserEvent) {
                 var touchEvent = olBrowserEvent.originalEvent.touches;
-                console.log(touchEvent)
                 if (touchEvent)
                     return touchEvent.length === 1;
                 return true;
