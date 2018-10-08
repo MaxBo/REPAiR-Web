@@ -458,7 +458,7 @@ var SolutionsView = BaseView.extend(
                                 type: 'Point'
                             });
                         })
-                        loader.deactivate();
+                        if(loader) loader.deactivate();
                     }
                 })
             }
