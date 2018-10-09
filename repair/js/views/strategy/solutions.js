@@ -437,7 +437,10 @@ var SolutionsView = BaseView.extend(
         actors.fetch({
             data: { activity: activityId, included: "True" },
             success: function(){
-                if (actors.length === 0) return;
+                if (actors.length === 0) {
+                    if(loader) loader.deactivate();
+                    return;
+                }
                 var actorIds = actors.pluck('id'),
                     locations = new GeoLocations([],{
                         apiTag: 'adminLocations',
