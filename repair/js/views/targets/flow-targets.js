@@ -211,22 +211,25 @@ function(_, BaseView, GDSECollection, GDSEModel){
             targetSelect.addEventListener('change', function(){
                 var targetValue = this.value,
                     indicator = indicatorSelect.value,
-                    targetRows = _this.el.querySelectorAll('.target-row');
+                    targetRows = _this.el.querySelectorAll('.target-row'),
+                    rowArray = Array.prototype.slice.call(targetRows);
                 // check all target rows for rows with same indicator
-                for (var i = 0; i < targetRows.length; i++){
-                    var r = targetRows[i],
-                        ind = r.querySelector('.indicator').value;
-                    if (ind != indicator) continue;
-
+                rowArray.forEach(function(r){
+                    var ind = r.querySelector('.indicator').value;
+                    if (ind != indicator) return;
                     var tSel = r.querySelector('.target-value'),
                         id = r.dataset['target'],
                         t = _this.targets[r.dataset['objective']].get(id);
+                    tSel.classList.add('flash');
+                    setTimeout(function() {
+                        tSel.classList.remove('flash');
+                    }, 500);
                     tSel.value = targetValue;
                     t.save(
                         { target_value: targetValue },
                         { patch: true, error: _this.onError }
                     )
-                }
+                })
             })
 
             row.insertCell(-1).appendChild(indicatorSelect);

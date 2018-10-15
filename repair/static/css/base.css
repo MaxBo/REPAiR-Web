@@ -650,3 +650,24 @@ div.panel-item:hover label{
     z-index: 10000!important;
 }
 
+@-webkit-keyframes flash {
+    0% {
+        background-color: white;
+    }
+    30% {
+        background-color: lightblue;
+    }
+    70% {
+        background-color: lightblue;
+    }
+    100% {
+        background-color: white;
+    }
+}
+
+.flash {
+    animation-name: flash;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in-out;
+}
