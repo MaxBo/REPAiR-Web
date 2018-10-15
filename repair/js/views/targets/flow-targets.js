@@ -151,7 +151,13 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 removeBtn = document.createElement('button');
 
             indicatorSelect.classList.add('form-control');
+            indicatorSelect.classList.add('indicator');
             targetSelect.classList.add('form-control');
+            targetSelect.classList.add('target-value');
+            row.classList.add('target-row');
+            row.dataset['objective'] = objective.id;
+            row.dataset['target'] = target.id;
+            targetSelect.classList.add('target-value');
             spatialInput.classList.add('form-control');
             spatialInput.disabled = true;
 
@@ -203,10 +209,24 @@ function(_, BaseView, GDSECollection, GDSEModel){
             })
 
             targetSelect.addEventListener('change', function(){
-                target.save(
-                    { target_value: this.value },
-                    { patch: true, error: _this.onError }
-                )
+                var targetValue = this.value,
+                    indicator = indicatorSelect.value,
+                    targetRows = _this.el.querySelectorAll('.target-row');
+                // check all target rows for rows with same indicator
+                for (var i = 0; i < targetRows.length; i++){
+                    var r = targetRows[i],
+                        ind = r.querySelector('.indicator').value;
+                    if (ind != indicator) continue;
+
+                    var tSel = r.querySelector('.target-value'),
+                        id = r.dataset['target'],
+                        t = _this.targets[r.dataset['objective']].get(id);
+                    tSel.value = targetValue;
+                    t.save(
+                        { target_value: targetValue },
+                        { patch: true, error: _this.onError }
+                    )
+                }
             })
 
             row.insertCell(-1).appendChild(indicatorSelect);
