@@ -257,8 +257,6 @@ define([
                  .on("mouseover", function (d) {
                      d3.select(this).style("cursor", "pointer");
                      var rect = _this.overlay.getBoundingClientRect();
-                     console.log(d3.event.pageX)
-                     console.log(rect)
                      _this.tooltip.transition()
                          .duration(200)
                          .style("opacity", 0.9);
@@ -319,8 +317,6 @@ define([
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
                      var rect = _this.overlay.getBoundingClientRect();
-                     console.log(d3.event.pageX)
-                     console.log(rect)
                     _this.tooltip.transition()
                         .duration(200)
                         .style("opacity", 0.8);
