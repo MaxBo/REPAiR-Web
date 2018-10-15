@@ -54,19 +54,20 @@ define([
             }
 
             var transform = d3.geo.transform({point: projectPoint});
+            this.overlay = map.getPanes().overlayPane;
             this.path = d3.geo.path().projection(transform);
 
-            this.svg = d3.select(map.getPanes().overlayPane).append("svg");
-            this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
-
-            // get zoom level after each zoom activity
-            this.initialZoom = this.map.getZoom();
             // tooltip
-            this.tooltip = d3.select("body")
+            this.tooltip = d3.select(this.overlay)
                 .append("div")
                 .attr("class", "sankeymaptooltip")
                 .style("opacity", 0.9);
 
+            this.svg = d3.select(this.overlay).append("svg");
+            this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
+
+            // get zoom level after each zoom activity
+            this.initialZoom = this.map.getZoom();
             this.maxFlowWidth = 50;
             this.minFlowWidth = 1;
             this.maxScale = 2;
@@ -255,12 +256,15 @@ define([
                  .style("stroke-width", 1)
                  .on("mouseover", function (d) {
                      d3.select(this).style("cursor", "pointer");
+                     var rect = _this.overlay.getBoundingClientRect();
+                     console.log(d3.event.pageX)
+                     console.log(rect)
                      _this.tooltip.transition()
                          .duration(200)
                          .style("opacity", 0.9);
                      _this.tooltip.html(label)
-                         .style("left", (d3.event.pageX) + "px")
-                         .style("top", (d3.event.pageY - 28) + "px")
+                         .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
                  })
                  .on("mouseout", function (d) {
                      _this.tooltip.transition()
@@ -314,12 +318,15 @@ define([
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
+                     var rect = _this.overlay.getBoundingClientRect();
+                     console.log(d3.event.pageX)
+                     console.log(rect)
                     _this.tooltip.transition()
-                            .duration(200)
-                            .style("opacity", 0.8);
+                        .duration(200)
+                        .style("opacity", 0.8);
                     _this.tooltip.html(label)
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px")
+                         .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
                     path.attr("stroke-opacity", 1)
                 })
                 .on("mouseout", function () {
