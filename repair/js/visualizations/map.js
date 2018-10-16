@@ -814,6 +814,10 @@ define([
             return source.getFeatures();
         }
 
+        getLayer(layername){
+            return this.layers[layername];
+        }
+
         /**
         * remove map
         */

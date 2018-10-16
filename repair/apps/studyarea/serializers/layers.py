@@ -31,12 +31,13 @@ class LayerSerializer(serializers.ModelSerializer):
     category = IDRelatedField(read_only=True)
     style = IDRelatedField(allow_null=True)
     order = serializers.IntegerField(required=False, default=None)
+    #wmsresource_uri = serializers.CharField(source="wms_layer.wmsresource.uri")
 
     class Meta:
         model = Layer
         fields = ('id', 'name', 'included', 'wms_layer', 'category', 'order',
-                  'style', 'legend_uri')
-    
+                  'style', 'legend_uri')  #, 'wmsresource_uri')
+
     def create(self, validated_data):
         # if order is not passed, set it to current max value + 1
         if not validated_data.get('order'):
