@@ -67,7 +67,7 @@ var StrategyView = BaseView.extend(
             this.solutionCategories.fetch(),
             this.units.fetch()
         ]
-
+        this.loader.activate();
         Promise.all(promises).then(function(){
             var deferreds = [];
             // fetch all stakeholders after fetching their categories
@@ -106,6 +106,7 @@ var StrategyView = BaseView.extend(
     * render the view
     */
     render: function(){
+        this.loader.deactivate();
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;

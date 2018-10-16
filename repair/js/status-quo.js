@@ -1,12 +1,12 @@
 require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows',
-    'views/status-quo/challenges-aims', 'views/status-quo/sustainability',
+    'views/status-quo/challenges-aims',
     'views/status-quo/setup-flow-assessment',
     'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base',
     'static/css/status-quo.css'
 ], function (d3, CaseStudy, FlowsWorkshopView, FlowsSetupView,
-    ChallengesAimsView, SustainabilityView, FlowAssessmentSetupView,
+    ChallengesAimsView, FlowAssessmentSetupView,
     FlowAssessmentWorkshopView,
     appConfig) {
 
@@ -57,11 +57,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template'
         })
-        var evaluationView = new SustainabilityView({
-            caseStudy: caseStudy,
-            el: document.getElementById('sustainability-assessment'),
-            template: 'sustainability-template'
-        })
         renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
                                  'workshop-flow-assessment-template');
         renderFlowsView(caseStudy, FlowsWorkshopView, 'workshop-flows-template');
@@ -74,11 +69,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template',
             mode: 1
-        })
-        var evaluationView = new SustainabilityView({
-            caseStudy: caseStudy,
-            el: document.getElementById('sustainability-assessment'),
-            template: 'sustainability-template'
         })
         renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
                                  'setup-flow-assessment-template');
