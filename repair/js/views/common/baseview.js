@@ -170,6 +170,23 @@ var BaseView = Backbone.View.extend(
     },
 
     /**
+    * show a modal with given info message
+    *
+    * @param {String} message           html formatted message to show
+    * @param {String} [title='Warning'] title displayed in header of modal
+    */
+    info: function(message, title){
+        var title = title || gettext('Info');
+        var el = document.getElementById('info-modal'),
+            html = document.getElementById('info-modal-template').innerHTML,
+            template = _.template(html);
+
+        el.innerHTML = template({ title: title, message: message });
+        $(el).modal('show');
+    },
+
+
+    /**
     * show a modal with error message on server error
     * you may pass the model and response or response only
     *
