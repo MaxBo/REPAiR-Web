@@ -232,7 +232,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             values = {},
             minValue = 0,
             maxValue = 0,
-            unit = indicator.get('unit');
+            unit = indicator.get('unit'),
+            sr = indicator.get('spatial_reference');
+        this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
+        this.map.setVisible('region', (sr == 'REGION' ))
+
         data.forEach(function(d){
             var value = Math.round(d.value)
             values[d.area] = value;
@@ -576,13 +580,41 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map = new Map({
             el: document.getElementById('indicator-map')
         });
-        var focusarea = this.caseStudy.get('properties').focusarea;
+        var focusarea = this.caseStudy.get('properties').focusarea,
+            region = this.caseStudy.get('geometry');
 
-        // and center on focus area
-        if (focusarea != null){
-            var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
-            this.map.centerOnPolygon(poly, { projection: this.projection });
-        };
+        var options = {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 1
+        }
+        this.map.addLayer('focusarea', options);
+        this.map.addLayer('region', options);
+
+        if(focusarea){
+            console.log(focusarea)
+            this.map.addPolygon(focusarea.coordinates, {
+                layername: 'focusarea',
+                type: 'MultiPolygon',
+                label: gettext('Focus Area'),
+                tooltip: gettext('Focus Area'),
+                projection: this.projection
+            })
+            this.map.centerOnLayer('focusarea');
+            this.map.setVisible('focusarea', false);
+        }
+        if(region){
+            this.map.addPolygon(region.get('coordinates'), {
+                layername: 'region',
+                type: 'Multipolygon',
+                label: gettext('Casestudy Region'),
+                tooltip: gettext('Casestudy Region'),
+                projection: this.projection
+            })
+            this.map.centerOnLayer('region');
+            this.map.setVisible('region', false);
+        }
     },
 
     // render the modal for area selections

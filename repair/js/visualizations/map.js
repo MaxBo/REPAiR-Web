@@ -326,6 +326,11 @@ define([
             this.map.addLayer(layer);
         }
 
+        setVisible(layername, visible){
+            var layer = this.layers[layername];
+            layer.setVisible(visible);
+        }
+
         setZIndex(layername, zIndex){
             var layer = this.layers[layername];
             if (layer) layer.setZIndex(zIndex);
@@ -342,7 +347,7 @@ define([
         * @param {string=} options.id                  id of feature
         * @param {string=} options.tooltip             tooltip shown on hover over polygon
         * @param {string=} options.label               label to show on map
-        * @param {string} [options.type='Polygon']     Polygon or Multipolygon
+        * @param {string} [options.type='Polygon']     'Polygon' or 'MultiPolygon'
         *
         * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
         *
