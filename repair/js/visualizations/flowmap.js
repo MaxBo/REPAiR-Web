@@ -61,7 +61,7 @@ define([
             this.tooltip = d3.select(this.overlay)
                 .append("div")
                 .attr("class", "sankeymaptooltip")
-                .style("opacity", 0.9);
+                .style("opacity", 0);
 
             this.svg = d3.select(this.overlay).append("svg");
             this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");

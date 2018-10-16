@@ -18,7 +18,8 @@ div.sankeymaptooltip {
     border: 0px;
     border-radius: 0px;
     pointer-events: none;
-    z-index: 999999999999;
+    z-index: 99999;
+    min-width: 200px;
 }
 
 .flow {
@@ -27,19 +28,19 @@ div.sankeymaptooltip {
 
 .animated.flow {
   /*stroke-dasharray: 10, 4;*/
-  animation: flow 60s linear infinite;
-  -webkit-animation: flow 60s linear infinite;
+  animation: flow 10s linear infinite;
+  -webkit-animation: flow 10s linear infinite;
 }
 
 @keyframes flow {
   to {
-    stroke-dashoffset: -1000;
+    stroke-dashoffset: -100;
   }
 }
 
 @-webkit-keyframes flow {
   to {
-    stroke-dashoffset: -1000;
+    stroke-dashoffset: -100;
   }
 }
 
