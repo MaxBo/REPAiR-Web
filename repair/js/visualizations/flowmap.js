@@ -72,6 +72,9 @@ define([
             this.minFlowWidth = 1;
             this.maxScale = 2;
 
+            this.map.on("zoom", function(evt){
+                _this.svg.style.visibility = 'hidden';
+            });
             this.map.on("zoomend", function(evt){ _this.resetView() });
 
             this.nodesData = {};
@@ -81,6 +84,8 @@ define([
 
         // fit svg layer to map
         resetView(){
+
+            this.svg.style.visibility = 'visible';
             var svgPos = this.resetBbox();
             if (!svgPos) return;
             var topLeft = svgPos[0];
