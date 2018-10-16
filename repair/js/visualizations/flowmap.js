@@ -86,8 +86,6 @@ define([
         resetView(){
 
             this.svg.node().style.visibility = 'visible';
-            console.log(this.svg)
-            console.log(this.svg.style)
             var svgPos = this.resetBbox();
             if (!svgPos) return;
             var topLeft = svgPos[0];
