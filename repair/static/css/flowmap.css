@@ -60,3 +60,11 @@ div.sankeymaptooltip {
 .arc path {
     stroke: #0fff;
 }
+
+.leaflet-bottom, .leaflet-top {
+    max-width: 50%;
+}
+
+.leaflet-control{
+    max-width: 100%;
+}

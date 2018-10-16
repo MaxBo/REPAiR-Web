@@ -232,12 +232,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 var material = _this.materials.get(matId),
                     color = matColors[matId],
                     div = document.createElement('div'),
+                    text = document.createElement('div'),
                     check = document.createElement('input'),
                     colorDiv = document.createElement('div');
-                div.innerHTML = material.get('name');
                 div.style.height = '25px';
-                div.style.fontSize = '1.2em';
                 div.style.cursor = 'pointer';
+                text.innerHTML = material.get('name');
+                text.style.fontSize = '1.3em';
+                text.style.overflow = 'hidden';
+                text.style.whiteSpace = 'nowrap';
+                text.style.textOverflow = 'ellipsis';
                 colorDiv.style.width = '20px';
                 colorDiv.style.height = '100%';
                 colorDiv.style.textAlign = 'center';
@@ -247,6 +251,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 check.checked = !_this.hideMaterials[matId];
                 check.style.pointerEvents = 'none';
                 div.appendChild(colorDiv);
+                div.appendChild(text);
                 colorDiv.appendChild(check);
                 _this.legend.appendChild(div);
                 div.addEventListener('click', function(){
