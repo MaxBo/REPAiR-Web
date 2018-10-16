@@ -397,7 +397,7 @@ var BaseMapsView = BaseView.extend(
             }
         })
         Promise.all(promises).then(function(){
-            _this.info(tableWrapper.outerHTML);
+            _this.info(tableWrapper.outerHTML, { el: _this.el.querySelector('.info') });
         })
     }
 
