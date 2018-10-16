@@ -423,7 +423,8 @@ var StrategyView = BaseView.extend(
         previewMap = new Map({
             el: document.getElementById(divid),
             enableZoom: false,
-            showControls: false
+            showControls: false,
+            enableDrag: false
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
