@@ -150,7 +150,7 @@ var BaseChartsView = BaseView.extend(
             core : {
                 data: tree,
                 themes: {
-                    name: (this.mode === 1) ? 'gdsetouch': 'gdsetouch-large',
+                    name: 'gdsetouch',
                     responsive: true
                 },
                 check_callback: true,
