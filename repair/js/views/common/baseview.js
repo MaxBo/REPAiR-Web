@@ -175,9 +175,10 @@ var BaseView = Backbone.View.extend(
     * @param {String} message           html formatted message to show
     * @param {String} [title='Warning'] title displayed in header of modal
     */
-    info: function(message, title){
-        var title = title || gettext('Info');
-        var el = document.getElementById('info-modal'),
+    info: function(message, options){
+        var options = options || {},
+            title = options.title || gettext('Info');
+        var el = options.el || document.getElementById('info-modal'),
             html = document.getElementById('info-modal-template').innerHTML,
             template = _.template(html);
 
