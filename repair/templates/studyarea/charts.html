@@ -4,7 +4,7 @@
 <script type="text/template" id="base-charts-template">
 <div class="row">
   <div class="row" style="margin-top: 20px;">
-    <div class="col-md-3 bordered" style="margin-right: 10px;">
+    <div class="col-md-4 bordered" style="margin-right: 10px;">
       <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
         <button class="add btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
@@ -16,7 +16,7 @@
           <span class="glyphicon glyphicon-minus"></span>
         </button>
       </div>
-      <div class="row">
+      <div class="row" style="overflow: hidden;">
         <h4> {% trans "Charts" %} </h4>
         <div id="chart-tree"></div>
         <button id='add-chart-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
