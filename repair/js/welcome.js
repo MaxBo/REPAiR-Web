@@ -25,7 +25,7 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
             keyboardZoom: false,
             mouseWheelZoom: false,
             pointer: false,
-            dragPan: false,
+            dragZoom: false,
             select: false
         }),
         target: 'welcome-map',
