@@ -194,12 +194,14 @@ var BaseMapsView = BaseView.extend(
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
-    renderLayerTree: function(){
+    renderLayerTree: function(setupMode){
         if (Object.keys(this.categoryTree).length == 0) return;
 
         var _this = this,
             tree = [];
         this.layerCategories.forEach(function(category){
+            // don't render empty categories in workshop mode
+            if (!setupMode && _this.categoryTree[category.id].children.length === 0) return;
             tree.push(_this.categoryTree[category.id])
         })
         $(this.layerTree).jstree({
@@ -361,7 +363,6 @@ var BaseMapsView = BaseView.extend(
             promises = [];
         tableWrapper.style.overflow = 'auto';
         checkedItems.forEach(function(item){
-            console.log(item)
             if(item.type === 'layer'){
                 var layer = item.original.layer,
                     mapLayer = _this.map.getLayer(_this.layerPrefix + layer.id);

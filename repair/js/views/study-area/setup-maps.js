@@ -72,7 +72,7 @@ var SetupMapsView = BaseMapView.extend(
     },
 
     renderLayerTree: function(){
-        SetupMapsView.__super__.renderLayerTree.call(this);
+        SetupMapsView.__super__.renderLayerTree.call(this, true);
         var _this = this;
         $(this.layerTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
         $(this.layerTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
