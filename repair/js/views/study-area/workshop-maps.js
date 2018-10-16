@@ -38,6 +38,7 @@ var BaseMapsView = BaseView.extend(
         _.bindAll(this, 'nodeUnchecked');
         _.bindAll(this, 'nodeDropped');
         _.bindAll(this, 'nodeSelected');
+        _.bindAll(this, 'showFeatureInfo');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -193,12 +194,14 @@ var BaseMapsView = BaseView.extend(
     /*
     * render the hierarchic tree of layers, preselect category with given id (or first one)
     */
-    renderLayerTree: function(){
+    renderLayerTree: function(setupMode){
         if (Object.keys(this.categoryTree).length == 0) return;
 
         var _this = this,
             tree = [];
         this.layerCategories.forEach(function(category){
+            // don't render empty categories in workshop mode
+            if (!setupMode && _this.categoryTree[category.id].children.length === 0) return;
             tree.push(_this.categoryTree[category.id])
         })
         $(this.layerTree).jstree({
@@ -298,6 +301,8 @@ var BaseMapsView = BaseView.extend(
             el: document.getElementById('base-map'),
             renderOSM: false
         });
+        this.map.map.on('singleclick', this.showFeatureInfo );
+
         var focusarea = this.caseStudy.get('properties').focusarea;
 
         // add polygon of focusarea to both maps and center on their centroid
@@ -350,6 +355,51 @@ var BaseMapsView = BaseView.extend(
                 legendDiv.style.display = 'none';
         }
     },
+
+    showFeatureInfo: function(evt){
+        var _this = this,
+            checkedItems = $(this.layerTree).jstree('get_checked', { full: true });
+        var tableWrapper = document.createElement('div'),
+            promises = [];
+        tableWrapper.style.overflow = 'auto';
+        checkedItems.forEach(function(item){
+            if(item.type === 'layer'){
+                var layer = item.original.layer,
+                    mapLayer = _this.map.getLayer(_this.layerPrefix + layer.id);
+                var url = mapLayer.getSource().getGetFeatureInfoUrl(
+                                evt.coordinate, _this.map.view.getResolution(), 'EPSG:3857',
+                                {'INFO_FORMAT': 'application/json'}
+                            );
+                var promise = fetch(url).then(res => res.json()).then(function(response){
+                    var feats = response.features;
+                    feats.forEach(function(feat){
+                        var props = feat.properties,
+                            table = document.createElement('table');
+                            header = table.createTHead().insertRow(-1),
+                            row = table.insertRow(-1);
+                        table.classList.add('entry-table');
+                        var th = document.createElement("th")
+                        th.innerHTML = gettext('Layer');
+                        header.appendChild(th);
+                        row.insertCell(-1).innerHTML = layer.get('name');
+                        Object.keys(feat).forEach(function(key){
+                            // ignore properties and geometry
+                            if (['properties', 'geometry'].includes(key)) return;
+                            th = document.createElement("th")
+                            th.innerHTML = key;
+                            header.appendChild(th);
+                            row.insertCell(-1).innerHTML = feat[key];
+                        })
+                        tableWrapper.appendChild(table);
+                    })
+                }).catch(error => console.error('Error:', error));
+                promises.push(promise);
+            }
+        })
+        Promise.all(promises).then(function(){
+            _this.info(tableWrapper.outerHTML);
+        })
+    }
 
 });
 return BaseMapsView;

@@ -54,6 +54,7 @@ class WMSProxyView(View):
         uri = res.uri
         query_params = request.GET.copy()
         query_params['LAYERS'] = wms_layer.name
+        query_params['query_layers'] = wms_layer.name
         if layer.style:
             query_params['STYLES'] = layer.style.name
         session = requests.Session()

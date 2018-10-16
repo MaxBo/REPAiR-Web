@@ -30,7 +30,8 @@ define([
             this.mapProjection = options.projection || 'EPSG:3857';
             this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
             var showControls = (options.showControls != false) ? true : false,
-                enableZoom = (options.enableZoom != false) ? true : false;
+                enableZoom = (options.enableZoom != false) ? true : false,
+                enableDrag = (options.enableDrag != false) ? true : false;
 
             this.view = new ol.View({
                 projection: this.mapProjection,
@@ -58,16 +59,21 @@ define([
                                     })}).extend([
                                         new ol.control.FullScreen({source: options.el})
                                     ]) : [];
-            var interactions = (enableZoom) ? null : ol.interaction.defaults({
-                                                        doubleClickZoom :false,
-                                                        dragAndDrop: false,
-                                                        keyboardPan: false,
-                                                        keyboardZoom: false,
-                                                        mouseWheelZoom: false,
-                                                        pointer: false,
-                                                        select: false
-                                                    });
 
+            var interactOptions = {
+                    doubleClickZoom : enableZoom,
+                    keyboardZoom: enableZoom,
+                    mouseWheelZoom: enableZoom,
+                    dragZoom: enableZoom
+                };
+
+
+            if (!enableDrag) {
+                interactOptions.keyboardPan = false;
+                interactOptions.dragPan = false;
+            }
+
+            var interactions = ol.interaction.defaults(interactOptions);
             this.layers = { basic: basicLayer };
 
             this.map = new ol.Map({
@@ -806,6 +812,10 @@ define([
             var layer = this.layers[layername],
                 source = layer.getSource();
             return source.getFeatures();
+        }
+
+        getLayer(layername){
+            return this.layers[layername];
         }
 
         /**
