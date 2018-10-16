@@ -53,6 +53,9 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 apiTag: 'targetvalues',
             });
 
+            // store last set indicator values here
+            this.indValMem = {};
+
             this.indicators = new GDSECollection([], {
                 apiTag: 'flowIndicators',
                 apiIds: [this.caseStudy.id, this.keyflowId],
@@ -123,12 +126,19 @@ function(_, BaseView, GDSECollection, GDSEModel){
             })
 
             addBtn.addEventListener('click', function(){
-                // just create a default Target
+                // create a default Target
+                var values = {
+                    "indicator": _this.indicators.first().id,
+                    "target_value": _this.targetValues.first().id,
+                };
+                var tVal = _this.indValMem[_this.indicators.first().id];
+                // another indicator had a value selected, set it equally
+                if (tVal != null) {
+                    values['target_value'] = tVal;
+                }
+
                 var target = _this.targets[objective.id].create(
-                    {
-                        "indicator": _this.indicators.first().id,
-                        "target_value": _this.targetValues.first().id,
-                    },
+                    values,
                     {
                         wait: true,
                         success: function(){
@@ -192,6 +202,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 targetSelect.appendChild(option);
             });
             targetSelect.value = target.get('target_value');
+            this.indValMem[target.get('indicator')] = target.get('target_value')
 
             function setSpatialRef(indicatorId){
                 var spatialRef = _this.indicators.get(indicatorId).get('spatial_reference'),
@@ -201,8 +212,15 @@ function(_, BaseView, GDSECollection, GDSEModel){
             setSpatialRef(target.get('indicator'));
 
             indicatorSelect.addEventListener('change', function(){
+                var tVal = _this.indValMem[this.value],
+                    values = { indicator: this.value };
+                // another indicator had a value selected, set it equally
+                if (tVal != null) {
+                    values['target_value'] = tVal;
+                    targetSelect.value = tVal;
+                }
                 target.save(
-                    { indicator: this.value },
+                    values,
                     { patch: true, error: _this.onError }
                 );
                 setSpatialRef(this.value);
@@ -230,6 +248,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                         { patch: true, error: _this.onError }
                     )
                 })
+                _this.indValMem[target.get('indicator')] = targetValue;
             })
 
             row.insertCell(-1).appendChild(indicatorSelect);
