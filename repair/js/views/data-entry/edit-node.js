@@ -144,7 +144,6 @@ var EditNodeView = BaseView.extend(
             content: content
         }
 
-        require('bootstrap');
         this.setupPopover($('#node-info-popover').popover(popOverSettings));
 
         // render inFlows
