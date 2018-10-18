@@ -10,7 +10,7 @@
     height: 100%;
 }
 
-#layer-tree.workshop {
+.layer-tree.workshop {
     left: 20px;
     z-index: 1000;
     float: left;

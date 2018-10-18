@@ -17,7 +17,29 @@
         </button>
       </div>
       <div class="row" style="overflow: hidden;">
-        <h4> {% trans "Charts" %} </h4>
+        <div>
+          <h4 style="float: left;"> {% trans "Charts" %} </h4>
+          <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Chart Tree" data-html="true" tabindex="0"
+            {% if request.session.mode == 0 %}
+              data-content="{% blocktrans %}
+              <b>Browse</b><br>
+              Expand a category by pressing the <i>+</i> button to the left or by tapping its name.
+              Tap a name of a chart to show its image to the right.
+              Tapping the image opens an image viewer.
+              {% endblocktrans %}">
+            {% else %}
+              data-content="{% blocktrans %}
+              The chart tree sets up the available chart images for workshop mode.<br><br>
+              <b>Add images</b><br>
+              Chart images can only be added to existing categories. Add a chart to a category by clicking the category and then click the appearing <i>+Chart</i> button.
+              Add new chart categories by clicking the <i>+Add Category</i> button below the chart tree.
+              <br><br>
+              <b>View images</b><br>
+              Clicking the image to the right opens an image viewer.
+              {% endblocktrans %}">
+            {% endif %}
+          </a>
+        </div>
         <div id="chart-tree"></div>
         <button id='add-chart-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}

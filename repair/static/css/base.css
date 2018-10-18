@@ -265,8 +265,11 @@ div.fullscreen{
   text-align: left;
   padding: 6px;
   position: relative;
-  border: solid lightgrey 1px;
   /*font-weight: normal;*/
+}
+
+table.bordered td {
+  border: solid lightgrey 1px;
 }
 
 .entry-table tr.strikeout td:before {
