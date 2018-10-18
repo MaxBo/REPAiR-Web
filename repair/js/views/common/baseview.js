@@ -1,5 +1,5 @@
 define(['backbone', 'underscore', 'utils/utils', 'app-config',
-        'hierarchy-select', 'hierarchy-select/dist/hierarchy-select.min.css'],
+    'hierarchy-select', 'hierarchy-select/dist/hierarchy-select.min.css'],
 function(Backbone, _, utils, config){
 /**
 *
@@ -221,36 +221,90 @@ var BaseView = Backbone.View.extend(
     *
     * @param {Object=} options
     * @param {module:views/BaseView~onNameConfirm} options.onConfirm  called when user confirms input
+    * @param {String} [options.title='Name'] title of the modal
     */
     getName: function(options){
 
-      var options = options || {};
+        var options = options || {};
 
-      var el = document.getElementById('generic-modal'),
-          inner = document.getElementById('empty-modal-template').innerHTML;
-          template = _.template(inner),
-          html = template({ header:  options.title || 'Name' });
+        var el = document.getElementById('generic-modal'),
+            inner = document.getElementById('empty-modal-template').innerHTML;
+            template = _.template(inner),
+            html = template({ header:  options.title || 'Name' });
 
-      el.innerHTML = html;
-      var body = el.querySelector('.modal-body');
+        el.innerHTML = html;
+        var body = el.querySelector('.modal-body');
 
-      var row = document.createElement('div');
-      row.classList.add('row');
-      var label = document.createElement('div');
-      label.innerHTML = gettext('Name');
-      var input = document.createElement('input');
-      input.style.width = '100%';
-      input.value = options.name || '';
-      body.appendChild(row);
-      row.appendChild(label);
-      row.appendChild(input);
+        var row = document.createElement('div');
+        row.classList.add('row');
+        var label = document.createElement('div');
+        label.innerHTML = gettext('Name');
+        var input = document.createElement('input');
+        input.style.width = '100%';
+        input.value = options.name || '';
+        body.appendChild(row);
+        row.appendChild(label);
+        row.appendChild(input);
 
-      el.querySelector('.confirm').addEventListener('click', function(){
-        if (options.onConfirm) options.onConfirm(input.value);
-        $(el).modal('hide');
-      });
+        el.querySelector('.confirm').addEventListener('click', function(){
+            if (options.onConfirm) options.onConfirm(input.value);
+            $(el).modal('hide');
+        });
 
-      $(el).modal('show');
+        $(el).modal('show');
+    },
+
+    /**
+    * show a modal to enter inputs (not tested for anything but text, might have
+    * to be extended for number support etc.)
+    *
+    * @param {Object} options
+    * @param {Object=} options.onConfirm  called when user confirms input
+    * @param {String} [options.title='Confirm Inputs'] title of the modal
+    * @param {Object} options.inputs inputs with names as keys and as values object with keys 'type' (values: 'textarea', 'checkbox', 'text', etc), label (values: String) and value (values: prefilled value)
+    */
+    getInputs: function(options){
+
+        var el = document.getElementById('generic-modal'),
+            inner = document.getElementById('empty-modal-template').innerHTML;
+            template = _.template(inner),
+            html = template({ header:  options.title || 'Confirm Inputs' });
+
+        el.innerHTML = html;
+        var body = el.querySelector('.modal-body'),
+            values = options.values || {},
+            inputs = {};
+
+        Object.keys(options.inputs).forEach(function(key){
+            var obj = options.inputs[key],
+                row = document.createElement('div'),
+                label = document.createElement('div');
+            var input = (obj.type === 'textarea') ? document.createElement('textarea'): document.createElement('input');
+            row.classList.add('row');
+            label.innerHTML = obj.label || key;
+            input.type = obj.type || 'text';
+            input.value = obj.value || '';
+            input.style.width = '100%';
+            input.style.maxWidth = '100%';
+            input.style.minWidth = '100%';
+            body.appendChild(row);
+            row.appendChild(label);
+            row.appendChild(input);
+            inputs[key] = input
+        })
+
+        el.querySelector('.confirm').addEventListener('click', function(){
+            if (options.onConfirm) {
+                var ret = {};
+                Object.keys(inputs).forEach(function(key){
+                    ret[key] = inputs[key].value;
+                })
+                options.onConfirm(ret);
+            }
+            $(el).modal('hide');
+        });
+
+        $(el).modal('show');
     },
 
     /**

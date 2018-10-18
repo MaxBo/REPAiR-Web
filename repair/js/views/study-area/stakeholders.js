@@ -171,33 +171,71 @@ function(BaseView, _, GDSECollection){
 
         addStakeholder: function(category){
             var _this = this;
-            function onConfirm(name){
+            function onConfirm(ret){
                 var stakeholder = category.stakeholders.create(
-                    { name: name },
-                    { success: _this.render, error: _this.onError, wait: true }
+                    {
+                        name: ret.name,
+                        description: ret.description
+                    },
+                    {
+                        success: _this.render,
+                        error: _this.onError,
+                        wait: true
+                    }
                 );
             }
-            this.getName({
+            this.getInputs({
                 title: gettext('Add Stakeholder'),
+                inputs: {
+                    name: {
+                        type: 'text',
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
         },
 
         editStakeholder: function(stakeholder, category){
             var _this = this;
             var id = stakeholder.id;
-            function onConfirm(name){
-                stakeholder.save({ name: name }, {
-                    success: _this.render,
-                    error: _this.onError,
-                    wait: true
-                });
+            function onConfirm(ret){
+                stakeholder.save(
+                    {
+                        name: ret.name,
+                        description: ret.description
+                    },
+                    {
+                        success: _this.render,
+                        error: _this.onError,
+                        wait: true
+                    }
+                );
             }
-            this.getName({
-                name: stakeholder.get('name'),
+            this.getInputs({
                 title: gettext('Edit Stakeholder'),
+                inputs: {
+                    name: {
+                        type: 'text',
+                        value: stakeholder.get('name'),
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        value: stakeholder.get('description'),
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
+        },
+
+        editModal: function(name, description, onConfirm){
+            this.getInputs(values)
         },
 
         removeStakeholder: function(stakeholder, category){
