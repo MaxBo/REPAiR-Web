@@ -84,6 +84,9 @@ var BaseChartsView = BaseView.extend(
         }
 
         this.renderChartTree();
+
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus" });
     },
 
     initTree: function(){

@@ -198,6 +198,17 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
             });
             panelItem.appendChild(itemContent);
             grid.add(panelItem);
+            // show description on tap in workshop mode
+            if (_this.mode == 0){
+                var desc = model.get('description') || '-';
+                // html formatting
+                desc = desc.replace(/\n/g, "<br/>");
+                panelItem.addEventListener('click', function(){
+                    _this.info(desc, {
+                        title: model.get('text')
+                    })
+                })
+            }
         },
 
         addChallenge: function(evt){
@@ -205,10 +216,13 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 button = evt.target,
                 keyflowId = button.dataset.id,
                 grid = this.challengesGrids[keyflowId];
-            function onConfirm(text){
+
+            if (keyflowId === 'general') keyflowId = null;
+            function onConfirm(ret){
                 var challenge = new GDSEModel(
                     {   keyflow: keyflowId,
-                        text: text
+                        text: ret.text,
+                        description: ret.description
                     },
                     {
                         apiTag: 'challenges',
@@ -219,6 +233,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     success: function(){
                         _this.challenges.push({
                             "text": challenge.get('text'),
+                            "description": challenge.get('description'),
                             "id": challenge.get('id')
                         });
                         _this.renderItem(grid, challenge, gettext('Challenge'));
@@ -227,10 +242,20 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     error: _this.onError
                 });
             }
-            this.getName({
+            this.getInputs({
                 title: gettext('Add Challenge'),
+                inputs: {
+                    text: {
+                        type: 'text',
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
         },
 
         addAim: function(evt){
@@ -238,10 +263,12 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 button = evt.target,
                 keyflowId = button.dataset.id,
                 grid = this.aimsGrids[keyflowId];
-            function onConfirm(text){
+            if (keyflowId === 'general') keyflowId = null;
+            function onConfirm(ret){
                 var aim = new GDSEModel(
                     {   keyflow: keyflowId,
-                        text: text
+                        text: ret.text,
+                        description: ret.description
                     },
                     {
                         apiTag: 'aims',
@@ -252,40 +279,60 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     success: function(){
                         _this.aims.push({
                             "text": aim.get('text'),
+                            "description": aim.get('description'),
                             "id": aim.get('id')
                         });
                         _this.renderItem(grid, aim, gettext('Aim'));
                         _this.uploadPriorities(grid, _this.aims);
                     },
-                    error: function(){
-                        console.error("cannot save Aim");
-                    }
+                    error: _this.onError
                 });
             }
-            this.getName({
+            this.getInputs({
                 title: gettext('Add Aim'),
+                inputs: {
+                    text: {
+                        type: 'text',
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
         },
 
         editPanelItem: function(item, model, type){
             var _this = this,
                 id = item.id,
                 title = gettext("Edit") + " " + type;
-            function onConfirm(name){
-                model.save({ text: name }, {
+            function onConfirm(ret){
+                model.save({ text: ret.text, description: ret.description }, {
                     success: function(){
                         var label = item.querySelector('label');
-                        label.innerHTML = name;
+                        label.innerHTML = ret.text;
                     },
                     error: _this.onError
                 });
             }
-            this.getName({
-                name: model.get('text'),
-                title: gettext(title),
+            this.getInputs({
+                title: title,
+                inputs: {
+                    text: {
+                        type: 'text',
+                        value: model.get('text'),
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        value: model.get('description'),
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
         },
 
         removePanelItem: function(item, model, grid, type){

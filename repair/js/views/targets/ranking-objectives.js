@@ -92,7 +92,6 @@ function(_, BaseView, GDSECollection, Muuri){
                 template = _.template(html),
                 panelItem = document.createElement('div'),
                 itemContent = document.createElement('div'),
-                rankDiv = document.createElement('div'),
                 priority = objective.get('priority'),
                 _this = this;
             var aim = this.aims.get(objective.get('aim'));
@@ -105,7 +104,6 @@ function(_, BaseView, GDSECollection, Muuri){
             panelItem.appendChild(itemContent);
             this.grid.add(panelItem);
 
-            panelItem.querySelector('.item-content').append(rankDiv)
             if (priority < 1)
                 panelItem.style.background = '#d1d1d1';
             else {
@@ -113,6 +111,15 @@ function(_, BaseView, GDSECollection, Muuri){
                 overlay.style.display = 'inline-block';
                 overlay.innerHTML = '#' + priority;
             }
+            var desc = aim.get('description') || '-';
+
+            $(panelItem).popover({
+                trigger: "hover",
+                container: 'body',
+                //placement: 'bottom',
+                content: desc.replace(/\n/g, "<br/>"),
+                html: true
+            });
         },
 
         uploadPriorities: function(draggedId){

@@ -64,6 +64,9 @@ var SetupMapsView = BaseMapView.extend(
 
         this.renderAvailableServices();
         this.renderMap();
+
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus", container: 'body' });
     },
 
     rerenderTree: function(){
