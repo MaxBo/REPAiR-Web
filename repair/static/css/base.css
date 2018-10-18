@@ -675,3 +675,7 @@ div.panel-item:hover label{
     animation-iteration-count: 1;
     animation-timing-function: ease-in-out;
 }
+
+.viewer-footer{
+  transform: scale(1.5);
+}
