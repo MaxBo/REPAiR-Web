@@ -181,6 +181,9 @@ var BaseMapsView = BaseView.extend(
         this.renderLayerTree();
         this.renderMap();
         if (this.categoryExpanded) $(this.layerTree).treeview('collapseAll', { silent: false });
+
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus", container: 'body' });
     },
 
     renderTemplate: function(){
@@ -377,7 +380,7 @@ var BaseMapsView = BaseView.extend(
                             table = document.createElement('table');
                             header = table.createTHead().insertRow(-1),
                             row = table.insertRow(-1);
-                        table.classList.add('entry-table');
+                        table.classList.add('entry-table', 'bordered');
                         var th = document.createElement("th")
                         th.innerHTML = gettext('Layer');
                         header.appendChild(th);
