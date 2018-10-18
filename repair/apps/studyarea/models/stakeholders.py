@@ -13,6 +13,7 @@ class Stakeholder(GDSEUniqueNameModel):
     stakeholder_category = models.ForeignKey(StakeholderCategory,
                                              on_delete=PROTECT_CASCADE)
     name = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     @property
     def casestudy(self):

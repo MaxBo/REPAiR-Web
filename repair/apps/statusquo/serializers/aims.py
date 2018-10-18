@@ -41,7 +41,8 @@ class AimSerializer(InCasestudySerializerMixin,
                   'text',
                   'casestudy',
                   'keyflow',
-                  'priority')
+                  'priority',
+                  'description')
 
 
 class AimPostSerializer(InCasestudySerializerMixin,
