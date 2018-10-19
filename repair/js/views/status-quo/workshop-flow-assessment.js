@@ -593,7 +593,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.map.addLayer('region', options);
 
         if(focusarea){
-            console.log(focusarea)
             this.map.addPolygon(focusarea.coordinates, {
                 layername: 'focusarea',
                 type: 'MultiPolygon',

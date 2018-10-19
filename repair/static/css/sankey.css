@@ -99,8 +99,8 @@
 
 .d3-zoom-controls {
   position: absolute;
-  left: 15px;
-  top: 10px;
+  left: 10px;
+  top: 50px;
 }
 
 .d3-zoom-controls a {
@@ -115,6 +115,7 @@
   background: rgba(255, 255, 255, 0.7);
   margin-top: 10px;
 }
+
 .sankey {
   display: flex;
   flex-direction: column;
