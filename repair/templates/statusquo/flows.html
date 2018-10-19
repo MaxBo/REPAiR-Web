@@ -85,9 +85,19 @@
     <div class="row" style="position: relative; padding: 0px;">
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Diagram" style="margin: 15px; position: absolute;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
-          Lorem ipsum.
-          crosshair icon
-          export
+          This diagram displays the filtered flows and the their origins and destinations as nodes. 
+          The nodes represent groups, activities or actors, depending on the Level selection. 
+          The flow direction is from left to right.<br><br>
+          <b>Flow selection</b>
+          Tap a flow to display it and the involved actors on the map to the right. Tap it again to unselect it and remove it from the map.
+          
+          <b>Controls</b>
+          The diagram is zoomable and movable with touch gestures.
+          The crosshair icon resets the zoom and centers the diagram.
+          
+          <b>Export</b>
+          <br> You can export your current view as an image by pressing the camera button.
+          To export the flow data as a csv file press the button with the paper icon
         {% endblocktrans %}">
       </a>
       <div class="sankey-wrapper" class="noselect" style="width: 100%; touch-action: none;">
@@ -97,7 +107,24 @@
   <div class="col-md-6 bordered">
     <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Map" style="margin: 15px; position: absolute; z-index:1000;" data-html="true" tabindex="0"
       data-content="{% blocktrans %}
-        Lorem ipsum.
+          This map displays the selected flows of the sankey diagram to the left on a spatial actor level.
+          The color coding of the basic flows and nodes matches the sankey diagram. 
+          Tap a flow or actor on the map to display a tooltip with information about it.
+          <br><br>
+          <b>Display Materials</b><br>
+          Initially the map displays the flows aggregated by its fractions from origin to destination.
+          By tapping <i>Display Materials</i> label or its checkbox the flows are disaggregated into their fractions. 
+          This changes the color code of the flows. The new color codes are explained in the appearing legend.
+          You may select/deselect specific flows in the legend to display/hide them in the map.
+          <br><br>
+          <b>Cluster Locations</b><br>
+          The locations of actors and the flows in between can be clustered automatically depending on the zoom level. 
+          The more you zoom out the bigger the cluster radius will get.
+          Only actors of the same activity/group will be clustered together. 
+          <br><br>
+          <b>Animate Flows</b><br>
+          To visualize the flow direction the <i>Animate Flows</i> checkbox has to be activated.
+          
       {% endblocktrans %}">
     </a>
     <div id="flow-map" style="width: 100%; height: 600px;"></div>
