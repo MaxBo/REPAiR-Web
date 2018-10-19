@@ -39,7 +39,8 @@ class StakeholderSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Stakeholder
-        fields = ('url', 'id', 'name', 'stakeholder_category')
+        fields = ('url', 'id', 'name', 'stakeholder_category',
+                  'description')
 
 
 class StakeholderSetSerializer(NestedHyperlinkedModelSerializer):
@@ -64,8 +65,7 @@ class StakeholderCategorySerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = StakeholderCategory
-        fields = ('url', 'id', 'name', 'stakeholder_set', 'stakeholder_list',
-                  )
+        fields = ('url', 'id', 'name', 'stakeholder_set', 'stakeholder_list')
 
     def get_required_fields(self, user, kic=None):
         required_fields = {'casestudy': user.casestudy, }

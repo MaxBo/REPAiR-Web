@@ -41,7 +41,8 @@ class AimSerializer(InCasestudySerializerMixin,
                   'text',
                   'casestudy',
                   'keyflow',
-                  'priority')
+                  'priority',
+                  'description')
 
 
 class AimPostSerializer(InCasestudySerializerMixin,
@@ -56,7 +57,8 @@ class AimPostSerializer(InCasestudySerializerMixin,
                   'id',
                   'keyflow',
                   'text',
-                  'priority')
+                  'priority',
+                  'description')
 
 
 class UserObjectiveSerializer(InCasestudySerializerMixin,
