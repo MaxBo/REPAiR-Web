@@ -59,6 +59,8 @@ var FlowsView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template();
         this.renderSankeyMap();
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus" });
     },
     // render the empty sankey map
     renderSankeyMap: function(){

@@ -46,12 +46,17 @@
 <div class="row bordered">
   <div class="row">
     <h4 style="margin-right: 10px; float: left;">{% trans "View" %}</h4>
-    <select name="filter" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+    <select name="filter" class="form-control" style="max-width: 500px; float: left;">
       <option disabled selected value="-1"> {% trans "Select" %} </option>
       <% filters.each(function(filter) { %>
         <option value="<%= filter.id %>"> <%= filter.get('name') %></option>
       <% });  %>
     </select>
+    <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="View" style="float: left; margin-right: 10px;" data-html="true" tabindex="0"
+      data-content="{% blocktrans %}
+        Select a predefined view. The flows in a view are filtered to match certain criteria.
+      {% endblocktrans %}">
+    </a>
     <div id="filter-description" class="input-label"></div>
   </div>
   <div class="row">
@@ -77,13 +82,25 @@
 <script type="text/template" id="flows-render-template">
 <div class="row" style="margin-top: 20px;">
   <div class="col-md-6">
-    <div class="row" style="position: relative;">
+    <div class="row" style="position: relative; padding: 0px;">
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Diagram" style="margin: 15px; position: absolute;" data-html="true" tabindex="0"
+        data-content="{% blocktrans %}
+          Lorem ipsum.
+          crosshair icon
+          export
+        {% endblocktrans %}">
+      </a>
       <div class="sankey-wrapper" class="noselect" style="width: 100%; touch-action: none;">
       </div>
     </div>
   </div>
-  <div class="col-md-6">
-    <div id="flow-map" style="width: 100%; height: 600px;">
+  <div class="col-md-6 bordered">
+    <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Map" style="margin: 15px; position: absolute; z-index:1000;" data-html="true" tabindex="0"
+      data-content="{% blocktrans %}
+        Lorem ipsum.
+      {% endblocktrans %}">
+    </a>
+    <div id="flow-map" style="width: 100%; height: 600px;"></div>
   </div>
 </div>
 </script>

@@ -530,6 +530,8 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 .fullscreen-toggle {
     top: 20px;
     right: 20px;
+    font-size: 1.4em;
+    padding: 6px;
 }
 
 
