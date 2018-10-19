@@ -67,7 +67,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 zoomToFit = document.createElement('a'),
                 fitSpan = document.createElement('span');
 
-            fullscreenBtn.classList.add("fas", "fa-expand", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay");
+            fullscreenBtn.classList.add("fas", "fa-expand", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay", "inverted");
             exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
             exportImgBtn.style.top = "100px";
             exportImgBtn.style.right = "20px";
