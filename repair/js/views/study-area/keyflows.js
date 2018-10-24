@@ -77,6 +77,9 @@ var KeyflowsView = BaseView.extend(
             if (_this.mode === 1) _this.addEditor(row, keyflow);
             else _this.addView(row, keyflow);
         })
+
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus" });
     },
 
     addEditor: function(el, keyflow){

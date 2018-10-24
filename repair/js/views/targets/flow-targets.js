@@ -53,6 +53,9 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 apiTag: 'targetvalues',
             });
 
+            // store last set indicator values here
+            this.indValMem = {};
+
             this.indicators = new GDSECollection([], {
                 apiTag: 'flowIndicators',
                 apiIds: [this.caseStudy.id, this.keyflowId],
@@ -123,12 +126,19 @@ function(_, BaseView, GDSECollection, GDSEModel){
             })
 
             addBtn.addEventListener('click', function(){
-                // just create a default Target
+                // create a default Target
+                var values = {
+                    "indicator": _this.indicators.first().id,
+                    "target_value": _this.targetValues.first().id,
+                };
+                var tVal = _this.indValMem[_this.indicators.first().id];
+                // another indicator had a value selected, set it equally
+                if (tVal != null) {
+                    values['target_value'] = tVal;
+                }
+
                 var target = _this.targets[objective.id].create(
-                    {
-                        "indicator": _this.indicators.first().id,
-                        "target_value": _this.targetValues.first().id,
-                    },
+                    values,
                     {
                         wait: true,
                         success: function(){
@@ -151,7 +161,13 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 removeBtn = document.createElement('button');
 
             indicatorSelect.classList.add('form-control');
+            indicatorSelect.classList.add('indicator');
             targetSelect.classList.add('form-control');
+            targetSelect.classList.add('target-value');
+            row.classList.add('target-row');
+            row.dataset['objective'] = objective.id;
+            row.dataset['target'] = target.id;
+            targetSelect.classList.add('target-value');
             spatialInput.classList.add('form-control');
             spatialInput.disabled = true;
 
@@ -186,6 +202,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 targetSelect.appendChild(option);
             });
             targetSelect.value = target.get('target_value');
+            this.indValMem[target.get('indicator')] = target.get('target_value')
 
             function setSpatialRef(indicatorId){
                 var spatialRef = _this.indicators.get(indicatorId).get('spatial_reference'),
@@ -195,18 +212,43 @@ function(_, BaseView, GDSECollection, GDSEModel){
             setSpatialRef(target.get('indicator'));
 
             indicatorSelect.addEventListener('change', function(){
+                var tVal = _this.indValMem[this.value],
+                    values = { indicator: this.value };
+                // another indicator had a value selected, set it equally
+                if (tVal != null) {
+                    values['target_value'] = tVal;
+                    targetSelect.value = tVal;
+                }
                 target.save(
-                    { indicator: this.value },
+                    values,
                     { patch: true, error: _this.onError }
                 );
                 setSpatialRef(this.value);
             })
 
             targetSelect.addEventListener('change', function(){
-                target.save(
-                    { target_value: this.value },
-                    { patch: true, error: _this.onError }
-                )
+                var targetValue = this.value,
+                    indicator = indicatorSelect.value,
+                    targetRows = _this.el.querySelectorAll('.target-row'),
+                    rowArray = Array.prototype.slice.call(targetRows);
+                // check all target rows for rows with same indicator
+                rowArray.forEach(function(r){
+                    var ind = r.querySelector('.indicator').value;
+                    if (ind != indicator) return;
+                    var tSel = r.querySelector('.target-value'),
+                        id = r.dataset['target'],
+                        t = _this.targets[r.dataset['objective']].get(id);
+                    tSel.classList.add('flash');
+                    setTimeout(function() {
+                        tSel.classList.remove('flash');
+                    }, 500);
+                    tSel.value = targetValue;
+                    t.save(
+                        { target_value: targetValue },
+                        { patch: true, error: _this.onError }
+                    )
+                })
+                _this.indValMem[target.get('indicator')] = targetValue;
             })
 
             row.insertCell(-1).appendChild(indicatorSelect);

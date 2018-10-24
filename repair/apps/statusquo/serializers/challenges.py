@@ -28,7 +28,8 @@ class ChallengeSerializer(NestedHyperlinkedModelSerializer):
                   'casestudy',
                   'keyflow',
                   'text',
-                  'priority')
+                  'priority',
+                  'description')
 
 
 class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
@@ -42,4 +43,5 @@ class ChallengePostSerializer(NestedHyperlinkedModelSerializer):
                   'id',
                   'text',
                   'keyflow',
-                  'priority')
+                  'priority',
+                  'description')

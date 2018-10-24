@@ -114,6 +114,12 @@ div.fullscreen{
   color: white;
 }
 
+/*summernote tooltip*/
+.tooltip[role="tooltip"]{
+  position: absolute!important;
+  background: white;
+}
+
 #wrapper {
   /*transition: all .4s ease 0s;*/
   height: 100%;
@@ -260,6 +266,10 @@ div.fullscreen{
   padding: 6px;
   position: relative;
   /*font-weight: normal;*/
+}
+
+table.bordered td {
+  border: solid lightgrey 1px;
 }
 
 .entry-table tr.strikeout td:before {
@@ -414,6 +424,11 @@ button.square, button.round, .btn.square, .btn.round {
 .btn-primary {
   background-color: #aad400;
   border: solid 1px #aad400;
+  min-height: 25px;
+  min-width: 25px;
+}
+
+button.d3-overlay {
   min-height: 30px;
   min-width: 30px;
 }
@@ -515,6 +530,8 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 .fullscreen-toggle {
     top: 20px;
     right: 20px;
+    font-size: 1.4em;
+    padding: 6px;
 }
 
 
@@ -632,4 +649,35 @@ div.panel-item:hover label{
   top: auto;
   left: auto;
   width: inherit;
+}
+
+/* put overlay viewerjs on top of navbar*/
+.viewer-container.viewer-in{
+    z-index: 10000!important;
+}
+
+@-webkit-keyframes flash {
+    0% {
+        background-color: white;
+    }
+    30% {
+        background-color: lightblue;
+    }
+    70% {
+        background-color: lightblue;
+    }
+    100% {
+        background-color: white;
+    }
+}
+
+.flash {
+    animation-name: flash;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in-out;
+}
+
+.viewer-footer{
+  transform: scale(1.5);
 }

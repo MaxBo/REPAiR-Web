@@ -12,6 +12,7 @@ class Challenge(GDSEModel):
                                 null=True, default=None)
     text = models.CharField(max_length=255)
     priority = models.IntegerField(default=0)
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         try:

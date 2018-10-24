@@ -30,7 +30,8 @@ define([
             this.mapProjection = options.projection || 'EPSG:3857';
             this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
             var showControls = (options.showControls != false) ? true : false,
-                enableZoom = (options.enableZoom != false) ? true : false;
+                enableZoom = (options.enableZoom != false) ? true : false,
+                enableDrag = (options.enableDrag != false) ? true : false;
 
             this.view = new ol.View({
                 projection: this.mapProjection,
@@ -58,16 +59,21 @@ define([
                                     })}).extend([
                                         new ol.control.FullScreen({source: options.el})
                                     ]) : [];
-            var interactions = (enableZoom) ? null : ol.interaction.defaults({
-                                                        doubleClickZoom :false,
-                                                        dragAndDrop: false,
-                                                        keyboardPan: false,
-                                                        keyboardZoom: false,
-                                                        mouseWheelZoom: false,
-                                                        pointer: false,
-                                                        select: false
-                                                    });
 
+            var interactOptions = {
+                    doubleClickZoom : enableZoom,
+                    keyboardZoom: enableZoom,
+                    mouseWheelZoom: enableZoom,
+                    dragZoom: enableZoom
+                };
+
+
+            if (!enableDrag) {
+                interactOptions.keyboardPan = false;
+                interactOptions.dragPan = false;
+            }
+
+            var interactions = ol.interaction.defaults(interactOptions);
             this.layers = { basic: basicLayer };
 
             this.map = new ol.Map({
@@ -188,9 +194,9 @@ define([
 
             var image = new ol.style.Circle({
                 radius: 5,
-                fill: new ol.style.Fill({ color: options.stroke || 'rgb(100, 150, 250)' }),
+                fill: new ol.style.Fill({ color: options.fill || 'rgb(100, 150, 250)' }),
                 stroke: new ol.style.Stroke({
-                    color: options.fill || 'rgba(100, 150, 250, 0.1)',
+                    color: options.stroke || 'rgba(100, 150, 250, 0.1)',
                     width: options.strokeWidth || 3
                 })
             });
@@ -326,8 +332,15 @@ define([
             this.map.addLayer(layer);
         }
 
+        setVisible(layername, visible){
+            var layer = this.layers[layername];
+            layer.setVisible(visible);
+        }
+
         setZIndex(layername, zIndex){
-            this.layers[layername].setZIndex(zIndex);
+            var layer = this.layers[layername];
+            if (layer) layer.setZIndex(zIndex);
+            else console.log(layername + ' not found');
         }
 
         /**
@@ -340,7 +353,7 @@ define([
         * @param {string=} options.id                  id of feature
         * @param {string=} options.tooltip             tooltip shown on hover over polygon
         * @param {string=} options.label               label to show on map
-        * @param {string} [options.type='Polygon']     Polygon or Multipolygon
+        * @param {string} [options.type='Polygon']     'Polygon' or 'MultiPolygon'
         *
         * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
         *
@@ -708,7 +721,6 @@ define([
             // doesn't work with freehand, so not set atm
             function oneFingerCondition(olBrowserEvent) {
                 var touchEvent = olBrowserEvent.originalEvent.touches;
-                console.log(touchEvent)
                 if (touchEvent)
                     return touchEvent.length === 1;
                 return true;
@@ -800,6 +812,10 @@ define([
             var layer = this.layers[layername],
                 source = layer.getSource();
             return source.getFeatures();
+        }
+
+        getLayer(layername){
+            return this.layers[layername];
         }
 
         /**

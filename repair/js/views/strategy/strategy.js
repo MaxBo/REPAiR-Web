@@ -67,7 +67,7 @@ var StrategyView = BaseView.extend(
             this.solutionCategories.fetch(),
             this.units.fetch()
         ]
-
+        this.loader.activate();
         Promise.all(promises).then(function(){
             var deferreds = [];
             // fetch all stakeholders after fetching their categories
@@ -106,6 +106,7 @@ var StrategyView = BaseView.extend(
     * render the view
     */
     render: function(){
+        this.loader.deactivate();
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
@@ -422,7 +423,8 @@ var StrategyView = BaseView.extend(
         previewMap = new Map({
             el: document.getElementById(divid),
             enableZoom: false,
-            showControls: false
+            showControls: false,
+            enableDrag: false
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
