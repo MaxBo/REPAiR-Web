@@ -25,8 +25,10 @@ class DynamicFieldsModelSerializerMixin:
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
-
-        fields = self.context['request'].query_params.get('fields')
+        r = self.context.get('requests')
+        if not r:
+            return
+        fields = r.query_params.get('fields')
         if fields:
             fields = fields.split(',')
             # Drop any fields that are not specified in the `fields` argument.
