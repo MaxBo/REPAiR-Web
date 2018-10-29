@@ -368,8 +368,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         //create bar chart
         this.chart = highcharts.chart(div, {
             chart: {
-                width: 0.85 * width,
-                type: 'column'
+                type: 'column',
+                width: 0.85 * width
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + highcharts.numberFormat(this.y, 0, ',', '') + '</b>';
+                }
             },
             xAxis: {
                 minorTickLength: 0,
@@ -496,7 +501,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var id = areaSelect.id,
                 d = chartData[id];
             if (!d) return;
-            categories.push(d.name);
+            categories.push(areaSelect.name);
             data.push({
                 color: d.color,
                 y: d.value
@@ -507,7 +512,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             data: data
         });
     },
-
+    
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt,
@@ -768,7 +773,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             promise.then(update);
         else update()
     }
-
 });
 return FlowAssessmentWorkshopView;
 }
