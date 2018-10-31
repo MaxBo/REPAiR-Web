@@ -5,6 +5,9 @@
  */
 
 @main-color: #aad400;
+@secondary-color: #333333;
+@tertiary-color: #3C4A63;
+
 @import "main-navbar.less";
 @import "sidebar.less";
 
@@ -110,7 +113,7 @@ div.fullscreen{
 
 /*summernote tooltip*/
 .tooltip[role="tooltip"]{
-  position: absolute;
+  position: absolute ~'!IMPORTANT';
   background: white;
 }
 
@@ -172,7 +175,7 @@ div.fullscreen{
   text-decoration: none;
   padding: 20px 10px 20px 10px;
   display: block;
-  color: black ;
+  color: black ~'!IMPORTANT';
 }
 .panel-heading .accordion-toggle:after {
   /* symbol for panel */
@@ -200,7 +203,7 @@ div.fullscreen{
   font-size: 24px;
   color: lightblue;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: none ~'!IMPORTANT';
 }
 .help-icon:hover{
   color: #44c9f5;
@@ -237,7 +240,7 @@ div.fullscreen{
 
 /* workaround for visualizations not rendering correctly in hidden tabs */
 .tab-pane {
-  display: block ;
+  display: block ~'!IMPORTANT';
   position: fixed;
   right: -9999px;
   width: 100%;
@@ -275,7 +278,7 @@ table.bordered td {
     width: 100%;
 }
 .entry-table tr.selected td{
-    background-color: rgb(240, 255, 179) ;
+    background-color: rgb(240, 255, 179) ~'!IMPORTANT';
     border-bottom: 2px solid @main-color;
     border-top: 2px solid @main-color;
 }
@@ -311,11 +314,11 @@ table.bordered td {
 
 .disabled {
   pointer-events: none;
-  opacity: 0.7 ;
+  opacity: 0.7 ~'!IMPORTANT';
 }
 
 #to-top-anchor {
-  color: #4c5867 ;
+  color: #4c5867 ~'!IMPORTANT';
   background-color: white;
   position: fixed;
   /*float: right;*/
@@ -381,13 +384,13 @@ td.tablesorter-pager {
 }
 
 .sub-table td{
-  background: none ;
-  border-bottom: none ;
+  background: none ~'!IMPORTANT';
+  border-bottom: none ~'!IMPORTANT';
 }
 
 tr.popunder > td{
-  border-top: none ;
-  padding-top: 0px ;
+  border-top: none ~'!IMPORTANT';
+  padding-top: 0px ~'!IMPORTANT';
 }
 
 .bordered {
@@ -412,7 +415,7 @@ tr.popunder > td{
 
 button.square, button.round, .btn.square, .btn.round {
   padding: 1px 5px 1px 5px;
-  outline: none ;
+  outline: none ~'!IMPORTANT';
 }
 
 .btn-primary {
@@ -428,8 +431,8 @@ button.d3-overlay {
 }
 
 .btn-primary:focus, .btn-primary:hover, .btn-primary:active {
-  border-color: #93b700 ;
-  background-color: #a3cc00 ;
+  border-color: #93b700 ~'!IMPORTANT';
+  background-color: #a3cc00 ~'!IMPORTANT';
 }
 
 .btn-primary:active {
@@ -455,8 +458,8 @@ button.d3-overlay {
 }
 
 .btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
-  border-color: #93b700 ;
-  background-color: #f9ffe2 ;
+  border-color: #93b700 ~'!IMPORTANT';
+  background-color: #f9ffe2 ~'!IMPORTANT';
 }
 
 .btn-primary.inverted:active {
@@ -464,8 +467,8 @@ button.d3-overlay {
 }
 
 .btn-warning.inverted:focus, .btn-warning.inverted:hover, .btn-warning.inverted:active {
-  border-color: #b75e00 ;
-  background-color: #fff0e2 ;
+  border-color: #b75e00 ~'!IMPORTANT';
+  background-color: #fff0e2 ~'!IMPORTANT';
 }
 
 .btn-warning.inverted:active {
@@ -473,8 +476,8 @@ button.d3-overlay {
 }
 
 .btn-danger.inverted:focus, .btn-danger.inverted:hover, .btn-danger.inverted:active {
-  border-color: #b70000 ;
-  background-color: #ffefef ;
+  border-color: #b70000 ~'!IMPORTANT';
+  background-color: #ffefef ~'!IMPORTANT';
 }
 
 .btn-danger.inverted:active {
@@ -647,7 +650,7 @@ div.panel-item:hover label{
 
 /* put overlay viewerjs on top of navbar*/
 .viewer-container.viewer-in{
-    z-index: 10000;
+    z-index: 10000 ~'!IMPORTANT';
 }
 
 @-webkit-keyframes flash {
