@@ -319,7 +319,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.areaSelects[id] = areaSelect;
             _this.areaSelectIdCnt = Math.max(_this.areaSelectIdCnt, parseInt(id) + 1);
             if(_this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]') == null){
-                _this.renderAreaBox(_this.areaSelectRow, id, id, { color: areaSelect.color });
+                _this.renderAreaBox(_this.areaSelectRow, id, areaSelect.name, { color: areaSelect.color, fontSize: areaSelect.fontSize });
             }
             var button = _this.el.querySelector('button.select-area[data-id="' + id + '"]'),
                 areas = areaSelect.areas;
@@ -363,11 +363,18 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         // user defined areas
         var barChartTab = this.el.querySelector('#bar-charts-tab');
         this.chartLoader = new utils.Loader(barChartTab, {disable: true});
-
+        var width = $("#bar-chart").width();
+        
         //create bar chart
         this.chart = highcharts.chart(div, {
             chart: {
-                type: 'column'
+                type: 'column',
+                width: 0.85 * width
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + highcharts.numberFormat(this.y, 0, ',', '') + '</b>';
+                }
             },
             xAxis: {
                 minorTickLength: 0,
@@ -432,12 +439,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             spatialRef = indicator.get('spatial_reference'),
             geom = (spatialRef == 'REGION') ? this.caseStudy.get('geom') : this.caseStudy.get('properties').focusarea,
             text = (spatialRef == 'REGION') ? gettext('Casestudy <br> Region') : gettext('Focus <br> Area'),
-            fontSize = (spatialRef == 'REGION') ? '35px' : '40px',
+            fontSize = (spatialRef == 'REGION') ? '34px' : '40px',
             indicatorId = _this.indicatorId;
 
         var spatialItem = _this.areaSelectRow.querySelector('div.item[data-id="0"]'),
             // ToDo: query by class (did not change the template yet to avoid git conflicts)
-            label = spatialItem.querySelector('.item-content>b');
+            label = spatialItem.querySelector('.item-content>p');
         label.style.fontSize = fontSize;
         label.innerHTML = text;
 
@@ -494,7 +501,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var id = areaSelect.id,
                 d = chartData[id];
             if (!d) return;
-            categories.push(d.name);
+            categories.push(areaSelect.name);
             data.push({
                 color: d.color,
                 y: d.value
@@ -505,7 +512,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             data: data
         });
     },
-
+    
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt,
@@ -708,7 +715,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         loader.activate();
         this.getAreas(level, draw);
     },
-
+    
     // user confirmation of selected areas in modal
     confirmAreaSelection: function(){
         var id = this.activeAreaSelectId,
@@ -716,6 +723,36 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this = this;
         item.areas = this.selectedAreas;
         item.level = this.areaLevelSelect.value;
+        
+        var area = this.areas[item.level].get(item.areas[0]);
+        var label = area.get('name');
+        var count = item.areas.length-1;
+        if(count > 0){
+            label = label + ' + ' + count;
+        }
+        this.areaSelects[id].name = label;
+        this.areaSelects[id].color = this.barChartColor(id);
+        div = this.areaSelectRow.querySelector('div.item[data-id="' + id + '"]');
+        var html = document.getElementById('row-box-template').innerHTML,
+            template = _.template(html),
+            color = this.barChartColor(id);
+        div.innerHTML = template({
+            title: this.areaSelects[id].name,
+            fontSize: '40px',
+            id: id,
+            color: this.areaSelects[id].color
+        });
+        // dynamically set font size
+        var child = div.children[0];
+        var el = child.querySelector("#name");
+        var fontSize = parseInt(el.style.fontSize);
+        for (var i = fontSize; i >= 0; i--) {
+            if (el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2) {
+             fontSize--;
+             el.style.fontSize = fontSize + "px";
+            }
+        }
+        this.areaSelects[id].fontSize = fontSize + "px";
         var button = this.el.querySelector('button.select-area[data-id="' + id + '"]')
         if (this.selectedAreas.length > 0){
             button.classList.remove('btn-warning');
@@ -736,7 +773,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             promise.then(update);
         else update()
     }
-
 });
 return FlowAssessmentWorkshopView;
 }
