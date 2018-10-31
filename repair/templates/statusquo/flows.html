@@ -323,7 +323,7 @@
           <span class="glyphicon glyphicon-plus" style="top: 50%; transform: translate(-50%, -50%); position:absolute;"></span>
         </button>
       </div>
-      <div class="row overflow bordered" id='bar-chart' style="overflow-y: hidden;">
+      <div class="row overflow bordered" id='bar-chart' style="min-width: 310px; overflow-y: hidden;">
       </div>
     </div>
   </div>
@@ -333,12 +333,14 @@
 </script>
 
 <script type="text/template" id="row-box-template">
-<div class="item-content bordered noselect shaded" style="border-bottom: 5px solid <%= color %>">
+<div class="item-content bordered noselect shaded" style="position: relative; border-bottom: 5px solid <%= color %>">
   <button class="btn btn-danger remove-item" style="position: absolute; top: -1px; right: -1px;" data-id="<%= id %>">
     <b style="pointer-events: none;">X</b>
   </button>
-  <b style="font-size: <%= fontSize %>"><%= title %></b><br>
-  <button class="btn btn-warning select-area" data-id="<%= id %>"><b style="pointer-events: none;">{% trans "Select Areas" %}</b></button>
+  <p id="name" style="height: 75%; padding: 7% 0; word-wrap:break-word; white-space:normal; font-size:<%= fontSize %>"><%= title %></p>
+  <button class="btn btn-warning select-area" data-id="<%= id %>" style="position: absolute; bottom: 1px; left:50%; transform: translate(-50%, 0%); margin: 0 auto;">
+    <b style="pointer-events: none;">{% trans "Select Areas" %}</b>
+  </button>
 </div>
 </script>
 
