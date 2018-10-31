@@ -161,8 +161,6 @@ class SessionView(View):
         if not request.user.is_authenticated:
             return HttpResponse(_('Unauthorized'), status=401)
         response = self._session_dict
-        response['mode'] = request.session.get('mode', self.MODES['Workshop'])
-        response['language'] = request.LANGUAGE_CODE
 
         # sometimes (seems random) django forgets its latest session changes
         # workaround: load them from the db
@@ -171,6 +169,9 @@ class SessionView(View):
         if len(persist) > 0:
             for k, v in json.loads(persist).items():
                 response[k] = v
+
+        response['language'] = request.LANGUAGE_CODE
+        response['mode'] = request.session.get('mode', self.MODES['Workshop'])
 
         return JsonResponse(response)
 
