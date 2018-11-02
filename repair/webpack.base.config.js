@@ -31,7 +31,7 @@ module.exports = {
                 // workaround: webpack has problems bundling css files shared between entry points,
                 // it is always missing  at one entry point then (which one seems random)
                 // -> bundle all required css files into commons.css
-                if(module.resource && (/^.*\.(css|scss)$/).test(module.resource)) {
+                if(module.resource && (/^.*\.(css|scss|less)$/).test(module.resource)) {
                     return true;
                 }
                 // bundle node modules that are shared at least in between two different entry points
@@ -71,6 +71,13 @@ module.exports = {
             {
                 test: /\.(png|woff|woff2|eot|ttf|svg|gif)$/,
                 loader: 'url-loader?limit=100000'
+            },
+            {
+                test: /\.less$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: ['css-loader', 'less-loader']
+                })
             }
         ],
     },
