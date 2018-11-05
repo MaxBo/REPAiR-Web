@@ -1,6 +1,7 @@
 # API View
 from reversion.views import RevisionMixin
 from django.contrib.gis.geos import GEOSGeometry
+from django.db.models import CharField, Value
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -13,7 +14,8 @@ from repair.apps.asmfa.serializers import (
     ActorSerializer,
     ActivityListSerializer,
     ActorListSerializer,
-    ActivityGroupListSerializer
+    ActivityGroupListSerializer,
+    ActivityGroupCreateSerializer
 )
 
 from repair.apps.asmfa.views import UnlimitedResultsSetPagination
@@ -23,7 +25,8 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      PostGetViewMixin)
 
 
-class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
+class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin,
+                           CasestudyViewSetMixin,
                            ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_activitygroup'
@@ -31,7 +34,10 @@ class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixi
     delete_perm = 'asmfa.delete_activitygroup'
     serializer_class = ActivityGroupSerializer
     queryset = ActivityGroup.objects.order_by('id')
-    serializers = {'list': ActivityGroupListSerializer}
+    serializers = {
+        'list': ActivityGroupListSerializer,
+        'create': ActivityGroupCreateSerializer
+    }
 
     def get_queryset(self):
         groups = ActivityGroup.objects

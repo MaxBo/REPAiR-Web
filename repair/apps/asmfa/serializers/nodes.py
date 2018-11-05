@@ -1,4 +1,6 @@
 
+import pandas as pd
+from django_pandas.io import read_frame
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +13,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       AdministrativeLocation,
                                       OperationalLocation,
                                       Reason,
+                                      KeyflowInCasestudy,
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -28,16 +31,115 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
-    keyflow = IDRelatedField(required=False)
+    keyflow = IDRelatedField(read_only=True, required=False)
     nace = serializers.ListField(read_only=True, source='nace_codes')
 
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name',
-                  'inputs', 'outputs', 'stocks', 'keyflow', 'nace')
+                  'inputs', 'outputs', 'stocks', 'keyflow', 'nace', 'file')
+
+
+class ActivityGroupCreateSerializer(ActivityGroupSerializer):
+    _upload_file = serializers.FileField(required=False, write_only=True)
+
+    class Meta(ActivityGroupSerializer.Meta):
+        extra_kwargs = {
+            'code': { 'required': False },
+            'name': { 'required': False }
+        }
+        fields = ('id', 'code', 'name', '_upload_file')
+
+    def to_internal_value(self, data):
+        """
+        Convert csv-data to pandas dataframe and
+        add it as attribute `dataframe` to the validated data
+        add also `keyflow_id` to validated data
+        """
+        file = data.pop('_upload_file', None)
+        ret = super().to_internal_value(data)
+        if file is None:
+            return ret
+
+        encoding = 'utf8'
+        df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+        df_new = df_new.\
+            rename(columns={c: c.lower() for c in df_new.columns})
+        ret['dataframe'] = df_new
+        request = self.context['request']
+        url_pks = request.session.get('url_pks', {})
+        keyflow_id = url_pks.get('keyflow_pk')
+        ret['keyflow_id'] = keyflow_id
+        return ret
+
+    def create(self, validated_data):
+        """Bulk create of data"""
+        keyflow_id = validated_data.pop('keyflow_id')
+        df_ag_new = validated_data.pop('dataframe')
+
+        index_col = 'code'
+        df_ag_new.set_index(index_col, inplace=True)
+
+        kic = KeyflowInCasestudy.objects.get(id=keyflow_id)
+
+        # get existing activitygroups of keyflow
+        qs = ActivityGroup.objects.filter(keyflow_id=kic.id)
+        df_ag_old = read_frame(qs, index_col=['code'])
+
+        existing_ag = df_ag_new.merge(df_ag_old,
+                                      left_index=True,
+                                      right_index=True,
+                                      how='left',
+                                      indicator=True,
+                                      suffixes=['', '_old'])
+        new_ag = existing_ag.loc[existing_ag._merge=='left_only'].reset_index()
+        idx_both = existing_ag.loc[existing_ag._merge=='both'].index
+
+        # set the KeyflowInCasestudy for the new rows
+        new_ag.loc[:, 'keyflow'] = kic
+
+        # skip columns, that are not needed
+        field_names = [f.name for f in ActivityGroup._meta.fields]
+        drop_cols = []
+        for c in new_ag.columns:
+            if not c in field_names or c.endswith('_old'):
+                drop_cols.append(c)
+        drop_cols.append('id')
+        new_ag.drop(columns=drop_cols, inplace=True)
+
+        # set default values for columns not provided
+        defaults = {col: ActivityGroup._meta.get_field(col).default
+                    for col in new_ag.columns}
+        new_ag = new_ag.fillna(defaults)
+
+        # create the new rows
+        ags = []
+        ag = None
+        for row in new_ag.itertuples(index=False):
+            row_dict = row._asdict()
+            ag = ActivityGroup(**row_dict)
+            ags.append(ag)
+        ActivityGroup.objects.bulk_create(ags)
+
+        # update existing values
+        ignore_cols = ['id', 'keyflow']
+
+        df_updated = df_ag_old.loc[idx_both]
+        df_updated.update(df_ag_new)
+        for row in df_updated.reset_index().itertuples(index=False):
+            ag = ActivityGroup.objects.get(keyflow=kic,
+                                           code=row.code)
+            for c, v in row._asdict().items():
+                if c in ignore_cols:
+                    continue
+                setattr(ag, c, v)
+            ag.save()
+
+        return ag
 
 
 class ActivityGroupListSerializer(ActivityGroupSerializer):
+
     class Meta(ActivityGroupSerializer.Meta):
         fields = ('id', 'code', 'name')
 
@@ -202,14 +304,14 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'activity_name', 'activitygroup', 'activitygroup_name', 
-                  'included', 'nace', 'city', 'address', 
+                  'activity_name', 'activitygroup', 'activitygroup_name',
+                  'included', 'nace', 'city', 'address',
                   'reason', 'description'
                   )
         extra_kwargs = {'year': {'allow_null': True},
                         'turnover': {'allow_null': True},
                         'employees': {'allow_null': True}}
-    
+
     # normally you can't upload empty strings for number fields, but we want to
     # allow some of them to be blank -> set to None when receiving empty string
     def to_internal_value(self, data):

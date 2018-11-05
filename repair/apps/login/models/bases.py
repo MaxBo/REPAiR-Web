@@ -22,6 +22,10 @@ class GDSEModel(models.Model):
         except Exception:
             return ''
 
+    @property
+    def _upload_file(self):
+        return None
+
 
 class GDSEUniqueNameModel(GDSEModel):
     """Base class for the GDSE Models"""

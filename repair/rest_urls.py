@@ -107,7 +107,6 @@ cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 
-
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
                                lookup='userobjective')
