@@ -15,11 +15,10 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          )
 from repair.apps.asmfa.models import ActivityGroup, Activity
 
-testdata_folder = 'data'
-
 
 class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
 
+    testdata_folder = 'data'
     filename_actg = 'T3.2_Activity_groups.tsv'
     filename_act = 'T3.2_Activities.tsv'
     filename_actor = 'T3.2_Actors.tsv'
@@ -31,6 +30,13 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
         cls.keyflow = cls.kic
         cls.casestudy = cls.uic.casestudy
 
+        cls.ag_url = reverse('activitygroup-list',
+                             kwargs={'casestudy_pk': cls.casestudy.id,
+                                     'keyflow_pk': cls.keyflow.id})
+        cls.ac_url = reverse('activity-list',
+                             kwargs={'casestudy_pk': cls.casestudy.id,
+                                     'keyflow_pk': cls.keyflow.id})
+
     def setUp(self):
         super().setUp()
         # create another activitygroup
@@ -39,16 +45,17 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
         ActivityGroupFactory(keyflow=self.keyflow, name='Export', code='WE')
         ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
 
-    def test_bulk_ag(self):
+        ag_f = ActivityGroup.objects.get(code='F')
+        ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='F-4110')
+        ActivityFactory(activitygroup=ag_f, name='shouldnt_be_updated', nace='F-007')
+
+    def test_bulk_group(self):
         """
         Test if user can post without permission
         """
-        url = reverse('activitygroup-list',
-                      kwargs={'casestudy_pk': self.casestudy.id,
-                              'keyflow_pk': self.keyflow.id})
         file_path_ag = os.path.join(os.path.dirname(__file__),
-                                    testdata_folder,
-                                    self.filename_actg)
+                                    self.testdata_folder,
+                                    self.filename_act)
         data = {
             'bulk_upload' : open(file_path_ag, 'rb'),
         }
@@ -63,7 +70,7 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
         file_codes = df_file_ags['code']
         new_codes = [c for c in file_codes if c not in existing_codes]
 
-        res = self.client.post(url, data)
+        res = self.client.post(self.ag_url, data)
         assert res.status_code == 201
 
         # assert that the number of activities matches
@@ -75,3 +82,40 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
             ag = ActivityGroup.objects.get(keyflow=self.keyflow,
                                            code=row.code)
             assert ag.name == row.name
+
+    def test_bulk_activity(self):
+        url = reverse('activity-list',
+                      kwargs={'casestudy_pk': self.casestudy.id,
+                              'keyflow_pk': self.keyflow.id})
+        file_path_ac = os.path.join(os.path.dirname(__file__),
+                                    self.testdata_folder,
+                                    self.filename_act)
+        data = {
+            'bulk_upload' : open(file_path_ac, 'rb'),
+        }
+
+        existing_acs = Activity.objects.filter(activitygroup__keyflow=self.kic)
+        existing_nace = list(existing_acs.values_list('nace', flat=True))
+
+        encoding = 'cp1252'
+        df_file_ags = pd.read_csv(file_path_ac, sep='\t', encoding=encoding)
+        df_file_ags = df_file_ags.rename(
+            columns={c: c.lower() for c in df_file_ags.columns})
+        file_nace = df_file_ags['nace']
+        new_nace = [c for c in file_nace if c not in existing_nace]
+
+        res = self.client.post(self.ac_url, data)
+        assert res.status_code == 201
+
+        # assert that the number of activities matches
+        all_ac = Activity.objects.filter(activitygroup__keyflow=self.kic)
+        assert len(all_ac) == len(existing_nace) + len(new_nace)
+
+        # assert that the Name matches in all values
+        for row in df_file_ags.itertuples(index=False):
+            # ToDo: different test case if activitygroups don't exist
+            ag = ActivityGroup.objects.get(code=row.ag)
+            ac = Activity.objects.get(activitygroup=ag,
+                                      nace=row.nace)
+            assert ac.name == row.name
+
