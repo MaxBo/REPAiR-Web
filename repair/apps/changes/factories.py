@@ -4,6 +4,7 @@ import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
 from repair.apps.studyarea.factories import StakeholderFactory
+from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 
 from . import models
 
@@ -19,6 +20,7 @@ class SolutionCategoryFactory(DjangoModelFactory):
         model = models.SolutionCategory
     name = 'Financial'
     user = factory.SubFactory(UserInCasestudyFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
 class SolutionFactory(DjangoModelFactory):
@@ -48,19 +50,20 @@ class SolutionRatioOneUnitFactory(DjangoModelFactory):
     unit = factory.SubFactory(UnitFactory)
 
 
-class ImplementationFactory(DjangoModelFactory):
+class StrategyFactory(DjangoModelFactory):
     class Meta:
-        model = models.Implementation
-    name = factory.Sequence(lambda n: "Implementation #%s" % n)
+        model = models.Strategy
+    name = factory.Sequence(lambda n: "Strategy #%s" % n)
     user = factory.SubFactory(UserInCasestudyFactory)
     coordinating_stakeholder = factory.SubFactory(StakeholderFactory)
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
-class SolutionInImplementationFactory(DjangoModelFactory):
+class SolutionInStrategyFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionInImplementation
+        model = models.SolutionInStrategy
     solution = factory.SubFactory(SolutionFactory)
-    implementation = factory.SubFactory(ImplementationFactory)
+    strategy = factory.SubFactory(StrategyFactory)
 
     @factory.post_generation
     def participants(self, create, extracted, **kwargs):
@@ -74,40 +77,21 @@ class SolutionInImplementationFactory(DjangoModelFactory):
                 self.participants.add(participant)
 
 
-class ImplementationWithOneSolutionFactory(ImplementationFactory):
-    membership = factory.RelatedFactory(SolutionInImplementationFactory,
+class StrategyWithOneSolutionFactory(StrategyFactory):
+    membership = factory.RelatedFactory(SolutionInStrategyFactory,
                                         'solution')
 
 
-class ImplementationWithTwoSolutionsFactory(UserFactory):
-    membership1 = factory.RelatedFactory(SolutionInImplementationFactory,
+class StrategyWithTwoSolutionsFactory(UserFactory):
+    membership1 = factory.RelatedFactory(SolutionInStrategyFactory,
                                         'solution', solution__name='MySolution1')
-    membership2 = factory.RelatedFactory(SolutionInImplementationFactory,
+    membership2 = factory.RelatedFactory(SolutionInStrategyFactory,
                                         'solution', solution__name='MySolution2')
 
 
-class SolutionInImplementationQuantityFactory(DjangoModelFactory):
+class SolutionInStrategyQuantityFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionInImplementationQuantity
-    sii = factory.SubFactory(SolutionInImplementationFactory)
+        model = models.SolutionInStrategyQuantity
+    sii = factory.SubFactory(SolutionInStrategyFactory)
     quantity = factory.SubFactory(SolutionQuantityFactory)
     value = 24.3
-
-
-class StrategyFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Strategy
-    user = factory.SubFactory(UserInCasestudyFactory)
-    name = 'Strategy 1'
-    coordinator = factory.SubFactory(StakeholderFactory)
-
-    @factory.post_generation
-    def implementations(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            # A list of implementations were passed in, use them
-            for implementation in extracted:
-                self.implementations.add(implementation)

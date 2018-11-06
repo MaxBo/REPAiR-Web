@@ -17,7 +17,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudyField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
-                                           IDRelatedField)
+                                           IDRelatedField,
+                                           DynamicFieldsModelSerializerMixin)
 
 
 class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
@@ -174,7 +175,8 @@ class URLFieldWithoutProtocol(serializers.CharField):
         self.validators.append(validator)
 
 
-class ActorSerializer(CreateWithUserInCasestudyMixin,
+class ActorSerializer(DynamicFieldsModelSerializerMixin,
+                      CreateWithUserInCasestudyMixin,
                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'activity__activitygroup__keyflow__casestudy__id',

@@ -5,21 +5,16 @@
 {% load render_bundle from webpack_loader %}
 
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans|Roboto" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}img/favicon.ico"/>
-    
+
     <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/fontawesome-all.min.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/base.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/main-navbar.css" />
-    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sidebar.css" />
 
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 
     {% render_bundle 'commons' %}
     <title>{% block title %}REPAiR{% endblock %}</title>
 </head>
-
 
 <body>
   <nav class="navbar navbar-default">
@@ -42,8 +37,8 @@
           <ul class="nav navbar-nav navbar-bottom">
             <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
             <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
-            <li id="changes-link"><div class='menu-arrow'>></div><a href="/changes/">{% trans "Changes" %}</a></li>
-            <li id="impacts-link"><div class='menu-arrow'>></div><a href="/impacts">{% trans "Impacts" %}</a></li>
+            <li id="targets-link"><div class='menu-arrow'>></div><a href="/targets">{% trans "Targets" %}</a></li>
+            <li id="strategy-link"><div class='menu-arrow'>></div><a href="/strategy">{% trans "Strategy" %}</a></li>
             <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
           </ul>
         </div>
@@ -54,7 +49,7 @@
         <ul class="nav navbar-nav navbar-top">
           {% if request.user.is_authenticated %}
             <li>
-              <form id="casestudy-select" action="/login/session/" method="post">
+              <form id="casestudy-select" action="/session/" method="post">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.path }}" />
                 <input name="casestudy" id="casestudy" type="hidden">
@@ -85,7 +80,7 @@
             </li>
             {% if setup_mode_permitted %}
               <li>
-                <form id="mode-select" action="/login/session/" method="post">
+                <form id="mode-select" action="/session/" method="post">
                   {% csrf_token %}
                   <input name="next" type="hidden" value="{{ request.path }}" />
                   <input name="mode" id="mode" type="hidden">
@@ -113,15 +108,19 @@
               </button>
               <div class="dropdown-content">
                 {% if data_entry_permitted %}
-                  <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
+                <a id="data-entry-link" href="/data-entry">{% trans "Data Entry" %}</a>
                 {% endif %}
                 {% if request.user.is_staff %}
-                  <a href="/admin">{% trans "Admin Area" %}</a>
+                <a href="/admin">{% trans "Admin Area" %}</a>
+                {% endif %}
+                <div style="width: 100%; border-bottom: 1px solid #efefef;"></div>
+                {% if request.user.profile.can_change_password %}
+                <a href="/password">{% trans "Change password" %}</a>
                 {% endif %}
                 <a href="/logout">{% trans "Logout" %}</a>
               </div>
             </div>
-            {% else %}<a href="/login/login">{% trans "Login" %}</a></li>
+            {% else %}<a href="/login">{% trans "Login" %}</a></li>
             {% endif %}
           </li>
           <li>
@@ -144,6 +143,9 @@
         </ul>
       </div>
     </div>
+    <a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank" style="position: absolute; right: 17px; bottom: 15px;">
+      <img src="{{STATIC_URL}}img/eu-logo.jpg" style="width: 40px;">
+    </a>
   </nav>
   <div id="wrapper" class="active">
     <div id="sidebar-wrapper" style="display: None;">
@@ -158,7 +160,7 @@
     <div id="page-content-wrapper">
       <!-- Keep all page content within the page-content inset div! -->
       <div class="page-content inset">
-        <div class="row">
+        <div class="row" style="padding: 0px;">
           <div id="content" class="col-md-12">
               {% block content %}{% endblock %}
             </div>

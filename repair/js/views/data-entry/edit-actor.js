@@ -1,6 +1,6 @@
-define(['views/baseview', 'underscore', 
+define(['views/common/baseview', 'underscore',
         'collections/gdsecollection', 'models/gdsemodel',
-        'collections/geolocations', 'models/geolocation', 
+        'collections/geolocations', 'models/geolocation',
         'visualizations/map', 'utils/utils', 'bootstrap'],
 
 function(BaseView, _, GDSECollection, GDSEModel, Locations, Location, Map, utils){
@@ -39,6 +39,8 @@ var EditActorView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
+        // workaround for brackets in query params
+        $.ajaxSetup({ traditional: true });
         EditActorView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderLocation');
 
@@ -85,32 +87,32 @@ var EditActorView = BaseView.extend(
 
         var _this = this;
 
-        this.adminLocations = new Locations([], { 
+        this.adminLocations = new Locations([], {
             apiTag: 'adminLocations',
             apiIds: [ this.caseStudyId, this.keyflowId ]
         });
 
-        this.opLocations = new Locations([], { 
+        this.opLocations = new Locations([], {
             apiTag: 'opLocations',
             apiIds: [ this.caseStudyId, this.keyflowId ]
         });
 
-        this.projection = 'EPSG:4326'; 
+        this.projection = 'EPSG:4326';
 
         this.loader.activate();
         var deferreds = [
-            this.adminLocations.fetch({ data: { actor: this.model.id } }), 
+            this.adminLocations.fetch({ data: { actor: this.model.id } }),
             this.opLocations.fetch({ data: { actor: this.model.id } })
         ]
         var topLevel = this.areaLevels.first();
         if (topLevel) {
-            this.topLevelAreas = new GDSECollection([], { 
+            this.topLevelAreas = new GDSECollection([], {
                 apiTag: 'areas',
                 apiIds: [ this.caseStudyId, topLevel.id ],
                 comparator: 'name'
             });
-            deferreds.push(this.topLevelAreas.fetch());
-        } 
+            deferreds.push(this.topLevelAreas.fetch({ data: { field: ['id', 'name'] }}));
+        }
 
             $.when.apply($, deferreds).then(function(){
                 if (_this.topLevelAreas) _this.topLevelAreas.sort();
@@ -147,7 +149,7 @@ var EditActorView = BaseView.extend(
         this.opTable = this.el.querySelector('#oploc-table').getElementsByTagName('tbody')[0];
 
         this.initMap();
-        this.renderLocations(true);
+        this.renderLocations();
         this.setupAreaInput();
     },
 
@@ -159,8 +161,8 @@ var EditActorView = BaseView.extend(
         return this.hasChangedVal;
     },
 
-    /* 
-    * check the models for changes and upload the changed/added ones 
+    /*
+    * check the models for changes and upload the changed/added ones
     */
     uploadChanges: function(){
         var actor = this.model;
@@ -221,18 +223,18 @@ var EditActorView = BaseView.extend(
         uploadModel(models, 0);
     },
 
-    /* 
+    /*
     * initial setup of the map-view
     */
     initMap: function(){
         var _this = this;
 
         this.globalMap = new Map({
-            divid: 'actors-map', 
+            el: document.getElementById('actors-map'),
         });
 
     this.localMap = new Map({
-        divid: 'edit-location-map', 
+        el: document.getElementById('edit-location-map'),
     });
 
     _.each(this.layers, function(attrs, layername){
@@ -246,10 +248,10 @@ var EditActorView = BaseView.extend(
     });
     },
 
-    /* 
+    /*
     * add a marker with given location to the map and the table
     */
-    renderLocation: function(loc, layername, table){ 
+    renderLocation: function(loc, layername, table){
         if (loc == null)
             return;
         /* add table rows */
@@ -294,18 +296,18 @@ var EditActorView = BaseView.extend(
             wrapper.appendChild(centerDiv);
             wrapper.appendChild(coordDiv);
 
-            // zoom to location if marker in table is clicked 
-            markerCell.addEventListener('click', function(){ 
-                _this.globalMap.centerOnPoint(loc.get('geometry').get('coordinates'), 
+            // zoom to location if marker in table is clicked
+            markerCell.addEventListener('click', function(){
+                _this.globalMap.centerOnPoint(loc.get('geometry').get('coordinates'),
                     {projection: _this.projection})
             });
 
             /* add marker */
 
-            this.globalMap.addmarker(coords, { 
-                icon: pin, 
+            this.globalMap.addmarker(coords, {
+                icon: pin,
                 anchor: [0.5, 1],
-                //dragIcon: this.pins.orange, 
+                //dragIcon: this.pins.orange,
                 projection: this.projection,
                 name: loc.get('properties').name,
                 onDrag: function(coords){
@@ -323,7 +325,7 @@ var EditActorView = BaseView.extend(
             levelId = loc.get('properties').level;
 
         if(areaId != null){
-            var area = new GDSEModel({ id: areaId }, { 
+            var area = new GDSEModel({ id: areaId }, {
                 apiTag: 'areas',
                 apiIds: [ this.caseStudyId, levelId ]
             });
@@ -351,14 +353,14 @@ var EditActorView = BaseView.extend(
                 areaCell.appendChild(wrapper);
 
                 var polyCoords = area.get('geometry').coordinates;
-                var poly = _this.globalMap.addPolygon(polyCoords, 
-                    { projection: _this.projection, 
-                        layername: layername, 
+                var poly = _this.globalMap.addPolygon(polyCoords,
+                    { projection: _this.projection,
+                        layername: layername,
                         tooltip: area.get('properties').name,
                         type: area.get('geometry').type }
                 );
-                // zoom to location if marker in table is clicked 
-                areaCell.addEventListener('click', function(){ 
+                // zoom to location if marker in table is clicked
+                areaCell.addEventListener('click', function(){
                     _this.globalMap.centerOnPolygon(poly, { projection: _this.projection })
                 });
             }});
@@ -392,7 +394,7 @@ var EditActorView = BaseView.extend(
         var properties = { actor: this.model.id };
         var type = (buttonId == 'add-administrative-button') ? 'adminLocations': 'opLocations';
         var location = new Location(
-            { properties: properties }, 
+            { properties: properties },
             { apiTag: type, apiIds: [ this.keyflow.get('casestudy') ] }
         );
         this.editLocation(location);
@@ -414,14 +416,17 @@ var EditActorView = BaseView.extend(
         });
         if (area == null) return;
         var directChild = childSelects[0];
-        var childAreas = new GDSECollection([], { 
+        var childAreas = new GDSECollection([], {
             apiTag: 'areas',
             apiIds: [ this.caseStudyId, directChild.levelId ],
             comparator: 'name'
         });
-        childAreas.fetch({ 
-            data: { parent_id: area.id },
-            success: function(){ _this.addAreaOptions(childAreas, directChild); } 
+        childAreas.fetch({
+            data: {
+                parent_id: area.id,
+                field: ['id', 'name']
+            },
+            success: function(){ _this.addAreaOptions(childAreas, directChild); }
         });
     },
 
@@ -443,13 +448,16 @@ var EditActorView = BaseView.extend(
         var parentId = area.get('properties').parent_area,
             parentLevelId = area.get('properties').parent_level;
         // fill this select
-        var areas = new GDSECollection([], { 
+        var areas = new GDSECollection([], {
             apiTag: 'areas',
             apiIds: [ this.caseStudyId, select.levelId ],
             comparator: 'name'
         });
         areas.fetch({
-            data:  { parent_id: parentId },
+            data:  {
+                parent_id: parentId,
+                field: ['id', 'name']
+            },
             success: function(){
                 _this.addAreaOptions(areas, select);
                 select.value = area.id;
@@ -458,13 +466,13 @@ var EditActorView = BaseView.extend(
 
         // if setParents is set to true fetch parent area and recursively call this function again
         if (options.setParents){
-            var parentArea = new GDSEModel({ id: parentId }, { 
+            var parentArea = new GDSEModel({ id: parentId }, {
                 apiTag: 'areas',
                 apiIds: [ this.caseStudyId, parentLevelId ]
             });
 
             parentArea.fetch({
-                success: function(){ 
+                success: function(){
                     // proceed recursion with parent select
                     _this.setAreaSelects(parentArea, idx-1, options);
                 },
@@ -504,12 +512,14 @@ var EditActorView = BaseView.extend(
             area.fetch({ success: function(){
                 var polyCoords = area.get('geometry').coordinates;
                 var poly = _this.localMap.addPolygon(
-                    polyCoords, 
-                    { projection: _this.projection, 
-                        layername: _this.activeType, 
+                    polyCoords,
+                    {
+                        projection: _this.projection,
+                        layername: _this.activeType,
                         tooltip: area.get('properties').name,
-                        type: area.get('geometry').type 
-                });
+                        type: area.get('geometry').type
+                    }
+                );
                 _this.localMap.centerOnPolygon(poly, { projection: _this.projection, zoomOffset: -1 })
             }});
         }
@@ -531,7 +541,7 @@ var EditActorView = BaseView.extend(
                 _this.localMap.clearLayer('opLocations', { types: ['Polygon', 'MultiPolygon'] });
                 var area;
                 if (areaId >= 0){
-                    area = new GDSEModel({ id: areaId }, { 
+                    area = new GDSEModel({ id: areaId }, {
                         apiTag: 'areas',
                         apiIds: [ _this.caseStudyId, level.id ],
                         comparator: 'name'
@@ -541,7 +551,7 @@ var EditActorView = BaseView.extend(
                 // an area is deselected -> draw parent one (not on top level)
                 else if (cur > 0) {
                     var parentSelect = _this.areaSelects[cur-1];
-                    area = new GDSEModel({ id: parentSelect.value }, { 
+                    area = new GDSEModel({ id: parentSelect.value }, {
                         apiTag: 'areas',
                         apiIds: [ _this.caseStudyId, parentSelect.levelId ]
                     });
@@ -576,10 +586,10 @@ var EditActorView = BaseView.extend(
 
         var inner = document.getElementById('location-modal-template').innerHTML;
         var template = _.template(inner);
-        var html = template({properties: location.get('properties'), 
+        var html = template({properties: location.get('properties'),
             coordinates: (coordinates != null)? utils.formatCoords(coordinates): '-'});
         document.getElementById('location-modal-content').innerHTML = html;
-        $(locationModal).modal('show'); 
+        $(locationModal).modal('show');
 
         // reset the map
         this.localMap.clearLayer('opLocations');
@@ -622,10 +632,10 @@ var EditActorView = BaseView.extend(
         // add a marker to map
         function addMarker(coords){
             elGeom.innerHTML = utils.formatCoords(coords);
-            markerId = _this.localMap.addmarker(coords, { 
-                icon: pin, 
+            markerId = _this.localMap.addmarker(coords, {
+                icon: pin,
                 anchor: [0.5, 1],
-                //dragIcon: this.pins.orange, 
+                //dragIcon: this.pins.orange,
                 projection: _this.projection,
                 name: location.get('properties').name,
                 onDrag: function(coords){
@@ -641,7 +651,7 @@ var EditActorView = BaseView.extend(
 
         // connect add/remove point buttons
         var center = this.centroid || [13.4, 52.5];
-        addPointBtn.addEventListener('click', function(){ 
+        addPointBtn.addEventListener('click', function(){
             _this.tempCoords = center;
             addMarker(center);
             _this.localMap.centerOnPoint(center, {projection: _this.projection});
@@ -659,8 +669,9 @@ var EditActorView = BaseView.extend(
         if (coordinates != null){
             addMarker(coordinates);
             setPointButtons('remove');
+            _this.localMap.centerOnPoint(coordinates, {projection: _this.projection});
         }
-        else 
+        else
             setPointButtons('add');
 
         // render the area and set up the selects
@@ -672,7 +683,7 @@ var EditActorView = BaseView.extend(
             // find select with level of the area
             var selectIdx = 0;
             for(var select of this.areaSelects){
-                if (select.levelId == levelId) break; 
+                if (select.levelId == levelId) break;
                 selectIdx++;
             };
             if (selectIdx >= this.areaSelects.length) {
@@ -681,28 +692,33 @@ var EditActorView = BaseView.extend(
             }
             var select = this.areaSelects[selectIdx];
 
-            var area = new GDSEModel({ id: areaId }, { 
+            var area = new GDSEModel({ id: areaId }, {
                 apiTag: 'areas',
                 apiIds: [ _this.caseStudyId, levelId ]
             });
             area.fetch({success: function(){
                 var polyCoords = area.get('geometry').coordinates[0];
-                _this.localMap.addPolygon(polyCoords, { 
-                    projection: _this.projection, zoomOffset: -1, 
-                    layername: _this.activeType, tooltip: area.get('properties').name 
+                _this.localMap.addPolygon(polyCoords, {
+                    projection: _this.projection, zoomOffset: -1,
+                    layername: _this.activeType, tooltip: area.get('properties').name
                 });
                 // fetch areas of level and fill select (not for top level, always stays the same)
                 if (selectIdx > 0){
                     var parentId = area.get('properties').parent_area;
-                    var areas =  new GDSECollection([], { 
+                    var areas =  new GDSECollection([], {
                         apiTag: 'areas',
                         apiIds: [ _this.caseStudyId, levelId ],
                         comparator: 'name'
                     });
-                    areas.fetch({ data: { parent_id: parentId }, success: function(){
-                        _this.setAreaSelects(
-                            area, selectIdx, 
-                            { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); } 
+                    areas.fetch({
+                        data: {
+                            parent_id: parentId,
+                            field: ['id', 'name']
+                        },
+                        success: function(){
+                            _this.setAreaSelects(
+                                area, selectIdx,
+                                { setParents: true, onSuccess: function(){ _this.setAreaChildSelects(area, selectIdx); }
                         });
                     }});
                 }
@@ -713,7 +729,7 @@ var EditActorView = BaseView.extend(
             }});
 
         };
-
+        /*
         // context menu with add/remove
         var items = [
             {
@@ -734,7 +750,7 @@ var EditActorView = BaseView.extend(
             },
             '-'
         ];
-        this.localMap.addContextMenu(items);
+        this.localMap.addContextMenu(items);*/
     },
 
     /*
@@ -780,10 +796,10 @@ var EditActorView = BaseView.extend(
         this.renderLocations();
     },
 
-    /* 
+    /*
     * render the locations of the given actor as markers inside the map and table
     */
-    renderLocations: function(zoomToFocusarea){
+    renderLocations: function(){
         var adminLoc = this.adminLocations.first();
 
         var _this = this;
@@ -803,14 +819,21 @@ var EditActorView = BaseView.extend(
         }
         else addAdminBtn.style.display = 'block';
 
-        // add polygon of focusarea to both maps and center on their centroid
-        if (this.focusarea != null){
+        // add polygon of focusarea to both maps
+        if (this.focusarea != null)
             var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-            if (zoomToFocusarea){
-                this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
-                this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
-                this.localMap.centerOnPolygon(poly, { projection: _this.projection });
-            }
+        // zoom to admin area
+        if (adminLoc){
+            this.globalMap.centerOnPoint(
+                adminLoc.get('geometry').get('coordinates'),
+                { projection: _this.projection }
+            )
+        }
+        // else zoom to focus area
+        else if (this.focusarea){
+            this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
+            this.localMap.centerOnPolygon(poly, { projection: _this.projection });
         };
     },
 

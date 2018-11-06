@@ -6,7 +6,7 @@ from django.urls import reverse
 from test_plus import APITestCase
 import reversion
 
-from repair.apps.login.models import CaseStudy
+from repair.apps.login.models import CaseStudy, UserInCasestudy
 from repair.apps.login.factories import *
 
 
@@ -71,6 +71,11 @@ class TestReversionOfCasestudy(APITestCase):
         response = self.post('casestudy-list', data=data)
         cs_id = response.data['id']
         self.client.logout()
+
+        # add the 2nd user to the casestudy
+        casestudy = CaseStudy.objects.get(id=cs_id)
+        uic = UserInCasestudy(user=self.user2, casestudy=casestudy)
+        uic.save()
 
         # user2 logs in
         user = self.client.login(username=self.user2.user.username,

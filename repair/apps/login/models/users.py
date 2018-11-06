@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.gis.db import models as geomodels
 
+#from repair.apps.studyarea.models import AdminLevels
 from .bases import GDSEModel
 
 
@@ -13,21 +14,14 @@ class CaseStudy(GDSEModel):
     geom = geomodels.MultiPolygonField(null=True)
     focusarea = geomodels.MultiPolygonField(null=True)
     description = models.TextField(blank=True, null=True)
-    
+    show_on_welcome_map = models.BooleanField(default=True)
+    #default_area_level = models.ForeignKey(AdminLevels,
+                                           #on_delete=models.SET_NULL,
+                                           #null=True)
+
     class Meta:
         default_permissions = ('add', 'change', 'delete', 'view',
                                'setupmode', 'dataentry')
-
-    @property
-    def solution_categories(self):
-        """
-        look for all solution categories created by the users of the casestudy
-        """
-        solution_categories = set()
-        for uic in self.userincasestudy_set.all():
-            for solution_category in uic.solutioncategory_set.all():
-                solution_categories.add(solution_category)
-        return solution_categories
 
     @property
     def stakeholder_categories(self):
@@ -55,6 +49,8 @@ class Profile(GDSEModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     casestudies = models.ManyToManyField(CaseStudy, through='UserInCasestudy')
     organization = models.TextField(default='', blank=True)
+    session = models.TextField(default='', blank=True)
+    can_change_password = models.BooleanField(default=True)
 
     @property
     def name(self):

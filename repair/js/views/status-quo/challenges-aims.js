@@ -1,7 +1,7 @@
-define(['underscore','views/baseview', 'collections/gdsecollection', 
-        'models/gdsemodel'],
+define(['underscore','views/common/baseview', 'collections/gdsecollection',
+        'models/gdsemodel', 'muuri'],
 
-function(_, BaseView, GDSECollection, GDSEModel){
+function(_, BaseView, GDSECollection, GDSEModel, Muuri){
     /**
     *
     * @author Christoph Franke, Balázs Dukai
@@ -31,68 +31,69 @@ function(_, BaseView, GDSECollection, GDSEModel){
             this.caseStudy = options.caseStudy;
             this.mode = options.mode || 0;
 
-            _this.challenges = [];
-            this.challengesModel = new GDSECollection([], {
-                apiTag: 'challenges',
-                apiIds: [this.caseStudy.id]
+            this.keyflows = new GDSECollection([], {
+                apiTag: 'keyflowsInCaseStudy',
+                apiIds: [this.caseStudy.id],
+                comparator: 'priority'
             });
-            _this.aims = [];
-            this.aimsModel = new GDSECollection([], {
-                apiTag: 'aims',
-                apiIds: [this.caseStudy.id]
-            });
-            
-            var promises = [
-                this.challengesModel.fetch({
-                    success: function(challenges){
-                        _this.initItems(challenges, _this.challenges,
-                             "Challenge");
-                    },
-                    error: this.onError
-                }),
-                this.aimsModel.fetch({
-                    success: function(aims){
-                        _this.initItems(aims, _this.aims, "Aim");
-                    },
-                    error: this.onError
-                })
-            ]
 
-            Promise.all(promises).then(this.render)
+            this.challengesGrids = {};
+            this.aimsGrids = {};
+
+            this.keyflows.fetch({
+                success: function(){
+                    _this.challenges = new GDSECollection([], {
+                        apiTag: 'challenges',
+                        apiIds: [_this.caseStudy.id],
+                        comparator: 'priority'
+                    });
+                    _this.aims = new GDSECollection([], {
+                        apiTag: 'aims',
+                        apiIds: [_this.caseStudy.id],
+                        comparator: 'priority'
+                    });
+
+                    var promises = [_this.challenges.fetch(), _this.aims.fetch()]
+                    Promise.all(promises).then(_this.render)
+                },
+                error: _this.onError
+            })
         },
 
         /*
         * dom events (managed by jquery)
         */
         events: {
-            'click #add-challenge-button': 'addChallenge',
-            'click #add-aim-button': 'addAim',
+            'click .add-challenge-button': 'addChallenge',
+            'click .add-aim-button': 'addAim',
             'click #remove-ch-aim-confirmation-modal .confirm': 'confirmRemoval'
-        },
-
-        initItems: function(items, list, type){
-            items.forEach(function(item){
-                list.push({
-                    "text": item.get('text'),
-                    "id": item.get('id'),
-                    "type": type
-                });
-            });
         },
 
         /*
         * render the view
         */
         render: function(){
-            var _this = this;
-            var html = document.getElementById(this.template).innerHTML
-            var template = _.template(html);
+            var _this = this,
+                html = document.getElementById(this.template).innerHTML,
+                template = _.template(html);
             this.el.innerHTML = template();
+            var keyflowIds = this.keyflows.pluck('id');
 
-            var challengesPanel = this.el.querySelector('#challenges').querySelector('.item-panel'),
-                aimsPanel = this.el.querySelector('#aims').querySelector('.item-panel');
-            this.renderPanel(challengesPanel, this.challenges);
-            this.renderPanel(aimsPanel, this.aims);
+            // the general keyflows without a casestudy
+            var generalChallenges = this.challenges.filterBy({ keyflow: null }),
+                generalAims = this.aims.filterBy({ keyflow: null });
+            this.renderKeyflow(gettext('General'), 'general', generalAims, generalChallenges);
+
+            // the other ones in this casestudy
+            this.keyflows.forEach(function(keyflow){
+                var challenges = _this.challenges.filterBy({ keyflow: keyflow.id }),
+                    aims = _this.aims.filterBy({ keyflow: keyflow.id });
+                challenges.sort();
+                aims.sort();
+                // don't render empty keyflow panels in workshop mode
+                if (_this.mode == 0 && challenges.length === 0 && aims.length === 0) return;
+                _this.renderKeyflow(keyflow.get('name'), keyflow.id, aims, challenges);
+            })
 
             var html_modal = document.getElementById(
                 'empty-modal-template').innerHTML;
@@ -111,159 +112,247 @@ function(_, BaseView, GDSECollection, GDSEModel){
             }
         },
 
-        renderPanel(panel, items){
-            var _this = this;
-            var html = document.getElementById('panel-item-template').innerHTML,
-                template = _.template(html);
+        renderKeyflow: function(title, id, aims, challenges){
+            var el = document.createElement('div'),
+                html = document.getElementById('challenges-aims-detail-template').innerHTML,
+                template = _.template(html),
+                _this = this;
+            this.el.appendChild(el);
+            el.innerHTML = template({ id: id, title: title });
+            // expand the filter (else rendering of panels messed up)
+            el.querySelector('.toggle-details').click();
+
+            var challengesPanel = el.querySelector('.challenges').querySelector('.item-panel'),
+                aimsPanel = el.querySelector('.aims').querySelector('.item-panel'),
+                dragEnabled = this.mode == 1;
+            var challengesGrid = new Muuri(challengesPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })
+            challengesGrid.on('dragReleaseEnd', function () {
+                _this.uploadPriorities(challengesGrid, _this.challenges) } );
+            this.challengesGrids[id] = challengesGrid;
+            var aimsGrid = new Muuri(aimsPanel, {
+                items: '.panel-item',
+                dragAxis: 'y',
+                layoutDuration: 400,
+                layoutEasing: 'ease',
+                dragEnabled: dragEnabled,
+                dragSortInterval: 0,
+                dragReleaseDuration: 400,
+                dragReleaseEasing: 'ease'
+            })
+            aimsGrid.on('dragReleaseEnd', function () {
+                _this.uploadPriorities(aimsGrid, _this.aims)
+            });
+            this.aimsGrids[id] = aimsGrid;
+
+            this.renderPanel(challengesGrid, challenges, gettext('Challenge'));
+            this.renderPanel(aimsGrid, aims, gettext('Aim'));
+        },
+
+        uploadPriorities(grid, collection){
+            var items = grid.getItems(),
+                priority = 0;
             items.forEach(function(item){
-                var panelItem = document.createElement('div');
-                panelItem.classList.add('panel-item');
-                panelItem.innerHTML = template({ name: item.text });
-                var button_edit = panelItem.getElementsByClassName(
-                    "btn btn-primary square edit inverted").item(0);
-                var button_remove = panelItem.getElementsByClassName(
-                    "btn btn-warning square remove").item(0);
-                button_edit.addEventListener('click', function(){
-                    _this.editPanelItem(item, items);
-                });
-                button_remove.addEventListener('click', function(){
-                    _this.removePanelItem(item, items);
-                });
-                panel.appendChild(panelItem);
+                var id = item.getElement().dataset.id,
+                    model = collection.get(id);
+                model.set('priority', priority);
+                model.save();
+                priority++;
+            })
+        },
+
+        renderPanel(grid, collection, type){
+            var _this = this;
+            collection.forEach(function(model){
+                _this.renderItem(grid, model, type);
             });
         },
 
-        addChallenge: function(){
-            var _this = this;
-            function onConfirm(text){
-                var challenge = new GDSEModel({ text: text }, {
-                    apiTag: 'challenges',
-                    apiIds: [_this.caseStudy.id]
-                });
+        renderItem(grid, model, type){
+            var html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html),
+                panelItem = document.createElement('div'),
+                itemContent = document.createElement('div'),
+                _this = this;
+            panelItem.classList.add('panel-item');
+            if (this.mode == 1) panelItem.classList.add('draggable');
+            panelItem.style.position = 'absolute';
+            panelItem.dataset.id = model.id;
+            itemContent.classList.add('noselect', 'item-content');
+            itemContent.innerHTML = template({ name: model.get('text') });
+            var editBtn = itemContent.querySelector("button.edit");
+            var removeBtn = itemContent.querySelector("button.remove");
+            editBtn.addEventListener('click', function(){
+                _this.editPanelItem(panelItem, model, type);
+            });
+            removeBtn.addEventListener('click', function(){
+                _this.removePanelItem(panelItem, model, grid, type);
+            });
+            panelItem.appendChild(itemContent);
+            grid.add(panelItem);
+            // show description on tap in workshop mode
+            if (_this.mode == 0){
+                var desc = model.get('description') || '-';
+                // html formatting
+                desc = desc.replace(/\n/g, "<br/>");
+                panelItem.addEventListener('click', function(){
+                    _this.info(desc, {
+                        title: model.get('text')
+                    })
+                })
+            }
+        },
+
+        addChallenge: function(evt){
+            var _this = this,
+                button = evt.target,
+                keyflowId = button.dataset.id,
+                grid = this.challengesGrids[keyflowId];
+
+            if (keyflowId === 'general') keyflowId = null;
+            function onConfirm(ret){
+                var challenge = new GDSEModel(
+                    {   keyflow: keyflowId,
+                        text: ret.text,
+                        description: ret.description
+                    },
+                    {
+                        apiTag: 'challenges',
+                        apiIds: [_this.caseStudy.id]
+                    }
+                );
                 challenge.save(null, {
                     success: function(){
                         _this.challenges.push({
                             "text": challenge.get('text'),
-                            "id": challenge.get('id'),
-                            "type": "Challenge"
+                            "description": challenge.get('description'),
+                            "id": challenge.get('id')
                         });
-                        _this.render();
+                        _this.renderItem(grid, challenge, gettext('Challenge'));
+                        _this.uploadPriorities(grid, _this.challenges);
                     },
                     error: _this.onError
                 });
             }
-            this.getName({
+            this.getInputs({
                 title: gettext('Add Challenge'),
+                inputs: {
+                    text: {
+                        type: 'text',
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        label: gettext('Description')
+                    }
+                },
                 onConfirm: onConfirm
-            });
+            })
         },
 
-        addAim: function(){
-            var _this = this;
-            function onConfirm(text){
-                var aim = new GDSEModel({ text: text }, {
-                    apiTag: 'aims',
-                    apiIds: [_this.caseStudy.id]
-                });
+        addAim: function(evt){
+            var _this = this,
+                button = evt.target,
+                keyflowId = button.dataset.id,
+                grid = this.aimsGrids[keyflowId];
+            if (keyflowId === 'general') keyflowId = null;
+            function onConfirm(ret){
+                var aim = new GDSEModel(
+                    {   keyflow: keyflowId,
+                        text: ret.text,
+                        description: ret.description
+                    },
+                    {
+                        apiTag: 'aims',
+                        apiIds: [_this.caseStudy.id]
+                    }
+                );
                 aim.save(null, {
                     success: function(){
                         _this.aims.push({
                             "text": aim.get('text'),
-                            "id": aim.get('id'),
-                            "type": "Aim"
+                            "description": aim.get('description'),
+                            "id": aim.get('id')
                         });
-                        _this.render();
+                        _this.renderItem(grid, aim, gettext('Aim'));
+                        _this.uploadPriorities(grid, _this.aims);
                     },
-                    error: function(){
-                        console.error("cannot save Aim");
-                    }
+                    error: _this.onError
                 });
             }
-            this.getName({
+            this.getInputs({
                 title: gettext('Add Aim'),
-                onConfirm: onConfirm
-            });
-        },
-
-        editPanelItem: function(item, items){
-            var _this = this;
-            var id = item.id;
-            var title = "Edit " + item.type
-            function onConfirm(name){
-                if (item.type == "Challenge") {
-                    var model = new GDSEModel({ id: id }, {
-                        apiTag: 'challenges',
-                        apiIds: [_this.caseStudy.id]
-                    });
-                } else {
-                    var model = new GDSEModel({ id: id }, {
-                        apiTag: 'aims',
-                        apiIds: [_this.caseStudy.id]
-                    });
-                }
-
-                model.save({
-                    text: name
-                }, {
-                    success: function(){
-                        var pos = items.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        items[pos].text = name;
-                        _this.render();
-                    }
-                });
-            }
-            this.getName({
-                name: item.text,
-                title: gettext(title),
-                onConfirm: onConfirm
-            });
-        },
-
-        removePanelItem: function(item, items){
-            var _this = this;
-            var message = gettext("Do you want to delete the selected item?");
-            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
-            $(this.confirmationModal).modal('show');
-            if (item.type == "Challenge") {
-                _this.model = new GDSEModel({ id: item.id }, {
-                    apiTag: 'challenges',
-                    apiIds: [_this.caseStudy.id]
-                });
-            } else {
-                _this.model = new GDSEModel({ id: item.id }, {
-                    apiTag: 'aims',
-                    apiIds: [_this.caseStudy.id]
-                });
-            }
-            _this.removeType = item.type;
-        },
-
-        confirmRemoval: function(items) {
-            var _this = this;
-            $(this.confirmationModal).modal('hide');
-            var id = _this.model.get('id');
-            _this.model.destroy({
-                success: function(){
-                    if (_this.removeType == "Challenge") {
-                        var pos = _this.challenges.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        _this.challenges.splice(pos, 1);
-                        _this.render();
-                    } else {
-                        var pos = _this.aims.map(function(e) {
-                            return e.id;
-                        }).indexOf(id);
-                        _this.aims.splice(pos, 1);
-                        _this.render();
+                inputs: {
+                    text: {
+                        type: 'text',
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        label: gettext('Description')
                     }
                 },
-                error: _this.onError
-            });
+                onConfirm: onConfirm
+            })
         },
 
+        editPanelItem: function(item, model, type){
+            var _this = this,
+                id = item.id,
+                title = gettext("Edit") + " " + type;
+            function onConfirm(ret){
+                model.save({ text: ret.text, description: ret.description }, {
+                    success: function(){
+                        var label = item.querySelector('label');
+                        label.innerHTML = ret.text;
+                    },
+                    error: _this.onError
+                });
+            }
+            this.getInputs({
+                title: title,
+                inputs: {
+                    text: {
+                        type: 'text',
+                        value: model.get('text'),
+                        label: gettext('Name')
+                    },
+                    description: {
+                        type: 'textarea',
+                        value: model.get('description'),
+                        label: gettext('Description')
+                    }
+                },
+                onConfirm: onConfirm
+            })
+        },
+
+        removePanelItem: function(item, model, grid, type){
+            var _this = this,
+                message = gettext("Do you want to delete the selected item?");
+            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
+            this.activeModel = model;
+            function onConfirm(name){
+                model.destroy({
+                    success: function(){
+                        grid.remove(item, { removeElements: true });
+                    },
+                    error: _this.onError
+                });
+            }
+            this.confirm({
+                message: gettext("Do you want to delete the selected item?"),
+                onConfirm: onConfirm
+            })
+        }
     });
     return ChallengesAimsView;
 }

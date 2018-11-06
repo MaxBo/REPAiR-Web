@@ -68,10 +68,9 @@ function(Backbone, utils, config) {
         save: function(data, options){
             var _this = this,
                 options = options || {},
-                uploadAsForm = options.uploadAsForm || false,
-                data = data || {};
+                uploadAsForm = options.uploadAsForm || false;
             // check if one of the attributes is a file
-            if (!uploadAsForm){
+            if (!uploadAsForm && data){
                 for (key in data){
                     if (data[key] instanceof File ) {
                         uploadAsForm = true;
@@ -99,7 +98,7 @@ function(Backbone, utils, config) {
                     error: options.error
                 })
             }
-            else GDSEModel.__super__.save.apply(this, [data, options]);
+            else return GDSEModel.__super__.save.apply(this, [data, options]);
     },
 
     });

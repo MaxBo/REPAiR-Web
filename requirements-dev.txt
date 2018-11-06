@@ -2,11 +2,12 @@
 
 django==2
 django-webpack-loader>=0.5
-djangorestframework>=3.7
+djangorestframework>=3.8.2
 djangorestframework-gis
 djangorestframework-datatables>=0.3
-django-filter
+django-filter==1.1.0
 django-test-plus
+django-enumfields
 django-money
 django-reversion
 django-reversion-compare
@@ -20,7 +21,7 @@ drf-nested-routers
 numpy
 matplotlib
 plotly
-psycopg2
+psycopg2-binary
 geojson
 
 django-debug-toolbar

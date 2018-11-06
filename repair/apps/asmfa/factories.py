@@ -4,6 +4,7 @@ from django.contrib.gis.geos.point import Point
 from repair.apps.login.factories import (ProfileFactory,
                                          CaseStudyFactory,
                                          UserInCasestudyFactory)
+from repair.apps.publications.factories import PublicationInCasestudyFactory
 
 from . import models
 
@@ -92,6 +93,16 @@ class ProductFactory(DjangoModelFactory):
     #keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
+class WasteFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Waste
+    name = factory.Sequence(lambda n: "Product #%s" % n)
+    nace = 'testnace'
+    ewc ='testewc'
+    wastetype ='testtype'
+    hazardous = False
+
+
 class CompositionFactory(DjangoModelFactory):
     class Meta:
         model = models.Composition
@@ -111,7 +122,7 @@ class Activity2ActivityFactory(FlowFactory):
         model = models.Activity2Activity
     origin = factory.SubFactory(ActivityFactory)
     destination = factory.SubFactory(ActivityFactory)
-    #composition = factory.SubFactory(CompositionFactory)
+    composition = factory.SubFactory(CompositionFactory)
 
 
 class Actor2ActorFactory(FlowFactory):
@@ -119,6 +130,7 @@ class Actor2ActorFactory(FlowFactory):
         model = models.Actor2Actor
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
+    composition = factory.SubFactory(CompositionFactory)
 
 
 class MaterialFactory(DjangoModelFactory):
@@ -127,6 +139,7 @@ class MaterialFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n: "Material #%s" % n)
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
     level = 1
+    parent = None  #factory.SubFactory('repair.apps.asmfa.factories.MaterialFactory')
 
 
 class StockFactory(FlowFactory):
@@ -175,6 +188,17 @@ class AdministrativeLocationFactory(GeolocationFactory):
 class OperationalLocationFactory(AdministrativeLocationFactory):
     class Meta:
         model = models.OperationalLocation
+
+
+class ProductFractionFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ProductFraction
+
+    fraction = 10.2
+    material = factory.SubFactory(MaterialFactory)
+    composition = factory.SubFactory(CompositionFactory)
+    publication = factory.SubFactory(PublicationInCasestudyFactory)
+    avoidable = True
 
 
 

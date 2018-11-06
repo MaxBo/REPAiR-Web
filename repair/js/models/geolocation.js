@@ -21,6 +21,7 @@ define(["models/gdsemodel", "app-config"],
        *
        * @constructs
        * @see http://backbonejs.org/#Model
+       * @author Christoph Franke
        */
         initialize: function (attributes, options) {
             // unfortunately super doesn't pass the arguments correctly

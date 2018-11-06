@@ -1,5 +1,7 @@
 define(['jquery', 'document-ready', 'bootstrap', 
         'bootstrap-select/dist/css/bootstrap-select.css',
+        'static/css/base.less',
+        '@fortawesome/fontawesome-free/css/all.css', 
         'utils/overrides'],
 function ($, ready) {
   /**
@@ -27,8 +29,7 @@ function ($, ready) {
      
      function closeDropdowns(){
        var dropdowns = document.getElementsByClassName("dropdown-content");
-       var i;
-       for (i = 0; i < dropdowns.length; i++) {
+       for (var i = 0; i < dropdowns.length; i++) {
          var openDropdown = dropdowns[i];
          if (openDropdown.classList.contains('show')) {
            openDropdown.classList.remove('show');

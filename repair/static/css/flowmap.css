@@ -1,28 +1,79 @@
+.map{
+    width: 1960px;
+    height: 500px;
+}
 .country:hover{
     stroke: #7d7d7d;
     stroke-width: 0.5px;
 }
-
-#container {
-    width:100%;
-    height:100%;
-    overflow:hidden;
+div.sankeymaptooltip {
+    position: absolute;
+    text-align: left;
+    width: auto;
+    height: auto;
+    padding: 4px;
+    font: 14px sans-serif;
+    color: #111111;
     background: #fff;
+    border: 0px;
+    border-radius: 0px;
+    pointer-events: none;
+    z-index: 99999;
+    min-width: 200px;
 }
 
-.gpoint:hover{
-    fill:#c95f64;
-    stroke:#c95f64;
+.flow {
+    /*stroke-linecap: round;*/
+}
+
+.animated.flow {
+  /*stroke-dasharray: 10, 4;*/
+  animation: flow 10s linear infinite;
+  -webkit-animation: flow 10s linear infinite;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@-webkit-keyframes flow {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.mpoint:hover{
+    stroke:white;
     stroke-width: 2px;
 }
 
-.gpoint{
-    fill: #c95f64;
+.route{
+    fill: none;
 }
 
-.route{
-    fill: none;	
-}
 .route:hover{
     stroke-width: 4px;
+}
+
+.arc path {
+    stroke: #0fff;
+}
+
+.leaflet-bottom, .leaflet-top {
+    max-width: 50%;
+}
+
+.leaflet-control{
+    max-width: 100%;
+}
+
+.leaflet-control a{
+    color: #aad400;
+    border: 1px solid #aad400;
+}
+
+.leaflet-control-zoom {
+    top: 50px;
 }

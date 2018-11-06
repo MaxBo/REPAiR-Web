@@ -12,7 +12,7 @@ from repair.apps.asmfa.models import (
     KeyflowInCasestudy,
     Product,
     Material,
-    Waste, 
+    Waste,
 )
 
 from repair.apps.asmfa.serializers import (
@@ -27,8 +27,8 @@ from repair.apps.asmfa.serializers import (
     WasteSerializer
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
 
 
 class UnlimitedResultsSetPagination(pagination.DatatablesPageNumberPagination):
@@ -98,7 +98,7 @@ class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = ProductFilter
-    
+
     # DjangoFilterBackend is not able to parse query params in array form
     # (e.g. ?nace[]=xxx&nace[]=yyy)
     def list(self, request, **kwargs):
@@ -117,7 +117,7 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     serializer_class = WasteSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = WasteFilter
-    
+
     # DjangoFilterBackend is not able to parse query params in array form
     # (e.g. ?nace[]=xxx&nace[]=yyy)
     def list(self, request, **kwargs):
@@ -141,15 +141,20 @@ class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
 class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
     serializer_class = MaterialSerializer
     serializers = {'list': MaterialListSerializer}
-    
+
     # include materials with keyflows with pk null as well (those are the default ones)
     def get_queryset(self):
         model = self.serializer_class.Meta.model
         keyflow_id = self.kwargs['keyflow_pk']
-        return model.objects\
+
+        materials = Material.objects.\
+            select_related("keyflow__casestudy").defer(
+                "keyflow__note", "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
+        return materials\
                .filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
                .order_by('id')
-    
+
     def checkMethod(self, request, **kwargs):
         model = self.serializer_class.Meta.model
         instance = model.objects.get(id=kwargs['pk'])

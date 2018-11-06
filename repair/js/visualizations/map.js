@@ -1,6 +1,7 @@
 define([
-    'openlayers', 'ol-contextmenu', 'openlayers/css/ol.css', 
-    'ol-contextmenu/dist/ol-contextmenu.min.css',
+    'openlayers', //'ol-contextmenu',
+    'openlayers/css/ol.css',
+    //'ol-contextmenu/dist/ol-contextmenu.min.css',
     'static/css/map.css'
 ], function(ol, ContextMenu)
 {
@@ -15,8 +16,10 @@ define([
         * create the map and show it inside the HTMLElement with the given id
         *
         * @param {Object} options
-        * @param {string} options.divid                        id of the HTMLElement to render the map into
+        * @param {string} options.el                           the HTMLElement to render the map into
         * @param {boolean} [options.renderOSM=true]            render default background map
+        * @param {boolean} [options.showControls=true]         show zoom and fullscreen controls as overlay
+        * @param {boolean} [options.enableZoom=true]   enable zoom interactions
         * @param {string} [options.projection='EPSG:3857']     projection of the map
         * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
         *
@@ -26,6 +29,9 @@ define([
             this.idCounter = 0;
             this.mapProjection = options.projection || 'EPSG:3857';
             this.center = options.center || ol.proj.transform([13.4, 52.5], 'EPSG:4326', this.mapProjection);
+            var showControls = (options.showControls != false) ? true : false,
+                enableZoom = (options.enableZoom != false) ? true : false,
+                enableDrag = (options.enableDrag != false) ? true : false;
 
             this.view = new ol.View({
                 projection: this.mapProjection,
@@ -38,24 +44,43 @@ define([
             // blank map
             if (options.renderOSM != false){
                 initlayers.push(new ol.layer.Tile({
-                    source: new ol.source.OSM({crossOrigin: 'anonymous'}) }))
+                    source: new ol.source.OSM({crossOrigin: 'anonymous'}),
+                    crossOrigin: 'anonymous',
+                    tileOptions: {crossOriginKeyword: 'anonymous'},
+                }))
             }
 
             var basicLayer = new ol.layer.Vector({ source: new ol.source.Vector() });
             initlayers.push(basicLayer);
 
-            this.layers = { basic: basicLayer }; 
+            var controls = (showControls) ? ol.control.defaults({
+                                    attributionOptions: ({
+                                        collapsible: false
+                                    })}).extend([
+                                        new ol.control.FullScreen({source: options.el})
+                                    ]) : [];
+
+            var interactOptions = {
+                    doubleClickZoom : enableZoom,
+                    keyboardZoom: enableZoom,
+                    mouseWheelZoom: enableZoom,
+                    dragZoom: enableZoom
+                };
+
+
+            if (!enableDrag) {
+                interactOptions.keyboardPan = false;
+                interactOptions.dragPan = false;
+            }
+
+            var interactions = ol.interaction.defaults(interactOptions);
+            this.layers = { basic: basicLayer };
 
             this.map = new ol.Map({
                 layers: initlayers,
-                target: options.divid,
-                controls: ol.control.defaults({
-                    attributionOptions: ({
-                        collapsible: false
-                    })
-                }).extend([
-                    new ol.control.FullScreen({source: options.divid})
-                ]),
+                interactions: interactions,
+                target: options.el,
+                controls: controls,
                 view: this.view
             });
 
@@ -69,7 +94,7 @@ define([
                 _this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';
             });
 
-            this.div = document.getElementById(options.divid);
+            this.div = options.el;
 
             var tooltip = this.div.querySelector('.tooltip');
             if (!tooltip){
@@ -138,19 +163,23 @@ define([
         * @param {string} [options.fill='rgba(100, 150, 250, 0.1)'] color of filling
         * @param {string} [options.labelColor='#4253f4']            color of label
         * @param {string=} options.zIndex                           z-index of the layer
+        * @param {Object=} options.colorRange                       function to color feature by value (fill and stroke, options.stroke overrides stroke by colorRange)
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
         * @param {Object=} options.select                           options for selectable features inside this layer
-        * @param {Boolean=} [options.selectable=false]              enables selection of features on click
+        * @param {Boolean=} [options.select.selectable=false]       enables selection of features on click
         * @param {string} [options.select.stroke='rgb(230, 230, 0)'] color of outline of selected feature
         * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
         * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
         * @param {string} [options.select.labelColor='#e69d00']     color of label selected feature
-        * @param {Object} options.select.onChange                   callback 
+        * @param {Object} options.select.onChange                   callback
         *
         * @returns {ol.layer.Vector}                                the added vector layer
         */
         addLayer(name, options){
+
+            if (this.layers[name] != null) this.removeLayer(name)
+
             var options = options || {},
                 sourceopt = options.source || {},
                 source,
@@ -165,8 +194,11 @@ define([
 
             var image = new ol.style.Circle({
                 radius: 5,
-                fill: new ol.style.Fill({ color: 'blue' }),
-                stroke: new ol.style.Stroke({color: 'blue', width: 1})
+                fill: new ol.style.Fill({ color: options.fill || 'rgb(100, 150, 250)' }),
+                stroke: new ol.style.Stroke({
+                    color: options.stroke || 'rgba(100, 150, 250, 0.1)',
+                    width: options.strokeWidth || 3
+                })
             });
 
             function labelStyle(feature, resolution) {
@@ -177,32 +209,19 @@ define([
                         color: 'white', width: 3
                     }),
                     text: feature.get('label'),
+                    overflow: false
                 })
             }
 
-            function layerStyle(feature, resolution){ 
-                return new ol.style.Style({
-                    image: image,
-                    stroke: new ol.style.Stroke({
-                        color: options.stroke || 'rgb(100, 150, 250)',
-                        width: options.strokeWidth || 1
-                    }),
-                    fill: new ol.style.Fill({
-                        color: options.fill || 'rgba(100, 150, 250, 0.1)'
-                    }),
-                    text: labelStyle(feature, resolution)
-                });
-            }
-            
-            var layer = new ol.layer.Vector({ 
-                source: source || new ol.source.Vector() ,
-                style: layerStyle
+            var layer = new ol.layer.Vector({
+                source: source || new ol.source.Vector(),
+                style: (options.colorRange != null) ? colorRangeStyle: defaultStyle
             });
-            
+
             this.layers[name] = layer;
             this.map.addLayer(layer);
             if (options.zIndex) layer.setZIndex(options.zIndex);
-            
+
             var select = options.select || {};
 
             if (select.selectable){
@@ -216,9 +235,16 @@ define([
                         text: feature.get('label'),
                     })
                 }
-                function selectStyle(feature, resolution){ 
+                layer.selectStyle = function(feature, resolution){
                     return new ol.style.Style({
-                        image: image,
+                        image: new ol.style.Circle({
+                            radius: 5,
+                            fill: new ol.style.Fill({ color: select.stroke || 'rgb(230, 230, 0)' }),
+                            stroke: new ol.style.Stroke({
+                                color: select.fill || 'rgba(100, 150, 250, 0.1)',
+                                width: select.strokeWidth || 3
+                            })
+                        }),
                         stroke: new ol.style.Stroke({
                             color: select.stroke || 'rgb(230, 230, 0)',
                             width: select.strokeWidth || 3
@@ -231,23 +257,54 @@ define([
                 }
                 var interaction = new ol.interaction.Select({
                     toggleCondition: ol.events.condition.always,
+                    features: layer.selected,
                     layers: [layer],
-                    style: selectStyle,
+                    style: layer.selectStyle,
                 });
                 this.map.addInteraction(interaction);
                 layer.select = interaction;
                 if (select.onChange){
-                    interaction.on('select', function(evt){ 
-                        var selected = interaction.getFeatures(),
+                    interaction.on('select', function(evt){
+                        var selected = evt.selected,
+                            deselected = evt.deselected,
                             ret = [];
-                        selected.forEach(function(feat){
+                        // callback with all currently selected
+                        interaction.getFeatures().forEach(function(feat){
                             ret.push({id: feat.get('id'), label: feat.get('label')});
                         })
                         select.onChange(ret);
+                        layer.getSource().dispatchEvent('change');
                     })
                 }
             }
-            
+
+            function defaultStyle(feature, resolution, strokeColor, fillColor){
+                if (feature.selected) return layer.selectStyle(feature, resolution);
+                return new ol.style.Style({
+                    image: image,
+                    stroke: new ol.style.Stroke({
+                        color: strokeColor || options.stroke || 'rgb(100, 150, 250)',
+                        width: options.strokeWidth || 1
+                    }),
+                    fill: new ol.style.Fill({
+                        color: fillColor || options.fill || 'rgba(100, 150, 250, 0.1)'
+                    }),
+                    text: labelStyle(feature, resolution)
+                });
+            }
+
+            var alpha = options.alphaFill || 1;
+
+            function colorRangeStyle(feature, resolution){
+                var value = feature.get('value');
+                if (value == null) return defaultStyle(feature, resolution);
+                return defaultStyle(
+                    feature, resolution,
+                    options.stroke || options.colorRange(value).rgba(),
+                    options.colorRange(value).alpha(alpha).rgba()
+                );
+            }
+
             return layer;
         }
 
@@ -275,8 +332,15 @@ define([
             this.map.addLayer(layer);
         }
 
+        setVisible(layername, visible){
+            var layer = this.layers[layername];
+            layer.setVisible(visible);
+        }
+
         setZIndex(layername, zIndex){
-            this.layers[layername].setZIndex(zIndex);
+            var layer = this.layers[layername];
+            if (layer) layer.setZIndex(zIndex);
+            else console.log(layername + ' not found');
         }
 
         /**
@@ -289,28 +353,61 @@ define([
         * @param {string=} options.id                  id of feature
         * @param {string=} options.tooltip             tooltip shown on hover over polygon
         * @param {string=} options.label               label to show on map
-        * @param {string} [options.type='Polygon']     Polygon or Multipolygon
+        * @param {string} [options.type='Polygon']     'Polygon' or 'MultiPolygon'
         *
         * @returns {ol.geom.Polygon}                   coordinates transformed to a openlayers polygon (same projection as given coordinates were in)
         *
         */
         addPolygon(coordinates, options){
-            var options = options || {};
-            var proj = options.projection || this.mapProjection;
-            var poly = (options.type == 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) : new ol.geom.Polygon(coordinates);
-            var ret = poly.clone();
+            return this.addGeometry(coordinates, options);
+        }
+
+        addGeometry(coordinates, options){
+            var options = options || {},
+                type = options.type || 'Polygon',
+                proj = options.projection || this.mapProjection;
+            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) :
+                           (type === 'Point') ? new ol.geom.Point(coordinates) :
+                           (type === 'LineString') ? new ol.geom.LineString(coordinates) :
+                           new ol.geom.Polygon(coordinates);
+            var ret = geometry.clone();
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
 
             if (!layer) layer = this.addLayer(layername);
-            var feature = new ol.Feature({ geometry: poly.transform(proj, this.mapProjection) });
+            var feature = new ol.Feature({ geometry: geometry.transform(proj, this.mapProjection) });
             feature.set('label', options.label);
             feature.set('tooltip', options.tooltip);
             feature.set('id', options.id);
+            feature.set('value', options.value);
             layer.getSource().addFeature(feature);
             return ret;
         }
 
+        getFeatures(layername){
+            var layer = this.layers[layername];
+            return layer.getSource().getFeatures();
+        }
+
+        getFeature(layername, id){
+            var features = this.getFeatures(layername);
+            for (var i = 0; i < features.length; i++){
+                var feature = features[i];
+                if (feature.get('id') == id) return feature
+            }
+            return null;
+        }
+
+        selectFeature(layername, id){
+            var feature = this.getFeature(layername, id),
+                layer = this.layers[layername];
+            layer.select.getFeatures().push(feature);
+            layer.select.dispatchEvent({
+                type: 'select',
+                selected: [feature],
+                deselected: []
+            });
+        }
         /**
         * callback for dragging markers
         *
@@ -581,7 +678,7 @@ define([
             this.centerOnPoint(centroid, options);
             return centroid;
         }
-        
+
         centerOnCoordinates(coordinates, options){
             var poly = new ol.geom.Polygon(coordinates);
             this.centerOnPolygon(poly, options);
@@ -601,24 +698,110 @@ define([
         }
 
         /**
-        * centers map on layer with given name, zooms to fit extent of layer
+        * toggle drawing tool, only one is active at a time, disable drawing
+        * by passing type 'None' (or nothing at all)
         *
-        * @param {string} layername                layer to draw on
+        * @param {string} layername          layer to draw on
         * @param {Object} options
-        * @param {string} [options.type='Polygon'] type of geometry to draw
+        * @param {string} [options.type='None']      type of geometry to draw ('Polygon', 'Point', 'Circle', 'LineString', 'None')
+        * @param {Boolean} [options.freehand=false]  freehand drawing or drawing by setting points
         *
         */
-        enableDrawing(layername, options){
-            var options = options || {},
-                layer = this.layers[layername],
-                source = layer.getSource(),
+        toggleDrawing(layername, options){
+            var layer = this.layers[layername],
+                options = options || {},
+                type = options.type || 'None',
+                freehand = options.freehand;
+
+            if (layer.drawingInteraction)
+                this.map.removeInteraction(layer.drawingInteraction);
+            layer.drawingInteraction = null;
+            if (type === 'None') return;
+
+            // doesn't work with freehand, so not set atm
+            function oneFingerCondition(olBrowserEvent) {
+                var touchEvent = olBrowserEvent.originalEvent.touches;
+                if (touchEvent)
+                    return touchEvent.length === 1;
+                return true;
+            }
+
+            var source = layer.getSource(),
                 draw = new ol.interaction.Draw({
                     source: source,
-                    type: options.type || 'Polygon'
+                    type: type,
+                    freehand: freehand,
+                    //condition: oneFingerCondition
                 });
+            layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
+            }
+
+        /**
+        * enable/disable drag box to select features
+        * (only works when layer supports selection, see addLayer)
+        *
+        * @param {string} layername   layer whose features to select
+        * @param {Boolean} [enabled=true]    enable if true (or null), disable if false
+        *
+        */
+        enableDragBox(layername, enabled){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enabled == null || enabled === true){
+                // it's already there
+                if (layer.dragBox) return;
+                layer.dragBox = new ol.interaction.DragBox();
+                this.map.addInteraction(layer.dragBox);
+                layer.dragBox.on('boxend', function() {
+                    var extent = layer.dragBox.getGeometry().getExtent();
+                    layer.select.getFeatures().clear();
+                    layer.getSource().forEachFeatureIntersectingExtent(extent, function(feature) {
+                        layer.select.getFeatures().push(feature);
+                        layer.select.dispatchEvent({
+                            type: 'select',
+                            selected: [feature],
+                            deselected: []
+                        });
+                    });
+                });
+            }
+            else if (layer.dragBox){
+                this.map.removeInteraction(layer.dragBox);
+                layer.dragBox = null;
+            }
         }
-        
+
+        /**
+        * enable/disable selection of features, requires initialization of layer
+        * with select options (see addLayer)
+        *
+        * @param {string} layername          layer to enable selection of features in
+        * @param {Boolean} [enable=true]     set to false to disable selection
+        *
+        */
+        enableSelect(layername, enable){
+            var layer = this.layers[layername];
+            if (!layer.select) return;
+            if (enable === false) this.map.removeInteraction(layer.select);
+            else this.map.addInteraction(layer.select);
+        }
+
+        /**
+        * remove the selected features from layer
+        *
+        * @param {string} layername  layer to remove features from
+        */
+        removeSelectedFeatures(layername){
+            var layer = this.layers[layername],
+                source = layer.getSource();
+            if (!layer.select) return;
+            layer.select.getFeatures().forEach(function(feat){
+                source.removeFeature(feat);
+            })
+            layer.select.getFeatures().clear();
+        }
+
         /**
         * get the feature inside layer with given name
         *
@@ -628,8 +811,11 @@ define([
         getFeatures(layername){
             var layer = this.layers[layername],
                 source = layer.getSource();
-            
             return source.getFeatures();
+        }
+
+        getLayer(layername){
+            return this.layers[layername];
         }
 
         /**
