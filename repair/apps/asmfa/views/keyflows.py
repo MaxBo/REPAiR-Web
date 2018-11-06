@@ -40,7 +40,7 @@ class KeyflowViewSet(ModelPermissionViewSet):
     add_perm = 'asmfa.add_keyflow'
     change_perm = 'asmfa.change_keyflow'
     delete_perm = 'asmfa.delete_keyflow'
-    queryset = Keyflow.objects.all()
+    queryset = Keyflow.objects.order_by('id')
     serializer_class = KeyflowSerializer
 
 
@@ -51,7 +51,7 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     add_perm = 'asmfa.add_keyflowincasestudy'
     change_perm = 'asmfa.change_keyflowincasestudy'
     delete_perm = 'asmfa.delete_keyflowincasestudy'
-    queryset = KeyflowInCasestudy.objects.all()
+    queryset = KeyflowInCasestudy.objects.order_by('id')
     serializer_class = KeyflowInCasestudySerializer
     serializers = {'create': KeyflowInCasestudyPostSerializer,
                    'update': KeyflowInCasestudyPostSerializer, }
