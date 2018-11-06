@@ -3,13 +3,13 @@ from rest_framework import serializers
 
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
-    _upload_file = serializers.FileField(required=False,
+    bulk_upload = serializers.FileField(required=False,
                                          write_only=True)
     def __init_subclass__(cls, **kwargs):
-        """add _upload_file to the cls.Meta if it does not exist there"""
+        """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
-        if fields and '_upload_file' not in fields:
-            cls.Meta.fields = fields + ('_upload_file', )
+        if fields and 'bulk_upload' not in fields:
+            cls.Meta.fields = fields + ('bulk_upload', )
 
         extra_kwargs = getattr(cls.Meta, 'extra_kwargs', {})
         for field in fields:
@@ -25,7 +25,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         add it as attribute `dataframe` to the validated data
         add also `keyflow_id` to validated data
         """
-        file = data.pop('_upload_file', None)
+        file = data.pop('bulk_upload', None)
         ret = super().to_internal_value(data)
         if file is None:
             return ret

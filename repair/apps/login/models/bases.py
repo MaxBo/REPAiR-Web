@@ -23,7 +23,7 @@ class GDSEModel(models.Model):
             return ''
 
     @property
-    def _upload_file(self):
+    def bulk_upload(self):
         return None
 
 
