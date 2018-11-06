@@ -55,7 +55,7 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
         """
         file_path_ag = os.path.join(os.path.dirname(__file__),
                                     self.testdata_folder,
-                                    self.filename_act)
+                                    self.filename_actg)
         data = {
             'bulk_upload' : open(file_path_ag, 'rb'),
         }
