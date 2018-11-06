@@ -5,6 +5,12 @@ from django.db.models import Model
 from django.db.models.query import QuerySet
 
 
+class ForeignKeyNotFound(Exception):
+    def __init__(self, message, file_path):
+        super().__init__(message)
+        self.file_path = file_path
+
+
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     bulk_upload = serializers.FileField(required=False,
                                          write_only=True)

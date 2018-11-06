@@ -1,6 +1,8 @@
 import pandas as pd
+import tempfile
 from django_pandas.io import read_frame
-from repair.apps.utils.serializers import BulkSerializerMixin
+from repair.apps.utils.serializers import (BulkSerializerMixin,
+                                           ForeignKeyNotFound)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            )
@@ -79,6 +81,10 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                 setattr(ag, c, v)
             ag.save()
         new_ags = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            df_updated.to_csv(f, sep='\t')
+        raise ForeignKeyNotFound('activty g xyz not found', f.name)
+
         return new_ags
 
 

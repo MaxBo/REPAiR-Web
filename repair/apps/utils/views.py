@@ -1,7 +1,8 @@
-from rest_framework import viewsets, exceptions, mixins
+from rest_framework import viewsets, exceptions, mixins , status
 from django.views import View
 from django.http import (HttpResponseBadRequest,
                          HttpResponseForbidden,
+                         HttpResponse,
                          )
 from django.db.models import ProtectedError
 from django.utils.translation import ugettext as _
@@ -16,6 +17,7 @@ from django.db.models.sql.constants import QUERY_TERMS
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
+from repair.apps.utils.serializers import (ForeignKeyNotFound)
 
 
 class PostGetViewMixin:
@@ -196,7 +198,14 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
         # ToDo: catch custom bulk creation exceptions here
-        return super().create(request, **kwargs)
+        try:
+            return super().create(request, **kwargs)
+        except ForeignKeyNotFound as e:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = \
+                'attachment; filename="{0}"'.format(e.file_path)
+            #response['X-Sendfile'] = "{0}".format(e.file_path)
+            return response
 
     def perform_create(self, serializer):
         url_pks = serializer.context['request'].session['url_pks']
