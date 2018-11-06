@@ -1,6 +1,7 @@
 # API View
 from reversion.views import RevisionMixin
 from django.db.models import Q
+from repair.apps.asmfa.graphs.graph import KeyflowGraph
 from rest_framework import serializers, exceptions
 from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
@@ -55,6 +56,15 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = KeyflowInCasestudySerializer
     serializers = {'create': KeyflowInCasestudyPostSerializer,
                    'update': KeyflowInCasestudyPostSerializer, }
+
+    def retrieve(self, request, **kwargs):
+        get_graph = request.query_params.get('get_graph', '')
+        if get_graph.lower() == 'true':
+            keyflow = self.queryset.get(id=kwargs['pk'])
+            graph = KeyflowGraph(keyflow)
+        return super().retrieve(request, **kwargs)
+
+
 
 
 class CommaSeparatedValueFilter(Filter):
