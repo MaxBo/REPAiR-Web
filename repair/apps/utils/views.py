@@ -192,9 +192,10 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
        additional_filters - dict, keyword arguments for additional filters
     """
     def create(self, request, **kwargs):
-        """set the """
+        """check permission for casestudy"""
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
+        # ToDo: catch custom bulk creation exceptions here
         return super().create(request, **kwargs)
 
     def perform_create(self, serializer):

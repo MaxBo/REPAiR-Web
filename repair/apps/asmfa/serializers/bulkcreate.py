@@ -78,8 +78,8 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                     continue
                 setattr(ag, c, v)
             ag.save()
-
-        return ag
+        new_ags = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
+        return new_ags
 
 
 class ActivityCreateSerializer(BulkSerializerMixin,

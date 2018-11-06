@@ -2,6 +2,7 @@ from typing import Type
 import pandas as pd
 from rest_framework import serializers
 from django.db.models import Model
+from django.db.models.query import QuerySet
 
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
@@ -51,7 +52,10 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     def bulk_create(self, validated_data):
         '''
         bulk create models based on 'dataframe' in validated_data
-        has to return what?
+
+        Return
+        ----------------
+        queryset of all created/updated models
         '''
         raise NotImplementedError('`bulk_create()` must be implemented.')
 
@@ -105,6 +109,19 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         missing_rows = df_merged.loc[df_merged._merge=='left_only']
         existing_rows = df_merged.loc[df_merged._merge=='both']
         return existing_rows, missing_rows
+    def to_representation(self, instance):
+        """
+        Object instance -> Dict of primitive datatypes.
+        """
+        if isinstance(instance, QuerySet):
+            ret = {
+                'count': len(instance),
+            }
+            results = ret['results'] = []
+            for model in instance:
+                results.append(super().to_representation(model))
+            return ret
+        return super().to_representation(instance)
 
 
 class EnumField(serializers.ChoiceField):

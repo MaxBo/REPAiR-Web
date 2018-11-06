@@ -73,6 +73,7 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.ag_url, data)
         assert res.status_code == 201
+        assert res.json()['count'] == len(file_codes)
 
         # assert that the number of activities matches
         all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)

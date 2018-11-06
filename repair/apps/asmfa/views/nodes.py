@@ -26,7 +26,8 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      PostGetViewMixin)
 
 
-class ActivityGroupViewSet(PostGetViewMixin, RevisionMixin,
+class ActivityGroupViewSet(PostGetViewMixin,
+                           RevisionMixin,
                            CasestudyViewSetMixin,
                            ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
