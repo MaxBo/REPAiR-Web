@@ -1,10 +1,10 @@
 
 define(['models/casestudy', 'views/data-entry/flows',
     'views/data-entry/actors', 'views/data-entry/materials',
-    'collections/gdsecollection',
+    'views/data-entry/bulk-upload', 'collections/gdsecollection',
     'app-config', 'utils/utils', 'base'],
-function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
-    appConfig, utils) {
+function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
+    GDSECollection, appConfig, utils) {
     /**
     *
     * entry point for data-entry,
@@ -22,7 +22,8 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
 
     var flowsView,
         actorsView,
-        editMaterialsView;
+        editMaterialsView,
+        bulkUploadView;
 
     var refreshFlowsBtn = document.getElementById('refresh-flowview-btn'),
         refreshMaterialsBtn = document.getElementById('refresh-materialsview-btn'),
@@ -59,6 +60,19 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
         });
         refreshActorsBtn.style.display = 'block';
     };
+
+    function renderBulkUpload(keyflow){
+        if (keyflow == null) return;
+        if (bulkUploadView != null)
+            bulkUploadView.close();
+
+        // create casestudy-object and render view on it (data will be fetched in view)
+
+        bulkUploadView = new BulkUploadView({
+            el: document.getElementById('bulk-upload'),
+            template: 'bulk-upload-template',
+        });
+    }
 
     function renderEditMaterials(keyflow){
         if (keyflow == null) return;
@@ -122,6 +136,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, GDSECollection,
                 renderFlows(keyflow);
                 renderEditActors(keyflow);
                 renderEditMaterials(keyflow);
+                renderBulkUpload(keyflow);
             });
         });
         createBtn.addEventListener('click', function(){
