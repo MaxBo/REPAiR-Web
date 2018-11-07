@@ -17,7 +17,10 @@ from django.db.models.sql.constants import QUERY_TERMS
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
-from repair.apps.utils.serializers import (ForeignKeyNotFound)
+from repair.apps.utils.serializers import (ForeignKeyNotFound,
+                                           FileFormatError,
+                                           MalformedFileError,
+                                           ValidationError, )
 
 
 class PostGetViewMixin:
@@ -197,14 +200,23 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         """check permission for casestudy"""
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
-        # ToDo: catch custom bulk creation exceptions here
         try:
             return super().create(request, **kwargs)
+        except MalformedFileError as e:
+            return self.error_response(e.message)
+        except FileFormatError as e:
+            return self.error_response(e.message)
+        except ValidationError as e:
+            return self.error_response(e.message, file_url=e.path)
         except ForeignKeyNotFound as e:
-            res = {'url': e.file_path}
-            response = JsonResponse(status=400)
+            return self.error_response(e.message, file_url=e.path)
 
-            return response
+    def error_response(self, message, file_url=None):
+        res = { 'message': message }
+        if file_url:
+            res['file_url'] = file_url
+        response = JsonResponse(res, status=400)
+        return response
 
     def perform_create(self, serializer):
         url_pks = serializer.context['request'].session['url_pks']

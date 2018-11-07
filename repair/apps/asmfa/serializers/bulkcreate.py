@@ -1,8 +1,11 @@
 import pandas as pd
 import tempfile
 from django_pandas.io import read_frame
+from django.utils.translation import ugettext as _
 from repair.apps.utils.serializers import (BulkSerializerMixin,
+                                           MalformedFileError,
                                            ForeignKeyNotFound,
+                                           ValidationError,
                                            TemporaryMediaFile)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
@@ -16,8 +19,7 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
 class ActivityGroupCreateSerializer(BulkSerializerMixin,
                                     ActivityGroupSerializer):
 
-    #class Meta(ActivityGroupSerializer.Meta):
-        #fields = ('id', 'code', 'name')
+    bulk_columns = ['code', 'name']
 
     def bulk_create(self, validated_data):
         """Bulk create of data"""
@@ -82,16 +84,14 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                 setattr(ag, c, v)
             ag.save()
         new_ags = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
-        #with TemporaryMediaFile() as f:
-            #df_updated.to_csv(f, sep='\t')
-        ## ToDo: get url
-        #raise ForeignKeyNotFound('activty g xyz not found', f.name)
 
         return new_ags
 
 
 class ActivityCreateSerializer(BulkSerializerMixin,
                                ActivitySerializer):
+
+    bulk_columns = ['nace', 'name', 'ag']
 
     def bulk_create(self, validated_data):
         """Bulk create of data"""
@@ -107,6 +107,21 @@ class ActivityCreateSerializer(BulkSerializerMixin,
         print(f'existing: {existing_rows.len()}')
         print(f'missing: {missing_rows.len()}')
         index_col = 'code'
+
+        # ToDo: example for raising an error, make sth meaningful here
+        # actually it might be better to collect all errors and then raise
+        # a ValidationError containing all of them
+        missing_codes = []
+        if missing_codes:
+            with TemporaryMediaFile() as f:
+                # ToDo: create a file highlighting the errors in the input data
+                # will be returned as an error response
+                df_act_new.to_csv(f, sep='\t')
+            raise ForeignKeyNotFound(
+                _('Related activity groups {} not found'
+                  .format(missing_codes)),
+                f.url
+            )
 
         # get existing activities of keyflow
         qs = Activity.objects.filter(activitygroup__keyflow_id=keyflow_id)

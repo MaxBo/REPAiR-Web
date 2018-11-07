@@ -1,6 +1,8 @@
 from typing import Type
 import pandas as pd
+import numpy as np
 import os
+from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
@@ -8,23 +10,54 @@ from django.db.models.query import QuerySet
 from django.conf import settings
 
 
-class ForeignKeyNotFound(Exception):
-    def __init__(self, message, file_path):
+class FileFormatError(Exception):
+    def __init__(self, message):
         super().__init__(message)
-        self.file_path = file_path
+        self.message = message
+
+
+class MalformedFileError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+
+class ValidationError(Exception):
+    def __init__(self, message, path):
+        super().__init__(message)
+        self.message = message
+        self.path = path
+
+
+class ForeignKeyNotFound(Exception):
+    def __init__(self, message, path):
+        super().__init__(message)
+        self.message = message
+        self.path = path
 
 
 def TemporaryMediaFile():
+    '''
+    temporary file served in the media folder,
+    file.url - relative url to access file
+    file.name - path to file
+    '''
     path = os.path.join(settings.MEDIA_ROOT, 'tmp')
     if not os.path.exists(path):
         os.mkdir(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
+    p, fn = os.path.split(wrapper.name)
+    wrapper.file.url = os.path.join(settings.MEDIA_URL, fn)
     return wrapper
 
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     bulk_upload = serializers.FileField(required=False,
                                          write_only=True)
+    # important: input file will be checked if it contains those columns
+    # (letter case doesn't matter)
+    bulk_columns = []
+
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
@@ -49,9 +82,21 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ret = super().to_internal_value(data)  # would throw exc. else
 
         encoding = 'cp1252'
-        df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+        try:
+            df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+        except pd.errors.ParserError as e:
+            raise MalformedFileError(str(e))
+
         df_new = df_new.\
             rename(columns={c: c.lower() for c in df_new.columns})
+
+        bulk_columns = [c.lower() for c in self.bulk_columns]
+        missing_cols = list(set(bulk_columns).difference(set(df_new.columns)))
+
+        if missing_cols:
+            raise MalformedFileError(
+                _('The following columns are missing: {}'.format(missing_cols)))
+
         ret['dataframe'] = df_new
         request = self.context['request']
         url_pks = request.session.get('url_pks', {})

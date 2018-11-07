@@ -21,6 +21,7 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_actg = 'T3.2_Activity_groups.tsv'
+    filename_actg_missing_col = 'T3.2_Activity_groups_missing_col.tsv'
     filename_act = 'T3.2_Activities.tsv'
     filename_actor = 'T3.2_Actors.tsv'
 
@@ -84,6 +85,16 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
             ag = ActivityGroup.objects.get(keyflow=self.keyflow,
                                            code=row.code)
             assert ag.name == row.name
+
+    def test_bulk_group_errors(self):
+        file_path_ag = os.path.join(os.path.dirname(__file__),
+                                    self.testdata_folder,
+                                    self.filename_actg_missing_col)
+        data = {
+            'bulk_upload' : open(file_path_ag, 'rb'),
+        }
+        res = self.client.post(self.ag_url, data)
+        assert res.status_code == 400
 
     def test_bulk_activity(self):
         """Test that activity matches activitygroup"""
