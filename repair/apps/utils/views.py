@@ -2,7 +2,7 @@ from rest_framework import viewsets, exceptions, mixins , status
 from django.views import View
 from django.http import (HttpResponseBadRequest,
                          HttpResponseForbidden,
-                         HttpResponse,
+                         JsonResponse,
                          )
 from django.db.models import ProtectedError
 from django.utils.translation import ugettext as _
@@ -201,10 +201,9 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         try:
             return super().create(request, **kwargs)
         except ForeignKeyNotFound as e:
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = \
-                'attachment; filename="{0}"'.format(e.file_path)
-            #response['X-Sendfile'] = "{0}".format(e.file_path)
+            res = {'url': e.file_path}
+            response = JsonResponse(status=400)
+
             return response
 
     def perform_create(self, serializer):

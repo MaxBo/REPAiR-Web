@@ -1,14 +1,25 @@
 from typing import Type
 import pandas as pd
+import os
+from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
 from django.db.models.query import QuerySet
+from django.conf import settings
 
 
 class ForeignKeyNotFound(Exception):
     def __init__(self, message, file_path):
         super().__init__(message)
         self.file_path = file_path
+
+
+def TemporaryMediaFile():
+    path = os.path.join(settings.MEDIA_ROOT, 'tmp')
+    if not os.path.exists(path):
+        os.mkdir(path)
+    wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
+    return wrapper
 
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
@@ -115,6 +126,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         missing_rows = df_merged.loc[df_merged._merge=='left_only']
         existing_rows = df_merged.loc[df_merged._merge=='both']
         return existing_rows, missing_rows
+
     def to_representation(self, instance):
         """
         Object instance -> Dict of primitive datatypes.
