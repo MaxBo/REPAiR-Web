@@ -93,7 +93,6 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
 class ActivityCreateSerializer(BulkSerializerMixin,
                                ActivitySerializer):
 
-
     def bulk_create(self, validated_data):
         """Bulk create of data"""
         keyflow_id = validated_data.pop('keyflow_id')

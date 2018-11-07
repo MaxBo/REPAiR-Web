@@ -30,13 +30,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = fields + ('bulk_upload', )
-
-        extra_kwargs = getattr(cls.Meta, 'extra_kwargs', {})
-        for field in fields:
-            extra = extra_kwargs.get(field, {})
-            extra['required'] = False
-            extra_kwargs[field] = extra
-        cls.Meta.extra_kwargs = extra_kwargs
         return super().__init_subclass__(**kwargs)
 
     def to_internal_value(self, data):
@@ -46,9 +39,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         add also `keyflow_id` to validated data
         """
         file = data.pop('bulk_upload', None)
-        ret = super().to_internal_value(data)
         if file is None:
-            return ret
+            return super().to_internal_value(data)
+
+        # other fields are not required when bulk uploading
+        fields = self._writable_fields
+        for field in fields:
+            field.required = False
+        ret = super().to_internal_value(data)  # would throw exc. else
 
         encoding = 'cp1252'
         df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
@@ -70,7 +68,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         bulk create models based on 'dataframe' in validated_data
 
-        Return
+        Returns
         ----------------
         queryset of all created/updated models
         '''

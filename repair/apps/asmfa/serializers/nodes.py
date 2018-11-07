@@ -84,7 +84,7 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
         'casestudy_pk': 'activitygroup__keyflow__casestudy__id',
         'keyflow_pk': 'activitygroup__keyflow__id'
     }
-    activitygroup = IDRelatedField(required=False)
+    activitygroup = IDRelatedField()
     activitygroup_url = ActivityGroupField(view_name='activitygroup-detail',
                                            source='activitygroup',
                                            read_only=True)
