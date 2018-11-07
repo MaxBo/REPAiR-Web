@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import os
+from unittest import skip
+import pandas as pd
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import LoginTestCase, AdminAreaTest
 from django.urls import reverse
-import os
-import pandas as pd
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
@@ -84,6 +85,7 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
             assert ag.name == row.name
 
     def test_bulk_activity(self):
+        """Test that activity matches activitygroup"""
         url = reverse('activity-list',
                       kwargs={'casestudy_pk': self.casestudy.id,
                               'keyflow_pk': self.keyflow.id})
@@ -118,4 +120,42 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
             ac = Activity.objects.get(activitygroup=ag,
                                       nace=row.nace)
             assert ac.name == row.name
+
+    @skip('not implemented yet')
+    def test_actor_matches_activity(self):
+        """Test that actor matches activity"""
+
+    @skip('not implemented yet')
+    def test_bulk_actors(self):
+        """
+        Test that flow/stock matches
+        activity and material and composition
+        """
+    @skip('not implemented yet')
+    def test_composition_adds_to_100_percent(self):
+        """Test that material compostitions add up to 100 %"""
+
+    @skip('not implemented yet')
+    def test_households_in_admin_unit(self):
+        """
+        Test that Household administrative units
+        are in the list of Administrative Units
+        """
+
+    @skip('not implemented yet')
+    def test_tabs_in_text(self):
+        """tabs in text"""
+
+    @skip('not implemented yet')
+    def test_duplicate_entries(self):
+        """Test if duplicate entries in the same table"""
+
+    @skip('hard_to_test')
+    def test_amount_in_tons(self):
+        """Test if amount is given in tons/year"""
+
+    @skip('not implemented yet')
+    def test_missing_data_sources(self):
+        """Test if data sources are given"""
+
 

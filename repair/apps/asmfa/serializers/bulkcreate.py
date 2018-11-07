@@ -91,25 +91,18 @@ class ActivityCreateSerializer(BulkSerializerMixin,
         keyflow_id = validated_data.pop('keyflow_id')
         df_act_new = validated_data.pop('dataframe')
 
-        kic = KeyflowInCasestudy.objects.get(id=keyflow_id)
+        existing_rows, missing_rows = self.check_foreign_keys(
+            df_new=df_act_new,
+            referenced_table=ActivityGroup,
+            referencing_column='ag',
+            filter_value=keyflow_id)
 
-        # get existing activitygroups of keyflow
-        qs = ActivityGroup.objects.filter(keyflow_id=kic.id)
-        df_ag = read_frame(qs, index_col=['code'])
-
+        print(f'existing: {existing_rows.len()}')
+        print(f'missing: {missing_rows.len()}')
         index_col = 'code'
 
         # get existing activities of keyflow
-        qs = Activity.objects.filter(activitygroup__keyflow_id=kic.id)
+        qs = Activity.objects.filter(activitygroup__keyflow_id=keyflow_id)
         df_act_old = read_frame(qs, index_col=[index_col])
 
-        # check if an activitygroup exist for each activity
-        existing_ag = df_act_new.merge(df_ag,
-                                       left_on='ag',
-                                       right_index=True,
-                                       how='left',
-                                       indicator=True,
-                                       suffixes=['', '_old'])
-        missing_activitygroups = existing_ag.loc[
-            existing_ag._merge=='left_only']
         return act

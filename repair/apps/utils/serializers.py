@@ -1,5 +1,7 @@
+from typing import Type
 import pandas as pd
 from rest_framework import serializers
+from django.db.models import Model
 
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
@@ -52,6 +54,57 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         has to return what?
         '''
         raise NotImplementedError('`bulk_create()` must be implemented.')
+
+    def check_foreign_keys(self,
+                           df_new: pd.DataFrame,
+                           referenced_table: Type[Model],
+                           referencing_column: str,
+                           filter_value: int,
+                           referenced_column: str='code',
+                           filter_expr: str='keyflow_id',
+                           ):
+        """
+        check foreign key in referenced table
+
+        Parameters
+        ----------
+        df_new: pd.Dataframe
+            the dataframe with the rows to check
+        referenced_table: Model-Class
+            the referenced Model
+        referencing_column: str
+            the referencing column in df_new that should be checked
+        filter_value: int
+            the value like the keyflow_id to filter the referencing table
+        referenced_column: str, optional(default='code')
+            the referenced column to search in
+        filter_expr: str, optional(default='keyflow_id')
+            the filter-expression like keyflow_id to filter the values in the
+            referenced_table
+
+        Returns
+        -------
+        existing_keys: pd.Dataframe
+            the merged dataframe
+        missing_rows: pd.Dataframe
+            the rows in the df_new where rows are missing
+        """
+        # get existing rows in the referenced table of the keyflow
+        qs = referenced_table.objects.filter(keyflow_id=kic.id)
+        df_referenced = read_frame(qs, index_col=[referenced_column])
+
+        index_col = 'code'
+
+        # check if an activitygroup exist for each activity
+        df_merged = df_new.merge(df_referenced,
+                                 left_on=referencing_column,
+                                 right_index=True,
+                                 how='left',
+                                 indicator=True,
+                                 suffixes=['', '_old'])
+        missing_rows = df_merged.loc[df_merged._merge=='left_only']
+        existing_rows = df_merged.loc[df_merged._merge=='both']
+        return existing_rows, missing_rows
 
 
 class EnumField(serializers.ChoiceField):
