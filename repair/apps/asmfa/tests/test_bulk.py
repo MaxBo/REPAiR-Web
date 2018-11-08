@@ -17,7 +17,7 @@ from repair.apps.asmfa.factories import (ActivityFactory,
 from repair.apps.asmfa.models import ActivityGroup, Activity
 
 
-class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
+class BulkImportNodesTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_actg = 'T3.2_Activity_groups.tsv'
@@ -73,8 +73,11 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
         new_codes = [c for c in file_codes if c not in existing_codes]
 
         res = self.client.post(self.ag_url, data)
+        res_json = res.json()
         assert res.status_code == 201
-        assert res.json()['count'] == len(file_codes)
+        assert res_json['count'] == len(file_codes)
+        assert res_json['added'] == len(new_codes)
+        assert res_json['count'] == res_json['updated'] + res_json['added']
 
         # assert that the number of activities matches
         all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)
@@ -120,6 +123,10 @@ class BulkImportActivitygroupTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.ac_url, data)
         assert res.status_code == 201
+        res_json = res.json()
+        assert res_json['count'] == len(file_nace)
+        assert res_json['added'] == len(new_nace)
+        assert res_json['count'] == res_json['updated'] + res_json['added']
 
         # assert that the number of activities matches
         all_ac = Activity.objects.filter(activitygroup__keyflow=self.kic)

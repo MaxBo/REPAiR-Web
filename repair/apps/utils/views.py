@@ -17,10 +17,7 @@ from django.db.models.sql.constants import QUERY_TERMS
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
-from repair.apps.utils.serializers import (ForeignKeyNotFound,
-                                           FileFormatError,
-                                           MalformedFileError,
-                                           ValidationError, )
+from repair.apps.utils.serializers import BulkValidationError
 
 
 class PostGetViewMixin:
@@ -202,13 +199,7 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
             self.check_casestudy(kwargs, request)
         try:
             return super().create(request, **kwargs)
-        except MalformedFileError as e:
-            return self.error_response(e.message)
-        except FileFormatError as e:
-            return self.error_response(e.message)
-        except ValidationError as e:
-            return self.error_response(e.message, file_url=e.path)
-        except ForeignKeyNotFound as e:
+        except BulkValidationError as e:
             return self.error_response(e.message, file_url=e.path)
 
     def error_response(self, message, file_url=None):

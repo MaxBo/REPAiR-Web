@@ -6,7 +6,8 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            MalformedFileError,
                                            ForeignKeyNotFound,
                                            ValidationError,
-                                           TemporaryMediaFile)
+                                           TemporaryMediaFile,
+                                           BulkResult)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            )
@@ -83,9 +84,11 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                     continue
                 setattr(ag, c, v)
             ag.save()
-        new_ags = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
+        queryset = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
+        result = BulkResult(queryset, rows_added=len(new_ag),
+                            rows_updated=len(df_updated))
 
-        return new_ags
+        return result
 
 
 class ActivityCreateSerializer(BulkSerializerMixin,
@@ -127,4 +130,5 @@ class ActivityCreateSerializer(BulkSerializerMixin,
         qs = Activity.objects.filter(activitygroup__keyflow_id=keyflow_id)
         df_act_old = read_frame(qs, index_col=[index_col])
 
+        result = BulkResult(queryset)
         return act

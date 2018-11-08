@@ -10,30 +10,34 @@ from django.db.models.query import QuerySet
 from django.conf import settings
 
 
-class FileFormatError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
-
-
-class MalformedFileError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
-
-
-class ValidationError(Exception):
-    def __init__(self, message, path):
+class BulkValidationError(Exception):
+    def __init__(self, message, path=''):
         super().__init__(message)
         self.message = message
         self.path = path
 
 
-class ForeignKeyNotFound(Exception):
-    def __init__(self, message, path):
-        super().__init__(message)
-        self.message = message
-        self.path = path
+class FileFormatError(BulkValidationError):
+    """File Encoding is broken"""
+
+
+class MalformedFileError(BulkValidationError):
+    """the file content is malformed (e.g. missing columns)"""
+
+
+class ValidationError(BulkValidationError):
+    """general error occurring while validating data"""
+
+
+class ForeignKeyNotFound(BulkValidationError):
+    """related foreign key in file content not found in existing data"""
+
+
+class BulkResult:
+    def __init__(self, queryset, rows_added=0, rows_updated=0):
+        self.rows_added = rows_added
+        self.rows_updated = rows_updated
+        self.queryset = queryset
 
 
 def TemporaryMediaFile():
@@ -53,7 +57,7 @@ def TemporaryMediaFile():
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     bulk_upload = serializers.FileField(required=False,
-                                         write_only=True)
+                                        write_only=True)
     # important: input file will be checked if it contains those columns
     # (letter case doesn't matter)
     bulk_columns = []
@@ -115,7 +119,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         Returns
         ----------------
-        queryset of all created/updated models
+        BulkResult
         '''
         raise NotImplementedError('`bulk_create()` must be implemented.')
 
@@ -174,12 +178,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         """
         Object instance -> Dict of primitive datatypes.
         """
-        if isinstance(instance, QuerySet):
+        if isinstance(instance, BulkResult):
             ret = {
-                'count': len(instance),
+                'count': len(instance.queryset),
+                'added': instance.rows_added,
+                'updated': instance.rows_updated
             }
             results = ret['results'] = []
-            for model in instance:
+            for model in instance.queryset:
                 results.append(super().to_representation(model))
             return ret
         return super().to_representation(instance)
