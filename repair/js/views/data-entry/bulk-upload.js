@@ -49,10 +49,7 @@ var BulkUploadView = BaseView.extend(
                     document.querySelector('body').style.opacity=0.3;
                     location.reload();
                 },
-                error: function(a, b){
-                    console.log(a)
-                    console.log(b)
-                }
+                error: _this.onError
             })
         }
         this.confirm({
@@ -85,10 +82,9 @@ var BulkUploadView = BaseView.extend(
 
             _this.loader.activate();
             while (model = collection.first()) {
-                var m_repr = JSON.stringify(model.toJSON());
                 model.destroy({
                     success: function(res){
-                    console.log(res)
+                        var m_repr = JSON.stringify(res.toJSON());
                         msg = gettext('Successfully deleted') + ' ' + m_repr;
                         _this.log(msg)
                         i -= 1;
