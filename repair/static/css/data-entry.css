@@ -101,11 +101,20 @@ td button {
     overflow: auto;
     white-space: nowrap;
 }
+
 #bulk-upload .upload.row input{
     float: right;
     display: inline;
     padding: 6px;
 }
+
 #bulk-upload .upload.row button{
     float: right;
+    height: 35px;
+    margin-right: 10px;
 }
+
+#bulk-upload .upload.row button span{
+    pointer-events: none;
+}
+

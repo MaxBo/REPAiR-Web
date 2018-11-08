@@ -1,6 +1,6 @@
 
-define(['views/common/baseview', 'underscore', 'models/gdsemodel'],
-function(BaseView, _, GDSEModel){
+define(['views/common/baseview', 'underscore', 'models/gdsemodel', 'collections/gdsecollection'],
+function(BaseView, _, GDSEModel, GDSECollection){
 
 /**
     *
@@ -30,6 +30,7 @@ var BulkUploadView = BaseView.extend(
     events: {
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
+        "click button.clear": "clearData"
         //"click #clear-keyflow": "clearKeyflow"
     },
 
@@ -66,8 +67,64 @@ var BulkUploadView = BaseView.extend(
         })
     },
 
+    clearData: function(evt){
+        var _this = this,
+            btn = evt.target,
+            tag = btn.dataset['tag'];
+
+        function destroyModels(collection){
+            var i = collection.length,
+                u_msg = gettext('Removing data') + ' ' + tag;
+            _this.log(u_msg);
+            _this.log('-'.repeat(u_msg.length * 1.4));
+
+            if (i === 0){
+                _this.log('<p style="color: green;">' + gettext('Nothing to remove') + '</p>');
+                return;
+            }
+
+            _this.loader.activate();
+            while (model = collection.first()) {
+                var m_repr = JSON.stringify(model.toJSON());
+                model.destroy({
+                    success: function(res){
+                    console.log(res)
+                        msg = gettext('Successfully deleted') + ' ' + m_repr;
+                        _this.log(msg)
+                        i -= 1;
+                        if (i < 1) {
+                            _this.loader.deactivate();
+                        }
+                    },
+                    error: function(res){
+                        msg = res.responseText;
+                        _this.log('<p style="color: red;">' + msg + '</p>')
+                        i -= 1;
+                        if (i < 1) {
+                            _this.loader.deactivate();
+                        }
+                    }
+                });
+            }
+        }
+
+        var collection = new GDSECollection( {}, {
+            apiTag: tag, apiIds: [ this.caseStudy.id, this.model.id ]
+        });
+
+        this.confirm({
+            message: gettext('Do you really want to delete the existing data and <b>ALL</b> of the related data?'),
+            onConfirm: function(){
+                collection.fetch({
+                    success: destroyModels,
+                    error: this.onError
+                })
+            }
+        })
+    },
+
     log: function(text){
-        this.logArea.innerHTML += '<br>' + text;
+        this.logArea.innerHTML += text + '<br>';
         this.logArea.scrollTop = this.logArea.scrollHeight;
     },
 
