@@ -32,7 +32,9 @@ var BulkUploadView = BaseView.extend(
     },
 
     render: function(){
-        BulkUploadView.__super__.render.call(this);
+        var html = document.getElementById(this.template).innerHTML,
+            template = _.template(html);
+        this.el.innerHTML = template({ keyflow: this.model });
         this.logArea = this.el.querySelector('#upload-log');
     },
 
@@ -65,7 +67,7 @@ var BulkUploadView = BaseView.extend(
         this.loader.activate();
         var u_msg = gettext('Uploading') + ' ' + files[0].name;
         this.log(u_msg);
-        this.log('-'.repeat(u_msg.length));
+        this.log('-'.repeat(u_msg.length * 1.4));
         model.save(data, {
             success: function (res) {
                 var res = res.toJSON();
