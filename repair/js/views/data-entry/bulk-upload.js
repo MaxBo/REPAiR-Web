@@ -63,8 +63,9 @@ var BulkUploadView = BaseView.extend(
             apiTag: tag, apiIds: [ this.caseStudy.id, this.model.id ]
         });
         this.loader.activate();
-        this.log(gettext('Uploading') + ' ' + files[0].name);
-        this.log('-----------------------------------------------');
+        var u_msg = gettext('Uploading') + ' ' + files[0].name;
+        this.log(u_msg);
+        this.log('-'.repeat(u_msg.length));
         model.save(data, {
             success: function (res) {
                 var res = res.toJSON();
@@ -72,12 +73,24 @@ var BulkUploadView = BaseView.extend(
                     //if (m.url) delete m.url;
                     _this.log(JSON.stringify(m));
                 })
-                _this.log('<p style="color: green;">' + gettext('Success') + ': ' + res.added + ' entries added, ' + res.updated + ' entries updated</p>')
+                var msg = '<strong>' + gettext('Success') + '!</strong>&nbsp;' + res.added + ' entries added, ' + res.updated + ' entries updated';
+                _this.bootstrapAlert(msg, {
+                    parentEl: row,
+                    type: 'success',
+                    dismissible: true
+                })
+                _this.log('<p style="color: green;">' + msg +  '</p>')
                 _this.loader.deactivate()
             },
             error: function (res, r) {
-                var msg = res.responseJSON.message;
-                _this.log('<p style="color: red;">' + gettext('Error') + ': ' + msg + '</p>')
+                var msg = res.responseJSON ? res.responseJSON.message: res.responseText;
+                msg = '<strong>' + gettext('Error') + '!</strong>&nbsp;' + msg;
+                _this.bootstrapAlert(msg, {
+                    parentEl: row,
+                    type: 'danger',
+                    dismissible: true
+                })
+                _this.log('<p style="color: red;">' + msg + '</p>')
                 _this.loader.deactivate()
             },
         });

@@ -84,7 +84,7 @@ td button {
 }
 
 #bulk-upload .upload.row{
-    height: 100px;
+    min-height: 100px;
     padding-top: 30px;
 }
 
