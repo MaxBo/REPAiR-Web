@@ -1,5 +1,6 @@
 from typing import Type
 import pandas as pd
+from django_pandas.io import read_frame
 import numpy as np
 import os
 from django.utils.translation import ugettext as _
@@ -125,11 +126,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
     def check_foreign_keys(self,
                            df_new: pd.DataFrame,
-                           referenced_table: Type[Model],
+                           queryset: QuerySet,
                            referencing_column: str,
-                           filter_value: int,
                            referenced_column: str='code',
-                           filter_expr: str='keyflow_id',
                            ):
         """
         check foreign key in referenced table
@@ -138,17 +137,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ----------
         df_new: pd.Dataframe
             the dataframe with the rows to check
-        referenced_table: Model-Class
-            the referenced Model
+        queryset: Queryset
+            queryset of the referenced Model
         referencing_column: str
             the referencing column in df_new that should be checked
-        filter_value: int
-            the value like the keyflow_id to filter the referencing table
         referenced_column: str, optional(default='code')
             the referenced column to search in
-        filter_expr: str, optional(default='keyflow_id')
-            the filter-expression like keyflow_id to filter the values in the
-            referenced_table
 
         Returns
         -------
@@ -158,8 +152,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             the rows in the df_new where rows are missing
         """
         # get existing rows in the referenced table of the keyflow
-        qs = referenced_table.objects.filter(keyflow_id=filter_expr)
-        df_referenced = read_frame(qs, index_col=[referenced_column])
+        df_referenced = read_frame(queryset, index_col=[referenced_column])
 
         # check if an activitygroup exist for each activity
         df_merged = df_new.merge(df_referenced,
