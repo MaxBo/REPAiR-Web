@@ -80,7 +80,6 @@ var BulkUploadView = BaseView.extend(
                 return;
             }
 
-            _this.loader.activate();
             while (model = collection.first()) {
                 model.destroy({
                     success: function(res){
@@ -111,9 +110,10 @@ var BulkUploadView = BaseView.extend(
         this.confirm({
             message: gettext('Do you really want to delete the existing data and <b>ALL</b> of the related data?'),
             onConfirm: function(){
+                _this.loader.activate();
                 collection.fetch({
                     success: destroyModels,
-                    error: this.onError
+                    error: _this.onError
                 })
             }
         })

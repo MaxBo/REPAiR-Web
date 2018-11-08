@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import tempfile
 from django_pandas.io import read_frame
 from django.utils.translation import ugettext as _
@@ -84,6 +85,7 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                     continue
                 setattr(ag, c, v)
             ag.save()
+
         queryset = ActivityGroup.objects.filter(keyflow=kic,
                                                 code__in=df_ag_new.index.values)
         result = BulkResult(queryset, rows_added=len(new_ag),
@@ -102,34 +104,46 @@ class ActivityCreateSerializer(BulkSerializerMixin,
         keyflow_id = validated_data.pop('keyflow_id')
         df_act_new = validated_data.pop('dataframe')
 
+        ag_queryset = ActivityGroup.objects.filter(keyflow__id=keyflow_id)
+        index_col = 'nace'
+        df_act_new.set_index(index_col, inplace=True)
+
         existing_rows, missing_rows = self.check_foreign_keys(
             df_new=df_act_new,
-            referenced_table=ActivityGroup,
             referencing_column='ag',
-            filter_value=keyflow_id)
+            referenced_column='code',
+            queryset=ag_queryset
+        )
 
-        print(f'existing: {existing_rows.len()}')
-        print(f'missing: {missing_rows.len()}')
-        index_col = 'code'
-
-        # ToDo: example for raising an error, make sth meaningful here
-        # actually it might be better to collect all errors and then raise
-        # a ValidationError containing all of them
-        missing_codes = []
-        if missing_codes:
+        if len(missing_rows) > 0:
+            missing_ag = np.unique(missing_rows.ag.values)
             with TemporaryMediaFile() as f:
                 # ToDo: create a file highlighting the errors in the input data
                 # will be returned as an error response
                 df_act_new.to_csv(f, sep='\t')
             raise ForeignKeyNotFound(
                 _('Related activity groups {} not found'
-                  .format(missing_codes)),
+                  .format(missing_ag)),
                 f.url
             )
 
         # get existing activities of keyflow
         qs = Activity.objects.filter(activitygroup__keyflow_id=keyflow_id)
         df_act_old = read_frame(qs, index_col=[index_col])
+
+        # doesn't work this, but existing_rows already has the information about the group ids
+        existing_rows = existing_rows.rename(columns={'id': 'activitygroup'})
+        existing_act = existing_rows.merge(df_act_old,
+                                           left_index=True,
+                                           right_index=True,
+                                           how='left',
+                                           indicator=True,
+                                           suffixes=['', '_older'])
+
+        new_act = existing_act.loc[existing_act._merge=='left_only'].reset_index()
+        idx_both = existing_act.loc[existing_act._merge=='both'].index
+
+        related_ags = ag_queryset
 
         result = BulkResult(queryset)
         return act

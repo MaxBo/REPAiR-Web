@@ -43,6 +43,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         super().setUp()
         # create another activitygroup
         ActivityGroupFactory(keyflow=self.keyflow, name='Construction', code='F')
+        ActivityGroupFactory(keyflow=self.keyflow, name='Some stuff, no idea', code='G')
         ActivityGroupFactory(keyflow=self.keyflow, name='Other', code='E')
         ActivityGroupFactory(keyflow=self.keyflow, name='Export', code='WE')
         ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
