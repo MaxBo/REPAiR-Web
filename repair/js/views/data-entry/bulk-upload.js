@@ -28,7 +28,9 @@ var BulkUploadView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        "click button.upload": "upload"
+        "click button.upload": "upload",
+        "click #remove-keyflow": "removeKeyflow",
+        //"click #clear-keyflow": "clearKeyflow"
     },
 
     render: function(){
@@ -36,6 +38,32 @@ var BulkUploadView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template({ keyflow: this.model });
         this.logArea = this.el.querySelector('#upload-log');
+    },
+
+    removeKeyflow: function(){
+        var _this = this;
+        function destroyKeyflow(){
+            _this.model.destroy({
+                success: function(){
+                    document.querySelector('body').style.opacity=0.3;
+                    location.reload();
+                },
+                error: function(a, b){
+                    console.log(a)
+                    console.log(b)
+                }
+            })
+        }
+        this.confirm({
+            message: gettext('Do you really want to delete the keyflow and <b>ALL</b> of its data?'),
+            onConfirm: function(){
+                _this.confirm({
+                        message: gettext('Are you sure?'),
+                        onConfirm: destroyKeyflow
+                    }
+                )
+            }
+        })
     },
 
     log: function(text){
@@ -96,7 +124,6 @@ var BulkUploadView = BaseView.extend(
                 _this.loader.deactivate()
             },
         });
-
     }
 
 
