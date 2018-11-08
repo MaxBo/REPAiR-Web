@@ -33,22 +33,18 @@ var BulkUploadView = BaseView.extend(
 
     render: function(){
         BulkUploadView.__super__.render.call(this);
-        this.textarea = this.el.querySelector('textarea');
+        this.logArea = this.el.querySelector('#upload-log');
     },
 
     log: function(text){
-        this.textarea.value += '\n' + text;
-        this.textarea.scrollTop = this.textarea.scrollHeight;
+        this.logArea.innerHTML += '<br>' + text;
+        this.logArea.scrollTop = this.logArea.scrollHeight;
     },
 
     upload: function(evt){
         var _this = this,
             btn = evt.target,
             tag = btn.dataset['tag'];
-
-        console.log(btn)
-        console.log(tag)
-        console.log(this.el)
 
         var row = this.el.querySelector('.row[data-tag="' + tag +  '"]'),
             input = row.querySelector('input[type="file"]'),
@@ -71,17 +67,17 @@ var BulkUploadView = BaseView.extend(
         this.log('-----------------------------------------------');
         model.save(data, {
             success: function (res) {
-                console.log(res)
-                console.log(res.toJSON())
-                res.toJSON().results.forEach(function(m){
-                    if (m.url) delete m.url;
+                var res = res.toJSON();
+                res.results.forEach(function(m){
+                    //if (m.url) delete m.url;
                     _this.log(JSON.stringify(m));
                 })
+                _this.log('<p style="color: green;">' + gettext('Success') + ': ' + res.added + ' entries added, ' + res.updated + ' entries updated</p>')
                 _this.loader.deactivate()
             },
             error: function (res, r) {
-                console.log(res)
-                console.log(r)
+                var msg = res.responseJSON.message;
+                _this.log('<p style="color: red;">' + gettext('Error') + ': ' + msg + '</p>')
                 _this.loader.deactivate()
             },
         });

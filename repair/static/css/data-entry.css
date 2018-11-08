@@ -97,6 +97,9 @@ td button {
 #upload-log{
     width: 100%;
     height: 450px;
+    resize: both;
+    overflow: auto;
+    white-space: nowrap;
 }
 #bulk-upload .upload.row input{
     float: right;
