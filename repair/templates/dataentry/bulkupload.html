@@ -3,10 +3,29 @@
 <!-- template for bulk uploads -->
 
 <script type="text/template" id="bulk-upload-template">
-  <div class="row">
-    {% trans "Upload Activity Groups" %} <input type="file" id="ag-file">
+  <div class='col-md-5'>
+    <div class="upload row bordered" data-tag="activitygroups">
+      <label>{% trans "Activity Groups" %} </label>
+      <button class="btn btn-primary upload" data-tag="activitygroups">
+        {% trans "Upload" %}
+        <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+      </button>
+      <input type="file" id="ag-file" accept=".tsv">
+    </div>
+    <div class="upload row bordered" data-tag="activities">
+      <label>{% trans "Activities" %} </label>
+      <button class="btn btn-primary upload" data-tag="activities">
+        {% trans "Upload" %}
+        <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+      </button>
+      <input type="file" accept=".tsv">
+    </div>
   </div>
-  <div class="row">
-    {% trans "Upload Activities" %} <input type="file" id="ac-file">
+  <div class='col-md-6'>
+    <textarea readonly id="upload-log" wrap="off">
+      -------
+      &nbsp;{% trans "Log" %}
+      -------
+    </textarea>
   </div>
 </script>

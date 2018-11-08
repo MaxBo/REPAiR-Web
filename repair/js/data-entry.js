@@ -71,6 +71,8 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
         bulkUploadView = new BulkUploadView({
             el: document.getElementById('bulk-upload'),
             template: 'bulk-upload-template',
+            model: keyflow,
+            caseStudy: caseStudy
         });
     }
 
