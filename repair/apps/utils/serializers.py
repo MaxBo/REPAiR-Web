@@ -158,10 +158,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             the rows in the df_new where rows are missing
         """
         # get existing rows in the referenced table of the keyflow
-        qs = referenced_table.objects.filter(keyflow_id=kic.id)
+        qs = referenced_table.objects.filter(keyflow_id=filter_expr)
         df_referenced = read_frame(qs, index_col=[referenced_column])
-
-        index_col = 'code'
 
         # check if an activitygroup exist for each activity
         df_merged = df_new.merge(df_referenced,
