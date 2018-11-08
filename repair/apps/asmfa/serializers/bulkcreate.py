@@ -84,7 +84,8 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
                     continue
                 setattr(ag, c, v)
             ag.save()
-        queryset = ActivityGroup.objects.filter(code__in=df_ag_new.index.values)
+        queryset = ActivityGroup.objects.filter(keyflow=kic,
+                                                code__in=df_ag_new.index.values)
         result = BulkResult(queryset, rows_added=len(new_ag),
                             rows_updated=len(df_updated))
 
