@@ -55,7 +55,7 @@ def TemporaryMediaFile():
         os.mkdir(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
     p, fn = os.path.split(wrapper.name)
-    wrapper.file.url = os.path.join(settings.MEDIA_URL, fn)
+    wrapper.file.url = settings.MEDIA_URL + '/tmp/' + fn
     return wrapper
 
 
@@ -233,11 +233,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     data, referencing_column=column, rel=self)
 
                 if len(missing) > 0:
-                    missing_values = np.unique(missing['column'].values)
+                    missing_values = np.unique(missing[column].values)
                     with TemporaryMediaFile() as f:
                         # ToDo: create a file highlighting the errors in the input data
                         # will be returned as an error response
-                        df_act_new.to_csv(f, sep='\t')
+                        data.to_csv(f, sep='\t')
                     raise ForeignKeyNotFound(
                         _('Related models {} not found'
                           .format(missing_values)),

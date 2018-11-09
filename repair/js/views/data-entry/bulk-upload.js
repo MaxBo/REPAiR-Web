@@ -151,12 +151,20 @@ var BulkUploadView = BaseView.extend(
         this.log('-'.repeat(u_msg.length * 1.4));
         model.save(data, {
             success: function (res) {
-                var res = res.toJSON();
-                res.results.forEach(function(m){
-                    //if (m.url) delete m.url;
+                var res = res.toJSON(),
+                    updated = res.updated,
+                    created = res.created;
+                _this.log(gettext('Created models:'));
+                if (created.length == 0) _this.log('-');
+                created.forEach(function(m){
                     _this.log(JSON.stringify(m));
                 })
-                var msg = '<strong>' + gettext('Success') + '!</strong>&nbsp;' + res.added + ' entries added, ' + res.updated + ' entries updated';
+                _this.log(gettext('Updated models:'));
+                if (updated.length == 0) _this.log('-');
+                updated.forEach(function(m){
+                    _this.log(JSON.stringify(m));
+                })
+                var msg = '<strong>' + gettext('Success') + '!</strong>&nbsp;' + res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
                 _this.bootstrapAlert(msg, {
                     parentEl: row,
                     type: 'success',
