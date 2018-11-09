@@ -9,6 +9,7 @@ from rest_framework import serializers
 from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.conf import settings
+from copy import deepcopy
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.login.models import CaseStudy
@@ -108,14 +109,15 @@ class Reference:
         """
         objects = self.referenced_model.objects
         if self.filter_args:
-            for k, v in self.filter_args.items():
+            filter_args = self.filter_args.copy()
+            for k, v in filter_args.items():
                 if v.startswith('@'):
                     if not rel:
                         raise Exception('You defined a related keyword in the '
                                         'filter_args but did not pass the related '
                                         'object')
-                    self.filter_args[k] = getattr(rel, v[1:])
-            referenced_queryset = objects.filter(**self.filter_args)
+                    filter_args[k] = getattr(rel, v[1:])
+            referenced_queryset = objects.filter(**filter_args)
         else:
             referenced_queryset = objects.all()
         # only the id of the referenced queryset is relevant
