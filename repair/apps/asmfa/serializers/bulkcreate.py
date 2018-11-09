@@ -104,16 +104,19 @@ class ActivityCreateSerializer(BulkSerializerMixin,
         keyflow_id = validated_data.pop('keyflow_id')
         df_act_new = validated_data.pop('dataframe')
 
-        ag_queryset = ActivityGroup.objects.filter(keyflow__id=keyflow_id)
+        activitygroups = ActivityGroup.objects.filter(keyflow__id=keyflow_id)
         index_col = 'nace'
         df_act_new.set_index(index_col, inplace=True)
 
-        existing_rows, missing_rows = self.check_foreign_keys(
-            df_new=df_act_new,
+        merged_reference, missing_rows = self.merge_foreign_keys(
+            data=df_act_new,
             referencing_column='ag',
             referenced_column='code',
-            queryset=ag_queryset
+            referenced_queryset=activitygroups
         )
+
+        merged_reference = merged_reference.rename(
+            columns={'ag': 'activitygroup'})
 
         if len(missing_rows) > 0:
             missing_ag = np.unique(missing_rows.ag.values)
@@ -128,20 +131,19 @@ class ActivityCreateSerializer(BulkSerializerMixin,
             )
 
         # get existing activities of keyflow
-        qs = Activity.objects.filter(activitygroup__keyflow_id=keyflow_id)
-        df_act_old = read_frame(qs, index_col=[index_col])
+        existing_act= Activity.objects.filter(
+            activitygroup__keyflow_id=keyflow_id)
+        df_existing_act = read_frame(existing_act, index_col=[index_col])
 
-        # doesn't work this, but existing_rows already has the information about the group ids
-        existing_rows = existing_rows.rename(columns={'id': 'activitygroup'})
-        existing_act = existing_rows.merge(df_act_old,
-                                           left_index=True,
-                                           right_index=True,
-                                           how='left',
-                                           indicator=True,
-                                           suffixes=['', '_older'])
+        merged = merged_reference.merge(df_existing_act,
+                                        left_index=True,
+                                        right_index=True,
+                                        how='left',
+                                        indicator=True,
+                                        suffixes=['', '_old'])
 
-        new_act = existing_act.loc[existing_act._merge=='left_only'].reset_index()
-        idx_both = existing_act.loc[existing_act._merge=='both'].index
+        new_act = existing_act.loc[merged._merge=='left_only'].reset_index()
+        idx_both = existing_act.loc[merged._merge=='both'].index
 
         related_ags = ag_queryset
 

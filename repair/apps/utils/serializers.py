@@ -124,24 +124,25 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         raise NotImplementedError('`bulk_create()` must be implemented.')
 
-    def check_foreign_keys(self,
-                           df_new: pd.DataFrame,
-                           queryset: QuerySet,
+    def merge_foreign_keys(self,
+                           data: pd.DataFrame,
+                           referenced_queryset: QuerySet,
                            referencing_column: str,
-                           referenced_column: str='code',
+                           target_column: str=None,
+                           referenced_column: str='code'
                            ):
         """
-        check foreign key in referenced table
+        merge models from queryset to data by foreign key
 
         Parameters
         ----------
-        df_new: pd.Dataframe
+        data: pd.Dataframe
             the dataframe with the rows to check
-        queryset: Queryset
+        referenced_queryset: Queryset
             queryset of the referenced Model
         referencing_column: str
-            the referencing column in df_new that should be checked
-        referenced_column: str, optional(default='code')
+            the referencing column in data that should be checked
+        referenced_queryset: str, optional(default='code')
             the referenced column to search in
 
         Returns
@@ -151,18 +152,33 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         missing_rows: pd.Dataframe
             the rows in the df_new where rows are missing
         """
+        # only the id of the referenced queryset is relevant
+        fieldnames = ['id']
+        fieldnames.append(referenced_column)
         # get existing rows in the referenced table of the keyflow
-        df_referenced = read_frame(queryset, index_col=[referenced_column])
+        df_referenced = read_frame(referenced_queryset,
+                                   index_col=[referenced_column],
+                                   fieldnames=fieldnames)
+        df_referenced['_models'] = referenced_queryset
 
         # check if an activitygroup exist for each activity
-        df_merged = df_new.merge(df_referenced,
-                                 left_on=referencing_column,
-                                 right_index=True,
-                                 how='left',
-                                 indicator=True,
-                                 suffixes=['', '_old'])
+        df_merged = data.merge(df_referenced,
+                               left_on=referencing_column,
+                               right_index=True,
+                               how='left',
+                               indicator=True,
+                               suffixes=['', '_old'])
+
         missing_rows = df_merged.loc[df_merged._merge=='left_only']
         existing_rows = df_merged.loc[df_merged._merge=='both']
+
+        if not target_column:
+            target_column = referencing_column
+
+        existing_rows[target_column] = existing_rows['_models']
+
+        missing_rows.drop(columns=['_merge', 'id'], inplace=True)
+        existing_rows.drop(columns=['_merge', 'id', '_models'], inplace=True)
         return existing_rows, missing_rows
 
     def to_representation(self, instance):
