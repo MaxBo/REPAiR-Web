@@ -77,8 +77,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         res_json = res.json()
         assert res.status_code == 201
         assert res_json['count'] == len(file_codes)
-        assert res_json['added'] == len(new_codes)
-        assert res_json['count'] == res_json['updated'] + res_json['added']
+        assert len(res_json['created']) == len(new_codes)
 
         # assert that the number of activities matches
         all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)
@@ -126,8 +125,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         assert res.status_code == 201
         res_json = res.json()
         assert res_json['count'] == len(file_nace)
-        assert res_json['added'] == len(new_nace)
-        assert res_json['count'] == res_json['updated'] + res_json['added']
+        assert len(res_json['created']) == len(new_nace)
 
         # assert that the number of activities matches
         all_ac = Activity.objects.filter(activitygroup__keyflow=self.kic)

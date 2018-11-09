@@ -11,6 +11,7 @@ from django.db.models.query import QuerySet
 from django.conf import settings
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
+from repair.apps.login.models import CaseStudy
 
 
 class BulkValidationError(Exception):
@@ -37,10 +38,10 @@ class ForeignKeyNotFound(BulkValidationError):
 
 
 class BulkResult:
-    def __init__(self, queryset, rows_added=0, rows_updated=0):
-        self.rows_added = rows_added
-        self.rows_updated = rows_updated
-        self.queryset = queryset
+    def __init__(self, created=[], updated=[], message=''):
+        self.created = created
+        self.updated = updated
+        self.message = message
 
 
 def TemporaryMediaFile():
@@ -155,12 +156,24 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     # (letter case doesn't matter)
     field_map = {}
 
+    # column, if remapped put the name of the field here
+    index_column = None
+
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = fields + ('bulk_upload', )
         return super().__init_subclass__(**kwargs)
+
+    @property
+    def casestudy(self):
+        request = self.context['request']
+        url_pks = request.session.get('url_pks', {})
+        casestudy_id = url_pks.get('casestudy_pk')
+        if not casestudy_id:
+            return None
+        return Casestudy.objects.get(id=casestudy_id)
 
     @property
     def keyflow(self):
@@ -170,7 +183,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if not keyflow_id:
             return None
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
-
 
     def to_internal_value(self, data):
         """
@@ -197,13 +209,17 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         df_new = df_new.\
             rename(columns={c: c.lower() for c in df_new.columns})
 
-        df_mapped = self.map_fields(df_new)
+        df_mapped = self._map_fields(df_new)
+        d_mapped = self._add_pk_relations(df_mapped)
         ret['dataframe'] = df_mapped
 
         return ret
 
-    def map_fields(self, data):
-
+    def _map_fields(self, data):
+        '''
+        map the columns of the dataframe to the fields of the model class
+        based on the field_map class attribute
+        '''
         bulk_columns = [c.lower() for c in self.field_map.keys()]
         missing_cols = list(set(bulk_columns).difference(set(data.columns)))
 
@@ -232,11 +248,134 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         return data
 
+    def _add_pk_relations(self, dataframe):
+        '''
+        add pk related fields to dataframe
+        '''
+        request = self.context['request']
+        url_pks = request.session.get('url_pks', {})
+        for pk, rel in self.parent_lookup_kwargs.items():
+            split = rel.split('__')
+            # ignore chained attributes
+            if len(split) > 2:
+                continue
+            pk = url_pks[pk]
+            name = split[0]
+            # get the related class of the attribute
+            attr = getattr(self.Meta.model, name)
+            related_model = attr.field.related_model
+            obj = related_model.objects.get(id=pk)
+            dataframe[name] = obj
+        return dataframe
+
+    def save_data(self, dataframe):
+        """
+        dataframe to models
+
+        Parameters
+        ----------
+        dataframe: pd.Dataframe
+
+
+        Returns
+        -------
+        new_models: Queryset
+            models that were created
+        updated_models: Queryset
+            models that were updated
+        """
+        queryset = self.get_queryset()
+        df = dataframe.set_index(self.index_column)
+        df_existing = read_frame(queryset, index_col=self.index_column)
+
+        merged = df.merge(df_existing,
+                          left_index=True,
+                          right_index=True,
+                          how='left',
+                          indicator=True,
+                          suffixes=['', '_old'])
+
+        df_new = merged.loc[merged._merge=='left_only'].reset_index()
+        idx_both = merged.loc[merged._merge=='both'].index
+        # update existing models with values of new data
+        df_update = df_existing.loc[idx_both]
+        df_update.update(df)
+
+        new_models = self._create_models(df_new)
+        updated_models = self._update_models(df_update)
+
+        return new_models, updated_models
+
+    def _update_models(self, dataframe):
+        '''
+        update the models with the data in dataframe
+        '''
+        queryset = self.get_queryset()
+        # only fields defined in field_map will be written to database
+        fields = [getattr(v, 'name', None) or v
+                  for v in self.field_map.values()]
+        df = dataframe.reset_index()
+        updated = []
+
+        for row in df.itertuples(index=False):
+            filter_kwargs = {self.index_column: getattr(row, self.index_column)}
+            model = queryset.get(**filter_kwargs)
+            for c, v in row._asdict().items():
+                if c not in fields:
+                    continue
+                setattr(model, c, v)
+            model.save()
+            updated.append(model)
+        updated = queryset.filter(id__in=[m.id for m in updated])
+        return updated
+
+    def _create_models(self, dataframe):
+        '''
+        create models as described in dataframe
+        '''
+        model = self.Meta.model
+        # skip columns, that are not needed
+        field_names = [f.name for f in model._meta.fields]
+        drop_cols = []
+        for c in dataframe.columns:
+            if not c in field_names:
+                drop_cols.append(c)
+        if 'id' in dataframe.columns:
+            drop_cols.append('id')
+        df_save = dataframe.drop(columns=drop_cols)
+
+        # set default values for columns not provided
+        defaults = {col: model._meta.get_field(col).default
+                    for col in df_save.columns}
+        df_save = df_save.fillna(defaults)
+
+        # create the new rows
+        bulk = []
+        m = None
+        for row in df_save.itertuples(index=False):
+            row_dict = row._asdict()
+            m = model(**row_dict)
+            bulk.append(m)
+        created = model.objects.bulk_create(bulk)
+        return created
 
     def create(self, validated_data):
+        '''
+        overrides create()
+        if file was passed -> bulk creation
+        '''
         if 'dataframe' not in validated_data:
             return super().create(validated_data)
         return self.bulk_create(validated_data)
+
+    def get_queryset(self):
+        '''
+        Returns
+        ----------------
+        QuerySet - the filtered queryset that represents the existing models to
+             be updated, models will be created if not in this queryset
+        '''
+        raise NotImplementedError('`get_queryset()` must be implemented.')
 
     def bulk_create(self, validated_data):
         '''
@@ -246,7 +385,10 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ----------------
         BulkResult
         '''
-        raise NotImplementedError('`bulk_create()` must be implemented.')
+        dataframe = validated_data['dataframe']
+        new, updated = self.save_data(dataframe)
+        result = BulkResult(created=new, updated=updated)
+        return result
 
     def to_representation(self, instance):
         """
@@ -254,13 +396,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         """
         if isinstance(instance, BulkResult):
             ret = {
-                'count': len(instance.queryset),
-                'added': instance.rows_added,
-                'updated': instance.rows_updated
+                'count': len(instance.updated) + len(instance.created),
+                'message': instance.message
             }
-            results = ret['results'] = []
-            for model in instance.queryset:
-                results.append(super().to_representation(model))
+            created = ret['created'] = []
+            updated = ret['updated'] = []
+            for model in instance.created:
+                created.append(super().to_representation(model))
+            for model in instance.updated:
+                updated.append(super().to_representation(model))
             return ret
         return super().to_representation(instance)
 
