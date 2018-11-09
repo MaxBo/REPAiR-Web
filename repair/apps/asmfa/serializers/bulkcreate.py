@@ -8,7 +8,8 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            ForeignKeyNotFound,
                                            ValidationError,
                                            TemporaryMediaFile,
-                                           BulkResult)
+                                           BulkResult,
+                                           Reference)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            )
@@ -97,53 +98,33 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
 class ActivityCreateSerializer(BulkSerializerMixin,
                                ActivitySerializer):
 
-    bulk_columns = ['nace', 'name', 'ag']
+    field_map = {
+        'nace': 'nace',
+        'name': 'name',
+        'ag': Reference(name='activitygroup',
+                        referenced_field='code',
+                        referenced_model=ActivityGroup,
+                        filter_args={ 'keyflow': '@keyflow' }),
+    }
 
     def bulk_create(self, validated_data):
         """Bulk create of data"""
-        keyflow_id = validated_data.pop('keyflow_id')
-        df_act_new = validated_data.pop('dataframe')
-
-        activitygroups = ActivityGroup.objects.filter(keyflow__id=keyflow_id)
-        index_col = 'nace'
-        df_act_new.set_index(index_col, inplace=True)
-
-        merged_reference, missing_rows = self.merge_foreign_keys(
-            data=df_act_new,
-            referencing_column='ag',
-            referenced_column='code',
-            referenced_queryset=activitygroups
-        )
-
-        merged_reference = merged_reference.rename(
-            columns={'ag': 'activitygroup'})
-
-        if len(missing_rows) > 0:
-            missing_ag = np.unique(missing_rows.ag.values)
-            with TemporaryMediaFile() as f:
-                # ToDo: create a file highlighting the errors in the input data
-                # will be returned as an error response
-                df_act_new.to_csv(f, sep='\t')
-            raise ForeignKeyNotFound(
-                _('Related activity groups {} not found'
-                  .format(missing_ag)),
-                f.url
-            )
+        dataframe = validated_data.pop('dataframe')
 
         # get existing activities of keyflow
-        existing_act= Activity.objects.filter(
-            activitygroup__keyflow_id=keyflow_id)
-        df_existing_act = read_frame(existing_act, index_col=[index_col])
+        existing_act = Activity.objects.filter(
+            activitygroup__keyflow=self.keyflow)
+        df_existing_act = read_frame(existing_act, index_col=['nace'])
 
-        merged = merged_reference.merge(df_existing_act,
-                                        left_index=True,
-                                        right_index=True,
-                                        how='left',
-                                        indicator=True,
-                                        suffixes=['', '_old'])
+        merged = dataframe.merge(df_existing_act,
+                                 left_index=True,
+                                 right_index=True,
+                                 how='left',
+                                 indicator=True,
+                                 suffixes=['', '_old'])
 
-        new_act = existing_act.loc[merged._merge=='left_only'].reset_index()
-        idx_both = existing_act.loc[merged._merge=='both'].index
+        new_act = merged.loc[merged._merge=='left_only'].reset_index()
+        idx_both = merged.loc[merged._merge=='both'].index
 
         related_ags = ag_queryset
 

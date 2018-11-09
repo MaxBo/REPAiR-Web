@@ -10,6 +10,8 @@ from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.conf import settings
 
+from repair.apps.asmfa.models import KeyflowInCasestudy
+
 
 class BulkValidationError(Exception):
     def __init__(self, message, path=''):
@@ -56,12 +58,102 @@ def TemporaryMediaFile():
     return wrapper
 
 
+class Reference:
+    """
+    merge models from queryset to data by foreign key
+
+    Parameters
+    ----------
+    referenced_model: Model
+        queryset of the referenced Modelreferencing_column
+    referenced_field: str
+        the field referenced in the model
+    filter_args: str, optional(default: all models)
+        filter-expressions to filter the models by, values may also start with
+        '@' followed by a name, those name can be related to attributes of a
+        given object when calling merge() later
+    name: str, optional(default: referencing column passed to merge())
+        the name of the column in the dataset where the referenced models will
+        be put into, created when not existing
+    """
+    def __init__(self, name: str, referenced_field: str,
+                 referenced_model: Type[Model], filter_args: dict={}):
+        self.name = name
+        self.referenced_column = referenced_field
+        self.referenced_model = referenced_model
+        self.filter_args = filter_args
+
+
+    def merge(self, data: pd.DataFrame, referencing_column: str,
+              rel: object=None):
+        """
+        merges the referenced models to the given data
+
+        Parameters
+        ----------
+        data: pd.Dataframe
+            the dataframe with the rows to check
+        rel: if @ was defined in filter_args, the object is related to
+        referencing_column: str
+            the referencing column in data that should be checked
+
+
+        Returns
+        -------
+        existing_keys: pd.Dataframe
+            the merged dataframe
+        missing_rows: pd.Dataframe
+            the rows in the df_new where rows are missing
+        """
+        objects = self.referenced_model.objects
+        if self.filter_args:
+            for k, v in self.filter_args.items():
+                if v.startswith('@'):
+                    if not rel:
+                        raise Exception('You defined a related keyword in the '
+                                        'filter_args but did not pass the related '
+                                        'object')
+                    self.filter_args[k] = getattr(rel, v[1:])
+            referenced_queryset = objects.filter(**self.filter_args)
+        else:
+            referenced_queryset = objects.all()
+        # only the id of the referenced queryset is relevant
+        fieldnames = ['id', self.referenced_column]
+        # get existing rows in the referenced table of the keyflow
+        df_referenced = read_frame(referenced_queryset,
+                                   index_col=[self.referenced_column],
+                                   fieldnames=fieldnames)
+        df_referenced['_models'] = referenced_queryset
+
+        # check if an activitygroup exist for each activity
+        df_merged = data.merge(df_referenced,
+                               left_on=referencing_column,
+                               right_index=True,
+                               how='left',
+                               indicator=True,
+                               suffixes=['', '_old'])
+
+        missing_rows = df_merged.loc[df_merged._merge=='left_only']
+        existing_rows = df_merged.loc[df_merged._merge=='both']
+
+        if self.name:
+            existing_rows[self.name] = existing_rows['_models']
+        else:
+            existing_rows[referencing_column] = existing_rows['_models']
+
+        tmp_columns = ['_merge', 'id', '_models']
+
+        missing_rows.drop(columns=tmp_columns, inplace=True)
+        existing_rows.drop(columns=tmp_columns, inplace=True)
+        return existing_rows, missing_rows
+
+
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     bulk_upload = serializers.FileField(required=False,
                                         write_only=True)
     # important: input file will be checked if it contains those columns
     # (letter case doesn't matter)
-    bulk_columns = []
+    field_map = {}
 
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
@@ -69,6 +161,16 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = fields + ('bulk_upload', )
         return super().__init_subclass__(**kwargs)
+
+    @property
+    def keyflow(self):
+        request = self.context['request']
+        url_pks = request.session.get('url_pks', {})
+        keyflow_id = url_pks.get('keyflow_pk')
+        if not keyflow_id:
+            return None
+        return KeyflowInCasestudy.objects.get(id=keyflow_id)
+
 
     def to_internal_value(self, data):
         """
@@ -95,19 +197,41 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         df_new = df_new.\
             rename(columns={c: c.lower() for c in df_new.columns})
 
-        bulk_columns = [c.lower() for c in self.bulk_columns]
-        missing_cols = list(set(bulk_columns).difference(set(df_new.columns)))
+        df_mapped = self.map_fields(df_new)
+        ret['dataframe'] = df_mapped
+
+        return ret
+
+    def map_fields(self, data):
+
+        bulk_columns = [c.lower() for c in self.field_map.keys()]
+        missing_cols = list(set(bulk_columns).difference(set(data.columns)))
 
         if missing_cols:
             raise MalformedFileError(
                 _('The following columns are missing: {}'.format(missing_cols)))
 
-        ret['dataframe'] = df_new
-        request = self.context['request']
-        url_pks = request.session.get('url_pks', {})
-        keyflow_id = url_pks.get('keyflow_pk')
-        ret['keyflow_id'] = keyflow_id
-        return ret
+        for column, field in self.field_map.items():
+            if isinstance(field, Reference):
+                data, missing = field.merge(
+                    data, referencing_column=column, rel=self)
+
+                if len(missing) > 0:
+                    missing_values = np.unique(missing['column'].values)
+                    with TemporaryMediaFile() as f:
+                        # ToDo: create a file highlighting the errors in the input data
+                        # will be returned as an error response
+                        df_act_new.to_csv(f, sep='\t')
+                    raise ForeignKeyNotFound(
+                        _('Related models {} not found'
+                          .format(missing_values)),
+                        f.url
+                    )
+            else:
+                data = data.rename(columns={column: field})
+
+        return data
+
 
     def create(self, validated_data):
         if 'dataframe' not in validated_data:
@@ -123,63 +247,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         BulkResult
         '''
         raise NotImplementedError('`bulk_create()` must be implemented.')
-
-    def merge_foreign_keys(self,
-                           data: pd.DataFrame,
-                           referenced_queryset: QuerySet,
-                           referencing_column: str,
-                           target_column: str=None,
-                           referenced_column: str='code'
-                           ):
-        """
-        merge models from queryset to data by foreign key
-
-        Parameters
-        ----------
-        data: pd.Dataframe
-            the dataframe with the rows to check
-        referenced_queryset: Queryset
-            queryset of the referenced Model
-        referencing_column: str
-            the referencing column in data that should be checked
-        referenced_queryset: str, optional(default='code')
-            the referenced column to search in
-
-        Returns
-        -------
-        existing_keys: pd.Dataframe
-            the merged dataframe
-        missing_rows: pd.Dataframe
-            the rows in the df_new where rows are missing
-        """
-        # only the id of the referenced queryset is relevant
-        fieldnames = ['id']
-        fieldnames.append(referenced_column)
-        # get existing rows in the referenced table of the keyflow
-        df_referenced = read_frame(referenced_queryset,
-                                   index_col=[referenced_column],
-                                   fieldnames=fieldnames)
-        df_referenced['_models'] = referenced_queryset
-
-        # check if an activitygroup exist for each activity
-        df_merged = data.merge(df_referenced,
-                               left_on=referencing_column,
-                               right_index=True,
-                               how='left',
-                               indicator=True,
-                               suffixes=['', '_old'])
-
-        missing_rows = df_merged.loc[df_merged._merge=='left_only']
-        existing_rows = df_merged.loc[df_merged._merge=='both']
-
-        if not target_column:
-            target_column = referencing_column
-
-        existing_rows[target_column] = existing_rows['_models']
-
-        missing_rows.drop(columns=['_merge', 'id'], inplace=True)
-        existing_rows.drop(columns=['_merge', 'id', '_models'], inplace=True)
-        return existing_rows, missing_rows
 
     def to_representation(self, instance):
         """
