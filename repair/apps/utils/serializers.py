@@ -82,7 +82,7 @@ class Reference:
         self.name = name
         self.referenced_column = referenced_field
         self.referenced_model = referenced_model
-        self.filter_args = filter_args
+        self.filter_args = filter_args.copy()
 
 
     def merge(self, data: pd.DataFrame, referencing_column: str,
