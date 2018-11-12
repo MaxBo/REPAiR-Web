@@ -8,7 +8,6 @@ from django.db.models import ProtectedError
 from django.utils.translation import ugettext as _
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
-from repair.apps.utils.context_environment import set_env
 from abc import ABC
 
 from django.shortcuts import get_object_or_404
@@ -271,10 +270,11 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         """
         Check if user is permitted to destroy the object.
         """
+        self.use_protection = not request.query_params.get(
+            'override_protection', False)
         self.check_permission(request, 'delete')
         try:
-            with set_env(PROTECT_FOREIGN_KEY='True'):
-                response = super().destroy(request, **kwargs)
+            response = super().destroy(request, **kwargs)
         except ProtectedError as err:
             qs = err.protected_objects
             show = 5
@@ -289,6 +289,9 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
                                )
             return HttpResponseForbidden(content=msg)
         return response
+
+    def perform_destroy(self, instance):
+        instance.delete(use_protection=self.use_protection)
 
     def update(self, request, **kwargs):
         """
