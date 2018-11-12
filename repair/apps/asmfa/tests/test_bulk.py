@@ -21,6 +21,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_actg = 'T3.2_Activity_groups.tsv'
+    filename_actg_csv = 'T3.2_Activity_groups.csv'
     filename_actg_missing_col = 'T3.2_Activity_groups_missing_col.tsv'
     filename_act = 'T3.2_Activities.tsv'
     filename_act_missing_rel = 'T3.2_Activities_missing_relation.tsv'
@@ -58,38 +59,40 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         """
         Test if user can post without permission
         """
-        file_path_ag = os.path.join(os.path.dirname(__file__),
-                                    self.testdata_folder,
-                                    self.filename_actg)
-        data = {
-            'bulk_upload' : open(file_path_ag, 'rb'),
-        }
+        for fn, sep in [(self.filename_actg, '\t'),
+                        (self.filename_actg_csv, ';')]:
+            file_path_ag = os.path.join(os.path.dirname(__file__),
+                                        self.testdata_folder,
+                                        fn)
+            data = {
+                'bulk_upload' : open(file_path_ag, 'rb'),
+            }
 
-        existing_ags = ActivityGroup.objects.filter(keyflow=self.kic)
-        existing_codes = list(existing_ags.values_list('code', flat=True))
+            existing_ags = ActivityGroup.objects.filter(keyflow=self.kic)
+            existing_codes = list(existing_ags.values_list('code', flat=True))
 
-        encoding = 'utf8'
-        df_file_ags = pd.read_csv(file_path_ag, sep='\t')
-        df_file_ags = df_file_ags.rename(
-            columns={c: c.lower() for c in df_file_ags.columns})
-        file_codes = df_file_ags['code']
-        new_codes = [c for c in file_codes if c not in existing_codes]
+            encoding = 'utf8'
+            df_file_ags = pd.read_csv(file_path_ag, sep=sep)
+            df_file_ags = df_file_ags.rename(
+                columns={c: c.lower() for c in df_file_ags.columns})
+            file_codes = df_file_ags['code']
+            new_codes = [c for c in file_codes if c not in existing_codes]
 
-        res = self.client.post(self.ag_url, data)
-        res_json = res.json()
-        assert res.status_code == 201
-        assert res_json['count'] == len(file_codes)
-        assert len(res_json['created']) == len(new_codes)
+            res = self.client.post(self.ag_url, data)
+            res_json = res.json()
+            assert res.status_code == 201
+            assert res_json['count'] == len(file_codes)
+            assert len(res_json['created']) == len(new_codes)
 
-        # assert that the number of activities matches
-        all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)
-        assert len(all_ag) == len(existing_codes) + len(new_codes)
+            # assert that the number of activities matches
+            all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)
+            assert len(all_ag) == len(existing_codes) + len(new_codes)
 
-        # assert that the Name matches in all values
-        for row in df_file_ags.itertuples(index=False):
-            ag = ActivityGroup.objects.get(keyflow=self.keyflow,
-                                           code=row.code)
-            assert ag.name == row.name
+            # assert that the Name matches in all values
+            for row in df_file_ags.itertuples(index=False):
+                ag = ActivityGroup.objects.get(keyflow=self.keyflow,
+                                               code=row.code)
+                assert ag.name == row.name
 
     def test_bulk_group_errors(self):
         file_path = os.path.join(os.path.dirname(__file__),

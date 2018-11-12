@@ -208,8 +208,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         try:
             if ext == '.xlsx':
                 df_new = pd.read_excel(file[0])
-            else:
+            elif ext == '.tsv':
                 df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+            elif ext == '.csv':
+                df_new = pd.read_csv(file[0], sep=';', encoding=encoding)
+            else:
+                raise MalformedFileError(_('unsupported filetype'))
         except pd.errors.ParserError as e:
             raise MalformedFileError(str(e))
 
@@ -307,7 +311,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if ext == '.xlsx':
                 pass
             else:
-                data.to_csv(f, sep='\t')
+                sep = '\t' if ext == '.tsv' else ';'
+                data.to_csv(f, sep=sep)
         if ext == '.xlsx':
             writer = pd.ExcelWriter(f.name, engine='openpyxl')
             data.to_excel(writer, index=False)
