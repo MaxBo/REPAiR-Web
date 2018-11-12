@@ -17,6 +17,7 @@ from repair.apps.asmfa.serializers import (
     ActivityGroupListSerializer,
     ActivityGroupCreateSerializer,
     ActivityCreateSerializer,
+    ActorCreateSerializer,
 )
 
 from repair.apps.asmfa.views import UnlimitedResultsSetPagination
@@ -88,7 +89,8 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     delete_perm = 'asmfa.delete_actor'
     serializer_class = ActorSerializer
     queryset = Actor.objects.order_by('id')
-    serializers = {'list': ActorListSerializer}
+    serializers = {'list': ActorListSerializer,
+                   'create': ActorCreateSerializer}
 
     def get_queryset(self):
         actors = Actor.objects.\

@@ -11,10 +11,11 @@ from django.urls import reverse
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
+                                         ActorFactory,
                                          UserInCasestudyFactory,
                                          KeyflowInCasestudyFactory
                                          )
-from repair.apps.asmfa.models import ActivityGroup, Activity
+from repair.apps.asmfa.models import ActivityGroup, Activity, Actor
 
 
 class BulkImportNodesTest(LoginTestCase, APITestCase):
@@ -41,6 +42,9 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         cls.ac_url = reverse('activity-list',
                              kwargs={'casestudy_pk': cls.casestudy.id,
                                      'keyflow_pk': cls.keyflow.id})
+        cls.actor_url = reverse('activity-list',
+                                kwargs={'casestudy_pk': cls.casestudy.id,
+                                        'keyflow_pk': cls.keyflow.id})
 
     def setUp(self):
         super().setUp()
@@ -52,7 +56,9 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
 
         ag_f = ActivityGroup.objects.get(code='F')
-        ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='F-4110')
+        ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='4110')
+        ActivityFactory(activitygroup=ag_f, name='Collection of non-hazardous waste', nace='3811')
+        ActivityFactory(activitygroup=ag_f, name='Collection of hazardous waste', nace='3812')
         ActivityFactory(activitygroup=ag_f, name='shouldnt_be_updated', nace='F-007')
 
     def test_bulk_group(self):
@@ -126,9 +132,6 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
     def test_bulk_activity(self):
         """Test that activity matches activitygroup"""
-        url = reverse('activity-list',
-                      kwargs={'casestudy_pk': self.casestudy.id,
-                              'keyflow_pk': self.keyflow.id})
         file_path_ac = os.path.join(os.path.dirname(__file__),
                                     self.testdata_folder,
                                     self.filename_act)
@@ -144,7 +147,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         df_file_ags = df_file_ags.rename(
             columns={c: c.lower() for c in df_file_ags.columns})
         file_nace = df_file_ags['nace']
-        new_nace = [c for c in file_nace if c not in existing_nace]
+        new_nace = [c for c in file_nace if str(c) not in existing_nace]
 
         res = self.client.post(self.ac_url, data)
         assert res.status_code == 201
@@ -163,6 +166,21 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             ac = Activity.objects.get(activitygroup=ag,
                                       nace=row.nace)
             assert ac.name == row.name
+
+    def test_bulk_actor(self):
+        """Test that activity matches activitygroup"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_actor)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.actor_url, data)
+        assert res.status_code == 201
+        res_json = res.json()
+        assert res_json['count'] == len(file_nace)
+        assert len(res_json['created']) == len(new_nace)
 
     @skip('not implemented yet')
     def test_actor_matches_activity(self):

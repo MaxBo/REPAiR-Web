@@ -12,6 +12,7 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            Reference)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
+                                           ActorSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -34,6 +35,23 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
 
 class ActivityCreateSerializer(BulkSerializerMixin,
                                ActivitySerializer):
+
+    field_map = {
+        'nace': 'nace',
+        'name': 'name',
+        'ag': Reference(name='activitygroup',
+                        referenced_field='code',
+                        referenced_model=ActivityGroup,
+                        filter_args={ 'keyflow': '@keyflow' }),
+    }
+    index_column = 'nace'
+
+    def get_queryset(self):
+        return Activity.objects.filter(activitygroup__keyflow=self.keyflow)
+
+
+class ActorCreateSerializer(BulkSerializerMixin,
+                            ActorSerializer):
 
     field_map = {
         'nace': 'nace',
