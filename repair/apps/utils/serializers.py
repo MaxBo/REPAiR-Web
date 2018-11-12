@@ -56,7 +56,7 @@ def TemporaryMediaFile():
         os.mkdir(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
     p, fn = os.path.split(wrapper.name)
-    wrapper.file.url = settings.MEDIA_URL + 'tmp/' + fn
+    wrapper.file.url = settings.MEDIA_URL + '/tmp/' + fn
     return wrapper
 
 
@@ -95,7 +95,7 @@ class Reference:
         ----------
         data: pd.Dataframe
             the dataframe with the rows to check
-        rel: if @ was defined in filter_args, rel is the object related to
+        rel: if @ was defined in filter_args, the object is related to
         referencing_column: str
             the referencing column in data that should be checked
 
@@ -217,11 +217,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         return ret
 
-    def _map_fields(self, data):
+    def _map_fields(self, dataframe):
         '''
         map the columns of the dataframe to the fields of the model class
         based on the field_map class attribute
         '''
+        data = dataframe.copy()
         bulk_columns = [c.lower() for c in self.field_map.keys()]
         missing_cols = list(set(bulk_columns).difference(set(data.columns)))
 
@@ -236,19 +237,61 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    with TemporaryMediaFile() as f:
-                        # ToDo: create a file highlighting the errors in the input data
-                        # will be returned as an error response
-                        data.to_csv(f, sep='\t')
+                    # ToDo: create a file highlighting the errors in the input data
+                    # will be returned as an error response
+                    dataframe.set_index(self.index_column, inplace=True)
+                    missing.set_index(self.index_column, inplace=True)
+                    error_matrix = pd.DataFrame(
+                        columns=dataframe.columns,
+                        index=dataframe.index).fillna(0)
+                    error_matrix.loc[
+                        missing.index, 'ag'] = _('relation not found')
+                    error_matrix.reset_index(inplace=True)
+                    error_matrix[self.index_column] = 0
+                    path, url = self._create_response_file(
+                        dataframe.reset_index(),
+                        errors=error_matrix,
+                        file_type='tsv')
                     raise ForeignKeyNotFound(
                         _('Related models {} not found'
-                          .format(missing_values)),
-                        f.url
+                          .format(missing_values)), url
                     )
             else:
                 data = data.rename(columns={column: field})
 
         return data
+
+    def _create_response_file(self, dataframe, errors=None, file_type='tsv'):
+        '''
+        creates a response file with given data
+
+        Parameters
+        ----------
+        dataframe: pd.Dataframe
+            the dataframe to write to file
+        errors: pd.Dataframe
+            same dimension as dataframe, marks errors occured in dataframe
+            values - no error: nan or 0, error: error message as string
+
+        Returns
+        ----------
+        path, url: tuple(str), path and relative url to file
+        '''
+        data = dataframe.copy()
+        error_sep = '|'
+        errors = errors.fillna(0)
+        if errors is not None:
+            data['error'] = ''
+            for column in errors.columns:
+                error_idx = errors[column] != 0
+                data['error'][error_idx] += '{} '.format(column)
+                data['error'][error_idx] += errors[column][error_idx]
+                data['error'][error_idx] += error_sep
+
+        with TemporaryMediaFile() as f:
+            data.to_csv(f, sep='\t')
+        return f.name, f.url
+
 
     def _add_pk_relations(self, dataframe):
         '''

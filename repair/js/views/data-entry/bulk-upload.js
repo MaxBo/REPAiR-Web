@@ -77,7 +77,7 @@ var BulkUploadView = BaseView.extend(
             _this.log('-'.repeat(u_msg.length * 1.4));
 
             if (i === 0){
-                _this.log('<p style="color: green;">' + gettext('Nothing to remove') + '</p>');
+                _this.log('<p>' + gettext('Nothing to remove') + '</p>');
                 _this.loader.deactivate();
                 return;
             }
