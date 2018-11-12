@@ -71,13 +71,27 @@ var BulkUploadView = BaseView.extend(
 
         function destroyModels(collection){
             var i = collection.length,
+                ie, is = 0,
                 u_msg = gettext('Removing data') + ' ' + tag;
             _this.log(u_msg);
             _this.log('-'.repeat(u_msg.length * 1.4));
 
             if (i === 0){
                 _this.log('<p style="color: green;">' + gettext('Nothing to remove') + '</p>');
+                _this.loader.deactivate();
                 return;
+            }
+            function done(){
+                var msg = '',
+                    color = 'green';
+                if (is > 0)
+                    msg += is + ' ' + gettext('entries removed') + '  ';
+                if (ie > 0){
+                    msg += ie + ' ' + gettext('entries failed to remove');
+                    color = 'red';
+                }
+                _this.log('<p style="color:' + color + ';">' + msg + '</p>')
+                _this.loader.deactivate();
             }
 
             while (model = collection.first()) {
@@ -87,17 +101,15 @@ var BulkUploadView = BaseView.extend(
                         msg = gettext('Successfully deleted') + ' ' + m_repr;
                         _this.log(msg)
                         i -= 1;
-                        if (i < 1) {
-                            _this.loader.deactivate();
-                        }
+                        is += 1;
+                        if (i < 1) done();
                     },
                     error: function(res){
                         msg = res.responseText;
                         _this.log('<p style="color: red;">' + msg + '</p>')
                         i -= 1;
-                        if (i < 1) {
-                            _this.loader.deactivate();
-                        }
+                        ie += 1;
+                        if (i < 1) done();
                     }
                 });
             }

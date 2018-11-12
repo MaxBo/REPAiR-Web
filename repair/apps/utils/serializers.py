@@ -95,7 +95,7 @@ class Reference:
         ----------
         data: pd.Dataframe
             the dataframe with the rows to check
-        rel: if @ was defined in filter_args, the object is related to
+        rel: if @ was defined in filter_args, rel is the object related to
         referencing_column: str
             the referencing column in data that should be checked
 
@@ -114,8 +114,8 @@ class Reference:
                 if v.startswith('@'):
                     if not rel:
                         raise Exception('You defined a related keyword in the '
-                                        'filter_args but did not pass the related '
-                                        'object')
+                                        'filter_args but did not pass the '
+                                        'related object')
                     filter_args[k] = getattr(rel, v[1:])
             referenced_queryset = objects.filter(**filter_args)
         else:
