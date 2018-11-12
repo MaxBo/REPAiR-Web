@@ -176,27 +176,83 @@ var BulkUploadView = BaseView.extend(
                 updated.forEach(function(m){
                     _this.log(JSON.stringify(m));
                 })
-                var msg = '<strong>' + gettext('Success') + '!</strong>&nbsp;' + res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
-                _this.bootstrapAlert(msg, {
+                var div = document.createElement('div'),
+                    title = document.createElement('strong'),
+                    msgWrapper = document.createElement('p');
+                title.style.float = 'left';
+                title.style.marginRight = '5px';
+                title.innerHTML = gettext('Success') + '!';
+                div.appendChild(title);
+                div.appendChild(msgWrapper);
+
+                msgWrapper.innerHTML = res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
+                _this.bootstrapAlert(div.innerHTML, {
                     parentEl: row,
                     type: 'success',
                     dismissible: true
                 })
-                _this.log('<p style="color: green;">' + msg +  '</p>')
+                msgWrapper.style.color = 'green';
+                title.style.color = 'green';
+                // that is not very elegant, but when adding a div to the alert
+                // the close button is shifted
+                alertDiv.querySelector('.close').style.top = '-20px';
+                _this.log(div.innerHTML)
                 _this.loader.deactivate()
             },
             error: function (res, r) {
-                var msg = res.responseJSON ? res.responseJSON.message: res.responseText;
-                msg = '<strong>' + gettext('Error') + '!</strong>&nbsp;' + msg;
-                _this.bootstrapAlert(msg, {
+                var div = document.createElement('div'),
+                    title = document.createElement('strong'),
+                    msgWrapper = document.createElement('p'),
+                    msg;
+                title.style.float = 'left';
+                title.style.marginRight = '5px';
+                title.innerHTML = gettext('Error') + '!';
+                msgWrapper.style.float = 'left';
+                msgWrapper.style.marginRight = '10px';
+                div.appendChild(title);
+                div.appendChild(msgWrapper);
+
+                if (res.responseJSON){
+                    msg = res.responseJSON.message;
+                    var url = res.responseJSON.file_url;
+                    if (url){
+                        var download = _this.createDownloadIcon(url);
+                        div.appendChild(download);
+                    }
+                }
+                else
+                    msg += res.responseText;
+
+                msgWrapper.innerHTML = msg;
+
+                var alertDiv = _this.bootstrapAlert(div.innerHTML, {
                     parentEl: row,
                     type: 'danger',
                     dismissible: true
                 })
-                _this.log('<p style="color: red;">' + msg + '</p>')
+                alertDiv.querySelector('.close').style.top = '-20px';
+                msgWrapper.style.color = 'red';
+                title.style.color = 'red';
+                _this.log(div.innerHTML)
                 _this.loader.deactivate()
             },
         });
+    },
+
+    createDownloadIcon: function(url){
+        var div = document.createElement('div'),
+            span = document.createElement('span'),
+            a = document.createElement('a');
+        span.classList.add('fas', 'fa-save');
+        span.style.float = 'left';
+        span.style.marginRight = '5px';
+        a.setAttribute('href', url);
+        // ToDo: keep file ending
+        a.setAttribute('download', 'error-response');
+        a.innerHTML = gettext('Response');
+        div.appendChild(a);
+        a.appendChild(span);
+        return div;
     }
 
 

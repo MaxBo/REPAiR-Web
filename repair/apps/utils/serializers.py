@@ -56,7 +56,7 @@ def TemporaryMediaFile():
         os.mkdir(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
     p, fn = os.path.split(wrapper.name)
-    wrapper.file.url = settings.MEDIA_URL + '/tmp/' + fn
+    wrapper.file.url = settings.MEDIA_URL + 'tmp/' + fn
     return wrapper
 
 
