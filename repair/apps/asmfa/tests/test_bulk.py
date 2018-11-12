@@ -24,6 +24,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     filename_actg_missing_col = 'T3.2_Activity_groups_missing_col.tsv'
     filename_act = 'T3.2_Activities.tsv'
     filename_act_missing_rel = 'T3.2_Activities_missing_relation.tsv'
+    filename_act_missing_rel_xlsx = 'T3.2_Activities_missing_relation.xlsx'
     filename_actor = 'T3.2_Actors.tsv'
 
     @classmethod
@@ -104,6 +105,16 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         file_path = os.path.join(os.path.dirname(__file__),
                                  self.testdata_folder,
                                  self.filename_act_missing_rel)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+        res = self.client.post(self.ac_url, data)
+        assert res.status_code == 400
+
+    def test_excel(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                 self.testdata_folder,
+                                 self.filename_act_missing_rel_xlsx)
         data = {
             'bulk_upload' : open(file_path, 'rb'),
         }

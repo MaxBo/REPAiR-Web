@@ -203,8 +203,13 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ret = super().to_internal_value(data)  # would throw exc. else
 
         encoding = 'cp1252'
+        fn, ext = os.path.splitext(file[0].name)
+        self.input_file_ext = ext
         try:
-            df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+            if ext == '.xlsx':
+                df_new = pd.read_excel(file[0])
+            else:
+                df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
         except pd.errors.ParserError as e:
             raise MalformedFileError(str(e))
 
@@ -280,17 +285,39 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         data = dataframe.copy()
         error_sep = '|'
         errors = errors.fillna(0)
+        ext = self.input_file_ext
+        data['error'] = ''
+        def highlight_errors(s, errors=None):
+            column = s.name
+            if column == 'error':
+                return ['white'] * len(s)
+            error_idx = errors[column] != 0
+            return ['background-color: red' if v else
+                    'white' for v in error_idx]
         if errors is not None:
-            data['error'] = ''
             for column in errors.columns:
                 error_idx = errors[column] != 0
                 data['error'][error_idx] += '{} '.format(column)
                 data['error'][error_idx] += errors[column][error_idx]
                 data['error'][error_idx] += error_sep
+            if ext == '.xlsx':
+                data = data.style.apply(highlight_errors, errors=errors)
 
         with TemporaryMediaFile() as f:
-            data.to_csv(f, sep='\t')
-        return f.name, f.url
+            if ext == '.xlsx':
+                pass
+            else:
+                data.to_csv(f, sep='\t')
+        if ext == '.xlsx':
+            writer = pd.ExcelWriter(f.name, engine='openpyxl')
+            data.to_excel(writer, index=False)
+            writer.save()
+        # TemporaryFile creates files with no extension,
+        # keep file extension of input file
+        fn = f.name + self.input_file_ext
+        os.rename(f.name, fn)
+        url = f.url + self.input_file_ext
+        return fn, url
 
 
     def _add_pk_relations(self, dataframe):

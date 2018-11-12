@@ -23,6 +23,8 @@ matplotlib
 plotly
 psycopg2-binary
 geojson
+xlrd
+openpyxl
 
 django-debug-toolbar
 
