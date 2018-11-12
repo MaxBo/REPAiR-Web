@@ -9,19 +9,7 @@ from django.db.models.deletion import Collector
 logger = logging.getLogger(__name__)
 
 
-class GDSEModel(models.Model):
-    """Base class for the GDSE Models"""
-
-    class Meta:
-        abstract = True
-        default_permissions = ('add', 'change', 'delete', 'view')
-
-
-    def __str__(self):
-        try:
-            return self.name or ''
-        except Exception:
-            return ''
+class GDSEModelMixin:
 
     @property
     def bulk_upload(self):
@@ -50,6 +38,21 @@ class GDSEModel(models.Model):
         collector.use_protection = use_protection
         collector.collect([self], keep_parents=keep_parents)
         return collector.delete()
+
+
+class GDSEModel(GDSEModelMixin, models.Model):
+    """Base class for the GDSE Models"""
+
+    class Meta:
+        abstract = True
+        default_permissions = ('add', 'change', 'delete', 'view')
+
+
+    def __str__(self):
+        try:
+            return self.name or ''
+        except Exception:
+            return ''
 
 
 class GDSEUniqueNameModel(GDSEModel):
