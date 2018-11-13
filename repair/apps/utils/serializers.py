@@ -488,7 +488,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         queryset = self.get_queryset()
         # index column is already renamed to match the model at this point
         index_field = self.field_map.get(self.index_column, self.index_column)
-        df = dataframe.set_index(index_field)
+        dataframe.reset_index(inplace=True)
+        df = dataframe.set_index(self.index_column)
         df_existing = read_frame(queryset, index_col=index_field)
         # trying to match integers with strings won't work
         # -> preventive cast to string
