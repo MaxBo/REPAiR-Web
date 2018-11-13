@@ -28,6 +28,8 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     filename_act_missing_rel = 'T3.2_Activities_missing_relation.tsv'
     filename_act_missing_rel_xlsx = 'T3.2_Activities_missing_relation.xlsx'
     filename_actor = 'T3.2_Actors.tsv'
+    filename_actor_w_errors = 'T3.2_Actors_w_errors.tsv'
+    filename_actor_w_errors_xlsx = 'T3.2_Actors_w_errors.xlsx'
 
     @classmethod
     def setUpClass(cls):
@@ -42,7 +44,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         cls.ac_url = reverse('activity-list',
                              kwargs={'casestudy_pk': cls.casestudy.id,
                                      'keyflow_pk': cls.keyflow.id})
-        cls.actor_url = reverse('activity-list',
+        cls.actor_url = reverse('actor-list',
                                 kwargs={'casestudy_pk': cls.casestudy.id,
                                         'keyflow_pk': cls.keyflow.id})
 
@@ -178,9 +180,18 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.actor_url, data)
         assert res.status_code == 201
-        res_json = res.json()
-        assert res_json['count'] == len(file_nace)
-        assert len(res_json['created']) == len(new_nace)
+
+    def test_bulk_actor_errors(self):
+        """Test that activity matches activitygroup"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_actor_w_errors_xlsx)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.actor_url, data)
+        assert res.status_code == 400
 
     @skip('not implemented yet')
     def test_actor_matches_activity(self):

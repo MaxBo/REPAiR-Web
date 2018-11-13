@@ -1,12 +1,14 @@
 from typing import Type
 import pandas as pd
 from django_pandas.io import read_frame
+from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
 from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
+from django.db.models.fields import IntegerField, DecimalField, FloatField
 from django.db.models.query import QuerySet
 from django.conf import settings
 from copy import deepcopy
@@ -127,6 +129,9 @@ class Reference:
                                    index_col=[self.referenced_column],
                                    fieldnames=fieldnames)
         df_referenced['_models'] = referenced_queryset
+        # cast to string for comparison of both columns
+        data[referencing_column] = data[referencing_column].astype('str')
+        df_referenced.index = df_referenced.index.astype('str')
 
         # check if an activitygroup exist for each activity
         df_merged = data.merge(df_referenced,
@@ -139,10 +144,7 @@ class Reference:
         missing_rows = df_merged.loc[df_merged._merge=='left_only']
         existing_rows = df_merged.loc[df_merged._merge=='both']
 
-        if self.name:
-            existing_rows[self.name] = existing_rows['_models']
-        else:
-            existing_rows[referencing_column] = existing_rows['_models']
+        existing_rows[referencing_column] = existing_rows['_models']
 
         tmp_columns = ['_merge', 'id', '_models']
 
@@ -150,22 +152,111 @@ class Reference:
         existing_rows.drop(columns=tmp_columns, inplace=True)
         return existing_rows, missing_rows
 
+class ErrorMask:
+    def __init__(self, dataframe, index=None):
+        self.dataframe = dataframe.copy()
+        self.error_matrix = pd.DataFrame(
+            columns=dataframe.columns,
+            index=dataframe.index).fillna(0)
+        if index is not None:
+            self.dataframe.set_index(index, inplace=True)
+            self.error_matrix.index = self.dataframe.index
+        self._messages = []
+
+    def add_message(self, msg):
+        self._messages.append(msg)
+
+    def set_error(self, indices, column, message):
+        self.error_matrix.loc[indices, column] = message
+
+    @property
+    def messages(self):
+        return ' - '.join(self._messages)
+
+    @property
+    def count(self):
+        return (self.error_matrix != 0).sum().sum()
+
+    def to_file(self, file_type='csv'):
+        '''
+        creates a response file from errors
+
+        Parameters
+        ----------
+        dataframe: pd.Dataframe
+            the dataframe to write to file
+        errors: pd.Dataframe
+            same dimension as dataframe, marks errors occured in dataframe
+            values - no error: nan or 0, error: error message as string
+
+        Returns
+        ----------
+        path, url: tuple(str), path and relative url to file
+        '''
+        data = self.dataframe.copy()
+        error_sep = '|'
+        errors = self.error_matrix.fillna(0)
+        data['error'] = ''
+        def highlight_errors(s, errors=None):
+            column = s.name
+            if column == 'error':
+                return ['white'] * len(s)
+            error_idx = errors[column] != 0
+            return ['background-color: red' if v else
+                    'white' for v in error_idx]
+        if errors is not None:
+            for column in errors.columns:
+                error_idx = errors[column] != 0
+                data['error'][error_idx] += '{} '.format(column)
+                data['error'][error_idx] += errors[column][error_idx]
+                data['error'][error_idx] += error_sep
+            data.reset_index(inplace=True)
+            if file_type == 'xlsx':
+                data = data.style.apply(highlight_errors, errors=errors)
+
+        with TemporaryMediaFile() as f:
+            if file_type == 'xlsx':
+                pass
+            else:
+                sep = '\t' if file_type == 'tsv' else ';'
+                data.to_csv(f, sep=sep)
+        if file_type == 'xlsx':
+            writer = pd.ExcelWriter(f.name, engine='openpyxl')
+            data.to_excel(writer, index=False)
+            writer.save()
+        # TemporaryFile creates files with no extension,
+        # keep file extension of input file
+        fn = '.'.join([f.name, file_type])
+        os.rename(f.name, fn)
+        url = '.'.join([f.url, file_type])
+        return fn, url
+
 
 class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     bulk_upload = serializers.FileField(required=False,
                                         write_only=True)
     # important: input file will be checked if it contains those columns
-    # (letter case doesn't matter)
+    # (letter case doesn't matter, will be cast to lower case)
     field_map = {}
 
-    # column, if remapped put the name of the field here
+    # column serving as unique identifier in file
+    # (letter case doesn't matter, will be cast to lower case)
     index_column = None
+
+    # values indicating that entry is unknown, will be set to null in model
+    # (number fields only)
+    nan_values = ['n.a.', '', 'NULL']
 
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = fields + ('bulk_upload', )
+        # cast all keys to lower case
+        for key in cls.field_map.keys():
+            v = cls.field_map.pop(key)
+            cls.field_map[key.lower()] = v
+        cls.index_column = cls.index_column.lower()
         return super().__init_subclass__(**kwargs)
 
     @property
@@ -207,11 +298,13 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         self.input_file_ext = ext
         try:
             if ext == '.xlsx':
-                df_new = pd.read_excel(file[0])
+                df_new = pd.read_excel(file[0], dtype=object)
             elif ext == '.tsv':
-                df_new = pd.read_csv(file[0], sep='\t', encoding=encoding)
+                df_new = pd.read_csv(file[0], sep='\t', encoding=encoding,
+                                     dtype=object)
             elif ext == '.csv':
-                df_new = pd.read_csv(file[0], sep=';', encoding=encoding)
+                df_new = pd.read_csv(file[0], sep=';', encoding=encoding,
+                                     dtype=object)
             else:
                 raise MalformedFileError(_('unsupported filetype'))
         except pd.errors.ParserError as e:
@@ -219,12 +312,112 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         df_new = df_new.\
             rename(columns={c: c.lower() for c in df_new.columns})
+        # remove all columns not in field_map (avoid conflicts when renaming)
+        for column in df_new.columns.values:
+            if column not in self.field_map:
+                del df_new[column]
+
+        self.error_mask = ErrorMask(df_new, index=self.index_column)
 
         df_mapped = self._map_fields(df_new)
-        d_mapped = self._add_pk_relations(df_mapped)
-        ret['dataframe'] = df_mapped
+        df_parsed = self._parse_columns(df_mapped)
+
+        if self.error_mask.count > 0:
+            fn, url = self.error_mask.to_file(file_type=ext.replace('.', ''))
+            raise ValidationError(
+                self.error_mask.messages, url
+            )
+
+
+        df_done = self._add_pk_relations(df_parsed)
+
+        rename = {}
+        for k, v in self.field_map.items():
+            if isinstance(v, Reference):
+                v = v.name
+            rename[k] = v
+
+        df_done = df_done.rename(columns=rename)
+        ret['dataframe'] = df_done
 
         return ret
+
+    def _parse_int(self, x):
+        try:
+            return int(x)
+        except:
+            return np.NaN
+
+    def _parse_float(self, x):
+        if isinstance(x, str):
+            n_c = x.count(',')
+            n_p = x.count('.')
+            if n_c + n_p > 1:
+                return np.NaN
+            x = x.replace(',', '.')
+        try:
+            return float(x)
+        except:
+            return np.NaN
+
+    def _parse_columns(self, dataframe):
+        '''
+        parse the columns of the input dataframe to match the data type
+        of the fields
+        '''
+        dataframe = dataframe.copy()
+        dataframe.set_index(self.index_column, inplace=True)
+        error_occured = False
+        for column in dataframe.columns:
+            _meta = self.Meta.model._meta
+            field_name = self.field_map.get(column, None)
+            if field_name is None or isinstance(field_name, Reference):
+                continue
+            field = _meta.get_field(field_name)
+            if (isinstance(field, IntegerField) or
+                isinstance(field, FloatField) or
+                isinstance(field, DecimalField)):
+                # set predefined nan-values to nan
+                dataframe[column] = dataframe[column].replace(
+                    self.nan_values, np.NaN)
+                # parse the values (which are not nan)
+                not_na = dataframe[column].notna()
+                entries = dataframe[column].loc[not_na]
+                if isinstance(field, IntegerField):
+                    entries = entries.apply(self._parse_int)
+                    error_msg = _('Integer expected: number without decimals')
+                if isinstance(field, FloatField) or isinstance(field, DecimalField):
+                    entries = entries.apply(self._parse_float)
+                    error_msg = _('Float expected: number with or without '
+                                  'decimals; use either "," or "." as decimal-'
+                                  'seperators, no thousand-seperators allowed')
+                # nan is used to determine parsing errors
+                error_idx = entries[entries.isna()].index
+                if len(error_idx) > 0:
+                    error_occured = True
+                # set the error message in the error matrix at these positions
+                self.error_mask.set_error(error_idx, column, error_msg)
+                # overwrite values in dataframe with parsed ones
+                dataframe[column].loc[not_na] = entries
+        if error_occured:
+            msg = _('Number format errors')
+            self.error_mask.add_message(msg)
+        return dataframe
+
+    def _get_nan_dict(self):
+        # nan_dict = {col: ['n.a.', '', 'NULL'] for col in fields if field.dtype = numeric}
+        _meta = self.Meta.model._meta
+        nan_dict = {}
+        for column, field in self.field_map.items():
+            if isinstance(field, Reference):
+                continue
+            field = _meta.get_field(field)
+            if (isinstance(field, DecimalField) or
+                isinstance(field, IntegerField) or
+                isinstance(field, FloatField)):
+                nan_dict[column] = self.nan_values
+                nan_dict[column.lower()] = self.nan_values
+        return nan_dict
 
     def _map_fields(self, dataframe):
         '''
@@ -246,84 +439,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    # ToDo: create a file highlighting the errors in the input data
-                    # will be returned as an error response
                     dataframe.set_index(self.index_column, inplace=True)
                     missing.set_index(self.index_column, inplace=True)
-                    error_matrix = pd.DataFrame(
-                        columns=dataframe.columns,
-                        index=dataframe.index).fillna(0)
-                    error_matrix.loc[
-                        missing.index, 'ag'] = _('relation not found')
-                    error_matrix.reset_index(inplace=True)
-                    error_matrix[self.index_column] = 0
-                    path, url = self._create_response_file(
-                        dataframe.reset_index(),
-                        errors=error_matrix,
-                        file_type='tsv')
-                    raise ForeignKeyNotFound(
-                        _('Related models {} not found'
-                          .format(missing_values)), url
-                    )
-            else:
-                data = data.rename(columns={column: field})
+                    self.error_mask.set_error(missing.index, column,
+                                              _('relation not found'))
+                    msg = _('{c} related models {m} not found'.format(
+                        c=column, m=missing_values))
+                    self.error_mask.add_message(msg)
 
         return data
-
-    def _create_response_file(self, dataframe, errors=None, file_type='tsv'):
-        '''
-        creates a response file with given data
-
-        Parameters
-        ----------
-        dataframe: pd.Dataframe
-            the dataframe to write to file
-        errors: pd.Dataframe
-            same dimension as dataframe, marks errors occured in dataframe
-            values - no error: nan or 0, error: error message as string
-
-        Returns
-        ----------
-        path, url: tuple(str), path and relative url to file
-        '''
-        data = dataframe.copy()
-        error_sep = '|'
-        errors = errors.fillna(0)
-        ext = self.input_file_ext
-        data['error'] = ''
-        def highlight_errors(s, errors=None):
-            column = s.name
-            if column == 'error':
-                return ['white'] * len(s)
-            error_idx = errors[column] != 0
-            return ['background-color: red' if v else
-                    'white' for v in error_idx]
-        if errors is not None:
-            for column in errors.columns:
-                error_idx = errors[column] != 0
-                data['error'][error_idx] += '{} '.format(column)
-                data['error'][error_idx] += errors[column][error_idx]
-                data['error'][error_idx] += error_sep
-            if ext == '.xlsx':
-                data = data.style.apply(highlight_errors, errors=errors)
-
-        with TemporaryMediaFile() as f:
-            if ext == '.xlsx':
-                pass
-            else:
-                sep = '\t' if ext == '.tsv' else ';'
-                data.to_csv(f, sep=sep)
-        if ext == '.xlsx':
-            writer = pd.ExcelWriter(f.name, engine='openpyxl')
-            data.to_excel(writer, index=False)
-            writer.save()
-        # TemporaryFile creates files with no extension,
-        # keep file extension of input file
-        fn = f.name + self.input_file_ext
-        os.rename(f.name, fn)
-        url = f.url + self.input_file_ext
-        return fn, url
-
 
     def _add_pk_relations(self, dataframe):
         '''
@@ -362,8 +486,10 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
-        df = dataframe.set_index(self.index_column)
-        df_existing = read_frame(queryset, index_col=self.index_column)
+        # index column is already renamed to match the model at this point
+        index_field = self.field_map.get(self.index_column, self.index_column)
+        df = dataframe.set_index(index_field)
+        df_existing = read_frame(queryset, index_col=index_field)
         # trying to match integers with strings won't work
         # -> preventive cast to string
         df.index = df.index.astype(str)
@@ -426,15 +552,25 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         df_save = dataframe.drop(columns=drop_cols)
 
         # set default values for columns not provided
-        defaults = {col: model._meta.get_field(col).default
-                    for col in df_save.columns}
+        defaults = {}
+        for col in df_save.columns:
+            default = model._meta.get_field(col).default
+            if default == NOT_PROVIDED or default is None:
+                default = np.NAN
+            defaults[col] = default
         df_save = df_save.fillna(defaults)
 
         # create the new rows
         bulk = []
         m = None
         for row in df_save.itertuples(index=False):
-            row_dict = row._asdict()
+            #row_dict = row._asdict()
+            row_dict = {}
+            for k, v in row._asdict().items():
+                try:
+                    row_dict[k] = v if not np.isnan(v) else None
+                except:
+                    row_dict[k] = v
             m = model(**row_dict)
             bulk.append(m)
         created = model.objects.bulk_create(bulk)
