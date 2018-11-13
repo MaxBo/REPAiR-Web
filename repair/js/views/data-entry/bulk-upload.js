@@ -39,6 +39,21 @@ var BulkUploadView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template({ keyflow: this.model });
         this.logArea = this.el.querySelector('#upload-log');
+
+        var ups = [
+                ['activitygroups', gettext('Activity Group')],
+                ['activities', gettext('Activities')],
+                ['actors', gettext('Actors')]
+            ],
+            upCol = this.el.querySelector('#upload-column');
+        ups.forEach(function(up){
+            var html = document.getElementById('upload-row-template').innerHTML,
+                template = _.template(html),
+                div = document.createElement('div');
+            div.innerHTML = template({ label: up[1], apiTag: up[0] })
+            upCol.appendChild(div);
+        })
+
     },
 
     removeKeyflow: function(){

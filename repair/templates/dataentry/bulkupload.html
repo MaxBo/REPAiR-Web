@@ -16,38 +16,28 @@
     </button>
     -->
   </div>
-  <div class='col-md-5'>
-    <div class="upload row bordered" data-tag="activitygroups">
-      <div class='row'>
-        <label>{% trans "Activity Groups" %} </label>
-        <button class="btn btn-warning clear" data-tag="activitygroups" title="{% trans "Delete" %}">
-          <span class="glyphicon glyphicon-remove"></span>
-        </button>
-        <button class="btn btn-primary upload" data-tag="activitygroups" title="{% trans "Upload File" %}">
-          {% trans "Upload" %}
-          <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
-        </button>
-        <input type="file" id="ag-file" accept=".xlsx, .tsv, .csv">
-      </div>
-    </div>
-    <div class="upload row bordered" data-tag="activities">
-      <div class='row'>
-        <label>{% trans "Activities" %} </label>
-        <button class="btn btn-warning clear" data-tag="activities" title="{% trans "Delete" %}">
-          <span class="glyphicon glyphicon-remove" ></span>
-        </button>
-        <button class="btn btn-primary upload" data-tag="activities" title="{% trans "Upload File" %}">
-          {% trans "Upload" %}
-          <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
-        </button>
-        <input type="file" accept=".xlsx, .tsv, .csv">
-      </div>
-    </div>
+  <div class='col-md-5' id="upload-column">
   </div>
   <div class='col-md-6'>
     <div id="upload-log" class="bordered">
       <h4>{% trans "Log" %}</h4>
       <br>
+    </div>
+  </div>
+</script>
+
+<script type="text/template" id="upload-row-template">
+  <div class="upload row bordered" data-tag="<%= apiTag %>">
+    <div class='row'>
+      <label><%= label %></label>
+      <button class="btn btn-warning clear" data-tag="<%= apiTag %>" title="{% trans "Delete" %}">
+        <span class="glyphicon glyphicon-remove"></span>
+      </button>
+      <button class="btn btn-primary upload" data-tag="<%= apiTag %>" title="{% trans "Upload File" %}">
+        {% trans "Upload" %}
+        <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+      </button>
+      <input type="file" accept=".xlsx, .tsv, .csv">
     </div>
   </div>
 </script>
