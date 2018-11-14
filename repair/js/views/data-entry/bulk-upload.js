@@ -42,7 +42,8 @@ var BulkUploadView = BaseView.extend(
         var ups = [
                 ['activitygroups', gettext('Activity Group')],
                 ['activities', gettext('Activities')],
-                ['actors', gettext('Actors')]
+                ['actors', gettext('Actors')],
+                ['actorToActor', gettext('Actor to Actor Flows')]
             ],
             upCol = this.el.querySelector('#upload-column');
         ups.forEach(function(up){
@@ -266,6 +267,7 @@ var BulkUploadView = BaseView.extend(
                     type: 'danger',
                     dismissible: true
                 })
+                alertDiv.style.overflow = 'hidden';
                 alertDiv.querySelector('.close').style.top = '-20px';
                 msgWrapper.style.color = 'red';
                 title.style.color = 'red';
