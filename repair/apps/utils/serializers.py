@@ -493,8 +493,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         df_existing = read_frame(queryset, index_col=index_field)
         # trying to match integers with strings won't work
         # -> preventive cast to string
-        df.index = df.index.astype(str)
-        df_existing.index = df_existing.index.astype(str)
+        df.index = df.index.map(str)
+        df_existing.index = df_existing.index.map(str)
 
         merged = df.merge(df_existing,
                           left_index=True,
