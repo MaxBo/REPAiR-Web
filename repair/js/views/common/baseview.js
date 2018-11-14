@@ -350,8 +350,13 @@ var BaseView = Backbone.View.extend(
         var options = options || {},
             html = document.getElementById('confirmation-template').innerHTML,
             template = _.template(html),
-            elConfirmation = document.getElementById('confirmation-modal');
+            elConfirmation = document.getElementById('confirmation-modal'),
+            elements = options.elements || [];
         elConfirmation.innerHTML = template({ message: options.message || '' });
+        var body = elConfirmation.querySelector('.modal-body');
+        elements.forEach(function(el){
+            body.appendChild(el);
+        })
         var confirmBtn = elConfirmation.querySelector('.confirm'),
             cancelBtn = elConfirmation.querySelector('.cancel');
         if (options.onConfirm)

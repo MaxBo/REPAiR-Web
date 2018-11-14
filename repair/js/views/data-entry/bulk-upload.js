@@ -31,7 +31,6 @@ var BulkUploadView = BaseView.extend(
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
         "click button.clear": "clearData"
-        //"click #clear-keyflow": "clearKeyflow"
     },
 
     render: function(){
@@ -53,7 +52,6 @@ var BulkUploadView = BaseView.extend(
             div.innerHTML = template({ label: up[1], apiTag: up[0] })
             upCol.appendChild(div);
         })
-
     },
 
     removeKeyflow: function(){
@@ -67,9 +65,13 @@ var BulkUploadView = BaseView.extend(
                 error: _this.onError
             })
         }
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.innerHTML = gettext('Force CASCADED deletion');
         this.confirm({
             message: gettext('Do you really want to delete the keyflow and <b>ALL</b> of its data?'),
-            onConfirm: function(){
+            elements: [checkbox],
+            onConfirm: function(el){
                 _this.confirm({
                         message: gettext('Are you sure?'),
                         onConfirm: destroyKeyflow
@@ -84,7 +86,7 @@ var BulkUploadView = BaseView.extend(
             btn = evt.target,
             tag = btn.dataset['tag'];
 
-        function destroyModels(collection){
+        function destroyModels(collection, cascaded){
             var i = collection.length,
                 ie, is = 0,
                 u_msg = gettext('Removing data') + ' ' + tag;
@@ -111,6 +113,10 @@ var BulkUploadView = BaseView.extend(
 
             while (model = collection.first()) {
                 model.destroy({
+                    data: {
+                        'override_protection': cascaded
+                    },
+                    processData: true,
                     success: function(res){
                         var m_repr = JSON.stringify(res.toJSON());
                         msg = gettext('Successfully deleted') + ' ' + m_repr;
@@ -119,8 +125,8 @@ var BulkUploadView = BaseView.extend(
                         is += 1;
                         if (i < 1) done();
                     },
-                    error: function(res){
-                        msg = res.responseText;
+                    error: function(m, res){
+                        msg = res.responseText || res;
                         _this.log('<p style="color: red;">' + msg + '</p>')
                         i -= 1;
                         ie += 1;
@@ -134,12 +140,27 @@ var BulkUploadView = BaseView.extend(
             apiTag: tag, apiIds: [ this.caseStudy.id, this.model.id ]
         });
 
+        var div = document.createElement('div'),
+            checkbox = document.createElement('input');
+
+        checkbox.type = 'checkbox';
+        checkbox.style.marginRight = '10px';
+        checkbox.style.float = 'left';
+        div.innerHTML = gettext('Force CASCADED deletion (delete referencing objects, even if protected)');
+        div.style.fontSize = '0.8em';
+        div.style.marginTop = '20px';
+        div.appendChild(checkbox);
+
         this.confirm({
-            message: gettext('Do you really want to delete the existing data and <b>ALL</b> of the related data?'),
+            message: gettext('Do you really want to delete the existing data and the related data?'),
+            elements: [div],
             onConfirm: function(){
+                var cascaded = checkbox.checked;
                 _this.loader.activate();
                 collection.fetch({
-                    success: destroyModels,
+                    success: function(c){
+                        destroyModels(c, checkbox.checked)
+                    },
                     error: _this.onError
                 })
             }
