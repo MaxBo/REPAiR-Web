@@ -270,8 +270,11 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         """
         Check if user is permitted to destroy the object.
         """
-        self.use_protection = not request.query_params.get(
+        # param to override protection may be in the url or inside the form data
+        override_protection = request.query_params.get(
+            'override_protection', False) or request.data.get(
             'override_protection', False)
+        self.use_protection = override_protection not in ('true', 'True', True)
         self.check_permission(request, 'delete')
         try:
             response = super().destroy(request, **kwargs)
