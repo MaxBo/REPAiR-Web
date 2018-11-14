@@ -93,3 +93,4 @@ class Actor(Node):
                           default_currency='EUR', blank=True, null=True)
 
     activity = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE)
+

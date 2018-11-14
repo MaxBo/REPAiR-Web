@@ -47,12 +47,17 @@ class GDSEModel(GDSEModelMixin, models.Model):
         abstract = True
         default_permissions = ('add', 'change', 'delete', 'view')
 
-
     def __str__(self):
         try:
             return self.name or ''
         except Exception:
             return ''
+
+    def __lt__(self, other):
+        return self.id < other.id
+
+    def __gt__(self, other):
+        return self.id > other.id
 
 
 class GDSEUniqueNameModel(GDSEModel):

@@ -13,9 +13,13 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
                                          ActorFactory,
                                          UserInCasestudyFactory,
-                                         KeyflowInCasestudyFactory
+                                         KeyflowInCasestudyFactory,
+                                         CompositionFactory,
+                                         Actor2ActorFactory
                                          )
 from repair.apps.asmfa.models import ActivityGroup, Activity, Actor
+from repair.apps.publications.factories import (PublicationFactory,
+                                                PublicationInCasestudyFactory)
 
 
 class BulkImportNodesTest(LoginTestCase, APITestCase):
@@ -65,7 +69,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
     def test_bulk_group(self):
         """
-        Test if user can post without permission
+        test bulk upload activitygroups
         """
         for fn, sep in [(self.filename_actg, '\t'),
                         (self.filename_actg_csv, ';')]:
@@ -103,6 +107,9 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
                 assert ag.name == row.name
 
     def test_bulk_group_errors(self):
+        """
+        test errors in upload files
+        """
         file_path = os.path.join(os.path.dirname(__file__),
                                  self.testdata_folder,
                                  self.filename_actg_missing_col)
@@ -133,7 +140,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         assert res.status_code == 400
 
     def test_bulk_activity(self):
-        """Test that activity matches activitygroup"""
+        """Test bulk upload activities"""
         file_path_ac = os.path.join(os.path.dirname(__file__),
                                     self.testdata_folder,
                                     self.filename_act)
@@ -170,7 +177,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             assert ac.name == row.name
 
     def test_bulk_actor(self):
-        """Test that activity matches activitygroup"""
+        """Test bulk upload actors"""
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
                                 self.filename_actor)
@@ -231,3 +238,54 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         """Test if data sources are given"""
 
 
+class BulkImportFlowsTest(LoginTestCase, APITestCase):
+
+    testdata_folder = 'data'
+    filename_a2a = 'T3.2_Flows_actor2actor.tsv'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.keyflow = cls.kic
+        cls.casestudy = cls.uic.casestudy
+
+        cls.a2a_url = reverse('actor2actor-list',
+                              kwargs={'casestudy_pk': cls.casestudy.id,
+                                      'keyflow_pk': cls.keyflow.id})
+        # workaround, don't want to tests any permissions here
+        cls.uic.user.user.is_superuser = True
+        cls.uic.user.user.save()
+
+    def setUp(self):
+        super().setUp()
+        # create another activitygroup
+        ag = ActivityGroupFactory(keyflow=self.keyflow, name='A', code='A')
+        af = ActivityFactory(activitygroup=ag, name='B', nace='123')
+
+        ac_1 = ActorFactory(activity=af, BvDid='WK036306')
+        ac_2 = ActorFactory(activity=af, BvDid='WK036307')
+        ActorFactory(activity=af, BvDid='WK036308')
+        ActorFactory(activity=af, BvDid='WK036309')
+        ac_3 = ActorFactory(activity=af, BvDid='NL59307803')
+
+        CompositionFactory(name='RES @Urbanisation lvl 1')
+
+        a = PublicationFactory(citekey='cbs2018', title='sth')
+        PublicationInCasestudyFactory(casestudy=self.casestudy,
+                                      publication=a)
+
+        Actor2ActorFactory(origin=ac_1, destination=ac_2, keyflow=self.keyflow)
+        Actor2ActorFactory(origin=ac_1, destination=ac_3, keyflow=self.keyflow)
+
+    def test_bulk_flow(self):
+        """Test file-based upload of actor2actor"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_a2a)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.a2a_url, data)
+        assert res.status_code == 201

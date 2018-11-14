@@ -148,8 +148,8 @@ class Reference:
 
         tmp_columns = ['_merge', 'id', '_models']
 
-        missing_rows.drop(columns=tmp_columns, inplace=True)
         existing_rows.drop(columns=tmp_columns, inplace=True)
+        missing_rows.drop(columns=tmp_columns, inplace=True)
         return existing_rows, missing_rows
 
 class ErrorMask:
@@ -241,7 +241,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
     # column serving as unique identifier in file
     # (letter case doesn't matter, will be cast to lower case)
-    index_column = None
+    index_columns = []
 
     # values indicating that entry is unknown, will be set to null in model
     # (number fields only)
@@ -256,7 +256,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         for key in cls.field_map.keys():
             v = cls.field_map.pop(key)
             cls.field_map[key.lower()] = v
-        cls.index_column = cls.index_column.lower()
+        cls.index_columns = [i.lower() for i in cls.index_columns]
         return super().__init_subclass__(**kwargs)
 
     @property
@@ -317,7 +317,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if column not in self.field_map:
                 del df_new[column]
 
-        self.error_mask = ErrorMask(df_new, index=self.index_column)
+        self.error_mask = ErrorMask(df_new, index=self.index_columns)
 
         df_mapped = self._map_fields(df_new)
         df_parsed = self._parse_columns(df_mapped)
@@ -328,8 +328,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 self.error_mask.messages, url
             )
 
-
         df_done = self._add_pk_relations(df_parsed)
+        df_done.reset_index(inplace=True)
 
         rename = {}
         for k, v in self.field_map.items():
@@ -366,7 +366,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         of the fields
         '''
         dataframe = dataframe.copy()
-        dataframe.set_index(self.index_column, inplace=True)
+        dataframe.set_index(self.index_columns, inplace=True)
         error_occured = False
         for column in dataframe.columns:
             _meta = self.Meta.model._meta
@@ -439,8 +439,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    dataframe.set_index(self.index_column, inplace=True)
-                    missing.set_index(self.index_column, inplace=True)
+                    dataframe.set_index(self.index_columns, inplace=True)
+                    missing.set_index(self.index_columns, inplace=True)
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
                     msg = _('{c} related models {m} not found'.format(
@@ -487,32 +487,45 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         """
         queryset = self.get_queryset()
         # index column is already renamed to match the model at this point
-        index_field = self.field_map.get(self.index_column, self.index_column)
-        dataframe.reset_index(inplace=True)
-        df = dataframe.set_index(self.index_column)
-        df_existing = read_frame(queryset, index_col=index_field)
-        # trying to match integers with strings won't work
-        # -> preventive cast to string
-        df.index = df.index.map(str)
-        df_existing.index = df_existing.index.map(str)
+
+        df_existing = read_frame(queryset)
+        df = dataframe.copy()
+
+        for col in self.index_fields:
+            df_existing[col] = df_existing[col].map(str)
+            df[col] = df[col].map(str)
 
         merged = df.merge(df_existing,
-                          left_index=True,
-                          right_index=True,
                           how='left',
+                          on=self.index_fields,
                           indicator=True,
                           suffixes=['', '_old'])
 
-        df_new = merged.loc[merged._merge=='left_only'].reset_index()
+        idx_new = merged.loc[merged._merge=='left_only'].index
         idx_both = merged.loc[merged._merge=='both'].index
+
+        df_new = dataframe.loc[idx_new]
+
         # update existing models with values of new data
-        df_update = df_existing.loc[idx_both]
-        df_update.update(df)
+        df_update = dataframe.loc[idx_both]
 
         new_models = self._create_models(df_new)
         updated_models = self._update_models(df_update)
 
         return new_models, updated_models
+
+    @property
+    def index_fields(self):
+        '''
+        fields model-side belonging to self.index_column
+        '''
+        index_fields = []
+        for c in self.index_columns:
+            i = self.field_map.get(c, c)
+            if isinstance(i, Reference):
+                i = i.name
+            index_fields.append(i)
+        return index_fields
 
     def _update_models(self, dataframe):
         '''
@@ -526,7 +539,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         updated = []
 
         for row in df.itertuples(index=False):
-            filter_kwargs = {self.index_column: getattr(row, self.index_column)}
+            filter_kwargs = {c: getattr(row, c) for c in self.index_fields}
             model = queryset.get(**filter_kwargs)
             for c, v in row._asdict().items():
                 if c not in fields:

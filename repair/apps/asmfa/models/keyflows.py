@@ -51,14 +51,15 @@ class Material(GDSEModel):
             descendants.append(child)
             descendants.extend(child.descendants)
         return descendants
-    
+
     @property
     def children(self):
         """ direct children of the material traversal """
         return Material.objects.filter(parent=self.id)
-    
+
     def is_descendant(self, *args):
-        ''' return True if material is descendant of any of the passed materials '''
+        ''' return True if material is descendant of any of
+        the passed materials '''
         parent = self.parent
         materials = list(args)
         while parent:
@@ -99,7 +100,7 @@ class Composition(GDSEModel):
         is_product = getattr(self, 'product', None) is not None
         is_custom = not (is_waste or is_product)
         return is_custom
-    
+
     #def aggregate_by_materials(self, materials):
         #aggregation = defaultdict.fromkeys(materials, 0)
         #for fraction in self.fractions.iterator():
@@ -128,7 +129,8 @@ class ProductFraction(GDSEModel):
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+    publication = models.ForeignKey(PublicationInCasestudy, null=True,
+                                    on_delete=models.SET_NULL,
                                     related_name='fractions')
     avoidable = models.BooleanField(default=True)
 
