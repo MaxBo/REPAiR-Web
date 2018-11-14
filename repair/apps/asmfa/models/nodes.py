@@ -7,6 +7,7 @@ from djmoney.models.fields import MoneyField
 
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
+from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Node(GDSEModel):
@@ -38,7 +39,7 @@ class ActivityGroup(Node):
     code = models.CharField(max_length=10, choices=activity_group_choices)
     name = models.CharField(max_length=255)
     keyflow = models.ForeignKey(KeyflowInCasestudy,
-                                on_delete=models.CASCADE)
+                                on_delete=PROTECT_CASCADE)
 
     @property
     def nace_codes(self):
@@ -60,7 +61,7 @@ class Activity(Node):
     # not sure about the max length, leaving everywhere 255 for now
     name = models.CharField(max_length=255)
     activitygroup = models.ForeignKey(ActivityGroup,
-                                      on_delete=models.CASCADE)
+                                      on_delete=PROTECT_CASCADE)
 
 
 class Reason(models.Model):
@@ -91,4 +92,4 @@ class Actor(Node):
     turnover = MoneyField(max_digits=20, decimal_places=2,
                           default_currency='EUR', blank=True, null=True)
 
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE)
