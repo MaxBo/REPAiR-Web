@@ -14,7 +14,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
                                            Actor2ActorSerializer,
-                                           ActorStockSerializer
+                                           ActorStockSerializer,
+                                           AdministrativeLocationOfActorSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -22,7 +23,8 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Actor,
                                       Actor2Actor,
                                       ActorStock,
-                                      Composition
+                                      Composition,
+                                      AdministrativeLocation
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -139,3 +141,24 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return ActorStock.objects.filter(keyflow=self.keyflow)
+
+
+class AdminLocationCreateSerializer(
+    BulkSerializerMixin, AdministrativeLocationOfActorSerializer):
+
+    field_map = {
+        'BvDIDNR': Reference(name='actor',
+                             referenced_field='BvDid',
+                             referenced_model=Actor,
+                             filter_args={
+                                 'activity__activitygroup__keyflow':
+                                 '@keyflow'}),
+        'Postcode': 'postcode',
+        'Address': 'address',
+        'City': 'city',
+        'Point(x,y)': 'geom'
+    }
+    index_columns = ['origin']
+
+    def get_queryset(self):
+        return AdministrativeLocation.objects.filter(keyflow=self.keyflow)

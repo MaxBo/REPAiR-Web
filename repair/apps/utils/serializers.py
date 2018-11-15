@@ -251,7 +251,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
-            cls.Meta.fields = fields + ('bulk_upload', )
+            cls.Meta.fields = tuple(list(fields) + ['bulk_upload'])
         # cast all keys to lower case
         for key in cls.field_map.keys():
             v = cls.field_map.pop(key)
