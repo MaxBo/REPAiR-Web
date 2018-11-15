@@ -242,6 +242,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_a2a = 'T3.2_Flows_actor2actor.tsv'
+    filename_astock = 'T3.2_Flows_actorstock.tsv'
 
     @classmethod
     def setUpClass(cls):
@@ -253,6 +254,10 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         cls.a2a_url = reverse('actor2actor-list',
                               kwargs={'casestudy_pk': cls.casestudy.id,
                                       'keyflow_pk': cls.keyflow.id})
+
+        cls.astock_url = reverse('actorstock-list',
+                                 kwargs={'casestudy_pk': cls.casestudy.id,
+                                         'keyflow_pk': cls.keyflow.id})
         # workaround, don't want to tests any permissions here
         cls.uic.user.user.is_superuser = True
         cls.uic.user.user.save()
@@ -288,4 +293,16 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.a2a_url, data)
+        assert res.status_code == 201
+
+    def test_bulk_stock(self):
+        """Test file-based upload of actor2actor"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_astock)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.astock_url, data)
         assert res.status_code == 201

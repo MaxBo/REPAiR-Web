@@ -13,13 +13,15 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
-                                           Actor2ActorSerializer
+                                           Actor2ActorSerializer,
+                                           ActorStockSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
                                       Activity,
                                       Actor,
                                       Actor2Actor,
+                                      ActorStock,
                                       Composition
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
@@ -112,3 +114,28 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return Actor2Actor.objects.filter(keyflow=self.keyflow)
+
+
+class ActorStockCreateSerializer(BulkSerializerMixin,
+                                 ActorStockSerializer):
+
+    field_map = {
+        'origin': Reference(name='origin',
+                            referenced_field='BvDid',
+                            referenced_model=Actor,
+                            filter_args={
+                                'activity__activitygroup__keyflow':
+                                '@keyflow'}),
+        'composition': Reference(name='composition',
+                                 referenced_field='name',
+                                 referenced_model=Composition),
+        'source': Reference(name='publication',
+                            referenced_field='publication__citekey',
+                            referenced_model=PublicationInCasestudy),
+        'amount': 'amount',
+        'year': 'year'
+    }
+    index_columns = ['origin']
+
+    def get_queryset(self):
+        return ActorStock.objects.filter(keyflow=self.keyflow)
