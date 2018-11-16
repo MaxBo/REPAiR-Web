@@ -49,13 +49,15 @@ var EditNodeView = BaseView.extend(
         this.caseStudyId = options.caseStudyId;
         this.materials = options.materials;
         this.publications = options.publications;
+        this.showNodeInfo = (options.showNodeInfo == false) ? false: true;
 
         this.onUpload = options.onUpload;
-        this.flowTag = (this.model.apiTag == 'actors') ? 'actorToActor':
-                       (this.model.apiTag == 'activities') ? 'activityToActivity':
+        var apiTag = options.apiTag || this.model.apiTag;
+        this.flowTag = (apiTag == 'actors') ? 'actorToActor':
+                       (apiTag == 'activities') ? 'activityToActivity':
                        'groupToGroup';
-        this.stockTag = (this.model.apiTag == 'actors') ? 'actorStock':
-                        (this.model.apiTag == 'activities') ? 'activityStock':
+        this.stockTag = (apiTag == 'actors') ? 'actorStock':
+                        (apiTag == 'activities') ? 'activityStock':
                         'groupStock';
 
         this.inFlows = new GDSECollection([], {
@@ -137,14 +139,18 @@ var EditNodeView = BaseView.extend(
 
         var content = this.nodePopoverContent(this.model);
 
-        var popOverSettings = {
-            placement: 'right',
-            container: 'body',
-            html: true,
-            content: content
-        }
+        if (this.showNodeInfo){
+            var popOverSettings = {
+                placement: 'right',
+                container: 'body',
+                html: true,
+                content: content
+            }
 
-        this.setupPopover($('#node-info-popover').popover(popOverSettings));
+            this.setupPopover($('#node-info-popover').popover(popOverSettings));
+        }
+        else
+            this.el.querySelector('#node-info-popover').querySelector('.glyphicon').style.display = 'none';
 
         // render inFlows
         this.inFlows.each(function(flow){

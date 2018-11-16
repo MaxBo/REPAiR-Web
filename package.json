@@ -58,7 +58,7 @@
     "navigator": "^1.0.1",
     "ol-contextmenu": "^3.3.0",
     "openlayers": "^4.5.0",
-    "patternfly-bootstrap-treeview": "^2.1.5",
+    "patternfly-bootstrap-treeview": "^2.1.7",
     "save-svg-as-png": "^1.4.6",
     "style-loader": "^0.21.0",
     "summernote": "^0.8.10",
