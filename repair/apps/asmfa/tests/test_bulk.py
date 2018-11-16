@@ -255,8 +255,8 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
                                  kwargs={'casestudy_pk': cls.casestudy.id,
                                          'keyflow_pk': cls.keyflow.id})
         # workaround, don't want to tests any permissions here
-        cls.uic.user.user.is_superuser = True
-        cls.uic.user.user.save()
+        #cls.uic.user.user.is_superuser = True
+        #cls.uic.user.user.save()
 
     def setUp(self):
         super().setUp()

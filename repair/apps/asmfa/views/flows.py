@@ -354,6 +354,7 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     change_perm = 'asmfa.change_actor2actor'
     delete_perm = 'asmfa.delete_actor2actor'
     queryset = Actor2Actor.objects.all()
+    serializer_class = Actor2ActorSerializer
     serializers = {
         'list': Actor2ActorSerializer,
         'create': Actor2ActorCreateSerializer,
