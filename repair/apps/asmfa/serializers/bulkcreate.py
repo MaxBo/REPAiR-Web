@@ -156,7 +156,7 @@ class AdminLocationCreateSerializer(
         'Postcode': 'postcode',
         'Address': 'address',
         'City': 'city',
-        'Point(x,y)': 'geom'
+        'WKT': 'geom'
     }
     index_columns = ['origin']
 

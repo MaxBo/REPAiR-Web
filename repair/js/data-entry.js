@@ -1,9 +1,9 @@
 
-define(['models/casestudy', 'views/data-entry/flows',
-    'views/data-entry/actors', 'views/data-entry/materials',
+define(['models/casestudy', 'views/data-entry/actors-flows',
+    'views/data-entry/materials',
     'views/data-entry/bulk-upload', 'collections/gdsecollection',
     'app-config', 'utils/utils', 'base'],
-function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
+function (CaseStudy, ActorsFlowsView, EditMaterialsView, BulkUploadView,
     GDSECollection, appConfig, utils) {
     /**
     *
@@ -20,8 +20,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
         activities,
         loader = new utils.Loader(document.getElementById('content'), {disable: true});
 
-    var flowsView,
-        actorsView,
+    var actorsFlowsView,
         editMaterialsView,
         bulkUploadView;
 
@@ -29,36 +28,19 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
         refreshMaterialsBtn = document.getElementById('refresh-materialsview-btn'),
         refreshActorsBtn = document.getElementById('refresh-actorsview-btn');
 
-    function renderFlows(keyflow){
+    function renderActorsFlows(keyflow){
         if (keyflow == null) return;
-        if (flowsView != null)
-            flowsView.close();
-        flowsView = new FlowsView({
-            el: document.getElementById('flows-content'),
-            template: 'flows-edit-template',
+        if (actorsFlowsView != null)
+            actorsFlowsView.close();
+        actorsFlowsView = new ActorsFlowsView({
+            el: document.getElementById('actors-flows-content'),
+            template: 'actors-flows-edit-template',
             model: keyflow,
             materials: materials,
             activities: activities,
             caseStudy: caseStudy
         });
         refreshFlowsBtn.style.display = 'block';
-    };
-
-    function renderEditActors(keyflow){
-        if (keyflow == null) return;
-        if (actorsView != null)
-            actorsView.close();
-        // create casestudy-object and render view on it (data will be fetched in view)
-
-        actorsView = new ActorsView({
-            el: document.getElementById('actors-content'),
-            template: 'actors-template',
-            model: keyflow,
-            caseStudy: caseStudy,
-            activities: activities,
-            onUpload: function(){renderEditActors(keyflow)}
-        });
-        refreshActorsBtn.style.display = 'block';
     };
 
     function renderBulkUpload(keyflow){
@@ -135,8 +117,7 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
             loader.activate();
             Promise.all([materials.fetch(), activities.fetch()]).then(function(){
                 loader.deactivate();
-                renderFlows(keyflow);
-                renderEditActors(keyflow);
+                renderActorsFlows(keyflow);
                 renderEditMaterials(keyflow);
                 renderBulkUpload(keyflow);
             });
@@ -145,9 +126,8 @@ function (CaseStudy, FlowsView, ActorsView, EditMaterialsView, BulkUploadView,
             createKeyflow(createKeyflowSelect.value)
         });
 
-        refreshFlowsBtn.addEventListener('click', function(){ renderFlows(getKeyflow()) });
+        refreshFlowsBtn.addEventListener('click', function(){ renderActorsFlows(getKeyflow()) });
         refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
-        refreshActorsBtn.addEventListener('click', function(){ renderEditActors(getKeyflow()) });
         document.getElementById('keyflow-select').disabled = false;
     }
 
