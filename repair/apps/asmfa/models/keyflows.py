@@ -86,6 +86,7 @@ class Composition(GDSEModel):
 
     name = models.CharField(max_length=255, blank=True)
     nace = models.CharField(max_length=255, blank=True)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE)
 
     @property
     def is_custom(self):
