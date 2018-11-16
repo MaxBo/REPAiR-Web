@@ -25,7 +25,7 @@ DATABASES = {
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
         'HOST': 'h2020cinderela.bk.tudelft.nl',
-        'PORT': '5433',
+        'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
             },
