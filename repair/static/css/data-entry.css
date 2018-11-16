@@ -89,7 +89,7 @@ td button {
 }
 
 #bulk-upload .upload.row label{
-    float: left;
+    /*float: left;*/
     margin-right: 20px;
     font-size: 1.5em;
 }
@@ -103,7 +103,7 @@ td button {
 }
 
 #bulk-upload .upload.row input{
-    float: right;
+    /*float: right;*/
     display: inline;
     padding: 6px;
 }
