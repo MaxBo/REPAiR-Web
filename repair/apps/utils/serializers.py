@@ -55,7 +55,7 @@ def TemporaryMediaFile():
     '''
     path = os.path.join(settings.MEDIA_ROOT, 'tmp')
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
     p, fn = os.path.split(wrapper.name)
     wrapper.file.url = settings.MEDIA_URL + '/tmp/' + fn
