@@ -71,6 +71,7 @@ class ActorFactory(NodeFactory):
     year = 2017
     turnover = 100000
     employees = 100
+    BvDid = 'whatever'
     BvDii = 'BvDii99'
     website = 'www.example.com'
     activity = factory.SubFactory(ActivityFactory)

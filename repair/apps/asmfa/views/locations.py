@@ -11,6 +11,7 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
     OperationalLocationsOfActorSerializer,
+    AdminLocationCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -26,6 +27,10 @@ class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
     delete_perm = 'asmfa.delete_administrativelocation'
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
+    serializers = {
+        'list': AdministrativeLocationSerializer,
+        'create': AdminLocationCreateSerializer
+    }
 
     def get_queryset(self):
         locations = AdministrativeLocation.objects.select_related(

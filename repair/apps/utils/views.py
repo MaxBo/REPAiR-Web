@@ -1,13 +1,13 @@
-from rest_framework import viewsets, exceptions, mixins
+from rest_framework import viewsets, exceptions, mixins , status
 from django.views import View
 from django.http import (HttpResponseBadRequest,
                          HttpResponseForbidden,
+                         JsonResponse,
                          )
 from django.db.models import ProtectedError
 from django.utils.translation import ugettext as _
 from publications_bootstrap.models import Publication
 from repair.apps.login.serializers import PublicationSerializer
-from repair.apps.utils.context_environment import set_env
 from abc import ABC
 
 from django.shortcuts import get_object_or_404
@@ -16,6 +16,7 @@ from django.db.models.sql.constants import QUERY_TERMS
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
+from repair.apps.utils.serializers import BulkValidationError
 
 
 class PostGetViewMixin:
@@ -192,10 +193,20 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
        additional_filters - dict, keyword arguments for additional filters
     """
     def create(self, request, **kwargs):
-        """set the """
+        """check permission for casestudy"""
         if self.casestudy_only:
             self.check_casestudy(kwargs, request)
-        return super().create(request, **kwargs)
+        try:
+            return super().create(request, **kwargs)
+        except BulkValidationError as e:
+            return self.error_response(e.message, file_url=e.path)
+
+    def error_response(self, message, file_url=None):
+        res = { 'message': message }
+        if file_url:
+            res['file_url'] = file_url
+        response = JsonResponse(res, status=400)
+        return response
 
     def perform_create(self, serializer):
         url_pks = serializer.context['request'].session['url_pks']
@@ -259,10 +270,14 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
         """
         Check if user is permitted to destroy the object.
         """
+        # param to override protection may be in the url or inside the form data
+        override_protection = request.query_params.get(
+            'override_protection', False) or request.data.get(
+            'override_protection', False)
+        self.use_protection = override_protection not in ('true', 'True', True)
         self.check_permission(request, 'delete')
         try:
-            with set_env(PROTECT_FOREIGN_KEY='True'):
-                response = super().destroy(request, **kwargs)
+            response = super().destroy(request, **kwargs)
         except ProtectedError as err:
             qs = err.protected_objects
             show = 5
@@ -277,6 +292,9 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
                                )
             return HttpResponseForbidden(content=msg)
         return response
+
+    def perform_destroy(self, instance):
+        instance.delete(use_protection=self.use_protection)
 
     def update(self, request, **kwargs):
         """

@@ -18,6 +18,7 @@ from repair.apps.asmfa.serializers import (
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
+    ActorStockCreateSerializer
 )
 
 from repair.apps.asmfa.views import (filter_by_material, aggregate_fractions,
@@ -68,6 +69,10 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
     delete_perm = 'asmfa.delete_actorstock'
     queryset = ActorStock.objects.all()
     serializer_class = ActorStockSerializer
+    serializers = {
+        'list': ActorStockSerializer,
+        'create': ActorStockCreateSerializer,
+    }
     additional_filters = {'origin__included': True}
 
     def post_get(self, request, **kwargs):
