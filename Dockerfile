@@ -1,5 +1,5 @@
 FROM maxboh/docker-circleci-node-miniconda-gdal
 
-RUN git clone https://github.com/MaxBo/REPAiR-Web.git $HOME/repairweb
-RUN cd $HOME/repairweb
+RUN git clone https://github.com/H2020Cinderela/Cinderela-Web.git $HOME/cinderelaweb
+RUN cd $HOME/cinderelaweb
 
