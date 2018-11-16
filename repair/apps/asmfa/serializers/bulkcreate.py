@@ -15,7 +15,7 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActorSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
-                                           AdministrativeLocationOfActorSerializer
+                                           AdministrativeLocationSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -144,7 +144,7 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
 
 
 class AdminLocationCreateSerializer(
-    BulkSerializerMixin, AdministrativeLocationOfActorSerializer):
+    BulkSerializerMixin, AdministrativeLocationSerializer):
 
     field_map = {
         'BvDIDNR': Reference(name='actor',

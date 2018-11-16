@@ -26,7 +26,8 @@ class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
     change_perm = 'asmfa.change_administrativelocation'
     delete_perm = 'asmfa.delete_administrativelocation'
     queryset = AdministrativeLocation.objects.all()
-    serilaizers = {
+    serializer_class = AdministrativeLocationSerializer
+    serializers = {
         'list': AdministrativeLocationSerializer,
         'create': AdminLocationCreateSerializer
     }
