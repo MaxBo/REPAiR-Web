@@ -278,13 +278,19 @@ var EditNodeView = BaseView.extend(
                 target.fetch({
                     success: function(){
                         toggleBtnClass(targetButton, 'btn-primary');
+                        targetButton.disabled = false;
                         targetButton.innerHTML = target.get('name');
 
                     }, error: this.onError
                 })
             }
 
-            if (targetId) setTarget(targetId);
+            if (targetId) {
+                targetButton.innerHTML = gettext('Lade...');
+                toggleBtnClass(targetButton, 'btn-secondary');
+                targetButton.disabled = true;
+                setTarget(targetId);
+            }
 
             var popOverSettings = {
                 placement: 'right',
