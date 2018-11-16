@@ -8,7 +8,7 @@ DB_USER = 'postgres'
 DB_PASS = ''
 DB_NAME = 'gdse_db'
 DB_HOST = 'db'
-DB_PORT = '5432'
+DB_PORT = '5433'
 
 DATABASES = {
     'default': {
