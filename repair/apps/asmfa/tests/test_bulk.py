@@ -55,17 +55,19 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     def setUp(self):
         super().setUp()
         # create another activitygroup
-        ActivityGroupFactory(keyflow=self.keyflow, name='Construction', code='F')
+        ag_f = ActivityGroupFactory(keyflow=self.keyflow, name='Construction', code='F')
         ActivityGroupFactory(keyflow=self.keyflow, name='Some stuff, no idea', code='G')
         ActivityGroupFactory(keyflow=self.keyflow, name='Other', code='E')
         ActivityGroupFactory(keyflow=self.keyflow, name='Export', code='WE')
         ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
 
-        ag_f = ActivityGroup.objects.get(code='F')
-        ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='4110')
+        af = ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='4110')
         ActivityFactory(activitygroup=ag_f, name='Collection of non-hazardous waste', nace='3811')
         ActivityFactory(activitygroup=ag_f, name='Collection of hazardous waste', nace='3812')
         ActivityFactory(activitygroup=ag_f, name='shouldnt_be_updated', nace='F-007')
+
+        ActorFactory(activity=af, BvDid='NL000000029386')
+        ActorFactory(activity=af, BvDid='NL32063450')
 
     def test_bulk_group(self):
         """
@@ -176,7 +178,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
                                       nace=row.nace)
             assert ac.name == row.name
 
-    def test_bulk_actor(self):
+    def test_bulk_actors(self):
         """Test bulk upload actors"""
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
@@ -204,12 +206,6 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     def test_actor_matches_activity(self):
         """Test that actor matches activity"""
 
-    @skip('not implemented yet')
-    def test_bulk_actors(self):
-        """
-        Test that flow/stock matches
-        activity and material and composition
-        """
     @skip('not implemented yet')
     def test_composition_adds_to_100_percent(self):
         """Test that material compostitions add up to 100 %"""

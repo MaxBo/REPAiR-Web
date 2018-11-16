@@ -530,6 +530,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         update the models with the data in dataframe
         '''
+        model = self.Meta.model
         queryset = self.get_queryset()
         # only fields defined in field_map will be written to database
         fields = [getattr(v, 'name', None) or v
@@ -537,17 +538,31 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         df = dataframe.reset_index()
         updated = []
 
+        dataframe = self._set_defaults(dataframe, model)
+
         for row in df.itertuples(index=False):
             filter_kwargs = {c: getattr(row, c) for c in self.index_fields}
             model = queryset.get(**filter_kwargs)
             for c, v in row._asdict().items():
                 if c not in fields:
                     continue
+                if type(v) in [int, float] and np.isnan(v):
+                    v = None
                 setattr(model, c, v)
             model.save()
             updated.append(model)
         updated = queryset.filter(id__in=[m.id for m in updated])
         return updated
+
+    def _set_defaults(self, dataframe, model):
+        # set default values for columns not provided
+        defaults = {}
+        for col in dataframe.columns:
+            default = model._meta.get_field(col).default
+            if default == NOT_PROVIDED or default is None:
+                default = np.NAN
+            defaults[col] = default
+        return dataframe.fillna(defaults)
 
     def _create_models(self, dataframe):
         '''
@@ -563,15 +578,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if 'id' in dataframe.columns:
             drop_cols.append('id')
         df_save = dataframe.drop(columns=drop_cols)
-
-        # set default values for columns not provided
-        defaults = {}
-        for col in df_save.columns:
-            default = model._meta.get_field(col).default
-            if default == NOT_PROVIDED or default is None:
-                default = np.NAN
-            defaults[col] = default
-        df_save = df_save.fillna(defaults)
+        df_save = self._set_defaults(df_save, model)
 
         # create the new rows
         bulk = []
