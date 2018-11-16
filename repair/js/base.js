@@ -1,5 +1,6 @@
 define(['jquery', 'document-ready', 'bootstrap', 
         'bootstrap-select/dist/css/bootstrap-select.css',
+        'static/css/base.less',
         '@fortawesome/fontawesome-free/css/all.css', 
         'utils/overrides'],
 function ($, ready) {
