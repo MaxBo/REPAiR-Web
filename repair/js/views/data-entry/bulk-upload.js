@@ -43,7 +43,7 @@ var BulkUploadView = BaseView.extend(
                 ['activitygroups', gettext('Activity Group')],
                 ['activities', gettext('Activities')],
                 ['actors', gettext('Actors')],
-                ['actorToActor', gettext('Actor to Actor Flows'),
+                ['actorToActor', gettext('Actor to Actor Flows')],
                 ['actorStock', gettext('Actor Stocks')]
             ],
             upCol = this.el.querySelector('#upload-column');
