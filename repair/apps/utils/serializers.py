@@ -83,11 +83,13 @@ class Reference:
         be put into, created when not existing
     """
     def __init__(self, name: str, referenced_field: str,
-                 referenced_model: Type[Model], filter_args: dict={}):
+                 referenced_model: Type[Model], filter_args: dict={},
+                 allow_null=False):
         self.name = name
         self.referenced_column = referenced_field
         self.referenced_model = referenced_model
         self.filter_args = filter_args.copy()
+        self.allow_null = allow_null
 
 
     def merge(self, data: pd.DataFrame, referencing_column: str,
@@ -291,6 +293,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if file is None:
             return super().to_internal_value(data)
 
+        # detected self references (referenced model == Meta.model)
+        self.self_refs = []
+
         # other fields are not required when bulk uploading
         fields = self._writable_fields
         for field in fields:
@@ -338,6 +343,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         rename = {}
         for k, v in self.field_map.items():
             if isinstance(v, Reference):
+                # self referencing columns will be processed later, don't rename
+                if k in self.self_refs:
+                    continue
                 v = v.name
             rename[k] = v
 
@@ -428,21 +436,34 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 nan_dict[column.lower()] = self.nan_values
         return nan_dict
 
-    def _map_fields(self, dataframe):
+    def _map_fields(self, dataframe, columns=None):
         '''
         map the columns of the dataframe to the fields of the model class
         based on the field_map class attribute
         '''
         data = dataframe.copy()
-        bulk_columns = [c.lower() for c in self.field_map.keys()]
-        missing_cols = list(set(bulk_columns).difference(set(data.columns)))
+        if not columns:
+            bulk_columns = [c.lower() for c in self.field_map.keys()]
+            missing_cols = list(set(bulk_columns).difference(set(data.columns)))
+            if missing_cols:
+                raise MalformedFileError(
+                    _('The following columns are missing: {}'.format(
+                        missing_cols)))
 
-        if missing_cols:
-            raise MalformedFileError(
-                _('The following columns are missing: {}'.format(missing_cols)))
+        columns = columns or data.columns
 
         for column, field in self.field_map.items():
+            if column not in columns:
+                continue
             if isinstance(field, Reference):
+                # self reference detected, handled later
+                if field.referenced_model == self.Meta.model:
+                    if field.allow_null == False:
+                        raise Exception(
+                            'self-referencing models whose self-references '
+                            'are not nullable are not supported')
+                    self.self_refs.append(column)
+                    continue
                 data, missing = field.merge(
                     data, referencing_column=column, rel=self)
 
@@ -516,8 +537,23 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         # update existing models with values of new data
         df_update = dataframe.loc[idx_both]
+        if self.self_refs:
+            df_new_tmp = df_new.copy()
+            for column in self.self_refs:
+                df_new_tmp[column] = None
+            new_models = self._create_models(df_new_tmp)
+            df_new_mapped = self._map_fields(dataframe, columns=self.self_refs)
+            if self.error_mask.count > 0:
+                # rollback
+                for m in new_models:
+                    m.delete()
+                fn, url = self.error_mask.to_file(file_type=ext.replace('.', ''))
+                raise ValidationError(
+                    self.error_mask.messages, url
+                )
 
-        new_models = self._create_models(df_new)
+        else:
+            new_models = self._create_models(df_new)
         updated_models = self._update_models(df_update)
 
         return new_models, updated_models
@@ -603,6 +639,13 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             m = model(**row_dict)
             bulk.append(m)
         created = model.objects.bulk_create(bulk)
+        # only postgres returns ids after bulk creation
+        # workaround for non postgres: create queryset based on index_columns
+        if created and created[0].id == None:
+            filter_kwargs = {}
+            for field in self.index_fields:
+                filter_kwargs[field + '__in'] = dataframe[field].values
+            created = self.get_queryset().filter(**filter_kwargs)
         return created
 
     def create(self, validated_data):

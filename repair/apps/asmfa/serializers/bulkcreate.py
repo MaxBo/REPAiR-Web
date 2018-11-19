@@ -15,7 +15,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActorSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
-                                           AdministrativeLocationSerializer
+                                           AdministrativeLocationSerializer,
+                                           MaterialSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -24,7 +25,8 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Actor2Actor,
                                       ActorStock,
                                       Composition,
-                                      AdministrativeLocation
+                                      AdministrativeLocation,
+                                      Material
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -164,6 +166,20 @@ class AdminLocationCreateSerializer(
         return AdministrativeLocation.objects.filter(
             actor__activity__activitygroup__keyflow=self.keyflow)
 
-    #class Meta(AdministrativeLocationSerializer.Meta):
-        ##  workaround for GeoFeatureModelSerializer, else bulk creation fails
-        #id_field = None
+
+class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
+    field_map = {
+        'parent': Reference(name='parent',
+                            referenced_field='name',
+                            referenced_model=Material,
+                            # ToDo: materials can relate to materials without any
+                            # keyflow, how to handle name duplicates caused
+                            # by keyflow related materials?
+                            #filter_args={'keyflow': '@keyflow'},
+                            allow_null=True),
+        'name': 'name',
+    }
+    index_columns = ['name']
+
+    def get_queryset(self):
+        return Material.objects.filter(keyflow=self.keyflow)

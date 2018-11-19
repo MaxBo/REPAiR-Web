@@ -15,7 +15,8 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          UserInCasestudyFactory,
                                          KeyflowInCasestudyFactory,
                                          CompositionFactory,
-                                         Actor2ActorFactory
+                                         Actor2ActorFactory,
+                                         MaterialFactory
                                          )
 from repair.apps.asmfa.models import ActivityGroup, Activity, Actor
 from repair.apps.publications.factories import (PublicationFactory,
@@ -327,3 +328,35 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.astock_url, data)
         assert res.status_code == 201
+
+
+class BulkImportMaterialsTest(LoginTestCase, APITestCase):
+    testdata_folder = 'data'
+    filename_materials = 'materials.tsv'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.keyflow = cls.kic
+        cls.casestudy = cls.uic.casestudy
+
+        cls.mat_url = reverse('material-list',
+                              kwargs={'casestudy_pk': cls.casestudy.id,
+                                      'keyflow_pk': cls.keyflow.id})
+
+    def setUp(self):
+        super().setUp()
+        MaterialFactory(name='Mat 1', keyflow=self.keyflow)
+
+    def test_bulk_materials(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_materials)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.mat_url, data)
+        assert res.status_code == 201
+

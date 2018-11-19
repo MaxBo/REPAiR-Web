@@ -24,7 +24,8 @@ from repair.apps.asmfa.serializers import (
     MaterialListSerializer,
     AllMaterialSerializer,
     AllMaterialListSerializer,
-    WasteSerializer
+    WasteSerializer,
+    MaterialCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -140,7 +141,10 @@ class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
 
 class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
     serializer_class = MaterialSerializer
-    serializers = {'list': MaterialListSerializer}
+    serializers = {
+        'list': MaterialListSerializer,
+        'create': MaterialCreateSerializer,
+    }
 
     # include materials with keyflows with pk null as well (those are the default ones)
     def get_queryset(self):
