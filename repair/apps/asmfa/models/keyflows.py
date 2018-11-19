@@ -37,7 +37,7 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
     level = models.IntegerField()
     parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
@@ -86,6 +86,8 @@ class Composition(GDSEModel):
 
     name = models.CharField(max_length=255, blank=True)
     nace = models.CharField(max_length=255, blank=True)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
+                                null=True)
 
     @property
     def is_custom(self):

@@ -15,7 +15,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActorSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
-                                           AdministrativeLocationSerializer
+                                           AdministrativeLocationSerializer,
+                                           ProductSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -162,3 +163,12 @@ class AdminLocationCreateSerializer(
 
     def get_queryset(self):
         return AdministrativeLocation.objects.filter(keyflow=self.keyflow)
+
+
+class ProductCreateSerializer(
+    BulkSerializerMixin, ProductSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
