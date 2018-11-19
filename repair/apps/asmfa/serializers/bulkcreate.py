@@ -158,7 +158,12 @@ class AdminLocationCreateSerializer(
         'City': 'city',
         'WKT': 'geom'
     }
-    index_columns = ['origin']
+    index_columns = ['BvDIDNR']
 
     def get_queryset(self):
-        return AdministrativeLocation.objects.filter(keyflow=self.keyflow)
+        return AdministrativeLocation.objects.filter(
+            actor__activity__activitygroup__keyflow=self.keyflow)
+
+    #class Meta(AdministrativeLocationSerializer.Meta):
+        ##  workaround for GeoFeatureModelSerializer, else bulk creation fails
+        #id_field = None

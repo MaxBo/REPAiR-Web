@@ -9,6 +9,8 @@ from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
 from django.db.models.fields import IntegerField, DecimalField, FloatField
+from django.contrib.gis.db.models.fields import PointField
+from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.query import QuerySet
 from django.conf import settings
 from copy import deepcopy
@@ -252,10 +254,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = tuple(list(fields) + ['bulk_upload'])
+        lower_map = {}
         # cast all keys to lower case
         for key in cls.field_map.keys():
-            v = cls.field_map.pop(key)
-            cls.field_map[key.lower()] = v
+            v = cls.field_map[key]
+            lower_map[key.lower()] = v
+        cls.field_map = lower_map
         cls.index_columns = [i.lower() for i in cls.index_columns]
         return super().__init_subclass__(**kwargs)
 
@@ -374,7 +378,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if field_name is None or isinstance(field_name, Reference):
                 continue
             field = _meta.get_field(field_name)
-            if (isinstance(field, IntegerField) or
+            if isinstance(field, PointField):
+                dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+                # this is to remove possible z coordinates
+                gc = field.geom_class
+                dataframe['wkt'] = dataframe['wkt'].apply(lambda g: gc(g.x, g.y))
+            elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField)):
                 # set predefined nan-values to nan
@@ -639,6 +648,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             created = ret['created'] = []
             updated = ret['updated'] = []
             for model in instance.created:
+                # bulk created objects don't retrieve their new ids
+                # (at least in sqlite) -> assign one for representation after
+                # creation
+                if model.id is None:
+                    model.id = -1
                 created.append(super().to_representation(model))
             for model in instance.updated:
                 updated.append(super().to_representation(model))

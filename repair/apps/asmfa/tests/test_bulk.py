@@ -34,6 +34,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     filename_actor = 'T3.2_Actors.tsv'
     filename_actor_w_errors = 'T3.2_Actors_w_errors.tsv'
     filename_actor_w_errors_xlsx = 'T3.2_Actors_w_errors.xlsx'
+    filename_locations = 'test_adminloc.csv'
 
     @classmethod
     def setUpClass(cls):
@@ -51,20 +52,32 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         cls.actor_url = reverse('actor-list',
                                 kwargs={'casestudy_pk': cls.casestudy.id,
                                         'keyflow_pk': cls.keyflow.id})
+        cls.location_url = reverse('administrativelocation-list',
+                                   kwargs={'casestudy_pk': cls.casestudy.id,
+                                           'keyflow_pk': cls.keyflow.id})
 
     def setUp(self):
         super().setUp()
         # create another activitygroup
-        ag_f = ActivityGroupFactory(keyflow=self.keyflow, name='Construction', code='F')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Some stuff, no idea', code='G')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Other', code='E')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Export', code='WE')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
+        ag_f = ActivityGroupFactory(keyflow=self.keyflow,
+                                    name='Construction', code='F')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Some stuff, no idea', code='G')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Other', code='E')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Export', code='WE')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Import', code='R')
 
-        af = ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='4110')
-        ActivityFactory(activitygroup=ag_f, name='Collection of non-hazardous waste', nace='3811')
-        ActivityFactory(activitygroup=ag_f, name='Collection of hazardous waste', nace='3812')
-        ActivityFactory(activitygroup=ag_f, name='shouldnt_be_updated', nace='F-007')
+        af = ActivityFactory(activitygroup=ag_f, name='should_be_updated',
+                             nace='4110')
+        ActivityFactory(activitygroup=ag_f,
+                        name='Collection of non-hazardous waste', nace='3811')
+        ActivityFactory(activitygroup=ag_f,
+                        name='Collection of hazardous waste', nace='3812')
+        ActivityFactory(activitygroup=ag_f,
+                        name='shouldnt_be_updated', nace='F-007')
 
         ActorFactory(activity=af, BvDid='NL000000029386')
         ActorFactory(activity=af, BvDid='NL32063450')
@@ -201,6 +214,18 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.actor_url, data)
         assert res.status_code == 400
+
+    def test_bulk_locations(self):
+        """Test bulk upload actors"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                 self.testdata_folder,
+                                 self.filename_locations)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.location_url, data)
+        assert res.status_code == 201
 
     @skip('not implemented yet')
     def test_actor_matches_activity(self):
