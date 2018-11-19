@@ -87,10 +87,12 @@ var EditNodeView = BaseView.extend(
         });
 
         this.outProducts = new GDSECollection([], {
-            apiTag: 'products'
+            apiTag: 'products',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
         });
         this.outWastes = new GDSECollection([], {
-            apiTag: 'wastes'
+            apiTag: 'wastes',
+            apiIds: [ this.caseStudyId, this.keyflowId ]
         });
 
         var _this = this;
@@ -368,7 +370,10 @@ var EditNodeView = BaseView.extend(
                 var nace = origin.get('nace') || 'None';
                 _this.loader.activate();
                 var apiTag = (flow.get('waste') == 'true') ? 'wastes': 'products',
-                    items = new GDSECollection([], { apiTag: apiTag });
+                    items = new GDSECollection([], {
+                        apiTag: apiTag,
+                        apiIds: [ _this.caseStudyId, _this.keyflowId ]
+                    });
                 items.getFirstPage({ data: { nace: nace } }).then(
                     function(){
                         _this.loader.deactivate();

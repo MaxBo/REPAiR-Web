@@ -16,6 +16,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
                                            AdministrativeLocationSerializer,
+                                           ProductSerializer,
+                                           WasteSerializer,
                                            MaterialSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
@@ -26,7 +28,9 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActorStock,
                                       Composition,
                                       AdministrativeLocation,
-                                      Material
+                                      Material,
+                                      Product,
+                                      Waste
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -188,3 +192,15 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
 
     def get_queryset(self):
         return Material.objects.filter(keyflow=self.keyflow)
+
+
+class ProductCreateSerializer(
+    BulkSerializerMixin, ProductSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    def get_queryset(self):
+        return Product.objects.filter(keyflow=self.keyflow)
