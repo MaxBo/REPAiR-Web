@@ -92,14 +92,14 @@ class Reference:
         self.allow_null = allow_null
 
 
-    def merge(self, data: pd.DataFrame, referencing_column: str,
+    def merge(self, dataframe: pd.DataFrame, referencing_column: str,
               rel: object=None):
         """
         merges the referenced models to the given data
 
         Parameters
         ----------
-        data: pd.Dataframe
+        dataframe: pd.Dataframe
             the dataframe with the rows to check
         rel: if @ was defined in filter_args, the object is related to
         referencing_column: str
@@ -114,6 +114,10 @@ class Reference:
             the rows in the df_new where rows are missing
         """
         objects = self.referenced_model.objects
+        data = dataframe.copy()
+        # ignore the null rows
+        if self.allow_null:
+            data = data[data[referencing_column].notnull()]
         if self.filter_args:
             filter_args = self.filter_args.copy()
             for k, v in filter_args.items():
@@ -133,7 +137,6 @@ class Reference:
                                    index_col=[self.referenced_column],
                                    fieldnames=fieldnames)
         df_referenced['_models'] = referenced_queryset
-        # cast to string for comparison of both columns
         data[referencing_column] = data[referencing_column].astype('str')
         df_referenced.index = df_referenced.index.astype('str')
 
@@ -151,9 +154,13 @@ class Reference:
         existing_rows[referencing_column] = existing_rows['_models']
 
         tmp_columns = ['_merge', 'id', '_models']
-
         existing_rows.drop(columns=tmp_columns, inplace=True)
         missing_rows.drop(columns=tmp_columns, inplace=True)
+
+        # append the null rows again
+        if self.allow_null:
+            existing_rows = existing_rows.append(
+                dataframe[dataframe[referencing_column].isnull()])
         return existing_rows, missing_rows
 
 class ErrorMask:
@@ -436,10 +443,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 nan_dict[column.lower()] = self.nan_values
         return nan_dict
 
-    def _map_fields(self, dataframe, columns=None):
+    def _map_fields(self, dataframe, columns=None,
+                    skip_self_references=True):
         '''
         map the columns of the dataframe to the fields of the model class
         based on the field_map class attribute
+        you may pass specific columns to map (then verification of missing
+        columns in dataframe is skipped)
+        ignores self references by default
         '''
         data = dataframe.copy()
         if not columns:
@@ -457,7 +468,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 continue
             if isinstance(field, Reference):
                 # self reference detected, handled later
-                if field.referenced_model == self.Meta.model:
+                if (skip_self_references and
+                (field.referenced_model == self.Meta.model)):
                     if field.allow_null == False:
                         raise Exception(
                             'self-referencing models whose self-references '
@@ -534,24 +546,31 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         idx_both = merged.loc[merged._merge=='both'].index
 
         df_new = dataframe.loc[idx_new]
-
         # update existing models with values of new data
         df_update = dataframe.loc[idx_both]
+
+        #  map the self references now
         if self.self_refs:
             df_new_tmp = df_new.copy()
+            # create models without the self-references
             for column in self.self_refs:
                 df_new_tmp[column] = None
             new_models = self._create_models(df_new_tmp)
-            df_new_mapped = self._map_fields(dataframe, columns=self.self_refs)
+            # map the self-references on the newly created models
+            df_mapped = self._map_fields(dataframe, columns=self.self_refs,
+                                         skip_self_references=False)
+            # check the errors occured while mapping
             if self.error_mask.count > 0:
-                # rollback
+                # rollback on error
                 for m in new_models:
                     m.delete()
-                fn, url = self.error_mask.to_file(file_type=ext.replace('.', ''))
+                fn, url = self.error_mask.to_file(
+                    file_type=self.input_file_ext.replace('.', ''))
                 raise ValidationError(
                     self.error_mask.messages, url
                 )
-
+            new_models = self._update_models(df_mapped)
+            df_update = df_mapped.loc[idx_both]
         else:
             new_models = self._create_models(df_new)
         updated_models = self._update_models(df_update)

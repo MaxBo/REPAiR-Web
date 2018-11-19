@@ -181,5 +181,10 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
     }
     index_columns = ['name']
 
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
     def get_queryset(self):
         return Material.objects.filter(keyflow=self.keyflow)

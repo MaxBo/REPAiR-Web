@@ -306,10 +306,10 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     #keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       #read_only=True)
     # keyflow filtering is done by "get_queryset"
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
+    parent_lookup_kwargs = {}
+        #'casestudy_pk': 'keyflow__casestudy__id',
+        #'keyflow_pk': 'keyflow__id',
+    #}
     class Meta:
         model = Material
         fields = ('id', 'name', 'level', 'parent', 'keyflow')

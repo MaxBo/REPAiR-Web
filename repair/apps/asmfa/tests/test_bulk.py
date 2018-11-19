@@ -18,7 +18,7 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          Actor2ActorFactory,
                                          MaterialFactory
                                          )
-from repair.apps.asmfa.models import ActivityGroup, Activity, Actor
+from repair.apps.asmfa.models import ActivityGroup, Activity, Actor, Material
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -333,6 +333,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     testdata_folder = 'data'
     filename_materials = 'materials.tsv'
+    filename_materials_w_errors = 'materials_w_errors.tsv'
 
     @classmethod
     def setUpClass(cls):
@@ -359,4 +360,18 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.mat_url, data)
         assert res.status_code == 201
+
+    def test_bulk_materials_errors(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_materials_w_errors)
+        n_before = len(Material.objects.all())
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.mat_url, data)
+        assert res.status_code == 400
+        n_after = len(Material.objects.all())
+        assert n_after == n_before
 
