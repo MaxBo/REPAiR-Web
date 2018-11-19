@@ -20,6 +20,7 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudySerializer,
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
+    ProductCreateSerializer,
     MaterialSerializer,
     MaterialListSerializer,
     AllMaterialSerializer,
@@ -101,7 +102,10 @@ class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class ProductViewSet(AllProductViewSet, CasestudyViewSetMixin):
-    serializers = {'list': ProductSerializer}
+    serializers = {
+        'list': ProductSerializer,
+        'create': ProductCreateSerializer
+    }
     # include products with keyflow-pk == null as well
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']

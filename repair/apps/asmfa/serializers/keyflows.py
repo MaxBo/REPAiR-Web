@@ -216,7 +216,7 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
     id = serializers.IntegerField(label='ID', read_only=False, required=False,
                                   allow_null=True)
-    keyflow = IDRelatedField()
+    keyflow = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {}
 
     class Meta:
@@ -224,7 +224,8 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
         fields = ('id',
                   'name',
                   'nace',
-                  'fractions')
+                  'fractions',
+                  'keyflow')
 
     def create(self, validated_data):
         fractions = validated_data.pop('fractions')
