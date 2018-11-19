@@ -216,6 +216,7 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
     id = serializers.IntegerField(label='ID', read_only=False, required=False,
                                   allow_null=True)
+    keyflow = IDRelatedField()
     parent_lookup_kwargs = {}
 
     class Meta:
@@ -277,7 +278,7 @@ class ProductSerializer(CompositionSerializer):
     class Meta:
         model = Product
         fields = ('url', 'id', 'name', 'nace', 'cpa',
-                  'fractions',
+                  'fractions', 'keyflow'
                   )
 
 
@@ -286,7 +287,7 @@ class WasteSerializer(CompositionSerializer):
     class Meta:
         model = Waste
         fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
-                  'fractions',
+                  'fractions', 'keyflow'
                   )
 
 
