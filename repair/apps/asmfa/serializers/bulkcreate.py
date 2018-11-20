@@ -218,11 +218,10 @@ class ProductCreateSerializer(BulkSerializerMixin, ProductSerializer):
 class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
 
     field_map = {
-        'name': 'name',
-        'composition': Reference(name='composition',
-                                 referenced_field='name',
-                                 referenced_model=Composition,
-                                 filter_args={'keyflow': '@keyflow'}),
+        'name': Reference(name='composition',
+                          referenced_field='name',
+                          referenced_model=Composition,
+                          filter_args={'keyflow': '@keyflow'}),
         'fraction': 'fraction',
         'material': Reference(name='material',
                               referenced_field='name',
@@ -235,7 +234,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
         }
 
     def get_queryset(self):
-        return ProductFraction.objects.filter(keyflow=self.keyflow)
+        return ProductFraction.objects.all()
 
 
 class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
@@ -261,12 +260,22 @@ class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
         df_comp = df_comp[df_comp[index].notnull()]
         df_comp.reset_index(inplace=True)
         del df_comp['index']
+        df_comp.drop_duplicates(keep='first', inplace=True)
         new_comp, updated_comp = self.save_data(df_comp)
+        # drop all existing fractions of the compositions
+        ids = [m.id for m in updated_comp]
+        existing_fractions = ProductFraction.objects.filter(
+            composition__id__in = ids)
+        existing_fractions.delete()
+        # process the fractions
         df_fract = dataframe.copy()
         df_fract[index] = dataframe[index].fillna(method='ffill')
         df_fract['nace'] = dataframe['nace'].fillna(method='ffill')
-        new, updated = self.save_data(dataframe)
-        result = BulkResult(created=new, updated=updated)
+        fraction_serializer = FractionCreateSerializer()
+        fraction_serializer._context = self.context
+        df_fract = fraction_serializer.parse_dataframe(df_fract)
+        fraction_serializer._create_models(df_fract)
+        result = BulkResult(created=new_comp, updated=updated_comp)
         return result
 
     def get_queryset(self):

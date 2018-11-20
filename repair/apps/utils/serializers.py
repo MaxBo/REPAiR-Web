@@ -8,7 +8,8 @@ from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
-from django.db.models.fields import IntegerField, DecimalField, FloatField
+from django.db.models.fields import (IntegerField, DecimalField,
+                                     FloatField, BooleanField)
 from django.contrib.gis.db.models.fields import PointField
 from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.query import QuerySet
@@ -325,8 +326,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
 
     def file_to_dataframe(self, file):
-        # detected self references (referenced model == Meta.model)
-        self.self_refs = []
         # remove automated validators (Uniquetogether throws error else)
         self.validators = []
 
@@ -383,8 +382,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             raise MalformedFileError(
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
-
-        self.error_mask = ErrorMask(dataframe, index=self.index_columns)
+        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
@@ -429,13 +427,20 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         except:
             return np.NaN
 
+    def _parse_bool(self, x):
+        try:
+            return bool(x)
+        except:
+            return np.NaN
+
     def _parse_columns(self, dataframe):
         '''
         parse the columns of the input dataframe to match the data type
         of the fields
         '''
         dataframe = dataframe.copy()
-        dataframe.set_index(self.index_columns, inplace=True)
+        if self.index_columns:
+            dataframe.set_index(self.index_columns, inplace=True)
         error_occured = False
         for column in dataframe.columns:
             _meta = self.Meta.model._meta
@@ -450,7 +455,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 dataframe['wkt'] = dataframe['wkt'].apply(lambda g: gc(g.x, g.y))
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
-                isinstance(field, DecimalField)):
+                isinstance(field, DecimalField) or
+                isinstance(field, BooleanField)):
                 # set predefined nan-values to nan
                 dataframe[column] = dataframe[column].replace(
                     self.nan_values, np.NaN)
@@ -460,11 +466,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 if isinstance(field, IntegerField):
                     entries = entries.apply(self._parse_int)
                     error_msg = _('Integer expected: number without decimals')
-                if isinstance(field, FloatField) or isinstance(field, DecimalField):
+                elif (isinstance(field, FloatField) or
+                      isinstance(field, DecimalField)):
                     entries = entries.apply(self._parse_float)
                     error_msg = _('Float expected: number with or without '
                                   'decimals; use either "," or "." as decimal-'
                                   'seperators, no thousand-seperators allowed')
+                elif isinstance(field, BooleanField):
+                    entries = entries.apply(self._parse_bool)
+                    error_msg = _('Boolean expected ("true" or "false")')
                 # nan is used to determine parsing errors
                 error_idx = entries[entries.isna()].index
                 if len(error_idx) > 0:
@@ -502,6 +512,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         columns in dataframe is skipped)
         ignores self references by default
         '''
+        # detected self references (referenced model == Meta.model)
+        self.self_refs = []
+
         data = dataframe.copy()
         if not columns:
             bulk_columns = [c.lower() for c in self.field_map.keys()]
@@ -531,7 +544,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    missing.set_index(self.index_columns, inplace=True)
+                    missing.set_index(self.index_columns or None, inplace=True)
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
                     msg = _('{c} related models {m} not found'.format(

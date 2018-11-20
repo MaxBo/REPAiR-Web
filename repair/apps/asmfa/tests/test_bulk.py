@@ -359,6 +359,10 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         MaterialFactory(name='a')
         MaterialFactory(name='b')
 
+        a = PublicationFactory(citekey='crem2017', title='sth')
+        PublicationInCasestudyFactory(casestudy=self.casestudy,
+                                      publication=a)
+
     def test_bulk_materials(self):
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,

@@ -200,6 +200,7 @@ class ProductFractionSerializer(serializers.ModelSerializer):
     publication = IDRelatedField(allow_null=True, required=False)
     id = serializers.IntegerField(label='ID', read_only=False, required=False,
                                   allow_null=True)
+    parent_lookup_kwargs = {}
 
     class Meta:
         model = ProductFraction
