@@ -707,7 +707,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     row_dict[k] = v
             m = model(**row_dict)
             bulk.append(m)
-        created = model.objects.bulk_create(bulk)
+        try:
+            created = model.objects.bulk_create(bulk)
+        except ValueError:
+            for m in bulk:
+                m.save()
+            created = bulk
         # only postgres returns ids after bulk creation
         # workaround for non postgres: create queryset based on index_columns
         if created and created[0].id == None:

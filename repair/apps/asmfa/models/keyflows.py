@@ -125,14 +125,14 @@ class Composition(GDSEModel):
 
 class Product(Composition):
 
-    cpa = models.CharField(max_length=255)
+    cpa = models.CharField(max_length=255, default='')
 
 
 class Waste(Composition):
 
-    ewc = models.CharField(max_length=255)
-    wastetype = models.CharField(max_length=255)
-    hazardous = models.BooleanField()
+    ewc = models.CharField(max_length=255, default='')
+    wastetype = models.CharField(max_length=255, default='')
+    hazardous = models.BooleanField(default=False)
 
 
 class ProductFraction(GDSEModel):

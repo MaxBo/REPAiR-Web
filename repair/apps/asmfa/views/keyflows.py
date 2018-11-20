@@ -26,6 +26,7 @@ from repair.apps.asmfa.serializers import (
     AllMaterialSerializer,
     AllMaterialListSerializer,
     WasteSerializer,
+    WasteCreateSerializer,
     MaterialCreateSerializer
 )
 
@@ -136,7 +137,10 @@ class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
 
 class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
     serializer_class = WasteSerializer
-    serializers = {'list': WasteSerializer}
+    serializers = {
+        'list': WasteSerializer,
+        'create': WasteCreateSerializer
+    }
     # include products with keyflow-pk == null as well
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']

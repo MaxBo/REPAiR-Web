@@ -18,7 +18,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            AdministrativeLocationSerializer,
                                            ProductSerializer,
                                            WasteSerializer,
-                                           MaterialSerializer
+                                           MaterialSerializer,
+                                           ProductFractionSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -30,7 +31,8 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       AdministrativeLocation,
                                       Material,
                                       Product,
-                                      Waste
+                                      Waste,
+                                      ProductFraction
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -176,10 +178,6 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
         'parent': Reference(name='parent',
                             referenced_field='name',
                             referenced_model=Material,
-                            # ToDo: materials can relate to materials without any
-                            # keyflow, how to handle name duplicates caused
-                            # by keyflow related materials?
-                            #filter_args={'keyflow': '@keyflow'},
                             allow_null=True),
         'name': 'name',
     }
@@ -194,13 +192,82 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
         return Material.objects.filter(keyflow=self.keyflow)
 
 
-class ProductCreateSerializer(
-    BulkSerializerMixin, ProductSerializer):
+class ProductCreateSerializer(BulkSerializerMixin, ProductSerializer):
 
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
 
+    field_map = {
+        'name': 'name',
+        'nace': 'nace',
+        'fraction': 'fraction',
+        #'material': Reference(name='parent',
+                              #referenced_field='name',
+                              #referenced_model=Material,
+                              #allow_null=True),
+        'avoidable': 'avoidable',
+    }
+    index_columns = ['name']
+
     def get_queryset(self):
         return Product.objects.filter(keyflow=self.keyflow)
+
+
+class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
+
+    field_map = {
+        'name': 'name',
+        'composition': Reference(name='composition',
+                                 referenced_field='name',
+                                 referenced_model=Composition,
+                                 filter_args={'keyflow': '@keyflow'}),
+        'fraction': 'fraction',
+        'material': Reference(name='material',
+                              referenced_field='name',
+                              referenced_model=Material,
+                              allow_null=True),
+        'avoidable': 'avoidable',
+        'source': Reference(name='publication',
+                            referenced_field='publication__citekey',
+                            referenced_model=PublicationInCasestudy)
+        }
+
+    def get_queryset(self):
+        return ProductFraction.objects.filter(keyflow=self.keyflow)
+
+
+class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    field_map = {
+        'name': 'name',
+        'nace': 'nace',
+        #'ewc':
+        #'hazardous',
+        #'Item_descr': ''
+    }
+    index_columns = ['name']
+
+    def bulk_create(self, validated_data):
+        index = 'name'
+        dataframe = validated_data['dataframe']
+        df_comp = self.parse_dataframe(dataframe.copy())
+        df_comp = df_comp[df_comp[index].notnull()]
+        df_comp.reset_index(inplace=True)
+        del df_comp['index']
+        new_comp, updated_comp = self.save_data(df_comp)
+        df_fract = dataframe.copy()
+        df_fract[index] = dataframe[index].fillna(method='ffill')
+        df_fract['nace'] = dataframe['nace'].fillna(method='ffill')
+        new, updated = self.save_data(dataframe)
+        result = BulkResult(created=new, updated=updated)
+        return result
+
+    def get_queryset(self):
+        return Waste.objects.filter(keyflow=self.keyflow)
