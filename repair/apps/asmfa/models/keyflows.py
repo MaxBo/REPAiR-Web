@@ -43,6 +43,9 @@ class Material(GDSEModel):
     parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
                                related_name='submaterials')
 
+    class Meta(GDSEModel.Meta):
+        unique_together = ('name', 'keyflow', 'level')
+
     @property
     def descendants(self):
         """ all children of the material (deep traversal) """
@@ -81,6 +84,11 @@ class Material(GDSEModel):
             parent = parent.parent
         return None
 
+    def save(self, *args, **kwargs):
+        '''auto set level'''
+        self.level = 0 if self.parent is None else self.parent.level + 1
+        super().save(*args, **kwargs)
+
 
 class Composition(GDSEModel):
 
@@ -88,6 +96,9 @@ class Composition(GDSEModel):
     nace = models.CharField(max_length=255, blank=True)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
+
+    class Meta(GDSEModel.Meta):
+        unique_together = ('nace', 'name', 'keyflow',)
 
     @property
     def is_custom(self):
