@@ -349,6 +349,10 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     def setUp(self):
         super().setUp()
         MaterialFactory(name='Mat 1', keyflow=self.keyflow)
+        # this one is a 'default' material without keyflow and duplicate
+        # to one in the file, the keyflow related one should be preferred
+        MaterialFactory(name='a')
+        MaterialFactory(name='b')
 
     def test_bulk_materials(self):
         file_path = os.path.join(os.path.dirname(__file__),

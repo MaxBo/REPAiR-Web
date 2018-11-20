@@ -130,15 +130,43 @@ class Reference:
             referenced_queryset = objects.filter(**filter_args)
         else:
             referenced_queryset = objects.all()
+        # find unique referenced values
+        u_ref, counts = np.unique(np.array(referenced_queryset.values_list(
+            self.referenced_column)).astype('str'), return_counts=True)
+        duplicates = u_ref[counts>1]
+
         # only the id of the referenced queryset is relevant
-        fieldnames = ['id', self.referenced_column]
+        fieldnames = ['id', self.referenced_column, 'keyflow']
+        # add the keyflow, if exists for handling duplicates
+        keyflow_added = False
+        if 'keyflow' in [f.name for f in self.referenced_model._meta.fields]:
+            fieldnames.append('keyflow')
+            keyflow_added = True
+
         # get existing rows in the referenced table of the keyflow
         df_referenced = read_frame(referenced_queryset,
                                    index_col=[self.referenced_column],
-                                   fieldnames=fieldnames)
+                                   fieldnames=fieldnames, verbose=False)
         df_referenced['_models'] = referenced_queryset
+        # cast indices to string to avoid mismatch int <-> str
         data[referencing_column] = data[referencing_column].astype('str')
         df_referenced.index = df_referenced.index.astype('str')
+
+        # find not-unique referenced values and choose one of the duplicates
+        # for merging
+        u_ref, counts = np.unique(np.array(df_referenced.index),
+                                  return_counts=True)
+        duplicates = u_ref[counts>1]
+        if len(duplicates) > 0:
+            for dup_ref in duplicates:
+                df_ref_wo_dup = df_referenced[df_referenced.index != dup_ref]
+                df_ref_dup = df_referenced[df_referenced.index == dup_ref]
+                # if a keyflow is available, prefer the ones with keyflows
+                if keyflow_added:
+                    df_ref_dup = df_ref_dup[df_ref_dup['keyflow'].notnull()]
+                # take the first of the remaining duplicates (that is very
+                # random, but a decision has to be made)
+                df_referenced = df_ref_wo_dup.append(df_ref_dup.iloc[0])
 
         # check if an activitygroup exist for each activity
         df_merged = data.merge(df_referenced,
@@ -154,6 +182,8 @@ class Reference:
         existing_rows[referencing_column] = existing_rows['_models']
 
         tmp_columns = ['_merge', 'id', '_models']
+        if keyflow_added:
+            tmp_columns.append('keyflow_old')
         existing_rows.drop(columns=tmp_columns, inplace=True)
         missing_rows.drop(columns=tmp_columns, inplace=True)
 
