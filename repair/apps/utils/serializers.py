@@ -136,7 +136,7 @@ class Reference:
         duplicates = u_ref[counts>1]
 
         # only the id of the referenced queryset is relevant
-        fieldnames = ['id', self.referenced_column, 'keyflow']
+        fieldnames = ['id', self.referenced_column]
         # add the keyflow, if exists for handling duplicates
         keyflow_added = False
         if 'keyflow' in [f.name for f in self.referenced_model._meta.fields]:
@@ -183,7 +183,10 @@ class Reference:
 
         tmp_columns = ['_merge', 'id', '_models']
         if keyflow_added:
-            tmp_columns.append('keyflow_old')
+            if 'keyflow_old' in df_merged.columns:
+                tmp_columns.append('keyflow_old')
+            if 'keyflow' not in dataframe.columns:
+                tmp_columns.append('keyflow')
         existing_rows.drop(columns=tmp_columns, inplace=True)
         missing_rows.drop(columns=tmp_columns, inplace=True)
 
@@ -192,6 +195,7 @@ class Reference:
             existing_rows = existing_rows.append(
                 dataframe[dataframe[referencing_column].isnull()])
         return existing_rows, missing_rows
+
 
 class ErrorMask:
     def __init__(self, dataframe, index=None):
@@ -320,6 +324,33 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return None
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
 
+    def file_to_dataframe(self, file):
+        # detected self references (referenced model == Meta.model)
+        self.self_refs = []
+        # remove automated validators (Uniquetogether throws error else)
+        self.validators = []
+
+        encoding = 'cp1252'
+        fn, ext = os.path.splitext(file[0].name)
+        self.input_file_ext = ext
+        try:
+            if ext == '.xlsx':
+                dataframe = pd.read_excel(file[0], dtype=object)
+            elif ext == '.tsv':
+                dataframe = pd.read_csv(file[0], sep='\t', encoding=encoding,
+                                     dtype=object)
+            elif ext == '.csv':
+                dataframe = pd.read_csv(file[0], sep=';', encoding=encoding,
+                                     dtype=object)
+            else:
+                raise MalformedFileError(_('unsupported filetype'))
+        except pd.errors.ParserError as e:
+            raise MalformedFileError(str(e))
+
+        dataframe = dataframe.\
+            rename(columns={c: c.lower() for c in dataframe.columns})
+        return dataframe
+
     def to_internal_value(self, data):
         """
         Convert csv-data to pandas dataframe and
@@ -329,47 +360,38 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         file = data.pop('bulk_upload', None)
         if file is None:
             return super().to_internal_value(data)
-
-        # detected self references (referenced model == Meta.model)
-        self.self_refs = []
+        dataframe = self.file_to_dataframe(file)
 
         # other fields are not required when bulk uploading
         fields = self._writable_fields
         for field in fields:
             field.required = False
         ret = super().to_internal_value(data)  # would throw exc. else
+        ret['dataframe'] = dataframe
+        return ret
 
-        encoding = 'cp1252'
-        fn, ext = os.path.splitext(file[0].name)
-        self.input_file_ext = ext
-        try:
-            if ext == '.xlsx':
-                df_new = pd.read_excel(file[0], dtype=object)
-            elif ext == '.tsv':
-                df_new = pd.read_csv(file[0], sep='\t', encoding=encoding,
-                                     dtype=object)
-            elif ext == '.csv':
-                df_new = pd.read_csv(file[0], sep=';', encoding=encoding,
-                                     dtype=object)
-            else:
-                raise MalformedFileError(_('unsupported filetype'))
-        except pd.errors.ParserError as e:
-            raise MalformedFileError(str(e))
+    def parse_dataframe(self, dataframe):
 
-        df_new = df_new.\
-            rename(columns={c: c.lower() for c in df_new.columns})
         # remove all columns not in field_map (avoid conflicts when renaming)
-        for column in df_new.columns.values:
+        for column in dataframe.columns.values:
             if column not in self.field_map:
-                del df_new[column]
+                del dataframe[column]
 
-        self.error_mask = ErrorMask(df_new, index=self.index_columns)
+        missing_ind = [i for i in self.index_columns if i not in
+                       dataframe.columns]
+        if missing_ind:
+            raise MalformedFileError(
+                _('Index column(s) missing: {}'.format(
+                    missing_ind)))
 
-        df_mapped = self._map_fields(df_new)
+        self.error_mask = ErrorMask(dataframe, index=self.index_columns)
+
+        df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
         if self.error_mask.count > 0:
-            fn, url = self.error_mask.to_file(file_type=ext.replace('.', ''))
+            fn, url = self.error_mask.to_file(
+                file_type=self.input_file_ext.replace('.', ''))
             raise ValidationError(
                 self.error_mask.messages, url
             )
@@ -387,9 +409,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             rename[k] = v
 
         df_done = df_done.rename(columns=rename)
-        ret['dataframe'] = df_done
-
-        return ret
+        return df_done
 
     def _parse_int(self, x):
         try:
@@ -488,7 +508,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             missing_cols = list(set(bulk_columns).difference(set(data.columns)))
             if missing_cols:
                 raise MalformedFileError(
-                    _('The following columns are missing: {}'.format(
+                    _('Column(s) missing: {}'.format(
                         missing_cols)))
 
         columns = columns or data.columns
@@ -724,6 +744,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         BulkResult
         '''
         dataframe = validated_data['dataframe']
+        dataframe = self.parse_dataframe(dataframe)
         new, updated = self.save_data(dataframe)
         result = BulkResult(created=new, updated=updated)
         return result
