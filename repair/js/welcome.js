@@ -61,7 +61,7 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
                     //offset: [imgWidth, 0],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
-                    src: '/static/img/repair-logo-wo-inner-text.png'
+                    src: '/static/img/logo-wo-text.png'
                 }),
                 text: new ol.style.Text({
                     text: properties.name,

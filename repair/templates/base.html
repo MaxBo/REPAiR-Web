@@ -13,7 +13,7 @@
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
 
     {% render_bundle 'commons' %}
-    <title>{% block title %}REPAiR{% endblock %}</title>
+    <title>{% block title %}CINDERELA{% endblock %}</title>
 </head>
 
 <body>
@@ -30,16 +30,13 @@
         <span class="glyphicon glyphicon-leaf"></span>
       </button>
       <a class="navbar-brand" href="/">
-        <img src="{{STATIC_URL}}img/repair-logo-wo-text.png">
+        <img src="{{STATIC_URL}}img/big-logo.png">
       </a>
       <div class="container-fluid" style="float: left;">
         <div class="collapse navbar-collapse" id="main-collapse">
           <ul class="nav navbar-nav navbar-bottom">
-            <li id="study-area-link"><a href="/study-area/">{% trans "Study Area" %}</a></li>
-            <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo">{% trans "Status Quo" %}</a></li>
-            <li id="targets-link"><div class='menu-arrow'>></div><a href="/targets">{% trans "Targets" %}</a></li>
-            <li id="strategy-link"><div class='menu-arrow'>></div><a href="/strategy">{% trans "Strategy" %}</a></li>
-            <li id="recommendations-link"><div class='menu-arrow'>></div><a href="/recommendations">{% trans "Recommendations" %}</a></li>
+            <li id="study-area-link"><a href="/study-area/"><b>{% trans "STUDY AREA" %}</b></a></li>
+            <li id="status-quo-link"><div class='menu-arrow'>></div><a href="/status-quo"><b>{% trans "STATUS QUO" %}</b></a></li>
           </ul>
         </div>
       </div>
