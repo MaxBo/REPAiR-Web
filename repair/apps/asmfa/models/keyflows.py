@@ -97,9 +97,6 @@ class Composition(GDSEModel):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
 
-    class Meta(GDSEModel.Meta):
-        unique_together = ('nace', 'name', 'keyflow',)
-
     @property
     def is_custom(self):
         """
