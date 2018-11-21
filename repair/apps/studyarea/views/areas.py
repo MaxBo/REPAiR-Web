@@ -13,21 +13,27 @@ from repair.apps.studyarea.serializers import (AdminLevelSerializer,
                                                AreaSerializer,
                                                AreaGeoJsonSerializer,
                                                AreaGeoJsonPostSerializer,
+                                               AdminLevelCreateSerializer,
+                                               AreaCreateSerializer
                                                )
 
 
 class AdminLevelViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
+    serializers = {'list': AdminLevelSerializer,
+                   'create': AdminLevelCreateSerializer}
 
 
 class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
-    serializers = {'retrieve': AreaGeoJsonSerializer,
-                   'update': AreaGeoJsonSerializer,
-                   'partial_update': AreaGeoJsonSerializer,
-                   'create': AreaGeoJsonPostSerializer, }
+    serializers = {
+        'retrieve': AreaGeoJsonSerializer,
+        'update': AreaGeoJsonSerializer,
+        'partial_update': AreaGeoJsonSerializer,
+        'create': AreaGeoJsonPostSerializer
+    }
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model

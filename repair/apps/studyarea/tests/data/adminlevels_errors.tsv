@@ -1,0 +1,14 @@
+level	name
+1	World
+2	Continent
+3	Country
+4	NUTS1
+5	NUTS2
+6	NUTS3
+7	District
+7	District
+4	CityDistrict
+10	CityNeighbourhood
+11	Continent
+12	StreetSection
+13	House

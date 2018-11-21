@@ -6,7 +6,7 @@ import pandas as pd
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import LoginTestCase, AdminAreaTest
+from repair.tests.test import LoginTestCase
 from django.urls import reverse
 
 from repair.apps.asmfa.factories import (ActivityFactory,
@@ -414,4 +414,3 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.product_url, data)
         assert res.status_code == 201
-

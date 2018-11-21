@@ -1,6 +1,7 @@
 from typing import Type
 import pandas as pd
 from django_pandas.io import read_frame
+from django.db.utils import IntegrityError
 from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
@@ -11,7 +12,7 @@ from django.db.models import Model
 from django.db.models.fields import (IntegerField, DecimalField,
                                      FloatField, BooleanField)
 from django.contrib.gis.db.models.fields import PointField
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 from django.db.models.query import QuerySet
 from django.conf import settings
 from copy import deepcopy
@@ -314,7 +315,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         casestudy_id = url_pks.get('casestudy_pk')
         if not casestudy_id:
             return None
-        return Casestudy.objects.get(id=casestudy_id)
+        return CaseStudy.objects.get(id=casestudy_id)
 
     @property
     def keyflow(self):
@@ -450,9 +451,10 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             field = _meta.get_field(field_name)
             if isinstance(field, PointField):
                 dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
-                # this is to remove possible z coordinates
-                gc = field.geom_class
-                dataframe['wkt'] = dataframe['wkt'].apply(lambda g: gc(g.x, g.y))
+                # force 2D
+                wkt_w = WKTWriter(dim=2)
+                dataframe['wkt'] = dataframe['wkt'].apply(
+                    wkt_w.write).apply(GEOSGeometry)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -612,31 +614,35 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         # update existing models with values of new data
         df_update = dataframe.loc[idx_both]
 
-        #  map the self references now
-        if self.self_refs:
-            df_new_tmp = df_new.copy()
-            # create models without the self-references
-            for column in self.self_refs:
-                df_new_tmp[column] = None
-            new_models = self._create_models(df_new_tmp)
-            # map the self-references on the newly created models
-            df_mapped = self._map_fields(dataframe, columns=self.self_refs,
-                                         skip_self_references=False)
-            # check the errors occured while mapping
-            if self.error_mask.count > 0:
-                # rollback on error
-                for m in new_models:
-                    m.delete()
-                fn, url = self.error_mask.to_file(
-                    file_type=self.input_file_ext.replace('.', ''))
-                raise ValidationError(
-                    self.error_mask.messages, url
-                )
-            new_models = self._update_models(df_mapped)
-            df_update = df_mapped.loc[idx_both]
-        else:
-            new_models = self._create_models(df_new)
-        updated_models = self._update_models(df_update)
+        try:
+            #  map the self references now
+            if self.self_refs:
+                df_new_tmp = df_new.copy()
+                # create models without the self-references
+                for column in self.self_refs:
+                    df_new_tmp[column] = None
+                new_models = self._create_models(df_new_tmp)
+                # map the self-references on the newly created models
+                df_mapped = self._map_fields(dataframe, columns=self.self_refs,
+                                             skip_self_references=False)
+                # check the errors occured while mapping
+                if self.error_mask.count > 0:
+                    # rollback on error
+                    for m in new_models:
+                        m.delete()
+                    fn, url = self.error_mask.to_file(
+                        file_type=self.input_file_ext.replace('.', ''))
+                    raise ValidationError(
+                        self.error_mask.messages, url
+                    )
+                new_models = self._update_models(df_mapped)
+                df_update = df_mapped.loc[idx_both]
+            else:
+                new_models = self._create_models(df_new)
+            updated_models = self._update_models(df_update)
+        except IntegrityError as e:
+            # ToDo: formatted message
+            raise ValidationError(str(e))
 
         return new_models, updated_models
 

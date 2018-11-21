@@ -5,6 +5,7 @@ from django.contrib.gis.db import models as geomodels
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
+
 class AdminLevels(GDSEUniqueNameModel):
     """Administrative levels to be defined for a casestudy"""
     name = models.TextField()

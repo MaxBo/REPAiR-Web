@@ -1,13 +1,4 @@
-import pandas as pd
-import numpy as np
-import tempfile
-from django_pandas.io import read_frame
-from django.utils.translation import ugettext as _
 from repair.apps.utils.serializers import (BulkSerializerMixin,
-                                           MalformedFileError,
-                                           ForeignKeyNotFound,
-                                           ValidationError,
-                                           TemporaryMediaFile,
                                            BulkResult,
                                            Reference)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
