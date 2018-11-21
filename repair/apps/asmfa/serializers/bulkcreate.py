@@ -192,29 +192,6 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
         return Material.objects.filter(keyflow=self.keyflow)
 
 
-class ProductCreateSerializer(BulkSerializerMixin, ProductSerializer):
-
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
-
-    field_map = {
-        'name': 'name',
-        'nace': 'nace',
-        'fraction': 'fraction',
-        #'material': Reference(name='parent',
-                              #referenced_field='name',
-                              #referenced_model=Material,
-                              #allow_null=True),
-        'avoidable': 'avoidable',
-    }
-    index_columns = ['name']
-
-    def get_queryset(self):
-        return Product.objects.filter(keyflow=self.keyflow)
-
-
 class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
 
     field_map = {
@@ -237,21 +214,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
         return ProductFraction.objects.all()
 
 
-class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
-
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
-
-    field_map = {
-        'name': 'name',
-        'nace': 'nace',
-        #'ewc':
-        #'hazardous',
-        #'Item_descr': ''
-    }
-    index_columns = ['name']
+class CompositionCreateMixin:
 
     def bulk_create(self, validated_data):
         index = 'name'
@@ -278,5 +241,41 @@ class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
         result = BulkResult(created=new_comp, updated=updated_comp)
         return result
 
+
+class WasteCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
+                            WasteSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    field_map = {
+        'name': 'name',
+        'nace': 'nace',
+        #'ewc':
+        #'hazardous',
+        #'Item_descr': ''
+    }
+    index_columns = ['name']
+
     def get_queryset(self):
         return Waste.objects.filter(keyflow=self.keyflow)
+
+
+class ProductCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
+                              ProductSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    field_map = {
+        'name': 'name',
+        'nace': 'nace'
+    }
+    index_columns = ['name']
+
+    def get_queryset(self):
+        return Product.objects.filter(keyflow=self.keyflow)

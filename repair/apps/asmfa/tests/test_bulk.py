@@ -335,6 +335,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     filename_materials = 'materials.tsv'
     filename_materials_w_errors = 'materials_w_errors.tsv'
     filename_waste = 'waste.tsv'
+    filename_products = 'products.tsv'
 
     @classmethod
     def setUpClass(cls):
@@ -348,6 +349,10 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
                                       'keyflow_pk': cls.keyflow.id})
 
         cls.waste_url = reverse('waste-list',
+                                kwargs={'casestudy_pk': cls.casestudy.id,
+                                        'keyflow_pk': cls.keyflow.id})
+
+        cls.product_url = reverse('product-list',
                                 kwargs={'casestudy_pk': cls.casestudy.id,
                                         'keyflow_pk': cls.keyflow.id})
 
@@ -397,5 +402,16 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.waste_url, data)
+        assert res.status_code == 201
+
+    def test_bulk_products(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_products)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.product_url, data)
         assert res.status_code == 201
 

@@ -103,7 +103,8 @@ class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
     filter_class = ProductFilter
 
 
-class ProductViewSet(AllProductViewSet, CasestudyViewSetMixin):
+class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
+    serializer_class = ProductSerializer
     serializers = {
         'list': ProductSerializer,
         'create': ProductCreateSerializer
