@@ -6,7 +6,7 @@ DEBUG = True
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DB_USER = 'postgres'
 DB_PASS = ''
-DB_NAME = 'cinderela_db'
+DB_NAME = 'gdse_db'
 DB_HOST = 'db'
 DB_PORT = '5432'
 
