@@ -2,6 +2,7 @@ from typing import Type
 import pandas as pd
 from django_pandas.io import read_frame
 from django.db.utils import IntegrityError
+from django.contrib.gis.geos.error import GEOSException
 from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
@@ -11,7 +12,8 @@ from rest_framework import serializers
 from django.db.models import Model
 from django.db.models.fields import (IntegerField, DecimalField,
                                      FloatField, BooleanField)
-from django.contrib.gis.db.models.fields import PointField
+from django.contrib.gis.db.models.fields import (PointField, PolygonField,
+                                                 MultiPolygonField)
 from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 from django.db.models.query import QuerySet
 from django.conf import settings
@@ -224,7 +226,7 @@ class ErrorMask:
     def count(self):
         return (self.error_matrix != 0).sum().sum()
 
-    def to_file(self, file_type='csv'):
+    def to_file(self, file_type='csv', encoding='cp1252'):
         '''
         creates a response file from errors
 
@@ -261,12 +263,18 @@ class ErrorMask:
             if file_type == 'xlsx':
                 data = data.style.apply(highlight_errors, errors=errors)
 
+        for column in data.columns:
+            try:
+                data[column] = data[column].apply(lambda x: x.encode(encoding))
+            except:
+                pass
+
         with TemporaryMediaFile() as f:
             if file_type == 'xlsx':
                 pass
             else:
                 sep = '\t' if file_type == 'tsv' else ';'
-                data.to_csv(f, sep=sep)
+                data.to_csv(f, sep=sep, encoding=encoding)
         if file_type == 'xlsx':
             writer = pd.ExcelWriter(f.name, engine='openpyxl')
             data.to_excel(writer, index=False)
@@ -326,26 +334,32 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return None
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
 
-    def file_to_dataframe(self, file):
+    def file_to_dataframe(self, file, encoding='cp1252'):
         # remove automated validators (Uniquetogether throws error else)
         self.validators = []
 
-        encoding = 'cp1252'
         fn, ext = os.path.splitext(file[0].name)
         self.input_file_ext = ext
         try:
             if ext == '.xlsx':
-                dataframe = pd.read_excel(file[0], dtype=object)
+                dataframe = pd.read_excel(file[0], dtype=object,
+                                          keep_default_na=False,
+                                          na_values=self.nan_values)
             elif ext == '.tsv':
                 dataframe = pd.read_csv(file[0], sep='\t', encoding=encoding,
-                                     dtype=object)
+                                        dtype=object, keep_default_na=False,
+                                        na_values=self.nan_values)
             elif ext == '.csv':
                 dataframe = pd.read_csv(file[0], sep=';', encoding=encoding,
-                                     dtype=object)
+                                        dtype=object, keep_default_na=False,
+                                        na_values=self.nan_values)
             else:
                 raise MalformedFileError(_('unsupported filetype'))
         except pd.errors.ParserError as e:
             raise MalformedFileError(str(e))
+        except UnicodeDecodeError:
+            raise MalformedFileError(
+                _('wrong file-encoding ({} used)'.format(encoding)))
 
         dataframe = dataframe.\
             rename(columns={c: c.lower() for c in dataframe.columns})
@@ -358,9 +372,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         add also `keyflow_id` to validated data
         """
         file = data.pop('bulk_upload', None)
+        encoding = data.pop('encoding', ['cp1252'])
         if file is None:
             return super().to_internal_value(data)
-        dataframe = self.file_to_dataframe(file)
+        self.encoding = encoding[0]
+        dataframe = self.file_to_dataframe(file, encoding=self.encoding)
 
         # other fields are not required when bulk uploading
         fields = self._writable_fields
@@ -390,7 +406,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         if self.error_mask.count > 0:
             fn, url = self.error_mask.to_file(
-                file_type=self.input_file_ext.replace('.', ''))
+                file_type=self.input_file_ext.replace('.', ''),
+                encoding=self.encoding
+            )
             raise ValidationError(
                 self.error_mask.messages, url
             )
@@ -449,8 +467,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if field_name is None or isinstance(field_name, Reference):
                 continue
             field = _meta.get_field(field_name)
-            if isinstance(field, PointField):
-                dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+            if (isinstance(field, PointField)
+                or isinstance(field, PolygonField)
+                or isinstance(field, MultiPolygonField)):
+                try:
+                    dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+                except GEOSException as e:
+                    # ToDo formatted message
+                    raise ValidationError(str(e))
                 # force 2D
                 wkt_w = WKTWriter(dim=2)
                 dataframe['wkt'] = dataframe['wkt'].apply(
@@ -489,21 +513,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             msg = _('Number format errors')
             self.error_mask.add_message(msg)
         return dataframe
-
-    def _get_nan_dict(self):
-        # nan_dict = {col: ['n.a.', '', 'NULL'] for col in fields if field.dtype = numeric}
-        _meta = self.Meta.model._meta
-        nan_dict = {}
-        for column, field in self.field_map.items():
-            if isinstance(field, Reference):
-                continue
-            field = _meta.get_field(field)
-            if (isinstance(field, DecimalField) or
-                isinstance(field, IntegerField) or
-                isinstance(field, FloatField)):
-                nan_dict[column] = self.nan_values
-                nan_dict[column.lower()] = self.nan_values
-        return nan_dict
 
     def _map_fields(self, dataframe, columns=None,
                     skip_self_references=True):
@@ -621,9 +630,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 # create models without the self-references
                 for column in self.self_refs:
                     df_new_tmp[column] = None
+                refs = self.self_refs.copy()
                 new_models = self._create_models(df_new_tmp)
                 # map the self-references on the newly created models
-                df_mapped = self._map_fields(dataframe, columns=self.self_refs,
+                df_mapped = self._map_fields(dataframe,
+                                             columns=self.self_refs,
                                              skip_self_references=False)
                 # check the errors occured while mapping
                 if self.error_mask.count > 0:
@@ -631,10 +642,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     for m in new_models:
                         m.delete()
                     fn, url = self.error_mask.to_file(
-                        file_type=self.input_file_ext.replace('.', ''))
+                        file_type=self.input_file_ext.replace('.', ''),
+                        encoding=self.encoding
+                    )
                     raise ValidationError(
                         self.error_mask.messages, url
                     )
+                # renaming was skipped before
+                rename = {v: self.field_map[v].name for v in refs}
+                df_mapped.rename(columns=rename, inplace=True)
                 new_models = self._update_models(df_mapped)
                 df_update = df_mapped.loc[idx_both]
             else:

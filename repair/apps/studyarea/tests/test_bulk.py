@@ -17,6 +17,10 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
     testdata_folder = 'data'
     filename_levels = 'adminlevels.tsv'
     filename_levels_w_errors = 'adminlevels_errors.tsv'
+    filename_continents = 'continents.tsv'
+    filename_areas = 'continents.tsv'
+    filename_countries_broken = 'countries_broken_geom.csv'
+    filename_countries = 'countries.csv'
 
     @classmethod
     def setUpClass(cls):
@@ -26,11 +30,13 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
 
         cls.level_url = reverse('adminlevels-list',
                                 kwargs={'casestudy_pk': cls.casestudy.id})
-        AdminLevelsFactory(level=1, name='World', casestudy=cls.casestudy)
-        AdminLevelsFactory(level=2, name='Country', casestudy=cls.casestudy)
+        cls.area_url = reverse('area-list',
+                               kwargs={'casestudy_pk': cls.casestudy.id})
 
     def setUp(self):
         super().setUp()
+        AdminLevelsFactory(level=1, name='World', casestudy=self.casestudy)
+        AdminLevelsFactory(level=2, name='Country', casestudy=self.casestudy)
 
     def test_bulk_levels(self):
         file_path = os.path.join(os.path.dirname(__file__),
@@ -53,5 +59,34 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
         res = self.client.post(self.level_url, data)
         assert res.status_code == 400
         assert len(AdminLevels.objects.all()) == n_before
+
+    def test_bulk_areas(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_continents)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+        res = self.client.post(self.area_url, data)
+        assert res.status_code == 201
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_countries)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+            'encoding': 'utf-8',
+        }
+        res = self.client.post(self.area_url, data)
+        assert res.status_code == 201
+
+    def test_bulk_areas_errors(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_countries_broken)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+        res = self.client.post(self.area_url, data)
+        assert res.status_code == 400
 
 

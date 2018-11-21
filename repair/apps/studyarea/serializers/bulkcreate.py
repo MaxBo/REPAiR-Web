@@ -26,13 +26,19 @@ class AdminLevelCreateSerializer(BulkSerializerMixin, AdminLevelSerializer):
         return res
 
 
-class AreaCreateSerializer(BulkSerializerMixin, AdminLevelSerializer):
+class AreaCreateSerializer(BulkSerializerMixin, AreaSerializer):
     field_map = {
         'parent': Reference(name='parent_area',
-                            referenced_field='name',
+                            referenced_field='code',
                             referenced_model=Area,
-                            allow_null=True),
-        'adminlevel': 'adminlevel',
+                            allow_null=True,
+                            filter_args={
+                                'adminlevel__casestudy': '@casestudy',
+                            }),
+        'adminlevel': Reference(name='adminlevel',
+                                referenced_field='level',
+                                referenced_model=AdminLevels,
+                                allow_null=True),
         'name': 'name',
         'code': 'code',
         'wkt': 'geom'
@@ -40,6 +46,6 @@ class AreaCreateSerializer(BulkSerializerMixin, AdminLevelSerializer):
     index_columns = ['code']
 
     def get_queryset(self):
-        return Area.objects.filter(casestudy=self.casestudy)
+        return Area.objects.filter(adminlevel__casestudy=self.casestudy)
 
 

@@ -29,10 +29,8 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
     serializers = {
-        'retrieve': AreaGeoJsonSerializer,
-        'update': AreaGeoJsonSerializer,
-        'partial_update': AreaGeoJsonSerializer,
-        'create': AreaGeoJsonPostSerializer
+        'list': AreaSerializer,
+        'create': AreaCreateSerializer
     }
 
     def get_queryset(self):
@@ -42,3 +40,13 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
             adminlevel__casestudy=casestudy_pk)
         areas = areas.annotate(pnt=PointOnSurface('geom'))
         return areas
+
+
+class AreaInLevelViewSet(AreaViewSet):
+    serializers = {
+        'retrieve': AreaGeoJsonSerializer,
+        'update': AreaGeoJsonSerializer,
+        'partial_update': AreaGeoJsonSerializer,
+        'create': AreaGeoJsonPostSerializer
+    }
+
