@@ -236,6 +236,14 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
     def get_queryset(self):
         return ProductFraction.objects.all()
 
+    def __init__(self, **kwargs):
+        # ugly workaround for removing bulk_upload from serialized fractions
+        # for some reason the serializer sets bulk_upload to read_only instead
+        # of write_only (as defined in BulkSerializerMixin) in between the steps
+        self.Meta.fields = tuple(
+            [x for x in self.Meta.fields if x != 'bulk_upload'])
+        super().__init__(**kwargs)
+
 
 class WasteCreateSerializer(BulkSerializerMixin, WasteSerializer):
 
