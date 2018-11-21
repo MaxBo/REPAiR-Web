@@ -39,7 +39,7 @@ class Material(GDSEModel):
     name = models.CharField(max_length=255)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
-    level = models.IntegerField(default=0)
+    level = models.IntegerField(default=1)
     parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
                                related_name='submaterials')
 
@@ -86,7 +86,7 @@ class Material(GDSEModel):
 
     def save(self, *args, **kwargs):
         '''auto set level'''
-        self.level = 0 if self.parent is None else self.parent.level + 1
+        self.level = 1 if self.parent is None else self.parent.level + 1
         super().save(*args, **kwargs)
 
 
