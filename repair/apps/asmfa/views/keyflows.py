@@ -20,6 +20,7 @@ from repair.apps.asmfa.serializers import (
     KeyflowInCasestudySerializer,
     KeyflowInCasestudyPostSerializer,
     ProductSerializer,
+    ProductCreateSerializer,
     MaterialSerializer,
     MaterialListSerializer,
     AllMaterialSerializer,
@@ -40,7 +41,7 @@ class KeyflowViewSet(ModelPermissionViewSet):
     add_perm = 'asmfa.add_keyflow'
     change_perm = 'asmfa.change_keyflow'
     delete_perm = 'asmfa.delete_keyflow'
-    queryset = Keyflow.objects.all()
+    queryset = Keyflow.objects.order_by('id')
     serializer_class = KeyflowSerializer
 
 
@@ -51,7 +52,7 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     add_perm = 'asmfa.add_keyflowincasestudy'
     change_perm = 'asmfa.change_keyflowincasestudy'
     delete_perm = 'asmfa.delete_keyflowincasestudy'
-    queryset = KeyflowInCasestudy.objects.all()
+    queryset = KeyflowInCasestudy.objects.order_by('id')
     serializer_class = KeyflowInCasestudySerializer
     serializers = {'create': KeyflowInCasestudyPostSerializer,
                    'update': KeyflowInCasestudyPostSerializer, }
@@ -89,7 +90,7 @@ class MaterialFilter(FilterSet):
         fields = ('parent', 'keyflow')
 
 
-class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
+class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_product'
     change_perm = 'asmfa.change_product'
@@ -99,16 +100,29 @@ class ProductViewSet(RevisionMixin, ModelPermissionViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ProductFilter
 
-    # DjangoFilterBackend is not able to parse query params in array form
-    # (e.g. ?nace[]=xxx&nace[]=yyy)
-    def list(self, request, **kwargs):
-        if 'nace[]' in request.query_params.keys():
-            nace = request.GET.getlist('nace[]')
-            self.queryset = self.queryset.filter(nace__in=nace)
-        return super().list(request, **kwargs)
+
+class ProductViewSet(AllProductViewSet, CasestudyViewSetMixin):
+    serializers = {
+        'list': ProductSerializer,
+        'create': ProductCreateSerializer
+    }
+    # include products with keyflow-pk == null as well
+    def get_queryset(self):
+        keyflow_id = self.kwargs['keyflow_pk']
+
+        products = Product.objects.\
+            select_related("keyflow__casestudy").defer(
+                "keyflow__note", "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
+        if 'nace[]' in self.request.query_params.keys():
+            nace = self.request.GET.getlist('nace[]')
+            products = products.filter(nace__in=nace)
+        return products\
+               .filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
+               .order_by('id')
 
 
-class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
+class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_waste'
     change_perm = 'asmfa.change_waste'
@@ -118,13 +132,24 @@ class WasteViewSet(RevisionMixin, ModelPermissionViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = WasteFilter
 
-    # DjangoFilterBackend is not able to parse query params in array form
-    # (e.g. ?nace[]=xxx&nace[]=yyy)
-    def list(self, request, **kwargs):
-        if 'nace[]' in request.query_params.keys():
-            nace = request.GET.getlist('nace[]')
-            self.queryset = self.queryset.filter(nace__in=nace)
-        return super().list(request, **kwargs)
+
+class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
+    serializer_class = WasteSerializer
+    serializers = {'list': WasteSerializer}
+    # include products with keyflow-pk == null as well
+    def get_queryset(self):
+        keyflow_id = self.kwargs['keyflow_pk']
+
+        wastes = Waste.objects.\
+            select_related("keyflow__casestudy").defer(
+                "keyflow__note", "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
+        if 'nace[]' in self.request.query_params.keys():
+            nace = self.request.GET.getlist('nace[]')
+            wastes = wastes.filter(nace__in=nace)
+        return wastes\
+               .filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
+               .order_by('id')
 
 
 class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
@@ -138,13 +163,13 @@ class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
     filter_class = MaterialFilter
     serializers = {'list': AllMaterialListSerializer}
 
+
 class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
     serializer_class = MaterialSerializer
     serializers = {'list': MaterialListSerializer}
 
     # include materials with keyflows with pk null as well (those are the default ones)
     def get_queryset(self):
-        model = self.serializer_class.Meta.model
         keyflow_id = self.kwargs['keyflow_pk']
 
         materials = Material.objects.\

@@ -63,10 +63,10 @@ class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pk = dict(pk=cls.keyflow)
 
         cls.put_data = dict(note='new_put_note',
-                            keyflow=cls.keyflow_url,
+                            keyflow=cls.keyflow,
                             )
         cls.post_data = dict(note='new_note',
-                             keyflow=cls.keyflow_url,
+                             keyflow=cls.keyflow,
                              )
 
         cls.patch_data = dict(note='patchtestnote')

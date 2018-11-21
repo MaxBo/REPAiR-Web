@@ -46,6 +46,8 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
+    AllProductViewSet,
+    AllWasteViewSet,
     AllMaterialViewSet,
     WasteViewSet,
 )
@@ -75,8 +77,8 @@ router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'products', ProductViewSet)
-router.register(r'wastes', WasteViewSet)
+router.register(r'products', AllProductViewSet)
+router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
@@ -106,7 +108,6 @@ cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
-
 
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
@@ -152,6 +153,8 @@ kf_router.register(r'flowindicators', FlowIndicatorViewSet)
 kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
+kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'wastes', WasteViewSet)
 
 # /casestudies/*/keyflows/*/solutioncategories/...
 scat_router = NestedSimpleRouter(kf_router, r'solutioncategories',

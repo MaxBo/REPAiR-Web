@@ -1,0 +1,44 @@
+{% load i18n %}
+
+<!-- template for bulk uploads -->
+
+<script type="text/template" id="bulk-upload-template">
+  <div class="row" style="margin-bottom: 10px;">
+    <h3 style="float: left; margin-right: 20px;"> <%= keyflow.get('name') %> </h3>
+    <button id="remove-keyflow" class="btn btn-danger" style="margin-top: 15px;">
+      {% trans "Delete Keyflow" %}
+      <span class="glyphicon glyphicon-remove" style="float: left; margin-right: 5px;"></span>
+    </button>
+    <!--
+    <button id="clear-keyflow" class="btn btn-warning" style="margin-top: 15px;">
+      {% trans "Clear Keyflow" %}
+      <span class="glyphicon glyphicon-erase" style="float: left; margin-right: 5px;"></span>
+    </button>
+    -->
+  </div>
+  <div class='col-md-5' id="upload-column">
+  </div>
+  <div class='col-md-6'>
+    <div id="upload-log" class="bordered">
+      <h4>{% trans "Log" %}</h4>
+      <br>
+    </div>
+  </div>
+</script>
+
+<script type="text/template" id="upload-row-template">
+  <div class="upload row bordered" data-tag="<%= apiTag %>">
+    <div class='row'>
+      <label><%= label %></label>
+      <button class="btn btn-warning clear" data-tag="<%= apiTag %>" title="{% trans "Delete" %}">
+        <span class="glyphicon glyphicon-remove"></span>
+      </button>
+      <button class="btn btn-primary upload" data-tag="<%= apiTag %>" title="{% trans "Upload File" %}">
+        {% trans "Upload" %}
+        <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+      </button>
+      <br>
+      <input type="file" accept=".xlsx, .tsv, .csv">
+    </div>
+  </div>
+</script>

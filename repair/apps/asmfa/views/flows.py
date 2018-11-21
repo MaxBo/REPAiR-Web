@@ -39,6 +39,7 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
+    Actor2ActorCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -354,6 +355,10 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
     delete_perm = 'asmfa.delete_actor2actor'
     queryset = Actor2Actor.objects.all()
     serializer_class = Actor2ActorSerializer
+    serializers = {
+        'list': Actor2ActorSerializer,
+        'create': Actor2ActorCreateSerializer,
+    }
     additional_filters = {'origin__included': True,
                           'destination__included': True}
     # POST is used to send filter parameters not to create

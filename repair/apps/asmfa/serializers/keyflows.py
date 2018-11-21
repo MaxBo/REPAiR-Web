@@ -110,7 +110,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
     casestudy = IDRelatedField()
-    keyflow = KeyflowField(view_name='keyflow-detail')
+    keyflow = IDRelatedField()
     groupstock_set = InKeyflowSetField(view_name='groupstock-list')
     group2group_set = InKeyflowSetField(view_name='group2group-list')
     activitystock_set = InKeyflowSetField(view_name='activitystock-list')
@@ -159,7 +159,7 @@ class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
                                        NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     note = serializers.CharField(required=False, allow_blank=True)
-    keyflow = KeyflowField(view_name='keyflow-detail')
+    keyflow = IDRelatedField()
 
     class Meta:
         model = KeyflowInCasestudy
@@ -216,6 +216,7 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
     fractions = ProductFractionSerializer(many=True)
     id = serializers.IntegerField(label='ID', read_only=False, required=False,
                                   allow_null=True)
+    keyflow = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {}
 
     class Meta:
@@ -223,7 +224,8 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
         fields = ('id',
                   'name',
                   'nace',
-                  'fractions')
+                  'fractions',
+                  'keyflow')
 
     def create(self, validated_data):
         fractions = validated_data.pop('fractions')
@@ -277,7 +279,7 @@ class ProductSerializer(CompositionSerializer):
     class Meta:
         model = Product
         fields = ('url', 'id', 'name', 'nace', 'cpa',
-                  'fractions',
+                  'fractions', 'keyflow'
                   )
 
 
@@ -286,7 +288,7 @@ class WasteSerializer(CompositionSerializer):
     class Meta:
         model = Waste
         fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
-                  'fractions',
+                  'fractions', 'keyflow'
                   )
 
 

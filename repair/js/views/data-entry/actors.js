@@ -84,6 +84,7 @@ var ActorsView = BaseView.extend(
     * render the view
     */
     render: function(){
+        if (this.activities.length === 0) return;
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);

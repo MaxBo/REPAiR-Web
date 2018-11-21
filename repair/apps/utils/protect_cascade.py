@@ -1,4 +1,3 @@
-import os
 from django.db.models import CASCADE, PROTECT
 
 
@@ -8,7 +7,7 @@ def PROTECT_CASCADE(collector, field, sub_objs, using):
     `PROTECT_FOREIGN_KEY=True` is set.
     Otherwise use CASCADE
     """
-    if os.environ.get('PROTECT_FOREIGN_KEY') == 'True':
+    if collector.use_protection:
         PROTECT(collector, field, sub_objs, using)
     else:
         CASCADE(collector, field, sub_objs, using)

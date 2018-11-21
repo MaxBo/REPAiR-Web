@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'django_pandas', 
+    'django_pandas',
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -281,3 +281,5 @@ LOGGING = {
             #}
         }
 }
+
+PROTECT_FOREIGN_KEY = False
