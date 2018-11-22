@@ -20,8 +20,8 @@ var BulkUploadView = BaseView.extend(
     */
     initialize: function(options){
         BulkUploadView.__super__.initialize.apply(this, [options]);
-        this.render();
         this.caseStudy = options.caseStudy;
+        this.render();
     },
 
     /*
@@ -36,17 +36,28 @@ var BulkUploadView = BaseView.extend(
     render: function(){
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template({ keyflow: this.model });
+        console.log(this.caseStudy)
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name')
+        });
         this.logArea = this.el.querySelector('#upload-log');
 
         var ups = [
                 ['activitygroups', gettext('Activity Group')],
                 ['activities', gettext('Activities')],
                 ['actors', gettext('Actors')],
+                ['adminLocations', gettext('Actor Locations')],
                 ['actorToActor', gettext('Actor to Actor Flows')],
-                ['actorStock', gettext('Actor Stocks')]
+                ['actorStock', gettext('Actor Stocks')],
+                ['materials', gettext('Materials')],
+                ['products', gettext('Products')],
+                ['wastes', gettext('Wastes')]
             ],
-            upCol = this.el.querySelector('#upload-column');
+            upCol = this.el.querySelector('#keyflow-related-upload').querySelector('.upload-column');
+        // API routes returning default models without keyflows as well
+        // force those to display keyflow related only in here
+        this.forceKeyflowRelation = ['materials', 'products', 'wastes']
         ups.forEach(function(up){
             var html = document.getElementById('upload-row-template').innerHTML,
                 template = _.template(html),
@@ -60,6 +71,10 @@ var BulkUploadView = BaseView.extend(
         var _this = this;
         function destroyKeyflow(){
             _this.model.destroy({
+                data: {
+                    'override_protection': true
+                },
+                processData: true,
                 success: function(){
                     document.querySelector('body').style.opacity=0.3;
                     location.reload();
@@ -67,12 +82,9 @@ var BulkUploadView = BaseView.extend(
                 error: _this.onError
             })
         }
-        var checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.innerHTML = gettext('Force CASCADED deletion');
+
         this.confirm({
             message: gettext('Do you really want to delete the keyflow and <b>ALL</b> of its data?'),
-            elements: [checkbox],
             onConfirm: function(el){
                 _this.confirm({
                         message: gettext('Are you sure?'),
@@ -86,11 +98,17 @@ var BulkUploadView = BaseView.extend(
     clearData: function(evt){
         var _this = this,
             btn = evt.target,
-            tag = btn.dataset['tag'];
+            tag = btn.dataset['tag'],
+            data = {},
+            row = this.el.querySelector('.row[data-tag="' + tag +  '"]');
+
+        // query keyflow related only (additionally to route)
+        if (this.forceKeyflowRelation.includes(tag))
+            data['keyflow'] = this.model.id;
 
         function destroyModels(collection, cascaded){
             var i = collection.length,
-                ie, is = 0,
+                ie = 0, is = 0,
                 u_msg = gettext('Removing data') + ' ' + tag;
             _this.log(u_msg);
             _this.log('-'.repeat(u_msg.length * 1.4));
@@ -102,18 +120,39 @@ var BulkUploadView = BaseView.extend(
             }
             function done(){
                 var msg = '',
-                    color = 'green';
-                if (is > 0)
-                    msg += is + ' ' + gettext('entries removed') + '  ';
-                if (ie > 0){
-                    msg += ie + ' ' + gettext('entries failed to remove');
+                    color = 'green',
+                    msgType = 'success';
+
+                var successMsg = is + ' ' + gettext('entries removed') + '  ',
+                    errorMsg = ie + ' ' + gettext('entries failed to remove');
+
+                if (is > 0 && ie === 0){
+                    msg = successMsg;
+                }
+                else if (ie > 0 && is === 0){
+                    msg += errorMsg;
+                    msgType = 'danger';
                     color = 'red';
                 }
+                else {
+                    msg = successMsg + '; ' + errorMsg;
+                    msgType = 'warning';
+                    color = '#9a9a00';
+                }
+                var msgWrapper = document.createElement('p');
+                msgWrapper.innerHTML = msg;
+
+                var alertDiv = _this.bootstrapAlert(msgWrapper.outerHTML, {
+                    parentEl: row,
+                    type: msgType,
+                    dismissible: true
+                })
+                alertDiv.querySelector('.close').style.top = '-20px';
                 _this.log('<p style="color:' + color + ';">' + msg + '</p>')
                 _this.loader.deactivate();
             }
-
             while (model = collection.first()) {
+
                 model.destroy({
                     data: {
                         'override_protection': cascaded
@@ -160,6 +199,7 @@ var BulkUploadView = BaseView.extend(
                 var cascaded = checkbox.checked;
                 _this.loader.activate();
                 collection.fetch({
+                    data: data,
                     success: function(c){
                         destroyModels(c, checkbox.checked)
                     },
@@ -224,7 +264,7 @@ var BulkUploadView = BaseView.extend(
                 div.appendChild(msgWrapper);
 
                 msgWrapper.innerHTML = res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
-                _this.bootstrapAlert(div.innerHTML, {
+                var alertDiv = _this.bootstrapAlert(div.innerHTML, {
                     parentEl: row,
                     type: 'success',
                     dismissible: true

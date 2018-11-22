@@ -265,22 +265,35 @@ class ErrorMask:
             if file_type == 'xlsx':
                 data = data.style.apply(highlight_errors, errors=errors)
 
-        for column in data.columns:
-            try:
-                data[column] = data[column].apply(lambda x: x.encode(encoding))
-            except:
-                pass
-
-        with TemporaryMediaFile() as f:
+        def write(df):
+            with TemporaryMediaFile() as f:
+                if file_type == 'xlsx':
+                    pass
+                else:
+                    sep = '\t' if file_type == 'tsv' else ';'
+                    df.to_csv(f, sep=sep, encoding=encoding)
             if file_type == 'xlsx':
-                pass
-            else:
-                sep = '\t' if file_type == 'tsv' else ';'
-                data.to_csv(f, sep=sep, encoding=encoding)
-        if file_type == 'xlsx':
-            writer = pd.ExcelWriter(f.name, engine='openpyxl')
-            data.to_excel(writer, index=False)
-            writer.save()
+                writer = pd.ExcelWriter(f.name, engine='openpyxl')
+                df.to_excel(writer, index=False)
+                writer.save()
+            return f
+
+        def encode(df):
+            df = df.copy()
+            for column in df.columns:
+                try:
+                    df[column] = df[column].apply(lambda x: x.encode(encoding))
+                except:
+                    pass
+            return df
+
+        # try to write file with encoding of dataframe, encode if problems occur
+        try:
+            f = write(data)
+        except:
+            data = encode(data)
+            f = write(data)
+
         # TemporaryFile creates files with no extension,
         # keep file extension of input file
         fn = '.'.join([f.name, file_type])

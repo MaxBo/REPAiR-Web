@@ -4,23 +4,31 @@
 
 <script type="text/template" id="bulk-upload-template">
   <div class="row" style="margin-bottom: 10px;">
-    <h3 style="float: left; margin-right: 20px;"> <%= keyflow.get('name') %> </h3>
+    <h3 style="float: left; margin-right: 20px;">  <%= casestudy %> > <%= keyflow %> </h3>
     <button id="remove-keyflow" class="btn btn-danger" style="margin-top: 15px;">
       {% trans "Delete Keyflow" %}
       <span class="glyphicon glyphicon-remove" style="float: left; margin-right: 5px;"></span>
     </button>
-    <!--
-    <button id="clear-keyflow" class="btn btn-warning" style="margin-top: 15px;">
-      {% trans "Clear Keyflow" %}
-      <span class="glyphicon glyphicon-erase" style="float: left; margin-right: 5px;"></span>
-    </button>
-    -->
   </div>
-  <div class='col-md-5' id="upload-column">
+  <div class='col-md-5'>
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#keyflow-related-upload">{% trans "Keyflow-related models" %}</a></li>
+      <li><a data-toggle="tab" href="#casestudy-related-upload">{% trans "Casestudy-related models" %}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade in active bordered" id="keyflow-related-upload">
+        <div class="upload-column">
+        </div>
+      </div>
+      <div class="tab-pane fade in bordered" id="casestudy-related-upload">
+        <div class="upload-column">
+        </div>
+      </div>
+    </div>
   </div>
   <div class='col-md-6'>
+    <h4>{% trans "Log" %}</h4>
     <div id="upload-log" class="bordered">
-      <h4>{% trans "Log" %}</h4>
       <br>
     </div>
   </div>

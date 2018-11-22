@@ -47,7 +47,6 @@ function (CaseStudy, ActorsFlowsView, EditMaterialsView, BulkUploadView,
         if (keyflow == null) return;
         if (bulkUploadView != null)
             bulkUploadView.close();
-
         // create casestudy-object and render view on it (data will be fetched in view)
 
         bulkUploadView = new BulkUploadView({
