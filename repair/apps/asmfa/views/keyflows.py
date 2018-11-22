@@ -104,6 +104,7 @@ class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     serializer_class = ProductSerializer
     serializers = {
         'list': ProductSerializer,
@@ -137,6 +138,7 @@ class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     serializer_class = WasteSerializer
     serializers = {
         'list': WasteSerializer,
@@ -159,7 +161,6 @@ class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
 
 
 class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
-    pagination_class = None
     add_perm = 'asmfa.add_material'
     change_perm = 'asmfa.change_material'
     delete_perm = 'asmfa.delete_material'
@@ -171,6 +172,7 @@ class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     serializer_class = MaterialSerializer
     serializers = {
         'list': MaterialListSerializer,
