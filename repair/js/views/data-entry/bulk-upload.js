@@ -46,7 +46,7 @@ var BulkUploadView = BaseView.extend(
         });
         this.logArea = this.el.querySelector('#upload-log');
 
-        var ups = [
+        var upsKeyflow = [
                 ['activitygroups', gettext('Activity Group')],
                 ['activities', gettext('Activities')],
                 ['actors', gettext('Actors')],
@@ -57,11 +57,17 @@ var BulkUploadView = BaseView.extend(
                 ['actorToActor', gettext('Actor to Actor Flows')],
                 ['actorStock', gettext('Actor Stocks')]
             ],
-            upCol = this.el.querySelector('#keyflow-related-upload').querySelector('.upload-column');
+            upsCasestudy = [
+                ['arealevels', gettext('Area Levels')],
+                ['allareas', gettext('Areas')]
+            ],
+            upColKeyflow = this.el.querySelector('#keyflow-related-upload').querySelector('.upload-column');
+            upColCasestudy = this.el.querySelector('#casestudy-related-upload').querySelector('.upload-column');
         // API routes returning default models without keyflows as well
         // force those to display keyflow related only in here
         this.forceKeyflowRelation = ['materials', 'products', 'wastes']
-        ups.forEach(function(up){
+
+        function renderRow(up, column){
             var html = document.getElementById('upload-row-template').innerHTML,
                 template = _.template(html),
                 div = document.createElement('div'),
@@ -69,7 +75,13 @@ var BulkUploadView = BaseView.extend(
                 apiUrl = config.api[tag],
                 url = apiUrl.format(_this.caseStudy.id, _this.model.id);
             div.innerHTML = template({ label: up[1], apiTag: tag, url: url })
-            upCol.appendChild(div);
+            column.appendChild(div);
+        }
+        upsKeyflow.forEach(function(up){
+            renderRow(up, upColKeyflow);
+        })
+        upsCasestudy.forEach(function(up){
+            renderRow(up, upColCasestudy);
         })
         this.refreshStatus();
     },
@@ -243,88 +255,102 @@ var BulkUploadView = BaseView.extend(
         var model = new GDSEModel( {}, {
             apiTag: tag, apiIds: [ this.caseStudy.id, this.model.id ]
         });
-        this.loader.activate();
-        var u_msg = gettext('Uploading') + ' ' + files[0].name;
-        this.log(u_msg);
-        this.log('-'.repeat(u_msg.length * 1.4));
-        model.save(data, {
-            success: function (res) {
-                var res = res.toJSON(),
-                    updated = res.updated,
-                    created = res.created;
-                _this.log(gettext('Created models:'));
-                if (created.length == 0) _this.log('-');
-                created.forEach(function(m){
-                    _this.log(JSON.stringify(m));
-                })
-                _this.log(gettext('Updated models:'));
-                if (updated.length == 0) _this.log('-');
-                updated.forEach(function(m){
-                    _this.log(JSON.stringify(m));
-                })
-                var div = document.createElement('div'),
-                    title = document.createElement('strong'),
-                    msgWrapper = document.createElement('p');
-                title.style.float = 'left';
-                title.style.marginRight = '5px';
-                title.innerHTML = gettext('Success') + '!';
-                div.appendChild(title);
-                div.appendChild(msgWrapper);
 
-                msgWrapper.innerHTML = res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
-                var alertDiv = _this.bootstrapAlert(div.innerHTML, {
-                    parentEl: row,
-                    type: 'success',
-                    dismissible: true
-                })
-                msgWrapper.style.color = 'green';
-                title.style.color = 'green';
-                // that is not very elegant, but when adding a div to the alert
-                // the close button is shifted
-                alertDiv.querySelector('.close').style.top = '-20px';
-                _this.log(div.innerHTML);
-                _this.loader.deactivate();
-                _this.refreshStatus(tag);
-            },
-            error: function (res, r) {
-                var div = document.createElement('div'),
-                    title = document.createElement('strong'),
-                    msgWrapper = document.createElement('p'),
-                    msg;
-                title.style.float = 'left';
-                title.style.marginRight = '5px';
-                title.innerHTML = gettext('Error') + '!';
-                msgWrapper.style.float = 'left';
-                msgWrapper.style.marginRight = '10px';
-                div.appendChild(title);
-                div.appendChild(msgWrapper);
+        function upload(){
+            _this.loader.activate();
+            var u_msg = gettext('Uploading') + ' ' + files[0].name;
+            _this.log(u_msg);
+            _this.log('-'.repeat(u_msg.length * 1.4));
+            model.save(data, {
+                success: function (res) {
+                    var res = res.toJSON(),
+                        updated = res.updated,
+                        created = res.created;
+                    _this.log(gettext('Created models:'));
+                    if (created.length == 0) _this.log('-');
+                    created.forEach(function(m){
+                        _this.log(JSON.stringify(m));
+                    })
+                    _this.log(gettext('Updated models:'));
+                    if (updated.length == 0) _this.log('-');
+                    updated.forEach(function(m){
+                        _this.log(JSON.stringify(m));
+                    })
+                    var div = document.createElement('div'),
+                        title = document.createElement('strong'),
+                        msgWrapper = document.createElement('p');
+                    title.style.float = 'left';
+                    title.style.marginRight = '5px';
+                    title.innerHTML = gettext('Success') + '!';
+                    div.appendChild(title);
+                    div.appendChild(msgWrapper);
 
-                if (res.responseJSON && res.responseJSON.message){
-                    msg = res.responseJSON.message;
-                    var url = res.responseJSON.file_url;
-                    if (url){
-                        var download = _this.createDownloadIcon(url);
-                        div.appendChild(download);
+                    msgWrapper.innerHTML = res.created.length + ' entries created, ' + res.updated.length + ' entries updated';
+                    var alertDiv = _this.bootstrapAlert(div.innerHTML, {
+                        parentEl: row,
+                        type: 'success',
+                        dismissible: true
+                    })
+                    msgWrapper.style.color = 'green';
+                    title.style.color = 'green';
+                    // that is not very elegant, but when adding a div to the alert
+                    // the close button is shifted
+                    alertDiv.querySelector('.close').style.top = '-20px';
+                    _this.log(div.innerHTML);
+                    _this.loader.deactivate();
+                    _this.refreshStatus(tag);
+                    // special case: uploading levels removes existing areas
+                    if (tag === 'arealevels') _this.refreshStatus('allareas')
+                },
+                error: function (res, r) {
+                    var div = document.createElement('div'),
+                        title = document.createElement('strong'),
+                        msgWrapper = document.createElement('p'),
+                        msg;
+                    title.style.float = 'left';
+                    title.style.marginRight = '5px';
+                    title.innerHTML = gettext('Error') + '!';
+                    msgWrapper.style.float = 'left';
+                    msgWrapper.style.marginRight = '10px';
+                    div.appendChild(title);
+                    div.appendChild(msgWrapper);
+
+                    if (res.responseJSON && res.responseJSON.message){
+                        msg = res.responseJSON.message;
+                        var url = res.responseJSON.file_url;
+                        if (url){
+                            var download = _this.createDownloadIcon(url);
+                            div.appendChild(download);
+                        }
                     }
-                }
-                else
-                    msg += res.responseText;
+                    else
+                        msg += res.responseText;
 
-                msgWrapper.innerHTML = msg;
+                    msgWrapper.innerHTML = msg;
 
-                var alertDiv = _this.bootstrapAlert(div.innerHTML, {
-                    parentEl: row,
-                    type: 'danger',
-                    dismissible: true
-                })
-                alertDiv.style.overflow = 'hidden';
-                alertDiv.querySelector('.close').style.top = '-20px';
-                msgWrapper.style.color = 'red';
-                title.style.color = 'red';
-                _this.log(div.innerHTML)
-                _this.loader.deactivate()
-            },
-        });
+                    var alertDiv = _this.bootstrapAlert(div.innerHTML, {
+                        parentEl: row,
+                        type: 'danger',
+                        dismissible: true
+                    })
+                    alertDiv.style.overflow = 'hidden';
+                    alertDiv.querySelector('.close').style.top = '-20px';
+                    msgWrapper.style.color = 'red';
+                    title.style.color = 'red';
+                    _this.log(div.innerHTML)
+                    _this.loader.deactivate()
+                },
+            });
+        }
+
+        // special case: uploading levels removes existing areas
+        if (tag === 'arealevels'){
+            this.confirm({
+                message: gettext('Warning: Uploading Area Levels removes all Areas in the casestudy as well. Do you wish to continue?'),
+                onConfirm: upload
+            })
+        }
+        else upload()
     },
 
     createDownloadIcon: function(url){
