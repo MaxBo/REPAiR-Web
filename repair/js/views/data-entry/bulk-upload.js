@@ -1,7 +1,7 @@
 
 define(['views/common/baseview', 'underscore', 'models/gdsemodel',
-        'collections/gdsecollection', 'app-config'],
-function(BaseView, _, GDSEModel, GDSECollection, config){
+        'collections/gdsecollection', 'file-saver', 'app-config'],
+function(BaseView, _, GDSEModel, GDSECollection, FileSaver, config){
 
 /**
     *
@@ -32,14 +32,14 @@ var BulkUploadView = BaseView.extend(
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
         "click button.clear": "clearData",
-        "click #refresh-status": "refreshStatus"
+        "click #refresh-status": "refreshStatus",
+        //"click a.post": "queryTemplate"
     },
 
     render: function(){
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
-        console.log(this.caseStudy)
         this.el.innerHTML = template({
             casestudy: this.caseStudy.get('properties').name,
             keyflow: this.model.get('name')
@@ -74,7 +74,10 @@ var BulkUploadView = BaseView.extend(
                 tag = up[0],
                 apiUrl = config.api[tag],
                 url = apiUrl.format(_this.caseStudy.id, _this.model.id);
-            div.innerHTML = template({ label: up[1], apiTag: tag, url: url })
+            div.innerHTML = template({
+                label: up[1], apiTag: tag, url: url,
+                templateUrl: url + '?request=template'
+            })
             column.appendChild(div);
         }
         upsKeyflow.forEach(function(up){
@@ -411,8 +414,24 @@ var BulkUploadView = BaseView.extend(
                 }
             });
         });
+    },
 
-    }
+    //queryTemplate: function(evt){
+        //function showFile(res){
+            //var blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+            //FileSaver.saveAs(blob, "template.xlsx");
+        //}
+        //var anchor = evt.target,
+            //url = anchor.dataset['url'];
+        //url += '?request=template';
+        ////fetch(url, {method: 'POST'}).then(console.log)
+        //$.ajax({
+            //url: url,
+            //type: "POST",
+            //success: showFile,
+            //error: console.log
+        //})
+    //}
 
 
 });

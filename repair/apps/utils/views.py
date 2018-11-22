@@ -1,6 +1,7 @@
 from rest_framework import viewsets, exceptions, mixins , status
 from django.views import View
 from django.http import (HttpResponseBadRequest,
+                         HttpResponse,
                          HttpResponseForbidden,
                          JsonResponse,
                          )
@@ -16,7 +17,8 @@ from django.db.models.sql.constants import QUERY_TERMS
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
 from repair.apps.login.models import CaseStudy
-from repair.apps.utils.serializers import BulkValidationError
+from repair.apps.utils.serializers import (BulkValidationError,
+                                           BulkSerializerMixin)
 
 
 class PostGetViewMixin:
@@ -220,6 +222,22 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
             new_kwargs[key] = v
         serializer.save(**new_kwargs)
 
+    def list(self, request, **kwargs):
+        if request.query_params.get('request', None):
+            serializer = self.serializers.get('create', None)
+            if serializer and hasattr(serializer, 'create_template'):
+                wb = serializer.create_template()
+                response = HttpResponse(
+                    content_type=(
+                        'application/vnd.openxmlformats-officedocument.'
+                        'spreadsheetml.sheet'
+                    )
+                )
+                response['Content-Disposition'] = \
+                    'attachment; filename=template.xlsx'
+                wb.save(response)
+                return response
+        return super().list(request, **kwargs)
 
 
 class CheckPermissionMixin:

@@ -18,6 +18,8 @@ from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 from django.db.models.query import QuerySet
 from django.conf import settings
 from copy import deepcopy
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.login.models import CaseStudy
@@ -349,6 +351,13 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return None
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
 
+    @classmethod
+    def create_template(cls):
+        wb = Workbook()
+        ws = wb.active
+        ws.append(list(cls.field_map.keys()))
+        return wb
+
     def file_to_dataframe(self, file, encoding='cp1252'):
         # remove automated validators (Uniquetogether throws error else)
         self.validators = []
@@ -386,10 +395,10 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         add it as attribute `dataframe` to the validated data
         add also `keyflow_id` to validated data
         """
-        file = data.pop('bulk_upload', None)
-        encoding = data.pop('encoding', ['cp1252'])
+        file = data.get('bulk_upload', None)
         if file is None:
             return super().to_internal_value(data)
+        encoding = data.get('encoding', ['cp1252'])
         self.encoding = encoding[0]
         dataframe = self.file_to_dataframe(file, encoding=self.encoding)
 
