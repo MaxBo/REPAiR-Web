@@ -66,6 +66,7 @@ var BulkUploadView = BaseView.extend(
             div.innerHTML = template({ label: up[1], apiTag: up[0] })
             upCol.appendChild(div);
         })
+        this.refreshStatus();
     },
 
     removeKeyflow: function(){
@@ -151,6 +152,7 @@ var BulkUploadView = BaseView.extend(
                 alertDiv.querySelector('.close').style.top = '-20px';
                 _this.log('<p style="color:' + color + ';">' + msg + '</p>')
                 _this.loader.deactivate();
+                _this.refreshStatus();
             }
             while (model = collection.first()) {
 
@@ -275,8 +277,9 @@ var BulkUploadView = BaseView.extend(
                 // that is not very elegant, but when adding a div to the alert
                 // the close button is shifted
                 alertDiv.querySelector('.close').style.top = '-20px';
-                _this.log(div.innerHTML)
-                _this.loader.deactivate()
+                _this.log(div.innerHTML);
+                _this.loader.deactivate();
+                _this.refreshStatus(tag);
             },
             error: function (res, r) {
                 var div = document.createElement('div'),
@@ -335,10 +338,14 @@ var BulkUploadView = BaseView.extend(
         return div;
     },
 
-    refreshStatus: function(){
-        var rows = Array.prototype.slice.call(this.el.querySelectorAll('.upload.row')),
-            promises = [],
-            _this = this;
+    refreshStatus: function(tag){
+        var _this = this,
+            rows;
+
+        if (tag)
+            rows = [this.el.querySelector('.upload.row[data-tag="' + tag + '"]')];
+        else
+            rows = Array.prototype.slice.call(this.el.querySelectorAll('.upload.row'));
 
         rows.forEach(function(row){
             var countDiv = row.querySelector('.count'),
@@ -358,17 +365,15 @@ var BulkUploadView = BaseView.extend(
             var count = '?';
             countDiv.innerHTML = gettext('count') + ': ' + count;
 
-            promises.push(collection.fetch({
+            collection.fetch({
                 data: data,
                 success: function(){
-                    console.log(collection)
                     // paginated collections return the count
                     // else get the length of the response
                     var count = collection.count || collection.length;
-                    console.log(collection)
                     countDiv.innerHTML = gettext('count') + ': ' + count;
                 }
-            }))
+            });
         });
 
     }
