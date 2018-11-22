@@ -23,7 +23,7 @@ function(PageableCollection, _, GDSEModel, config) {
             if (this.baseurl) return this.baseurl;
 
             // take url from api by tag and put the required ids in
-            var apiUrl = config.api[this.apiTag]
+            var apiUrl = config.api[this.apiTag];
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
             return apiUrl;

@@ -1,6 +1,7 @@
 
-define(['views/common/baseview', 'underscore', 'models/gdsemodel', 'collections/gdsecollection'],
-function(BaseView, _, GDSEModel, GDSECollection){
+define(['views/common/baseview', 'underscore', 'models/gdsemodel',
+        'collections/gdsecollection', 'app-config'],
+function(BaseView, _, GDSEModel, GDSECollection, config){
 
 /**
     *
@@ -36,7 +37,8 @@ var BulkUploadView = BaseView.extend(
 
     render: function(){
         var html = document.getElementById(this.template).innerHTML,
-            template = _.template(html);
+            template = _.template(html),
+            _this = this;
         console.log(this.caseStudy)
         this.el.innerHTML = template({
             casestudy: this.caseStudy.get('properties').name,
@@ -49,11 +51,11 @@ var BulkUploadView = BaseView.extend(
                 ['activities', gettext('Activities')],
                 ['actors', gettext('Actors')],
                 ['adminLocations', gettext('Actor Locations')],
-                ['actorToActor', gettext('Actor to Actor Flows')],
-                ['actorStock', gettext('Actor Stocks')],
                 ['materials', gettext('Materials')],
                 ['products', gettext('Products')],
-                ['wastes', gettext('Wastes')]
+                ['wastes', gettext('Wastes')],
+                ['actorToActor', gettext('Actor to Actor Flows')],
+                ['actorStock', gettext('Actor Stocks')]
             ],
             upCol = this.el.querySelector('#keyflow-related-upload').querySelector('.upload-column');
         // API routes returning default models without keyflows as well
@@ -62,8 +64,11 @@ var BulkUploadView = BaseView.extend(
         ups.forEach(function(up){
             var html = document.getElementById('upload-row-template').innerHTML,
                 template = _.template(html),
-                div = document.createElement('div');
-            div.innerHTML = template({ label: up[1], apiTag: up[0] })
+                div = document.createElement('div'),
+                tag = up[0],
+                apiUrl = config.api[tag],
+                url = apiUrl.format(_this.caseStudy.id, _this.model.id);
+            div.innerHTML = template({ label: up[1], apiTag: tag, url: url })
             upCol.appendChild(div);
         })
         this.refreshStatus();
@@ -359,7 +364,9 @@ var BulkUploadView = BaseView.extend(
             // reduce the amount of data returned by paginated collections
             collection.state.pageSize = 1;
 
-            if (_this.forceKeyflowRelation.includes(tag))
+            var forceKeyflow = _this.forceKeyflowRelation.includes(tag);
+
+            if (forceKeyflow)
                 data['keyflow'] = _this.model.id;
 
             var count = '?';
@@ -371,7 +378,10 @@ var BulkUploadView = BaseView.extend(
                     // paginated collections return the count
                     // else get the length of the response
                     var count = collection.count || collection.length;
-                    countDiv.innerHTML = gettext('count') + ': ' + count;
+                    countDiv.innerHTML = gettext('count');
+                    if (forceKeyflow)
+                        countDiv.innerHTML += ' (' + gettext('defaults excluded') + ')'
+                    countDiv.innerHTML += ': ' + count;
                 }
             });
         });
