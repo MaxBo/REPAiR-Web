@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import exceptions
 from django.contrib.gis.db.models.functions import PointOnSurface
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
@@ -24,6 +25,7 @@ class AdminLevelViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = AdminLevelSerializer
     serializers = {'list': AdminLevelSerializer,
                    'create': AdminLevelCreateSerializer}
+    pagination_class = UnlimitedResultsSetPagination
 
 
 class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
@@ -33,6 +35,7 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         'list': AreaSerializer,
         'create': AreaCreateSerializer
     }
+    pagination_class = UnlimitedResultsSetPagination
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
@@ -40,7 +43,7 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         areas = model.objects.select_related("adminlevel").filter(
             adminlevel__casestudy=casestudy_pk)
         areas = areas.annotate(pnt=PointOnSurface('geom'))
-        return areas
+        return areas.order_by('id')
 
 
 class AreaInLevelViewSet(AreaViewSet):
