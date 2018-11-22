@@ -11,23 +11,28 @@ from repair.apps.studyarea.models import (AdminLevels,
 
 from repair.apps.studyarea.serializers import (AdminLevelSerializer,
                                                AreaSerializer,
+                                               AreaInLevelSerializer,
                                                AreaGeoJsonSerializer,
                                                AreaGeoJsonPostSerializer,
+                                               AdminLevelCreateSerializer,
+                                               AreaCreateSerializer
                                                )
 
 
 class AdminLevelViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = AdminLevels.objects.all()
     serializer_class = AdminLevelSerializer
+    serializers = {'list': AdminLevelSerializer,
+                   'create': AdminLevelCreateSerializer}
 
 
 class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
-    serializers = {'retrieve': AreaGeoJsonSerializer,
-                   'update': AreaGeoJsonSerializer,
-                   'partial_update': AreaGeoJsonSerializer,
-                   'create': AreaGeoJsonPostSerializer, }
+    serializers = {
+        'list': AreaSerializer,
+        'create': AreaCreateSerializer
+    }
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
@@ -36,3 +41,14 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
             adminlevel__casestudy=casestudy_pk)
         areas = areas.annotate(pnt=PointOnSurface('geom'))
         return areas
+
+
+class AreaInLevelViewSet(AreaViewSet):
+    serializer_class = AreaInLevelSerializer
+    serializers = {
+        'retrieve': AreaGeoJsonSerializer,
+        'update': AreaGeoJsonSerializer,
+        'partial_update': AreaGeoJsonSerializer,
+        'create': AreaGeoJsonPostSerializer
+    }
+

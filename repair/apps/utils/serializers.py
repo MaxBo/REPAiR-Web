@@ -1,6 +1,8 @@
 from typing import Type
 import pandas as pd
 from django_pandas.io import read_frame
+from django.db.utils import IntegrityError
+from django.contrib.gis.geos.error import GEOSException
 from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
@@ -8,7 +10,11 @@ from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
-from django.db.models.fields import IntegerField, DecimalField, FloatField
+from django.db.models.fields import (IntegerField, DecimalField,
+                                     FloatField, BooleanField)
+from django.contrib.gis.db.models.fields import (PointField, PolygonField,
+                                                 MultiPolygonField)
+from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 from django.db.models.query import QuerySet
 from django.conf import settings
 from copy import deepcopy
@@ -81,21 +87,23 @@ class Reference:
         be put into, created when not existing
     """
     def __init__(self, name: str, referenced_field: str,
-                 referenced_model: Type[Model], filter_args: dict={}):
+                 referenced_model: Type[Model], filter_args: dict={},
+                 allow_null=False):
         self.name = name
         self.referenced_column = referenced_field
         self.referenced_model = referenced_model
         self.filter_args = filter_args.copy()
+        self.allow_null = allow_null
 
 
-    def merge(self, data: pd.DataFrame, referencing_column: str,
+    def merge(self, dataframe: pd.DataFrame, referencing_column: str,
               rel: object=None):
         """
         merges the referenced models to the given data
 
         Parameters
         ----------
-        data: pd.Dataframe
+        dataframe: pd.Dataframe
             the dataframe with the rows to check
         rel: if @ was defined in filter_args, the object is related to
         referencing_column: str
@@ -110,6 +118,10 @@ class Reference:
             the rows in the df_new where rows are missing
         """
         objects = self.referenced_model.objects
+        data = dataframe.copy()
+        # ignore the null rows
+        if self.allow_null:
+            data = data[data[referencing_column].notnull()]
         if self.filter_args:
             filter_args = self.filter_args.copy()
             for k, v in filter_args.items():
@@ -122,16 +134,45 @@ class Reference:
             referenced_queryset = objects.filter(**filter_args)
         else:
             referenced_queryset = objects.all()
+        # find unique referenced values
+        u_ref, counts = np.unique(np.array(referenced_queryset.values_list(
+            self.referenced_column)).astype('str'), return_counts=True)
+        duplicates = u_ref[counts>1]
+
         # only the id of the referenced queryset is relevant
         fieldnames = ['id', self.referenced_column]
+        # add the keyflow, if exists for handling duplicates
+        keyflow_added = False
+        if 'keyflow' in [f.name for f in self.referenced_model._meta.fields]:
+            fieldnames.append('keyflow')
+            keyflow_added = True
+
         # get existing rows in the referenced table of the keyflow
         df_referenced = read_frame(referenced_queryset,
                                    index_col=[self.referenced_column],
-                                   fieldnames=fieldnames)
+                                   fieldnames=fieldnames, verbose=False)
         df_referenced['_models'] = referenced_queryset
-        # cast to string for comparison of both columns
+        # cast indices to string to avoid mismatch int <-> str
         data[referencing_column] = data[referencing_column].astype('str')
         df_referenced.index = df_referenced.index.astype('str')
+
+        # find not-unique referenced values and choose one of the duplicates
+        # for merging
+        u_ref, counts = np.unique(np.array(df_referenced.index),
+                                  return_counts=True)
+        duplicates = u_ref[counts>1]
+        if len(duplicates) > 0:
+            for dup_ref in duplicates:
+                df_ref_wo_dup = df_referenced[df_referenced.index != dup_ref]
+                df_ref_dup = df_referenced[df_referenced.index == dup_ref]
+                # if a keyflow is available, prefer the ones with keyflows
+                if keyflow_added:
+                    w_keyflow = df_ref_dup[df_ref_dup['keyflow'].notnull()]
+                    if len(w_keyflow) > 0:
+                        df_ref_dup = w_keyflow
+                # take the last of the remaining duplicates (that is very
+                # random, but a decision has to be made)
+                df_referenced = df_ref_wo_dup.append(df_ref_dup.iloc[0])
 
         # check if an activitygroup exist for each activity
         df_merged = data.merge(df_referenced,
@@ -147,10 +188,20 @@ class Reference:
         existing_rows[referencing_column] = existing_rows['_models']
 
         tmp_columns = ['_merge', 'id', '_models']
-
+        if keyflow_added:
+            if 'keyflow_old' in df_merged.columns:
+                tmp_columns.append('keyflow_old')
+            if 'keyflow' not in dataframe.columns:
+                tmp_columns.append('keyflow')
         existing_rows.drop(columns=tmp_columns, inplace=True)
         missing_rows.drop(columns=tmp_columns, inplace=True)
+
+        # append the null rows again
+        if self.allow_null:
+            existing_rows = existing_rows.append(
+                dataframe[dataframe[referencing_column].isnull()])
         return existing_rows, missing_rows
+
 
 class ErrorMask:
     def __init__(self, dataframe, index=None):
@@ -177,7 +228,7 @@ class ErrorMask:
     def count(self):
         return (self.error_matrix != 0).sum().sum()
 
-    def to_file(self, file_type='csv'):
+    def to_file(self, file_type='csv', encoding='cp1252'):
         '''
         creates a response file from errors
 
@@ -214,16 +265,35 @@ class ErrorMask:
             if file_type == 'xlsx':
                 data = data.style.apply(highlight_errors, errors=errors)
 
-        with TemporaryMediaFile() as f:
+        def write(df):
+            with TemporaryMediaFile() as f:
+                if file_type == 'xlsx':
+                    pass
+                else:
+                    sep = '\t' if file_type == 'tsv' else ';'
+                    df.to_csv(f, sep=sep, encoding=encoding)
             if file_type == 'xlsx':
-                pass
-            else:
-                sep = '\t' if file_type == 'tsv' else ';'
-                data.to_csv(f, sep=sep)
-        if file_type == 'xlsx':
-            writer = pd.ExcelWriter(f.name, engine='openpyxl')
-            data.to_excel(writer, index=False)
-            writer.save()
+                writer = pd.ExcelWriter(f.name, engine='openpyxl')
+                df.to_excel(writer, index=False)
+                writer.save()
+            return f
+
+        def encode(df):
+            df = df.copy()
+            for column in df.columns:
+                try:
+                    df[column] = df[column].apply(lambda x: x.encode(encoding))
+                except:
+                    pass
+            return df
+
+        # try to write file with encoding of dataframe, encode if problems occur
+        try:
+            f = write(data)
+        except:
+            data = encode(data)
+            f = write(data)
+
         # TemporaryFile creates files with no extension,
         # keep file extension of input file
         fn = '.'.join([f.name, file_type])
@@ -252,10 +322,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         fields = cls.Meta.fields
         if fields and 'bulk_upload' not in fields:
             cls.Meta.fields = tuple(list(fields) + ['bulk_upload'])
+        lower_map = {}
         # cast all keys to lower case
         for key in cls.field_map.keys():
-            v = cls.field_map.pop(key)
-            cls.field_map[key.lower()] = v
+            v = cls.field_map[key]
+            lower_map[key.lower()] = v
+        cls.field_map = lower_map
         cls.index_columns = [i.lower() for i in cls.index_columns]
         return super().__init_subclass__(**kwargs)
 
@@ -266,7 +338,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         casestudy_id = url_pks.get('casestudy_pk')
         if not casestudy_id:
             return None
-        return Casestudy.objects.get(id=casestudy_id)
+        return CaseStudy.objects.get(id=casestudy_id)
 
     @property
     def keyflow(self):
@@ -277,6 +349,37 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return None
         return KeyflowInCasestudy.objects.get(id=keyflow_id)
 
+    def file_to_dataframe(self, file, encoding='cp1252'):
+        # remove automated validators (Uniquetogether throws error else)
+        self.validators = []
+
+        fn, ext = os.path.splitext(file[0].name)
+        self.input_file_ext = ext
+        try:
+            if ext == '.xlsx':
+                dataframe = pd.read_excel(file[0], dtype=object,
+                                          keep_default_na=False,
+                                          na_values=self.nan_values)
+            elif ext == '.tsv':
+                dataframe = pd.read_csv(file[0], sep='\t', encoding=encoding,
+                                        dtype=object, keep_default_na=False,
+                                        na_values=self.nan_values)
+            elif ext == '.csv':
+                dataframe = pd.read_csv(file[0], sep=';', encoding=encoding,
+                                        dtype=object, keep_default_na=False,
+                                        na_values=self.nan_values)
+            else:
+                raise MalformedFileError(_('unsupported filetype'))
+        except pd.errors.ParserError as e:
+            raise MalformedFileError(str(e))
+        except UnicodeDecodeError:
+            raise MalformedFileError(
+                _('wrong file-encoding ({} used)'.format(encoding)))
+
+        dataframe = dataframe.\
+            rename(columns={c: c.lower() for c in dataframe.columns})
+        return dataframe
+
     def to_internal_value(self, data):
         """
         Convert csv-data to pandas dataframe and
@@ -284,46 +387,43 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         add also `keyflow_id` to validated data
         """
         file = data.pop('bulk_upload', None)
+        encoding = data.pop('encoding', ['cp1252'])
         if file is None:
             return super().to_internal_value(data)
+        self.encoding = encoding[0]
+        dataframe = self.file_to_dataframe(file, encoding=self.encoding)
 
         # other fields are not required when bulk uploading
         fields = self._writable_fields
         for field in fields:
             field.required = False
         ret = super().to_internal_value(data)  # would throw exc. else
+        ret['dataframe'] = dataframe
+        return ret
 
-        encoding = 'cp1252'
-        fn, ext = os.path.splitext(file[0].name)
-        self.input_file_ext = ext
-        try:
-            if ext == '.xlsx':
-                df_new = pd.read_excel(file[0], dtype=object)
-            elif ext == '.tsv':
-                df_new = pd.read_csv(file[0], sep='\t', encoding=encoding,
-                                     dtype=object)
-            elif ext == '.csv':
-                df_new = pd.read_csv(file[0], sep=';', encoding=encoding,
-                                     dtype=object)
-            else:
-                raise MalformedFileError(_('unsupported filetype'))
-        except pd.errors.ParserError as e:
-            raise MalformedFileError(str(e))
+    def parse_dataframe(self, dataframe):
 
-        df_new = df_new.\
-            rename(columns={c: c.lower() for c in df_new.columns})
         # remove all columns not in field_map (avoid conflicts when renaming)
-        for column in df_new.columns.values:
+        for column in dataframe.columns.values:
             if column not in self.field_map:
-                del df_new[column]
+                del dataframe[column]
 
-        self.error_mask = ErrorMask(df_new, index=self.index_columns)
+        missing_ind = [i for i in self.index_columns if i not in
+                       dataframe.columns]
+        if missing_ind:
+            raise MalformedFileError(
+                _('Index column(s) missing: {}'.format(
+                    missing_ind)))
+        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
-        df_mapped = self._map_fields(df_new)
+        df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
         if self.error_mask.count > 0:
-            fn, url = self.error_mask.to_file(file_type=ext.replace('.', ''))
+            fn, url = self.error_mask.to_file(
+                file_type=self.input_file_ext.replace('.', ''),
+                encoding=self.encoding
+            )
             raise ValidationError(
                 self.error_mask.messages, url
             )
@@ -334,13 +434,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         rename = {}
         for k, v in self.field_map.items():
             if isinstance(v, Reference):
+                # self referencing columns will be processed later, don't rename
+                if k in self.self_refs:
+                    continue
                 v = v.name
             rename[k] = v
 
         df_done = df_done.rename(columns=rename)
-        ret['dataframe'] = df_done
-
-        return ret
+        return df_done
 
     def _parse_int(self, x):
         try:
@@ -360,13 +461,20 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         except:
             return np.NaN
 
+    def _parse_bool(self, x):
+        try:
+            return bool(x)
+        except:
+            return np.NaN
+
     def _parse_columns(self, dataframe):
         '''
         parse the columns of the input dataframe to match the data type
         of the fields
         '''
         dataframe = dataframe.copy()
-        dataframe.set_index(self.index_columns, inplace=True)
+        if self.index_columns:
+            dataframe.set_index(self.index_columns, inplace=True)
         error_occured = False
         for column in dataframe.columns:
             _meta = self.Meta.model._meta
@@ -374,9 +482,22 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if field_name is None or isinstance(field_name, Reference):
                 continue
             field = _meta.get_field(field_name)
-            if (isinstance(field, IntegerField) or
+            if (isinstance(field, PointField)
+                or isinstance(field, PolygonField)
+                or isinstance(field, MultiPolygonField)):
+                try:
+                    dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+                except GEOSException as e:
+                    # ToDo formatted message
+                    raise ValidationError(str(e))
+                # force 2D
+                wkt_w = WKTWriter(dim=2)
+                dataframe['wkt'] = dataframe['wkt'].apply(
+                    wkt_w.write).apply(GEOSGeometry)
+            elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
-                isinstance(field, DecimalField)):
+                isinstance(field, DecimalField) or
+                isinstance(field, BooleanField)):
                 # set predefined nan-values to nan
                 dataframe[column] = dataframe[column].replace(
                     self.nan_values, np.NaN)
@@ -386,11 +507,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 if isinstance(field, IntegerField):
                     entries = entries.apply(self._parse_int)
                     error_msg = _('Integer expected: number without decimals')
-                if isinstance(field, FloatField) or isinstance(field, DecimalField):
+                elif (isinstance(field, FloatField) or
+                      isinstance(field, DecimalField)):
                     entries = entries.apply(self._parse_float)
                     error_msg = _('Float expected: number with or without '
                                   'decimals; use either "," or "." as decimal-'
                                   'seperators, no thousand-seperators allowed')
+                elif isinstance(field, BooleanField):
+                    entries = entries.apply(self._parse_bool)
+                    error_msg = _('Boolean expected ("true" or "false")')
                 # nan is used to determine parsing errors
                 error_idx = entries[entries.isna()].index
                 if len(error_idx) > 0:
@@ -404,42 +529,48 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             self.error_mask.add_message(msg)
         return dataframe
 
-    def _get_nan_dict(self):
-        # nan_dict = {col: ['n.a.', '', 'NULL'] for col in fields if field.dtype = numeric}
-        _meta = self.Meta.model._meta
-        nan_dict = {}
-        for column, field in self.field_map.items():
-            if isinstance(field, Reference):
-                continue
-            field = _meta.get_field(field)
-            if (isinstance(field, DecimalField) or
-                isinstance(field, IntegerField) or
-                isinstance(field, FloatField)):
-                nan_dict[column] = self.nan_values
-                nan_dict[column.lower()] = self.nan_values
-        return nan_dict
-
-    def _map_fields(self, dataframe):
+    def _map_fields(self, dataframe, columns=None,
+                    skip_self_references=True):
         '''
         map the columns of the dataframe to the fields of the model class
         based on the field_map class attribute
+        you may pass specific columns to map (then verification of missing
+        columns in dataframe is skipped)
+        ignores self references by default
         '''
-        data = dataframe.copy()
-        bulk_columns = [c.lower() for c in self.field_map.keys()]
-        missing_cols = list(set(bulk_columns).difference(set(data.columns)))
+        # detected self references (referenced model == Meta.model)
+        self.self_refs = []
 
-        if missing_cols:
-            raise MalformedFileError(
-                _('The following columns are missing: {}'.format(missing_cols)))
+        data = dataframe.copy()
+        if not columns:
+            bulk_columns = [c.lower() for c in self.field_map.keys()]
+            missing_cols = list(set(bulk_columns).difference(set(data.columns)))
+            if missing_cols:
+                raise MalformedFileError(
+                    _('Column(s) missing: {}'.format(
+                        missing_cols)))
+
+        columns = columns or data.columns
 
         for column, field in self.field_map.items():
+            if column not in columns:
+                continue
             if isinstance(field, Reference):
+                # self reference detected, handled later
+                if (skip_self_references and
+                (field.referenced_model == self.Meta.model)):
+                    if field.allow_null == False:
+                        raise Exception(
+                            'self-referencing models whose self-references '
+                            'are not nullable are not supported')
+                    self.self_refs.append(column)
+                    continue
                 data, missing = field.merge(
                     data, referencing_column=column, rel=self)
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    missing.set_index(self.index_columns, inplace=True)
+                    missing.set_index(self.index_columns or None, inplace=True)
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
                     msg = _('{c} related models {m} not found'.format(
@@ -504,12 +635,45 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         idx_both = merged.loc[merged._merge=='both'].index
 
         df_new = dataframe.loc[idx_new]
-
         # update existing models with values of new data
         df_update = dataframe.loc[idx_both]
 
-        new_models = self._create_models(df_new)
-        updated_models = self._update_models(df_update)
+        try:
+            #  map the self references now
+            if self.self_refs:
+                df_new_tmp = df_new.copy()
+                # create models without the self-references
+                for column in self.self_refs:
+                    df_new_tmp[column] = None
+                refs = self.self_refs.copy()
+                new_models = self._create_models(df_new_tmp)
+                # map the self-references on the newly created models
+                df_mapped = self._map_fields(dataframe,
+                                             columns=self.self_refs,
+                                             skip_self_references=False)
+                # check the errors occured while mapping
+                if self.error_mask.count > 0:
+                    # rollback on error
+                    for m in new_models:
+                        m.delete()
+                    fn, url = self.error_mask.to_file(
+                        file_type=self.input_file_ext.replace('.', ''),
+                        encoding=self.encoding
+                    )
+                    raise ValidationError(
+                        self.error_mask.messages, url
+                    )
+                # renaming was skipped before
+                rename = {v: self.field_map[v].name for v in refs}
+                df_mapped.rename(columns=rename, inplace=True)
+                new_models = self._update_models(df_mapped)
+                df_update = df_mapped.loc[idx_both]
+            else:
+                new_models = self._create_models(df_new)
+            updated_models = self._update_models(df_update)
+        except IntegrityError as e:
+            # ToDo: formatted message
+            raise ValidationError(str(e))
 
         return new_models, updated_models
 
@@ -593,7 +757,19 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     row_dict[k] = v
             m = model(**row_dict)
             bulk.append(m)
-        created = model.objects.bulk_create(bulk)
+        try:
+            created = model.objects.bulk_create(bulk)
+        except ValueError:
+            for m in bulk:
+                m.save()
+            created = bulk
+        # only postgres returns ids after bulk creation
+        # workaround for non postgres: create queryset based on index_columns
+        if created and created[0].id == None:
+            filter_kwargs = {}
+            for field in self.index_fields:
+                filter_kwargs[field + '__in'] = dataframe[field].values
+            created = self.get_queryset().filter(**filter_kwargs)
         return created
 
     def create(self, validated_data):
@@ -623,6 +799,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         BulkResult
         '''
         dataframe = validated_data['dataframe']
+        dataframe = self.parse_dataframe(dataframe)
         new, updated = self.save_data(dataframe)
         result = BulkResult(created=new, updated=updated)
         return result
@@ -639,6 +816,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             created = ret['created'] = []
             updated = ret['updated'] = []
             for model in instance.created:
+                # bulk created objects don't retrieve their new ids
+                # (at least in sqlite) -> assign one for representation after
+                # creation
+                if model.id is None:
+                    model.id = -1
                 created.append(super().to_representation(model))
             for model in instance.updated:
                 updated.append(super().to_representation(model))

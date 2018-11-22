@@ -1,13 +1,4 @@
-import pandas as pd
-import numpy as np
-import tempfile
-from django_pandas.io import read_frame
-from django.utils.translation import ugettext as _
 from repair.apps.utils.serializers import (BulkSerializerMixin,
-                                           MalformedFileError,
-                                           ForeignKeyNotFound,
-                                           ValidationError,
-                                           TemporaryMediaFile,
                                            BulkResult,
                                            Reference)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
@@ -16,7 +7,10 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
                                            AdministrativeLocationSerializer,
-                                           ProductSerializer
+                                           ProductSerializer,
+                                           WasteSerializer,
+                                           MaterialSerializer,
+                                           ProductFractionSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -25,7 +19,11 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Actor2Actor,
                                       ActorStock,
                                       Composition,
-                                      AdministrativeLocation
+                                      AdministrativeLocation,
+                                      Material,
+                                      Product,
+                                      Waste,
+                                      ProductFraction
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -159,16 +157,116 @@ class AdminLocationCreateSerializer(
         'City': 'city',
         'WKT': 'geom'
     }
-    index_columns = ['origin']
+    index_columns = ['BvDIDNR']
 
     def get_queryset(self):
-        return AdministrativeLocation.objects.filter(keyflow=self.keyflow)
+        return AdministrativeLocation.objects.filter(
+            actor__activity__activitygroup__keyflow=self.keyflow)
 
 
-class ProductCreateSerializer(
-    BulkSerializerMixin, ProductSerializer):
+class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
+    field_map = {
+        'parent': Reference(name='parent',
+                            referenced_field='name',
+                            referenced_model=Material,
+                            allow_null=True),
+        'name': 'name',
+    }
+    index_columns = ['name']
 
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
+
+    def get_queryset(self):
+        return Material.objects.filter(keyflow=self.keyflow)
+
+
+class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
+
+    field_map = {
+        'name': Reference(name='composition',
+                          referenced_field='name',
+                          referenced_model=Composition,
+                          filter_args={'keyflow': '@keyflow'}),
+        'fraction': 'fraction',
+        'material': Reference(name='material',
+                              referenced_field='name',
+                              referenced_model=Material,
+                              allow_null=True),
+        'avoidable': 'avoidable',
+        'source': Reference(name='publication',
+                            referenced_field='publication__citekey',
+                            referenced_model=PublicationInCasestudy)
+        }
+
+    def get_queryset(self):
+        return ProductFraction.objects.all()
+
+
+class CompositionCreateMixin:
+
+    def bulk_create(self, validated_data):
+        index = 'name'
+        dataframe = validated_data['dataframe']
+        df_comp = self.parse_dataframe(dataframe.copy())
+        df_comp = df_comp[df_comp[index].notnull()]
+        df_comp.reset_index(inplace=True)
+        del df_comp['index']
+        df_comp.drop_duplicates(keep='first', inplace=True)
+        new_comp, updated_comp = self.save_data(df_comp)
+        # drop all existing fractions of the compositions
+        ids = [m.id for m in updated_comp]
+        existing_fractions = ProductFraction.objects.filter(
+            composition__id__in = ids)
+        existing_fractions.delete()
+        # process the fractions
+        df_fract = dataframe.copy()
+        df_fract[index] = dataframe[index].fillna(method='ffill')
+        df_fract['nace'] = dataframe['nace'].fillna(method='ffill')
+        fraction_serializer = FractionCreateSerializer()
+        fraction_serializer._context = self.context
+        df_fract = fraction_serializer.parse_dataframe(df_fract)
+        fraction_serializer._create_models(df_fract)
+        result = BulkResult(created=new_comp, updated=updated_comp)
+        return result
+
+
+class WasteCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
+                            WasteSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    field_map = {
+        'name': 'name',
+        'nace': 'nace',
+        #'ewc':
+        #'hazardous',
+        #'Item_descr': ''
+    }
+    index_columns = ['name']
+
+    def get_queryset(self):
+        return Waste.objects.filter(keyflow=self.keyflow)
+
+
+class ProductCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
+                              ProductSerializer):
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    field_map = {
+        'name': 'name',
+        'nace': 'nace'
+    }
+    index_columns = ['name']
+
+    def get_queryset(self):
+        return Product.objects.filter(keyflow=self.keyflow)

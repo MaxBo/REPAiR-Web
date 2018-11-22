@@ -10,6 +10,7 @@ from repair.apps.studyarea.views import (
     StakeholderViewSet,
     AdminLevelViewSet,
     AreaViewSet,
+    AreaInLevelViewSet,
     LayerCategoryViewSet,
     LayerViewSet,
     ChartCategoryViewSet,
@@ -103,6 +104,7 @@ cs_router.register(r'chartcategories', ChartCategoryViewSet)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
+cs_router.register(r'areas', AreaViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'userobjectives', UserObjectiveViewSet)
@@ -122,7 +124,7 @@ layercat_router.register(r'layers', LayerViewSet)
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
-levels_router.register(r'areas', AreaViewSet)
+levels_router.register(r'areas', AreaInLevelViewSet)
 
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',

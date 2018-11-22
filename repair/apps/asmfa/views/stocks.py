@@ -1,5 +1,6 @@
 # API View
 from abc import ABC
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from django.db.models import Q
@@ -33,6 +34,7 @@ class StockViewSet(RevisionMixin,
                    CasestudyViewSetMixin,
                    ModelPermissionViewSet,
                    ABC):
+    pagination_class = UnlimitedResultsSetPagination
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
