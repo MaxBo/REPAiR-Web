@@ -116,6 +116,10 @@ td button {
     padding: 6px;
 }
 
+#bulk-upload .upload.row .count{
+    float: right;
+}
+
 #bulk-upload .upload.row button{
     float: right;
     height: 35px;
@@ -124,6 +128,10 @@ td button {
 
 #bulk-upload .upload.row button span{
     pointer-events: none;
+}
+
+#bulk-upload .upload.row .row{
+    padding: 0px;
 }
 
 .upload-column .alert-dismissible p{

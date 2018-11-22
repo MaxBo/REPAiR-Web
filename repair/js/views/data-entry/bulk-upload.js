@@ -30,7 +30,8 @@ var BulkUploadView = BaseView.extend(
     events: {
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
-        "click button.clear": "clearData"
+        "click button.clear": "clearData",
+        "click #refresh-status": "refreshStatus"
     },
 
     render: function(){
@@ -332,6 +333,44 @@ var BulkUploadView = BaseView.extend(
         div.appendChild(a);
         a.appendChild(span);
         return div;
+    },
+
+    refreshStatus: function(){
+        var rows = Array.prototype.slice.call(this.el.querySelectorAll('.upload.row')),
+            promises = [],
+            _this = this;
+
+        rows.forEach(function(row){
+            var countDiv = row.querySelector('.count'),
+                tag = row.dataset['tag'],
+                data = {};
+
+            var collection = new GDSECollection( {}, {
+                apiTag: tag, apiIds: [ _this.caseStudy.id, _this.model.id ]
+            });
+
+            // reduce the amount of data returned by paginated collections
+            collection.state.pageSize = 1;
+
+            if (_this.forceKeyflowRelation.includes(tag))
+                data['keyflow'] = _this.model.id;
+
+            var count = '?';
+            countDiv.innerHTML = gettext('count') + ': ' + count;
+
+            promises.push(collection.fetch({
+                data: data,
+                success: function(){
+                    console.log(collection)
+                    // paginated collections return the count
+                    // else get the length of the response
+                    var count = collection.count || collection.length;
+                    console.log(collection)
+                    countDiv.innerHTML = gettext('count') + ': ' + count;
+                }
+            }))
+        });
+
     }
 
 

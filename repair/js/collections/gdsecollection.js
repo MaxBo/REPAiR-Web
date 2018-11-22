@@ -140,8 +140,10 @@ function(PageableCollection, _, GDSEModel, config) {
         // called immediately after fetching, parses the response (json)
         parseRecords: function (response) {
             // paginated api urls return the models under the key 'results'
-            if (response.results)
+            if (response.results){
+                this.count = response['count'];
                 return response.results;
+            }
             return response;
         },
 
