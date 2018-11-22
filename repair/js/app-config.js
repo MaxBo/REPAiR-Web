@@ -71,6 +71,7 @@ function (Session) {
         flowIndicators:         '/api/casestudies/{0}/keyflows/{1}/flowindicators/',
         flowFilters:            '/api/casestudies/{0}/keyflows/{1}/flowfilters/',
         arealevels:             '/api/casestudies/{0}/levels/',
+        allareas:               '/api/casestudies/{0}/areas/',
         areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
         wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };

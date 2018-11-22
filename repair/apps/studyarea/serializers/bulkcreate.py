@@ -6,26 +6,6 @@ from repair.apps.studyarea.models import (AdminLevels, Area)
 from django.db import transaction
 
 
-class AdminLevelCreateSerializer(BulkSerializerMixin, AdminLevelSerializer):
-    field_map = {
-        'name': 'name',
-        'level': 'level'
-    }
-    index_columns = ['level', 'name']
-
-    def get_queryset(self):
-        return AdminLevels.objects.filter(casestudy=self.casestudy)
-
-    def save_data(self, dataframe):
-        #  delete old models, there are unique constraint on (casestudy, level)
-        # AND (casestudy, name) interferring with each other otherwise
-        qs = self.get_queryset()
-        with transaction.atomic():
-            qs.delete()
-            res = super().save_data(dataframe)
-        return res
-
-
 class AreaCreateSerializer(BulkSerializerMixin, AreaSerializer):
     field_map = {
         'parent': Reference(name='parent_area',
@@ -49,3 +29,21 @@ class AreaCreateSerializer(BulkSerializerMixin, AreaSerializer):
         return Area.objects.filter(adminlevel__casestudy=self.casestudy)
 
 
+class AdminLevelCreateSerializer(BulkSerializerMixin, AdminLevelSerializer):
+    field_map = {
+        'name': 'name',
+        'level': 'level'
+    }
+    index_columns = ['level', 'name']
+
+    def get_queryset(self):
+        return AdminLevels.objects.filter(casestudy=self.casestudy)
+
+    def save_data(self, dataframe):
+        #  delete old models, there are unique constraint on (casestudy, level)
+        # AND (casestudy, name) interferring with each other otherwise
+        qs = self.get_queryset()
+        with transaction.atomic():
+            qs.delete()
+            res = super().save_data(dataframe)
+        return res

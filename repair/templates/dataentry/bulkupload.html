@@ -43,7 +43,8 @@
     <div class='row'>
       <div class="row">
         <label><%= label %></label>
-        <a href="<%= url %>" target="_blank"><span class="glyphicon glyphicon-link" style="margin-right: 2px;"></span>API</a>
+        <a href="<%= url %>" target="_blank" style="margin-right: 10px;"><span class="glyphicon glyphicon-link" style="margin-right: 2px;"></span>API</a>
+        <a href="<%= templateUrl %>" ><span class="far fa-file-alt" style="margin-right: 2px;"></span>{% trans "Template" %}</a>
         <div class="count"></div>
       </div>
       <button class="btn btn-warning clear" data-tag="<%= apiTag %>" title="{% trans "Delete" %}">

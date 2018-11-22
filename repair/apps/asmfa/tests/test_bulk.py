@@ -83,6 +83,10 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         ActorFactory(activity=af, BvDid='NL000000029386')
         ActorFactory(activity=af, BvDid='NL32063450')
 
+    def test_templates(self):
+        res = self.client.get(self.ag_url + '?request=template')
+        assert isinstance(res.content, bytes)
+
     def test_bulk_group(self):
         """
         test bulk upload activitygroups

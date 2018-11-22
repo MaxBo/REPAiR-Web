@@ -7,7 +7,8 @@ def PROTECT_CASCADE(collector, field, sub_objs, using):
     `PROTECT_FOREIGN_KEY=True` is set.
     Otherwise use CASCADE
     """
-    if collector.use_protection:
+    use_protection = getattr(collector, 'use_protection', False)
+    if use_protection:
         PROTECT(collector, field, sub_objs, using)
     else:
         CASCADE(collector, field, sub_objs, using)
