@@ -167,8 +167,10 @@ class Reference:
                 df_ref_dup = df_referenced[df_referenced.index == dup_ref]
                 # if a keyflow is available, prefer the ones with keyflows
                 if keyflow_added:
-                    df_ref_dup = df_ref_dup[df_ref_dup['keyflow'].notnull()]
-                # take the first of the remaining duplicates (that is very
+                    w_keyflow = df_ref_dup[df_ref_dup['keyflow'].notnull()]
+                    if len(w_keyflow) > 0:
+                        df_ref_dup = w_keyflow
+                # take the last of the remaining duplicates (that is very
                 # random, but a decision has to be made)
                 df_referenced = df_ref_wo_dup.append(df_ref_dup.iloc[0])
 
