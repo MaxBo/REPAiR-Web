@@ -1,5 +1,6 @@
 # API View
 from abc import ABC
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
@@ -331,6 +332,7 @@ class FlowViewSet(RevisionMixin,
     """
     serializer_class = FlowSerializer
     model = Flow
+    pagination_class = UnlimitedResultsSetPagination
 
 
 class Group2GroupViewSet(FlowViewSet):
