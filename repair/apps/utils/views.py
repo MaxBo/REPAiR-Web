@@ -223,10 +223,10 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
         serializer.save(**new_kwargs)
 
     def list(self, request, **kwargs):
-        if request.query_params.get('request', None):
+        if request.query_params.get('request', None) == 'template':
             serializer = self.serializers.get('create', None)
             if serializer and hasattr(serializer, 'create_template'):
-                wb = serializer.create_template()
+                content = serializer.create_template()
                 response = HttpResponse(
                     content_type=(
                         'application/vnd.openxmlformats-officedocument.'
@@ -235,7 +235,7 @@ class CasestudyViewSetMixin(CasestudyReadOnlyViewSetMixin):
                 )
                 response['Content-Disposition'] = \
                     'attachment; filename=template.xlsx'
-                wb.save(response)
+                response.write(content)
                 return response
         return super().list(request, **kwargs)
 

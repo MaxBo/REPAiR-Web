@@ -1,7 +1,7 @@
 
 define(['views/common/baseview', 'underscore', 'models/gdsemodel',
-        'collections/gdsecollection', 'file-saver', 'app-config'],
-function(BaseView, _, GDSEModel, GDSECollection, FileSaver, config){
+        'collections/gdsecollection', 'app-config'],
+function(BaseView, _, GDSEModel, GDSECollection, config){
 
 /**
     *
@@ -32,8 +32,7 @@ var BulkUploadView = BaseView.extend(
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
         "click button.clear": "clearData",
-        "click #refresh-status": "refreshStatus",
-        //"click a.post": "queryTemplate"
+        "click #refresh-status": "refreshStatus"
     },
 
     render: function(){
@@ -414,25 +413,7 @@ var BulkUploadView = BaseView.extend(
                 }
             });
         });
-    },
-
-    //queryTemplate: function(evt){
-        //function showFile(res){
-            //var blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-            //FileSaver.saveAs(blob, "template.xlsx");
-        //}
-        //var anchor = evt.target,
-            //url = anchor.dataset['url'];
-        //url += '?request=template';
-        ////fetch(url, {method: 'POST'}).then(console.log)
-        //$.ajax({
-            //url: url,
-            //type: "POST",
-            //success: showFile,
-            //error: console.log
-        //})
-    //}
-
+    }
 
 });
 return BulkUploadView;

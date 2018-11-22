@@ -356,25 +356,25 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         wb = Workbook()
         ws = wb.active
         ws.append(list(cls.field_map.keys()))
-        return wb
+        return save_virtual_workbook(wb)
 
     def file_to_dataframe(self, file, encoding='cp1252'):
         # remove automated validators (Uniquetogether throws error else)
         self.validators = []
 
-        fn, ext = os.path.splitext(file[0].name)
+        fn, ext = os.path.splitext(file.name)
         self.input_file_ext = ext
         try:
             if ext == '.xlsx':
-                dataframe = pd.read_excel(file[0], dtype=object,
+                dataframe = pd.read_excel(file, dtype=object,
                                           keep_default_na=False,
                                           na_values=self.nan_values)
             elif ext == '.tsv':
-                dataframe = pd.read_csv(file[0], sep='\t', encoding=encoding,
+                dataframe = pd.read_csv(file, sep='\t', encoding=encoding,
                                         dtype=object, keep_default_na=False,
                                         na_values=self.nan_values)
             elif ext == '.csv':
-                dataframe = pd.read_csv(file[0], sep=';', encoding=encoding,
+                dataframe = pd.read_csv(file, sep=';', encoding=encoding,
                                         dtype=object, keep_default_na=False,
                                         na_values=self.nan_values)
             else:
@@ -398,8 +398,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         file = data.get('bulk_upload', None)
         if file is None:
             return super().to_internal_value(data)
-        encoding = data.get('encoding', ['cp1252'])
-        self.encoding = encoding[0]
+        encoding = data.get('encoding', 'cp1252')
+        self.encoding = encoding
         dataframe = self.file_to_dataframe(file, encoding=self.encoding)
 
         # other fields are not required when bulk uploading
