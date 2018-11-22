@@ -11,6 +11,7 @@ from repair.apps.studyarea.models import (AdminLevels,
 
 from repair.apps.studyarea.serializers import (AdminLevelSerializer,
                                                AreaSerializer,
+                                               AreaInLevelSerializer,
                                                AreaGeoJsonSerializer,
                                                AreaGeoJsonPostSerializer,
                                                AdminLevelCreateSerializer,
@@ -43,6 +44,7 @@ class AreaViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
 
 
 class AreaInLevelViewSet(AreaViewSet):
+    serializer_class = AreaInLevelSerializer
     serializers = {
         'retrieve': AreaGeoJsonSerializer,
         'update': AreaGeoJsonSerializer,
