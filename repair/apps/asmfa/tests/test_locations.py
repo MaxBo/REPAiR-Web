@@ -45,7 +45,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # the new one
         response = self.client.get(url_locations)
         assert response.status_code == status.HTTP_200_OK
-        assert location.pk in (row['id'] for row in response.data['features'])
+        res_data = response.data['results']
+        assert location.pk in (row['id'] for row in res_data['features'])
 
         # patch existing administrative location
         new_streetname = 'Hauptstraße 13'
@@ -171,8 +172,8 @@ class GeolocationViewTest(LoginTestCase, APITestCase):
         # the new one
         response = self.client.get(url_locations)
         assert response.status_code == status.HTTP_200_OK
-        assert location1.pk in (row['id'] for row in response.data['features'])
-        assert location2.pk in (row['id'] for row in response.data['features'])
+        assert location1.pk in (row['id'] for row in response.data['results']['features'])
+        assert location2.pk in (row['id'] for row in response.data['results']['features'])
 
         # patch location1
         url_locations_detail = self.get_location_url(cs, keyflow,
@@ -282,7 +283,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         # the new one
         response = self.client.get(url_locations)
         assert response.status_code == status.HTTP_200_OK
-        assert location.pk in (row['id'] for row in response.data['features'])
+        assert location.pk in (row['id'] for row in response.data['results']['features'])
 
         # update existing administrative location with a patch for actor
         new_streetname = 'Hauptstraße 13'
@@ -366,8 +367,10 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         # the new one
         response = self.client.get(url_locations)
         assert response.status_code == status.HTTP_200_OK
-        assert location1.pk in (row['id'] for row in response.data['features'])
-        assert location2.pk in (row['id'] for row in response.data['features'])
+        assert location1.pk in (row['id'] for row in
+                                response.data['results']['features'])
+        assert location2.pk in (row['id'] for row in
+                                response.data['results']['features'])
 
         response = self.client.get(url_locations)
 
@@ -394,7 +397,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
         response = self.client.get(url_locations)
         new_location_ids = [feature['id'] for feature in
-                            response.data['features']]
+                            response.data['results']['features']]
 
         # check the new adress of the location2
         url = self.get_location_url(cs, keyflow,
@@ -432,7 +435,7 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
         # existing locations
         response = self.client.get(url_locations)
         feature_collection = response.data
-        features = feature_collection['features']
+        features = feature_collection['results']['features']
 
         # post new operational location
         new_streetname = 'Pecsallée 4'
@@ -441,12 +444,12 @@ class TestLocationsOfActor(LoginTestCase, APITestCase):
                          'geom': new_geom.geojson,
                          })
 
-        data = feature_collection
+        data = feature_collection['results']
         response = self.client.post(url_locations, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         response = self.client.get(url_locations)
         new_ids = [feature['id'] for feature in
-                   response.data['features']]
+                   response.data['results']['features']]
 
         url_locations_detail = self.get_location_url(cs, keyflow,
                                                      location=new_ids[1],

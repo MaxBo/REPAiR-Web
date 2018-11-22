@@ -25,7 +25,9 @@ from repair.apps.asmfa.serializers import (
     MaterialListSerializer,
     AllMaterialSerializer,
     AllMaterialListSerializer,
-    WasteSerializer
+    WasteSerializer,
+    WasteCreateSerializer,
+    MaterialCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -101,7 +103,9 @@ class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
     filter_class = ProductFilter
 
 
-class ProductViewSet(AllProductViewSet, CasestudyViewSetMixin):
+class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
+    pagination_class = UnlimitedResultsSetPagination
+    serializer_class = ProductSerializer
     serializers = {
         'list': ProductSerializer,
         'create': ProductCreateSerializer
@@ -134,8 +138,12 @@ class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     serializer_class = WasteSerializer
-    serializers = {'list': WasteSerializer}
+    serializers = {
+        'list': WasteSerializer,
+        'create': WasteCreateSerializer
+    }
     # include products with keyflow-pk == null as well
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']
@@ -153,7 +161,6 @@ class WasteViewSet(CasestudyViewSetMixin, AllWasteViewSet):
 
 
 class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
-    pagination_class = None
     add_perm = 'asmfa.add_material'
     change_perm = 'asmfa.change_material'
     delete_perm = 'asmfa.delete_material'
@@ -165,8 +172,12 @@ class AllMaterialViewSet(RevisionMixin, ModelPermissionViewSet):
 
 
 class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     serializer_class = MaterialSerializer
-    serializers = {'list': MaterialListSerializer}
+    serializers = {
+        'list': MaterialListSerializer,
+        'create': MaterialCreateSerializer,
+    }
 
     # include materials with keyflows with pk null as well (those are the default ones)
     def get_queryset(self):

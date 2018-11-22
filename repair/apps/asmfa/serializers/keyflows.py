@@ -200,6 +200,7 @@ class ProductFractionSerializer(serializers.ModelSerializer):
     publication = IDRelatedField(allow_null=True, required=False)
     id = serializers.IntegerField(label='ID', read_only=False, required=False,
                                   allow_null=True)
+    parent_lookup_kwargs = {}
 
     class Meta:
         model = ProductFraction
@@ -288,8 +289,7 @@ class WasteSerializer(CompositionSerializer):
     class Meta:
         model = Waste
         fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
-                  'fractions', 'keyflow'
-                  )
+                  'fractions', 'keyflow')
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
@@ -304,14 +304,8 @@ class AllMaterialSerializer(serializers.ModelSerializer):
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
                          AllMaterialSerializer):
-    #keyflow = IDRelatedField(allow_null=True)
-    #keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
-                                      #read_only=True)
     # keyflow filtering is done by "get_queryset"
     parent_lookup_kwargs = {}
-        #'casestudy_pk': 'keyflow__casestudy__id',
-        #'keyflow_pk': 'keyflow__id',
-    #}
     class Meta:
         model = Material
         fields = ('id', 'name', 'level', 'parent', 'keyflow')

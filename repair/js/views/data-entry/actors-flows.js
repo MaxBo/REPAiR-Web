@@ -105,8 +105,10 @@ var FlowsEditView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template({casestudy: this.caseStudy.get('properties').name,
-            keyflow: this.model.get('name')});
+        this.el.innerHTML = template({
+            casestudy: this.caseStudy.get('properties').name,
+            keyflow: this.model.get('name')
+        });
         this.el.querySelector('#actors-col').style.display = 'none';
         this.el.querySelector('#edit-col').style.display = 'none';
         this.el.querySelector('#select-actors-tip').style.display = 'none';

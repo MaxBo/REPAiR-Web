@@ -138,7 +138,7 @@ class MaterialFactory(DjangoModelFactory):
     class Meta:
         model = models.Material
     name = factory.Sequence(lambda n: "Material #%s" % n)
-    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    keyflow = None
     level = 1
     parent = None  #factory.SubFactory('repair.apps.asmfa.factories.MaterialFactory')
 

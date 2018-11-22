@@ -21,4 +21,9 @@ class Migration(migrations.Migration):
             name='keyflow',
             field=models.ForeignKey(null=True, on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, to='asmfa.KeyflowInCasestudy'),
         ),
+        migrations.AlterField(
+            model_name='material',
+            name='level',
+            field=models.IntegerField(default=0),
+        ),
     ]

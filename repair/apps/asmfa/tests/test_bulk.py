@@ -6,7 +6,7 @@ import pandas as pd
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
-from repair.tests.test import LoginTestCase, AdminAreaTest
+from repair.tests.test import LoginTestCase
 from django.urls import reverse
 
 from repair.apps.asmfa.factories import (ActivityFactory,
@@ -15,9 +15,10 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          UserInCasestudyFactory,
                                          KeyflowInCasestudyFactory,
                                          CompositionFactory,
-                                         Actor2ActorFactory
+                                         Actor2ActorFactory,
+                                         MaterialFactory
                                          )
-from repair.apps.asmfa.models import ActivityGroup, Activity, Actor
+from repair.apps.asmfa.models import ActivityGroup, Activity, Actor, Material
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -34,6 +35,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     filename_actor = 'T3.2_Actors.tsv'
     filename_actor_w_errors = 'T3.2_Actors_w_errors.tsv'
     filename_actor_w_errors_xlsx = 'T3.2_Actors_w_errors.xlsx'
+    filename_locations = 'test_adminloc.csv'
 
     @classmethod
     def setUpClass(cls):
@@ -51,20 +53,32 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         cls.actor_url = reverse('actor-list',
                                 kwargs={'casestudy_pk': cls.casestudy.id,
                                         'keyflow_pk': cls.keyflow.id})
+        cls.location_url = reverse('administrativelocation-list',
+                                   kwargs={'casestudy_pk': cls.casestudy.id,
+                                           'keyflow_pk': cls.keyflow.id})
 
     def setUp(self):
         super().setUp()
         # create another activitygroup
-        ag_f = ActivityGroupFactory(keyflow=self.keyflow, name='Construction', code='F')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Some stuff, no idea', code='G')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Other', code='E')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Export', code='WE')
-        ActivityGroupFactory(keyflow=self.keyflow, name='Import', code='R')
+        ag_f = ActivityGroupFactory(keyflow=self.keyflow,
+                                    name='Construction', code='F')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Some stuff, no idea', code='G')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Other', code='E')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Export', code='WE')
+        ActivityGroupFactory(keyflow=self.keyflow,
+                             name='Import', code='R')
 
-        af = ActivityFactory(activitygroup=ag_f, name='should_be_updated', nace='4110')
-        ActivityFactory(activitygroup=ag_f, name='Collection of non-hazardous waste', nace='3811')
-        ActivityFactory(activitygroup=ag_f, name='Collection of hazardous waste', nace='3812')
-        ActivityFactory(activitygroup=ag_f, name='shouldnt_be_updated', nace='F-007')
+        af = ActivityFactory(activitygroup=ag_f, name='should_be_updated',
+                             nace='4110')
+        ActivityFactory(activitygroup=ag_f,
+                        name='Collection of non-hazardous waste', nace='3811')
+        ActivityFactory(activitygroup=ag_f,
+                        name='Collection of hazardous waste', nace='3812')
+        ActivityFactory(activitygroup=ag_f,
+                        name='shouldnt_be_updated', nace='F-007')
 
         ActorFactory(activity=af, BvDid='NL000000029386')
         ActorFactory(activity=af, BvDid='NL32063450')
@@ -202,6 +216,18 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         res = self.client.post(self.actor_url, data)
         assert res.status_code == 400
 
+    def test_bulk_locations(self):
+        """Test bulk upload actors"""
+        file_path = os.path.join(os.path.dirname(__file__),
+                                 self.testdata_folder,
+                                 self.filename_locations)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.location_url, data)
+        assert res.status_code == 201
+
     @skip('not implemented yet')
     def test_actor_matches_activity(self):
         """Test that actor matches activity"""
@@ -301,4 +327,90 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.astock_url, data)
+        assert res.status_code == 201
+
+
+class BulkImportMaterialsTest(LoginTestCase, APITestCase):
+    testdata_folder = 'data'
+    filename_materials = 'materials.tsv'
+    filename_materials_w_errors = 'materials_w_errors.tsv'
+    filename_waste = 'waste.tsv'
+    filename_products = 'products.tsv'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.keyflow = cls.kic
+        cls.casestudy = cls.uic.casestudy
+
+        cls.mat_url = reverse('material-list',
+                              kwargs={'casestudy_pk': cls.casestudy.id,
+                                      'keyflow_pk': cls.keyflow.id})
+
+        cls.waste_url = reverse('waste-list',
+                                kwargs={'casestudy_pk': cls.casestudy.id,
+                                        'keyflow_pk': cls.keyflow.id})
+
+        cls.product_url = reverse('product-list',
+                                kwargs={'casestudy_pk': cls.casestudy.id,
+                                        'keyflow_pk': cls.keyflow.id})
+
+    def setUp(self):
+        super().setUp()
+        MaterialFactory(name='Mat 1', keyflow=self.keyflow)
+        # this one is a 'default' material without keyflow and duplicate
+        # to one in the file, the keyflow related one should be preferred
+        MaterialFactory(name='a')
+        MaterialFactory(name='b')
+
+        a = PublicationFactory(citekey='crem2017', title='sth')
+        PublicationInCasestudyFactory(casestudy=self.casestudy,
+                                      publication=a)
+
+    def test_bulk_materials(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_materials)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.mat_url, data)
+        assert res.status_code == 201
+
+    def test_bulk_materials_errors(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_materials_w_errors)
+        n_before = len(Material.objects.all())
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.mat_url, data)
+        assert res.status_code == 400
+        n_after = len(Material.objects.all())
+        assert n_after == n_before
+
+    def test_bulk_waste(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_waste)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.waste_url, data)
+        assert res.status_code == 201
+
+    def test_bulk_products(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_products)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.product_url, data)
         assert res.status_code == 201
