@@ -247,7 +247,8 @@ var BulkUploadView = BaseView.extend(
 
         var row = this.el.querySelector('.row[data-tag="' + tag +  '"]'),
             input = row.querySelector('input[type="file"]'),
-            files = input.files;
+            files = input.files,
+            encoding = this.el.querySelector('#encoding-select').value;
 
         if (files.length === 0){
             this.alert(gettext('No file selected to upload!'));
@@ -255,7 +256,8 @@ var BulkUploadView = BaseView.extend(
         }
 
         var data = {
-            'bulk_upload': files[0]
+            'bulk_upload': files[0],
+            'encoding': encoding
         }
 
         var model = new GDSEModel( {}, {
