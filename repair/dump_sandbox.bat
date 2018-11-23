@@ -11,8 +11,8 @@ python manage.py dump_object statusquo.sustainabilityfield * > repair\fixtures\s
 python manage.py dump_object statusquo.targetspatialreference * > repair\fixtures\sandbox_targetspatialreferences.json
 python manage.py dump_object statusquo.targetvalue * > repair\fixtures\sandbox_targetvalues.json
 python manage.py dump_object -k login.casestudy --query "{\"id\": 7}" > repair\fixtures\sandbox_casestudy.json
-python manage.py dump_object -k asmfa.keyflow * > repair\fixtures\sandbox_keyflow.json
-python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow.json
+python manage.py dump_object --no-follow -k asmfa.keyflow * > repair\fixtures\sandbox_keyflow.json
+python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow_ic.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_actor.json
 python manage.py dump_object -k changes.solutioninstrategy --query "{\"strategy__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutions.json
 python manage.py dump_object -k changes.solutionratiooneunit --query "{\"solution__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutionsratio.json
