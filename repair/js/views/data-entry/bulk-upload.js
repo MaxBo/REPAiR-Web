@@ -1,7 +1,8 @@
 
 define(['views/common/baseview', 'underscore', 'models/gdsemodel',
-        'collections/gdsecollection', 'app-config'],
-function(BaseView, _, GDSEModel, GDSECollection, config){
+        'collections/gdsecollection', 'collections/geolocations',
+        'app-config'],
+function(BaseView, _, GDSEModel, GDSECollection, GeoLocations, config){
 
 /**
     *
@@ -64,7 +65,9 @@ var BulkUploadView = BaseView.extend(
             upColCasestudy = this.el.querySelector('#casestudy-related-upload').querySelector('.upload-column');
         // API routes returning default models without keyflows as well
         // force those to display keyflow related only in here
-        this.forceKeyflowRelation = ['materials', 'products', 'wastes']
+        this.forceKeyflowRelation = ['materials', 'products', 'wastes'];
+        this.geolocations = ['adminLocations'];
+        this.destroyH
 
         function renderRow(up, column){
             var html = document.getElementById('upload-row-template').innerHTML,
@@ -198,8 +201,9 @@ var BulkUploadView = BaseView.extend(
                 });
             }
         }
+        var Collection = this.geolocations.includes(tag) ? GeoLocations : GDSECollection;
 
-        var collection = new GDSECollection( {}, {
+        var collection = new Collection( {}, {
             apiTag: tag, apiIds: [ this.caseStudy.id, this.model.id ]
         });
 
@@ -385,7 +389,8 @@ var BulkUploadView = BaseView.extend(
                 tag = row.dataset['tag'],
                 data = {};
 
-            var collection = new GDSECollection( {}, {
+            var Collection = _this.geolocations.includes(tag) ? GeoLocations : GDSECollection;
+            var collection = new Collection( {}, {
                 apiTag: tag, apiIds: [ _this.caseStudy.id, _this.model.id ]
             });
 

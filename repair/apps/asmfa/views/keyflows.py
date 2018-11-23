@@ -6,6 +6,7 @@ from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
+from django.core.exceptions import ObjectDoesNotExist
 
 from repair.apps.asmfa.models import (
     Keyflow,
@@ -193,7 +194,10 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
 
     def checkMethod(self, request, **kwargs):
         model = self.serializer_class.Meta.model
-        instance = model.objects.get(id=kwargs['pk'])
+        try:
+            instance = model.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return
         if instance.keyflow is None:
             raise exceptions.MethodNotAllowed(
                 'PUT',
