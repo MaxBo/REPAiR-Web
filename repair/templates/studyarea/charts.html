@@ -4,29 +4,50 @@
 <script type="text/template" id="base-charts-template">
 <div class="row">
   <div class="row" style="margin-top: 20px;">
-    <div class="col-md-3 bordered" style="margin-right: 10px;">
+    <div class="col-md-4 bordered" style="margin-right: 10px;">
       <div id="chart-tree-buttons" style="position: relative; display: None; pointer-events: none; float: right; margin-right: 10px; z-index: 100;">
-        <button id='add-chart-button' class="btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
+        <button class="add btn btn-primary inverted square" title="{% trans "add chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Chart" %}
         </button>
-        <button id='edit-cc-button' class="btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
+        <button class="edit btn btn-primary square inverted" title="{% trans "edit name" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-pencil"></span>
         </button>
-        <button id='remove-cc-button'  class="btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
+        <button class="remove btn btn-warning square" title="{% trans "remove category/chart" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-minus"></span>
         </button>
       </div>
-      <div class="row">
-        <h4> {% trans "Charts" %} </h4>
+      <div class="row" style="overflow: hidden;">
+        <div>
+          <h4 style="float: left;"> {% trans "Charts" %} </h4>
+          <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Chart Tree" data-html="true" tabindex="0"
+            {% if request.session.mode == 0 %}
+              data-content="{% blocktrans %}
+              <b>Browse</b><br>
+              Expand a category by pressing the <i>+</i> button to the left or by tapping its name.
+              Tap a name of a chart to show its image to the right.<br><br>
+              Tapping the image opens an image viewer. The image viewer is zoomable with touch gestures.
+              {% endblocktrans %}">
+            {% else %}
+              data-content="{% blocktrans %}
+              The chart tree sets up the available chart images for workshop mode.<br><br>
+              <b>Add images</b><br>
+              Chart images can only be added to existing categories. Add a chart to a category by clicking the category and then click the appearing <i>+Chart</i> button.
+              Add new chart categories by clicking the <i>+Add Category</i> button below the chart tree.
+              <br><br>
+              <b>View images</b><br>
+              Clicking the image to the right opens an image viewer.
+              {% endblocktrans %}">
+            {% endif %}
+          </a>
+        </div>
         <div id="chart-tree"></div>
         <button id='add-chart-category-button' class="btn btn-primary square" title="{% trans "add group" %}" style="pointer-events: auto;">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
         </button>
       </div>
     </div>
-    <div class="col-md-6 bordered" style="min-height: 500px; overflow: auto;">
-      <img id="chart-view" src="" alt="chart" style="width: 100%; display: None;">
-      <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+    <div class="col-md-6" style="min-height: 500px; overflow: auto;">
+      <img id="chart-view" class="bordered" src="" alt="{% trans "Image not found" %}" style="width: 100%; display: None; cursor: pointer;">
     </div>
   </div>
 </div>
@@ -50,7 +71,7 @@
             <br>
             <div style="position: relative; margin-top: 30px;">
               <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                <button class="glyphicon glyphicon-fullscreen btn btn-primary chart-control fullscreen-toggle"></button>
+                <button class="fas fa-expand btn btn-primary chart-control fullscreen-toggle d3-overlay"></button>
                 <img id="chart-image-preview" src="#" alt="Preview" style="width: 100%;"/>
               </div>
             </div>
@@ -68,7 +89,6 @@
   </div>
 </div>
 <div id="edit-chart-category-modal"></div>
-<div id="remove-cc-modal" class="modal fade" role="dialog"></div>
 </script>
 
 {% endblock %}

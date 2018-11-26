@@ -1,8 +1,9 @@
-<!-- backbone/underscore templates used in different views (e.g. js/views/baseview) -->
+<!-- backbone/underscore templates used in different views (e.g. js/views/common/baseview) -->
 {% load i18n %}
 
 <!-- divs to put the modals in -->
 <div id="alert-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
+<div id="info-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
 <div id="generic-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
 <div id="confirmation-modal" class="modal fade" role="dialog" style="z-index: 99999;"></div>
 
@@ -20,6 +21,25 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- template for info messages -->
+
+<script type="text/template" id="info-modal-template">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><span class="glyphicon glyphicon-info-sign" style="margin-right: 15px;"></span><%= title %></h4>
+      </div>
+      <div class="modal-body">
+        <%= message %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "OK" %}</button>
       </div>
     </div>
   </div>
@@ -80,6 +100,7 @@
       <span class="glyphicon glyphicon-minus"></span>
     </button>
   </div>
+  <div class="overlay"></div>
 </script>
 
 <!-- general modal for confirmations -->

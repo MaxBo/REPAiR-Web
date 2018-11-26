@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "REPAiR | Recommendations" %}{% endblock %}
+
+{% block sidebar %}
+
+  <script>
+    document.getElementById("recommendations-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#flow-assessment" data-toggle="pill" style="font-size: 0.6em;"> {% trans "Comparative Flow Assessment" %} <span style="font-size: 3em;" class="sub-icon fa fa-recycle"></span></a></li>
+    <li><a href="#sustainability-assessment" data-toggle="pill" style="font-size: 0.45em;">{% trans "Comparative Sustainability Assessment" %} <span style="font-size: 4em;" class="sub-icon fas fa-leaf"></span></a></li>
+    <li><a href="#synopsis-keyflows" data-toggle="pill" style="font-size: 0.9em;"> {% trans "Synopsis of keyflows" %} <span style="font-size: 1.5em;" class="sub-icon fas fa-project-diagram"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="flow-assessment">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="sustainability-assessment">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="synopsis-keyflows">
+      <h2> ToDo </h2>
+    </div>
+  </div>
+</html>
+{% render_bundle 'Base' %}
+{% endblock %}

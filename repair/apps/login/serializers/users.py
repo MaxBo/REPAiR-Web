@@ -6,7 +6,8 @@ from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_gis.serializers import (GeoFeatureModelSerializer,
-                                            GeoFeatureModelListSerializer)
+                                            GeoFeatureModelListSerializer,
+                                            GeometryField)
 from publications_bootstrap.models import Publication
 
 from repair.apps.login.models import CaseStudy, Profile, UserInCasestudy
@@ -116,27 +117,29 @@ class CaseStudySerializer(ForceMultiMixin,
         view_name='userincasestudy-list')
     stakeholder_categories = InCasestudyListField(
         view_name='stakeholdercategory-list')
-    solution_categories = InCasestudyListField(
-        view_name='solutioncategory-list')
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
         view_name='publicationincasestudy-list')
     aims = InCasestudyListField(view_name='aim-list')
     challenges = InCasestudyListField(view_name='challenge-list')
+    #default_area_level = IDRelatedField(required=False, allow_null=True)
+    show_on_welcome_map = serializers.BooleanField(required=False)
 
     class Meta:
         model = CaseStudy
         geo_field = 'geom'
         fields = ('url', 'id', 'name', 'userincasestudy_set',
-                  'solution_categories', 'stakeholder_categories',
+                  'stakeholder_categories',
                   'keyflows',
                   'levels',
                   'focusarea',
                   'publications',
                   'aims',
                   'challenges',
-                  'description'
+                  'description',
+                  #'default_area_level',
+                  'show_on_welcome_map'
                   )
 
     def update(self, instance, validated_data):

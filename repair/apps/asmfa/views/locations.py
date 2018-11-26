@@ -13,52 +13,89 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationsOfActorSerializer,
 )
 
-from repair.apps.login.views import CasestudyViewSetMixin
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     PostGetViewMixin)
 
 
-class AdministrativeLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
+class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
+                                    CasestudyViewSetMixin,
                                     ModelPermissionViewSet):
     add_perm = 'asmfa.add_administrativelocation'
     change_perm = 'asmfa.change_administrativelocation'
     delete_perm = 'asmfa.delete_administrativelocation'
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
-    
+
     def get_queryset(self):
-        return AdministrativeLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+        locations = AdministrativeLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
+        if (self.isGET):
+            if 'actor__in' in self.request.data:
+                ids = self.request.data['actor__in'].split(",")
+                locations = locations.filter(actor__in=ids)
+        return locations
 
 
-class OperationalLocationViewSet(RevisionMixin, CasestudyViewSetMixin,
+class OperationalLocationViewSet(PostGetViewMixin, RevisionMixin,
+                                 CasestudyViewSetMixin,
                                  ModelPermissionViewSet):
     add_perm = 'asmfa.add_operationallocation'
     change_perm = 'asmfa.change_operationallocation'
     delete_perm = 'asmfa.delete_operationallocation'
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationSerializer
-    
+
     def get_queryset(self):
-        return OperationalLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+        locations = OperationalLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
+        if (self.isGET):
+            if 'actor__in' in self.request.data:
+                ids = self.request.data['actor__in'].split(",")
+                locations = locations.filter(actor__in=ids)
+        return locations
 
 
-class AdministrativeLocationOfActorViewSet(RevisionMixin,
+class AdministrativeLocationOfActorViewSet(PostGetViewMixin, RevisionMixin,
                                            CasestudyViewSetMixin,
                                            ModelPermissionViewSet):
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationOfActorSerializer
-    
+
     def get_queryset(self):
-        return AdministrativeLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+        locations = AdministrativeLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
+        if (self.isGET):
+            if 'actor__in' in self.request.data:
+                ids = self.request.data['actor__in'].split(",")
+                locations = locations.filter(actor__in=ids)
+        return locations
 
 
-class OperationalLocationsOfActorViewSet(RevisionMixin, CasestudyViewSetMixin,
+class OperationalLocationsOfActorViewSet(PostGetViewMixin, RevisionMixin,
+                                         CasestudyViewSetMixin,
                                          ModelPermissionViewSet):
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
-    
+
     def get_queryset(self):
-        return OperationalLocation.objects.select_related(
-            "actor__activity__activitygroup__keyflow__casestudy").all()
+        locations = OperationalLocation.objects.select_related(
+            "actor__activity__activitygroup__keyflow__casestudy").all().defer(
+                "actor__activity__activitygroup__keyflow__note",
+                "actor__activity__activitygroup__keyflow__casestudy__geom",
+                "actor__activity__activitygroup__keyflow__casestudy__focusarea")
+        if (self.isGET):
+            if 'actor__in' in self.request.data:
+                ids = self.request.data['actor__in'].split(",")
+                locations = locations.filter(actor__in=ids)
+        return locations
+

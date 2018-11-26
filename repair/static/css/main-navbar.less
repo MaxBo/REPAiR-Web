@@ -1,0 +1,227 @@
+/**
+ * stylesheet for the top navigation bar
+ *
+ * @author Christoph Franke
+ */
+
+.navbar {
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+    background-color: #ffffff;
+    border-radius: 0px;
+    border: 0px;
+    border-bottom: 2px solid #e6e6e6;
+    padding-bottom: 20px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    position: relative;
+    /*width: 300px;*/
+    font-size: 2em;
+    height: 75px;
+    line-height: 45px;
+    padding-left: 0px;
+    padding-top: 12px;
+    z-index: 11;
+    margin-top: 0px;
+    float: left;
+    background-color: transparent ~'!IMPORTANT';
+    /*margin-right: 10px;*/
+}
+
+.navbar-brand >img {
+    /*width: 230px;*/
+    margin-left: 20px;
+}
+
+.navbar > .container {
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.navbar-top {
+    position: absolute;
+    top: -10px;
+    right: 0px;
+}
+
+.navbar-bottom {
+    margin-top: 20px;
+}
+
+.navbar-bottom > li{
+    z-index: 10;
+    background-size:cover;
+    overflow: hidden;
+}
+
+.navbar-bottom > li > a {
+    color: #4c5867 ~'!IMPORTANT';
+    font-size: 1.5em;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    padding-top: 0px ~'!IMPORTANT';
+    padding-bottom: 0px ~'!IMPORTANT';
+    float: left;
+    transition: font-size 0.25s ease-in-out;
+    background-color: transparent ~'!IMPORTANT';
+}
+
+.navbar-bottom > li:hover > a {
+    color: @main-color ~'!IMPORTANT';
+    font-size: 2em;
+    transition: color 0.25s ease;
+    transition: font-size 0.25s ease-in-out;
+}
+
+.navbar-top > li:hover > a, .navbar-top > li:hover button{
+    color: @main-color ~'!IMPORTANT';
+}
+
+.navbar-bottom > li.active > a{
+    font-size: 2em;
+    /*text-decoration: underline;*/
+}
+
+.navbar-bottom > li.active > a, .navbar-top > li.active > a  {
+    color: @main-color ~'!IMPORTANT';
+    /*text-decoration: underline;*/
+}
+
+.menu-arrow{
+    float: left;
+    /*background-image: url("../img/menu-arrow-grey.png");*/
+    /*background-size: cover;*/
+    /*background-size: 100%;*/
+    /*background-repeat: no-repeat;*/
+    /*background-position: 50% 50%;*/
+    width: 40px;
+    height: 50px;
+    font-size: 1.5em;
+    color: #4c5867;
+    text-align: center;
+    line-height: 50px;
+}
+
+.navbar-bottom > li.active > .menu-arrow, .navbar-bottom li:hover .menu-arrow {
+    /*background-image: url("../img/menu-arrow-green.png");*/
+    color: @main-color;
+}
+
+.navbar-top select, .navbar-top .dropdown-button{
+    color: #4c5867 ~'!IMPORTANT';
+    background-color: white ~'!IMPORTANT';
+    border: none;
+    font-size: 1em;
+    margin-top : 15px;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align-last: right;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+.navbar-top select::-ms-expand {
+    display: none;
+}
+
+.drop-arrow {
+    pointer-events: none;
+    margin-left: -10px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+.dropdown a:hover{
+    /*background-color: #f1f1f1; */
+    color: @main-color;
+}
+
+.dropdown a.active {
+    background-color: @main-color;
+    color: white;
+}
+
+.show { display:block; }
+/*.navbar-top select option:checked, .navbar-top select option:hover{
+    color: white;
+    background-color: @main-color;
+}*/
+
+.navbar .navbar-collapse {
+    position: relative;
+    width: 100%;
+}
+
+.navbar .nav-collapse { position: absolute; z-index: 1; top: 0; left: 0; right: 0; bottom: 0; margin: 0; padding-right: 120px; padding-left: 80px; width: 100%; }
+.navbar.navbar-default .nav-collapse { background-color: #f8f8f8; }
+.navbar .nav-collapse .navbar-form { border-width: 0; box-shadow: none; }
+.nav-collapse>li { float: right; }
+
+.btn.btn-circle { border-radius: 50px; }
+.btn.btn-outline { background-color: transparent; }
+
+#top-links {
+    float: right;
+}
+
+@media screen and (max-width: 1100px) {
+    .navbar-bottom > li > a{
+        font-size: 1.2em;
+    }
+
+    .navbar-bottom > li.active > a, .navbar-bottom > li:hover > a{
+        font-size: 1.2em;
+    }
+
+    .menu-arrow{ display: none; }
+}
+
+@media screen and (max-width: 767px) {
+    .navbar .navbar-collapse .navbar-bottom > li:last-child { padding-right: 15px; }
+
+    .navbar .nav-collapse { margin: 7.5px auto; padding: 0; }
+    .navbar .nav-collapse .navbar-form { margin: 0; }
+    .nav-collapse>li { float: none; }
+
+    .navbar-top {
+        position: relative;
+        top: auto;
+        float: right;
+    }
+    .navbar-top > li {
+        float: right;
+    }
+
+    #top-links {
+        float: none;
+    }
+
+}

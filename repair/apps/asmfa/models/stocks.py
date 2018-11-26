@@ -13,7 +13,6 @@ from repair.apps.asmfa.models.nodes import (
 from repair.apps.login.models.bases import GDSEModel
 
 
-
 class Stock(GDSEModel):
 
     # stocks relate to only one node, also data will be entered by the users

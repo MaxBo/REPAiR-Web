@@ -1,13 +1,15 @@
 var path = require('path');
-var webpack = require('webpack'),
-    BundleTracker = require('webpack-bundle-tracker');
-    ExtractTextPlugin = require("extract-text-webpack-plugin");
+var webpack = require('webpack');
+var BundleTracker = require('webpack-bundle-tracker');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var entryPoints = {
     DataEntry: './js/data-entry',
     StudyArea: './js/study-area',
     StatusQuo: './js/status-quo',
-    Changes:   './js/changes',
+    Targets:   './js/targets',
+    Strategy:  './js/strategy',
+    Welcome:   './js/welcome',
     Base:      './js/base',
 };
 
@@ -25,27 +27,38 @@ module.exports = {
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
-            minChunks: 2
+            minChunks: function (module, count) {
+                // workaround: webpack has problems bundling css files shared between entry points,
+                // it is always missing  at one entry point then (which one seems random)
+                // -> bundle all required css files into commons.css
+                if(module.resource && (/^.*\.(css|scss|less)$/).test(module.resource)) {
+                    return true;
+                }
+                // bundle node modules that are shared at least in between two different entry points
+                return module.context && module.context.includes('node_modules') && count === 2;
+            }
         }),
-        new ExtractTextPlugin('[name]-[hash].css', { allChunks: true 
+        new ExtractTextPlugin('[name]-[hash].css', {
+            allChunks: true
         }),
         new webpack.ProvidePlugin({
             _: 'loadash',
             d3: 'd3',
             $: "jquery",
             jQuery: "jquery"
-        })
+        }),
+        new webpack.IgnorePlugin(/^codemirror$/)
     ],
 
-    node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true }, 
+    node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', __filename: true, __dirname: true },
 
     externals: [ 'ws' ],
 
     module: {
         rules: [
-            { 
-                test: require.resolve("jquery"), 
-                loader: 'expose-loader?jQuery!expose-loader?$' 
+            {
+                test: require.resolve("jquery"),
+                loader: 'expose-loader?jQuery!expose-loader?$'
             },
             {
                 test: /\.css$/,
@@ -55,9 +68,16 @@ module.exports = {
                 })
                 //use: ["style-loader", "css-loader"]
             },
-            { 
-                test: /\.(png|woff|woff2|eot|ttf|svg)$/, 
-                loader: 'url-loader?limit=100000' 
+            {
+                test: /\.(png|woff|woff2|eot|ttf|svg|gif)$/,
+                loader: 'url-loader?limit=100000'
+            },
+            {
+                test: /\.less$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: ['css-loader', 'less-loader']
+                })
             }
         ],
     },

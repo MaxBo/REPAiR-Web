@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.urls import reverse
+import unittest
 from rest_framework import status
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.asmfa.factories import (KeyflowFactory,
-                                         KeyflowInCasestudyFactory)
+                                         KeyflowInCasestudyFactory,
+                                         ProductFactory,
+                                         WasteFactory)
 
 
 class KeyflowTest(BasicModelPermissionTest, APITestCase):
@@ -80,3 +83,64 @@ class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
         for key in self.post_data:
             assert response.data[key] == self.post_data[key]
         assert response.status_code == status.HTTP_201_CREATED
+
+
+class ProductTest(BasicModelPermissionTest, APITestCase):
+    keyflowincasestudy = 5
+    keyflow = 7
+    casestudy = 4
+    product = 2
+
+
+    def setUp(self):
+        super().setUp()
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
+        self.obj = ProductFactory(id=self.product)
+
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "product"
+        cls.url_pks = dict()
+        cls.url_pk = dict(pk=cls.product)
+        cls.put_data = dict(name='testname',
+                            nace='testnace',
+                            cpa='testcpa',
+                            fractions=[]
+                            )
+        cls.post_data = cls.put_data
+        cls.patch_data = cls.put_data
+
+
+class WasteTest(BasicModelPermissionTest, APITestCase):
+    keyflowincasestudy = 5
+    keyflow = 7
+    casestudy = 4
+    waste = 2
+
+    def setUp(self):
+        super().setUp()
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                 casestudy=self.uic.casestudy,
+                                                 keyflow__id=self.keyflow)
+        self.obj = WasteFactory(id=self.waste)
+
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.url_key = "waste"
+        cls.url_pks = dict()
+        cls.url_pk = dict(pk=cls.waste)
+        cls.put_data = dict(name='testname',
+                            nace='testnace',
+                            ewc ='testewc',
+                            wastetype ='testtype',
+                            hazardous = False,
+                            fractions=[]
+                            )
+        cls.post_data = cls.put_data
+        cls.patch_data = cls.put_data

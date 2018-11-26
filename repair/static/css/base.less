@@ -1,0 +1,680 @@
+/**
+ * basic stylesheet for the REPAiR website
+ *
+ * @author Christoph Franke
+ */
+
+@main-color: #aad400;
+@secondary-color: #333333;
+@tertiary-color: #3C4A63;
+
+@import "main-navbar.less";
+@import "sidebar.less";
+
+body {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  font-family: 'Montserrat', sans-serif;
+  color: #000;
+  background-color: white;
+}
+
+h1, h2, h3, h4, h5, label, .btn {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.panel-item label {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.navbar-header {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.navbar-top {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.9em;
+}
+
+#sidebar-content {
+  font-family: 'Open Sans', sans-serif;
+}
+
+select {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.sankey, .tooltip, .sankeymaptooltip, .d3-tip{
+  font-family: 'Roboto', sans-serif;
+  /*font-size: 0.9em;*/
+}
+
+a {
+  color: #94b900;
+}
+
+.nav-tabs>li>a {
+  background-color: #f1f1f1;
+  color: grey;
+  border-bottom-color: #e6e6e6;
+}
+
+.nav-tabs>li>a:hover {
+  background-color: #e6e6e6;
+  color: grey;
+  border: 1px solid #cccccc;
+}
+
+.dropdown-menu>li>a {
+  background-color: white;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  background-color: white;
+  color: #94b900;
+  border: 1px solid #e6e6e6;
+  /* make the bottom line white and lay it over the borders of divs to the bottom */
+  border-bottom: 2px solid white;
+  margin-bottom: -1px;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.row{
+    margin-left:0px;
+    margin-right:0px;
+    padding: 4px;
+}
+
+div.fullscreen{
+  z-index: 99999;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.popover{
+  z-index: 10000;
+}
+
+.tooltip {
+  position: relative;
+  padding: 3px;
+  background: @main-color;
+  opacity: 1;
+  white-space: nowrap;
+  font: 10pt sans-serif;
+  color: white;
+}
+
+/*summernote tooltip*/
+.tooltip[role="tooltip"]{
+  position: absolute ~'!IMPORTANT';
+  background: white;
+}
+
+#wrapper {
+  /*transition: all .4s ease 0s;*/
+  height: 100%;
+  padding-left: 60px;
+}
+
+#page-content-wrapper {
+  padding: 5px;
+  margin-left: 0px;
+  width: 100%;
+  height: auto;
+  padding-top: 120px;
+  background-color: #fdfdfd;
+}
+
+#tab-content {
+  background-color: white;
+}
+
+.tab-pane{
+  min-height: 300px;
+}
+
+#map {
+  height: 500px;
+}
+#evaluationmap {
+  height: 400px;
+}
+#mapviewer {
+  height: 400px;
+}
+.curvesettings {
+  position: absolute;
+  right: 10px;
+  top: 6px;
+}
+.headerpanel {
+  border: 2px solid #EEE;
+  border-radius: 10px;
+  padding-left: 10px;
+  color: #fff;
+  background-color: #333;
+  font-family: sans-serif;
+  font-size: 26px;
+}
+.box {
+  border: 2px solid #EEE;
+  margin: 3px;
+  padding: 5px;
+  background-color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+.panel-heading .accordion-toggle{
+  text-decoration: none;
+  padding: 20px 10px 20px 10px;
+  display: block;
+  color: black ~'!IMPORTANT';
+}
+.panel-heading .accordion-toggle:after {
+  /* symbol for panel */
+  font-family: 'Glyphicons Halflings';
+  content: "\e114";
+  color: grey;
+  margin-left: 10px;
+}
+.panel-heading .accordion-toggle.collapsed:after {
+  /* symbol for collapsed panel*/
+  content: "\e080";
+}
+.panel-heading a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.help-icon{
+  margin: 5px 5px 5px 10px;
+  font-size: 24px;
+  color: lightblue;
+  cursor: pointer;
+  text-decoration: none ~'!IMPORTANT';
+}
+.help-icon:hover{
+  color: #44c9f5;
+}
+.help-icon:focus{
+  color: #44c9f5;
+  outline: none;
+}
+.input-label {
+  float: left;
+  margin-right: 10px;
+  padding-top: 8px;
+}
+.source {
+  position: absolute;
+  width: 50%;
+  top: 6px;
+  left: 50px;
+}
+.graph {
+}
+.btn-panel {
+  background-color: #5688d8;
+  line-height: 50px;
+}
+.btn-add {
+  position: absolute;
+  bottom: 0px;
+  background-color: #555;
+  line-height: 30px;
+  height: 40px;
+  width: 96%;
+}
+
+/* workaround for visualizations not rendering correctly in hidden tabs */
+.tab-pane {
+  display: block ~'!IMPORTANT';
+  position: fixed;
+  right: -9999px;
+  width: 100%;
+  min-height: 300px;
+}
+.tab-pane.active {
+  position: relative;
+  left: 0;
+}
+
+.entry-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.entry-table th, td {
+  text-align: left;
+  padding: 6px;
+  position: relative;
+  /*font-weight: normal;*/
+}
+
+table.bordered td {
+  border: solid lightgrey 1px;
+}
+
+.entry-table tr.strikeout td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 2px solid red;
+    width: 100%;
+}
+.entry-table tr.selected td{
+    background-color: rgb(240, 255, 179) ~'!IMPORTANT';
+    border-bottom: 2px solid @main-color;
+    border-top: 2px solid @main-color;
+}
+
+/*tr:nth-child(even){background-color: #f2f2f2}*/
+
+.entry-table th {
+  background-color: @main-color;
+  color: white;
+}
+
+.entry-table tfoot th {
+  background-color: #f9f9f9;
+  color: black;
+}
+
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 50000000;
+  width: 150px;
+  height: 150px;
+  /*margin: -75px 0 0 -75px;*/
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid @main-color;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.7 ~'!IMPORTANT';
+}
+
+#to-top-anchor {
+  color: #4c5867 ~'!IMPORTANT';
+  background-color: white;
+  position: fixed;
+  /*float: right;*/
+  right: 10px;
+  bottom: 10px;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* pager wrapper, div */
+.tablesorter-pager {
+  padding: 5px;
+}
+/* pager wrapper, in thead/tfoot */
+td.tablesorter-pager {
+  background-color: #e6eeee;
+  margin: 0; /* needed for bootstrap .pager gets a 18px bottom margin */
+}
+/* pager navigation arrows */
+.tablesorter-pager img {
+  vertical-align: middle;
+  margin-right: 2px;
+  cursor: pointer;
+}
+
+/* pager output text */
+.tablesorter-pager .pagedisplay {
+  padding: 0 5px 0 5px;
+  width: 50px;
+  text-align: center;
+}
+
+/* pager element reset (needed for bootstrap) */
+.tablesorter-pager select {
+  margin: 0;
+  padding: 0;
+}
+
+/*** css used when "updateArrows" option is true ***/
+/* the pager itself gets a disabled class when the number of rows is less than the size */
+.tablesorter-pager.disabled {
+  display: none;
+}
+/* hide or fade out pager arrows when the first or last row is visible */
+.tablesorter-pager .disabled {
+  /* visibility: hidden */
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  cursor: default;
+}
+
+.sub-table {
+  margin: 0px 0px 0px 0px;
+  width: auto;
+}
+
+.sub-table td{
+  background: none ~'!IMPORTANT';
+  border-bottom: none ~'!IMPORTANT';
+}
+
+tr.popunder > td{
+  border-top: none ~'!IMPORTANT';
+  padding-top: 0px ~'!IMPORTANT';
+}
+
+.bordered {
+  border: 1px solid #e6e6e6;
+  padding: 10px;
+  background-color: white;
+}
+
+.bordered:hover{
+  border-color: @main-color;
+}
+
+.dashed {
+  border: 2px dashed @main-color;
+  padding: 10px;
+  background-color: white;
+}
+
+.modal{
+    top: 80px;
+}
+
+button.square, button.round, .btn.square, .btn.round {
+  padding: 1px 5px 1px 5px;
+  outline: none ~'!IMPORTANT';
+}
+
+.btn-primary {
+  background-color: @main-color;
+  border: solid 1px @main-color;
+  min-height: 25px;
+  min-width: 25px;
+}
+
+button.d3-overlay {
+  min-height: 30px;
+  min-width: 30px;
+}
+
+.btn-primary:focus, .btn-primary:hover, .btn-primary:active {
+  border-color: #93b700 ~'!IMPORTANT';
+  background-color: #a3cc00 ~'!IMPORTANT';
+}
+
+.btn-primary:active {
+  color: #93b700;
+}
+
+.btn-primary.inverted {
+  background-color: white;
+  border: solid 1px @main-color;
+  color: @main-color;
+}
+
+.btn-warning.inverted {
+  background-color: white;
+  border: solid 1px #d58512;
+  color: #d58512;
+}
+
+.btn-danger.inverted {
+  background-color: white;
+  border: solid 1px #ac2925;
+  color: #ac2925;
+}
+
+.btn-primary.inverted:focus, .btn-primary.inverted:hover, .btn-primary.inverted:active {
+  border-color: #93b700 ~'!IMPORTANT';
+  background-color: #f9ffe2 ~'!IMPORTANT';
+}
+
+.btn-primary.inverted:active {
+  color: #93b700;
+}
+
+.btn-warning.inverted:focus, .btn-warning.inverted:hover, .btn-warning.inverted:active {
+  border-color: #b75e00 ~'!IMPORTANT';
+  background-color: #fff0e2 ~'!IMPORTANT';
+}
+
+.btn-warning.inverted:active {
+  color: #b75e00;
+}
+
+.btn-danger.inverted:focus, .btn-danger.inverted:hover, .btn-danger.inverted:active {
+  border-color: #b70000 ~'!IMPORTANT';
+  background-color: #ffefef ~'!IMPORTANT';
+}
+
+.btn-danger.inverted:active {
+  color: #b70000;
+}
+
+button.round, .btn.round{
+  border-radius: 20px;
+}
+
+button.small, .btn.small{
+  padding: 0px 4px 0px 2px;
+  font-size: 12px;
+}
+
+button.square:hover, button.round:hover, button.square:focus, button.round:focus{
+  /*background-color: @main-color ;*/
+  /*border: none;*/
+  /*color: white;*/
+}
+
+.btn-group-toggle > .btn{
+  background-color: #f3f3f3;
+  border: solid 1px #c7c7c7;
+  color: #a5a5a5;;
+  padding: 15px;
+}
+
+.btn-group-toggle > .btn.active{
+  background-color: #a0c700;
+  border: solid 1px #a0c700;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-group-toggle > .btn:hover{
+  color: white;
+}
+
+.d3-overlay{
+    position: absolute;
+    font-size: 1em;
+    opacity: 0.8;
+    padding: 3px 7px 3px 7px;
+}
+
+.fullscreen-toggle {
+    top: 20px;
+    right: 20px;
+    font-size: 1.4em;
+    padding: 6px;
+}
+
+
+/*div.fullscreen > .fullscreen-toggle{*/
+    /*top: 20px;*/
+/*}*/
+
+.flipped {
+    transform:rotateX(180deg);
+    -ms-transform:rotateX(180deg); /* IE 9 */
+    -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+
+.item-panel{
+  min-width: 100px;
+  margin: 5px;
+  vertical-align: top;
+}
+
+.panel-item {
+  font-size: 1em;
+  background-color: white;
+  border-style: solid;
+  border-width: 1px;
+  border-color: @main-color;
+  margin-bottom: 15px;
+  list-style-type: none;
+  height: 50px;
+  line-height: 50px;
+  white-space: nowrap;
+  cursor: pointer;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: height 0.25s;
+  transition: margin 0.25s;
+  border-radius: 5px;
+}
+
+.panel-item label{
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.panel-item.draggable, .panel-item.draggable label {
+  cursor: move;
+}
+
+.panel-item .button-box{
+  display: none;
+  /*float: right;  <-- does not work in Firefox*/
+  /* the firefox version for aligning buttons right */
+  right: 0px;
+  position: absolute;
+  margin-right: 20px;
+}
+
+.panel-item .overlay{
+  height: 30px;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: #bbb;
+  border-radius: 50%;
+  background-color: @main-color;
+  display: None;float: right;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  top: 0px;
+  margin: auto;
+  color: white;
+  font-family: 'Roboto', 'sans-serif';
+}
+
+div.panel-item{
+  box-shadow: 0px 1px 6px 0px rgba(0,0,0,0.2);
+}
+
+div.panel-item:hover{
+  font-size: 1.1em;
+  background: @main-color;
+  box-shadow: 1px 3px 10px 1px rgba(0,0,0,0.2);
+  border-width: 3px;
+  height: 56px;
+  line-height: 50px;
+  margin-left: -3px;
+  margin-right: -3px;
+}
+div.panel-item:hover label{
+  color: white;
+}
+.panel-item:hover .button-box{
+  display: inline;
+}
+
+/* row with columns that become scrollable instead of breaking */
+.row.overflow{
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.row.overflow>div{
+  display: inline-block;
+  position: relative;
+}
+.shaded{
+  box-shadow: 0px 1px 6px 0px #d6d6d6;
+}
+.shaded:hover{
+  box-shadow: 0px 1px 6px 0px #c4d875;
+}
+.ui-select-choices {
+  position: fixed;
+  top: auto;
+  left: auto;
+  width: inherit;
+}
+
+/* put overlay viewerjs on top of navbar*/
+.viewer-container.viewer-in{
+    z-index: 10000 ~'!IMPORTANT';
+}
+
+@-webkit-keyframes flash {
+    0% {
+        background-color: white;
+    }
+    30% {
+        background-color: lightblue;
+    }
+    70% {
+        background-color: lightblue;
+    }
+    100% {
+        background-color: white;
+    }
+}
+
+.flash {
+    animation-name: flash;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in-out;
+}
+
+.viewer-footer{
+  transform: scale(1.5);
+}

@@ -1,265 +1,365 @@
-define([
-  'd3', 'topojson', 'd3-queue'
-], function(d3, topojson, d3queue){
-
-class FlowMap {
-
-    constructor(container, options){
-        var options = options || {};
-        this.container = document.getElementById(container);
-        
-        // ToDo: include this projection somehow (d3 geoMercator is used)
-        //this.projection = options.projection || 'EPSG:3857';
-        
-        this.width = options.width || this.container.getBoundingClientRect().width;
-        this.height = options.height || this.width / 1.5;
-        
-        this.projection = d3.geo.mercator()
-                            .center([25, 43])
-                            .translate([this.width / 2, this.height / 2])
-                            .scale(950);
-        
-        this.path = d3.geo.path().projection(this.projection);
-        this.svg = d3.select(this.container)
-                     .append("svg")
-                     .attr("width", this.width)
-                     .attr("height", this.height)
-                     .append("g");
-        this.g = this.svg.append("g");
-        
-    }
-    
-    render(nodes, flows){
-        
-        // remember scope of 'this' as context for functions with different scope
-        var _this = this;
-        
-        //nodes data
-        var nodesData = {};
-        nodes.forEach(function(node) {
-            nodesData[node.city] = {'city':node.city,'lon':node.lon,'lat':node.lat};
-        });
-        
-        //flows data
-        var flowsData = {};
-        //get all flow-values from flowsData to use for path stroke-width
-        var flowsValues = [];
-        flows.forEach(function(flow) {
-            flowsData[flow.id] = {'id':flow.id,'source':flow.source,'target':flow.target,'value':flow.value,'type':flow.type};
-        flowsValues.push(parseInt(flow.value));
-        });
-    
-        /*
-        Daten definieren: 
-        source_x, source_y, source_coord,
-        target_x,target_y,target_coord 
-        */
-        for(key in flowsData) {
-            // console.log(key)
-        //source
-            var source = flowsData[key].source, //die source wird aus den flowsData je key gezogen
-                sourceX = nodesData[source]['lon'], //die source aus flowsData ist der key in nodesData und daraus werden koordinaten gezogen
-                sourceY = nodesData[source]['lat'],
-                sourceCoords = [sourceX, sourceY],
-                //target
-                target = flowsData[key].target,
-                targetX = nodesData[target]['lon'],
-                targetY = nodesData[target]['lat'],
-                targetCoords = [targetX, targetY],
-                //flow für Krümmung
-                flow = [source, target],
-        // console.log(flow)
-            /* Pseudocode, um die Anzahl gleicher flows zu kriegen
-                for each source, target same
-                - count + 1, wenn source & target in flowsData gleich sind 
-                - if (count = 7) {return bend 0:0.7;}
-                    else if (count = 6) {return bend 0:0.6;}
-                array.length()
-                if (array.length = 7) {return bend 0:0.7;}
-                */
-        
-        //color	
-                color = flowsData[key].type,
-        
-        //define strokeWidth
-                maxValue = Math.max.apply(null, flowsValues),
-                maxWidth = 12,
-                width= flowsData[key].value;
-        
-            this.strokeWidth = width / maxValue * maxWidth;
-        
-        // drawPath
-            this.drawPath(sourceX, sourceY, targetX, targetY, 0.8, color)
-        
-        
-        } //End for key in flowsData
-
-
-        //**********************************************************************************************************************
-        // adjust point size
-        // get values per source
-        // get the value for each individual source (that you find in node.city)
-        var valuePerSource = {},
-            pointValue = [];
-    
-        nodes.forEach(function(node){  //run through nodes
-            // get value per source element
-            var value = 0;
-            flows.forEach(function(flow){  //  for each flow, if source == node.city add the flow.value to the defined value
-                if (flow.source == node.city){
-                    //console.log(flow.value)
-                    value = value + parseInt(flow.value);
-                }
-            });
-            valuePerSource[node.city] = value;
-            pointValue.push(valuePerSource[node.city]);     //pointValue to get the values for calculating the max value
-    
-        });
-    
-        // get point size
-        var maxPointValue = Math.max.apply(null,pointValue),
-            maxPointSize = 12;
-
-        // run through valuePerSource
-        for (var key in valuePerSource){
-            var pointSize = 4 + (valuePerSource[key] / maxPointValue * maxPointSize);             // (4+ so that the size is at least 4)calculate for each key the pointSize (value/maxValue * maxPointSize)
-            valuePerSource[key] = pointSize                                          // like push: put the pointSize-Values into the object valuePerSource for each key
-            console.log(pointSize)
-        };
-
-
-        // addpoint for each node
-        nodes.forEach(function(node) {
-            pointSize=valuePerSource[node.city]                 //under the valuePerSource object are pointSite - values per city which are calculated above; here we take the values
-            if (pointSize == 0){pointSize=4}
-            _this.addPoint(node.lon, node.lat,pointSize);
-        });
-    //**********************************************************************************************************************
-
-
-    } 
-
-    
-    renderCsv(topoJson, nodesCsv, flowsCsv){
-        var _this = this;
-        
-        function drawTopo(topojson) {
-            var country = _this.g.selectAll(".country").data(topojson);
-            _this.g.selectAll(".country")
-                   .data(topojson)
-                   .enter()
-                   .append("path")
-                   .attr("class", "country")
-                   .attr("d", _this.path)
-                   .attr("id", function(d,i) { return d.id; })
-                   .style("fill", "lightgrey");
-        }
-        
-        // Alle Daten werden über die queue Funktion parallel reingeladen, hier auf die Reihenfolge achten
-        function loaded(error, world, nodes, flows) {
-            //world data
-            var countries = topojson.feature(world, world.objects.countries).features;
-            drawTopo(countries);
-            _this.render(nodes, flows);
-        }
-        d3queue.queue().defer(d3.json, topoJson)
-                       .defer(d3.csv, nodesCsv)
-                       .defer(d3.csv, flowsCsv)
-                       .await(loaded);
-    
-    }
-
-
-    //function to add points to the map
-    addPoint(lon, lat, pointSize) {
-        var x = this.projection([lon, lat])[0];
-        var y = this.projection([lon, lat])[1];
-    
-        var point = this.g.append("g")
-                          .attr("class", "gpoint")
-                          .append("circle")
-                          .attr("cx", x)
-                          .attr("cy", y)
-                          .attr("r", pointSize);
-        // Größe der Punkte abhängig nach in & outflows
-    //& farbe abhängig, ob mehr in- oder outflows
-    }
-
-    //function makeArc, that is used for drawPath
-    makeArc(sx, sy, tx, ty, bend) {
-        //sx,sy,tx,ty mit projection versehen
-        var sxp = this.projection([sx,sy])[0],
-            syp = this.projection([sx,sy])[1],
-            txp = this.projection([tx,ty])[0],
-            typ = this.projection([tx,ty])[1];
-
-        var dx = txp - sxp,
-            dy = typ - syp,
-            dr = Math.sqrt(dx * dx + dy * dy) * bend;
-
-        return "M" + sxp + "," + syp + "A" + dr + "," + dr +" 0 0,1 " + txp + "," + typ;
-    }
-
-    specifyColor(color) {
-        if (color === 'organic') {return '#2e7b50';}
-        if (color === 'plastic') {return '#4682b4';}
-        if (color === 'construction') {return '#cc8400';}
-        if (color === 'food') {return '#ebda09';}
-        if (color === 'msw') {return '#348984';}
-        if (color === 'hazardous') {return '#893464';}
-        return 'white';
-    }
-
-    drawPath(sx,sy,tx,ty,bend,color) {
-        // draw arrow
-        // source: https://stackoverflow.com/questions/36579339/how-to-draw-line-with-arrow-using-d3-js
-        var arrow = this.svg.append("marker")
-                            .attr("id", "arrow")
-                            .attr("refX", 6)
-                            .attr("refY", 6)
-                            .attr("markerWidth", 10)
-                            .attr("markerHeight", 10)
-                            .attr("orient", "auto")
-                            .append("path")
-                            .attr("d", "M 3 5.5 3.5 5.5" +      //left
-                                " 4 6 " +                       //up
-                                " 3.5 6.5  3 6.5 " +            //right
-                                "3.5 6")                        //down
-                            .style("fill", "black");
-    
-    
-        var route = this.g.insert("path")
-                        .attr("class", "route")
-                        .attr("id","route")
-                        .attr("d", this.makeArc(sx,sy,tx,ty,bend))
-                        .style("stroke", this.specifyColor (color))
-                        .style("stroke-width", this.strokeWidth)
-                        //.style("stroke-dasharray", "9, 2")
-                        .attr("marker-end", "url(#arrow)");
-    }
-}
-
-return FlowMap;
-});
-
 /*
-
-Aktuelle AUFGABEN
-
-    *** - Farbe nach type
-    *** - StrokeWidth: Breite nach value
-        Vorgehen: value / maxValue * maxStrokeWidth
-- Punkte
-    - Größe der Punkte abhängig nach in & outflows
-    - Farbe abhängig, ob mehr in- oder outflows
-
-- Richtung anzeigen: 1 arrow mit marker-start oder marker-end, aber: bei bend funktioniert es nicht (bend einfügen) und anzeige in bestimmtem abstand
-    - arcTween: mit animation?
-    -transition https://github.com/d3/d3-transition#transition_attrTween
-    - chained transition (dashedarray?)https://bl.ocks.org/mbostock/70d5541b547cc222aa02
-
-- bend anpassen nach Anzahl von flows: bzw bend nach typ, da an gleicher stelle sein soll?
-
-- Beziers statt arcs??
-    - Bedingung einfügen: wenn type gleiches target xy und source xy hat, dann hintereinander verlaufen
+*  Data Input that is needed to use the class FlowMap:
+* Nodes:
+* @param {object} nodesData
+* @param {string} nodesData.name - Label for the tooltips
+* @param {number} nodesData.lon - Longitude (first part of coordinates)
+* @param {number} nodesData.lat - Latitude (second part of coordinates)
+* @param {string} nodesData.label - Label for the tooltips
+* @param {number} nodesData.style - Style ID for the color
+* @param {number} nodesData.level - Level to use for the radius
+*
+* Flows:
+* @param {object} flowsData
+* @param {string} flowsData.id - ID for each flow
+* @param {number} flowsData.source - flow origin needs id that is connected to coordinates of the Data for the nodes
+* @param {number} flowsData.target - flow destination needs id that is connected to coordinates of the Data for the nodes
+* @param {number} flowsData.value - value for the widths (for seperated flows)
+* @param {number} flowsData.valueTotal -   total value for the widths
+* @param {string} flowsData.label - Label for the tooltips (for seperated flows)
+* @param {string} flowsData.labelTotal - Label for the tooltips
+* @param {number} flowsData.style - Style ID for the color
+*
+* Styles:
+* @param{object} styles
+* @param{hex} styles.nodeColor - color for the nodes
+* @param{number} styles.radius - radius for the node
+* @param{hex} styles.color - color for the flows
+*
 */
+
+
+define([
+    'd3', 'topojson', 'd3-queue', 'leaflet'
+], function(d3, topojson, d3queue, L){
+
+    class FlowMap {
+
+        constructor(map, options) {
+            var options = options || {};
+            this.map = map;
+            var _this = this;
+
+            this.width = options.width || this.map.offsetWidth;
+            this.bbox = options.bbox;
+            this.height = options.height || this.width / 1.5;
+            this.projection = function(coords) {
+                var point = map.latLngToLayerPoint(new L.LatLng(coords[1], coords[0]));
+                return [point.x, point.y];
+            }
+
+            function projectPoint(x, y) {
+                var coords = _this.projection([x, y]);
+                this.stream.point(point.x, point.y);
+            }
+
+            var transform = d3.geo.transform({point: projectPoint});
+            this.overlay = map.getPanes().overlayPane;
+            this.path = d3.geo.path().projection(transform);
+
+            // tooltip
+            this.tooltip = d3.select(this.overlay)
+                .append("div")
+                .attr("class", "sankeymaptooltip")
+                .style("opacity", 0);
+
+            this.svg = d3.select(this.overlay).append("svg");
+            this.g = this.svg.append("g").attr("class", "leaflet-zoom-hide");
+
+            // get zoom level after each zoom activity
+            this.initialZoom = this.map.getZoom();
+            this.maxFlowWidth = 50;
+            this.minFlowWidth = 1;
+            this.maxScale = 2;
+
+            this.map.on("zoom", function(evt){
+                _this.svg.node().style.visibility = 'hidden';
+            });
+            this.map.on("zoomend", function(evt){ _this.resetView() });
+
+            this.nodesData = {};
+            this.flowsData = {};
+            this.hideTags = {};
+        }
+
+        // fit svg layer to map
+        resetView(){
+
+            this.svg.node().style.visibility = 'visible';
+            var svgPos = this.resetBbox();
+            if (!svgPos) return;
+            var topLeft = svgPos[0];
+            this.g.attr("transform",
+                        "translate(" + -topLeft[0] + "," + -topLeft[1] + ") ");
+            this.draw();
+        }
+
+        resetBbox(bbox){
+            if (bbox) this.bbox = bbox;
+            if (!this.bbox) return;
+            var topLeft = this.projection(this.bbox[0]),
+                bottomRight = this.projection(this.bbox[1]);
+            topLeft = [topLeft[0] - 250, topLeft[1] - 250];
+            bottomRight = [bottomRight[0] + 250, bottomRight[1] + 250];
+            this.svg.attr("width", bottomRight[0] - topLeft[0])
+                .attr("height", bottomRight[1] - topLeft[1])
+                .style("left", topLeft[0] + "px")
+                .style("top", topLeft[1] + "px");
+            return [topLeft, bottomRight]
+        }
+
+        // remove all prev. drawn flows and nodes
+        clear(){
+            this.g.selectAll("*").remove();
+            this.nodesData = {};
+            this.flowsData = {};
+            this.hideTags = {};
+        }
+
+        addNodes(nodes){
+            var _this = this,
+                // boundingbox
+                topLeft = [10000, 0],
+                bottomRight = [0, 10000];
+            nodes.forEach(function(node){
+                _this.nodesData[node.id] = node;
+            })
+            Object.values(_this.nodesData).forEach(function(node){
+                topLeft = [Math.min(topLeft[0], node.lon), Math.max(topLeft[1], node.lat)];
+                bottomRight = [Math.max(bottomRight[0], node.lon), Math.min(bottomRight[1], node.lat)];
+            })
+            this.resetBbox([topLeft, bottomRight]);
+        }
+
+        zoomToFit(){
+            if (!this.bbox) return;
+            // leaflet uses lat/lon in different order
+            this.map.fitBounds([
+                [this.bbox[0][1], this.bbox[0][0]],
+                [this.bbox[1][1], this.bbox[1][0]]
+            ]);
+        }
+
+        addFlows(flows){
+            var _this = this;
+            flows.forEach(function(flow){
+                // collect flows with same source and target
+                var linkId = flow.source + '-' + flow.target;
+                if (_this.flowsData[linkId] == null) _this.flowsData[linkId] = [];
+                _this.flowsData[linkId].push(flow);
+            })
+
+            var totalValues = [];
+            Object.values(this.flowsData).forEach(function(links){
+                var totalValue = 0;
+                links.forEach(function(c){ totalValue += c.value });
+                totalValues.push(totalValue)
+            })
+            this.maxFlowValue = Math.max(...totalValues);
+            this.minFlowValue = Math.min(...totalValues);
+        }
+
+        draw() {
+            this.g.selectAll("*").remove();
+            // remember scope of 'this' as context for functions with different scope
+            var _this = this,
+                scale = Math.min(this.scale(), this.maxScale);
+
+            // define data to use for drawPath and drawTotalPath as well as nodes data depending on flows
+            for (var linkId in this.flowsData) {
+                var combinedFlows = _this.flowsData[linkId],
+                    shiftStep = 0.3 / combinedFlows.length,
+                    xshift = 0.4,
+                    yshift = 0.1,
+                    curve = (combinedFlows.length > 1) ? 'arc' : 'bezier';
+                combinedFlows.forEach(function(flow){
+                    // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
+                    // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
+                    var sourceId = flow.source,
+                        targetId = flow.target,
+                        source = _this.nodesData[sourceId],
+                        target = _this.nodesData[targetId];
+                    // skip if there is no source or target for some data
+                    if (!source || !target) {
+                        console.log('Warning: missing actor for flow');
+                        return;
+                    }
+                    //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
+                    var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
+                        strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
+
+                    var sourceCoords = _this.projection([source['lon'], source['lat']]),
+                        targetCoords = _this.projection([target['lon'], target['lat']]);
+
+                    if(_this.animate){
+                        var dash = {
+                            length: 10,
+                            gap: 4,
+                            offset: 0
+                        };
+                        if (_this.dottedLines && strokeWidth > calcWidth) {
+                            var dashLength = 2,
+                                dashGaps = 204 - (calcWidth * 200) / 2,
+                                offset = Math.floor(Math.random() * Math.floor(dashGaps));
+                            dash = {
+                                length: dashLength,
+                                gap: dashGaps,
+                                offset: offset
+                            };
+                        }
+                    }
+
+                    var path = _this.drawPath(
+                        [
+                            {x: sourceCoords[0], y: sourceCoords[1]},
+                            {x: targetCoords[0], y: targetCoords[1]}
+                        ],
+                        flow.label, flow.color, strokeWidth,
+                        {
+                            xshift: xshift,
+                            yshift: yshift,
+                            animate: _this.animate,
+                            dash: dash,
+                            curve: curve,
+                            tag: flow.tag
+                        }
+                    );
+                    xshift -= shiftStep;
+                    yshift += shiftStep;
+                });
+
+            };
+
+            // use addpoint for each node in nodesDataFlow
+            Object.values(_this.nodesData).forEach(function (node) {
+                var x = _this.projection([node.lon, node.lat])[0],
+                    y = _this.projection([node.lon, node.lat])[1],
+                    radius = node.radius / 2;// * scale / 2;
+                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
+            });
+        }
+
+        scale(){
+            var zoomLevel = this.map.getZoom(),
+                d = zoomLevel - this.initialZoom,
+                scale = Math.pow(2, d);
+            return scale;
+        }
+
+        //function to add source nodes to the map
+        addPoint(x, y, label, innerLabel, color, radius) {
+            var _this = this;
+
+            var point = this.g.append("g").attr("class", "node");
+            point.append("circle")
+                 .attr("cx", x)
+                 .attr("cy", y)
+                 .attr("r", radius)
+                 .style("fill", color)
+                 .style("fill-opacity", 1)
+                 .style("stroke", 'lightgrey')
+                 .style("stroke-width", 1)
+                 .on("mouseover", function (d) {
+                     d3.select(this).style("cursor", "pointer");
+                     var rect = _this.overlay.getBoundingClientRect();
+                     _this.tooltip.transition()
+                         .duration(200)
+                         .style("opacity", 0.9);
+                     _this.tooltip.html(label)
+                         .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                 })
+                 .on("mouseout", function (d) {
+                     _this.tooltip.transition()
+                         .duration(500)
+                         .style("opacity", 0)
+                     }
+                 );
+            point.append("text")
+                 .attr("x", x)
+                 .attr("y", y + 5)
+                 .attr("text-anchor", "middle")
+                 .style("font-size", "14px")
+                 .attr('fill','white')
+                 .text(innerLabel || "");
+
+        }
+
+        // function to draw actual paths for the directed quantity flows
+        drawPath(points, label, color, strokeWidth, options ) {
+            var _this = this,
+                options = options || {};
+            var line = d3.svg.line()
+                         .x(function(d) { return d.x; })
+                         .y(function(d) { return d.y; });
+            // Determine control point locations for different link styles
+            var bezier = function(points) {
+                // Set control point inputs
+                var source = points[0],
+                    target = points[1],
+                    dx = source.x - target.x,
+                    dy = source.y - target.y,
+                    sx = options.xshift || 0.4,
+                    sy = options.yshift || 0.1;
+                //bezier or arc
+                var controls = (options.curve === 'arc') ? [sx*dx, sy*dy, sy*dx, sx*dy] : [sx*dx, sy*dy, sx*dx, sy*dy];
+
+                return "M" + source.x + "," + source.y
+                     + "C" + (source.x - controls[0]) + "," + (source.y - controls[1])
+                     + " " + (target.x + controls[2]) + "," + (target.y + controls[3])
+                     + " " + target.x + "," + target.y;
+            };
+            var path = this.g.append("path")
+                .attr('d', bezier(points))
+                .attr("stroke-width", strokeWidth)
+                .attr("stroke", color)
+                .attr("fill", 'none')
+                .attr("stroke-opacity", 0.5)
+                .attr("tag", options.tag)
+                //.attr("stroke-linecap", "round")
+                .style("pointer-events", 'all')
+                .on("mouseover", function () {
+                    d3.select(this).node().parentNode.appendChild(this);
+                    d3.select(this).style("cursor", "pointer");
+                     var rect = _this.overlay.getBoundingClientRect();
+                    _this.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.8);
+                    _this.tooltip.html(label)
+                         .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                    path.attr("stroke-opacity", 1)
+                })
+                .on("mouseout", function () {
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    path.attr("stroke-opacity", 0.5)
+                })
+                .classed('flow', true)
+                .classed('animated', options.animate);
+            if (options.dash){
+                var dash = options.dash;
+                path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
+                path.attr("stroke-dashoffset", dash.offset);
+            }
+            if(this.hideTags[options.tag])
+                path.style("opacity", 0);
+            return path;
+        }
+
+        toggleAnimation(on){
+            if(on != null) this.animate = on;
+            //this.g.selectAll('path').classed('flowline', this.animate);
+            this.draw();
+        }
+
+        toggleTag(tag, on){
+            this.hideTags[tag] = !on;
+            var opacity = (on) ? 1: 0
+            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
+        }
+
+    }
+    return FlowMap;
+});

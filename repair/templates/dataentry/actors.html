@@ -6,7 +6,7 @@
   <h3> <%= casestudy %> > <%= keyflow %> > {% trans "Actors" %}</h3>
   </br>
   <div class="row">
-    <div class='col-md-3 bordered' style="margin-right: 20px; resize: horizontal; overflow: auto">
+    <div class='col-md-4 bordered' style="margin-right: 20px; resize: horizontal; overflow: auto">
       <div class="row">
         {% trans "Activity" %}
         <select class="form-control" name="activity-filter">
@@ -17,21 +17,21 @@
         </select>
       </div>
       <div class="row">
-        {% trans "Inclusion in Casestudy" %} 
+        {% trans "Inclusion in Casestudy" %}
         <select class="form-control" name="included-filter" id="included-filter-select">
           <option value="0">{% trans "show all" %}</option>
           <option value="1">{% trans "show included only" %}</option>
         </select>
       </div>
       <div class="row" style="overflow-x:auto; margin-top: 10px; margin-bottom: 10px;">
-        <table id='actors-table' class="table-striped" style="overflow: auto">
+        <table id='actors-table' class="table-striped entry-table" style="overflow: auto">
           <thead>
             <tr>
               <th>{% trans "Name" %}</th>
               <th>{% trans "City" %}</th>
               <th>{% trans "Address" %}</th>
             </tr>
-          </thead> 
+          </thead>
         </table>
       </div>
       <div class="row">
@@ -43,8 +43,8 @@
         </button>
       </div>
     </div>
-    <div class='col-md-8'>
-      <div id="edit-actor"> 
+    <div class='col-md-7'>
+      <div id="edit-actor">
         <h3 class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select an actor by clicking its row." %}</h3>
       </div>
     </div>
@@ -64,7 +64,7 @@
           <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
         </button>
       </div>
-      <table id="actor-edit-table">
+      <table id="actor-edit-table" class="entry-table">
         <tr>
           <td>{% trans "Included" %}</td>
           <td>
@@ -132,12 +132,12 @@
     </div>
     <div class='col-md-7' style='border-left: 1px dashed lightgrey; font-size: 12px;'>
       <h4 class="row"> {% trans "Locations" %} </h4>
-      <div id="actors-map" style="min-height: 400px" class="map row">
+      <div id="actors-map" style="min-height: 400px" class="olmap row">
          <div class="tooltip"></div>
       </div>
       </br>
       <div class="bordered" class="row">
-        <table id="adminloc-table">
+        <table id="adminloc-table" class="entry-table">
           <b>Administrative Location</b>
           <thead>
               <tr>
@@ -147,9 +147,9 @@
                 <th>{% trans "Area" %}</th>
                 <th style="text-align: right;">{% trans "Edit" %}</th>
               </tr>
-            </thead> 
-            <tbody> 
-            </tbody> 
+            </thead>
+            <tbody>
+            </tbody>
         </table>
         <button id='add-administrative-button' class="btn btn-primary square" title="{% trans "add administrative location" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
@@ -157,7 +157,7 @@
       </div>
       </br>
       <div class="bordered" class="row">
-        <table id="oploc-table">
+        <table id="oploc-table" class="entry-table">
           <b>Operational Locations</b>
           <thead>
             <tr>
@@ -167,9 +167,9 @@
               <th>{% trans "Area" %}</th>
               <th style="text-align: right;">{% trans "Edit" %}</th>
             </tr>
-          </thead> 
-          <tbody> 
-          </tbody> 
+          </thead>
+          <tbody>
+          </tbody>
         </table>
         <button id='add-operational-button' class="btn btn-primary square" title="{% trans "add operational location" %}">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add" %}
@@ -189,11 +189,11 @@
               <div class="col-md-6" >
                 <div id='edit-location-map' style="min-height: 400px; min-width: 400px; width: 100%; height: 100%;"></div>
               </div>
-              <div  class="col-md-6"> 
+              <div  class="col-md-6">
                 <div id='location-modal-content'> </div <!-- this is the only part we rerender everytime an actor is clicked -->
                 </br>
                 <b>{% trans "Area (optional)" %}</b>
-                <table id="location-area-table"></table>
+                <table id="location-area-table" class="entry-table"></table>
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@
   <b>{% trans "Name" %} </b> <input type="text" name="name" value="<%= properties.name %>" style='margin-left: 20px;'>
   <br><br><br>
   <b>{% trans "Address (optional)" %}</b>
-  <table id="location-edit-table">
+  <table id="location-edit-table" class="entry-table">
     <tr>
       <td>{% trans "City" %}</td>
       <td><input type="text" name="city" value="<%= properties.city %>"></td>

@@ -1,7 +1,8 @@
-define(['views/baseview', 'underscore', 'collections/gdsecollection', 
-        'models/gdsemodel', "app-config"],
+define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
+        'models/gdsemodel', 'viewerjs', 'app-config', 'jstree',
+        'static/css/jstree/gdsetouch/style.css', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config){
+function(BaseView, _, GDSECollection, GDSEModel, Viewer, config){
 /**
 *
 * @author Christoph Franke
@@ -28,19 +29,20 @@ var BaseChartsView = BaseView.extend(
         BaseChartsView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'nodeSelected');
+        _.bindAll(this, 'repositionButtons');
 
         this.caseStudy = options.caseStudy;
         this.mode = options.mode || 0;
 
-        this.categoryTree = {}
-        
-        this.chartCategories = new GDSECollection([], { 
+        this.categoryTree = {};
+
+        this.chartCategories = new GDSECollection([], {
             apiTag: 'chartCategories',
             apiIds: [ this.caseStudy.id ]
         });
 
         this.loader.activate();
-        this.chartCategories.fetch({ 
+        this.chartCategories.fetch({
             success: function(){
                 _this.loader.deactivate();
                 _this.initTree();
@@ -56,14 +58,12 @@ var BaseChartsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click .chart-control.fullscreen-toggle': 'toggleFullscreen',
-        'click #add-chart-button': 'addChart',
+        'click #chart-tree-buttons>.add': 'addChart',
         'click #add-chart-category-button': 'addCategory',
         'click #add-chart-modal .confirm': 'confirmChart',
         'change #chart-image-input': 'showPreview',
-        'click #remove-cc-button': 'removeNode',
-        'click #remove-cc-modal .confirm': 'confirmRemoval',
-        'click #edit-cc-button': 'editName'
+        'click #chart-tree-buttons>.remove': 'removeNode',
+        'click #chart-tree-buttons>.edit': 'editName'
     },
 
     /*
@@ -76,18 +76,19 @@ var BaseChartsView = BaseView.extend(
         this.el.innerHTML = template();
         this.chartTree = document.getElementById('chart-tree');
         this.buttonBox = document.getElementById('chart-tree-buttons');
-        
+
         html = document.getElementById('empty-modal-template').innerHTML;
-        this.confirmationModal = document.getElementById('remove-cc-modal');
-        this.confirmationModal.innerHTML = _.template(html)({ header: gettext('Remove') });
-        
+
         if (this.mode == 0) {
             document.getElementById('add-chart-category-button').style.display = 'none';
         }
-        
+
         this.renderChartTree();
+
+        var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
+        $(popovers).popover({ trigger: "focus" });
     },
-    
+
     initTree: function(){
         var _this = this;
         var promises = [],
@@ -95,17 +96,16 @@ var BaseChartsView = BaseView.extend(
         // put nodes for each category into the tree and prepare fetching the layers
         // per category
         this.chartCategories.each(function(category){
-            var charts = new GDSECollection([], { 
+            var charts = new GDSECollection([], {
                 apiTag: 'charts',
                 apiIds: [ _this.caseStudy.id, category.id ]
             });
             charts.categoryId = category.id;
-            var node = { 
-                text: category.get('name'), 
+            var node = {
+                text: category.get('name'),
                 category: category,
-                state: { expanded: true },
-                backColor: (_this.mode == 0) ? '#aad400' : 'white',
-                color: (_this.mode == 0) ? 'white' : 'black'
+                children: [],
+                type: "category"
             };
             _this.categoryTree[category.id] = node;
             chartList.push(charts);
@@ -117,155 +117,154 @@ var BaseChartsView = BaseView.extend(
                 var catNode = _this.categoryTree[charts.categoryId];
                 var children = [];
                 charts.each(function(chart){
-                    var node = { 
-                        chart: chart, 
+                    var node = {
+                        chart: chart,
                         text: chart.get('name'),
-                        icon: 'fa fa-image'
-                        } 
+                        type: "chart"
+                        }
                     children.push(node);
                 });
-                catNode.nodes = children;
+                catNode.children = children;
             });
             _this.render();
         })
     },
 
-
-    rerenderChartTree: function(categoryId){
-        this.buttonBox.style.display = 'None';
-        // error when trying to remove, but not initialized yet, safe to ignore
-        $(this.chartTree).treeview('remove');
-        this.renderChartTree(categoryId);
+    rerenderTree: function(){
+        $(this.chartTree).jstree("destroy");
+        this.renderChartTree();
     },
 
     /*
     * render the hierarchic tree of layers
     */
-    renderChartTree: function(categoryId){
+    renderChartTree: function(){
         if (Object.keys(this.categoryTree).length == 0) return;
 
-        var _this = this;
-        var dataDict = {};
-        var tree = [];
+        var _this = this,
+            tree = [];
 
         _.each(this.categoryTree, function(category){
             category.tag = 'category';
             tree.push(category);
         })
-        
-        // items are not unselectable
-        function nodeUnselected(event, node){
-            $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: true }]);
-        }
-        // select item on collapsing (workaround for misplaced buttons when collapsing)
-        function nodeCollapsed(event, node){
-            if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
-        }
-        function nodeExpanded(event, node){
-            if (_this.mode == 1)
-                $(_this.chartTree).treeview('selectNode',  [node.nodeId, { silent: false }]);
-        }
 
-        require('libs/bootstrap-treeview.min');
-        $(this.chartTree).treeview({
-            data: tree, showTags: true,
-            selectedColor: (_this.mode == 0) ? 'black' : 'white',
-            selectedBackColor: (_this.mode == 0) ? 'rgba(170, 212, 0, 0.3)' : '#aad400',
-            expandIcon: 'glyphicon glyphicon-triangle-right',
-            collapseIcon: 'glyphicon glyphicon-triangle-bottom',
-            onNodeSelected: this.nodeSelected,
-            onNodeUnselected: nodeUnselected,
-            onNodeCollapsed: nodeCollapsed,
-            onNodeExpanded: nodeExpanded
-            //showCheckbox: true
-        });
-        
-        // look for and expand and select node with given category id
-        if (categoryId != null){
-            // there is no other method to get all nodes or to search for an attribute
-            var nodes = $(this.chartTree).treeview('getEnabled');
-            _.forEach(nodes, function(node){
-                if (node.category && (node.category.id == categoryId)){
-                    selectNodeId = node.nodeId; 
-                    $(_this.chartTree).treeview('selectNode', selectNodeId);
-                    return false;
+        $(this.chartTree).jstree({
+            core : {
+                data: tree,
+                themes: {
+                    name: 'gdsetouch',
+                    responsive: true
+                },
+                check_callback: true,
+                multiple: false
+            },
+            types: {
+                "#" : {
+                  "max_depth": -1,
+                  "max_children": -1,
+                  "valid_children": ["category"],
+                },
+                category: {
+                    "valid_children": ["chart"],
+                    "check_node": false,
+                    "uncheck_node": false,
+                    "icon": "fa fa-images"
+                },
+                chart: {
+                    "valid_children": [],
+                    "icon": "fa fa-image"
                 }
-            })
+            },
+            plugins: ["wholerow", "ui", "types", "themes"]
+        });
+        $(this.chartTree).on("select_node.jstree", this.nodeSelected);
+        if (this.mode === 1){
+            // button position needs to be recalculated when collapsing/expanding
+            $(this.chartTree).on("open_node.jstree", function(){ _this.buttonBox.style.display='none' });
+            $(this.chartTree).on("close_node.jstree", function(){ _this.buttonBox.style.display='none' });
+            $(this.chartTree).on("after_open.jstree", this.repositionButtons);
+            $(this.chartTree).on("after_close.jstree", this.repositionButtons);
         }
-        else if (this.mode == 1) $(this.chartTree).treeview('selectNode', 0);
     },
 
-    /*
-    * event for selecting a node in the material tree
-    */
-    nodeSelected: function(event, node){
-        // unselect previous node (caused by onNodeUnselected)
-        if (this.selectedNode)
-            $(this.chartTree).treeview('unselectNode', [this.selectedNode.nodeId, { silent: true }]);
-        var addBtn = document.getElementById('add-chart-button');
-        var removeBtn = document.getElementById('remove-cc-button');
+    nodeSelected: function(event, data){
+        var node = data.node,
+            addBtn = this.buttonBox.querySelector('.add'),
+            removeBtn = this.buttonBox.querySelector('.remove');
         this.selectedNode = node;
-        
         var preview = this.el.querySelector('#chart-view');
-        
-        if (node.chart){
-            preview.src = node.chart.get('image'); 
+
+        if (node.type === 'chart'){
+            preview.src = node.original.chart.get('image');
             preview.style.display = 'inline';
+            preview.alt = node.original.chart.get('name');
+            if (this.viewer) this.viewer.destroy();
+            this.viewer = new Viewer.default(preview);
         }
-        // group selected in setup mode -> no image; keep previous one in workshop mode
-        else if (this.mode == 1) {
-            preview.src = '#';
-            preview.style.display = 'none';
-        }
-        
-        if (this.mode == 0) {
-            if (node.category){
-                // unselect node, so that selection is triggered on continued clicking
-                $(this.chartTree).treeview('unselectNode',  [node.nodeId, { silent: true }]);
-                var f = (node.state.expanded) ? 'collapseNode' : 'expandNode';
-                $(this.chartTree).treeview(f,  node.nodeId);
+        else {
+            // category selected in setup mode -> no image; keep previous one in workshop mode
+            if (this.mode == 1) {
+                preview.src = '#';
+                preview.style.display = 'none';
             }
-            // no buttons in workshop mode -> return before showing
+            // expand category on single click in workshop mode
+            if (this.mode == 0) {
+                $(this.chartTree).jstree('toggle_node', node);
+            }
+        }
+
+        if (this.mode == 1) {
+            addBtn.style.display = 'inline';
+            removeBtn.style.display = 'inline';
+            if (node.type === 'chart') {
+                addBtn.style.display = 'None';
+            }
+            this.repositionButtons();
+        }
+    },
+
+    // place buttons over currently selected node
+    repositionButtons(){
+        var id = $(this.chartTree).jstree('get_selected')[0],
+            li = this.chartTree.querySelector('#' + id);
+        if (!li) {
+            this.buttonBox.style.display = 'none';
             return;
         }
-        
-        addBtn.style.display = 'inline';
-        removeBtn.style.display = 'inline';
-        if (node.chart != null) {
-            addBtn.style.display = 'None';
-        }
-        var li = this.chartTree.querySelector('li[data-nodeid="' + node.nodeId + '"]');
-        if (!li) return;
-        this.buttonBox.style.top = li.offsetTop + 'px';
+        this.buttonBox.style.top = li.offsetTop + this.chartTree.offsetTop + 'px';
         this.buttonBox.style.display = 'inline';
     },
 
     addChart: function(){
         var modal = document.getElementById('add-chart-modal');
-        $(modal).modal('show'); 
+        $(modal).modal('show');
     },
-    
+
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = _this.chartCategories.create( { name: name }, { 
+            var category = _this.chartCategories.create( { name: name }, {
                 success: function(){
-                    console.log(category)
-                    var catNode = { 
-                        text: name, 
+                    var catNode = {
+                        text: name,
+                        type: 'category',
                         category: category,
-                        state: { checked: true }
+                        children: []
                     };
-                    catNode.nodes = [];
+                    var treeIsEmpty = Object.keys(_this.categoryTree).length === 0;
                     _this.categoryTree[category.id] = catNode;
-                    _this.rerenderChartTree(category.id);
+                    // bug in jstree: tree is not correctly initiallized when empty
+                    if (treeIsEmpty)
+                        _this.rerenderTree();
+                    else
+                        _this.addNode(catNode);
                 },
                 error: _this.onError,
                 wait: true
             });
         }
-        this.getName({ 
+        this.getName({
             title: gettext('Add Category'),
             onConfirm: onConfirm
         });
@@ -273,16 +272,16 @@ var BaseChartsView = BaseView.extend(
 
     confirmChart: function(){
         var preview = this.el.querySelector('.preview'),
-            category = this.selectedNode.category,
+            category = this.selectedNode.original.category,
             _this = this;
-        
+
         var imgInput = this.el.querySelector('#chart-image-input');
         if (imgInput.files && imgInput.files[0]){
-        
+
             // you have to upload files via form, Backbone.Models (sends data as json) doesn't work here
             var image = imgInput.files[0],
                 name = this.el.querySelector('#chart-name').value;
-            
+
             var data = {
                 name: name,
                 image: image
@@ -292,19 +291,22 @@ var BaseChartsView = BaseView.extend(
                 success: function () {
                     var chartNode = { text: chart.get('name'),
                         icon: 'fa fa-image',
-                        chart: chart };
-                    _this.categoryTree[category.id].nodes.push(chartNode);
-                    _this.rerenderChartTree(category.id);
+                        chart: chart,
+                        type: 'chart'};
+                    var catNode = _this.categoryTree[category.id];
+                    if (!catNode.nodes) catNode.nodes = [];
+                    catNode.nodes.push(chartNode);
+                    _this.addNode(chartNode, _this.selectedNode);
                 },
                 error: _this.onError
             });
         }
-        
+
         else {
             this.alert('No file selected. Canceling upload...')
         }
     },
-    
+
     showPreview: function(event){
         var input = event.target;
         if (input.files && input.files[0]){
@@ -315,46 +317,48 @@ var BaseChartsView = BaseView.extend(
             reader.readAsDataURL(input.files[0]);
         }
     },
-    
+
     removeNode: function(){
         if (!this.selectedNode) return;
-        var model = this.selectedNode.chart || this.selectedNode.category,
-            message = (this.selectedNode.chart) ? gettext('Do you really want to delete the selected chart?') :
-                      gettext('Do you really want to delete the selected category and all its charts?');
-        this.confirmationModal.querySelector('.modal-body').innerHTML = message; 
-        $(this.confirmationModal).modal('show'); 
-    },
-    
-    confirmRemoval: function(){
         var _this = this;
-        $(this.confirmationModal).modal('hide'); 
-        var is_category = (this.selectedNode.category != null);
-        var model = this.selectedNode.chart || this.selectedNode.category;
-        model.destroy({ 
-            success: function(){
-                var selectCatId = 0;
-                // remove category from tree (if category was selected)
-                if (_this.selectedNode.category) {
-                    delete _this.categoryTree[model.id];
-                }
-                // remove chart from category (if chart was selected)
-                else {
-                    _this.getTreeChartNode(model, { pop : true })
-                    selectCatId = model.get("chart_category");
-                }
-                _this.selectedNode = null;
-                _this.rerenderChartTree(selectCatId);
-            },
-            error: _this.onError,
-            wait: true
-        });
-        
+        var isCategory = (this.selectedNode.type === 'category'),
+            model = this.selectedNode.original.chart || this.selectedNode.original.category,
+            message = (!isCategory) ? gettext('Do you really want to delete the selected chart?') :
+                      gettext('Do you really want to delete the selected category and all its charts?');
+        function confirmRemoval(){
+            $(_this.confirmationModal).modal('hide');
+            var model = _this.selectedNode.original.chart || _this.selectedNode.original.category;
+            model.destroy({
+                success: function(){
+                    var selectCatId = 0;
+                    // remove category from tree (if category was selected)
+                    if (isCategory) {
+                        delete _this.categoryTree[model.id];
+                    }
+                    // remove chart from category (if chart was selected)
+                    else {
+                        _this.getTreeChartNode(model, { pop : true })
+                        selectCatId = model.get("chart_category");
+                    }
+                    $(_this.chartTree).jstree("delete_node", _this.selectedNode);
+                    _this.buttonBox.style.display = 'None';
+                },
+                error: _this.onError,
+                wait: true
+            });
+        }
+        this.confirm({ message: message, onConfirm: confirmRemoval })
     },
-    
+
+    addNode: function(node, parentNode){
+        var parent = parentNode || null;
+        $(this.chartTree).jstree('create_node', parent, node, 'last');
+    },
+
     getTreeChartNode: function(chart, options){
         var options = options || {};
         var catNode = this.categoryTree[chart.get('chart_category')];
-        var nodes = catNode.nodes;
+        var nodes = catNode.children;
         for (var i = 0; i < nodes.length; i++){
             var node = nodes[i];
             if (node.chart === chart) {
@@ -364,32 +368,24 @@ var BaseChartsView = BaseView.extend(
         }
         return;
     },
-    
+
     editName: function(){
         var _this = this;
-        var model = this.selectedNode.chart || this.selectedNode.category;
+        var model = this.selectedNode.original.chart || this.selectedNode.original.category;
         function onConfirm(name){
             model.set('name', name);
-            model.save({ name: name }, { patch: true, 
+            model.save({ name: name }, { patch: true,
                 success: function(){
-                    var node = _this.selectedNode.category ? _this.categoryTree[model.id]:
-                                _this.getTreeChartNode(model);
-                    node.text = name;
-                    var selectCatId = _this.selectedNode.category? model.id: model.get('chart_category');
-                    _this.rerenderChartTree(selectCatId);
+                    $(_this.chartTree).jstree('set_text', _this.selectedNode, name);
                 },
                 error: _this.onError
             })
         };
-        this.getName({ 
-            name: model.get('name'), 
+        this.getName({
+            name: model.get('name'),
             title: gettext('Edit Name'),
             onConfirm: onConfirm
         })
-    },
-    
-    toggleFullscreen: function(event){
-        event.target.parentElement.classList.toggle('fullscreen');
     }
 
 });

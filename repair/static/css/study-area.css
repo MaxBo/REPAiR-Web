@@ -1,67 +1,68 @@
+/**
+ * stylesheet for the study area subpages
+ *
+ * @author Christoph Franke
+ */
+
 #base-map {
-    min-height: 600px; 
-    width: 100%; 
+    min-height: 600px;
+    width: 100%;
     height: 100%;
 }
 
-#base-map-content {
-    margin-left: -25px;
-    margin-top: -32px;
-    margin-right: -23px;
-}
-
-#layer-tree.workshop {
-    left: 10px; 
-    z-index: 1000; 
-    float: left; 
-    position: absolute; 
+.layer-tree.workshop {
+    left: 20px;
+    z-index: 1000;
+    float: left;
+    position: absolute;
     top: 80px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px 10px 5px;
+    border-radius: 5px;
 }
 
 #legend {
-    overflow: auto; 
-    max-height: 600px; 
+    overflow: auto;
+    max-height: 600px;
 }
 
 #legend.workshop {
-    position: absolute; 
-    right: 10px; 
-    z-index: 1000; 
-    top: 50px; 
-    max-height: 50%; 
-    background: white; 
-    border-radius: 5px; 
+    position: absolute;
+    right: 10px;
+    z-index: 1000;
+    top: 50px;
+    max-height: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
     padding: 0px;
 }
 
 #legend.workshop>.row {
-    cursor: pointer; 
-    background: #aad400; 
-    color: white;
+    cursor: pointer;
     padding-left: 10px;
     padding-right: 10px;
 }
 
 #legend.workshop>.row>button{
-    margin-right: 10px; 
-    float: left; 
+    margin-right: 10px;
+    float: left;
     margin-top: 8px;
 }
 
 #legend.workshop>.row>h4{
-    float: left; 
+    float: left;
 }
 
 #layer-tree-buttons {
-    position: relative; 
-    display: None; 
-    float: right; 
-    margin-right: 10px; 
+    position: relative;
+    display: None;
+    float: right;
+    margin-right: 10px;
     z-index: 100;
 }
 
 #layer-z-index {
-    max-width: 30px; 
-    font-size: 10px; 
+    max-width: 30px;
+    font-size: 10px;
     text-align: center;
 }

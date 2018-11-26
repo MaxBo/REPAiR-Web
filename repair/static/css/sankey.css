@@ -1,3 +1,9 @@
+/**
+ * stylesheet for the sankey diagrams
+ *
+ * @author Christoph Franke
+ */
+
 .node rect {
   cursor: move;
   fill-opacity: .9;
@@ -6,13 +12,17 @@
 
 .node text {
   pointer-events: none;
-  text-shadow: 0 1px 0 #fff;
+  /*text-shadow: 0 1px 0 #fff;*/
 }
 
 .link {
   fill: none;
   stroke: #000;
-  stroke-opacity: .2;
+  stroke-opacity: .3;
+}
+
+.link.selected, .cycleLink.selected {
+    stroke-opacity: 1;
 }
 
 .cycleLink {
@@ -27,7 +37,7 @@
 }
 
 .link:hover {
-  stroke-opacity: .5;
+  stroke-opacity: .8;
 }
 
 .d3-tip h1 {
@@ -86,3 +96,30 @@
   box-shadow: 1px 1px 4px grey;
   z-index: 99999;
 }
+
+.d3-zoom-controls {
+  position: absolute;
+  left: 10px;
+  top: 50px;
+}
+
+.d3-zoom-controls a {
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  padding: 0px 0;
+  font-size: 18px;
+  line-height: 2.00;
+  display: grid;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.7);
+  margin-top: 10px;
+}
+
+.sankey {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /*position: relative;*/
+}
+
