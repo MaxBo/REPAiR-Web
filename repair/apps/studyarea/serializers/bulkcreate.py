@@ -15,13 +15,13 @@ class AreaCreateSerializer(BulkSerializerMixin, AreaSerializer):
                             filter_args={
                                 'adminlevel__casestudy': '@casestudy',
                             }),
-        'adminlevel': Reference(name='adminlevel',
-                                referenced_field='level',
-                                referenced_model=AdminLevels,
-                                allow_null=True,
-                                filter_args={
-                                    'casestudy': '@casestudy',
-                                }),
+        'level': Reference(name='adminlevel',
+                           referenced_field='level',
+                           referenced_model=AdminLevels,
+                           allow_null=True,
+                           filter_args={
+                               'casestudy': '@casestudy',
+                           }),
         'name': 'name',
         'code': 'code',
         'wkt': 'geom'

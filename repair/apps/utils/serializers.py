@@ -282,10 +282,13 @@ class ErrorMask:
         if errors is not None:
             for column in errors.columns:
                 error_idx = errors[column] != 0
-                data['error'][error_idx] += '{} '.format(column)
+                data['error'][error_idx] += '{}: '.format(column)
                 data['error'][error_idx] += errors[column][error_idx]
                 data['error'][error_idx] += error_sep
-            data.reset_index(inplace=True)
+            # RangeIndex is the auto created one, we don't want that in the
+            # response file
+            if not isinstance(data.index, pd.RangeIndex):
+                data.reset_index(inplace=True)
             if file_type == 'xlsx':
                 data = data.style.apply(highlight_errors, errors=errors)
 
@@ -295,7 +298,7 @@ class ErrorMask:
                     pass
                 else:
                     sep = '\t' if file_type == 'tsv' else ';'
-                    df.to_csv(f, sep=sep, encoding=encoding)
+                    df.to_csv(f, sep=sep, encoding=encoding, index=False)
             if file_type == 'xlsx':
                 writer = pd.ExcelWriter(f.name, engine='openpyxl')
                 df.to_excel(writer, index=False)
@@ -433,6 +436,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         return ret
 
     def parse_dataframe(self, dataframe):
+        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
         # remove all columns not in field_map (avoid conflicts when renaming)
         for column in dataframe.columns.values:
@@ -445,7 +449,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             raise MalformedFileError(
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
-        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)

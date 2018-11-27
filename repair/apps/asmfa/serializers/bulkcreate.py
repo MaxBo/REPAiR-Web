@@ -1,6 +1,9 @@
+from django.utils.translation import ugettext as _
+
 from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            BulkResult,
-                                           Reference)
+                                           Reference,
+                                           ValidationError)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
@@ -62,17 +65,17 @@ class ActorCreateSerializer(BulkSerializerMixin,
                             ActorSerializer):
 
     field_map = {
-        'BvD ID number': 'BvDid',
-        'Company name': 'name',
-        'Cons.code': 'consCode',
-        'Lastavail.year': 'year',
-        'Trade description (English)': 'description_eng',
-        'Trade description in original language': 'description',
-        'BvD Independence Indicator': 'BvDii',
-        'Website address': 'website',
-        'Number of employeesLast avail. yr': 'employees',
-        'Operating revenue (Turnover) (last value)th EUR': 'turnover',
-        'NACE Rev. 2Core code (4 digits)': Reference(
+        'BvDid': 'BvDid',
+        'name': 'name',
+        'code': 'consCode',
+        'year': 'year',
+        'description english': 'description_eng',
+        'description original': 'description',
+        'BvDii': 'BvDii',
+        'website': 'website',
+        'employees': 'employees',
+        'turnover': 'turnover',
+        'nace': Reference(
             name='activity',
             referenced_field='nace',
             referenced_model=Activity,
@@ -80,7 +83,7 @@ class ActorCreateSerializer(BulkSerializerMixin,
             filter_args={'activitygroup__keyflow': '@keyflow'}
         )
     }
-    index_columns = ['BvD ID number']
+    index_columns = ['BvDid']
 
     def get_queryset(self):
         return Actor.objects.filter(
@@ -147,18 +150,18 @@ class AdminLocationCreateSerializer(
     BulkSerializerMixin, AdministrativeLocationSerializer):
 
     field_map = {
-        'BvDIDNR': Reference(name='actor',
-                             referenced_field='BvDid',
-                             referenced_model=Actor,
-                             filter_args={
-                                 'activity__activitygroup__keyflow':
-                                 '@keyflow'}),
+        'BvDid': Reference(name='actor',
+                           referenced_field='BvDid',
+                           referenced_model=Actor,
+                           filter_args={
+                               'activity__activitygroup__keyflow':
+                               '@keyflow'}),
         'Postcode': 'postcode',
         'Address': 'address',
         'City': 'city',
         'WKT': 'geom'
     }
-    index_columns = ['BvDIDNR']
+    index_columns = ['BvDid']
 
     def get_queryset(self):
         return AdministrativeLocation.objects.filter(
@@ -205,6 +208,30 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
     def get_queryset(self):
         return ProductFraction.objects.all()
 
+    # ToDo: implement general validators @BulkSerializerMixin
+    def _validate_fractions(self, dataframe):
+        '''
+        check if fractions per composition sum up to 1
+        '''
+        index = 'composition'
+        df = dataframe.filter([index, 'fraction'])
+        grouped = df.groupby(index).agg('sum')
+        invalid = grouped['fraction'] != 1
+        if invalid.sum() > 0:
+            message = _("fractions per composition have to sum up to 1.0 "
+                        "(they don't)")
+            invalid_comp = grouped.index[invalid]
+            for comp in invalid_comp:
+                indices = dataframe[dataframe[index] == comp].index
+                self.error_mask.set_error(indices, 'fraction', message)
+            fn, url = self.error_mask.to_file(
+                file_type=self.input_file_ext.replace('.', ''),
+                encoding=self.encoding
+            )
+            raise ValidationError(
+                self.error_mask.messages, url
+            )
+
 
 class CompositionCreateMixin:
 
@@ -231,6 +258,7 @@ class CompositionCreateMixin:
         fraction_serializer.encoding = self.encoding
         fraction_serializer._context = self.context
         df_fract = fraction_serializer.parse_dataframe(df_fract)
+        fraction_serializer._validate_fractions(df_fract)
         fraction_serializer._create_models(df_fract)
         result = BulkResult(created=new_comp, updated=updated_comp)
         return result
