@@ -8,6 +8,7 @@ from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import LoginTestCase
 from django.urls import reverse
+import numpy as np
 
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
@@ -18,7 +19,9 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          Actor2ActorFactory,
                                          MaterialFactory
                                          )
-from repair.apps.asmfa.models import ActivityGroup, Activity, Actor, Material
+
+from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
+                                      Material, ProductFraction)
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -340,6 +343,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     filename_materials_w_errors = 'materials_w_errors.tsv'
     filename_waste = 'waste.tsv'
     filename_products = 'products.tsv'
+    filename_products_w_errors = 'products_w_errors.tsv'
 
     @classmethod
     def setUpClass(cls):
@@ -418,3 +422,18 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.product_url, data)
         assert res.status_code == 201
+        fractions = ProductFraction.objects.all()
+        avoidable = fractions.values_list('avoidable', flat=True)
+        # avoidable is set (just checking that not everything is
+        # True but some entries should be)
+        assert np.array(avoidable).sum() not in [0, len(avoidable)]
+
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_products_w_errors)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.product_url, data)
+        assert res.status_code == 400

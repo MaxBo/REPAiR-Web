@@ -226,6 +226,8 @@ class CompositionCreateMixin:
         df_fract[index] = dataframe[index].fillna(method='ffill')
         df_fract['nace'] = dataframe['nace'].fillna(method='ffill')
         fraction_serializer = FractionCreateSerializer()
+        fraction_serializer.input_file_ext = self.input_file_ext
+        fraction_serializer.encoding = self.encoding
         fraction_serializer._context = self.context
         df_fract = fraction_serializer.parse_dataframe(df_fract)
         fraction_serializer._create_models(df_fract)
