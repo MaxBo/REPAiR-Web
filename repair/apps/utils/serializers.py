@@ -436,8 +436,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         return ret
 
     def parse_dataframe(self, dataframe):
-        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
+        df = dataframe.copy()
         # remove all columns not in field_map (avoid conflicts when renaming)
         for column in dataframe.columns.values:
             if column not in self.field_map:
@@ -450,6 +450,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
 
+        self.error_mask = ErrorMask(df, index=self.index_columns or None)
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
