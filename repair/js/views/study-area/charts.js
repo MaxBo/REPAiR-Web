@@ -278,7 +278,6 @@ var BaseChartsView = BaseView.extend(
         var imgInput = this.el.querySelector('#chart-image-input');
         if (imgInput.files && imgInput.files[0]){
 
-            // you have to upload files via form, Backbone.Models (sends data as json) doesn't work here
             var image = imgInput.files[0],
                 name = this.el.querySelector('#chart-name').value;
 

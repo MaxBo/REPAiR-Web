@@ -27,8 +27,6 @@ function (Session) {
         casestudies:            '/api/casestudies/',
         publications:           '/api/publications/',
         publicationsInCasestudy:'/api/casestudies/{0}/publications/',
-        products:               '/api/products/',
-        wastes:                 '/api/wastes/',
         keyflows:               '/api/keyflows/',
         qualities:              '/api/qualities/',
         reasons:                '/api/reasons/',
@@ -61,6 +59,8 @@ function (Session) {
         actors:                 '/api/casestudies/{0}/keyflows/{1}/actors/',
         adminLocations:         '/api/casestudies/{0}/keyflows/{1}/administrativelocations/',
         opLocations:            '/api/casestudies/{0}/keyflows/{1}/operationallocations/',
+        products:               '/api/casestudies/{0}/keyflows/{1}/products/',
+        wastes:                 '/api/casestudies/{0}/keyflows/{1}/wastes/',
         materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
         activityToActivity:     '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
         groupToGroup:           '/api/casestudies/{0}/keyflows/{1}/group2group/',
@@ -71,6 +71,7 @@ function (Session) {
         flowIndicators:         '/api/casestudies/{0}/keyflows/{1}/flowindicators/',
         flowFilters:            '/api/casestudies/{0}/keyflows/{1}/flowfilters/',
         arealevels:             '/api/casestudies/{0}/levels/',
+        allareas:               '/api/casestudies/{0}/areas/',
         areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
         wmsresources:           '/api/casestudies/{0}/wmsresources/'
     };

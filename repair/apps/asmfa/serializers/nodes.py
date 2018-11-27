@@ -5,12 +5,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
                                       Actor,
                                       AdministrativeLocation,
                                       OperationalLocation,
                                       Reason,
+                                      KeyflowInCasestudy,
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -28,7 +30,7 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     inputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     outputs = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
-    keyflow = IDRelatedField(required=False)
+    keyflow = IDRelatedField(read_only=True, required=False)
     nace = serializers.ListField(read_only=True, source='nace_codes')
 
     class Meta:
@@ -38,6 +40,7 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
 
 
 class ActivityGroupListSerializer(ActivityGroupSerializer):
+
     class Meta(ActivityGroupSerializer.Meta):
         fields = ('id', 'code', 'name')
 
@@ -202,14 +205,14 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
         model = Actor
         fields = ('url', 'id', 'BvDid', 'name', 'consCode', 'year', 'turnover',
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
-                  'activity_name', 'activitygroup', 'activitygroup_name', 
-                  'included', 'nace', 'city', 'address', 
+                  'activity_name', 'activitygroup', 'activitygroup_name',
+                  'included', 'nace', 'city', 'address',
                   'reason', 'description'
                   )
         extra_kwargs = {'year': {'allow_null': True},
                         'turnover': {'allow_null': True},
                         'employees': {'allow_null': True}}
-    
+
     # normally you can't upload empty strings for number fields, but we want to
     # allow some of them to be blank -> set to None when receiving empty string
     def to_internal_value(self, data):
