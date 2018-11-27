@@ -76,6 +76,7 @@ class ActorCreateSerializer(BulkSerializerMixin,
             name='activity',
             referenced_field='nace',
             referenced_model=Activity,
+            regex='[0-9]+',
             filter_args={'activitygroup__keyflow': '@keyflow'}
         )
     }

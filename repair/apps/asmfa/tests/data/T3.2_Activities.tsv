@@ -1,24 +1,24 @@
 NACE	Name	AG
-4110	F-4110 Development of building projects	F
-4211	F-4211 Construction of roads and motorways	G
-4120	F-4120 Construction of residential and non-residential buildings	F
-4221	F-4221 Construction of utility projects for fluids	F
-4399	F-4399 Other specialised construction activities n.e.c.	F
-4391	F-4391 Roofing activities	F
-4222	F-4222 Construction of utility projects for electricity and telecommunications	F
-4291	F-4291 Construction of water projects	F
-4299	F-4299 Construction of other civil engineering projects n.e.c.	F
-4212	F-4212 Construction of railways and underground railways 	F
-4333	F-4333 Floor and wall covering	F
-4329	F-4329 Other construction installation	F
-4332	F-4332 Joinery installation	F
-4213	F-4213 Construction of bridges and tunnels	F
-4339	F-4339 Other building completion and finishing	F
-4312	F-4312 Site preparation	F
-4311	F-4311 Demolition	F
-3821	E-3821 Treatment and disposal of non-hazardous waste	E
-3811	E-3811 Collection of non-hazardous waste	E
-3832	E-3832 Recovery of sorted materials	E
-3900	E-3900 Remediation activities and other waste management services	E
-3822	E-3822 Treatment and disposal of hazardous waste	E
-3812	E-3812 Collection of hazardous waste	E
+F-4110	F-4110 Development of building projects	F
+F-4211	F-4211 Construction of roads and motorways	G
+F-4120	F-4120 Construction of residential and non-residential buildings	F
+F-4221	F-4221 Construction of utility projects for fluids	F
+F-4399	F-4399 Other specialised construction activities n.e.c.	F
+F-4391	F-4391 Roofing activities	F
+F-4222	F-4222 Construction of utility projects for electricity and telecommunications	F
+F-4291	F-4291 Construction of water projects	F
+F-4299	F-4299 Construction of other civil engineering projects n.e.c.	F
+F-4212	F-4212 Construction of railways and underground railways 	F
+F-4333	F-4333 Floor and wall covering	F
+F-4329	F-4329 Other construction installation	F
+F-4332	F-4332 Joinery installation	F
+F-4213	F-4213 Construction of bridges and tunnels	F
+F-4339	F-4339 Other building completion and finishing	F
+F-4312	F-4312 Site preparation	F
+F-4311	F-4311 Demolition	F
+F-3821	F-3821 Treatment and disposal of non-hazardous waste	E
+E-3811	E-3811 Collection of non-hazardous waste	E
+E-3832	E-3832 Recovery of sorted materials	E
+E-3900	E-3900 Remediation activities and other waste management services	E
+E-3822	E-3822 Treatment and disposal of hazardous waste	E
+E-3812	E-3812 Collection of hazardous waste	E

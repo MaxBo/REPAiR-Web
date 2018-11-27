@@ -77,9 +77,9 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         af = ActivityFactory(activitygroup=ag_f, name='should_be_updated',
                              nace='4110')
         ActivityFactory(activitygroup=ag_f,
-                        name='Collection of non-hazardous waste', nace='3811')
+                        name='Collection of non-hazardous waste', nace='E-3811')
         ActivityFactory(activitygroup=ag_f,
-                        name='Collection of hazardous waste', nace='3812')
+                        name='Collection of hazardous waste', nace='E-3812')
         ActivityFactory(activitygroup=ag_f,
                         name='shouldnt_be_updated', nace='F-007')
 
