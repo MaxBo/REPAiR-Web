@@ -36,7 +36,8 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
     def setUp(self):
         super().setUp()
         AdminLevelsFactory(level=1, name='World', casestudy=self.casestudy)
-        AdminLevelsFactory(level=2, name='Country', casestudy=self.casestudy)
+        AdminLevelsFactory(level=2, name='Continent', casestudy=self.casestudy)
+        AdminLevelsFactory(level=3, name='Country', casestudy=self.casestudy)
 
     def test_bulk_levels(self):
         file_path = os.path.join(os.path.dirname(__file__),

@@ -47,6 +47,8 @@ class PublicationInCasestudyInline(admin.StackedInline):
 class CustomPublicationAdmin(VersionAdmin, PublicationAdmin):
     inlines = PublicationAdmin.inlines + [PublicationInCasestudyInline]
     change_list_template = 'publications/publication_change_list.html'
+    list_display = ('citekey', 'type', 'first_author', 'title', 'year',
+                    'journal_or_book_title')
 
     def get_urls(self):
         urls = [url(r'^import_bibtex/$',
