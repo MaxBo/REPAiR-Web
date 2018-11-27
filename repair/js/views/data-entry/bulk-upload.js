@@ -31,8 +31,8 @@ var BulkUploadView = BaseView.extend(
     */
     events: {
         "click button.upload": "upload",
-        "click #remove-keyflow": "removeKeyflow",
-        "click button.clear": "clearData",
+        //"click #remove-keyflow": "removeKeyflow",
+        //"click button.clear": "clearData",
         "click #refresh-status": "refreshStatus"
     },
 
@@ -89,6 +89,13 @@ var BulkUploadView = BaseView.extend(
             renderRow(up, upColCasestudy);
         })
         this.refreshStatus();
+
+        // hide delete buttons for REPAiR (events are deactivated as well)
+        var delButtons = Array.prototype.slice.call(this.el.querySelectorAll('button.clear'));
+        delButtons.push(this.el.querySelector('#remove-keyflow'));
+        delButtons.forEach(function(btn){
+            btn.style.display = 'none';
+        })
     },
 
     removeKeyflow: function(){

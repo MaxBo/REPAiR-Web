@@ -3,9 +3,11 @@ import pandas as pd
 from django_pandas.io import read_frame
 from django.db.utils import IntegrityError
 from django.contrib.gis.geos.error import GEOSException
+from django.contrib.gis.db.models.functions import GeoFunc
 from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
+import re
 from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
@@ -23,6 +25,10 @@ from openpyxl.writer.excel import save_virtual_workbook
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.login.models import CaseStudy
+
+
+class MakeValid(GeoFunc):
+    function='ST_MakeValid'
 
 
 class BulkValidationError(Exception):
@@ -87,15 +93,20 @@ class Reference:
     name: str, optional(default: referencing column passed to merge())
         the name of the column in the dataset where the referenced models will
         be put into, created when not existing
+    regex: str, optional
+        regular expression for solving the reference, the columns of
+        both sides are tried to related by the regular expression matches rather
+        than the actual content
     """
     def __init__(self, name: str, referenced_field: str,
                  referenced_model: Type[Model], filter_args: dict={},
-                 allow_null=False):
+                 allow_null=False, regex=None):
         self.name = name
         self.referenced_column = referenced_field
         self.referenced_model = referenced_model
         self.filter_args = filter_args.copy()
         self.allow_null = allow_null
+        self.regex = regex
 
 
     def merge(self, dataframe: pd.DataFrame, referencing_column: str,
@@ -151,13 +162,24 @@ class Reference:
 
         # get existing rows in the referenced table of the keyflow
         df_referenced = read_frame(referenced_queryset,
-                                   index_col=[self.referenced_column],
                                    fieldnames=fieldnames, verbose=False)
         df_referenced['_models'] = referenced_queryset
         # cast indices to string to avoid mismatch int <-> str
         data[referencing_column] = data[referencing_column].astype('str')
-        df_referenced.index = df_referenced.index.astype('str')
+        df_referenced[self.referenced_column] = \
+            df_referenced[self.referenced_column].astype('str')
 
+        def match(x):
+            matches = re.findall(self.regex, x)
+            if matches:
+                return matches[0]
+            return x
+        if self.regex:
+            data[referencing_column] = data[referencing_column].apply(match)
+            df_referenced[self.referenced_column] = \
+                df_referenced[self.referenced_column].apply(match)
+
+        df_referenced.set_index(self.referenced_column, inplace=True)
         # find not-unique referenced values and choose one of the duplicates
         # for merging
         u_ref, counts = np.unique(np.array(df_referenced.index),
@@ -471,9 +493,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return np.NaN
 
     def _parse_bool(self, x):
-        try:
-            return bool(x)
-        except:
+        x = x.lower()
+        if x == 'true':
+            return True
+        elif x == 'false':
+            return False
+        else:
             return np.NaN
 
     def _parse_columns(self, dataframe):
@@ -684,6 +709,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             # ToDo: formatted message
             raise ValidationError(str(e))
 
+        #def fix_geom(qs):
+            #if hasattr(qs.model, 'geom'):
+                #qs.update(geom=MakeValid('geom'))
+        #fix_geom(new_models)
+        #fix_geom(updated_models)
         return new_models, updated_models
 
     @property
