@@ -29,12 +29,6 @@
       </div>
       <div class="tab-pane fade in bordered" id="casestudy-related-upload">
         <div class="upload-column">
-          <div class="upload row bordered">
-            <div class="row">
-              <label>{% trans "Publications" %}</label>
-            </div>
-            {% trans "Upload bibtex files" %}&nbsp <a href="/admin/publications_bootstrap/publication/" target="_blank">{% trans "here" %}</a>
-          </div>
         </div>
       </div>
     </div>
@@ -54,7 +48,7 @@
       <div class="row">
         <label><%= label %></label>
         <a href="<%= url %>" target="_blank" style="margin-right: 10px;"><span class="glyphicon glyphicon-link" style="margin-right: 2px;"></span>API</a>
-        <a href="<%= templateUrl %>" ><span class="far fa-file-alt" style="margin-right: 2px;"></span>{% trans "Template" %}</a>
+        <a href="<%= templateUrl %>" class="template"><span class="far fa-file-alt" style="margin-right: 2px;"></span>{% trans "Template" %}</a>
         <div class="count"></div>
       </div>
       <button class="btn btn-warning clear" data-tag="<%= apiTag %>" title="{% trans "Delete" %}">
