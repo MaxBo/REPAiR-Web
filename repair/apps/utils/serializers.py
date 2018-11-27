@@ -505,6 +505,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         else:
             return np.NaN
 
+    def _parse_wkt(self, x):
+        if not isinstance(x, str):
+            return np.NaN
+        geom = GEOSGeometry(x)
+        return GEOSGeometry(self.wkt_w.write(geom))
+
     def _parse_columns(self, dataframe):
         '''
         parse the columns of the input dataframe to match the data type
@@ -524,14 +530,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 or isinstance(field, PolygonField)
                 or isinstance(field, MultiPolygonField)):
                 try:
-                    dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+                    # force 2d
+                    self.wkt_w = WKTWriter(dim=2)
+                    dataframe['wkt'] = dataframe['wkt'].apply(self._parse_wkt)
                 except GEOSException as e:
                     # ToDo formatted message
                     raise ValidationError(str(e))
-                # force 2D
-                wkt_w = WKTWriter(dim=2)
-                dataframe['wkt'] = dataframe['wkt'].apply(
-                    wkt_w.write).apply(GEOSGeometry)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
