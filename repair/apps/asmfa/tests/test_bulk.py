@@ -85,6 +85,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
         ActorFactory(activity=af, BvDid='NL000000029386')
         ActorFactory(activity=af, BvDid='NL32063450')
+        ActorFactory(activity=af, BvDid='NL123')
 
     def test_templates(self):
         res = self.client.get(self.ag_url + '?request=template')
