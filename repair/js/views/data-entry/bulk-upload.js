@@ -387,6 +387,7 @@ var BulkUploadView = BaseView.extend(
     refreshStatus: function(tag){
         var _this = this,
             rows;
+        if (!tag) return;
 
         if (tag && typeof tag === 'string')
             rows = [this.el.querySelector('.upload.row[data-tag="' + tag + '"]')];
