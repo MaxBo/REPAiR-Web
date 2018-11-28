@@ -612,7 +612,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    missing.set_index(self.index_columns or None, inplace=True)
+                    if self.index_columns:
+                        missing.set_index(self.index_columns, inplace=True)
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
                     msg = _('{c} related models {m} not found'.format(
