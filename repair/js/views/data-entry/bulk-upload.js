@@ -391,8 +391,6 @@ var BulkUploadView = BaseView.extend(
         span.style.float = 'left';
         span.style.marginRight = '5px';
         a.setAttribute('href', url);
-        // ToDo: keep file ending
-        a.setAttribute('download', 'error-response');
         a.innerHTML = gettext('Response');
         div.appendChild(a);
         a.appendChild(span);
