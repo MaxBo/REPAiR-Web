@@ -5,10 +5,11 @@ from django.db import models
 from django.contrib.gis.db import models as gis
 
 from repair.apps.studyarea.models import Area
+from repair.apps.login.models import GDSEModelMixin
 from .nodes import Actor
 
 
-class Geolocation(gis.Model):
+class Geolocation(GDSEModelMixin, gis.Model):
 
     name = models.TextField(blank=True, null=True)
     postcode = models.CharField(max_length=10, blank=True, null=True)

@@ -19,3 +19,5 @@ src/
 ssh_pg_h2020.sh
 *.exe
 /package-lock.json
+/0.2.1&subdirectory
+/2.4.1

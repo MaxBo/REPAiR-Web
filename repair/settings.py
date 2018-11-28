@@ -40,9 +40,9 @@ if os.name == 'nt':
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '$f#=dn^_6xu1e7py@$(8_8yu2(%*a&b@6uxr*_zyi3c*%5@u1^'
 
-ALLOWED_HOSTS = ['geodesignhub.h2020repair.bk.tudelft.nl',
-                 'gdse.h2020repair.bk.tudelft.nl',
-                 'staging.h2020repair.bk.tudelft.nl',
+ALLOWED_HOSTS = ['geodesignhub.h2020cinderela.bk.tudelft.nl',
+                 'gdse.h2020cinderela.bk.tudelft.nl',
+                 'staging.h2020cinderela.bk.tudelft.nl',
                  "localhost",
                  "127.0.0.1"]
 
@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'django_pandas', 
+    'django_pandas',
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -281,3 +281,5 @@ LOGGING = {
             #}
         }
 }
+
+PROTECT_FOREIGN_KEY = False

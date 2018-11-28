@@ -19,6 +19,8 @@ from repair.apps.asmfa.models import (Actor,
                                       ProductFraction,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      KeyflowInCasestudy,
+                                      Composition
                                     )
 
 from publications_bootstrap.models import Publication
@@ -27,6 +29,16 @@ from publications_bootstrap.models import Publication
 @admin.register(CaseStudy)
 class CaseStudyAdmin(VersionAdmin):
     """Versioning of casestudy"""
+
+
+@admin.register(Composition)
+class CompositionAdmin(VersionAdmin):
+    """Versioning of composition"""
+
+
+@admin.register(KeyflowInCasestudy)
+class KeyflowInCasestudyAdmin(VersionAdmin):
+    """Versioning of KeyflowInCasestudy"""
 
 
 @admin.register(StakeholderCategory)

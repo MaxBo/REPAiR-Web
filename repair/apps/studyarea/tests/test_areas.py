@@ -183,7 +183,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         # define the urls
         response = self.get_check_200('adminlevels-list',
                                       casestudy_pk=casestudy.pk)
-        data = response.data
+        data = response.data['results']
         assert data[2]['name'] == kreis.name
         assert data[2]['level'] == kreis.level
 
@@ -202,7 +202,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         response = self.get_check_200('area-list',
                                       casestudy_pk=casestudy.pk,
                                       level_pk=self.gemeinde.pk)
-        data = response.data
+        data = response.data['results']
         self.assertSetEqual({a['name'] for a in data},
                             {'Pinneberg', 'Elmshorn', 'Ellerbek'})
 
@@ -225,7 +225,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                             'parent_area': self.elmshorn.id,})
 
         assert response.status_code == status.HTTP_200_OK
-        data = response.data
+        data = response.data['results']
 
         self.assertSetEqual({a['name'] for a in data},
                             {'Langenmoor', 'Elmshorn-Mitte'})
@@ -239,7 +239,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
                                             'name__istartswith': 'e',})
 
         #this should return all ortsteile starting with an 'E'
-        self.assertSetEqual({a['name'] for a in response.data},
+        self.assertSetEqual({a['name'] for a in response.data['results']},
                            {'Egenbüttel', 'Elmshorn-Mitte'})
 
     def test_add_geometry(self):
@@ -292,7 +292,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         response = self.get_check_200('area-list',
                                       casestudy_pk=self.casestudy.pk,
                                       level_pk=self.kreis.pk)
-        num_kreise = len(response.data)
+        num_kreise = len(response.data['results'])
 
         polygon1 = geos.Polygon(((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)))
         polygon2 = geos.Polygon(((4, 4), (4, 6), (6, 6), (6, 4), (4, 4)))
@@ -324,7 +324,7 @@ class AdminLevelsTest(LoginTestCase, CompareAbsURIMixin, APITestCase):
         response = self.get_check_200('area-list',
                                       casestudy_pk=self.casestudy.pk,
                                       level_pk=self.kreis.pk)
-        assert len(response.data) == num_kreise + 2
+        assert len(response.data['results']) == num_kreise + 2
 
         # posting with relating to parents by area code
         # should fail, when parent_level is missing
