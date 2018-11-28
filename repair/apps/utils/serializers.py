@@ -509,17 +509,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if not isinstance(x, str):
             return np.NaN
         geom = GEOSGeometry(x)
+        if not geom.valid:
+            geom.valid_reason
         # force 2d
         geom2d = GEOSGeometry(self.wkt_w.write(geom))
-        geom_valid = geom2d.valid
-        # simplify
-        simplified = geom2d.simplify(tolerance=0.1, preserve_topology=True)
-        if not simplified.valid:
-            if geom_valid:
-                return geom2d
-            else:
-                return geom.valid_reason
-        return simplified
+        return geom2d
 
     def _parse_columns(self, dataframe):
         '''
@@ -563,7 +557,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 entries = dataframe[column].loc[not_na]
                 if isinstance(field, IntegerField):
                     entries = entries.apply(self._parse_int)
-                    error_msg
+                    error_msg = _('Integer expected: number without decimals')
                 elif (isinstance(field, FloatField) or
                       isinstance(field, DecimalField)):
                     entries = entries.apply(self._parse_float)
