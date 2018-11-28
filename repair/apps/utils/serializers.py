@@ -509,7 +509,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if not isinstance(x, str):
             return np.NaN
         geom = GEOSGeometry(x)
-        return GEOSGeometry(self.wkt_w.write(geom))
+        if not geom.valid:
+            geom.valid_reason
+        # force 2d
+        geom2d = GEOSGeometry(self.wkt_w.write(geom))
+        return geom2d
 
     def _parse_columns(self, dataframe):
         '''
@@ -536,6 +540,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 except GEOSException as e:
                     # ToDo formatted message
                     raise ValidationError(str(e))
+                types = dataframe['wkt'].apply(type)
+                str_idx = types == str
+                error_idx = dataframe.index[str_idx]
+                error_msg = _('invalid geometry')
+                self.error_mask.set_error(error_idx, 'wkt', error_msg)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -612,14 +621,16 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
+                    msg = _('{c} - related models {m} not found'.format(
+                        c=column, m=missing_values))
                     if self.index_columns:
                         missing.set_index(self.index_columns, inplace=True)
-                    self.error_mask.set_error(missing.index, column,
-                                              _('relation not found'))
-                    msg = _('{c} related models {m} not found'.format(
-                        c=column, m=missing_values))
+                    try:
+                        self.error_mask.set_error(missing.index, column,
+                                                  _('relation not found'))
+                    except KeyError:
+                        raise ValidationError(msg)
                     self.error_mask.add_message(msg)
-
         return data
 
     def _add_pk_relations(self, dataframe):

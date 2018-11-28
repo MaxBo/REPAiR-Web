@@ -20,6 +20,8 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
     filename_continents = 'continents.tsv'
     filename_areas = 'continents.tsv'
     filename_countries_broken = 'countries_broken_geom.csv'
+    filename_continents_intersect = 'continents_self_intersect.csv'
+    filename_countries_intersect = 'countries_self_intersect.csv'
     filename_countries = 'countries.csv'
 
     @classmethod
@@ -81,6 +83,22 @@ class BulkImportAreaTest(LoginTestCase, APITestCase):
         assert res.status_code == 201
 
     def test_bulk_areas_errors(self):
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_countries_broken)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+        res = self.client.post(self.area_url, data)
+        assert res.status_code == 400
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_countries_broken)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+        res = self.client.post(self.area_url, data)
+        assert res.status_code == 400
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
                                 self.filename_countries_broken)
