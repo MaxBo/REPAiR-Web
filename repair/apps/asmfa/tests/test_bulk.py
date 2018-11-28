@@ -272,6 +272,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_a2a = 'T3.2_Flows_actor2actor.tsv'
+    filename_a2a_error = 'T3.2_Flows_actor2actor_error.tsv'
     filename_astock = 'T3.2_Flows_actorstock.tsv'
 
     @classmethod
@@ -324,6 +325,16 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.a2a_url, data)
         assert res.status_code == 201
+
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_a2a_error)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.a2a_url, data)
+        assert res.status_code == 400
 
     def test_bulk_stock(self):
         """Test file-based upload of actor2actor"""

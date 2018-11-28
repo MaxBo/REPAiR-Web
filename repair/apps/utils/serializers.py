@@ -228,14 +228,12 @@ class Reference:
 
 
 class ErrorMask:
-    def __init__(self, dataframe, index=None):
+    def __init__(self, dataframe):
         self.dataframe = dataframe.copy()
         self.error_matrix = pd.DataFrame(
             columns=dataframe.columns,
             index=dataframe.index).fillna(0)
-        if index is not None:
-            self.dataframe.set_index(index, inplace=True)
-            self.error_matrix.index = self.dataframe.index
+        self.error_matrix.index = self.dataframe.index
         self._messages = []
 
     def add_message(self, msg):
@@ -450,7 +448,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
 
-        self.error_mask = ErrorMask(df, index=self.index_columns or None)
+        self.error_mask = ErrorMask(df)
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
@@ -464,7 +462,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             )
 
         df_done = self._add_pk_relations(df_parsed)
-        df_done.reset_index(inplace=True)
 
         rename = {}
         for k, v in self.field_map.items():
@@ -521,8 +518,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         of the fields
         '''
         dataframe = dataframe.copy()
-        if self.index_columns:
-            dataframe.set_index(self.index_columns, inplace=True)
         error_occured = False
         for column in dataframe.columns:
             _meta = self.Meta.model._meta
@@ -623,13 +618,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     missing_values = np.unique(missing[column].values)
                     msg = _('{c} - related models {m} not found'.format(
                         c=column, m=missing_values))
-                    if self.index_columns:
-                        missing.set_index(self.index_columns, inplace=True)
-                    try:
-                        self.error_mask.set_error(missing.index, column,
-                                                  _('relation not found'))
-                    except KeyError:
-                        raise ValidationError(msg)
+                    self.error_mask.set_error(missing.index, column,
+                                              _('relation not found'))
                     self.error_mask.add_message(msg)
         return data
 
@@ -758,12 +748,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         # only fields defined in field_map will be written to database
         fields = [getattr(v, 'name', None) or v
                   for v in self.field_map.values()]
-        df = dataframe.reset_index()
         updated = []
 
         dataframe = self._set_defaults(dataframe, model)
 
-        for row in df.itertuples(index=False):
+        for row in dataframe.itertuples(index=False):
             filter_kwargs = {c: getattr(row, c) for c in self.index_fields}
             model = queryset.get(**filter_kwargs)
             for c, v in row._asdict().items():
