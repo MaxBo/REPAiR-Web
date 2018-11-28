@@ -509,7 +509,17 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if not isinstance(x, str):
             return np.NaN
         geom = GEOSGeometry(x)
-        return GEOSGeometry(self.wkt_w.write(geom))
+        # force 2d
+        geom2d = GEOSGeometry(self.wkt_w.write(geom))
+        geom_valid = geom2d.valid
+        # simplify
+        simplified = geom2d.simplify(tolerance=0.1, preserve_topology=True)
+        if not simplified.valid:
+            if geom_valid:
+                return geom2d
+            else:
+                return geom.valid_reason
+        return simplified
 
     def _parse_columns(self, dataframe):
         '''
@@ -536,6 +546,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 except GEOSException as e:
                     # ToDo formatted message
                     raise ValidationError(str(e))
+                types = dataframe['wkt'].apply(type)
+                str_idx = types == str
+                error_idx = dataframe.index[str_idx]
+                error_msg = _('invalid geometry')
+                self.error_mask.set_error(error_idx, 'wkt', error_msg)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -548,7 +563,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 entries = dataframe[column].loc[not_na]
                 if isinstance(field, IntegerField):
                     entries = entries.apply(self._parse_int)
-                    error_msg = _('Integer expected: number without decimals')
+                    error_msg
                 elif (isinstance(field, FloatField) or
                       isinstance(field, DecimalField)):
                     entries = entries.apply(self._parse_float)
@@ -616,7 +631,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                         missing.set_index(self.index_columns, inplace=True)
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
-                    msg = _('{c} related models {m} not found'.format(
+                    msg = _('{c} - related models {m} not found'.format(
                         c=column, m=missing_values))
                     self.error_mask.add_message(msg)
 
