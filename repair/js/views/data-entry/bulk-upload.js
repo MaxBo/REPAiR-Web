@@ -31,8 +31,8 @@ var BulkUploadView = BaseView.extend(
     */
     events: {
         "click button.upload": "upload",
-        "click #remove-keyflow": "removeKeyflow",
-        "click button.clear": "clearData",
+        //"click #remove-keyflow": "removeKeyflow",
+        //"click button.clear": "clearData",
         "click #refresh-status": "refreshStatus"
     },
 
@@ -59,7 +59,8 @@ var BulkUploadView = BaseView.extend(
             ],
             upsCasestudy = [
                 ['arealevels', gettext('Area Levels')],
-                ['allareas', gettext('Areas')]
+                ['allareas', gettext('Areas')],
+                ['publicationsInCasestudy', gettext('Publications')]
             ],
             upColKeyflow = this.el.querySelector('#keyflow-related-upload').querySelector('.upload-column');
             upColCasestudy = this.el.querySelector('#casestudy-related-upload').querySelector('.upload-column');
@@ -67,7 +68,6 @@ var BulkUploadView = BaseView.extend(
         // force those to display keyflow related only in here
         this.forceKeyflowRelation = ['materials', 'products', 'wastes'];
         this.geolocations = ['adminLocations'];
-        this.destroyH
 
         function renderRow(up, column){
             var html = document.getElementById('upload-row-template').innerHTML,
@@ -89,6 +89,28 @@ var BulkUploadView = BaseView.extend(
             renderRow(up, upColCasestudy);
         })
         this.refreshStatus();
+
+        // publications row just links to the admin area
+        // lazy way: publications is the only case, so i did not make a new template for this
+        var pubRow = this.el.querySelector('.upload.row[data-tag="publicationsInCasestudy"]');
+        pubRow.querySelector('input').style.display = 'none';
+        pubRow.querySelector('button.upload').style.display = 'none';
+        pubRow.querySelector('.template').style.display = 'none';
+        var div = document.createElement('div'),
+            a = document.createElement('a');
+        div.innerHTML = gettext('Upload bibtex files') + '&nbsp';
+        a.target = '_blank';
+        a.innerHTML = gettext('here');
+        a.href = '/admin/publications_bootstrap/publication/'
+        div.appendChild(a);
+        pubRow.querySelector('.row').appendChild(div);
+
+        // hide delete buttons for REPAiR (events are deactivated as well)
+        var delButtons = Array.prototype.slice.call(this.el.querySelectorAll('button.clear'));
+        delButtons.push(this.el.querySelector('#remove-keyflow'));
+        delButtons.forEach(function(btn){
+            btn.style.display = 'none';
+        })
     },
 
     removeKeyflow: function(){
@@ -247,7 +269,8 @@ var BulkUploadView = BaseView.extend(
 
         var row = this.el.querySelector('.row[data-tag="' + tag +  '"]'),
             input = row.querySelector('input[type="file"]'),
-            files = input.files;
+            files = input.files,
+            encoding = this.el.querySelector('#encoding-select').value;
 
         if (files.length === 0){
             this.alert(gettext('No file selected to upload!'));
@@ -255,7 +278,8 @@ var BulkUploadView = BaseView.extend(
         }
 
         var data = {
-            'bulk_upload': files[0]
+            'bulk_upload': files[0],
+            'encoding': encoding
         }
 
         var model = new GDSEModel( {}, {
@@ -388,6 +412,8 @@ var BulkUploadView = BaseView.extend(
             var countDiv = row.querySelector('.count'),
                 tag = row.dataset['tag'],
                 data = {};
+
+            if (!tag) return;
 
             var Collection = _this.geolocations.includes(tag) ? GeoLocations : GDSECollection;
             var collection = new Collection( {}, {

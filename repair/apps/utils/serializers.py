@@ -3,9 +3,11 @@ import pandas as pd
 from django_pandas.io import read_frame
 from django.db.utils import IntegrityError
 from django.contrib.gis.geos.error import GEOSException
+from django.contrib.gis.db.models.functions import GeoFunc
 from django.db.models.fields import NOT_PROVIDED
 import numpy as np
 import os
+import re
 from django.utils.translation import ugettext as _
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
@@ -23,6 +25,10 @@ from openpyxl.writer.excel import save_virtual_workbook
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.login.models import CaseStudy
+
+
+class MakeValid(GeoFunc):
+    function='ST_MakeValid'
 
 
 class BulkValidationError(Exception):
@@ -87,15 +93,20 @@ class Reference:
     name: str, optional(default: referencing column passed to merge())
         the name of the column in the dataset where the referenced models will
         be put into, created when not existing
+    regex: str, optional
+        regular expression for solving the reference, the columns of
+        both sides are tried to related by the regular expression matches rather
+        than the actual content
     """
     def __init__(self, name: str, referenced_field: str,
                  referenced_model: Type[Model], filter_args: dict={},
-                 allow_null=False):
+                 allow_null=False, regex=None):
         self.name = name
         self.referenced_column = referenced_field
         self.referenced_model = referenced_model
         self.filter_args = filter_args.copy()
         self.allow_null = allow_null
+        self.regex = regex
 
 
     def merge(self, dataframe: pd.DataFrame, referencing_column: str,
@@ -151,13 +162,24 @@ class Reference:
 
         # get existing rows in the referenced table of the keyflow
         df_referenced = read_frame(referenced_queryset,
-                                   index_col=[self.referenced_column],
                                    fieldnames=fieldnames, verbose=False)
         df_referenced['_models'] = referenced_queryset
         # cast indices to string to avoid mismatch int <-> str
         data[referencing_column] = data[referencing_column].astype('str')
-        df_referenced.index = df_referenced.index.astype('str')
+        df_referenced[self.referenced_column] = \
+            df_referenced[self.referenced_column].astype('str')
 
+        def match(x):
+            matches = re.findall(self.regex, x)
+            if matches:
+                return matches[0]
+            return x
+        if self.regex:
+            data[referencing_column] = data[referencing_column].apply(match)
+            df_referenced[self.referenced_column] = \
+                df_referenced[self.referenced_column].apply(match)
+
+        df_referenced.set_index(self.referenced_column, inplace=True)
         # find not-unique referenced values and choose one of the duplicates
         # for merging
         u_ref, counts = np.unique(np.array(df_referenced.index),
@@ -260,10 +282,13 @@ class ErrorMask:
         if errors is not None:
             for column in errors.columns:
                 error_idx = errors[column] != 0
-                data['error'][error_idx] += '{} '.format(column)
+                data['error'][error_idx] += '{}: '.format(column)
                 data['error'][error_idx] += errors[column][error_idx]
                 data['error'][error_idx] += error_sep
-            data.reset_index(inplace=True)
+            # RangeIndex is the auto created one, we don't want that in the
+            # response file
+            if not isinstance(data.index, pd.RangeIndex):
+                data.reset_index(inplace=True)
             if file_type == 'xlsx':
                 data = data.style.apply(highlight_errors, errors=errors)
 
@@ -273,7 +298,7 @@ class ErrorMask:
                     pass
                 else:
                     sep = '\t' if file_type == 'tsv' else ';'
-                    df.to_csv(f, sep=sep, encoding=encoding)
+                    df.to_csv(f, sep=sep, encoding=encoding, index=False)
             if file_type == 'xlsx':
                 writer = pd.ExcelWriter(f.name, engine='openpyxl')
                 df.to_excel(writer, index=False)
@@ -412,6 +437,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
     def parse_dataframe(self, dataframe):
 
+        df = dataframe.copy()
         # remove all columns not in field_map (avoid conflicts when renaming)
         for column in dataframe.columns.values:
             if column not in self.field_map:
@@ -423,8 +449,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             raise MalformedFileError(
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
-        self.error_mask = ErrorMask(dataframe, index=self.index_columns or None)
 
+        self.error_mask = ErrorMask(df, index=self.index_columns or None)
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
@@ -471,10 +497,19 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return np.NaN
 
     def _parse_bool(self, x):
-        try:
-            return bool(x)
-        except:
+        x = x.lower()
+        if x == 'true':
+            return True
+        elif x == 'false':
+            return False
+        else:
             return np.NaN
+
+    def _parse_wkt(self, x):
+        if not isinstance(x, str):
+            return np.NaN
+        geom = GEOSGeometry(x)
+        return GEOSGeometry(self.wkt_w.write(geom))
 
     def _parse_columns(self, dataframe):
         '''
@@ -495,14 +530,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 or isinstance(field, PolygonField)
                 or isinstance(field, MultiPolygonField)):
                 try:
-                    dataframe['wkt'] = dataframe['wkt'].apply(GEOSGeometry)
+                    # force 2d
+                    self.wkt_w = WKTWriter(dim=2)
+                    dataframe['wkt'] = dataframe['wkt'].apply(self._parse_wkt)
                 except GEOSException as e:
                     # ToDo formatted message
                     raise ValidationError(str(e))
-                # force 2D
-                wkt_w = WKTWriter(dim=2)
-                dataframe['wkt'] = dataframe['wkt'].apply(
-                    wkt_w.write).apply(GEOSGeometry)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -684,6 +717,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             # ToDo: formatted message
             raise ValidationError(str(e))
 
+        #def fix_geom(qs):
+            #if hasattr(qs.model, 'geom'):
+                #qs.update(geom=MakeValid('geom'))
+        #fix_geom(new_models)
+        #fix_geom(updated_models)
         return new_models, updated_models
 
     @property
