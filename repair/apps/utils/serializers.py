@@ -301,6 +301,7 @@ class ErrorMask:
                 writer = pd.ExcelWriter(f.name, engine='openpyxl')
                 df.to_excel(writer, index=False)
                 writer.save()
+            os.chmod(f.name, 0o777)
             return f
 
         def encode(df):
