@@ -21,7 +21,8 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          )
 
 from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
-                                      Material, ProductFraction)
+                                      Material, ProductFraction,
+                                      AdministrativeLocation)
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -39,6 +40,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     filename_actor_w_errors = 'T3.2_Actors_w_errors.tsv'
     filename_actor_w_errors_xlsx = 'T3.2_Actors_w_errors.xlsx'
     filename_locations = 'test_adminloc.csv'
+    filename_locations_duplicates = 'test_adminloc_duplicates.csv'
 
     @classmethod
     def setUpClass(cls):
@@ -226,15 +228,31 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
     def test_bulk_locations(self):
         """Test bulk upload actors"""
+        # do twice to check if it really updates
+        lengths = []
+        for i in range(2):
+            file_path = os.path.join(os.path.dirname(__file__),
+                                     self.testdata_folder,
+                                     self.filename_locations)
+            data = {
+                'bulk_upload' : open(file_path, 'rb'),
+            }
+
+            res = self.client.post(self.location_url, data)
+            assert res.status_code == 201
+            lengths.append(len(AdministrativeLocation.objects.all()))
+
+        assert lengths[0] == lengths[1]
+
         file_path = os.path.join(os.path.dirname(__file__),
                                  self.testdata_folder,
-                                 self.filename_locations)
+                                 self.filename_locations_duplicates)
         data = {
             'bulk_upload' : open(file_path, 'rb'),
         }
 
         res = self.client.post(self.location_url, data)
-        assert res.status_code == 201
+        assert res.status_code == 400
 
     @skip('not implemented yet')
     def test_actor_matches_activity(self):
@@ -272,6 +290,8 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
     testdata_folder = 'data'
     filename_a2a = 'T3.2_Flows_actor2actor.tsv'
+    filename_a2a_self_ref = 'T3.2_Flows_actor2actor_self_ref.tsv'
+    filename_a2a_error = 'T3.2_Flows_actor2actor_error.tsv'
     filename_astock = 'T3.2_Flows_actorstock.tsv'
 
     @classmethod
@@ -324,6 +344,26 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.a2a_url, data)
         assert res.status_code == 201
+
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_a2a_error)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.a2a_url, data)
+        assert res.status_code == 400
+
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_a2a_self_ref)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.a2a_url, data)
+        assert res.status_code == 400
 
     def test_bulk_stock(self):
         """Test file-based upload of actor2actor"""
@@ -415,15 +455,21 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         assert res.status_code == 201
 
     def test_bulk_products(self):
-        file_path = os.path.join(os.path.dirname(__file__),
-                                self.testdata_folder,
-                                self.filename_products)
-        data = {
-            'bulk_upload' : open(file_path, 'rb'),
-        }
+        lengths = []
+        for i in range(2):
+            file_path = os.path.join(os.path.dirname(__file__),
+                                    self.testdata_folder,
+                                    self.filename_products)
+            data = {
+                'bulk_upload' : open(file_path, 'rb'),
+            }
 
-        res = self.client.post(self.product_url, data)
-        assert res.status_code == 201
+            res = self.client.post(self.product_url, data)
+            assert res.status_code == 201
+            lengths.append(ProductFraction.objects.count())
+        # check that 2nd loop does not create additional fractions
+        # but updates (kind of)
+        assert lengths[0] == lengths[1]
         fractions = ProductFraction.objects.all()
         avoidable = fractions.values_list('avoidable', flat=True)
         # avoidable is set (just checking that not everything is

@@ -40,6 +40,7 @@ var FlowsView = BaseView.extend(
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.displayWarnings = options.displayWarnings || false;
         this.render();
 
     },
@@ -66,9 +67,10 @@ var FlowsView = BaseView.extend(
     renderSankeyMap: function(){
         this.flowMapView = new FlowMapView({
             el: this.el.querySelector('#flow-map'),
-            caseStudyId: this.caseStudy.id,
+            caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
             materials: this.materials,
+            displayWarnings: this.displayWarnings
         });
     },
 
@@ -255,7 +257,7 @@ var FlowsView = BaseView.extend(
             _this.flowMapView.addNodes(destinations);
             _this.flowMapView.addNodes(origins);
             _this.flowMapView.addFlows(flows);
-            _this.flowMapView.rerender();
+            _this.flowMapView.rerender(true);
         }
 
         // fetch actors and the flows in between them when group or activity was selected,

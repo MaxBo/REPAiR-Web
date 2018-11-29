@@ -228,14 +228,12 @@ class Reference:
 
 
 class ErrorMask:
-    def __init__(self, dataframe, index=None):
+    def __init__(self, dataframe):
         self.dataframe = dataframe.copy()
         self.error_matrix = pd.DataFrame(
             columns=dataframe.columns,
             index=dataframe.index).fillna(0)
-        if index is not None:
-            self.dataframe.set_index(index, inplace=True)
-            self.error_matrix.index = self.dataframe.index
+        self.error_matrix.index = self.dataframe.index
         self._messages = []
 
     def add_message(self, msg):
@@ -303,6 +301,7 @@ class ErrorMask:
                 writer = pd.ExcelWriter(f.name, engine='openpyxl')
                 df.to_excel(writer, index=False)
                 writer.save()
+            os.chmod(f.name, 0o777)
             return f
 
         def encode(df):
@@ -343,6 +342,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     # values indicating that entry is unknown, will be set to null in model
     # (number fields only)
     nan_values = ['n.a.', '', 'NULL']
+
+    # should index_columns be validated for uniqueness
+    check_index = True
 
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
@@ -433,6 +435,19 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             field.required = False
         ret = super().to_internal_value(data)  # would throw exc. else
         ret['dataframe'] = dataframe
+
+        if self.check_index:
+            df_t = dataframe.set_index(self.index_columns)
+            duplicates = df_t.index.get_duplicates()
+            if len(duplicates) > 0:
+                if len(self.index_columns) == 1:
+                    message = _('Index "{}" has to be unique!')\
+                        .format(self.index_columns[0])
+                else:
+                    message = _('The combination of indices "{}" have to be unique!')\
+                        .format(self.index_columns)
+                message += ' ' + _('Duplicates found: {}').format(duplicates)
+                raise ValidationError(message)
         return ret
 
     def parse_dataframe(self, dataframe):
@@ -450,7 +465,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 _('Index column(s) missing: {}'.format(
                     missing_ind)))
 
-        self.error_mask = ErrorMask(df, index=self.index_columns or None)
+        self.error_mask = ErrorMask(df)
         df_mapped = self._map_fields(dataframe)
         df_parsed = self._parse_columns(df_mapped)
 
@@ -464,7 +479,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             )
 
         df_done = self._add_pk_relations(df_parsed)
-        df_done.reset_index(inplace=True)
 
         rename = {}
         for k, v in self.field_map.items():
@@ -509,7 +523,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         if not isinstance(x, str):
             return np.NaN
         geom = GEOSGeometry(x)
-        return GEOSGeometry(self.wkt_w.write(geom))
+        if not geom.valid:
+            geom.valid_reason
+        # force 2d
+        geom2d = GEOSGeometry(self.wkt_w.write(geom))
+        return geom2d
 
     def _parse_columns(self, dataframe):
         '''
@@ -517,8 +535,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         of the fields
         '''
         dataframe = dataframe.copy()
-        if self.index_columns:
-            dataframe.set_index(self.index_columns, inplace=True)
         error_occured = False
         for column in dataframe.columns:
             _meta = self.Meta.model._meta
@@ -536,6 +552,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 except GEOSException as e:
                     # ToDo formatted message
                     raise ValidationError(str(e))
+                types = dataframe['wkt'].apply(type)
+                str_idx = types == str
+                error_idx = dataframe.index[str_idx]
+                error_msg = _('invalid geometry')
+                self.error_mask.set_error(error_idx, 'wkt', error_msg)
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -612,13 +633,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
-                    missing.set_index(self.index_columns or None, inplace=True)
+                    msg = _('{c} - related models {m} not found'.format(
+                        c=column, m=missing_values))
                     self.error_mask.set_error(missing.index, column,
                                               _('relation not found'))
-                    msg = _('{c} related models {m} not found'.format(
-                        c=column, m=missing_values))
                     self.error_mask.add_message(msg)
-
         return data
 
     def _add_pk_relations(self, dataframe):
@@ -658,10 +677,17 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
-        # index column is already renamed to match the model at this point
-
         df_existing = read_frame(queryset)
         df = dataframe.copy()
+
+        # if column is both index and referenced, we need to
+        # fill it with ids, because the existing contain the ids instead
+        # of models as well
+        for col in self.index_columns:
+            if isinstance(self.field_map[col], Reference):
+                field_name = self.field_map[col].name
+                df[field_name] = df[field_name].apply(
+                    lambda x: x.id if hasattr(x, 'id') else x)
 
         for col in self.index_fields:
             df_existing[col] = df_existing[col].map(str)
@@ -746,12 +772,11 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         # only fields defined in field_map will be written to database
         fields = [getattr(v, 'name', None) or v
                   for v in self.field_map.values()]
-        df = dataframe.reset_index()
         updated = []
 
         dataframe = self._set_defaults(dataframe, model)
 
-        for row in df.itertuples(index=False):
+        for row in dataframe.itertuples(index=False):
             filter_kwargs = {c: getattr(row, c) for c in self.index_fields}
             model = queryset.get(**filter_kwargs)
             for c, v in row._asdict().items():

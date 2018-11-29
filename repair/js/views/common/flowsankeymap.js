@@ -1,13 +1,13 @@
 define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
-        'visualizations/flowmap', 'utils/utils','leaflet',
+        'visualizations/flowmap', 'openlayers', 'utils/utils','leaflet',
         'leaflet-easyprint', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
         'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
-function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
+function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L){
 
     /**
     *
@@ -35,8 +35,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'zoomed');
-            this.render();
-            this.caseStudyId = options.caseStudyId;
+            this.caseStudy = options.caseStudy;
+            this.caseStudyId = options.caseStudy.id;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
 
@@ -44,6 +44,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flows = new Flows();
             this.actors = new GDSECollection();
             this.hideMaterials = {};
+            this.displayWarnings = options.displayWarnings || false;
+            this.render();
         },
 
         /*
@@ -60,8 +62,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{
                 attribution: '© OpenStreetMap contributors, © CartoDB'
             });
+            var focusarea = this.caseStudy.get('properties').focusarea,
+                poly = new ol.geom.MultiPolygon(focusarea.coordinates),
+                interior = poly.getInteriorPoints(),
+                centroid = interior.getCoordinates()[0];
+
             this.leafletMap = new L.Map(this.el, {
-                    center: [52.41, 4.95],
+                    center: [centroid[1], centroid[0]],
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
@@ -373,6 +380,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     }
                 );
                 _this.loader.deactivate();
+                if (_this.displayWarnings && data.warnings.length > 0) {
+                    var msg = '';
+                    data.warnings.forEach(function(warning){
+                        msg += warning + '<br>';
+                    })
+                    _this.alert(msg);
+                }
                 _this.resetMapData(data, zoomToFit);
                 _this.toggleClusters();
                 _this.toggleMaterials();
@@ -516,7 +530,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
                 clusterMap = {},
-                pFlows = [];
+                pFlows = [],
+                warnings = [];
 
             var i = 0;
             clusters.forEach(function(cluster){
@@ -546,8 +561,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 if (clusterMap[actor.id]) return;
 
                 var location = _this.locations[actor.id];
-                if (!location) {
-                    console.log('Warning: missing location at node id ' + actor.id);
+                if (!location || !location.get('geometry')) {
+                    var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + actor.get('name');
+                    warnings.push(warning);
                     return;
                 }
                 var location = _this.locations[actor.id],
@@ -661,7 +677,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             return {
                 flows: links,
                 nodes: Object.values(nodes),
-                materialColors: matColors
+                materialColors: matColors,
+                warnings: warnings
             }
         }
 
