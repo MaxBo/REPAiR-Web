@@ -112,6 +112,7 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
+        'waste': 'waste',
         'amount': 'amount',
         'year': 'year'
     }
@@ -138,7 +139,8 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
         'amount': 'amount',
-        'year': 'year'
+        'year': 'year',
+        'waste': 'waste'
     }
     index_columns = ['origin']
 
@@ -234,6 +236,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
 
 
 class CompositionCreateMixin:
+    check_index = False
 
     def bulk_create(self, validated_data):
         index = 'name'

@@ -343,6 +343,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     # (number fields only)
     nan_values = ['n.a.', '', 'NULL']
 
+    # should index_columns be validated for uniqueness
+    check_index = True
+
     def __init_subclass__(cls, **kwargs):
         """add bulk_upload to the cls.Meta if it does not exist there"""
         fields = cls.Meta.fields
@@ -432,6 +435,19 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             field.required = False
         ret = super().to_internal_value(data)  # would throw exc. else
         ret['dataframe'] = dataframe
+
+        if self.check_index:
+            df_t = dataframe.set_index(self.index_columns)
+            duplicates = df_t.index.get_duplicates()
+            if len(duplicates) > 0:
+                if len(self.index_columns) == 1:
+                    message = _('Index "{}" has to be unique!')\
+                        .format(self.index_columns[0])
+                else:
+                    message = _('The combination of indices "{}" have to be unique!')\
+                        .format(self.index_columns)
+                message += ' ' + _('Duplicates found: {}').format(duplicates)
+                raise ValidationError(message)
         return ret
 
     def parse_dataframe(self, dataframe):
@@ -661,10 +677,17 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
-        # index column is already renamed to match the model at this point
-
         df_existing = read_frame(queryset)
         df = dataframe.copy()
+
+        # if column is both index and referenced, we need to
+        # fill it with ids, because the existing contain the ids instead
+        # of models as well
+        for col in self.index_columns:
+            if isinstance(self.field_map[col], Reference):
+                field_name = self.field_map[col].name
+                df[field_name] = df[field_name].apply(
+                    lambda x: x.id if hasattr(x, 'id') else x)
 
         for col in self.index_fields:
             df_existing[col] = df_existing[col].map(str)
