@@ -122,7 +122,6 @@ var IndicatorFlowEditView = BaseView.extend(
         if(activity >= 0) queryParams['activity'] = activity;
         else if (group >= 0) queryParams['activity__activitygroup'] = group;
 
-       // area: geoJSONText,
         this.loader.activate({offsetX: '20%'});
         actors.fetch({
             data: queryParams,

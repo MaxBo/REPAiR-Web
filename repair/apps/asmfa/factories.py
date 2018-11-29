@@ -71,6 +71,7 @@ class ActorFactory(NodeFactory):
     year = 2017
     turnover = 100000
     employees = 100
+    BvDid = 'whatever'
     BvDii = 'BvDii99'
     website = 'www.example.com'
     activity = factory.SubFactory(ActivityFactory)
@@ -137,7 +138,7 @@ class MaterialFactory(DjangoModelFactory):
     class Meta:
         model = models.Material
     name = factory.Sequence(lambda n: "Material #%s" % n)
-    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+    keyflow = None
     level = 1
     parent = None  #factory.SubFactory('repair.apps.asmfa.factories.MaterialFactory')
 

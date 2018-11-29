@@ -45,8 +45,7 @@ class AdminLevelField(InCasestudyField):
 
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
-                            'level_pk': 'adminlevel__id', }
+    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id'}
     casestudy = CasestudyField(source='adminlevel.casestudy',
                                view_name='casestudy-detail')
     point_on_surface = GeometryField(source='pnt', read_only=True)
@@ -62,9 +61,14 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
                   )
 
 
+class AreaInLevelSerializer(AreaSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
+                            'level_pk': 'adminlevel__id', }
+
+
 class AreaGeoJsonSerializer(ForceMultiMixin,
                             GeoFeatureModelSerializer,
-                            AreaSerializer):
+                            AreaInLevelSerializer):
     """
     Detail serializer for Areas adding the geom field
     and returning a geojson

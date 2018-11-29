@@ -170,6 +170,38 @@ var BaseView = Backbone.View.extend(
     },
 
     /**
+    * create a bootstrap alert (dismissible div)
+    *
+    * @param {String} message                      the message displayed inside the alert
+    * @param {Object=} options
+    * @param {Object=} options.parentEl            alert will be added to this div
+    * @param {String=} options.type                type of the alert ('success', 'danger', 'warning', 'info')
+    * @param {Boolean} [options.dismissible=false] alert is dismissible (cross for closing alert)
+    */
+    bootstrapAlert: function(message, options){
+        var options = options || {},
+            type = options.type || 'success'
+            alertDiv = document.createElement('div');
+
+        alertDiv.classList.add('alert', 'alert-' + type, 'fade', 'in')
+        alertDiv.innerHTML = message;
+
+        if (options.dismissible){
+            alertDiv.classList.add('alert-dismissible');
+            var a = document.createElement('a');
+            a.setAttribute('href', '#');
+            a.classList.add('close');
+            a.dataset['dismiss'] = 'alert';
+            a.innerHTML = 'x';
+            alertDiv.appendChild(a);
+        }
+
+        if (options.parentEl)
+            options.parentEl.appendChild(alertDiv);
+        return alertDiv;
+    },
+
+    /**
     * show a modal with given info message
     *
     * @param {String} message           html formatted message to show
@@ -318,8 +350,13 @@ var BaseView = Backbone.View.extend(
         var options = options || {},
             html = document.getElementById('confirmation-template').innerHTML,
             template = _.template(html),
-            elConfirmation = document.getElementById('confirmation-modal');
+            elConfirmation = document.getElementById('confirmation-modal'),
+            elements = options.elements || [];
         elConfirmation.innerHTML = template({ message: options.message || '' });
+        var body = elConfirmation.querySelector('.modal-body');
+        elements.forEach(function(el){
+            body.appendChild(el);
+        })
         var confirmBtn = elConfirmation.querySelector('.confirm'),
             cancelBtn = elConfirmation.querySelector('.cancel');
         if (options.onConfirm)

@@ -39,7 +39,7 @@ class AdministrativeLocationSerializer(PatchFields,
                                               queryset=Area.objects.all())
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
-        read_only=True, 
+        read_only=True,
     )
 
     class Meta:
@@ -55,8 +55,8 @@ class AdministrativeLocationSerializer(PatchFields,
     def create(self, validated_data):
         """Create a new AdministrativeLocation"""
         if self.Meta.model.objects.all().filter(actor=validated_data['actor']):
-            msg = _('Actor <{}> already has an administrative location (has to be unique).'
-                    .format(validated_data['actor']))
+            msg = _('Actor <{}> already has an administrative location '
+                    '(has to be unique).'.format(validated_data['actor']))
             raise ValidationError(detail=msg)
         return super().create(validated_data)
 
@@ -98,7 +98,7 @@ class OperationalLocationSerializer(PatchFields,
                                               queryset=Area.objects.all())
     level = serializers.PrimaryKeyRelatedField(
         required=False, allow_null=True,
-        read_only=True, 
+        read_only=True,
     )
 
     class Meta:

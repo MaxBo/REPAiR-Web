@@ -23,7 +23,7 @@ function(PageableCollection, _, GDSEModel, config) {
             if (this.baseurl) return this.baseurl;
 
             // take url from api by tag and put the required ids in
-            var apiUrl = config.api[this.apiTag]
+            var apiUrl = config.api[this.apiTag];
             if (this.apiIds != null && this.apiIds.length > 0)
                 apiUrl = apiUrl.format(...this.apiIds);
             return apiUrl;
@@ -140,8 +140,10 @@ function(PageableCollection, _, GDSEModel, config) {
         // called immediately after fetching, parses the response (json)
         parseRecords: function (response) {
             // paginated api urls return the models under the key 'results'
-            if (response.results)
+            if (response.results){
+                this.count = response['count'];
                 return response.results;
+            }
             return response;
         },
 

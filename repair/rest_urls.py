@@ -10,6 +10,7 @@ from repair.apps.studyarea.views import (
     StakeholderViewSet,
     AdminLevelViewSet,
     AreaViewSet,
+    AreaInLevelViewSet,
     LayerCategoryViewSet,
     LayerViewSet,
     ChartCategoryViewSet,
@@ -46,6 +47,8 @@ from repair.apps.asmfa.views import (
     OperationalLocationViewSet,
     ProductViewSet,
     MaterialViewSet,
+    AllProductViewSet,
+    AllWasteViewSet,
     AllMaterialViewSet,
     WasteViewSet,
 )
@@ -75,8 +78,8 @@ router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'products', ProductViewSet)
-router.register(r'wastes', WasteViewSet)
+router.register(r'products', AllProductViewSet)
+router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
 router.register(r'reasons', ReasonViewSet)
@@ -101,12 +104,12 @@ cs_router.register(r'chartcategories', ChartCategoryViewSet)
 cs_router.register(r'keyflows', KeyflowInCasestudyViewSet)
 cs_router.register(r'layercategories', LayerCategoryViewSet)
 cs_router.register(r'levels', AdminLevelViewSet)
+cs_router.register(r'areas', AreaViewSet)
 cs_router.register(r'publications', PublicationInCasestudyViewSet)
 cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
-
 
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
@@ -121,7 +124,7 @@ layercat_router.register(r'layers', LayerViewSet)
 # /casestudies/*/levels/...
 levels_router = NestedSimpleRouter(cs_router, r'levels',
                                  lookup='level')
-levels_router.register(r'areas', AreaViewSet)
+levels_router.register(r'areas', AreaInLevelViewSet)
 
 # /casestudies/*/chartcategories/...
 chart_router = NestedSimpleRouter(cs_router, r'chartcategories',
@@ -152,6 +155,8 @@ kf_router.register(r'flowindicators', FlowIndicatorViewSet)
 kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
+kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'wastes', WasteViewSet)
 
 # /casestudies/*/keyflows/*/solutioncategories/...
 scat_router = NestedSimpleRouter(kf_router, r'solutioncategories',

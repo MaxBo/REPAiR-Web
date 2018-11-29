@@ -3903,9 +3903,9 @@ path-type@^2.0.0:
   dependencies:
     pify "^2.0.0"
 
-patternfly-bootstrap-treeview@^2.1.5:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/patternfly-bootstrap-treeview/-/patternfly-bootstrap-treeview-2.1.5.tgz#4c29f2582fb8a2f28f0a928f2f0d324d21d6990d"
+patternfly-bootstrap-treeview@^2.1.7:
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/patternfly-bootstrap-treeview/-/patternfly-bootstrap-treeview-2.1.7.tgz#3e325d4ca34040c24e7e3f701c8021b1700a6f5d"
   dependencies:
     bootstrap "3.3.x"
     jquery ">= 2.1.x"
