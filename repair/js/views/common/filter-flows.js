@@ -164,6 +164,7 @@ var FilterFlowsView = BaseView.extend(
             activities: this.activities,
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
+            displayWarnings: true,
             filter: filter
         });
         var displayLevel = this.displayLevelSelect.value;
