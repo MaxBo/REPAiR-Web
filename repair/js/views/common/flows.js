@@ -40,6 +40,7 @@ var FlowsView = BaseView.extend(
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.displayWarnings = options.displayWarnings || false;
         this.render();
 
     },
@@ -69,6 +70,7 @@ var FlowsView = BaseView.extend(
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
             materials: this.materials,
+            displayWarnings: this.displayWarnings
         });
     },
 
