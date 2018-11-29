@@ -44,6 +44,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.flows = new Flows();
             this.actors = new GDSECollection();
             this.hideMaterials = {};
+            this.displayWarnings = options.displayWarnings || false;
             this.render();
         },
 
@@ -379,6 +380,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     }
                 );
                 _this.loader.deactivate();
+                if (_this.displayWarnings && data.warnings.length > 0) {
+                    var msg = '';
+                    data.warnings.forEach(function(warning){
+                        msg += warning + '<br>';
+                    })
+                    _this.alert(msg);
+                }
                 _this.resetMapData(data, zoomToFit);
                 _this.toggleClusters();
                 _this.toggleMaterials();
@@ -522,7 +530,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
                 clusterMap = {},
-                pFlows = [];
+                pFlows = [],
+                warnings = [];
 
             var i = 0;
             clusters.forEach(function(cluster){
@@ -552,8 +561,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 if (clusterMap[actor.id]) return;
 
                 var location = _this.locations[actor.id];
-                if (!location) {
-                    console.log('Warning: missing location at node id ' + actor.id);
+                if (!location || !location.get('geometry')) {
+                    var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + actor.get('name');
+                    warnings.push(warning);
                     return;
                 }
                 var location = _this.locations[actor.id],
@@ -667,7 +677,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             return {
                 flows: links,
                 nodes: Object.values(nodes),
-                materialColors: matColors
+                materialColors: matColors,
+                warnings: warnings
             }
         }
 
