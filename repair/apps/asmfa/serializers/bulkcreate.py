@@ -3,7 +3,8 @@ from django.utils.translation import ugettext as _
 from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            BulkResult,
                                            Reference,
-                                           ValidationError)
+                                           ValidationError,
+                                           ErrorMask)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
@@ -112,6 +113,7 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
+        'waste': 'waste',
         'amount': 'amount',
         'year': 'year'
     }
@@ -120,6 +122,23 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
     def get_queryset(self):
         return Actor2Actor.objects.filter(keyflow=self.keyflow)
 
+    def validate(self, attrs):
+        if 'dataframe' in attrs:
+            df = attrs['dataframe']
+            self_ref = df['origin'] == df['destination']
+
+            if self_ref.sum() > 0:
+                message = _("Flows from an actor to itself are not allowed.")
+                error_mask = ErrorMask(df)
+                error_mask.set_error(df.index[self_ref], 'destination', message)
+                fn, url = error_mask.to_file(
+                    file_type=self.input_file_ext.replace('.', ''),
+                    encoding=self.encoding
+                )
+                raise ValidationError(
+                    error_mask.messages, url
+                )
+        return super().validate(attrs)
 
 class ActorStockCreateSerializer(BulkSerializerMixin,
                                  ActorStockSerializer):
@@ -138,7 +157,8 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
         'amount': 'amount',
-        'year': 'year'
+        'year': 'year',
+        'waste': 'waste'
     }
     index_columns = ['origin']
 
@@ -234,6 +254,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
 
 
 class CompositionCreateMixin:
+    check_index = False
 
     def bulk_create(self, validated_data):
         index = 'name'
