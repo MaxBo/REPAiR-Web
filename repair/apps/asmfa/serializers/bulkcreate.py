@@ -279,6 +279,9 @@ class CompositionCreateMixin:
         fraction_serializer.encoding = self.encoding
         fraction_serializer._context = self.context
         df_fract = fraction_serializer.parse_dataframe(df_fract)
+        # take error mask with original dataframe
+        # (not the floodfilled one of FractionSerializer, better error response)
+        fraction_serializer.error_mask = self.error_mask
         fraction_serializer._validate_fractions(df_fract)
         fraction_serializer._create_models(df_fract)
         result = BulkResult(created=new_comp, updated=updated_comp)
