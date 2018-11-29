@@ -123,20 +123,21 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         return Actor2Actor.objects.filter(keyflow=self.keyflow)
 
     def validate(self, attrs):
-        df = attrs['dataframe']
-        self_ref = df['origin'] == df['destination']
+        if 'dataframe' in attrs:
+            df = attrs['dataframe']
+            self_ref = df['origin'] == df['destination']
 
-        if self_ref.sum() > 0:
-            message = _("Flows from an actor to itself are not allowed.")
-            error_mask = ErrorMask(df)
-            error_mask.set_error(df.index[self_ref], 'destination', message)
-            fn, url = error_mask.to_file(
-                file_type=self.input_file_ext.replace('.', ''),
-                encoding=self.encoding
-            )
-            raise ValidationError(
-                error_mask.messages, url
-            )
+            if self_ref.sum() > 0:
+                message = _("Flows from an actor to itself are not allowed.")
+                error_mask = ErrorMask(df)
+                error_mask.set_error(df.index[self_ref], 'destination', message)
+                fn, url = error_mask.to_file(
+                    file_type=self.input_file_ext.replace('.', ''),
+                    encoding=self.encoding
+                )
+                raise ValidationError(
+                    error_mask.messages, url
+                )
         return super().validate(attrs)
 
 class ActorStockCreateSerializer(BulkSerializerMixin,
