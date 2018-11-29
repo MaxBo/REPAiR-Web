@@ -455,15 +455,21 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         assert res.status_code == 201
 
     def test_bulk_products(self):
-        file_path = os.path.join(os.path.dirname(__file__),
-                                self.testdata_folder,
-                                self.filename_products)
-        data = {
-            'bulk_upload' : open(file_path, 'rb'),
-        }
+        lengths = []
+        for i in range(2):
+            file_path = os.path.join(os.path.dirname(__file__),
+                                    self.testdata_folder,
+                                    self.filename_products)
+            data = {
+                'bulk_upload' : open(file_path, 'rb'),
+            }
 
-        res = self.client.post(self.product_url, data)
-        assert res.status_code == 201
+            res = self.client.post(self.product_url, data)
+            assert res.status_code == 201
+            lengths.append(ProductFraction.objects.count())
+        # check that 2nd loop does not create additional fractions
+        # but updates (kind of)
+        assert lengths[0] == lengths[1]
         fractions = ProductFraction.objects.all()
         avoidable = fractions.values_list('avoidable', flat=True)
         # avoidable is set (just checking that not everything is

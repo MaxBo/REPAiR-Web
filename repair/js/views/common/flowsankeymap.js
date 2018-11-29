@@ -1,13 +1,13 @@
 define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
-        'visualizations/flowmap', 'utils/utils','leaflet',
+        'visualizations/flowmap', 'openlayers', 'utils/utils','leaflet',
         'leaflet-easyprint', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
         'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
-function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
+function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L){
 
     /**
     *
@@ -35,8 +35,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'zoomed');
-            this.render();
-            this.caseStudyId = options.caseStudyId;
+            this.caseStudy = options.caseStudy;
+            this.caseStudyId = options.caseStudy.id;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
 
@@ -44,6 +44,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flows = new Flows();
             this.actors = new GDSECollection();
             this.hideMaterials = {};
+            this.render();
         },
 
         /*
@@ -60,8 +61,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{
                 attribution: '© OpenStreetMap contributors, © CartoDB'
             });
+            var focusarea = this.caseStudy.get('properties').focusarea,
+                poly = new ol.geom.MultiPolygon(focusarea.coordinates),
+                interior = poly.getInteriorPoints(),
+                centroid = interior.getCoordinates()[0];
+
             this.leafletMap = new L.Map(this.el, {
-                    center: [52.41, 4.95],
+                    center: [centroid[1], centroid[0]],
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
