@@ -9,5 +9,6 @@ class GraphWalker:
         assert isinstance(solution, float)
         g = self.graph.copy()
         for e in self.graph.edges():
-            g.ep.flow[e]['amount'] = self.graph.ep.flow[e]['amount'] * solution
+            if(self.graph.ep.flow[e] != None):
+                g.ep.flow[e]['amount'] = self.graph.ep.flow[e]['amount'] * solution
         return g

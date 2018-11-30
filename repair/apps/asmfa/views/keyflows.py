@@ -67,12 +67,18 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
             kfgraph = KeyflowGraph(keyflow)
             graph = kfgraph.buildGraph()
             return Response(kfgraph.serialize(graph))
+        validate_graph = request.query_params.get('validate_graph', '')
+        if validate_graph.lower() == 'true':
+            keyflow = self.queryset.get(id=kwargs['pk'])
+            kfgraph = KeyflowGraph(keyflow)
+            res = kfgraph.validateGraph()
+            return Response(res)
         calc_graph = request.query_params.get('calc_graph', '')
         if calc_graph.lower() == 'true':
             keyflow = self.queryset.get(id=kwargs['pk'])
             kfgraph = KeyflowGraph(keyflow)
             graph = kfgraph.calcGraph()
-            return Response(kfgraph.serialize(graph))
+            return Response(kfgraph.serialize(graph))        
         return super().retrieve(request, **kwargs)
 
 

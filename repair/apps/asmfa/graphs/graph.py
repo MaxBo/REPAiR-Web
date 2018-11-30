@@ -28,28 +28,29 @@ class KeyflowGraph:
         
         # Add the actors to the graph
         g.add_vertex(len(actors))
-        vid = g.new_vertex_property("string")
-        g.vertex_properties["id"] = vid
+        g.vertex_properties["id"] = g.new_vertex_property("int")
+        g.vertex_properties["name"] = g.new_vertex_property("string")
 
         actorids = {}
         for i in range(len(actors)):
-        #for i, actor in enumerate(actors):
-            g.vp.id[i] = actors[i].name
+            g.vp.id[i] = actors[i].id
+            g.vp.name[i] = actors[i].name
             actorids[actors[i].name] = i
         
         # Add the flows to the graph
+        g.edge_properties["id"] = g.new_edge_property("int")
         g.edge_properties["flow"] = g.new_edge_property("object")
         g.edge_properties["eid"] = g.new_edge_property("int") # need a persistent edge id, because graph-tool can reindex the edges
-        
+       
         for i in range(len(flows)):
-        #for i, flow in enumerate(flows):
             # get the start and and actor id's
             v0 = actorids.get(str(flows[i].origin))
             v1 = actorids.get(str(flows[i].destination))
 
-            if((v0 != None) & (v1 != None)):
+            if(v0 != None and v1 != None):            
                 # create the flow in the graph and set the edge id
                 edge = g.add_edge(g.vertex(v0), g.vertex(v1))
+                g.ep.id[edge] = flows[i].id
                 g.ep.eid[edge] = i
                 # create dict with flow information
                 fl = {}
@@ -68,9 +69,8 @@ class KeyflowGraph:
                     # the actual fraction of the fraction (great naming here)
                     f = fraction.fraction
                     fl['composition'][material.name] = f
-                
+
                 g.ep.flow[(v0,v1)] = fl
-                g.ep.eid[(v0,v1)] = i
 
         t = (i for i in g.ep.flow)
         txt = g.new_edge_property("string", vals=t)
@@ -78,7 +78,7 @@ class KeyflowGraph:
         g.save(self.graphfile)
         # save graph image
         #pos = gt.draw.fruchterman_reingold_layout(g, n_iter=1000)
-        #gt.draw.graph_draw(g, pos, vertex_size=20, vertex_text=g.vp.id, 
+        #gt.draw.graph_draw(g, pos, vertex_size=20, vertex_text=g.vp.name, 
         #                       vprops={"text_position":0, "font_weight": cairo.FONT_WEIGHT_BOLD, "font_size":14},
         #                       output_size=(700,600), output="test.png")
         return g
@@ -89,13 +89,34 @@ class KeyflowGraph:
         g2 = gw.calculate_solution(2.0)
         g2.save("casestudy" + str(self.keyflow.casestudy.id) + "_keyflow" + str(self.keyflow.id) + "_multiply2.gt")
         return g2
+    
+    def validateGraph(self):
+        """Validate flows for a graph"""
+        g = gt.load_graph(self.graphfile)
+        invalid = []
+
+        for e in g.edges():
+            if(g.ep.flow[e] == None):
+                flow = {}
+                flow['flow_id'] = g.ep.id[e]
+                flow['source_id'] = g.vp.id[e.source()]
+                flow['source'] = g.vp.name[e.source()]
+                flow['target_id'] = g.vp.id[e.target()]
+                flow['target'] = g.vp.name[e.target()]
+                invalid.append(flow)
+        if len(invalid) != 0:
+            return invalid
+        else:
+            return 'Graph is valid'
         
     def serialize(self, g):
         flows = []
         for e in g.edges():
             flow = {}
-            flow['source'] = g.vp.id[e.source()]
-            flow['target'] = g.vp.id[e.target()]
+            flow['source_id'] = g.vp.id[e.source()]
+            flow['source'] = g.vp.name[e.source()]
+            flow['target_id'] = g.vp.id[e.target()]
+            flow['target'] = g.vp.name[e.target()]
             flow['flow'] = g.ep.flow[e]
             flows.append(flow)
         return {'flows':flows}
