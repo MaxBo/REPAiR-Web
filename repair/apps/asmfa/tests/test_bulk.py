@@ -22,7 +22,7 @@ from repair.apps.asmfa.factories import (ActivityFactory,
 
 from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
                                       Material, ProductFraction,
-                                      AdministrativeLocation)
+                                      AdministrativeLocation, Actor2Actor)
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -335,16 +335,21 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
     def test_bulk_flow(self):
         """Test file-based upload of actor2actor"""
-        file_path = os.path.join(os.path.dirname(__file__),
-                                self.testdata_folder,
-                                self.filename_a2a)
-        data = {
-            'bulk_upload' : open(file_path, 'rb'),
-        }
+        lengths = []
+        for i in range(2):
+            file_path = os.path.join(os.path.dirname(__file__),
+                                    self.testdata_folder,
+                                    self.filename_a2a)
+            data = {
+                'bulk_upload' : open(file_path, 'rb'),
+            }
 
-        res = self.client.post(self.a2a_url, data)
-        assert res.status_code == 201
-
+            res = self.client.post(self.a2a_url, data)
+            assert res.status_code == 201
+            lengths.append(Actor2Actor.objects.count())
+        # check that 2nd loop does not create additional products
+        # but updates them
+        assert lengths[0] == lengths[1]
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
                                 self.filename_a2a_error)
