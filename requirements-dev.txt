@@ -42,3 +42,6 @@ pytest-xdist
 codecov
 gitpython
 selenium
+
+pycairo
+ipython
