@@ -8,6 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 
+from rest_framework.response import Response
+import json
+
 from repair.apps.asmfa.models import (
     Keyflow,
     KeyflowInCasestudy,
@@ -61,16 +64,16 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         get_graph = request.query_params.get('get_graph', '')
         if get_graph.lower() == 'true':
             keyflow = self.queryset.get(id=kwargs['pk'])
-            graph = KeyflowGraph(keyflow)
-            graph.buildGraph()
+            kfgraph = KeyflowGraph(keyflow)
+            graph = kfgraph.buildGraph()
+            return Response(kfgraph.serialize(graph))
         calc_graph = request.query_params.get('calc_graph', '')
         if calc_graph.lower() == 'true':
             keyflow = self.queryset.get(id=kwargs['pk'])
-            graph = KeyflowGraph(keyflow)
-            graph.calcGraph()
+            kfgraph = KeyflowGraph(keyflow)
+            graph = kfgraph.calcGraph()
+            return Response(kfgraph.serialize(graph))
         return super().retrieve(request, **kwargs)
-
-
 
 
 class CommaSeparatedValueFilter(Filter):

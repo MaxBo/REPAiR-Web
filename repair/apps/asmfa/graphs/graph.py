@@ -81,13 +81,24 @@ class KeyflowGraph:
         #gt.draw.graph_draw(g, pos, vertex_size=20, vertex_text=g.vp.id, 
         #                       vprops={"text_position":0, "font_weight": cairo.FONT_WEIGHT_BOLD, "font_size":14},
         #                       output_size=(700,600), output="test.png")
-        return "test"
+        return g
 
     def calcGraph(self):
         g = gt.load_graph(self.graphfile)
         gw = GraphWalker(g)
         g2 = gw.calculate_solution(2.0)
         g2.save("casestudy" + str(self.keyflow.casestudy.id) + "_keyflow" + str(self.keyflow.id) + "_multiply2.gt")
+        return g2
+        
+    def serialize(self, g):
+        flows = []
+        for e in g.edges():
+            flow = {}
+            flow['source'] = g.vp.id[e.source()]
+            flow['target'] = g.vp.id[e.target()]
+            flow['flow'] = g.ep.flow[e]
+            flows.append(flow)
+        return {'flows':flows}
         
     def examples():
         # actors in keyflow
