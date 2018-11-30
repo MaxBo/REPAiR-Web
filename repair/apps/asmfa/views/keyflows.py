@@ -62,6 +62,12 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         if get_graph.lower() == 'true':
             keyflow = self.queryset.get(id=kwargs['pk'])
             graph = KeyflowGraph(keyflow)
+            graph.buildGraph()
+        calc_graph = request.query_params.get('calc_graph', '')
+        if calc_graph.lower() == 'true':
+            keyflow = self.queryset.get(id=kwargs['pk'])
+            graph = KeyflowGraph(keyflow)
+            graph.calcGraph()
         return super().retrieve(request, **kwargs)
 
 
