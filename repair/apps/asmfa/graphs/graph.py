@@ -29,13 +29,15 @@ class KeyflowGraph:
         # Add the actors to the graph
         g.add_vertex(len(actors))
         g.vertex_properties["id"] = g.new_vertex_property("int")
+        g.vertex_properties["bvdid"] = g.new_vertex_property("string")
         g.vertex_properties["name"] = g.new_vertex_property("string")
 
         actorids = {}
         for i in range(len(actors)):
             g.vp.id[i] = actors[i].id
+            g.vp.bvdid[i] = actors[i].BvDid
             g.vp.name[i] = actors[i].name
-            actorids[actors[i].name] = i
+            actorids[actors[i].BvDid] = i
         
         # Add the flows to the graph
         g.edge_properties["id"] = g.new_edge_property("int")
@@ -44,8 +46,8 @@ class KeyflowGraph:
        
         for i in range(len(flows)):
             # get the start and and actor id's
-            v0 = actorids.get(str(flows[i].origin))
-            v1 = actorids.get(str(flows[i].destination))
+            v0 = actorids.get(flows[i].origin.BvDid)
+            v1 = actorids.get(flows[i].destination.BvDid)
 
             if(v0 != None and v1 != None):            
                 # create the flow in the graph and set the edge id
@@ -100,8 +102,10 @@ class KeyflowGraph:
                 flow = {}
                 flow['flow_id'] = g.ep.id[e]
                 flow['source_id'] = g.vp.id[e.source()]
+                flow['source_bvdid'] = g.vp.bvdid[e.source()]
                 flow['source'] = g.vp.name[e.source()]
                 flow['target_id'] = g.vp.id[e.target()]
+                flow['target_bvdid'] = g.vp.bvdid[e.target()]
                 flow['target'] = g.vp.name[e.target()]
                 invalid.append(flow)
         if len(invalid) != 0:
@@ -113,9 +117,7 @@ class KeyflowGraph:
         flows = []
         for e in g.edges():
             flow = {}
-            flow['source_id'] = g.vp.id[e.source()]
             flow['source'] = g.vp.name[e.source()]
-            flow['target_id'] = g.vp.id[e.target()]
             flow['target'] = g.vp.name[e.target()]
             flow['flow'] = g.ep.flow[e]
             flows.append(flow)
