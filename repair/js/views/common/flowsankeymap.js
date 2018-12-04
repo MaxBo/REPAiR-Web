@@ -110,34 +110,35 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
+            this.actorCheck = document.createElement('input');
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
+                actorLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
+            actorLabel.innerHTML = gettext('Show actors');
 
-            this.materialCheck.type = "checkbox";
-            this.animationCheck.type = "checkbox";
-            this.clusterCheck.type = "checkbox";
-            this.materialCheck.style.transform = "scale(2)";
-            this.animationCheck.style.transform = "scale(2)";
-            this.clusterCheck.style.transform = "scale(2)";
-            this.materialCheck.style.pointerEvents = "none";
-            this.animationCheck.style.pointerEvents = "none";
-            this.clusterCheck.style.pointerEvents = "none";
-            this.materialCheck.style.marginRight = "10px";
-            this.animationCheck.style.marginRight = "10px";
-            this.clusterCheck.style.marginRight = "10px";
+            [this.materialCheck, this.clusterCheck,
+            this.animationCheck, this.actorCheck].forEach(function(checkbox){
+                checkbox.type = "checkbox";
+                checkbox.style.transform = "scale(2)";
+                checkbox.style.pointerEvents = "none";
+                checkbox.style.marginRight = "10px";
+            })
+
+            this.actorCheck.checked = true;
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
 
             var matDiv = document.createElement('div'),
+                actorDiv = document.createElement('div'),
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
@@ -148,6 +149,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             matDiv.appendChild(this.materialCheck);
             matDiv.appendChild(matLabel);
             matDiv.style.cursor = 'pointer';
+            actorDiv.appendChild(this.actorCheck);
+            actorDiv.appendChild(actorLabel);
+            actorDiv.style.cursor = 'pointer';
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
@@ -205,7 +209,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniToggleDiv.addEventListener("click", function(){
                 _this.rerender();
             });
+            actorDiv.addEventListener("click", function(){
+                _this.actorCheck.checked = !_this.actorCheck.checked;
+                _this.rerender();
+            });
 
+            div.appendChild(actorDiv);
+            div.appendChild(document.createElement('br'));
             div.appendChild(matDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(clusterDiv);
@@ -358,6 +368,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
+            this.flowMap.showNodes = (this.actorCheck.checked) ? true: false;
             this.flowMap.dottedLines = (this.aniDotsRadio.checked) ? true: false;
             this.flowMap.resetView();
             this.updateLegend();
