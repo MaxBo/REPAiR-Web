@@ -141,6 +141,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   #'default_area_level',
                   'show_on_welcome_map'
                   )
+        extra_kwargs = {'focusarea': {'allow_null': True},
+                        'geom': {'allow_null': True}}
 
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
