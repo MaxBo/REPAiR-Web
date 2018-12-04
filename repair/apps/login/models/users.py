@@ -11,8 +11,8 @@ from .bases import GDSEModel
 
 class CaseStudy(GDSEModel):
     name = models.TextField()
-    geom = geomodels.MultiPolygonField(null=True, srid=4326)
-    focusarea = geomodels.MultiPolygonField(null=True, srid=4326)
+    geom = geomodels.MultiPolygonField(null=True, srid=4326, blank=True)
+    focusarea = geomodels.MultiPolygonField(null=True, srid=4326, blank=True)
     description = models.TextField(blank=True, null=True)
     show_on_welcome_map = models.BooleanField(default=True)
     #default_area_level = models.ForeignKey(AdminLevels,
