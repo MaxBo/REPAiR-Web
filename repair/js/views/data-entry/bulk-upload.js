@@ -22,6 +22,8 @@ var BulkUploadView = BaseView.extend(
     */
     initialize: function(options){
         BulkUploadView.__super__.initialize.apply(this, [options]);
+        _.bindAll(this, 'patchFocusarea');
+        _.bindAll(this, 'patchRegion');
         this.caseStudy = options.caseStudy;
         this.render();
     },
@@ -33,16 +35,20 @@ var BulkUploadView = BaseView.extend(
         "click button.upload": "upload",
         "click #remove-keyflow": "removeKeyflow",
         "click button.clear": "clearData",
-        "click #refresh-status": "refreshStatus"
+        "click #refresh-status": "refreshStatus",
+        "click #upload-focusarea": "patchFocusarea",
+        "click #upload-csregion": "patchRegion"
     },
 
     render: function(){
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
+        var csAdminUrl = '/admin/login/casestudy/' + this.caseStudy.id + '/change/';
         this.el.innerHTML = template({
             casestudy: this.caseStudy.get('properties').name,
-            keyflow: this.model.get('name')
+            keyflow: this.model.get('name'),
+            csAdminUrl: csAdminUrl
         });
         this.logArea = this.el.querySelector('#upload-log');
 
@@ -104,6 +110,57 @@ var BulkUploadView = BaseView.extend(
         a.href = '/admin/publications_bootstrap/publication/'
         div.appendChild(a);
         pubRow.querySelector('.row').appendChild(div);
+
+        this.fillGeom();
+    },
+
+    fillGeom: function(){
+        var focusarea = this.caseStudy.get('properties').focusarea,
+            region = this.caseStudy.get('geometry');
+        focusarea = (focusarea) ? JSON.stringify(focusarea): '';
+        region = (region) ? JSON.stringify(region): '';
+        this.el.querySelector('#focusarea-input').value = focusarea;
+        this.el.querySelector('#csregion-input').value = region;
+    },
+
+    patchFocusarea: function(){
+        var _this = this;
+        this.caseStudy.save(
+            {focusarea: this.el.querySelector('#focusarea-input').value},
+            {
+                success: function(res){
+                    var msg = gettext('Focusarea updated');
+                    _this.log('<p style="color: green;">' + msg + '</p>');
+                },
+                error: function(res, m){
+                    var msg = gettext('Focusarea update failed');
+                    msg += ': ' + m.responseText;
+                    _this.log('<p style="color: red;">' + msg + '</p>');
+                    _this.onError(res);
+                },
+                patch: true
+            }
+        )
+    },
+
+    patchRegion: function(){
+        var _this = this;
+        this.caseStudy.save(
+            {geom: this.el.querySelector('#csregion-input').value},
+            {
+                success: function(res){
+                    var msg = gettext('Casestudy Region updated');
+                    _this.log('<p style="color: green;">' + msg + '</p>');
+                },
+                error: function(res, m){
+                    var msg = gettext('Casestudy Region update failed');
+                    msg += ': ' + m.responseText;
+                    _this.log('<p style="color: red;">' + msg + '</p>');
+                    _this.onError(res);
+                },
+                patch: true
+            }
+        )
     },
 
     removeKeyflow: function(){
@@ -260,6 +317,8 @@ var BulkUploadView = BaseView.extend(
             btn = evt.target,
             tag = btn.dataset['tag'];
 
+        if (!tag) return;
+
         var row = this.el.querySelector('.row[data-tag="' + tag +  '"]'),
             input = row.querySelector('input[type="file"]'),
             files = input.files,
@@ -393,6 +452,8 @@ var BulkUploadView = BaseView.extend(
     refreshStatus: function(tag){
         var _this = this,
             rows;
+
+        this.fillGeom();
 
         if (tag && typeof tag === 'string')
             rows = [this.el.querySelector('.upload.row[data-tag="' + tag + '"]')];
