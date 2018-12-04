@@ -160,7 +160,7 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
         'year': 'year',
         'waste': 'waste'
     }
-    index_columns = ['origin']
+    index_columns = ['origin', 'composition']
 
     def get_queryset(self):
         return ActorStock.objects.filter(keyflow=self.keyflow)
