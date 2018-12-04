@@ -29,6 +29,36 @@
       </div>
       <div class="tab-pane fade in bordered" id="casestudy-related-upload">
         <div class="upload-column">
+          <div class="upload row bordered">
+            <div class='row'>
+              <div class="row">
+                <label>{% trans "Focusarea" %}</label>
+                <a href="<%= csAdminUrl %>" target="_blank"><span class="glyphicon glyphicon-link" style="margin-right: 2px;"></span>Admin-form</a>
+              </div>
+              <button class="btn btn-primary upload" id="upload-focusarea" title="{% trans "Upload File" %}">
+                {% trans "Upload" %}
+                <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+              </button>
+              <div class="row">
+                <textarea id="focusarea-input"> </textarea>
+              </div>
+            </div>
+          </div>
+          <div class="upload row bordered">
+            <div class='row'>
+              <div class="row">
+                <label>{% trans "Casestudy Region" %}</label>
+                <a href="<%= csAdminUrl %>" target="_blank"><span class="glyphicon glyphicon-link" style="margin-right: 2px;"></span>Admin-form</a>
+              </div>
+              <button class="btn btn-primary upload" id="upload-csregion" title="{% trans "Upload File" %}">
+                {% trans "Upload" %}
+                <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+              </button>
+              <div class="row">
+                <textarea id="csregion-input"> </textarea>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

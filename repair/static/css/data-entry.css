@@ -139,3 +139,9 @@ td button {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+#bulk-upload .upload.row textarea{
+    height: 100px;
+    width: 100%;
+    resize: vertical;
+}
