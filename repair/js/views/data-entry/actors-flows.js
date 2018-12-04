@@ -192,14 +192,22 @@ var FlowsEditView = BaseView.extend(
         $('#actors-table tbody').on('click', 'tr', function () {
             _this.selectRow(this);
         });
+
+        // workaround for hiding alert messages of datatables
+        $.fn.dataTable.ext.errMode = 'none';
+        $('#actors-table').on( 'error.dt', function ( e, settings, techNote, message ) {
+            console.log( 'An error has been reported by DataTables: ', message );
+        } ) ;
     },
 
     nodeSelected: function(event, data){
         var node = data.node;
         if (node.type === 'activitygroup')
             $(this.dataTree).jstree('toggle_node', node);
-        else
-            this.renderActors(node.original.model);
+        else {
+            this.activity = node.original.model;
+            this.renderActors(this.activity);
+        }
     },
 
     /*
@@ -268,6 +276,7 @@ var FlowsEditView = BaseView.extend(
     },
 
     addActorRows: function(actors){
+        console.log(actors)
         var _this = this,
             dataRows = [];
         actors.forEach(function(actor){
@@ -361,7 +370,7 @@ var FlowsEditView = BaseView.extend(
                 "employees": null,
                 "BvDii": "-",
                 "website": "www.website.org",
-                "activity": _this.activities.first().id,
+                "activity": _this.activity.id,
                 'reason': null,
                 'description': ''
             }, {
