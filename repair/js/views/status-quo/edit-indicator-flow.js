@@ -377,25 +377,29 @@ var IndicatorFlowEditView = BaseView.extend(
             destinationSuffix = (destinationLevel == 'activitygroup') ? 'activity__activitygroup__id__in':
                 (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
 
-        var filters = filterParams['filters'] = [];
+        // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
+        var id_filter = {
+                link: 'and',
+                functions: []
+            }
         if (originNodeIds.length > 0)
-            filters.push({
+            id_filter.functions.push({
                 'function': 'origin__' + originSuffix,
                 values: originNodeIds
             });
 
         if (destinationNodeIds.length > 0)
-            filters.push({
+            id_filter.functions.push({
                 'function': 'destination__' + destinationSuffix,
                 values: destinationNodeIds
             });
+
+        filterParams['filters'] = [id_filter];
 
         var flows = new GDSECollection([], {
             apiTag: 'actorToActor',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
-        // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
-        filterParams['filter_link'] = 'and';
 
         filterParams['aggregation_level'] = {
             origin: originLevel,
