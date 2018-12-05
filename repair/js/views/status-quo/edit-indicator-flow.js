@@ -179,7 +179,7 @@ var IndicatorFlowEditView = BaseView.extend(
             multiCheck(evt, index, val);
             // nodelevel actor is selected -> filter actors
             if (selectGroup.levelSelect.value == 'actor')
-                _this.filterActors();
+                _this.filterActors(tag);
         })
 
         $(selectGroup.actorSelect).on('changed.bs.select', multiCheck);
@@ -198,25 +198,39 @@ var IndicatorFlowEditView = BaseView.extend(
         selects.forEach(function(sel){
             sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
+            sel.removeAttribute('multiple');
             sel.style.height ='100%'; // resets size, in case it was expanded
         })
-
-        if (level == 'activity'){
+        if (level == 'actor'){
+            multi = selectGroup.actorSelect;
+        }
+        else if (level == 'activity'){
+            multi = selectGroup.activitySelect;
             hide = [selectGroup.actorSelect];
         }
-        if (level == 'activitygroup'){
+        else {
+            multi = selectGroup.groupSelect;
             hide = [selectGroup.actorSelect, selectGroup.activitySelect];
         }
-
-        // hide the grandparents
+        multi.setAttribute('multiple', true);
+        $(multi).selectpicker("refresh");
         hide.forEach(function(s){
             s.parentElement.parentElement.style.display = 'none';
         })
         this.renderNodeSelectOptions(selectGroup.groupSelect, this.activityGroups);
-        if(level != 'activitygroup')
+        if(level != 'group')
             this.renderNodeSelectOptions(selectGroup.activitySelect, this.activities);
         if(level == 'actor')
             this.renderNodeSelectOptions(selectGroup.actorSelect);
+
+        // selectpicker has to be completely rerendered to change between
+        // multiple and single select
+        selects.forEach(function(sel){
+            $(sel).selectpicker('destroy');
+            $(sel).selectpicker();
+        });
+        // destroying also kills the event listeners
+        this.addEventListeners(tag);
     },
 
 
