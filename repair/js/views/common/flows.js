@@ -263,16 +263,12 @@ var FlowsView = BaseView.extend(
         // fetch actors and the flows in between them when group or activity was selected,
         // render after fetching
         function fetchRenderData(origin, destination, queryParams, bodyParams) {
-            var promises = [],
-                actorIds = [],
-                nodes = [];
 
             _this.loader.activate();
             var flows = new GDSECollection([], {
                 apiTag: 'actorToActor',
                 apiIds: [_this.caseStudy.id, _this.keyflowId]
             });
-            actorIds = actorIds.join(',');
             flows.postfetch({
                 body: bodyParams,
                 data: queryParams,
@@ -322,6 +318,10 @@ var FlowsView = BaseView.extend(
             // put filter params defined by user in filter section into body
             var bodyParams = this.getFlowFilterParams()[0],
                 filterSuffix = 'activity';
+
+            // there might be multiple flows in between the same actors,
+            // force to aggregate them to one flow
+            bodyParams['aggregation_level'] = {origin:"actor",destination:"actor"}
 
             // put filtering by clicked flow origin/destination into query params
             if (data.flow.get('origin_level') === 'activitygroup')

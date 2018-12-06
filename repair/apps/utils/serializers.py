@@ -382,7 +382,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     def create_template(cls):
         wb = Workbook()
         ws = wb.active
-        ws.append(list(cls.field_map.keys()))
+        columns = []
+        for c in cls.field_map.keys():
+            if c in cls.index_columns:
+                c += '*'
+            columns.append(c)
+        ws.append(columns)
         return save_virtual_workbook(wb)
 
     def file_to_dataframe(self, file, encoding='cp1252'):
@@ -413,7 +418,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 _('wrong file-encoding ({} used)'.format(encoding)))
 
         dataframe = dataframe.\
-            rename(columns={c: c.lower() for c in dataframe.columns})
+            rename(columns={c: c.lower().rstrip('*')
+                            for c in dataframe.columns})
         return dataframe
 
     def to_internal_value(self, data):
