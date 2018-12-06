@@ -117,7 +117,7 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         'amount': 'amount',
         'year': 'year'
     }
-    index_columns = ['origin', 'destination']
+    index_columns = ['origin', 'destination', 'composition']
 
     def get_queryset(self):
         return Actor2Actor.objects.filter(keyflow=self.keyflow)
