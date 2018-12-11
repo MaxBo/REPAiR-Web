@@ -48,8 +48,10 @@ function(_, BaseView, GDSECollection, Muuri){
                 template = _.template(html);
             this.el.innerHTML = template({ keyflowName: this.keyflowName });
             this.table = this.el.querySelector('#objectives-table');
-            var header = this.table.createTHead().insertRow(0);
-            header.appendChild(document.createElement('th'));
+            var header = this.table.createTHead().insertRow(0),
+                fTh = document.createElement('th');
+            fTh.style.width = '1%';
+            header.appendChild(fTh);
             var rankingMap = {},
                 cellUsers = [],
                 avgRankings = {};
@@ -88,18 +90,60 @@ function(_, BaseView, GDSECollection, Muuri){
             });
 
             // fill table with sorted aims and individual ranks
+            var i = 1;
             sortRank.forEach(function(sortedAim){
                 var aim = _this.aims.get(sortedAim[0]),
-                    row = _this.table.insertRow(-1);
-                row.insertCell(0).innerHTML = aim.get('text');
+                    row = _this.table.insertRow(-1),
+                    item = _this.createAimItem(aim, i);
+                row.insertCell(0).appendChild(item);
                 var aimRank = rankingMap[aim.id];
                 cellUsers.forEach(function(userId){
                     var cell = row.insertCell(-1),
                         rank = aimRank[userId];
                     if (rank) cell.innerHTML = '#' + rank;
                 });
-
+                i++;
             })
+        },
+
+        createAimItem: function(aim, rank){
+            var html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html),
+                panelItem = document.createElement('div'),
+                itemContent = document.createElement('div'),
+                _this = this;
+            panelItem.classList.add('panel-item');
+            //panelItem.style.position = 'absolute';
+            itemContent.classList.add('noselect', 'item-content');
+            itemContent.innerHTML = template({ name: aim.get('text') });
+            panelItem.appendChild(itemContent);
+
+            var overlay = panelItem.querySelector('.overlay');
+            overlay.style.display = 'inline-block';
+            overlay.innerHTML = '#' + rank;
+            // ToDo: put next lines into style sheet
+            // adjust overlay offset, because parent div pos. is not absolute
+            // move it left
+            overlay.style.top = '-15px';
+            overlay.style.left = '15px';
+            overlay.style.right = 'auto';
+            // make space for the overlay
+            panelItem.querySelector('label').style.paddingLeft = '30px';
+            var desc = aim.get('description') || '-';
+
+            $(panelItem).popover({
+                trigger: "hover",
+                container: 'body',
+                //placement: 'bottom',
+                content: desc.replace(/\n/g, "<br/>"),
+                html: true
+            });
+            panelItem.style.maxWidth = '400px';
+            var buttons = panelItem.querySelectorAll('button');
+            buttons.forEach(function(button){
+                button.style.display = 'none';
+            })
+            return panelItem;
         },
     });
     return ObjectivesView;
