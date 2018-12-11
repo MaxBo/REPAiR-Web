@@ -30,6 +30,7 @@
 
 {% block content %}
   <div class="tab-content">
+    <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
     <div class="tab-pane fade in active" id="objectives">
       <h2> ToDo </h2>
     </div>
@@ -50,5 +51,5 @@
     </div>
   </div>
 </html>
-{% render_bundle 'Base' %}
+{% render_bundle 'Recommendations' %}
 {% endblock %}

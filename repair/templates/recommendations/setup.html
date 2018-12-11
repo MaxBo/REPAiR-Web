@@ -10,17 +10,25 @@
     document.getElementById("recommendations-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <li class="active"><a href="#groups" data-toggle="pill">{% trans "Participants" %} <span class="sub-icon fas fa-users"></span></a></li>
+    <li class="active"><a href="#users" data-toggle="pill">{% trans "Users" %} <span class="sub-icon fas fa-users"></span></a></li>
   </ul>
 {% endblock %}
 
 {% block content %}
   <div class="tab-content">
-    <div class="tab-pane fade in active" id="groups">
-      <h2> ToDo </h2>
+    <div class="col-md-6">
+      <div class="tab-pane fade in active" id="users">
+        <table id="user-table" class="entry-table table">
+          <tr>
+            <th>{% trans "User in case study" %}</th>
+            <th>{% trans "Alias in evaluation" %}</th>
+            <th>{% trans "Part of evaluation" %}</th>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </html>
-{% render_bundle 'Base' %}
+{% render_bundle 'Recommendations' %}
 {% endblock %}
 
