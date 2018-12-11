@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "REPAiR | Recommendations" %}{% endblock %}
+
+{% block sidebar %}
+
+  <script>
+    document.getElementById("recommendations-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <li class="active"><a href="#groups" data-toggle="pill">{% trans "Participants" %} <span class="sub-icon fas fa-users"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="groups">
+      <h2> ToDo </h2>
+    </div>
+  </div>
+</html>
+{% render_bundle 'Base' %}
+{% endblock %}
+
