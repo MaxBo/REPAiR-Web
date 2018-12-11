@@ -34,7 +34,6 @@ function(_, BaseView, GDSECollection, Muuri){
             this.keyflowId = options.keyflowId;
             this.keyflowName = options.keyflowName;
 
-            console.log(this.objectives)
             this.users = options.users.filterBy({'gets_evaluated' : true})
 
             this.render();
@@ -48,6 +47,12 @@ function(_, BaseView, GDSECollection, Muuri){
                 template = _.template(html);
             this.el.innerHTML = template({ keyflowName: this.keyflowName });
             this.table = this.el.querySelector('#objectives-table');
+            if (this.users.size() === 0){
+                var warning = document.createElement('h3');
+                warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
+                this.table.appendChild(warning);
+                return;
+            }
             var header = this.table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
             fTh.style.width = '1%';
