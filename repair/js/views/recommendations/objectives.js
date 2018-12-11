@@ -65,6 +65,7 @@ function(_, BaseView, GDSECollection, Muuri){
                     th = document.createElement('th');
                 cellUsers.push(user.id);
                 th.innerHTML = name;
+                th.style.width = '1%';
                 header.appendChild(th);
                 var userObjectives = _this.objectives.filterBy({'user': user.get('user')});
                 userObjectives.comparator = 'priority';
@@ -143,7 +144,7 @@ function(_, BaseView, GDSECollection, Muuri){
                 content: desc.replace(/\n/g, "<br/>"),
                 html: true
             });
-            panelItem.style.maxWidth = '400px';
+            panelItem.style.maxWidth = '500px';
             var buttons = panelItem.querySelectorAll('button');
             buttons.forEach(function(button){
                 button.style.display = 'none';
