@@ -8,14 +8,18 @@ require(['models/casestudy', 'views/strategy/solutions',
      * @module Changes
      */
 
+    var solutionsView, strategyView;
+
     renderWorkshop = function(caseStudy, keyflowId, keyflowName){
-        var solutionsView = new SolutionsView({
+        if (solutionsView) solutionsView.close();
+        solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName
         });
+        if (strategyView) strategyView.close();
         var strategyView = new StrategyView({
             caseStudy: caseStudy,
             el: document.getElementById('strategy'),
@@ -26,7 +30,8 @@ require(['models/casestudy', 'views/strategy/solutions',
     }
 
     renderSetup = function(caseStudy, keyflowId, keyflowName){
-        var solutionsView = new SolutionsView({
+        if(solutionsView) solutionsView.close();
+        solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
