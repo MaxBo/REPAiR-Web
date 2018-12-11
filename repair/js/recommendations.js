@@ -1,6 +1,8 @@
 require(['models/casestudy', 'views/recommendations/setup-users',
-        'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SetupUsersView, appConfig) {
+         'views/recommendations/objectives', 'collections/gdsecollection',
+         'app-config', 'utils/utils', 'base'
+], function (CaseStudy, SetupUsersView, ObjectivesView, GDSECollection,
+             appConfig, utils) {
     /**
      * entry point for views on subpages of "Recommendations" menu item
      *
@@ -8,13 +10,26 @@ require(['models/casestudy', 'views/recommendations/setup-users',
      * @module Recommendations
      */
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName){
+     var objectivesView;
+
+    renderSetup = function(caseStudy){
+        var usersView = new SetupUsersView({
+            caseStudy: caseStudy
+        })
 
     };
 
-    renderSetup = function(caseStudy){
-        var solutionsView = new SetupUsersView({
-            caseStudy: caseStudy
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName, users, aims, objectives){
+        if (objectivesView) objectivesView.close();
+        var objectivesView = new ObjectivesView({
+            caseStudy: caseStudy,
+            el: document.getElementById('objectives'),
+            template: 'objectives-template',
+            keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            users: users,
+            aims: aims,
+            objectives: objectives
         })
 
     };
@@ -34,7 +49,36 @@ require(['models/casestudy', 'views/recommendations/setup-users',
 
         function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
-            renderWorkshop(caseStudy, keyflowId, keyflowName);
+            var loader = new utils.Loader(document.getElementById('content'),
+                                         { disable: true });
+            loader.activate();
+            var aims = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [caseStudy.id]
+            });
+            var users = new GDSECollection([], {
+                apiTag: 'usersInCasestudy',
+                apiIds: [caseStudy.id]
+            });
+            var objectives = new GDSECollection([], {
+                apiTag: 'userObjectives',
+                apiIds: [caseStudy.id]
+            });
+            var promises = [];
+            promises.push(aims.fetch({
+                data: { keyflow: keyflowId },
+                error: alert
+            }));
+            promises.push(objectives.fetch({
+                data: { keyflow: keyflowId, all: true },
+                error: alert
+            }));
+            promises.push(users.fetch({error: alert}));
+
+            Promise.all(promises).then(function(){
+                loader.deactivate();
+                renderWorkshop(caseStudy, keyflowId, keyflowName, users, aims, objectives);
+            });
         }
 
         var keyflowSession = session.get('keyflow');

@@ -27,7 +27,6 @@ var SetupUsersView = BaseView.extend(
     },
 
     render: function(){
-        console.log(this.users)
         this.users.forEach(this.addUserRow)
     },
 
