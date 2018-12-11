@@ -173,11 +173,12 @@ class UserInCasestudyField(InCasestudyField):
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     role = serializers.CharField(required=False, allow_blank=True)
-    user = IDRelatedField()
+    profile = serializers.IntegerField(source='user.id')
+    user = serializers.IntegerField(source='user.user.id')
 
     class Meta:
         model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name', 'role')
+        fields = ('url', 'id', 'user', 'profile', 'name', 'role')
         read_only_fields = ['name']
 
 
