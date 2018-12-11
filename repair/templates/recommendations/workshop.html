@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "REPAiR | Recommendations" %}{% endblock %}
+
+{% block sidebar %}
+
+  <script>
+    document.getElementById("recommendations-link").classList.add('active');
+  </script>
+  <ul class="nav nav-pills nav-stacked" id="sidebar">
+    <div class="row">
+      <select id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
+        <option selected disabled>{% trans "Select keyflow" %} </option>
+      {% for keyflow in keyflows %}
+        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+      {% endfor %}
+      </select>
+      <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
+    </div>
+    <li class="active"><a href="#objectives" data-toggle="pill">{% trans "Objectives" %} <span class="sub-icon fas fa-star"></span></a></li>
+    <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
+    <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
+    <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
+    <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+    <li><a href="#conclusions" data-toggle="pill">{% trans "Conclusions" %} <span class="sub-icon far fa-lightbulb"></span></a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="tab-content">
+    <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+    <div class="tab-pane fade in active" id="objectives">
+    </div>
+    <div class="tab-pane fade" id="flow-targets">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="strategies">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="modified-flows">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="sustainability">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="conclusions">
+      <h2> ToDo </h2>
+    </div>
+  </div>
+{% include "recommendations/objectives.html" %}
+{% render_bundle 'Recommendations' %}
+{% endblock %}
