@@ -34,6 +34,8 @@ class Aim(GDSEModel):
 
 class UserObjective(GDSEModel):
     aim = models.ForeignKey(Aim, on_delete=models.CASCADE)
+    # note CF: UserInCasestudy would have been better
+    # too late to change though
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     priority = models.IntegerField(default=-1)
     target_areas = models.ManyToManyField(AreaOfProtection)

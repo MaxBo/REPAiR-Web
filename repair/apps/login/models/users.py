@@ -76,7 +76,12 @@ class UserInCasestudy(GDSEModel):
     # note CF: actually profile, kind of confusing
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    # note CF: what's this? never used
     role = models.TextField(default='', blank=True)
+    # user will be part of evaluation in recommendations
+    gets_evaluated = models.BooleanField(default=False)
+    # alias name for evaluation in recommendations
+    alias = models.TextField(default='', blank=True)
 
     class Meta(GDSEModel.Meta):
         unique_together = ('user', 'casestudy',)
