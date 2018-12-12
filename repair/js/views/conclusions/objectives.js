@@ -5,11 +5,11 @@ function(_, BaseView, GDSECollection, Muuri){
     /**
     *
     * @author Christoph Franke
-    * @name module:views/ObjectivesView
+    * @name module:views/EvalObjectivesView
     * @augments Backbone.View
     */
-    var ObjectivesView = BaseView.extend(
-        /** @lends module:views/ObjectivesView.prototype */
+    var EvalObjectivesView = BaseView.extend(
+        /** @lends module:views/EvalObjectivesView.prototype */
     {
 
         /**
@@ -25,7 +25,7 @@ function(_, BaseView, GDSECollection, Muuri){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
-            ObjectivesView.__super__.initialize.apply(this, [options]);
+            EvalObjectivesView.__super__.initialize.apply(this, [options]);
             var _this = this;
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -33,8 +33,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.objectives = options.objectives;
             this.keyflowId = options.keyflowId;
             this.keyflowName = options.keyflowName;
-
-            this.users = options.users.filterBy({'gets_evaluated' : true})
+            this.users = options.users;
 
             this.render();
         },
@@ -42,28 +41,20 @@ function(_, BaseView, GDSECollection, Muuri){
         * render the view
         */
         render: function(){
-            var _this = this,
-                html = document.getElementById(this.template).innerHTML,
-                template = _.template(html);
-            this.el.innerHTML = template({ keyflowName: this.keyflowName });
+            EvalObjectivesView.__super__.render.call(this);
+            var _this = this;
             this.table = this.el.querySelector('#objectives-table');
-            if (this.users.size() === 0){
-                var warning = document.createElement('h3');
-                warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
-                this.table.appendChild(warning);
-                return;
-            }
             var header = this.table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
-            fTh.style.width = '1%';
+            fTh.innerHTML = gettext('Objectives for key flow <i>' + this.keyflowName + '</i>')
             header.appendChild(fTh);
             var rankingMap = {},
-                cellUsers = [],
+                userColumns = [],
                 avgRankings = {};
             this.users.forEach(function(user){
                 var name = user.get('alias') || user.get('name'),
                     th = document.createElement('th');
-                cellUsers.push(user.id);
+                userColumns.push(user.id);
                 th.innerHTML = name;
                 header.appendChild(th);
                 var userObjectives = _this.objectives.filterBy({'user': user.get('user')});
@@ -94,6 +85,8 @@ function(_, BaseView, GDSECollection, Muuri){
                 return a[1] - b[1];
             });
 
+            var colorStep = 70 / sortRank.length;
+
             // fill table with sorted aims and individual ranks
             var i = 1;
             sortRank.forEach(function(sortedAim){
@@ -102,29 +95,32 @@ function(_, BaseView, GDSECollection, Muuri){
                     item = _this.createAimItem(aim, i);
                 row.insertCell(0).appendChild(item);
                 var aimRank = rankingMap[aim.id];
-                cellUsers.forEach(function(userId){
+                userColumns.forEach(function(userId){
                     var cell = row.insertCell(-1),
                         rank = aimRank[userId];
-                    if (rank) cell.innerHTML = '#' + rank;
+                    if (rank) {
+                        var item = _this.panelItem('#' + rank);
+                        item.style.width = '50px';
+                        cell.appendChild(item);
+                        var sat = 30 + colorStep * (rank -1),
+                            hsl = 'hsla(90, 50%, ' + sat + '%, 1)';
+                        if (sat < 50) item.style.color = 'white';
+                        item.style.backgroundColor = hsl;
+                    }
                 });
                 i++;
             })
         },
 
         createAimItem: function(aim, rank){
-            var html = document.getElementById('panel-item-template').innerHTML,
-                template = _.template(html),
-                panelItem = document.createElement('div'),
-                itemContent = document.createElement('div'),
-                _this = this;
-            panelItem.classList.add('panel-item');
-            //panelItem.style.position = 'absolute';
-            itemContent.classList.add('noselect', 'item-content');
-            itemContent.innerHTML = template({ name: aim.get('text') });
-            panelItem.appendChild(itemContent);
+            var desc = aim.get('description') || '';
 
+            var panelItem = this.panelItem(aim.get('text'), {
+                popoverText: desc.replace(/\n/g, "<br/>"),
+                overlayText: '#' + rank
+            })
+            panelItem.style.maxWidth = '500px';
             var overlay = panelItem.querySelector('.overlay');
-            overlay.style.display = 'inline-block';
             overlay.innerHTML = '#' + rank;
             // ToDo: put next lines into style sheet
             // adjust overlay offset, because parent div pos. is not absolute
@@ -134,24 +130,10 @@ function(_, BaseView, GDSECollection, Muuri){
             overlay.style.right = 'auto';
             // make space for the overlay
             panelItem.querySelector('label').style.paddingLeft = '30px';
-            var desc = aim.get('description') || '-';
-
-            $(panelItem).popover({
-                trigger: "hover",
-                container: 'body',
-                //placement: 'bottom',
-                content: desc.replace(/\n/g, "<br/>"),
-                html: true
-            });
-            panelItem.style.maxWidth = '400px';
-            var buttons = panelItem.querySelectorAll('button');
-            buttons.forEach(function(button){
-                button.style.display = 'none';
-            })
             return panelItem;
         },
     });
-    return ObjectivesView;
+    return EvalObjectivesView;
 }
 );
 
