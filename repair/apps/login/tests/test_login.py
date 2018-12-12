@@ -136,7 +136,7 @@ class UserInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy)
         cls.url_pk = dict(pk=cls.user)
         cls.post_data = dict(role="role for testing")
-        cls.put_data = dict(role="role for testing", user=cls.user)
+        cls.put_data = dict(role="role for testing", profile=cls.user)
         cls.patch_data = dict(role="role for testing")
 
     def setUp(self):

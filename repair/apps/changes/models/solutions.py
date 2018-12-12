@@ -12,6 +12,7 @@ class Unit(GDSEModel):
 
 
 class SolutionCategory(GDSEModel):
+    # note CF: why does this have a user??????
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     keyflow = models.ForeignKey(KeyflowInCasestudy,
@@ -23,6 +24,8 @@ class SolutionCategory(GDSEModel):
 
 
 class Solution(GDSEModel):
+    # note CF: this user relation makes no sense either, the SolutionInStrategy
+    # is supposed to be the user related one via Strategy
     user = models.ForeignKey(UserInCasestudy, on_delete=PROTECT_CASCADE)
     solution_category = models.ForeignKey(SolutionCategory,
                                           on_delete=PROTECT_CASCADE)
