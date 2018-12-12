@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% block content %}
+<script type="text/template" id="objectives-template">
+<div class="col-md-12">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#step1tab" id='data-link'>{% trans "Step" %} 1</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active bordered" id="step1tab">
+      <h3> {% trans "Overall ranking of the objectives" %} </h3>
+      <div style="overflow: auto">
+        <table id="objectives-table" class="table"></table>
+        </div>
+    </div>
+  </div>
+</div>
+</script>
+{% endblock %}

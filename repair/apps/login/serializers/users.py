@@ -141,6 +141,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   #'default_area_level',
                   'show_on_welcome_map'
                   )
+        extra_kwargs = {'focusarea': {'allow_null': True},
+                        'geom': {'allow_null': True}}
 
     def update(self, instance, validated_data):
         """cast geomfield to multipolygon"""
@@ -171,12 +173,16 @@ class UserInCasestudyField(InCasestudyField):
 class UserInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
     role = serializers.CharField(required=False, allow_blank=True)
-    user = IDRelatedField()
+    profile = IDRelatedField(source='user')
+    user = serializers.IntegerField(source='user.user.id', read_only=True)
 
     class Meta:
         model = UserInCasestudy
-        fields = ('url', 'id', 'user', 'name', 'role')
+        fields = ('url', 'id', 'user', 'profile', 'name', 'role',
+                  'gets_evaluated', 'alias')
         read_only_fields = ['name']
+        extra_kwargs = {'gets_evaluated': {'required': False},
+                        'alias': {'required': False, 'allow_blank': True}}
 
 
 class PublicationSerializer(NestedHyperlinkedModelSerializer):

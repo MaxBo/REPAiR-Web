@@ -11,8 +11,8 @@ from .bases import GDSEModel
 
 class CaseStudy(GDSEModel):
     name = models.TextField()
-    geom = geomodels.MultiPolygonField(null=True, srid=4326)
-    focusarea = geomodels.MultiPolygonField(null=True, srid=4326)
+    geom = geomodels.MultiPolygonField(null=True, srid=4326, blank=True)
+    focusarea = geomodels.MultiPolygonField(null=True, srid=4326, blank=True)
     description = models.TextField(blank=True, null=True)
     show_on_welcome_map = models.BooleanField(default=True)
     #default_area_level = models.ForeignKey(AdminLevels,
@@ -73,9 +73,15 @@ def create_profile_for_new_user(sender, created, instance, **kwargs):
 
 
 class UserInCasestudy(GDSEModel):
+    # note CF: actually profile, kind of confusing
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    # note CF: what's this? never used
     role = models.TextField(default='', blank=True)
+    # user will be part of evaluation in conclusions
+    gets_evaluated = models.BooleanField(default=False)
+    # alias name for evaluation in conclusions
+    alias = models.TextField(default='', blank=True)
 
     class Meta(GDSEModel.Meta):
         unique_together = ('user', 'casestudy',)

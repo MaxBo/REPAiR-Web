@@ -130,7 +130,8 @@ var FilterFlowsView = BaseView.extend(
                     }
                 }
             });
-        this.changeAreaLevel();
+        if (this.areaLevels.length > 0)
+            this.changeAreaLevel();
 
         // event triggered when modal dialog is ready -> trigger rerender to match size
         $(this.areaModal).on('shown.bs.modal', function () {
