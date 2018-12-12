@@ -5,11 +5,11 @@ function(_, BaseView, GDSECollection, Muuri){
     /**
     *
     * @author Christoph Franke
-    * @name module:views/ObjectivesView
+    * @name module:views/EvalObjectivesView
     * @augments Backbone.View
     */
-    var ObjectivesView = BaseView.extend(
-        /** @lends module:views/ObjectivesView.prototype */
+    var EvalObjectivesView = BaseView.extend(
+        /** @lends module:views/EvalObjectivesView.prototype */
     {
 
         /**
@@ -25,7 +25,7 @@ function(_, BaseView, GDSECollection, Muuri){
         * @see http://backbonejs.org/#View
         */
         initialize: function(options){
-            ObjectivesView.__super__.initialize.apply(this, [options]);
+            EvalObjectivesView.__super__.initialize.apply(this, [options]);
             var _this = this;
             this.template = options.template;
             this.caseStudy = options.caseStudy;
@@ -33,8 +33,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.objectives = options.objectives;
             this.keyflowId = options.keyflowId;
             this.keyflowName = options.keyflowName;
-
-            this.users = options.users.filterBy({'gets_evaluated' : true})
+            this.users = options.users;
 
             this.render();
         },
@@ -42,28 +41,21 @@ function(_, BaseView, GDSECollection, Muuri){
         * render the view
         */
         render: function(){
-            var _this = this,
-                html = document.getElementById(this.template).innerHTML,
-                template = _.template(html);
-            this.el.innerHTML = template({ keyflowName: this.keyflowName });
+            EvalObjectivesView.__super__.render.call(this);
+            var _this = this;
             this.table = this.el.querySelector('#objectives-table');
-            if (this.users.size() === 0){
-                var warning = document.createElement('h3');
-                warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
-                this.table.appendChild(warning);
-                return;
-            }
             var header = this.table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
             fTh.style.width = '1%';
+            fTh.innerHTML = gettext('Objectives for key flow <i>' + this.keyflowName + '</i>')
             header.appendChild(fTh);
             var rankingMap = {},
-                cellUsers = [],
+                userColumns = [],
                 avgRankings = {};
             this.users.forEach(function(user){
                 var name = user.get('alias') || user.get('name'),
                     th = document.createElement('th');
-                cellUsers.push(user.id);
+                userColumns.push(user.id);
                 th.innerHTML = name;
                 th.style.width = '1%';
                 header.appendChild(th);
@@ -103,7 +95,7 @@ function(_, BaseView, GDSECollection, Muuri){
                     item = _this.createAimItem(aim, i);
                 row.insertCell(0).appendChild(item);
                 var aimRank = rankingMap[aim.id];
-                cellUsers.forEach(function(userId){
+                userColumns.forEach(function(userId){
                     var cell = row.insertCell(-1),
                         rank = aimRank[userId];
                     if (rank) cell.innerHTML = '#' + rank;
@@ -152,7 +144,7 @@ function(_, BaseView, GDSECollection, Muuri){
             return panelItem;
         },
     });
-    return ObjectivesView;
+    return EvalObjectivesView;
 }
 );
 

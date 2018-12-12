@@ -49,6 +49,49 @@
       <h2> ToDo </h2>
     </div>
   </div>
-{% include "recommendations/objectives.html" %}
+
 {% render_bundle 'Recommendations' %}
+
+<!-- i put the template scripts directly in here, they are not that complex -->
+
+<script type="text/template" id="objectives-template">
+<div class="col-md-12">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#step1tab">{% trans "Step" %} 1</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active bordered" id="step1tab">
+      <h3> {% trans "How were the objectives ranked by the participants?" %} </h3>
+      <div style="overflow: auto">
+        <table id="objectives-table" class="table"></table>
+        </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="flow-targets-template">
+<div class="col-md-12">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#step2tab">{% trans "Step" %} 2</a></li>
+    <li><a data-toggle="tab" href="#step3tab">{% trans "Step" %} 3</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active bordered" id="step2tab">
+      <h3> {% trans "Which flow indicators were used for target settings on which objectives?" %} </h3>
+      <div style="overflow: auto">
+        <table id="indicator-table" class="table"></table>
+        </div>
+    </div>
+    <div class="tab-pane fade in bordered" id="step3tab">
+      <h3> {% trans "Which target values where set?" %} </h3>
+      <div style="overflow: auto">
+        <table id="target-values-table" class="table"></table>
+        </div>
+    </div>
+  </div>
+</div>
+</script>
+
+
 {% endblock %}

@@ -1,8 +1,8 @@
 require(['models/casestudy', 'views/recommendations/setup-users',
-         'views/recommendations/objectives', 'collections/gdsecollection',
-         'app-config', 'utils/utils', 'base'
-], function (CaseStudy, SetupUsersView, ObjectivesView, GDSECollection,
-             appConfig, utils) {
+         'views/recommendations/objectives', 'views/recommendations/flow-targets',
+         'collections/gdsecollection', 'app-config', 'utils/utils', 'base'
+], function (CaseStudy, SetupUsersView, EvalObjectivesView, EvalFlowTargetsView,
+             GDSECollection, appConfig, utils) {
     /**
      * entry point for views on subpages of "Recommendations" menu item
      *
@@ -20,11 +20,28 @@ require(['models/casestudy', 'views/recommendations/setup-users',
     };
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName, users, aims, objectives){
+        if (users.size() === 0){
+            var warning = document.createElement('h3');
+            warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
+            document.getElementById('content').innerHTML = warning.outerHTML;
+            return;
+        }
         if (objectivesView) objectivesView.close();
-        var objectivesView = new ObjectivesView({
+        var objectivesView = new EvalObjectivesView({
             caseStudy: caseStudy,
             el: document.getElementById('objectives'),
             template: 'objectives-template',
+            keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            users: users,
+            aims: aims,
+            objectives: objectives
+        })
+        if (flowTargetsView) flowTargetsView.close();
+        var flowTargetsView = new EvalFlowTargetsView({
+            caseStudy: caseStudy,
+            el: document.getElementById('flow-targets'),
+            template: 'flow-targets-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
             users: users,
@@ -77,7 +94,8 @@ require(['models/casestudy', 'views/recommendations/setup-users',
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
-                renderWorkshop(caseStudy, keyflowId, keyflowName, users, aims, objectives);
+                var participants = users.filterBy({'gets_evaluated' : true});
+                renderWorkshop(caseStudy, keyflowId, keyflowName, participants, aims, objectives);
             });
         }
 
