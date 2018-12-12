@@ -105,19 +105,14 @@ function(_, BaseView, GDSECollection, Muuri){
         },
 
         createAimItem: function(aim, rank){
-            var html = document.getElementById('panel-item-template').innerHTML,
-                template = _.template(html),
-                panelItem = document.createElement('div'),
-                itemContent = document.createElement('div'),
-                _this = this;
-            panelItem.classList.add('panel-item');
-            //panelItem.style.position = 'absolute';
-            itemContent.classList.add('noselect', 'item-content');
-            itemContent.innerHTML = template({ name: aim.get('text') });
-            panelItem.appendChild(itemContent);
+            var desc = aim.get('description') || '';
 
+            var panelItem = this.panelItem(aim.get('text'), {
+                popoverText: desc.replace(/\n/g, "<br/>"),
+                overlayText: '#' + rank
+            })
+            panelItem.style.maxWidth = '500px';
             var overlay = panelItem.querySelector('.overlay');
-            overlay.style.display = 'inline-block';
             overlay.innerHTML = '#' + rank;
             // ToDo: put next lines into style sheet
             // adjust overlay offset, because parent div pos. is not absolute
@@ -127,20 +122,6 @@ function(_, BaseView, GDSECollection, Muuri){
             overlay.style.right = 'auto';
             // make space for the overlay
             panelItem.querySelector('label').style.paddingLeft = '30px';
-            var desc = aim.get('description') || '-';
-
-            $(panelItem).popover({
-                trigger: "hover",
-                container: 'body',
-                //placement: 'bottom',
-                content: desc.replace(/\n/g, "<br/>"),
-                html: true
-            });
-            panelItem.style.maxWidth = '500px';
-            var buttons = panelItem.querySelectorAll('button');
-            buttons.forEach(function(button){
-                button.style.display = 'none';
-            })
             return panelItem;
         },
     });

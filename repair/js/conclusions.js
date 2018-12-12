@@ -1,5 +1,5 @@
-require(['models/casestudy', 'views/recommendations/setup-users',
-         'views/recommendations/objectives', 'views/recommendations/flow-targets',
+require(['models/casestudy', 'views/conclusions/setup-users',
+         'views/conclusions/objectives', 'views/conclusions/flow-targets',
          'collections/gdsecollection', 'app-config', 'utils/utils', 'base'
 ], function (CaseStudy, SetupUsersView, EvalObjectivesView, EvalFlowTargetsView,
              GDSECollection, appConfig, utils) {

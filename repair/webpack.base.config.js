@@ -9,7 +9,7 @@ var entryPoints = {
     StatusQuo: './js/status-quo',
     Targets:   './js/targets',
     Strategy:  './js/strategy',
-    Recommendations:  './js/recommendations',
+    Recommendations:  './js/conclusions',
     Welcome:   './js/welcome',
     Base:      './js/base',
 };
