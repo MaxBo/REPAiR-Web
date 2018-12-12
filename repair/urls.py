@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^status-quo/', include('repair.apps.statusquo.urls')),
     url(r'^strategy/', include('repair.apps.changes.urls')),
     url(r'^targets/', include('repair.apps.targets.urls')),
-    url(r'^recommendations/', include('repair.apps.recommendations.urls')),
+    url(r'^conclusions/', include('repair.apps.conclusions.urls')),
     # API urls
     url(r'^login/', LoginView.as_view(template_name='login/login.html'),
         name='login'),

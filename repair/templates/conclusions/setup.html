@@ -7,7 +7,7 @@
 {% block sidebar %}
 
   <script>
-    document.getElementById("recommendations-link").classList.add('active');
+    document.getElementById("conclusions-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#users" data-toggle="pill">{% trans "Users" %} <span class="sub-icon fas fa-users"></span></a></li>
@@ -22,7 +22,7 @@
           <tr>
             <th>{% trans "User in case study" %}</th>
             <th>{% trans "Alias in evaluation" %}</th>
-            <th>{% trans "Part of evaluation" %}</th>
+            <th>{% trans "is part of evaluation" %}</th>
           </tr>
         </table>
       </div>

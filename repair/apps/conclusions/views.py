@@ -9,7 +9,7 @@ class RecommendationsIndexView(ModeView):
 
     def render_setup(self, request):
         context = self.get_context_data()
-        return render(request, 'recommendations/setup.html', context)
+        return render(request, 'conclusions/setup.html', context)
 
     def render_workshop(self, request):
         casestudy = request.session.get('casestudy')
@@ -17,5 +17,5 @@ class RecommendationsIndexView(ModeView):
         context = self.get_context_data()
         context['keyflows'] = keyflows
 
-        return render(request, 'recommendations/workshop.html', context)
+        return render(request, 'conclusions/workshop.html', context)
 
