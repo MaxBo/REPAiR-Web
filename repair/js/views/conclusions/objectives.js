@@ -46,7 +46,6 @@ function(_, BaseView, GDSECollection, Muuri){
             this.table = this.el.querySelector('#objectives-table');
             var header = this.table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
-            fTh.style.width = '1%';
             fTh.innerHTML = gettext('Objectives for key flow <i>' + this.keyflowName + '</i>')
             header.appendChild(fTh);
             var rankingMap = {},
@@ -57,7 +56,6 @@ function(_, BaseView, GDSECollection, Muuri){
                     th = document.createElement('th');
                 userColumns.push(user.id);
                 th.innerHTML = name;
-                th.style.width = '1%';
                 header.appendChild(th);
                 var userObjectives = _this.objectives.filterBy({'user': user.get('user')});
                 userObjectives.comparator = 'priority';
@@ -87,6 +85,8 @@ function(_, BaseView, GDSECollection, Muuri){
                 return a[1] - b[1];
             });
 
+            var colorStep = 70 / sortRank.length;
+
             // fill table with sorted aims and individual ranks
             var i = 1;
             sortRank.forEach(function(sortedAim){
@@ -98,7 +98,15 @@ function(_, BaseView, GDSECollection, Muuri){
                 userColumns.forEach(function(userId){
                     var cell = row.insertCell(-1),
                         rank = aimRank[userId];
-                    if (rank) cell.innerHTML = '#' + rank;
+                    if (rank) {
+                        var item = _this.panelItem('#' + rank);
+                        item.style.width = '50px';
+                        cell.appendChild(item);
+                        var sat = 30 + colorStep * (rank -1),
+                            hsl = 'hsla(90, 50%, ' + sat + '%, 1)';
+                        if (sat < 50) item.style.color = 'white';
+                        item.style.backgroundColor = hsl;
+                    }
                 });
                 i++;
             })

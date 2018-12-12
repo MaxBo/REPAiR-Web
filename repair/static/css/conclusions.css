@@ -1,0 +1,16 @@
+.table {
+    width: fit-content;
+}
+
+.table td:not(:first-child), .table th:not(:first-child){
+    text-align: center;
+}
+
+.table th{
+    padding-left: 20px!important;
+    padding-right: 20px!important;
+}
+
+.table td:not(:first-child) > div {
+    margin: auto!important;
+}

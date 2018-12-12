@@ -29,6 +29,7 @@
 {% endblock %}
 
 {% block content %}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
   <div class="tab-content">
     <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
     <div class="tab-pane fade in active" id="objectives">
@@ -84,7 +85,7 @@
         </div>
     </div>
     <div class="tab-pane fade in bordered" id="step3tab">
-      <h3> {% trans "Which target values where set?" %} </h3>
+      <h3> {% trans "Which target values were set?" %} </h3>
       <div style="overflow: auto">
         <table id="target-values-table" class="table"></table>
         </div>
