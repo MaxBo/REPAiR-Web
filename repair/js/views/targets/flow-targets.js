@@ -67,6 +67,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
+                _this.indicators.sort();
                 _this.render();
             })
         },
