@@ -1,9 +1,7 @@
 require(['d3', 'models/casestudy', 'collections/gdsecollection',
-         'views/targets/sustainability-targets',
          'views/targets/flow-targets', 'views/targets/ranking-objectives',
          'app-config', 'utils/utils', 'utils/overrides', 'base'
-], function (d3, CaseStudy, GDSECollection,
-             SustainabilityTargetsView, FlowTargetsView,
+], function (d3, CaseStudy, GDSECollection, FlowTargetsView,
              RankingObjectivesView, appConfig, utils) {
 
     /**
@@ -13,29 +11,16 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
      * @module Targets
      */
 
-    var sustainabilityTargetsView, flowTargetsView, rankingObjectivesView;
+    var flowTargetsView, rankingObjectivesView;
 
     $('#sidebar a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr("href") // activated tab
         if (target === '#flow-targets' && flowTargetsView){
             flowTargetsView.updateOrder();
         }
-        if (target === '#sustainability-targets' && sustainabilityTargetsView){
-            sustainabilityTargetsView.updateOrder();
-        }
     });
 
     renderWorkshop = function(caseStudy, keyflowId, userObjectives, aims, keyflowName){
-        if (sustainabilityTargetsView) sustainabilityTargetsView.close();
-        sustainabilityTargetsView = new SustainabilityTargetsView({
-            caseStudy: caseStudy,
-            keyflowId: keyflowId,
-            keyflowName: keyflowName,
-            aims: aims,
-            userObjectives: userObjectives,
-            el: document.getElementById('sustainability-targets'),
-            template: 'sustainability-targets-template'
-        })
         if (flowTargetsView) flowTargetsView.close();
         flowTargetsView = new FlowTargetsView({
             caseStudy: caseStudy,
