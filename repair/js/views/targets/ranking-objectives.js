@@ -53,8 +53,13 @@ function(_, BaseView, GDSECollection, Muuri){
         render: function(){
             var _this = this,
                 html = document.getElementById(this.template).innerHTML,
-                template = _.template(html);
-            this.el.innerHTML = template({ keyflowName: this.keyflowName });
+                template = _.template(html),
+                title;
+            if (this.keyflowId == -1)
+                title = gettext("Ranking general objectives")
+            else
+                title = gettext("Ranking objectives for the keyflow ") + "<i>" + this.keyflowName + "</i>";
+            this.el.innerHTML = template({ title: title });
             var panel = this.el.querySelector('.item-panel');
             this.grid = new Muuri(panel, {
                 items: '.panel-item',

@@ -39,7 +39,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
 
             this.challengesGrids = {};
             this.aimsGrids = {};
-
+            this.loader.activate();
             this.keyflows.fetch({
                 success: function(){
                     _this.challenges = new GDSECollection([], {
@@ -54,7 +54,10 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                     });
 
                     var promises = [_this.challenges.fetch(), _this.aims.fetch()]
-                    Promise.all(promises).then(_this.render)
+                    Promise.all(promises).then(function(){
+                        _this.loader.deactivate();
+                        _this.render();
+                    })
                 },
                 error: _this.onError
             })
