@@ -66,7 +66,7 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
 
         # by default query objectives of current user and create them, if they
         #  don't exist yet
-        # can be overriden with all=true
+        # can be overriden with query-param all=true
         if not all_users:
             objectives = objectives.filter(
                 aim__casestudy__id=casestudy_pk,
