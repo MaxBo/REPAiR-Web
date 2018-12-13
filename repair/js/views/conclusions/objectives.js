@@ -35,7 +35,25 @@ function(_, BaseView, GDSECollection, Muuri){
             this.keyflowName = options.keyflowName;
             this.users = options.users;
 
-            this.render();
+            // non-keyflow related collections obviously don't change when changing keyflow
+            // so general collections could be already fetched outside, no performance issues expected though
+            this.generalAims = new GDSECollection([], {
+                apiTag: 'aims',
+                apiIds: [this.caseStudy.id]
+            });
+            this.generalObjectives = new GDSECollection([], {
+                apiTag: 'userObjectives',
+                apiIds: [this.caseStudy.id]
+            });
+            this.loader.activate();
+            promises = [];
+            var data = { 'keyflow__isnull': true }
+            promises.push(this.generalAims.fetch({ data: data, error: this.onError }));
+            promises.push(this.generalObjectives.fetch({ data: data, error: this.onError }));
+            Promise.all(promises).then(function(){
+                _this.loader.deactivate();
+                _this.render();
+            });
         },
         /*
         * render the view
@@ -43,10 +61,20 @@ function(_, BaseView, GDSECollection, Muuri){
         render: function(){
             EvalObjectivesView.__super__.render.call(this);
             var _this = this;
-            this.table = this.el.querySelector('#objectives-table');
-            var header = this.table.createTHead().insertRow(0),
+                objectivesTable = this.el.querySelector('#objectives-table'),
+                generalTable = this.el.querySelector('#general-objectives-table');
+            var title = gettext('Objectives for keyflow <i>' + this.keyflowName + '</i>');
+            this.renderObjTable(this.objectives, this.aims, objectivesTable, title);
+            title = gettext('General objectives');
+            this.renderObjTable(this.generalObjectives, this.generalAims, generalTable, title);
+        },
+
+        renderObjTable: function(objectives, aims, table, title){
+
+            var _this = this,
+                header = table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
-            fTh.innerHTML = gettext('Objectives for key flow <i>' + this.keyflowName + '</i>')
+            fTh.innerHTML = title;
             header.appendChild(fTh);
             var rankingMap = {},
                 userColumns = [],
@@ -57,7 +85,7 @@ function(_, BaseView, GDSECollection, Muuri){
                 userColumns.push(user.id);
                 th.innerHTML = name;
                 header.appendChild(th);
-                var userObjectives = _this.objectives.filterBy({'user': user.get('user')});
+                var userObjectives = objectives.filterBy({'user': user.get('user')});
                 userObjectives.comparator = 'priority';
                 userObjectives.sort();
                 // normalize priorities into a ranking from 1 ascending
@@ -90,8 +118,8 @@ function(_, BaseView, GDSECollection, Muuri){
             // fill table with sorted aims and individual ranks
             var i = 1;
             sortRank.forEach(function(sortedAim){
-                var aim = _this.aims.get(sortedAim[0]),
-                    row = _this.table.insertRow(-1),
+                var aim = aims.get(sortedAim[0]),
+                    row = table.insertRow(-1),
                     item = _this.createAimItem(aim, i);
                 row.insertCell(0).appendChild(item);
                 var aimRank = rankingMap[aim.id];
