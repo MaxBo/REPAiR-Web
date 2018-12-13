@@ -382,7 +382,12 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
     def create_template(cls):
         wb = Workbook()
         ws = wb.active
-        ws.append(list(cls.field_map.keys()))
+        columns = []
+        for c in cls.field_map.keys():
+            if c in cls.index_columns:
+                c += '*'
+            columns.append(c)
+        ws.append(columns)
         return save_virtual_workbook(wb)
 
     def file_to_dataframe(self, file, encoding='cp1252'):
@@ -413,7 +418,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 _('wrong file-encoding ({} used)'.format(encoding)))
 
         dataframe = dataframe.\
-            rename(columns={c: c.lower() for c in dataframe.columns})
+            rename(columns={c: c.lower().rstrip('*')
+                            for c in dataframe.columns})
         return dataframe
 
     def to_internal_value(self, data):
@@ -436,6 +442,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ret = super().to_internal_value(data)  # would throw exc. else
         ret['dataframe'] = dataframe
 
+        # ToDo: put this into validate()
+        missing_ind = [i for i in self.index_columns if i not in
+                       dataframe.columns]
+        if missing_ind:
+            raise MalformedFileError(
+                _('Index column(s) missing: {}'.format(
+                    missing_ind)))
+
         if self.check_index:
             df_t = dataframe.set_index(self.index_columns)
             duplicates = df_t.index.get_duplicates()
@@ -457,13 +471,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         for column in dataframe.columns.values:
             if column not in self.field_map:
                 del dataframe[column]
-
-        missing_ind = [i for i in self.index_columns if i not in
-                       dataframe.columns]
-        if missing_ind:
-            raise MalformedFileError(
-                _('Index column(s) missing: {}'.format(
-                    missing_ind)))
 
         self.error_mask = ErrorMask(df)
         df_mapped = self._map_fields(dataframe)

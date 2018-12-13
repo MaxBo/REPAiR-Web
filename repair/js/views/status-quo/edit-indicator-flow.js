@@ -143,7 +143,6 @@ var IndicatorFlowEditView = BaseView.extend(
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects;
 
         function multiCheck(evt, clickedIndex, checked){
-            console.log('möp')
             var select = evt.target;
             if(checked){
                 // 'All' clicked -> deselect other options
@@ -155,8 +154,12 @@ var IndicatorFlowEditView = BaseView.extend(
                 else {
                     select.options[0].selected = false;
                 }
-                $(select).selectpicker('refresh');
             }
+            // nothing selected anymore -> select 'All'
+            if (select.value == null || select.value == ''){
+                select.value = -1;
+            }
+            $(select).selectpicker('refresh');
         }
 
         $(selectGroup.groupSelect).on('changed.bs.select', function(evt, index, val){
@@ -188,11 +191,11 @@ var IndicatorFlowEditView = BaseView.extend(
 
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
             level = selectGroup.levelSelect.value,
-            multi,
             hide = [],
             selects = [selectGroup.actorSelect, selectGroup.groupSelect, selectGroup.activitySelect];
 
-         selects.forEach(function(sel){
+        // show the grandparents
+        selects.forEach(function(sel){
             sel.parentElement.parentElement.style.display = 'block';
             sel.selectedIndex = 0;
             sel.removeAttribute('multiple');
@@ -226,16 +229,22 @@ var IndicatorFlowEditView = BaseView.extend(
             $(sel).selectpicker('destroy');
             $(sel).selectpicker();
         });
+        // destroying also kills the event listeners
+        this.addEventListeners(tag);
     },
+
 
     // fill given select with options created based on models of given collection
     renderNodeSelectOptions: function(select, collection){
         utils.clearSelect(select);
-        option = document.createElement('option');
-        option.value = -1;
-        option.text = gettext('All');
+        var defOption = document.createElement('option');
+        defOption.value = -1;
+        defOption.text = gettext('All');
+        if (collection) defOption.text += ' (' + collection.length + ')';
+        select.appendChild(defOption);
+        var option = document.createElement('option');
+        option.dataset.divider = 'true';
         select.appendChild(option);
-        if (collection) option.text += ' (' + collection.length + ')';
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
                 var option = document.createElement('option');
@@ -245,7 +254,10 @@ var IndicatorFlowEditView = BaseView.extend(
             })
             select.disabled = false;
         }
-        else select.disabled = true;
+        else {
+            defOption.text += ' - ' + gettext('too many to display');
+            select.disabled = true;
+        }
         select.selectedIndex = 0;
         $(select).selectpicker('refresh');
     },
@@ -268,7 +280,7 @@ var IndicatorFlowEditView = BaseView.extend(
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
 
-    // get selected nodes in given select group depending on selected node level
+    // filter section: get the selected nodes of selected level
     getSelectedNodes: function(selectGroup){
         var level = selectGroup.levelSelect.value,
             nodeSelect = (level == 'actor') ? selectGroup.actorSelect:
@@ -277,7 +289,9 @@ var IndicatorFlowEditView = BaseView.extend(
         function getValues(selectOptions){
             var values = [];
             for (var i = 0; i < selectOptions.length; i++) {
-                var id = selectOptions[i].value;
+                var option = selectOptions[i];
+                if (option.dataset.divider) continue;
+                var id = option.value;
                 // ignore 'All' in multi select
                 if (id >= 0)
                     values.push(id);
@@ -377,25 +391,29 @@ var IndicatorFlowEditView = BaseView.extend(
             destinationSuffix = (destinationLevel == 'activitygroup') ? 'activity__activitygroup__id__in':
                 (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
 
-        var filters = filterParams['filters'] = [];
+        // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
+        var id_filter = {
+                link: 'and',
+                functions: []
+            }
         if (originNodeIds.length > 0)
-            filters.push({
+            id_filter.functions.push({
                 'function': 'origin__' + originSuffix,
                 values: originNodeIds
             });
 
         if (destinationNodeIds.length > 0)
-            filters.push({
+            id_filter.functions.push({
                 'function': 'destination__' + destinationSuffix,
                 values: destinationNodeIds
             });
+
+        filterParams['filters'] = [id_filter];
 
         var flows = new GDSECollection([], {
             apiTag: 'actorToActor',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
-        // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
-        filterParams['filter_link'] = 'and';
 
         filterParams['aggregation_level'] = {
             origin: originLevel,

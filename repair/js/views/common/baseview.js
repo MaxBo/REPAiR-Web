@@ -202,6 +202,56 @@ var BaseView = Backbone.View.extend(
     },
 
     /**
+    * create a panel item
+    *
+    * @param {String} text                         text displayed in item
+    * @param {Object=} options
+    * @param {Boolean} [options.showButtons=false] shows edit/remove buttons in item
+    * @param {String=} options.overlayText         optional text in an overlay
+    * @param {String=} options.popoverText         optional text in a popover (on hover)
+    */
+    panelItem: function(text, options){
+        var options = options || {},
+            showButtons = options.showButtons || false,
+            overlayText = options.overlayText,
+            popoverText = options.popoverText;
+
+        var html = document.getElementById('panel-item-template').innerHTML,
+            template = _.template(html),
+            panelItem = document.createElement('div'),
+            itemContent = document.createElement('div'),
+            _this = this;
+
+        panelItem.classList.add('panel-item');
+        //panelItem.style.position = 'absolute';
+        itemContent.classList.add('noselect', 'item-content');
+        itemContent.innerHTML = template({ name: text });
+        panelItem.appendChild(itemContent);
+
+        if (overlayText){
+            var overlay = panelItem.querySelector('.overlay');
+            overlay.style.display = 'inline-block';
+            overlay.innerHTML = overlayText;
+            // make space for the overlay
+            panelItem.querySelector('label').style.paddingLeft = '30px';
+        };
+
+        if (popoverText){
+            $(panelItem).popover({
+                trigger: "hover",
+                container: 'body',
+                content: popoverText,
+                html: true
+            });
+        }
+        if (!showButtons){
+            var buttonBox = panelItem.querySelector('.button-box');
+            buttonBox.style.display = 'none';
+        }
+        return panelItem;
+    },
+
+    /**
     * show a modal with given info message
     *
     * @param {String} message           html formatted message to show
