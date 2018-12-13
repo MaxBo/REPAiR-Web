@@ -442,6 +442,14 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         ret = super().to_internal_value(data)  # would throw exc. else
         ret['dataframe'] = dataframe
 
+        # ToDo: put this into validate()
+        missing_ind = [i for i in self.index_columns if i not in
+                       dataframe.columns]
+        if missing_ind:
+            raise MalformedFileError(
+                _('Index column(s) missing: {}'.format(
+                    missing_ind)))
+
         if self.check_index:
             df_t = dataframe.set_index(self.index_columns)
             duplicates = df_t.index.get_duplicates()
@@ -463,13 +471,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         for column in dataframe.columns.values:
             if column not in self.field_map:
                 del dataframe[column]
-
-        missing_ind = [i for i in self.index_columns if i not in
-                       dataframe.columns]
-        if missing_ind:
-            raise MalformedFileError(
-                _('Index column(s) missing: {}'.format(
-                    missing_ind)))
 
         self.error_mask = ErrorMask(df)
         df_mapped = self._map_fields(dataframe)
