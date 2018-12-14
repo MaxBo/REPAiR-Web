@@ -29,7 +29,7 @@ class ConsensusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsensusLevel
-        fields = ('name', 'priority')
+        fields = ('id', 'name', 'priority')
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -37,4 +37,4 @@ class SectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        fields = ('name', 'priority')
+        fields = ('id', 'name', 'priority')
