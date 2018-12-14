@@ -67,6 +67,21 @@ from repair.apps.statusquo.views import (
     FlowIndicatorViewSet,
     FlowFilterViewSet
 )
+
+from repair.apps.conclusions.views import (ConclusionViewSet, SectionViewSet,
+                                           ConsensusViewSet)
+
+from repair.apps.changes.views import (
+    UnitViewSet,
+    SolutionCategoryViewSet,
+    SolutionViewSet,
+    StrategyViewSet,
+    SolutionInStrategyViewSet,
+    SolutionQuantityViewSet,
+    SolutionRatioOneUnitViewSet,
+    SolutionInStrategyQuantityViewSet,
+)
+
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
@@ -110,6 +125,8 @@ cs_router.register(r'aims', AimViewSet)
 cs_router.register(r'userobjectives', UserObjectiveViewSet)
 cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
+cs_router.register(r'sections', SectionViewSet)
+cs_router.register(r'consensuslevels', ConsensusViewSet)
 
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',
@@ -157,6 +174,7 @@ kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
 kf_router.register(r'products', ProductViewSet)
 kf_router.register(r'wastes', WasteViewSet)
+kf_router.register(r'conclusions', ConclusionViewSet)
 
 # /casestudies/*/keyflows/*/solutioncategories/...
 scat_router = NestedSimpleRouter(kf_router, r'solutioncategories',
