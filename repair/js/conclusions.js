@@ -1,8 +1,9 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
-         'views/conclusions/objectives', 'views/conclusions/flow-targets',
+         'views/conclusions/setup-notepad', 'views/conclusions/objectives',
+         'views/conclusions/flow-targets',
          'collections/gdsecollection', 'app-config', 'utils/utils', 'base'
-], function (CaseStudy, SetupUsersView, EvalObjectivesView, EvalFlowTargetsView,
-             GDSECollection, appConfig, utils) {
+], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
+             EvalFlowTargetsView, GDSECollection, appConfig, utils) {
     /**
      * entry point for views on subpages of "Recommendations" menu item
      *
@@ -14,9 +15,13 @@ require(['models/casestudy', 'views/conclusions/setup-users',
 
     renderSetup = function(caseStudy){
         var usersView = new SetupUsersView({
-            caseStudy: caseStudy
+            caseStudy: caseStudy,
+            el: document.getElementById('users')
         })
-
+        var setupNotepadView = new SetupNotepadView({
+            caseStudy: caseStudy,
+            el: document.getElementById('notepad')
+        })
     };
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName, users, aims, objectives){

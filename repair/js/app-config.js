@@ -39,6 +39,8 @@ function (Session) {
         usersInCasestudy:       '/api/casestudies/{0}/users',
         challenges:             '/api/casestudies/{0}/challenges',
         aims:                   '/api/casestudies/{0}/aims',
+        consensusLevels:        '/api/casestudies/{0}/consensuslevels',
+        sections:               '/api/casestudies/{0}/sections',
         userObjectives:         '/api/casestudies/{0}/userobjectives',
         flowTargets:            '/api/casestudies/{0}/userobjectives/{1}/flowtargets',
         chartCategories:        '/api/casestudies/{0}/chartcategories/',
