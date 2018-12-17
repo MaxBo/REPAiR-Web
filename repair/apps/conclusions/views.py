@@ -5,7 +5,16 @@ from django.views.generic import TemplateView
 from repair.views import ModeView
 from django.shortcuts import render
 
-class RecommendationsIndexView(ModeView):
+from repair.apps.conclusions.models import Conclusion, ConsensusLevel, Section
+from repair.apps.conclusions.serializers import (ConclusionSerializer,
+                                                 ConsensusSerializer,
+                                                 SectionSerializer)
+
+from repair.apps.utils.views import (CasestudyViewSetMixin,
+                                     ModelPermissionViewSet)
+
+
+class ConclusionsIndexView(ModeView):
 
     def render_setup(self, request):
         context = self.get_context_data()
@@ -18,4 +27,21 @@ class RecommendationsIndexView(ModeView):
         context['keyflows'] = keyflows
 
         return render(request, 'conclusions/workshop.html', context)
+
+
+class ConclusionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    queryset = Conclusion.objects.all()
+    serializer_class = ConclusionSerializer
+
+
+class ConsensusViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    queryset = ConsensusLevel.objects.all()
+    serializer_class = ConsensusSerializer
+
+
+class SectionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+
+
 
