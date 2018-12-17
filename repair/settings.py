@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'repair.apps.studyarea',
     'repair.apps.changes',
     'repair.apps.statusquo',
+    'repair.apps.conclusions',
     'repair.apps.publications',
     'repair.apps.reversions',
     'repair.apps.wmsresources',

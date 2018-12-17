@@ -47,19 +47,26 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
 
     def get_queryset(self):
         user = self.request.user
-        keyflow = self.request.query_params.get('keyflow')
         all_users = self.request.query_params.get('all') in ['true', 'True']
         casestudy_pk = self.kwargs.get('casestudy_pk')
         keyflow_pk = self.kwargs.get('keyflow_pk')
         aims = Aim.objects.filter(casestudy__id=casestudy_pk)
         objectives = UserObjective.objects.all()
-        if keyflow is not None:
-            aims = aims.filter(keyflow__id=keyflow)
-            objectives = objectives.filter(aim__keyflow__id=keyflow)
+
+        keyflow_null = self.request.query_params.get('keyflow__isnull')
+        if keyflow_null:
+            aims = aims.filter(keyflow__isnull=True)
+            objectives = objectives.filter(aim__keyflow__isnull=True)
+        else:
+            keyflow = self.request.query_params.get('keyflow')
+            if keyflow is not None:
+                aims = aims.filter(keyflow__id=keyflow)
+                objectives = objectives.filter(aim__keyflow__id=keyflow)
+
 
         # by default query objectives of current user and create them, if they
         #  don't exist yet
-        # can be overriden with all=true
+        # can be overriden with query-param all=true
         if not all_users:
             objectives = objectives.filter(
                 aim__casestudy__id=casestudy_pk,
@@ -77,6 +84,8 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
                     aim__casestudy__id=casestudy_pk,
                     user=user
                 )
-                if keyflow is not None:
+                if keyflow_null:
+                    objectives = objectives.filter(aim__keyflow__isnull=True)
+                elif keyflow is not None:
                     objectives = objectives.filter(aim__keyflow__id=keyflow)
         return objectives
