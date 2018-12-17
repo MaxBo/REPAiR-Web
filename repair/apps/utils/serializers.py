@@ -527,13 +527,16 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return np.NaN
 
     def _parse_wkt(self, x):
-        if not isinstance(x, str):
-            return np.NaN
-        geom = GEOSGeometry(x)
-        if not geom.valid:
-            geom.valid_reason
-        # force 2d
-        geom2d = GEOSGeometry(self.wkt_w.write(geom))
+        try:
+            if not isinstance(x, str):
+                return np.NaN
+            geom = GEOSGeometry(x)
+            if not geom.valid:
+                return geom.valid_reason
+            # force 2d
+            geom2d = GEOSGeometry(self.wkt_w.write(geom))
+        except GEOSException as e:
+            return str(e)
         return geom2d
 
     def _parse_columns(self, dataframe):
@@ -552,18 +555,15 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             if (isinstance(field, PointField)
                 or isinstance(field, PolygonField)
                 or isinstance(field, MultiPolygonField)):
-                try:
-                    # force 2d
-                    self.wkt_w = WKTWriter(dim=2)
-                    dataframe['wkt'] = dataframe['wkt'].apply(self._parse_wkt)
-                except GEOSException as e:
-                    # ToDo formatted message
-                    raise ValidationError(str(e))
+                self.wkt_w = WKTWriter(dim=2)
+                dataframe['wkt'] = dataframe['wkt'].apply(self._parse_wkt)
                 types = dataframe['wkt'].apply(type)
                 str_idx = types == str
                 error_idx = dataframe.index[str_idx]
                 error_msg = _('invalid geometry')
                 self.error_mask.set_error(error_idx, 'wkt', error_msg)
+                if len(error_idx) > 0:
+                    error_occured = _('Invalid geometries')
             elif (isinstance(field, IntegerField) or
                 isinstance(field, FloatField) or
                 isinstance(field, DecimalField) or
@@ -589,14 +589,13 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 # nan is used to determine parsing errors
                 error_idx = entries[entries.isna()].index
                 if len(error_idx) > 0:
-                    error_occured = True
+                    error_occured = _('Number format errors')
                 # set the error message in the error matrix at these positions
                 self.error_mask.set_error(error_idx, column, error_msg)
                 # overwrite values in dataframe with parsed ones
                 dataframe[column].loc[not_na] = entries
         if error_occured:
-            msg = _('Number format errors')
-            self.error_mask.add_message(msg)
+            self.error_mask.add_message(error_occured)
         return dataframe
 
     def _map_fields(self, dataframe, columns=None,

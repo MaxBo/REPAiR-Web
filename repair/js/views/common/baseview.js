@@ -303,6 +303,7 @@ var BaseView = Backbone.View.extend(
     *
     * @param {Object=} options
     * @param {module:views/BaseView~onNameConfirm} options.onConfirm  called when user confirms input
+    * @param {String=} options.name  preset name
     * @param {String} [options.title='Name'] title of the modal
     */
     getName: function(options){
