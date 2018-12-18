@@ -521,6 +521,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return np.NaN
 
     def _parse_bool(self, x):
+        if isinstance(x, bool):
+            return x
         x = x.lower()
         if x == 'true':
             return True
