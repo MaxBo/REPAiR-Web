@@ -344,7 +344,6 @@ var BulkUploadView = BaseView.extend(
             _this.log(u_msg);
             _this.log('-'.repeat(u_msg.length * 1.4));
             model.save(data, {
-                timeout: 3600000,
                 success: function (res) {
                     var res = res.toJSON(),
                         updated = res.updated,
