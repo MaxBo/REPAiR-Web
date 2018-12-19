@@ -248,6 +248,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
                 file_type=self.input_file_ext.replace('.', ''),
                 encoding=self.encoding
             )
+            self.error_mask.add_message(message)
             raise ValidationError(
                 self.error_mask.messages, url
             )
