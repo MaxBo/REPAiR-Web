@@ -417,6 +417,9 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             raise MalformedFileError(
                 _('wrong file-encoding ({} used)'.format(encoding)))
 
+        # pandas might set index automatically (esp. for excel files)
+        dataframe.reset_index(inplace=True)
+        del dataframe['index']
         dataframe = dataframe.\
             rename(columns={c: c.lower().rstrip('*')
                             for c in dataframe.columns})
@@ -518,6 +521,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             return np.NaN
 
     def _parse_bool(self, x):
+        if isinstance(x, bool):
+            return x
         x = x.lower()
         if x == 'true':
             return True
@@ -749,11 +754,6 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             # ToDo: formatted message
             raise ValidationError(str(e))
 
-        #def fix_geom(qs):
-            #if hasattr(qs.model, 'geom'):
-                #qs.update(geom=MakeValid('geom'))
-        #fix_geom(new_models)
-        #fix_geom(updated_models)
         return new_models, updated_models
 
     @property

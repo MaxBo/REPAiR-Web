@@ -248,6 +248,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
                 file_type=self.input_file_ext.replace('.', ''),
                 encoding=self.encoding
             )
+            self.error_mask.add_message(message)
             raise ValidationError(
                 self.error_mask.messages, url
             )
@@ -261,9 +262,9 @@ class CompositionCreateMixin:
         dataframe = validated_data['dataframe']
         df_comp = self.parse_dataframe(dataframe.copy())
         df_comp = df_comp[df_comp[index].notnull()]
+        df_comp.drop_duplicates(keep='first', inplace=True)
         df_comp.reset_index(inplace=True)
         del df_comp['index']
-        df_comp.drop_duplicates(keep='first', inplace=True)
         new_comp, updated_comp = self.save_data(df_comp)
         # drop all existing fractions of the compositions
         ids = [m.id for m in updated_comp]
