@@ -455,12 +455,14 @@ var SolutionsView = BaseView.extend(
                             var properties = loc.get('properties'),
                                 actor = actors.get(properties.actor),
                                 geom = loc.get('geometry');
-                            _this.map.addGeometry(geom.get('coordinates'), {
-                                projection: _this.projection,
-                                layername: layername,
-                                tooltip: activityName + '<br>' + actor.get('name'),
-                                type: 'Point'
-                            });
+                            if (geom) {
+                                _this.map.addGeometry(geom.get('coordinates'), {
+                                    projection: _this.projection,
+                                    layername: layername,
+                                    tooltip: activityName + '<br>' + actor.get('name'),
+                                    type: 'Point'
+                                });
+                            }
                         })
                         if(loader) loader.deactivate();
                     }
