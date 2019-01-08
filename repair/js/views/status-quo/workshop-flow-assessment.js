@@ -233,8 +233,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             maxValue = 0,
             unit = indicator.get('unit'),
             sr = indicator.get('spatial_reference');
-        this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
-        this.map.setVisible('region', (sr == 'REGION' ))
+        //this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
+        //this.map.setVisible('region', (sr == 'REGION' ))
 
         data.forEach(function(d){
             var value = Math.round(d.value)
