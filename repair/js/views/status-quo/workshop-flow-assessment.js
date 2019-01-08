@@ -233,8 +233,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             maxValue = 0,
             unit = indicator.get('unit'),
             sr = indicator.get('spatial_reference');
-        this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
-        this.map.setVisible('region', (sr == 'REGION' ))
+        //this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
+        //this.map.setVisible('region', (sr == 'REGION' ))
 
         data.forEach(function(d){
             var value = Math.round(d.value)
@@ -406,12 +406,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             // compute and return promise
             return indicator.compute({
                 method: "POST",
-                data: { areas: areas.join(',') },
+                data: { areas: areas.join(','), aggregate: true },
                 success: function(data){
-                    var sum = data.reduce((a, b) => a + b.value, 0);
+                    //var sum = data.reduce((a, b) => a + b.value, 0);
+                    var value = data[0].value;
                     _this.chartData[indicator.id][id] = {
                         name: id,
-                        value: sum,
+                        value: value,
                         color: item.color
                     };
                 },
