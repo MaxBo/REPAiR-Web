@@ -10,7 +10,8 @@ from django.db.models import Q
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
 
-from repair.apps.utils.views import ModelPermissionViewSet
+from repair.apps.utils.views import (ModelPermissionViewSet,
+                                     CasestudyViewSetMixin)
 from repair.apps.asmfa.models import Actor, Actor2Actor, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.asmfa.views import aggregate_fractions
@@ -155,7 +156,8 @@ class IndicatorAB(ComputeIndicator):
         return amounts
 
 
-class FlowIndicatorViewSet(RevisionMixin, ModelPermissionViewSet):
+class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
+                           ModelPermissionViewSet):
     '''
     view on indicators in db
     '''

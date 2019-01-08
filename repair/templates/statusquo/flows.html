@@ -30,6 +30,12 @@
       </td>
     </tr>
     <tr>
+      <td></td>
+      <td>
+        <input type="checkbox" name="included">{% trans "Included" %}
+      </td>
+    </tr>
+    <tr>
       <td>{% trans "Description" %}</td>
       <td>
         <textarea class="form-control" name='description' rows="1" style="width: 100%; resize: vertical;"></textarea>
@@ -375,6 +381,12 @@
           </td>
         </tr>
         <tr>
+          <td></td>
+          <td>
+            <input type="checkbox" name="included">{% trans "Included" %}
+          </td>
+        </tr>
+        <tr>
           <td>{% trans "Type" %}</td>
           <td>
             <select class="form-control" id="indicator-type">
@@ -536,7 +548,6 @@
   </div>
 </div>
 </script>
-
 
 <script type="text/template" id="area-select-modal-template">
 <div class="modal-dialog modal-lg">
