@@ -35,7 +35,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.keyflowId = options.keyflowId;
 
         this.spatialItemColor = '#aad400';
-
         this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId],
@@ -59,7 +58,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         this.loader.activate();
         var promises = [
-            this.indicators.fetch(),
+            this.indicators.fetch({ data: { included: "True" } }),
             this.areaLevels.fetch()
         ]
         Promise.all(promises).then(function(){
