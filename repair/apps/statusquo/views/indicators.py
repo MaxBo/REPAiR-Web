@@ -105,7 +105,7 @@ class IndicatorA(ComputeIndicator):
     '''
     description = _('SUM aggregation Flow A')
     name = _('Flow A')
-    def process(self, indicator, areas=[], geom=None):
+    def process(self, indicator, areas=[], geom=None, aggregate=False):
         flow_a = indicator.flow_a
         if not areas and not geom:
             amount = self.sum(flow_a)
@@ -118,6 +118,11 @@ class IndicatorA(ComputeIndicator):
             geom = Area.objects.get(id=area).geom
             amount = self.sum(flow_a, geom) if flow_a else 0
             amounts.append(OrderedDict({'area': area, 'value': amount}))
+        if aggregate:
+            total_sum = 0
+            for a in amounts:
+                total_sum += a['value']
+            return [OrderedDict({'area': -1, 'value': total_sum})]
         return amounts
 
 
@@ -126,20 +131,24 @@ class IndicatorAB(ComputeIndicator):
     Aggregated Flow A / aggregated Flow B
     '''
     description = _('SUM aggregation Flow A / SUM aggregation Flow B')
-    name = _('Flow A / Flow B')
-    def process(self, indicator, areas=[], geom=None):
+    name = _('(Flow A / Flow B) * 100')
+    def process(self, indicator, areas=[], geom=None, aggregate=False):
         flow_a = indicator.flow_a
         flow_b = indicator.flow_b
         if not areas and not geom:
             amount = self.sum(flow_a) / self.sum(flow_b)
             return [OrderedDict({'area': -1, 'value': amount})]
         amounts = []
+        total_sum_a = 0
+        total_sum_b = 0
         if geom:
             if flow_a and flow_b:
                 sum_a = self.sum(flow_a, geom)
                 # ToDo: what if sum_b = 0?
                 sum_b = self.sum(flow_b, geom)
-                amount = sum_a / sum_b if sum_b > 0 else 0
+                total_sum_a += sum_a
+                total_sum_b += sum_b
+                amount = 100 * sum_a / sum_b if sum_b > 0 else 0
             else:
                 amount = 0
             amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
@@ -149,10 +158,15 @@ class IndicatorAB(ComputeIndicator):
                 sum_a = self.sum(flow_a, geom)
                 # ToDo: what if sum_b = 0?
                 sum_b = self.sum(flow_b, geom)
-                amount = sum_a / sum_b if sum_b > 0 else 0
+                total_sum_a += sum_a
+                total_sum_b += sum_b
+                amount = 100 * sum_a / sum_b if sum_b > 0 else 0
             else:
                 amount = 0
             amounts.append(OrderedDict({'area': area, 'value': amount}))
+        if aggregate:
+            amount = 100 * total_sum_a / total_sum_b
+            return [OrderedDict({'area': -1, 'value': amount})]
         return amounts
 
 
@@ -185,9 +199,14 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
         geom = body_params.get('geom', None) or query_params.get('geom', None)
         areas = (body_params.get('areas', None) or
                  query_params.get('areas', None))
+        aggregate = (body_params.get('aggregate', None) or
+                     query_params.get('aggregate', None))
+        if aggregate is not None:
+            aggregate = aggregate.lower() == 'true'
         if areas:
             areas = areas.split(',')
-        values = computer.process(indicator, areas=areas or [], geom=geom)
+        values = computer.process(indicator, areas=areas or [], geom=geom,
+                                  aggregate=aggregate)
         return Response(values)
 
     def get_queryset(self):
