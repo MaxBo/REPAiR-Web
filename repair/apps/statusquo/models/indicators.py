@@ -78,3 +78,4 @@ class FlowIndicator(GDSEModel):
 
     spatial_reference = EnumIntegerField(
         enum=SpatialType, default=SpatialType.REGION)
+    included = models.BooleanField(default=True)
