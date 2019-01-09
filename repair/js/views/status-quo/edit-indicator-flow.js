@@ -52,7 +52,7 @@ var IndicatorFlowEditView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #render-sankey': 'renderSankey'
+        'click .render': 'renderSankey'
     },
 
     render: function(){
