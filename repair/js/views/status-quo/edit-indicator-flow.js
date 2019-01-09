@@ -427,7 +427,7 @@ var IndicatorFlowEditView = BaseView.extend(
                 _this.loader.deactivate();
                 utils.complementFlowData(flows, origins, destinations,
                     function(origins, destinations){
-                        this.flowsView = new FlowSankeyView({
+                        _this.flowsView = new FlowSankeyView({
                             el: el,
                             width:  el.clientWidth - 10,
                             origins: origins,
