@@ -492,6 +492,7 @@ var SolutionsView = BaseView.extend(
         div.style.minWidth = '300px';
         var label = document.createElement('label'),
             button = document.createElement('button'),
+            editBtn = document.createElement('button'),
             removeBtn = document.createElement('button');
         label.innerHTML = category.get('name');
         label.style.marginBottom = '20px';
@@ -512,6 +513,17 @@ var SolutionsView = BaseView.extend(
             }});
         })
 
+        editBtn.classList.add("btn", "btn-primary", "square", "inverted");
+        editBtn.style.float = 'right';
+        editBtn.style.marginRight = '3px';
+        var span = document.createElement('span');
+        editBtn.title = gettext('Edit category')
+        span.classList.add('glyphicon', 'glyphicon-pencil');
+        editBtn.appendChild(span);
+        editBtn.addEventListener('click', function(){
+            _this.editCategory(category);
+        })
+
         button.classList.add("btn", "btn-primary", "square", "add");
         span = document.createElement('span');
         span.classList.add('glyphicon', 'glyphicon-plus');
@@ -524,6 +536,7 @@ var SolutionsView = BaseView.extend(
 
         panelList.appendChild(div);
         div.appendChild(removeBtn);
+        div.appendChild(editBtn);
         div.appendChild(label);
         div.appendChild(panel);
         div.appendChild(button);
@@ -586,6 +599,27 @@ var SolutionsView = BaseView.extend(
             )
         }
         _this.getName({ onConfirm: onConfirm });
+    },
+
+    editCategory: function(category){
+        var _this = this;
+        function onConfirm(name){
+            category.save(
+                {
+                    name: name,
+                },
+                {
+                    success: _this.render,
+                    error: _this.onError,
+                    wait: true
+                }
+            );
+        }
+        this.getName({
+            title: gettext('Edit Category'),
+            name: category.get('name'),
+            onConfirm: onConfirm
+        })
     },
 
     /*
