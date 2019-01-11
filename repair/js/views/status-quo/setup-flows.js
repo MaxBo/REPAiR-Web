@@ -65,6 +65,7 @@ var FlowsSetupView = BaseView.extend(
         this.renderFilterFlowsView();
         this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
         this.nameInput = this.el.querySelector('input[name="name"]');
+        this.includedCheck = this.el.querySelector('input[name="included"]');
         this.descriptionInput = this.el.querySelector('textarea[name="description"]');
     },
 
@@ -96,6 +97,7 @@ var FlowsSetupView = BaseView.extend(
                     option.value = filter.id;
                     option.innerHTML = filter.get('name');
                     _this.nameInput.value = filter.get('name');
+                    _this.includedCheck.checked = filter.get('included');
                     _this.descriptionInput.value = filter.get('description');
                     _this.flowFilterSelect.appendChild(option);
                     _this.flowFilterSelect.value = filter.id;
@@ -113,6 +115,7 @@ var FlowsSetupView = BaseView.extend(
             _this = this;
         this.filterFlowsView.getFilter(filter);
         filter.set('name', this.nameInput.value);
+        filter.set('included', this.includedCheck.checked);
         filter.set('description', this.descriptionInput.value);
         filter.save(null, {
             success: function(model){
@@ -138,6 +141,7 @@ var FlowsSetupView = BaseView.extend(
         this.filter = filter;
         this.toggleVisibility(true);
         this.nameInput.value = filter.get('name');
+        this.includedCheck.checked = filter.get('included');
         this.descriptionInput.value = filter.get('description');
 
         this.filterFlowsView.applyFilter(filter);

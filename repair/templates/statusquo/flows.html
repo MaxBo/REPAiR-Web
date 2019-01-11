@@ -30,6 +30,12 @@
       </td>
     </tr>
     <tr>
+      <td></td>
+      <td>
+        <input type="checkbox" name="included">{% trans "Included" %}
+      </td>
+    </tr>
+    <tr>
       <td>{% trans "Description" %}</td>
       <td>
         <textarea class="form-control" name='description' rows="1" style="width: 100%; resize: vertical;"></textarea>
@@ -375,6 +381,12 @@
           </td>
         </tr>
         <tr>
+          <td></td>
+          <td>
+            <input type="checkbox" name="included">{% trans "Included" %}
+          </td>
+        </tr>
+        <tr>
           <td>{% trans "Type" %}</td>
           <td>
             <select class="form-control" id="indicator-type">
@@ -528,7 +540,7 @@
     </div>
   </div>
   <div class="row">
-    <button class="btn btn-primary" id="render-sankey">{% trans "Render Sankey" %} </button>
+    <button class="btn btn-primary render">{% trans "Render Sankey" %} </button>
     <div class="row" style="position: relative;">
       <div class="sankey-wrapper" class="noselect" style="width: 100%; min-height: 200px;">
       </div>
@@ -536,7 +548,6 @@
   </div>
 </div>
 </script>
-
 
 <script type="text/template" id="area-select-modal-template">
 <div class="modal-dialog modal-lg">

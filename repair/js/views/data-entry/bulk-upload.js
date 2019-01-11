@@ -1,4 +1,3 @@
-
 define(['views/common/baseview', 'underscore', 'models/gdsemodel',
         'collections/gdsecollection', 'collections/geolocations',
         'app-config'],
