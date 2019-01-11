@@ -123,42 +123,44 @@ var StakeholdersView = BaseView.extend(
             label.innerHTML = category.get('name');
             label.style.marginBottom = '20px';
 
-            button.classList.add("btn", "btn-primary", "square", "add");
-            var span = document.createElement('span');
-            span.classList.add('glyphicon', 'glyphicon-plus');
-            button.innerHTML = gettext('Stakeholder');
-            button.title = gettext('add stakeholder');
-            button.insertBefore(span, button.firstChild);
-            button.addEventListener('click', function(){
-                _this.addStakeholder(category);
-            });
+            if (_this.mode != 0){
+                button.classList.add("btn", "btn-primary", "square", "add");
+                var span = document.createElement('span');
+                span.classList.add('glyphicon', 'glyphicon-plus');
+                button.innerHTML = gettext('Stakeholder');
+                button.title = gettext('add stakeholder');
+                button.insertBefore(span, button.firstChild);
+                button.addEventListener('click', function(){
+                    _this.addStakeholder(category);
+                });
 
-            removeBtn.classList.add("btn", "btn-warning", "square", "remove");
-            removeBtn.style.float = 'right';
-            var span = document.createElement('span');
-            removeBtn.title = gettext('Remove category')
-            span.classList.add('glyphicon', 'glyphicon-minus');
-            removeBtn.appendChild(span);
-            removeBtn.addEventListener('click', function(){
-                _this.removeCategory(category);
-            })
+                removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+                removeBtn.style.float = 'right';
+                var span = document.createElement('span');
+                removeBtn.title = gettext('Remove category')
+                span.classList.add('glyphicon', 'glyphicon-minus');
+                removeBtn.appendChild(span);
+                removeBtn.addEventListener('click', function(){
+                    _this.removeCategory(category);
+                })
 
-            editBtn.classList.add("btn", "btn-primary", "square", "inverted");
-            editBtn.style.float = 'right';
-            editBtn.style.marginRight = '3px';
-            var span = document.createElement('span');
-            editBtn.title = gettext('Edit category')
-            span.classList.add('glyphicon', 'glyphicon-pencil');
-            editBtn.appendChild(span);
-            editBtn.addEventListener('click', function(){
-                _this.editCategory(category);
-            })
+                editBtn.classList.add("btn", "btn-primary", "square", "inverted");
+                editBtn.style.float = 'right';
+                editBtn.style.marginRight = '3px';
+                var span = document.createElement('span');
+                editBtn.title = gettext('Edit category')
+                span.classList.add('glyphicon', 'glyphicon-pencil');
+                editBtn.appendChild(span);
+                editBtn.addEventListener('click', function(){
+                    _this.editCategory(category);
+                })
+                div.appendChild(removeBtn);
+                div.appendChild(editBtn);
+            }
 
-            div.appendChild(removeBtn);
-            div.appendChild(editBtn);
             div.appendChild(label);
             div.appendChild(panel);
-            div.appendChild(button);
+            if (_this.mode != 0) div.appendChild(button);
 
             // add the items
             _this.addPanelItems(panel, category);

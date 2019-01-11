@@ -497,49 +497,51 @@ var SolutionsView = BaseView.extend(
         label.innerHTML = category.get('name');
         label.style.marginBottom = '20px';
 
-        removeBtn.classList.add("btn", "btn-warning", "square", "remove");
-        removeBtn.style.float = 'right';
-        var span = document.createElement('span');
-        removeBtn.title = gettext('Remove category')
-        span.classList.add('glyphicon', 'glyphicon-minus');
-        removeBtn.appendChild(span);
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the category and all its solutions?');
-            _this.confirm({ message: message, onConfirm: function(){
-                category.destroy({
-                    success: function() { panelList.removeChild(div); },
-                    error: _this.onError
-                })
-            }});
-        })
-
-        editBtn.classList.add("btn", "btn-primary", "square", "inverted");
-        editBtn.style.float = 'right';
-        editBtn.style.marginRight = '3px';
-        var span = document.createElement('span');
-        editBtn.title = gettext('Edit category')
-        span.classList.add('glyphicon', 'glyphicon-pencil');
-        editBtn.appendChild(span);
-        editBtn.addEventListener('click', function(){
-            _this.editCategory(category);
-        })
-
-        button.classList.add("btn", "btn-primary", "square", "add");
-        span = document.createElement('span');
-        span.classList.add('glyphicon', 'glyphicon-plus');
-        button.innerHTML = gettext('Solution');
-        button.title = gettext('Add solution to category');
-        button.insertBefore(span, button.firstChild);
-        button.addEventListener('click', function(){
-            _this.addSolution(panel, category);
-        })
-
         panelList.appendChild(div);
-        div.appendChild(removeBtn);
-        div.appendChild(editBtn);
+        if (this.mode != 0){
+
+            removeBtn.classList.add("btn", "btn-warning", "square", "remove");
+            removeBtn.style.float = 'right';
+            var span = document.createElement('span');
+            removeBtn.title = gettext('Remove category')
+            span.classList.add('glyphicon', 'glyphicon-minus');
+            removeBtn.appendChild(span);
+            removeBtn.addEventListener('click', function(){
+                var message = gettext('Do you really want to delete the category and all its solutions?');
+                _this.confirm({ message: message, onConfirm: function(){
+                    category.destroy({
+                        success: function() { panelList.removeChild(div); },
+                        error: _this.onError
+                    })
+                }});
+            })
+
+            editBtn.classList.add("btn", "btn-primary", "square", "inverted");
+            editBtn.style.float = 'right';
+            editBtn.style.marginRight = '3px';
+            var span = document.createElement('span');
+            editBtn.title = gettext('Edit category')
+            span.classList.add('glyphicon', 'glyphicon-pencil');
+            editBtn.appendChild(span);
+            editBtn.addEventListener('click', function(){
+                _this.editCategory(category);
+            })
+
+            button.classList.add("btn", "btn-primary", "square", "add");
+            span = document.createElement('span');
+            span.classList.add('glyphicon', 'glyphicon-plus');
+            button.innerHTML = gettext('Solution');
+            button.title = gettext('Add solution to category');
+            button.insertBefore(span, button.firstChild);
+            button.addEventListener('click', function(){
+                _this.addSolution(panel, category);
+            })
+            div.appendChild(removeBtn);
+            div.appendChild(editBtn);
+        }
         div.appendChild(label);
         div.appendChild(panel);
-        div.appendChild(button);
+        if (this.mode != 0) div.appendChild(button);
         // add the items
         if (category.solutions){
             category.solutions.forEach(function(solution){
