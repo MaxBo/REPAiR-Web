@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext as _
+import numpy as np
 
 from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            BulkResult,
@@ -236,9 +237,11 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
         index = 'composition'
         df = dataframe.filter([index, 'fraction'])
         grouped = df.groupby(index).agg('sum')
-        invalid = grouped['fraction'] != 1
+        isclose = np.isclose(grouped['fraction'], 1, atol=0.01)
+        invalid = np.invert(isclose)
         if invalid.sum() > 0:
-            message = _("fractions per composition have to sum up to 1.0 "
+            message = _("fractions per composition have to sum up to 1.0 with "
+                        "an absolute tolerance of 0.01 "
                         "(they don't)")
             invalid_comp = grouped.index[invalid]
             for comp in invalid_comp:

@@ -391,6 +391,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     filename_products = 'products.tsv'
     filename_products_w_errors = 'products_w_errors.tsv'
     filename_products_fraction_errors = 'products_fraction_errors.tsv'
+    filename_products_missing_mat = 'products_missing_mat.tsv'
 
     @classmethod
     def setUpClass(cls):
@@ -500,3 +501,14 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.product_url, data)
         assert res.status_code == 400
+
+        file_path = os.path.join(os.path.dirname(__file__),
+                                self.testdata_folder,
+                                self.filename_products_missing_mat)
+        data = {
+            'bulk_upload' : open(file_path, 'rb'),
+        }
+
+        res = self.client.post(self.product_url, data)
+        assert res.status_code == 400
+
