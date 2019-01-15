@@ -1,5 +1,5 @@
 NACE	name	Material	Fraction	Avoidable	Source
-V-0000	GFT @Urbanisation lvl 1	a	0,0393	FALSE	crem2017
+V-0000	GFT @Urbanisation lvl 1	a	0,0493	FALSE	crem2017
 		a	0,036942	FALSE	crem2017
 		a	0,000131	FALSE	crem2017
 		a	0,001572	FALSE	crem2017
@@ -45,7 +45,7 @@ V-0000	GFT @Urbanisation lvl 2	a	0,01965	FALSE	crem2017
 		b	0	TRUE	crem2017
 		b	0,0024225	TRUE	crem2017
 		b	0,892	TRUE	crem2017
-V-0000	GFT @Urbanisation lvl 3	a	0,0171	FALSE	crem2017
+V-0000	GFT @Urbanisation lvl 3	a	0,0071	FALSE	crem2017
 		a	0,016074	FALSE	crem2017
 		a	5,70E-05	FALSE	crem2017
 		a	0,000684	FALSE	crem2017
