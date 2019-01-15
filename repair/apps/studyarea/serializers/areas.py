@@ -57,7 +57,8 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
                   'casestudy',
                   'name', 'code',
                   'point_on_surface',
-                  'geometry'
+                  'geometry',
+                  'inhabitants'
                   )
 
 
@@ -95,7 +96,8 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
                   'parent_area',
                   'parent_level',
                   'parent_area_code',
-                  'point_on_surface'
+                  'point_on_surface',
+                  'inhabitants'
                   )
 
     def update(self, instance, validated_data):
@@ -167,7 +169,8 @@ class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
     class Meta(AreaGeoJsonSerializer.Meta):
         fields = ('url', 'id', 'name', 'code',
                   'parent_level', 'parent_area',
-                  'parent_area_code')
+                  'parent_area_code',
+                  'inhabitants')
 
     def to_internal_value(self, data):
         """
