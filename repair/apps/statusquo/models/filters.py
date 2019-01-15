@@ -39,4 +39,5 @@ class FlowFilter(GDSEModel):
                                    on_delete=models.SET_NULL,
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
+    included = models.BooleanField(default=True)
 

@@ -29,4 +29,6 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'areas',
                   'flow_type',
                   'filter_level',
-                  'node_ids')
+                  'node_ids',
+                  'included')
+        extra_kwargs = {'included': {'required': False}}
