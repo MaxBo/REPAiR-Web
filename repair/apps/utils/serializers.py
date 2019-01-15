@@ -841,6 +841,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             for m in bulk:
                 m.save()
             created = bulk
+        except IntegrityError as e:
+            raise ValidationError(str(e))
         # only postgres returns ids after bulk creation
         # workaround for non postgres: create queryset based on index_columns
         if created and created[0].id == None:
