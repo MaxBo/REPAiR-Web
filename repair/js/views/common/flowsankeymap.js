@@ -63,12 +63,16 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 attribution: '© OpenStreetMap contributors, © CartoDB'
             });
             var focusarea = this.caseStudy.get('properties').focusarea,
-                poly = new ol.geom.MultiPolygon(focusarea.coordinates),
-                interior = poly.getInteriorPoints(),
-                centroid = interior.getCoordinates()[0];
+                center = [52.51, 13.36];
+            if (focusarea){
+                var poly = new ol.geom.MultiPolygon(focusarea.coordinates),
+                    interior = poly.getInteriorPoints(),
+                    centroid = interior.getCoordinates()[0];
+                    center = [centroid[1], centroid[0]];
+            }
 
             this.leafletMap = new L.Map(this.el, {
-                    center: [centroid[1], centroid[0]],
+                    center: center,
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
