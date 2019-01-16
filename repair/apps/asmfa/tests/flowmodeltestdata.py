@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
+import numpy as np
 
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
@@ -7,25 +8,20 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          MaterialFactory,
                                          ProductFractionFactory,
                                          ActorFactory,
+                                         ActivityFactory,
                                          WasteFactory,
                                          ProductFactory,
                                          ActorStockFactory,
                                          )
 from repair.apps.publications.factories import PublicationInCasestudyFactory
 
-from repair.apps.asmfa.models import Actor, Material
+from repair.apps.asmfa.models import Actor, Material, Actor2Actor
 
 
 class GenerateTestDataMixin:
     """
     Generate Testdata
     """
-    def setUp(self):
-        super().setUp()
-        self.create_keyflow()
-        self.create_materials()
-        self.create_actors()
-        self.create_flows()
 
     def create_keyflow(self):
         """Create the keyflow"""
@@ -125,3 +121,42 @@ class GenerateTestDataMixin:
                                                  keyflow=self.kic,
                                                  amount=flow.amount,
                                                  )
+
+
+class GenerateBigTestDataMixin(GenerateTestDataMixin):
+    """Big amount of Test Data"""
+    def create_actors(self, n_actors=10000):
+        activity_names = [
+            'production',
+            'recycling',
+            'consumption',
+        ]
+        self.activities = {}
+        for activity_name in activity_names:
+            self.activities[activity_name] = ActivityFactory(
+                name=activity_name,
+                activitygroup__keyflow=self.kic)
+
+        activities = np.random.choice(list(self.activities.values()),
+                                      n_actors)
+        actors = [Actor(activity=activities[i],
+                        name=['Actor_{}'.format(i)],
+                        )
+                  for i in range(n_actors)]
+        Actor.objects.bulk_create(actors)
+
+    def create_flows(self, n_flows=10000):
+        """Create big amounts of flows"""
+        composition = self.compositions['Plastic']
+        actors = Actor.objects.all()
+        origins = np.random.choice(actors, n_flows)
+        destinations = np.random.choice(actors, n_flows)
+        amounts = np.random.randint(1, 1000, (n_flows, ))
+        flows = [Actor2Actor(origin=origins[i],
+                             destination=destinations[i],
+                             composition=composition,
+                             keyflow=self.kic,
+                             amount=amounts[i],
+                             )
+                 for i in range(n_flows)]
+        Actor2Actor.objects.bulk_create(flows)
