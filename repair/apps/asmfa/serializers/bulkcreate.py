@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext as _
+import numpy as np
 
 from repair.apps.utils.serializers import (BulkSerializerMixin,
                                            BulkResult,
@@ -27,7 +28,8 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Material,
                                       Product,
                                       Waste,
-                                      ProductFraction
+                                      ProductFraction,
+                                      Process
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -113,6 +115,9 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
+        'process': Reference(name='process', referenced_field='name',
+                             referenced_model=Process,
+                             allow_null=True),
         'waste': 'waste',
         'amount': 'amount',
         'year': 'year'
@@ -220,6 +225,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
                               referenced_model=Material,
                               allow_null=True),
         'avoidable': 'avoidable',
+        'hazardous': 'hazardous',
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy)
@@ -236,9 +242,11 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
         index = 'composition'
         df = dataframe.filter([index, 'fraction'])
         grouped = df.groupby(index).agg('sum')
-        invalid = grouped['fraction'] != 1
+        isclose = np.isclose(grouped['fraction'], 1, atol=0.01)
+        invalid = np.invert(isclose)
         if invalid.sum() > 0:
-            message = _("fractions per composition have to sum up to 1.0 "
+            message = _("fractions per composition have to sum up to 1.0 with "
+                        "an absolute tolerance of 0.01 "
                         "(they don't)")
             invalid_comp = grouped.index[invalid]
             for comp in invalid_comp:
