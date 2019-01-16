@@ -42,6 +42,11 @@ class ReasonFactory(DjangoModelFactory):
     reason = 'Out of bounds'
 
 
+class ProcessFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Process
+    name = 'subNACE process'
+
 class NodeFactory(DjangoModelFactory):
     class Meta:
         model = models.Node
