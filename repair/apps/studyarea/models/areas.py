@@ -33,5 +33,6 @@ class Area(GDSEModel):
     geom = geomodels.MultiPolygonField(null=True, blank=True)
     parent_area = models.ForeignKey("self", null=True, blank=True,
                                      on_delete=models.CASCADE)
+    inhabitants = models.BigIntegerField(default=0)
 
 
