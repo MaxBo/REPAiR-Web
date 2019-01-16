@@ -80,6 +80,7 @@ var SolutionsView = BaseView.extend(
             keyflowName: this.keyflowName
         });
         var promises = [];
+        this.loader.activate();
         this.categories.forEach(function(category){
             category.solutions = new GDSECollection([], {
                 apiTag: 'solutions',
@@ -92,6 +93,7 @@ var SolutionsView = BaseView.extend(
             _this.categories.forEach(function(category){
                 _this.renderCategory(category);
             });
+            _this.loader.deactivate();
 
             // lazy way to render workshop mode: just hide all buttons for editing
             // you may make separate views as well
@@ -312,6 +314,7 @@ var SolutionsView = BaseView.extend(
                 for (file in changedImages){
                   data[file] = changedImages[file];
                 }
+                _this.loader.activate()
                 solution.save(data, {
                     success: function(){
                         var ratioModels = [];
@@ -321,9 +324,13 @@ var SolutionsView = BaseView.extend(
                         utils.queuedUpload(ratioModels, {
                             success: function(){
                                 $(modal).modal('hide');
+                                _this.loader.deactivate();
                                 if (onConfirm) onConfirm();
                             },
-                            error: function(m, r){ _this.onError(r) }
+                            error: function(m, r){
+                                _this.loader.deactivate();
+                                _this.onError(r);
+                            }
                         });
                     },
                     error: _this.onError,

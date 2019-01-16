@@ -28,7 +28,8 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Material,
                                       Product,
                                       Waste,
-                                      ProductFraction
+                                      ProductFraction,
+                                      Process
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
 
@@ -114,6 +115,9 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
+        'process': Reference(name='process', referenced_field='name',
+                             referenced_model=Process,
+                             allow_null=True),
         'waste': 'waste',
         'amount': 'amount',
         'year': 'year'
@@ -221,6 +225,7 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
                               referenced_model=Material,
                               allow_null=True),
         'avoidable': 'avoidable',
+        'hazardous': 'hazardous',
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy)

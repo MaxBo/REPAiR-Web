@@ -79,6 +79,7 @@ class FlowSerializer(CompositionMixin,
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
+    process = IDRelatedField(allow_null=True)
     composition = CompositionSerializer()
 
     class Meta:
@@ -87,7 +88,7 @@ class FlowSerializer(CompositionMixin,
                   'destination', 'destination_url',
                   'origin_level', 'destination_level',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -105,7 +106,7 @@ class Group2GroupSerializer(FlowSerializer):
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -123,7 +124,7 @@ class Activity2ActivitySerializer(FlowSerializer):
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -141,4 +142,4 @@ class Actor2ActorSerializer(FlowSerializer):
         fields = ('id', 'amount', 'composition',
                   'origin',  'destination',
                   'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
