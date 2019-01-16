@@ -143,6 +143,7 @@ class ProductFraction(GDSEModel):
                                     on_delete=models.SET_NULL,
                                     related_name='fractions')
     avoidable = models.BooleanField(default=True)
+    hazardous = models.BooleanField(default=True)
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)
