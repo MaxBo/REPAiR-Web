@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'django_pandas', 
+    'django_pandas',
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'repair.apps.studyarea',
     'repair.apps.changes',
     'repair.apps.statusquo',
+    'repair.apps.conclusions',
     'repair.apps.publications',
     'repair.apps.reversions',
     'repair.apps.wmsresources',
@@ -274,10 +275,12 @@ LOGGING = {
                 'level': 'INFO',
                 'propagate': False,
             },
-        
+
             #'django.db.backends': {
                 #'level': 'DEBUG',
                 #'handlers': ['console'],
             #}
         }
 }
+
+PROTECT_FOREIGN_KEY = False

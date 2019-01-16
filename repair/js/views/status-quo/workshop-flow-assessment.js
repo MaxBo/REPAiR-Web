@@ -35,7 +35,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.keyflowId = options.keyflowId;
 
         this.spatialItemColor = '#aad400';
-
         this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId],
@@ -59,7 +58,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         this.loader.activate();
         var promises = [
-            this.indicators.fetch(),
+            this.indicators.fetch({ data: { included: "True" } }),
             this.areaLevels.fetch()
         ]
         Promise.all(promises).then(function(){
@@ -234,8 +233,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             maxValue = 0,
             unit = indicator.get('unit'),
             sr = indicator.get('spatial_reference');
-        this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
-        this.map.setVisible('region', (sr == 'REGION' ))
+        //this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
+        //this.map.setVisible('region', (sr == 'REGION' ))
 
         data.forEach(function(d){
             var value = Math.round(d.value)
@@ -364,7 +363,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var barChartTab = this.el.querySelector('#bar-charts-tab');
         this.chartLoader = new utils.Loader(barChartTab, {disable: true});
         var width = $("#bar-chart").width();
-        
+
         //create bar chart
         this.chart = highcharts.chart(div, {
             chart: {
@@ -407,12 +406,13 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             // compute and return promise
             return indicator.compute({
                 method: "POST",
-                data: { areas: areas.join(',') },
+                data: { areas: areas.join(','), aggregate: true },
                 success: function(data){
-                    var sum = data.reduce((a, b) => a + b.value, 0);
+                    //var sum = data.reduce((a, b) => a + b.value, 0);
+                    var value = data[0].value;
                     _this.chartData[indicator.id][id] = {
                         name: id,
-                        value: sum,
+                        value: value,
                         color: item.color
                     };
                 },
@@ -434,12 +434,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             promises = [];
         if(this.indicatorId == -1) return;
 
-        // focus area
+        // focus area or case study region
         var indicator = this.indicators.get(this.indicatorId),
             spatialRef = indicator.get('spatial_reference'),
             geom = (spatialRef == 'REGION') ? this.caseStudy.get('geom') : this.caseStudy.get('properties').focusarea,
-            text = (spatialRef == 'REGION') ? gettext('Casestudy <br> Region') : gettext('Focus <br> Area'),
-            fontSize = (spatialRef == 'REGION') ? '34px' : '40px',
+            text = (spatialRef == 'REGION') ? gettext('Case Study <br> Region') : gettext('Focus <br> Area'),
+            fontSize = (spatialRef == 'REGION') ? '30px' : '40px',
             indicatorId = _this.indicatorId;
 
         var spatialItem = _this.areaSelectRow.querySelector('div.item[data-id="0"]'),
@@ -512,7 +512,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             data: data
         });
     },
-    
+
     // render an item where the user can setup areas to be shown as bar charts
     addAreaSelectItem: function(){
         var id = this.areaSelectIdCnt,
@@ -715,7 +715,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         loader.activate();
         this.getAreas(level, draw);
     },
-    
+
     // user confirmation of selected areas in modal
     confirmAreaSelection: function(){
         var id = this.activeAreaSelectId,
@@ -723,7 +723,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this = this;
         item.areas = this.selectedAreas;
         item.level = this.areaLevelSelect.value;
-        
+
         var area = this.areas[item.level].get(item.areas[0]);
         var label = area.get('name');
         var count = item.areas.length-1;

@@ -17,6 +17,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActivityGroupFactory,
                                          ProductFractionFactory,
                                          PublicationInCasestudyFactory,
+                                         ProcessFactory
                                          )
 import json
 
@@ -55,15 +56,18 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data,
+                             process=None,
                              format='json'
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data,
+                              process=None
                               )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -86,7 +90,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
+class Actor2ActorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                            APITestCase):
     casestudy = 17
     keyflow = 3
@@ -118,6 +122,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
     def setUpClass(cls):
         super().setUpClass()
         cls.url_key = "actor2actor"
+
+        cls.process = ProcessFactory(name='test-process')
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            keyflow_pk=cls.keyflowincasestudy)
         cls.url_pk = dict(pk=cls.actor2actor1)
@@ -125,14 +131,17 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data1,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data1,
+                             process=None
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data1,
+                              process=cls.process.id
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -166,12 +175,14 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                            destination=self.actor2,
                                            keyflow=self.kic_obj,
                                            composition=self.comp1,
+                                           process=self.process
                                            )
         self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
                                            origin=self.actor2,
                                            destination=self.actor3,
                                            keyflow=self.kic_obj,
                                            composition=self.comp2,
+                                           process=self.process
                                            )
         self.obj = self.act2act1
         self.publicationic = PublicationInCasestudyFactory()
@@ -254,14 +265,17 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data,
+                             process=None
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data,
+                              process=None
                               )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 

@@ -14,6 +14,10 @@ from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
+class Process(GDSEModel):
+    name = models.TextField()
+
+
 class Flow(GDSEModel):
 
     amount = models.PositiveIntegerField(blank=True, default=0)
@@ -22,6 +26,7 @@ class Flow(GDSEModel):
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2016)
     waste = models.BooleanField(default=False)
+    process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
 
     class Meta(GDSEModel.Meta):
         abstract = True

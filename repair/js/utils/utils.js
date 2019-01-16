@@ -65,7 +65,7 @@ module.exports = {
         }
         $.ajax({
             type: method,
-            timeout: 50000,
+            timeout: 3600000,
             url: url,
             data: formData,
             cache: false,

@@ -45,8 +45,7 @@ class AdminLevelField(InCasestudyField):
 
 class AreaSerializer(CreateWithUserInCasestudyMixin,
                      NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
-                            'level_pk': 'adminlevel__id', }
+    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id'}
     casestudy = CasestudyField(source='adminlevel.casestudy',
                                view_name='casestudy-detail')
     point_on_surface = GeometryField(source='pnt', read_only=True)
@@ -58,13 +57,19 @@ class AreaSerializer(CreateWithUserInCasestudyMixin,
                   'casestudy',
                   'name', 'code',
                   'point_on_surface',
-                  'geometry'
+                  'geometry',
+                  'inhabitants'
                   )
+
+
+class AreaInLevelSerializer(AreaSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'adminlevel__casestudy__id',
+                            'level_pk': 'adminlevel__id', }
 
 
 class AreaGeoJsonSerializer(ForceMultiMixin,
                             GeoFeatureModelSerializer,
-                            AreaSerializer):
+                            AreaInLevelSerializer):
     """
     Detail serializer for Areas adding the geom field
     and returning a geojson
@@ -91,7 +96,8 @@ class AreaGeoJsonSerializer(ForceMultiMixin,
                   'parent_area',
                   'parent_level',
                   'parent_area_code',
-                  'point_on_surface'
+                  'point_on_surface',
+                  'inhabitants'
                   )
 
     def update(self, instance, validated_data):
@@ -163,7 +169,8 @@ class AreaGeoJsonPostSerializer(AreaGeoJsonSerializer):
     class Meta(AreaGeoJsonSerializer.Meta):
         fields = ('url', 'id', 'name', 'code',
                   'parent_level', 'parent_area',
-                  'parent_area_code')
+                  'parent_area_code',
+                  'inhabitants')
 
     def to_internal_value(self, data):
         """

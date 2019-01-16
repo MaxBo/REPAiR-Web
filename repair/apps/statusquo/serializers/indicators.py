@@ -43,7 +43,9 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
                   'indicator_type',
                   'flow_a',
                   'flow_b',
-                  'spatial_reference')
+                  'spatial_reference',
+                  'included')
+        extra_kwargs = {'included': {'required': False}}
 
     def create(self, validated_data):
         flow_a = validated_data.pop('flow_a', None)

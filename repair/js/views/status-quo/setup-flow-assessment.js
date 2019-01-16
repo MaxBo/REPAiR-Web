@@ -107,6 +107,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.indicator = indicator;
         this.inputs = {
             name: this.el.querySelector('input[name="name"]'),
+            included: this.el.querySelector('input[name="included"]'),
             'indicator_type': this.el.querySelector('#indicator-type'),
             'spatial_reference': this.el.querySelector('#spatial-reference'),
             unit: this.el.querySelector('input[name="unit"]'),
@@ -116,6 +117,7 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.el.querySelector('#flowBLi').style.visibility = (type == 'IndicatorAB') ? 'visible': 'hidden';
 
         this.inputs.name.value = indicator.get('name');
+        this.inputs.included.checked = indicator.get('included');
         this.inputs['indicator_type'].value = type;
         this.inputs['spatial_reference'].value = indicator.get('spatial_reference');
         this.inputs.unit.value = indicator.get('unit');
@@ -163,7 +165,8 @@ var FlowAssessmentSetupView = BaseView.extend(
     uploadIndicator: function(){
         var _this = this;
         for (var key in this.inputs){
-            var value = this.inputs[key].value;
+            var input = this.inputs[key],
+                value = (input.type === 'checkbox') ? input.checked: input.value;
             this.indicator.set(key, value);
         }
         var flowA = this.flowAView.getInputs(),

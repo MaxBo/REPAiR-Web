@@ -1,9 +1,7 @@
 require(['d3', 'models/casestudy', 'collections/gdsecollection',
-         'views/targets/sustainability-targets',
          'views/targets/flow-targets', 'views/targets/ranking-objectives',
          'app-config', 'utils/utils', 'utils/overrides', 'base'
-], function (d3, CaseStudy, GDSECollection,
-             SustainabilityTargetsView, FlowTargetsView,
+], function (d3, CaseStudy, GDSECollection, FlowTargetsView,
              RankingObjectivesView, appConfig, utils) {
 
     /**
@@ -13,39 +11,19 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
      * @module Targets
      */
 
-    var sustainabilityTargetsView, flowTargetsView, rankingObjectivesView;
+    var flowTargetsView, rankingObjectivesView,
+        keyflowSelect = document.getElementById('keyflow-select');
+
 
     $('#sidebar a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        if (keyflowSelect.value == -1) return;
         var target = $(e.target).attr("href") // activated tab
         if (target === '#flow-targets' && flowTargetsView){
             flowTargetsView.updateOrder();
         }
-        if (target === '#sustainability-targets' && sustainabilityTargetsView){
-            sustainabilityTargetsView.updateOrder();
-        }
     });
 
     renderWorkshop = function(caseStudy, keyflowId, userObjectives, aims, keyflowName){
-        if (sustainabilityTargetsView) sustainabilityTargetsView.close();
-        sustainabilityTargetsView = new SustainabilityTargetsView({
-            caseStudy: caseStudy,
-            keyflowId: keyflowId,
-            keyflowName: keyflowName,
-            aims: aims,
-            userObjectives: userObjectives,
-            el: document.getElementById('sustainability-targets'),
-            template: 'sustainability-targets-template'
-        })
-        if (flowTargetsView) flowTargetsView.close();
-        flowTargetsView = new FlowTargetsView({
-            caseStudy: caseStudy,
-            keyflowId: keyflowId,
-            keyflowName: keyflowName,
-            aims: aims,
-            userObjectives: userObjectives,
-            el: document.getElementById('flow-targets'),
-            template: 'flow-targets-template'
-        })
         if (rankingObjectivesView) rankingObjectivesView.close();
         rankingObjectivesView = new RankingObjectivesView({
             caseStudy: caseStudy,
@@ -56,19 +34,35 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
             el: document.getElementById('ranking-objectives'),
             template: 'ranking-objectives-template'
         })
+        if (flowTargetsView) flowTargetsView.close();
+        var targetsDiv = document.getElementById('flow-targets');
+        if ( keyflowId != -1 ) {
+            flowTargetsView = new FlowTargetsView({
+                caseStudy: caseStudy,
+                keyflowId: keyflowId,
+                keyflowName: keyflowName,
+                aims: aims,
+                userObjectives: userObjectives,
+                el: targetsDiv,
+                template: 'flow-targets-template'
+            })
+        }
+        else{
+            var warning = document.createElement('h3');
+            warning.innerHTML = gettext("Flow targets can't be set for general objectives.<br><br>" +
+                                        "Please select a keyflow inside the side-menu.")
+            targetsDiv.innerHTML = warning.outerHTML;
+        }
     };
 
     renderSetup = function(caseStudy, keyflowId){
     };
 
     function render(caseStudy, mode){
-        var keyflowSelect = document.getElementById('keyflow-select'),
-            session = appConfig.session;
-        document.getElementById('keyflow-warning').style.display = 'block';
+        var session = appConfig.session;
         keyflowSelect.disabled = false;
 
         function renderKeyflow(keyflowId, keyflowName){
-            document.getElementById('keyflow-warning').style.display = 'none';
             // all sub views of Targets work on the same aims and objectives
             var loader = new utils.Loader(document.getElementById('content'),
                                          { disable: true });
@@ -83,20 +77,23 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
                 apiIds: [caseStudy.id],
                 comparator: 'priority'
             });
-            userObjectives.sort();
 
-            var promises = [];
+            var promises = [],
+                // "general" selected -> query keyflow == null
+                data = (keyflowId == -1) ? { 'keyflow__isnull': true}: { keyflow: keyflowId };
             promises.push(aims.fetch({
-                data: { keyflow: keyflowId },
+                data: data,
                 error: alert
             }));
             promises.push(userObjectives.fetch({
-                data: { keyflow: keyflowId },
+                data: data,
                 error: alert
             }));
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
+                aims.sort();
+                userObjectives.sort();
                 if (Number(mode) == 1)
                     renderSetup(caseStudy, keyflowId);
                 else
@@ -111,17 +108,17 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
             if (keyflowSelect.selectedIndex === -1){
                 keyflowSelect.selectedIndex = 0;
             }
-            else {
-                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
-                renderKeyflow(parseInt(keyflowSession), keyflowName);
-            }
+            var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+            renderKeyflow(keyflowSelect.value, keyflowName);
         }
 
         keyflowSelect.addEventListener('change', function(){
             var keyflowId = this.value,
                 keyflowName = this.options[this.selectedIndex].text;
-            session.set('keyflow', keyflowId);
-            session.save();
+            if (this.value != -1){
+                session.set('keyflow', keyflowId);
+                session.save();
+            }
             renderKeyflow(keyflowId, keyflowName);
         });
     }

@@ -10,15 +10,19 @@ define(["backbone", "collections/gdsecollection", "models/geolocation"],
     var Locations = GDSECollection.extend(
       /** @lends module:collections/Locations.prototype */
       {
-      
+
       model: Location,
-      
+
       //override
       parse: function(response) {
+        if (response.results){
+            this.count = response['count'];
+            response = response.results;
+        }
         // return the features as models of this collection, else you would only get one model regardless of feature-count
         return response.features;
       },
-      
+
     /**
      * filter the collection to find models belonging to an actor with the given id
      *

@@ -111,7 +111,6 @@ var KeyflowsView = BaseView.extend(
 
         uploadBtn.addEventListener('click', function(){
             var markup = $(editor).summernote('code');
-            console.log(markup)
             keyflow.save({ note: markup }, {
                 success: function(){
                     _this.alert(gettext('Upload successful'), gettext('Success'));

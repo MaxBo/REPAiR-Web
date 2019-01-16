@@ -5,6 +5,7 @@ from django.contrib.gis.db import models as geomodels
 from repair.apps.login.models import GDSEUniqueNameModel, CaseStudy, GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
+
 class AdminLevels(GDSEUniqueNameModel):
     """Administrative levels to be defined for a casestudy"""
     name = models.TextField()
@@ -32,5 +33,6 @@ class Area(GDSEModel):
     geom = geomodels.MultiPolygonField(null=True, blank=True)
     parent_area = models.ForeignKey("self", null=True, blank=True,
                                      on_delete=models.CASCADE)
+    inhabitants = models.BigIntegerField(default=0)
 
 

@@ -1,5 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 
 from repair.apps.asmfa.models import (
     OperationalLocation,
@@ -11,6 +12,7 @@ from repair.apps.asmfa.serializers import (
     OperationalLocationSerializer,
     AdministrativeLocationOfActorSerializer,
     OperationalLocationsOfActorSerializer,
+    AdminLocationCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -21,11 +23,16 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
                                     CasestudyViewSetMixin,
                                     ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_administrativelocation'
     change_perm = 'asmfa.change_administrativelocation'
     delete_perm = 'asmfa.delete_administrativelocation'
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationSerializer
+    serializers = {
+        'list': AdministrativeLocationSerializer,
+        'create': AdminLocationCreateSerializer
+    }
 
     def get_queryset(self):
         locations = AdministrativeLocation.objects.select_related(
@@ -37,12 +44,13 @@ class AdministrativeLocationViewSet(PostGetViewMixin, RevisionMixin,
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
                 locations = locations.filter(actor__in=ids)
-        return locations
+        return locations.order_by('id')
 
 
 class OperationalLocationViewSet(PostGetViewMixin, RevisionMixin,
                                  CasestudyViewSetMixin,
                                  ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     add_perm = 'asmfa.add_operationallocation'
     change_perm = 'asmfa.change_operationallocation'
     delete_perm = 'asmfa.delete_operationallocation'
@@ -59,12 +67,13 @@ class OperationalLocationViewSet(PostGetViewMixin, RevisionMixin,
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
                 locations = locations.filter(actor__in=ids)
-        return locations
+        return locations.order_by('id')
 
 
 class AdministrativeLocationOfActorViewSet(PostGetViewMixin, RevisionMixin,
                                            CasestudyViewSetMixin,
                                            ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     queryset = AdministrativeLocation.objects.all()
     serializer_class = AdministrativeLocationOfActorSerializer
 
@@ -78,12 +87,13 @@ class AdministrativeLocationOfActorViewSet(PostGetViewMixin, RevisionMixin,
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
                 locations = locations.filter(actor__in=ids)
-        return locations
+        return locations.order_by('id')
 
 
 class OperationalLocationsOfActorViewSet(PostGetViewMixin, RevisionMixin,
                                          CasestudyViewSetMixin,
                                          ModelPermissionViewSet):
+    pagination_class = UnlimitedResultsSetPagination
     queryset = OperationalLocation.objects.all()
     serializer_class = OperationalLocationsOfActorSerializer
 
@@ -97,5 +107,5 @@ class OperationalLocationsOfActorViewSet(PostGetViewMixin, RevisionMixin,
             if 'actor__in' in self.request.data:
                 ids = self.request.data['actor__in'].split(",")
                 locations = locations.filter(actor__in=ids)
-        return locations
+        return locations.order_by('id')
 

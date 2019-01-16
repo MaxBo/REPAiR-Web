@@ -1,5 +1,6 @@
 from repair.apps import admin
 from reversion_compare.admin import CompareVersionAdmin as VersionAdmin
+from django.contrib.gis.admin import GeoModelAdmin
 from repair.apps.login.models import (CaseStudy, )
 from repair.apps.studyarea.models import (StakeholderCategory,
                                           Stakeholder,
@@ -19,14 +20,26 @@ from repair.apps.asmfa.models import (Actor,
                                       ProductFraction,
                                       AdministrativeLocation,
                                       OperationalLocation,
+                                      KeyflowInCasestudy,
+                                      Composition
                                     )
 
 from publications_bootstrap.models import Publication
 
 
 @admin.register(CaseStudy)
-class CaseStudyAdmin(VersionAdmin):
+class CaseStudyAdmin(GeoModelAdmin, VersionAdmin):
     """Versioning of casestudy"""
+
+
+@admin.register(Composition)
+class CompositionAdmin(VersionAdmin):
+    """Versioning of composition"""
+
+
+@admin.register(KeyflowInCasestudy)
+class KeyflowInCasestudyAdmin(VersionAdmin):
+    """Versioning of KeyflowInCasestudy"""
 
 
 @admin.register(StakeholderCategory)

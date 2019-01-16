@@ -177,6 +177,13 @@ var BaseMapsView = BaseView.extend(
     * render the view
     */
     render: function(){
+        if (this.layerCategories.size() == 0){
+            var warning = document.createElement('h3');
+            warning.style.margin = '30px';
+            warning.innerHTML = gettext('The map is not set up.');
+            this.el.innerHTML = warning.outerHTML;
+            return;
+        }
         this.renderTemplate();
         this.renderLayerTree();
         this.renderMap();
