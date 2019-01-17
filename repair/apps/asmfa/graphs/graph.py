@@ -8,21 +8,26 @@ import numpy as np
 import datetime
 import cairo
 from io import StringIO
+from django.conf import settings
+import os
+
 
 class KeyflowGraph:
     def __init__(self, keyflow):
         self.keyflow = keyflow
-        self._keyflow_to_graph()
-        self.graphfile = "casestudy" + str(self.keyflow.casestudy.id) + "_keyflow" + str(self.keyflow.id) + ".gt"
+        path = settings.GRAPH_ROOT
+        cspath = os.path.join(
+            path, "casestudy{}".format(self.keyflow.casestudy.id))
+        if not os.path.exists(cspath):
+            os.makedirs(cspath)
+        fn = "keyflow{}.gt".format(self.keyflow.id)
+        self.graph_fn = os.path.join(cspath, fn)
     
-    def _keyflow_to_graph(self):
-        # get flows based on keyflow and filter actors
-        self.flows = Actor2Actor.objects.filter(keyflow=self.keyflow)
-        self.actors = Actor.objects.filter(Q(id__in=self.flows.values('origin_id')) | Q(id__in=self.flows.values('destination_id')))
-
     def buildGraph(self):
-        actors = self.actors
-        flows = self.flows
+        flows = Actor2Actor.objects.filter(keyflow=self.keyflow)
+        actors = Actor.objects.filter(
+            Q(id__in=flows.values('origin_id')) | 
+            Q(id__in=flows.values('destination_id')))
         
         g = gt.Graph(directed=True)
         
@@ -37,17 +42,18 @@ class KeyflowGraph:
             g.vp.id[i] = actors[i].id
             g.vp.bvdid[i] = actors[i].BvDid
             g.vp.name[i] = actors[i].name
-            actorids[actors[i].BvDid] = i
+            actorids[actors[i].id] = i
         
         # Add the flows to the graph
         g.edge_properties["id"] = g.new_edge_property("int")
         g.edge_properties["flow"] = g.new_edge_property("object")
-        g.edge_properties["eid"] = g.new_edge_property("int") # need a persistent edge id, because graph-tool can reindex the edges
+        # need a persistent edge id, because graph-tool can reindex the edges
+        g.edge_properties["eid"] = g.new_edge_property("int") 
        
         for i in range(len(flows)):
             # get the start and and actor id's
-            v0 = actorids.get(flows[i].origin.BvDid)
-            v1 = actorids.get(flows[i].destination.BvDid)
+            v0 = actorids.get(flows[i].origin.id)
+            v1 = actorids.get(flows[i].destination.id)
 
             if(v0 != None and v1 != None):            
                 # create the flow in the graph and set the edge id
@@ -61,7 +67,8 @@ class KeyflowGraph:
                 # get a composition
                 composition = flows[i].composition
                 fractions = composition.fractions
-                # the fractions relate to the composition, not the other way around,
+                # the fractions relate to the composition, not the other 
+                # way around,
                 # so a reverse manager is used, that one can't be iterated
                 # you can get the reverse related models this way
                 fractions = fractions.all()
@@ -77,7 +84,7 @@ class KeyflowGraph:
         t = (i for i in g.ep.flow)
         txt = g.new_edge_property("string", vals=t)
         
-        g.save(self.graphfile)
+        g.save(self.graph_fn)
         # save graph image
         #pos = gt.draw.fruchterman_reingold_layout(g, n_iter=1000)
         #gt.draw.graph_draw(g, pos, vertex_size=20, vertex_text=g.vp.name, 
@@ -86,7 +93,7 @@ class KeyflowGraph:
         return g
 
     def calcGraph(self):
-        g = gt.load_graph(self.graphfile)
+        g = gt.load_graph(self.graph_fn)
         gw = GraphWalker(g)
         g2 = gw.calculate_solution(2.0)
         g2.save("casestudy" + str(self.keyflow.casestudy.id) + "_keyflow" + str(self.keyflow.id) + "_multiply2.gt")
@@ -94,7 +101,7 @@ class KeyflowGraph:
     
     def validateGraph(self):
         """Validate flows for a graph"""
-        g = gt.load_graph(self.graphfile)
+        g = gt.load_graph(self.graph_fn)
         invalid = []
 
         for e in g.edges():
@@ -122,44 +129,3 @@ class KeyflowGraph:
             flow['flow'] = g.ep.flow[e]
             flows.append(flow)
         return {'flows':flows}
-        
-    def examples():
-        # actors in keyflow
-        actors = Actor.objects.filter(activity__activitygroup__keyflow=self.keyflow)
-        # flows in keyflow, origin and destinations have to be
-        # actors in the keyflow (actually one of both would suffice, as there
-        # are no flows in between keyflows)
-        flows = Actor2Actor.objects.filter(origin__in=actors,
-                                           destination__in=actors)
-        
-        # example iteration over actors in keyflow
-        # (maybe you can avoid iterations at all, they are VERY slow)
-        for actor in actors:
-            # location of an actor, django throws errors when none found (actor has no loaction),
-            # kind of annoying
-            try:
-                location = AdministrativeLocation.objects.get(id=actor.id)
-            except:
-                # surprisingly many actors miss a location, shouldn't be that way
-                print('no location for {}'.format(actor.name))
-            # i forgot how to make the OR filter
-            # flows leaving the actor, you can filter already filtered querysets again
-            out_flows = flows.filter(origin=actor)
-            # you could also do that (same, but example for attribute)
-            out_flows = flows.filter(origin__id=actor.id)
-            # flows going to actor
-            in_flows = flows.filter(destination=actor)
-
-        for flow in flows:
-            # get a composition
-            composition = flow.composition
-            fractions = composition.fractions
-            # the fractions relate to the composition, not the other way around,
-            # so a reverse manager is used, that one can't be iterated
-            # you can get the reverse related models this way
-            fractions = fractions.all()
-            for fraction in fractions:
-                # the material
-                material = fraction.material
-                # the actual fraction of the fraction (great naming here)
-                f = fraction.fraction

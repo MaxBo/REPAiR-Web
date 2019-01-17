@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.decorators import action
 
 from rest_framework.response import Response
 import json
@@ -64,26 +65,19 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializers = {'create': KeyflowInCasestudyPostSerializer,
                    'update': KeyflowInCasestudyPostSerializer, }
 
-    def retrieve(self, request, **kwargs):
-        get_graph = request.query_params.get('get_graph', '')
-        if get_graph.lower() == 'true':
-            keyflow = self.queryset.get(id=kwargs['pk'])
-            kfgraph = KeyflowGraph(keyflow)
-            graph = kfgraph.buildGraph()
-            return Response(kfgraph.serialize(graph))
-        validate_graph = request.query_params.get('validate_graph', '')
-        if validate_graph.lower() == 'true':
-            keyflow = self.queryset.get(id=kwargs['pk'])
-            kfgraph = KeyflowGraph(keyflow)
-            res = kfgraph.validateGraph()
-            return Response(res)
-        calc_graph = request.query_params.get('calc_graph', '')
-        if calc_graph.lower() == 'true':
-            keyflow = self.queryset.get(id=kwargs['pk'])
-            kfgraph = KeyflowGraph(keyflow)
-            graph = kfgraph.calcGraph()
-            return Response(kfgraph.serialize(graph))        
-        return super().retrieve(request, **kwargs)
+    @action(methods=['get', 'post'], detail=True)
+    def build_graph(self, request, **kwargs):
+        keyflow = self.queryset.get(id=kwargs['pk'])
+        kfgraph = KeyflowGraph(keyflow)
+        graph = kfgraph.buildGraph()
+        return Response(kfgraph.serialize(graph))
+
+    @action(methods=['get', 'post'], detail=True)
+    def validate_graph(self, request, **kwargs):
+        keyflow = self.queryset.get(id=kwargs['pk'])
+        kfgraph = KeyflowGraph(keyflow)
+        res = kfgraph.validateGraph()
+        return Response(res)
 
 
 class CommaSeparatedValueFilter(Filter):
