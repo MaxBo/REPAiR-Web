@@ -1,6 +1,7 @@
 require(['models/casestudy', 'views/strategy/solutions',
-    'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, StrategyView, appConfig) {
+    'views/strategy/strategy', 'app-config', 'utils/utils',
+    'utils/overrides', 'base'
+], function (CaseStudy, SolutionsView, StrategyView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -38,6 +39,28 @@ require(['models/casestudy', 'views/strategy/solutions',
             mode: 1,
             keyflowId: keyflowId,
             keyflowName: keyflowName
+        })
+        loader = new utils.Loader(document.getElementById('graph'), {disable: true})
+        // lazy way to reset the button to build graph
+        var btn = document.getElementById('build-graph'),
+            clone = btn.cloneNode(true);
+        btn.parentNode.replaceChild(clone, btn);
+        clone.addEventListener('click', function(){
+            loader.activate();
+            var url = '/api/casestudies/{0}/keyflows/{1}/build_graph/'.format(caseStudy.id, keyflowId);
+            fetch(url).then(
+                function(response) {
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    loader.deactivate();
+                    return response;
+                }).then(function(response) {
+                    alert(gettext('Graph was successfully build.'));
+                }).catch(function(error) {
+                    alert(error);
+            });
+            
         })
     };
 

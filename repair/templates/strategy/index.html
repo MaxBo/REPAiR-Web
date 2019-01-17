@@ -19,7 +19,9 @@
       <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
     </div>
     <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon fas fa-puzzle-piece" style="margin-right: -5px"></span></a></li>
-    {% if request.session.mode != 1 %}
+    {% if request.session.mode == 1 %}
+    <li><a href="#graph" data-toggle="pill">{% trans "Graph" %} <span class="sub-icon fas fa-star-of-life"></span></a></li>
+    {% else %}
     <li><a href="#strategy" data-toggle="pill">{% trans "Define Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
     <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
     <li><a href="#flow-target-control" data-toggle="pill" style="font-size: 0.9em">{% trans "Flow Target Control" %} <span class="sub-icon fas fa-wrench"></span></a></li>
@@ -30,10 +32,14 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 <div class="tab-content">
-  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span> {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
   <div class="tab-pane fade in active" id="solutions">
   </div>
-  {% if request.session.mode != 1 %}
+  {% if request.session.mode == 1 %}
+  <div class="tab-pane fade" id="graph">
+    <button id="build-graph" class="btn btn-primary"> {% trans "Build Graph" %} </button>
+  </div>
+  {% else %}
   <div class="tab-pane fade" id="strategy">
   </div>
   <div class="tab-pane fade" id="modified-flows">
