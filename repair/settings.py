@@ -32,6 +32,8 @@ if os.name == 'nt':
                                       os.path.dirname(__file__)),
                                  'spatialite'),
                                   os.path.join(sys.prefix, 'Library', 'bin')])
+elif os.name == 'posix':
+    GEOS_LIBRARY_PATH='/usr/lib/x86_64-linux-gnu/libgeos_c.so'
 
 
 # Quick-start development settings - unsuitable for production
@@ -212,6 +214,11 @@ MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+# dir to store temporary media files
+TEMP_MEDIA_ROOT = os.path.join(MEDIA_ROOT, 'tmp')
+# dir to store the graphs in
+GRAPH_ROOT = os.path.join(MEDIA_ROOT, 'graphs')
 
 STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, "static"),
