@@ -1,7 +1,7 @@
-require(['models/casestudy', 'views/strategy/solutions',
+require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
     'views/strategy/strategy', 'app-config', 'utils/utils',
     'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, StrategyView, appConfig, utils) {
+], function (CaseStudy, GDSEModel, SolutionsView, StrategyView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -11,13 +11,13 @@ require(['models/casestudy', 'views/strategy/solutions',
 
     var solutionsView, strategyView;
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName){
+    renderWorkshop = function(caseStudy, keyflow, keyflowName){
         if (solutionsView) solutionsView.close();
         solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
-            keyflowId: keyflowId,
+            keyflowId: keyflow.id,
             keyflowName: keyflowName
         });
         if (strategyView) strategyView.close();
@@ -25,37 +25,40 @@ require(['models/casestudy', 'views/strategy/solutions',
             caseStudy: caseStudy,
             el: document.getElementById('strategy'),
             template: 'strategy-template',
-            keyflowId: keyflowId,
+            keyflowId: keyflow.id,
             keyflowName: keyflowName
         })
     }
 
-    renderSetup = function(caseStudy, keyflowId, keyflowName){
+    renderSetup = function(caseStudy, keyflow, keyflowName){
         if(solutionsView) solutionsView.close();
         solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-template',
             mode: 1,
-            keyflowId: keyflowId,
+            keyflowId: keyflow.id,
             keyflowName: keyflowName
         })
         loader = new utils.Loader(document.getElementById('graph'), {disable: true})
         // lazy way to reset the button to build graph
         var btn = document.getElementById('build-graph'),
+            note = document.getElementById('graph-note'),
             clone = btn.cloneNode(true);
+        note.innerHTML = keyflow.get('graph_build');
         btn.parentNode.replaceChild(clone, btn);
         clone.addEventListener('click', function(){
             loader.activate();
-            var url = '/api/casestudies/{0}/keyflows/{1}/build_graph/'.format(caseStudy.id, keyflowId);
+            var url = '/api/casestudies/{0}/keyflows/{1}/build_graph/'.format(caseStudy.id, keyflow.id);
             fetch(url).then(
                 function(response) {
                     if (!response.ok) {
                         throw Error(response.statusText);
                     }
                     loader.deactivate();
-                    return response;
-                }).then(function(response) {
+                    return response.json();
+                }).then(function(json) {
+                    note.innerHTML = json['graph_build'];
                     alert(gettext('Graph was successfully build.'));
                 }).catch(function(error) {
                     alert(error);
@@ -71,11 +74,23 @@ require(['models/casestudy', 'views/strategy/solutions',
         keyflowSelect.disabled = false;
 
         function renderKeyflow(keyflowId, keyflowName){
-            document.getElementById('keyflow-warning').style.display = 'none';
-            if (Number(mode) == 1)
-                renderSetup(caseStudy, keyflowId, keyflowName);
-            else
-                renderWorkshop(caseStudy, keyflowId, keyflowName);
+            var keyflow = new GDSEModel(
+                {id: keyflowId}, 
+                {
+                    apiTag: 'keyflowsInCaseStudy',
+                    apiIds: [caseStudy.id]
+                }
+            )
+            keyflow.fetch({
+                success: function(){
+                    document.getElementById('keyflow-warning').style.display = 'none';
+                    if (Number(mode) == 1)
+                        renderSetup(caseStudy, keyflow, keyflowName);
+                    else
+                        renderWorkshop(caseStudy, keyflow, keyflowName);
+                },
+                error: alert
+            })
         }
 
         var keyflowSession = session.get('keyflow');

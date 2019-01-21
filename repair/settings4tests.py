@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 from repair.settings import *
+import sys
 
 DEBUG = True
 
@@ -22,7 +23,10 @@ DATABASES = {
 
 }
 
-SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
+if sys.platform == 'linux':
+    SPATIALITE_LIBRARY_PATH = 'mod_spatialite.so'
+else:
+    SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 MIGRATION_MODULES = {
     #'auth': None,
