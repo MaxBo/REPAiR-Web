@@ -4,6 +4,7 @@ from repair.apps.asmfa.tests.flowmodeltestdata import (
     GenerateTestDataMixin,
     GenerateBigTestDataMixin)
 from repair.apps.asmfa.models import Actor, Actor2Actor, ActorStock
+from repair.apps.asmfa.graphs.graph import KeyflowGraph
 from django.test import TestCase
 
 
@@ -27,7 +28,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
 
     def test_graph_creation(self):
         """Test the Generation of the graph object"""
-
+        kfgraph = KeyflowGraph(self.kic)
+        graph = kfgraph.buildGraph()
 
 class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
     """
