@@ -8,6 +8,8 @@ from repair.apps.asmfa.models import (Flow,
                                       )
 from rest_framework import serializers
 
+from repair.apps.asmfa.models import KeyflowInCasestudy
+
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
 
@@ -37,6 +39,10 @@ class CompositionMixin:
             # no former compostition
             if instance.composition is None:
                 composition = Composition.objects.create()
+                if 'keyflow_id' in validated_data:
+                    composition.keyflow = KeyflowInCasestudy.objects.get(
+                        id=validated_data['keyflow_id'])
+                #composition.keyflow = self.request
             # former compostition
             else:
                 composition = instance.composition
@@ -73,15 +79,16 @@ class FlowSerializer(CompositionMixin,
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
+    process = IDRelatedField(allow_null=True)
     composition = CompositionSerializer()
 
     class Meta:
         model = Flow
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
-                  'origin_level', 'destination_level', 
+                  'origin_level', 'destination_level',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Group2GroupSerializer(FlowSerializer):
@@ -99,7 +106,7 @@ class Group2GroupSerializer(FlowSerializer):
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Activity2ActivitySerializer(FlowSerializer):
@@ -117,7 +124,7 @@ class Activity2ActivitySerializer(FlowSerializer):
         fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
                   'destination', 'destination_url',
                   'composition', 'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')
 
 
 class Actor2ActorSerializer(FlowSerializer):
@@ -132,7 +139,7 @@ class Actor2ActorSerializer(FlowSerializer):
 
     class Meta(FlowSerializer.Meta):
         model = Actor2Actor
-        fields = ('id', 'amount', 'composition', 
+        fields = ('id', 'amount', 'composition',
                   'origin',  'destination',
                   'description',
-                  'year', 'publication', 'waste')
+                  'year', 'publication', 'waste', 'process')

@@ -413,14 +413,18 @@ tr.popunder > td{
     top: 80px;
 }
 
+.btn {
+  border-radius: 2px;
+}
+
 button.square, button.round, .btn.square, .btn.round {
   padding: 1px 5px 1px 5px;
   outline: none ~'!IMPORTANT';
 }
 
 .btn-primary {
-  background-color: @main-color;
-  border: solid 1px @main-color;
+  background-color: @secondary-color;
+  border: solid 1px @secondary-color;
   min-height: 25px;
   min-width: 25px;
 }
@@ -431,18 +435,18 @@ button.d3-overlay {
 }
 
 .btn-primary:focus, .btn-primary:hover, .btn-primary:active {
-  border-color: #93b700 ~'!IMPORTANT';
-  background-color: #a3cc00 ~'!IMPORTANT';
+  border-color: @tertiary-color ~'!IMPORTANT';
+  background-color: @tertiary-color ~'!IMPORTANT';
 }
 
 .btn-primary:active {
-  color: #93b700;
+  color: @tertiary-color;
 }
 
 .btn-primary.inverted {
   background-color: white;
-  border: solid 1px @main-color;
-  color: @main-color;
+  border: solid 1px @secondary-color;
+  color: @secondary-color;
 }
 
 .btn-warning.inverted {
@@ -610,7 +614,7 @@ div.panel-item{
 }
 
 div.panel-item:hover{
-  font-size: 1.1em;
+  /*font-size: 1.1em;*/
   background: @main-color;
   box-shadow: 1px 3px 10px 1px rgba(0,0,0,0.2);
   border-width: 3px;

@@ -1,13 +1,13 @@
 define(['underscore', 'views/common/baseview', 'collections/gdsecollection',
         'collections/geolocations', 'collections/flows',
-        'visualizations/flowmap', 'utils/utils','leaflet',
+        'visualizations/flowmap', 'openlayers', 'utils/utils','leaflet',
         'leaflet-easyprint', 'leaflet-fullscreen',
         'leaflet.markercluster', 'leaflet.markercluster/dist/MarkerCluster.css',
         'leaflet.markercluster/dist/MarkerCluster.Default.css',
         'leaflet/dist/leaflet.css', 'static/css/flowmap.css',
         'leaflet-fullscreen/dist/leaflet.fullscreen.css'],
 
-function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
+function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L){
 
     /**
     *
@@ -35,8 +35,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
         initialize: function(options){
             FlowSankeyMapView.__super__.initialize.apply(this, [options]);
             _.bindAll(this, 'zoomed');
-            this.render();
-            this.caseStudyId = options.caseStudyId;
+            this.caseStudy = options.caseStudy;
+            this.caseStudyId = options.caseStudy.id;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
 
@@ -44,6 +44,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flows = new Flows();
             this.actors = new GDSECollection();
             this.hideMaterials = {};
+            this.displayWarnings = options.displayWarnings || false;
+            this.render();
         },
 
         /*
@@ -60,8 +62,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{
                 attribution: '© OpenStreetMap contributors, © CartoDB'
             });
+            var focusarea = this.caseStudy.get('properties').focusarea,
+                center = [52.51, 13.36];
+            if (focusarea){
+                var poly = new ol.geom.MultiPolygon(focusarea.coordinates),
+                    interior = poly.getInteriorPoints(),
+                    centroid = interior.getCoordinates()[0];
+                    center = [centroid[1], centroid[0]];
+            }
+
             this.leafletMap = new L.Map(this.el, {
-                    center: [52.41, 4.95],
+                    center: center,
                     zoomSnap: 0.25,
                     zoom: 10.5,
                     minZoom: 5,
@@ -103,34 +114,35 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.materialCheck = document.createElement('input');
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
+            this.actorCheck = document.createElement('input');
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
+                actorLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
+            actorLabel.innerHTML = gettext('Show actors');
 
-            this.materialCheck.type = "checkbox";
-            this.animationCheck.type = "checkbox";
-            this.clusterCheck.type = "checkbox";
-            this.materialCheck.style.transform = "scale(2)";
-            this.animationCheck.style.transform = "scale(2)";
-            this.clusterCheck.style.transform = "scale(2)";
-            this.materialCheck.style.pointerEvents = "none";
-            this.animationCheck.style.pointerEvents = "none";
-            this.clusterCheck.style.pointerEvents = "none";
-            this.materialCheck.style.marginRight = "10px";
-            this.animationCheck.style.marginRight = "10px";
-            this.clusterCheck.style.marginRight = "10px";
+            [this.materialCheck, this.clusterCheck,
+            this.animationCheck, this.actorCheck].forEach(function(checkbox){
+                checkbox.type = "checkbox";
+                checkbox.style.transform = "scale(2)";
+                checkbox.style.pointerEvents = "none";
+                checkbox.style.marginRight = "10px";
+            })
+
+            this.actorCheck.checked = true;
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
 
             var matDiv = document.createElement('div'),
+                actorDiv = document.createElement('div'),
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
@@ -141,6 +153,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             matDiv.appendChild(this.materialCheck);
             matDiv.appendChild(matLabel);
             matDiv.style.cursor = 'pointer';
+            actorDiv.appendChild(this.actorCheck);
+            actorDiv.appendChild(actorLabel);
+            actorDiv.style.cursor = 'pointer';
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
@@ -198,7 +213,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             aniToggleDiv.addEventListener("click", function(){
                 _this.rerender();
             });
+            actorDiv.addEventListener("click", function(){
+                _this.actorCheck.checked = !_this.actorCheck.checked;
+                _this.rerender();
+            });
 
+            div.appendChild(actorDiv);
+            div.appendChild(document.createElement('br'));
             div.appendChild(matDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(clusterDiv);
@@ -351,6 +372,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             this.flowMap.clear();
             this.flowMap.addNodes(data.nodes);
             this.flowMap.addFlows(data.flows);
+            this.flowMap.showNodes = (this.actorCheck.checked) ? true: false;
             this.flowMap.dottedLines = (this.aniDotsRadio.checked) ? true: false;
             this.flowMap.resetView();
             this.updateLegend();
@@ -373,6 +395,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                     }
                 );
                 _this.loader.deactivate();
+                if (_this.displayWarnings && data.warnings.length > 0) {
+                    var msg = '';
+                    data.warnings.forEach(function(warning){
+                        msg += warning + '<br>';
+                    })
+                    _this.alert(msg);
+                }
                 _this.resetMapData(data, zoomToFit);
                 _this.toggleClusters();
                 _this.toggleMaterials();
@@ -516,7 +545,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 clusters = options.clusters || [],
                 splitByComposition = options.splitByComposition,
                 clusterMap = {},
-                pFlows = [];
+                pFlows = [],
+                warnings = [];
 
             var i = 0;
             clusters.forEach(function(cluster){
@@ -546,8 +576,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
                 if (clusterMap[actor.id]) return;
 
                 var location = _this.locations[actor.id];
-                if (!location) {
-                    console.log('Warning: missing location at node id ' + actor.id);
+                if (!location || !location.get('geometry')) {
+                    var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + actor.get('name');
+                    warnings.push(warning);
                     return;
                 }
                 var location = _this.locations[actor.id],
@@ -661,7 +692,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, utils, L){
             return {
                 flows: links,
                 nodes: Object.values(nodes),
-                materialColors: matColors
+                materialColors: matColors,
+                warnings: warnings
             }
         }
 

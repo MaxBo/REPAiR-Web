@@ -70,6 +70,13 @@ var BaseChartsView = BaseView.extend(
     * render the view
     */
     render: function(){
+        if (this.mode === 0 && this.chartCategories.size() == 0){
+            var warning = document.createElement('h3');
+            warning.style.margin = '30px';
+            warning.innerHTML = gettext('The charts are not set up.');
+            this.el.innerHTML = warning.outerHTML;
+            return;
+        }
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
@@ -278,7 +285,6 @@ var BaseChartsView = BaseView.extend(
         var imgInput = this.el.querySelector('#chart-image-input');
         if (imgInput.files && imgInput.files[0]){
 
-            // you have to upload files via form, Backbone.Models (sends data as json) doesn't work here
             var image = imgInput.files[0],
                 name = this.el.querySelector('#chart-name').value;
 

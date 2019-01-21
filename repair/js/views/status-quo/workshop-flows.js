@@ -58,7 +58,7 @@ var FlowsWorkshopView = BaseView.extend(
             this.activities.fetch(),
             this.activityGroups.fetch(),
             this.materials.fetch(),
-            this.filters.fetch()
+            this.filters.fetch({ data: { included: "True" } })
         ]
         this.loader.activate();
         Promise.all(promises).then(function(){

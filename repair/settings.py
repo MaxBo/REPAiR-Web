@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'django_pandas', 
+    'django_pandas',
     'djmoney',
     'rest_framework',
     'rest_framework_gis',
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'repair.apps.studyarea',
     'repair.apps.changes',
     'repair.apps.statusquo',
+    'repair.apps.conclusions',
     'repair.apps.publications',
     'repair.apps.reversions',
     'repair.apps.wmsresources',
@@ -176,8 +177,7 @@ if sys.platform == 'linux':
     # Linux
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.so')
-    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                     'lib', 'libgeos_c.so')
+    GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
     PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libproj.so')
 elif sys.platform == 'darwin':
@@ -211,6 +211,11 @@ MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+# dir to store temporary media files
+TEMP_MEDIA_ROOT = os.path.join(MEDIA_ROOT, 'tmp')
+# dir to store the graphs in
+GRAPH_ROOT = os.path.join(MEDIA_ROOT, 'graphs')
 
 STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, "static"),
@@ -274,10 +279,12 @@ LOGGING = {
                 'level': 'INFO',
                 'propagate': False,
             },
-        
+
             #'django.db.backends': {
                 #'level': 'DEBUG',
                 #'handlers': ['console'],
             #}
         }
 }
+
+PROTECT_FOREIGN_KEY = False

@@ -40,6 +40,7 @@ define([
             this.map = map;
             var _this = this;
 
+            this.showNodes = options.showNodes || false;
             this.width = options.width || this.map.offsetWidth;
             this.bbox = options.bbox;
             this.height = options.height || this.width / 1.5;
@@ -230,13 +231,15 @@ define([
 
             };
 
-            // use addpoint for each node in nodesDataFlow
-            Object.values(_this.nodesData).forEach(function (node) {
-                var x = _this.projection([node.lon, node.lat])[0],
-                    y = _this.projection([node.lon, node.lat])[1],
-                    radius = node.radius / 2;// * scale / 2;
-                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
-            });
+            if (_this.showNodes){
+                // use addpoint for each node in nodesDataFlow
+                Object.values(_this.nodesData).forEach(function (node) {
+                    var x = _this.projection([node.lon, node.lat])[0],
+                        y = _this.projection([node.lon, node.lat])[1],
+                        radius = node.radius / 2;// * scale / 2;
+                    _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
+                });
+            }
         }
 
         scale(){

@@ -37,11 +37,14 @@ class KeyflowInCasestudy(GDSEModel):
 class Material(GDSEModel):
 
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE,
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
-    level = models.IntegerField()
+    level = models.IntegerField(default=1)
     parent = models.ForeignKey('self', on_delete=PROTECT_CASCADE, null=True,
                                related_name='submaterials')
+
+    class Meta(GDSEModel.Meta):
+        unique_together = ('name', 'keyflow', 'level')
 
     @property
     def descendants(self):
@@ -51,14 +54,15 @@ class Material(GDSEModel):
             descendants.append(child)
             descendants.extend(child.descendants)
         return descendants
-    
+
     @property
     def children(self):
         """ direct children of the material traversal """
         return Material.objects.filter(parent=self.id)
-    
+
     def is_descendant(self, *args):
-        ''' return True if material is descendant of any of the passed materials '''
+        ''' return True if material is descendant of any of
+        the passed materials '''
         parent = self.parent
         materials = list(args)
         while parent:
@@ -80,11 +84,18 @@ class Material(GDSEModel):
             parent = parent.parent
         return None
 
+    def save(self, *args, **kwargs):
+        '''auto set level'''
+        self.level = 1 if self.parent is None else self.parent.level + 1
+        super().save(*args, **kwargs)
+
 
 class Composition(GDSEModel):
 
     name = models.CharField(max_length=255, blank=True)
     nace = models.CharField(max_length=255, blank=True)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
+                                null=True)
 
     @property
     def is_custom(self):
@@ -99,7 +110,7 @@ class Composition(GDSEModel):
         is_product = getattr(self, 'product', None) is not None
         is_custom = not (is_waste or is_product)
         return is_custom
-    
+
     #def aggregate_by_materials(self, materials):
         #aggregation = defaultdict.fromkeys(materials, 0)
         #for fraction in self.fractions.iterator():
@@ -111,14 +122,14 @@ class Composition(GDSEModel):
 
 class Product(Composition):
 
-    cpa = models.CharField(max_length=255)
+    cpa = models.CharField(max_length=255, default='')
 
 
 class Waste(Composition):
 
-    ewc = models.CharField(max_length=255)
-    wastetype = models.CharField(max_length=255)
-    hazardous = models.BooleanField()
+    ewc = models.CharField(max_length=255, default='')
+    wastetype = models.CharField(max_length=255, default='')
+    hazardous = models.BooleanField(default=False)
 
 
 class ProductFraction(GDSEModel):
@@ -128,9 +139,11 @@ class ProductFraction(GDSEModel):
                                  related_name='items')
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE,
                                     related_name='fractions', null=True)
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+    publication = models.ForeignKey(PublicationInCasestudy, null=True,
+                                    on_delete=models.SET_NULL,
                                     related_name='fractions')
     avoidable = models.BooleanField(default=True)
+    hazardous = models.BooleanField(default=True)
 
     def __str__(self):
         return '{}: {}'.format(self.composition, self.material)

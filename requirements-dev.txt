@@ -3,7 +3,7 @@
 django==2
 django-webpack-loader>=0.5
 djangorestframework>=3.8.2
-djangorestframework-gis
+djangorestframework-gis>=0.12
 djangorestframework-datatables>=0.3
 django-filter==1.1.0
 django-test-plus
@@ -23,6 +23,8 @@ matplotlib
 plotly
 psycopg2-binary
 geojson
+xlrd
+openpyxl
 
 django-debug-toolbar
 
@@ -42,3 +44,6 @@ pytest-xdist
 codecov
 gitpython
 selenium
+
+pycairo
+ipython

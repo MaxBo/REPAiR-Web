@@ -170,6 +170,88 @@ var BaseView = Backbone.View.extend(
     },
 
     /**
+    * create a bootstrap alert (dismissible div)
+    *
+    * @param {String} message                      the message displayed inside the alert
+    * @param {Object=} options
+    * @param {Object=} options.parentEl            alert will be added to this div
+    * @param {String=} options.type                type of the alert ('success', 'danger', 'warning', 'info')
+    * @param {Boolean} [options.dismissible=false] alert is dismissible (cross for closing alert)
+    */
+    bootstrapAlert: function(message, options){
+        var options = options || {},
+            type = options.type || 'success'
+            alertDiv = document.createElement('div');
+
+        alertDiv.classList.add('alert', 'alert-' + type, 'fade', 'in')
+        alertDiv.innerHTML = message;
+
+        if (options.dismissible){
+            alertDiv.classList.add('alert-dismissible');
+            var a = document.createElement('a');
+            a.setAttribute('href', '#');
+            a.classList.add('close');
+            a.dataset['dismiss'] = 'alert';
+            a.innerHTML = 'x';
+            alertDiv.appendChild(a);
+        }
+
+        if (options.parentEl)
+            options.parentEl.appendChild(alertDiv);
+        return alertDiv;
+    },
+
+    /**
+    * create a panel item
+    *
+    * @param {String} text                         text displayed in item
+    * @param {Object=} options
+    * @param {Boolean} [options.showButtons=false] shows edit/remove buttons in item
+    * @param {String=} options.overlayText         optional text in an overlay
+    * @param {String=} options.popoverText         optional text in a popover (on hover)
+    */
+    panelItem: function(text, options){
+        var options = options || {},
+            showButtons = options.showButtons || false,
+            overlayText = options.overlayText,
+            popoverText = options.popoverText;
+
+        var html = document.getElementById('panel-item-template').innerHTML,
+            template = _.template(html),
+            panelItem = document.createElement('div'),
+            itemContent = document.createElement('div'),
+            _this = this;
+
+        panelItem.classList.add('panel-item');
+        //panelItem.style.position = 'absolute';
+        itemContent.classList.add('noselect', 'item-content');
+        itemContent.innerHTML = template({ name: text });
+        panelItem.appendChild(itemContent);
+
+        if (overlayText){
+            var overlay = panelItem.querySelector('.overlay');
+            overlay.style.display = 'inline-block';
+            overlay.innerHTML = overlayText;
+            // make space for the overlay
+            panelItem.querySelector('label').style.paddingLeft = '30px';
+        };
+
+        if (popoverText){
+            $(panelItem).popover({
+                trigger: "hover",
+                container: 'body',
+                content: popoverText,
+                html: true
+            });
+        }
+        if (!showButtons){
+            var buttonBox = panelItem.querySelector('.button-box');
+            buttonBox.style.display = 'none';
+        }
+        return panelItem;
+    },
+
+    /**
     * show a modal with given info message
     *
     * @param {String} message           html formatted message to show
@@ -221,6 +303,7 @@ var BaseView = Backbone.View.extend(
     *
     * @param {Object=} options
     * @param {module:views/BaseView~onNameConfirm} options.onConfirm  called when user confirms input
+    * @param {String=} options.name  preset name
     * @param {String} [options.title='Name'] title of the modal
     */
     getName: function(options){
@@ -318,8 +401,13 @@ var BaseView = Backbone.View.extend(
         var options = options || {},
             html = document.getElementById('confirmation-template').innerHTML,
             template = _.template(html),
-            elConfirmation = document.getElementById('confirmation-modal');
+            elConfirmation = document.getElementById('confirmation-modal'),
+            elements = options.elements || [];
         elConfirmation.innerHTML = template({ message: options.message || '' });
+        var body = elConfirmation.querySelector('.modal-body');
+        elements.forEach(function(el){
+            body.appendChild(el);
+        })
         var confirmBtn = elConfirmation.querySelector('.confirm'),
             cancelBtn = elConfirmation.querySelector('.cancel');
         if (options.onConfirm)

@@ -13,14 +13,15 @@
       <div class="row">
         <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
           <option selected disabled>{% trans "Select keyflow" %} </option>
-        {% for keyflow in keyflows %}
+        {% for keyflow in keyflows_in_casestudy %}
           <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
         {% endfor %}
+          <option value="new"> <i>{% trans "+ Add keyflow" %}</i></option>
         </select>
         <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
       </div>
-      <li class="active"><a href="#flows-edit" data-toggle="pill"> {% trans "Edit Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
-      <li><a href="#actors-edit" data-toggle="pill"> {% trans "Edit Actors" %} <span class="sub-icon fa fa-users" style="margin-right: -5px"></span></a></li>
+      <li class="active"><a href="#bulk-upload" data-toggle="pill"> {% trans "Bulk Upload" %} <span class="sub-icon fas fa-save"></span></a></li>
+      <li><a href="#actors-flows-edit" data-toggle="pill"> {% trans "Edit Actors/Flows" %} <span class="sub-icon fa fa-recycle"></span></a></li>
       <li><a href="#materials-edit" data-toggle="pill"> {% trans "Edit Materials" %} <span class="sub-icon fa fa-gavel"></span></a></li>
     </ul>
   {% endif %}
@@ -36,19 +37,15 @@
   {% else %}
     <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
     <div class="tab-content">
-      <!-- Flow editor -->
-      <div class="tab-pane fade in active" id="flows-edit">
+      <!-- Bulk upload -->
+      <div class="tab-pane fade in active" id="bulk-upload">
+      </div>
+      <!-- Actor/Flow editor -->
+      <div class="tab-pane fade in" id="actors-flows-edit">
         <button title="{% trans "Refresh Flows" %}" type="button" id="refresh-flowview-btn" class="btn btn-primary round" style="display: none; float: right;">
           {% trans "Refresh View" %} <span class="glyphicon glyphicon-refresh"></span>
         </button>
-        <div id="flows-content"></div>
-      </div>
-      <!-- Actor editor-->
-      <div class="tab-pane fade in" id="actors-edit">
-        <button title="{% trans "Refresh Actors" %}" type="button" id="refresh-actorsview-btn" class="btn btn-primary round" style="display: none; float: right;">
-          {% trans "Refresh Actors" %} <span class="glyphicon glyphicon-refresh"></span>
-        </button>
-        <div id="actors-content"></div>
+        <div id="actors-flows-content"></div>
       </div>
       <!-- Material editor-->
       <div class="tab-pane fade in" id="materials-edit">
@@ -58,9 +55,31 @@
         <div id="materials-content"></div>
       </div>
     </div>
-    {% include "dataentry/actors.html" %}
+    <!-- modal for creation of keyflows -->
+    <div id="create-keyflow-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title"><span class="glyphicon glyphicon-question-sign"></span> {% trans "Create new keyflow" %} </h4>
+          </div>
+          <div class="modal-body">
+            <select id="create-keyflow-select">
+            {% for keyflow in unused_keyflows %}
+              <option value="{{ keyflow.id }}"> {{ keyflow.name }}</option>
+            {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary confirm" data-dismiss="modal">{% trans "OK" %}</button>
+            <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include "dataentry/bulkupload.html" %}
     {% include "dataentry/materials.html" %}
-    {% include "dataentry/flows.html" %}
+    {% include "dataentry/actors-flows.html" %}
     {% include "statusquo/flows.html" %}
     {% render_bundle 'DataEntry' %}
   {% endif %}

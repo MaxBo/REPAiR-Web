@@ -82,3 +82,66 @@ td button {
 #flow-nodes-modal tr, #actors-table tr, #actor-select-modal td {
     cursor: pointer;
 }
+
+#bulk-upload .upload.row{
+    min-height: 100px;
+    padding-top: 30px;
+}
+
+#bulk-upload .upload.row label{
+    /*float: left;*/
+    margin-right: 20px;
+    font-size: 1.5em;
+}
+
+#upload-log{
+    width: 100%;
+    height: 450px;
+    resize: both;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+#keyflow-related-upload, #casestudy-related-upload{
+    width: 100%;
+    height: 700px;
+    resize: vertical;
+    overflow-y: auto;
+    white-space: nowrap;
+}
+
+#bulk-upload .upload.row input{
+    /*float: right;*/
+    display: inline;
+    padding: 6px;
+}
+
+#bulk-upload .upload.row .count{
+    float: right;
+}
+
+#bulk-upload .upload.row button{
+    float: right;
+    height: 35px;
+    margin-right: 10px;
+}
+
+#bulk-upload .upload.row button span{
+    pointer-events: none;
+}
+
+#bulk-upload .upload.row .row{
+    padding: 0px;
+}
+
+.upload-column .alert-dismissible p{
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#bulk-upload .upload.row textarea{
+    height: 100px;
+    width: 100%;
+    resize: vertical;
+}

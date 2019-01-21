@@ -1,5 +1,6 @@
 # API View
 from abc import ABC
+from repair.apps.asmfa.views import UnlimitedResultsSetPagination
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from django.db.models import Q
@@ -18,6 +19,7 @@ from repair.apps.asmfa.serializers import (
     GroupStockSerializer,
     ActivityStockSerializer,
     ActorStockSerializer,
+    ActorStockCreateSerializer
 )
 
 from repair.apps.asmfa.views import (filter_by_material, aggregate_fractions,
@@ -32,6 +34,7 @@ class StockViewSet(RevisionMixin,
                    CasestudyViewSetMixin,
                    ModelPermissionViewSet,
                    ABC):
+    pagination_class = UnlimitedResultsSetPagination
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
@@ -68,6 +71,10 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
     delete_perm = 'asmfa.delete_actorstock'
     queryset = ActorStock.objects.all()
     serializer_class = ActorStockSerializer
+    serializers = {
+        'list': ActorStockSerializer,
+        'create': ActorStockCreateSerializer,
+    }
     additional_filters = {'origin__included': True}
 
     def post_get(self, request, **kwargs):

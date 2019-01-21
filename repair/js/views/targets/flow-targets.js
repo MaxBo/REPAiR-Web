@@ -67,6 +67,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();
+                _this.indicators.sort();
                 _this.render();
             })
         },
@@ -93,8 +94,11 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 var panel = _this.renderObjective(objective);
                 _this.objectivesPanel.appendChild(panel)
             });
+            // check indicators
             if (!this.rankingIsValid()) return;
             //this.userObjectives.on("sort", _this.reOrder)
+
+            this.checkDuplicates();
         },
 
         renderObjective: function(objective){
@@ -144,6 +148,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                         success: function(){
                             table.style.visibility = 'visible';
                             _this.renderTargetRow(table, target, objective);
+                            _this.checkDuplicates();
                         },
                         error: _this.onError
                     }
@@ -184,6 +189,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     table.deleteRow(row.rowIndex);
                     if (_this.targets[objective.id].length === 0)
                         table.style.visibility = 'hidden';
+                    _this.checkDuplicates();
                 }})
             })
 
@@ -194,6 +200,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 indicatorSelect.appendChild(option);
             });
             indicatorSelect.value = target.get('indicator');
+            row.dataset['indicator'] = indicatorSelect.value;
 
             this.targetValues.forEach(function(value){
                 var option = document.createElement('option');
@@ -212,6 +219,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             setSpatialRef(target.get('indicator'));
 
             indicatorSelect.addEventListener('change', function(){
+                row.dataset['indicator'] = this.value;
                 var tVal = _this.indValMem[this.value],
                     values = { indicator: this.value };
                 // another indicator had a value selected, set it equally
@@ -224,17 +232,17 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     { patch: true, error: _this.onError }
                 );
                 setSpatialRef(this.value);
+                _this.checkDuplicates();
             })
 
             targetSelect.addEventListener('change', function(){
                 var targetValue = this.value,
                     indicator = indicatorSelect.value,
-                    targetRows = _this.el.querySelectorAll('.target-row'),
+                    targetRows = _this.el.querySelectorAll('.target-row[data-indicator="' + indicator + '"]'),
                     rowArray = Array.prototype.slice.call(targetRows);
+                var rowsAffected = rowArray.length;
                 // check all target rows for rows with same indicator
                 rowArray.forEach(function(r){
-                    var ind = r.querySelector('.indicator').value;
-                    if (ind != indicator) return;
                     var tSel = r.querySelector('.target-value'),
                         id = r.dataset['target'],
                         t = _this.targets[r.dataset['objective']].get(id);
@@ -246,16 +254,22 @@ function(_, BaseView, GDSECollection, GDSEModel){
                     t.save(
                         { target_value: targetValue },
                         { patch: true, error: _this.onError }
-                    )
+                    );
+                    if (rowsAffected > 1){
+                        var msgDiv = r.querySelector('.target-msg');
+                        msgDiv.innerHTML = 'Indicator used in more than one objective. All appearances are set to the same value.'
+                    }
                 })
                 _this.indValMem[target.get('indicator')] = targetValue;
             })
 
+            var msgDiv = document.createElement('div');
             row.insertCell(-1).appendChild(indicatorSelect);
             row.insertCell(-1).appendChild(spatialInput);
             row.insertCell(-1).appendChild(targetSelect);
             row.insertCell(-1).appendChild(removeBtn);
-
+            msgDiv.classList.add('target-msg');
+            row.insertCell(-1).appendChild(msgDiv);
         },
 
         rankingIsValid: function(){
@@ -284,7 +298,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             return valid;
         },
 
-        updateOrder(){
+        updateOrder: function(){
             var _this = this;
             // not ready yet (doesn't matter, order comes right after creation)
             if (!this.objectivesPanel || !this.rankingIsValid()) return;
@@ -296,6 +310,23 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 _this.objectivesPanel.insertBefore(panel, first);
                 first = panel;
             });
+        },
+
+        checkDuplicates: function(){
+            var _this = this;
+            this.userObjectives.forEach(function(objective){
+                var rows = _this.el.querySelectorAll('.target-row[data-objective="' + objective.id + '"]'),
+                    indicatorSet = new Set();
+                rows.forEach(function(row){
+                    var indicatorId = row.dataset['indicator'],
+                        msgDiv = row.querySelector('.target-msg');
+                    msgDiv.innerHTML = '';
+                    if (indicatorSet.has(indicatorId)){
+                        msgDiv.innerHTML = gettext('Indicator is duplicate in this objective. Please remove or set another indicator.');
+                    }
+                    indicatorSet.add(indicatorId);
+                })
+            })
         }
 
     });
