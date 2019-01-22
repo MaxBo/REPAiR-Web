@@ -37,6 +37,10 @@
   </div>
   {% if request.session.mode == 1 %}
   <div class="tab-pane fade" id="graph">
+    <div class="row">
+      <div style="float: left;"> {% trans "Graph build" %}:&nbsp;</div>
+      <div id="graph-note"> - </div>
+    </div>
     <button id="build-graph" class="btn btn-primary"> {% trans "Build Graph" %} </button>
   </div>
   {% else %}

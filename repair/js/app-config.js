@@ -28,6 +28,7 @@ function (Session) {
         publications:           '/api/publications/',
         publicationsInCasestudy:'/api/casestudies/{0}/publications/',
         keyflows:               '/api/keyflows/',
+        keyflowsInCaseStudy:    '/api/casestudies/{0}/keyflows/',
         qualities:              '/api/qualities/',
         reasons:                '/api/reasons/',
         targets:                '/api/casestudies/{0}/aims/{1}/targets',
