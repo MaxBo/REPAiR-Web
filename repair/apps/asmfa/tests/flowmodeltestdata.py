@@ -40,9 +40,11 @@ class GenerateTestDataMixin:
                           Mat('Crude Oil'),
                           Mat('Petrol'),
                           Mat('Milk'),
+                          Mat('Packaged Milk'),
+                          Mat('Packaged Cucumber'),
                           Mat('Cucumber'),
                           Mat('Human Waste', is_waste=True),
-                          Mat('Other Waste', is_waste=True),
+                          Mat('Other Waste', is_waste=True)
                           ]
         for mat in material_names:
             material = MaterialFactory(
@@ -62,20 +64,30 @@ class GenerateTestDataMixin:
 
     def create_actors(self):
         """Create the actors"""
-        activity_names = ['oil_rig',
-                          'oil_refinery',
-                          'production',
-                          'recycling',
-                          'consumption',
-                          'packaging',
-                          'farm',
-                          'burn',
-                          'waste',
-                          'waste_2']
+        actor_names = {
+            'oil_rig_den_haag': 'oil_rig',
+            'oil_rig_rotterdam': 'oil_rig',
+            'oil_refinery_rotterdam': 'oil_refinery',
+            'shell_groningen_stock': 'stock',
+            'production_utrecht': 'production',
+            'production_leiden': 'production',
+            'recycling_wageningen': 'recycling',
+            'recycling_wageningen_stock': 'stock',
+            'ah_den_haag_1': 'consumption',
+            'ah_den_haag_2': 'consumption',
+            'ah_den_haag_3': 'consumption',
+            'packaging_leiden': 'packaging',
+            'packaging_utrecht': 'packaging',
+            'cucumber_farm_naaldwijk_1': 'farming',
+            'cucumber_farm_naaldwijk_2': 'farming',
+            'milk_farm_friesland_1': 'farming',
+            'incinerator_eindhoven': 'waste_treatment',
+            'paper_waste_collector_enschede': 'waste_treatment',
+            'organic_waste_collector_nijmegen': 'waste_treatment'}
         self.actors = {}
-        for activity_name in activity_names:
-            self.actors[activity_name] = ActorFactory(
-                name=activity_name,
+        for actor_name, activity_name in actor_names.items():
+            self.actors[actor_name] = ActorFactory(
+                name=actor_name,
                 activity__name=activity_name,
                 activity__activitygroup__keyflow=self.kic)
 
@@ -87,21 +99,37 @@ class GenerateTestDataMixin:
                                    'amount'])
         Flow.__new__.__defaults__ = (None, None, None, 0)
         flows = [
-            Flow('oil_rig', 'oil_refinery', 'Crude Oil', 1000),
-            Flow('oil_refinery', 'production', 'Plastic'),
-            Flow('oil_refinery', 'oil_refinery_stock', 'Petrol'),
-            Flow('production', 'packaging', 'Plastic'),
-            Flow('farm', 'packaging', 'Cucumber'),
-            Flow('farm', 'packaging', 'Milk'),
-            Flow('packaging', 'consumption', 'Plastic'),
-            Flow('packaging', 'consumption', 'Cucumber'),
-            Flow('packaging', 'consumption', 'Milk'),
-            Flow('consumption', 'waste', 'Human Waste'),
-            Flow('consumption', 'waste_2', 'Other Waste'),
-            Flow('consumption', 'burn', 'Plastic'),
-            Flow('consumption', 'recycling', 'Plastic'),
-            Flow('recycling', 'production', 'Plastic'),
-            Flow('recycling', 'recycling_stock', 'Plastic'),
+            Flow('oil_rig_den_haag', 'oil_refinery_rotterdam', 'Crude Oil', 5.0),
+            Flow('oil_rig_rotterdam', 'oil_refinery_rotterdam', 'Crude Oil', 15.0),
+            Flow('oil_refinery_rotterdam', 'shell_groningen_stock', 'Petrol', 16.0),
+            Flow('oil_refinery_rotterdam', 'production_utrecht', 'Plastic', 1.0),
+            Flow('oil_refinery_rotterdam', 'production_leiden', 'Plastic', 3.0),
+            Flow('production_utrecht', 'packaging_utrecht', 'Plastic', 1.25),
+            Flow('production_leiden', 'packaging_leiden', 'Plastic', 3.75),
+            Flow('cucumber_farm_naaldwijk_1', 'packaging_utrecht', 'Cucumber', 15.0),
+            Flow('cucumber_farm_naaldwijk_2', 'packaging_utrecht', 'Cucumber', 15.0),
+            Flow('milk_farm_friesland_1', 'packaging_leiden', 'Milk', 65.0),
+            Flow('packaging_utrecht', 'ah_den_haag_1', 'Packaged Cucumber', 10.0),
+            Flow('packaging_utrecht', 'ah_den_haag_2', 'Packaged Cucumber', 15.0),
+            Flow('packaging_utrecht', 'ah_den_haag_3', 'Packaged Cucumber', 5.0),
+            Flow('packaging_leiden', 'ah_den_haag_1', 'Packaged Milk', 25.0),
+            Flow('packaging_leiden', 'ah_den_haag_2', 'Packaged Milk', 10.0),
+            Flow('packaging_leiden', 'ah_den_haag_3', 'Packaged Milk', 30.0),
+            Flow('ah_den_haag_1', 'incinerator_eindhoven', 'Other Waste', 1.0),
+            Flow('ah_den_haag_2', 'incinerator_eindhoven', 'Other Waste', 1.0),
+            Flow('ah_den_haag_3', 'incinerator_eindhoven', 'Other Waste', 1.0),
+            Flow('ah_den_haag_1', 'paper_waste_collector_enschede', 'Other Waste', 8.0),
+            Flow('ah_den_haag_2', 'paper_waste_collector_enschede', 'Other Waste', 4.0),
+            Flow('ah_den_haag_3', 'paper_waste_collector_enschede', 'Other Waste', 8.0),
+            Flow('ah_den_haag_1', 'organic_waste_collector_nijmegen', 'Human Waste', 25.0),
+            Flow('ah_den_haag_2', 'organic_waste_collector_nijmegen', 'Human Waste', 25.0),
+            Flow('ah_den_haag_3', 'organic_waste_collector_nijmegen', 'Human Waste', 25.0),
+            Flow('ah_den_haag_1', 'recycling_wageningen', 'Plastic', 0.25),
+            Flow('ah_den_haag_2', 'recycling_wageningen', 'Plastic', 0.75),
+            Flow('ah_den_haag_3', 'recycling_wageningen', 'Plastic', 1.0),
+            Flow('recycling_wageningen', 'production_utrecht', 'Plastic', 0.5),
+            Flow('recycling_wageningen', 'production_leiden', 'Plastic', 0.5),
+            Flow('recycling_wageningen', 'recycling_wageningen_stock', 'Other Waste', 1.0)
         ]
 
         for flow in flows:

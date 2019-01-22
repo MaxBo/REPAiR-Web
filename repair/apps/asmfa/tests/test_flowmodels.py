@@ -27,23 +27,23 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     def test_graph_elements(self):
         """Test the Generation of the graph object"""
         # testdata
-        assert Actor.objects.count() == 10
-        assert Actor2Actor.objects.count() == 13
+        assert Actor.objects.count() == 19
+        assert Actor2Actor.objects.count() == 29
         assert ActorStock.objects.count() == 2
 
     def test_graph_creation(self):
         """Test the Generation of the graph object"""
         assert path.isfile(self.graphbase.filename)
-        assert self.graph.num_vertices() == 10
+        assert self.graph.num_vertices() == 19
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
-        assert self.graph.num_edges() == 13
+        assert self.graph.num_edges() == 31
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
 
     def test_graph_calculation(self):
         """Test the calculations using the graph object"""
-        assert self.graph2.num_vertices() == 10
+        assert self.graph2.num_vertices() == 19
         assert self.graph2.num_vertices() == len(self.graph.vp.id.a)
-        assert self.graph2.num_edges() == 13
+        assert self.graph2.num_edges() == 31
         assert self.graph2.num_edges() == len(self.graph.ep.id.a)
         e = self.graph.get_edges()[0]
         assert self.graph.ep.id[e] == self.graph2.ep.id[e]

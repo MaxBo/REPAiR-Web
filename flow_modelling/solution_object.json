@@ -1,0 +1,39 @@
+{
+  "$id": "",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "A Solution object for passing parameters to Jhonny",
+  "type": "object",
+  "required": [ "affected_flows", "solution_flows", "solution" ],
+  "properties": {
+    "affected_flows": {
+        "type": "array",
+        "description": "All the flows that are affected by implementing the Solution.",
+        "items": {
+          "type": "graph_tool.Edge"
+        }
+    },
+    "solution_flows" : {
+        "type": "array",
+        "description": "The specific flow(s) on which the Solution is implemented. This is the flow that the Solution directly modifies.",
+        "items": {
+            "type": "graph_tool.Edge"
+        }
+    },
+    "solution" : {
+        "type": "number",
+        "description": "The signed change on the solution_flows. This is the amount by which the solution_flows are modified. Note that this is not a ratio or percent, but the amount in units."
+    },
+    "flow_to_remove" : {
+        "type": "graph_tool.Edge",
+        "description": "The flow that is removed by the Solution when shifting a flow."
+    },
+    "target_vertex" : {
+        "type": "graph_tool.Vertex",
+        "description": "The target vertex of the new flow. The source of the flow remains the same as of flow_to_remove."
+    },
+    "ratio" : {
+        "type": "number",
+        "description": "A modifier ratio that should be applied to the new flow in order to account for missing flows."
+    }
+  }
+}
