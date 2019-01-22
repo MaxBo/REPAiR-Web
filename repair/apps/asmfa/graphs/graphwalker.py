@@ -11,6 +11,5 @@ class GraphWalker:
         g = copy.deepcopy(self.graph)
         for e in g.edges():
             if(g.ep.flow[e] != None):
-                g.ep.flow[e] = copy.deepcopy(g.ep.flow[e])
                 g.ep.flow[e]['amount'] = g.ep.flow[e]['amount'] * solution
         return g
