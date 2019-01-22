@@ -5,6 +5,7 @@ from repair.apps.asmfa.tests.flowmodeltestdata import (
     GenerateBigTestDataMixin)
 from repair.apps.asmfa.models import Actor, Actor2Actor, ActorStock
 from repair.apps.asmfa.graphs.graph import KeyflowGraph, GraphWalker
+from repair.apps.asmfa.graphs.graph import BaseGraph
 from django.test import TestCase
 from os import path
 

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 
-from repair.apps.asmfa.graphs.graph import KeyflowGraph
+from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (Keyflow,
                                       KeyflowInCasestudy,
@@ -158,7 +158,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   )
     
     def get_graph_build(self, obj):
-        kfgraph = KeyflowGraph(obj)
+        kfgraph = BaseGraph(obj)
         return kfgraph.date
 
 
