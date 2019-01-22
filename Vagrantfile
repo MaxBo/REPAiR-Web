@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/bionic64"
   # Set locale for ssh agent
   ENV['LC_ALL']="en_US.UTF-8"
 
@@ -78,5 +78,5 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
-   config.vm.provision "shell", path: "VagrantProvisionUbuntu1604.sh"
+   config.vm.provision "shell", privileged: false, path: "VagrantProvisionUbuntu1804.sh"
 end
