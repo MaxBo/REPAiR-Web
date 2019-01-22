@@ -70,7 +70,10 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
         keyflow = self.queryset.get(id=kwargs['pk'])
         kfgraph = KeyflowGraph(keyflow)
         graph = kfgraph.buildGraph()
-        return Response(kfgraph.serialize(graph))
+        #return Response(kfgraph.serialize(graph))
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     @action(methods=['get', 'post'], detail=True)
     def validate_graph(self, request, **kwargs):

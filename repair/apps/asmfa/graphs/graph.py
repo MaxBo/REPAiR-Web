@@ -10,6 +10,7 @@ import cairo
 from io import StringIO
 from django.conf import settings
 import os
+from datetime import datetime
 
 
 class KeyflowGraph:
@@ -22,6 +23,17 @@ class KeyflowGraph:
             os.makedirs(cspath)
         fn = "keyflow{}.gt".format(self.keyflow.id)
         self.graph_fn = os.path.join(cspath, fn)
+    
+    @property
+    def date(self):
+        if not self.exists:
+            return None
+        t = os.path.getmtime(self.graph_fn)
+        return datetime.utcfromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S') 
+    
+    @property
+    def exists(self):
+        return os.path.exists(self.graph_fn)
     
     def buildGraph(self):
         flows = Actor2Actor.objects.filter(keyflow=self.keyflow)
