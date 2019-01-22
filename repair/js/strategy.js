@@ -1,8 +1,9 @@
 require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
-    'views/strategy/solutions', 'views/strategy/strategy', 'app-config',
-    'utils/utils', 'utils/overrides', 'base'
+    'views/strategy/solutions', 'views/strategy/strategy',
+    'views/strategy/modified-flows',
+    'app-config', 'utils/utils', 'utils/overrides', 'base'
 ], function (CaseStudy, GDSEModel, GDSECollection, SolutionsView, StrategyView,
-            appConfig, utils) {
+            ModFlowsWorkshopView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -10,7 +11,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
      * @module Changes
      */
 
-    var solutionsView, strategyView;
+    var solutionsView, strategyView, flowsView;
 
     renderWorkshop = function(caseStudy, keyflow, strategy){
         if (solutionsView) solutionsView.close();
@@ -30,6 +31,14 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             keyflowId: keyflow.id,
             keyflowName: keyflowName,
             strategy: strategy
+        })
+
+        if (flowsView) flowsView.close()
+        flowsView = new ModFlowsWorkshopView({
+            caseStudy: caseStudy,
+            el: document.getElementById('modified-flows'),
+            template: 'workshop-flows-template',
+            keyflowId: keyflow.id
         })
 
         loader = new utils.Loader(document.getElementById('content'), {disable: true})

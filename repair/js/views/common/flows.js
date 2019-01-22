@@ -34,6 +34,7 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.materials = options.materials;
+        this.strategy = options.strategy;
         this.actors = options.actors;
         this.activities = options.activities;
         this.activityGroups = options.activityGroups;
@@ -78,6 +79,9 @@ var FlowsView = BaseView.extend(
     getFlowFilterParams: function(){
         var filter = this.filter,
             filterParams = {};
+        console.log(this.strategy)
+        if (this.strategy) filterParams['strategy'] = this.strategy.id;
+
 
         if(!filter) return filterParams;
 
@@ -218,7 +222,7 @@ var FlowsView = BaseView.extend(
         });
         this.loader.activate();
         var promises = [
-            flows.postfetch({body: flowFilterParams})
+            flows.postfetch({ body: flowFilterParams })
         ]
         promises.push(stocks.postfetch({body: stockFilterParams}));
 
