@@ -25,9 +25,6 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         self.gwalker = GraphWalker(self.graph)
         self.graph2 = self.gwalker.calculate_solution(2.0)
         
-        gw = GraphWalker(g)
-        g2 = gw.calculate_solution(2.0)        
-        
     def test_graph_elements(self):
         """Test the Generation of the graph object"""
         # testdata

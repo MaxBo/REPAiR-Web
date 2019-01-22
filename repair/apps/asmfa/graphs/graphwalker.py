@@ -1,4 +1,5 @@
 import graph_tool as gt
+import copy
 
 class GraphWalker:
     def __init__(self, G):
@@ -7,8 +8,9 @@ class GraphWalker:
     def calculate_solution(self, solution):
         """Calculate the changes on flows for a solution"""
         assert isinstance(solution, float)
-        g = self.graph.copy()
-        for e in self.graph.edges():
-            if(self.graph.ep.flow[e] != None):
-                g.ep.flow[e]['amount'] = self.graph.ep.flow[e]['amount'] * solution
+        g = copy.deepcopy(self.graph)
+        for e in g.edges():
+            if(g.ep.flow[e] != None):
+                g.ep.flow[e] = copy.deepcopy(g.ep.flow[e])
+                g.ep.flow[e]['amount'] = g.ep.flow[e]['amount'] * solution
         return g
