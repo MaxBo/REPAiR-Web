@@ -37,10 +37,7 @@ var StrategyView = BaseView.extend(
             apiIds: [_this.caseStudy.id]
         });
 
-        this.strategies = new GDSECollection([], {
-            apiTag: 'strategies',
-            apiIds: [this.caseStudy.id, this.keyflowId]
-        });
+        this.strategy = options.strategy;
 
         this.units = new GDSECollection([], {
             apiTag: 'units'
@@ -62,7 +59,6 @@ var StrategyView = BaseView.extend(
         this.projection = 'EPSG:4326';
 
         var promises = [
-            this.strategies.fetch(),
             this.stakeholderCategories.fetch(),
             this.solutionCategories.fetch(),
             this.units.fetch()
@@ -116,9 +112,6 @@ var StrategyView = BaseView.extend(
             keyflowName: this.keyflowName
         });
         $('#solution-select').selectpicker();
-
-        // there is only one strategy allowed per user
-        this.strategy = this.strategies.first();
 
         var addBtn = this.el.querySelector('.add');
 
