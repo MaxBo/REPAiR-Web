@@ -1,6 +1,6 @@
 
 from test_plus import APITestCase
-from repair.apps.asmfa.graphs.graph import KeyflowGraph
+from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
 
 from repair.apps.asmfa.factories import (ActivityFactory,
@@ -29,5 +29,5 @@ class GraphTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup2)
 
     def test_graph(self):
-        self.graph = KeyflowGraph(self.kic)
+        self.graph = BaseGraph(self.kic)
 

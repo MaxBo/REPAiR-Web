@@ -1,7 +1,8 @@
-require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
-    'views/strategy/strategy', 'app-config', 'utils/utils',
-    'utils/overrides', 'base'
-], function (CaseStudy, GDSEModel, SolutionsView, StrategyView, appConfig, utils) {
+require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
+    'views/strategy/solutions', 'views/strategy/strategy', 'app-config',
+    'utils/utils', 'utils/overrides', 'base'
+], function (CaseStudy, GDSEModel, GDSECollection, SolutionsView, StrategyView,
+            appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -11,8 +12,9 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
 
     var solutionsView, strategyView;
 
-    renderWorkshop = function(caseStudy, keyflow, keyflowName){
+    renderWorkshop = function(caseStudy, keyflow, strategy){
         if (solutionsView) solutionsView.close();
+        var keyflowName = keyflow.get('name');
         solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
@@ -26,12 +28,41 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
             el: document.getElementById('strategy'),
             template: 'strategy-template',
             keyflowId: keyflow.id,
-            keyflowName: keyflowName
+            keyflowName: keyflowName,
+            strategy: strategy
+        })
+
+        loader = new utils.Loader(document.getElementById('content'), {disable: true})
+        // lazy way to reset the button to build graph
+        var btn = document.getElementById('calculate-strategy'),
+            note = document.getElementById('graph-note'),
+            clone = btn.cloneNode(true);
+        note.innerHTML = keyflow.get('graph_build') || '-';
+        btn.parentNode.replaceChild(clone, btn);
+        clone.addEventListener('click', function(){
+            loader.activate();
+            var url = '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/build_graph/'.format(caseStudy.id, keyflow.id, strategy.id);
+            fetch(url).then(
+                function(response) {
+                    if (!response.ok) {
+                        response.text().then(alert);
+                        throw Error(response.statusText);
+                    }
+                    loader.deactivate();
+                    return response.json();
+                }).then(function(json) {
+                    note.innerHTML = json['graph_build'];
+                    alert(gettext('Graph was successfully build.'));
+                }).catch(function(error) {
+                    loader.deactivate();
+            });
+
         })
     }
 
-    renderSetup = function(caseStudy, keyflow, keyflowName){
+    renderSetup = function(caseStudy, keyflow, strategy){
         if(solutionsView) solutionsView.close();
+        var keyflowName = keyflow.get('name');
         solutionsView = new SolutionsView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
@@ -45,7 +76,7 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
         var btn = document.getElementById('build-graph'),
             note = document.getElementById('graph-note'),
             clone = btn.cloneNode(true);
-        note.innerHTML = keyflow.get('graph_build');
+        note.innerHTML = keyflow.get('graph_build') || '-';
         btn.parentNode.replaceChild(clone, btn);
         clone.addEventListener('click', function(){
             loader.activate();
@@ -62,8 +93,9 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
                     alert(gettext('Graph was successfully build.'));
                 }).catch(function(error) {
                     alert(error);
+                    loader.deactivate();
             });
-            
+
         })
     };
 
@@ -73,9 +105,9 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
         document.getElementById('keyflow-warning').style.display = 'block';
         keyflowSelect.disabled = false;
 
-        function renderKeyflow(keyflowId, keyflowName){
+        function renderKeyflow(keyflowId){
             var keyflow = new GDSEModel(
-                {id: keyflowId}, 
+                {id: keyflowId},
                 {
                     apiTag: 'keyflowsInCaseStudy',
                     apiIds: [caseStudy.id]
@@ -83,11 +115,25 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
             )
             keyflow.fetch({
                 success: function(){
-                    document.getElementById('keyflow-warning').style.display = 'none';
-                    if (Number(mode) == 1)
-                        renderSetup(caseStudy, keyflow, keyflowName);
-                    else
-                        renderWorkshop(caseStudy, keyflow, keyflowName);
+
+                    var strategies = new GDSECollection([], {
+                        apiTag: 'strategies',
+                        apiIds: [caseStudy.id, keyflowId]
+                    });
+
+                    strategies.fetch({
+                        success: function(){
+                            // there is only one strategy allowed per user
+                            var strategy = strategies.first();
+                            document.getElementById('keyflow-warning').style.display = 'none';
+                            if (Number(mode) == 1)
+                                renderSetup(caseStudy, keyflow, strategy);
+                            else
+                                renderWorkshop(caseStudy, keyflow, strategy);
+                        },
+                        error: alert
+                    })
+
                 },
                 error: alert
             })
@@ -101,17 +147,15 @@ require(['models/casestudy', 'models/gdsemodel', 'views/strategy/solutions',
                 keyflowSelect.selectedIndex = 0;
             }
             else {
-                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
-                renderKeyflow(parseInt(keyflowSession), keyflowName);
+                renderKeyflow(parseInt(keyflowSession));
             }
         }
 
         keyflowSelect.addEventListener('change', function(){
-            var keyflowId = this.value,
-                keyflowName = this.options[this.selectedIndex].text;
+            var keyflowId = this.value;
             session.set('keyflow', keyflowId);
             session.save();
-            renderKeyflow(keyflowId, keyflowName);
+            renderKeyflow(keyflowId);
         });
     }
 

@@ -1,7 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
 from django.db.models import Q
-from repair.apps.asmfa.graphs.graph import KeyflowGraph
 from rest_framework import serializers, exceptions
 from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
@@ -12,6 +11,8 @@ from rest_framework.decorators import action
 
 from rest_framework.response import Response
 import json
+
+from repair.apps.asmfa.graphs.graph import BaseGraph
 
 from repair.apps.asmfa.models import (
     Keyflow,
@@ -68,8 +69,8 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     @action(methods=['get', 'post'], detail=True)
     def build_graph(self, request, **kwargs):
         keyflow = self.queryset.get(id=kwargs['pk'])
-        kfgraph = KeyflowGraph(keyflow)
-        graph = kfgraph.buildGraph()
+        kfgraph = BaseGraph(keyflow)
+        graph = kfgraph.build()
         #return Response(kfgraph.serialize(graph))
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -78,8 +79,8 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     @action(methods=['get', 'post'], detail=True)
     def validate_graph(self, request, **kwargs):
         keyflow = self.queryset.get(id=kwargs['pk'])
-        kfgraph = KeyflowGraph(keyflow)
-        res = kfgraph.validateGraph()
+        kfgraph = BaseGraph(keyflow)
+        res = kfgraph.validate()
         return Response(res)
 
 
