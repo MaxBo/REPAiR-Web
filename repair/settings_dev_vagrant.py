@@ -27,7 +27,7 @@ DATABASES = {
    },
 }
 
-SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
+SPATIALITE_LIBRARY_PATH = 'mod_spatialite.so'
 GEOS_LIBRARY_PATH='/usr/lib/x86_64-linux-gnu/libgeos_c.so'
 
 WEBPACK_LOADER = {
