@@ -43,7 +43,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             _.bindAll(this, 'exportPNG');
             _.bindAll(this, 'exportCSV');
             var _this = this;
-            this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;

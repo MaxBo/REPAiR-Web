@@ -31,6 +31,7 @@ var BaseView = Backbone.View.extend(
         this.template = options.template;
         this.loader = new utils.Loader(options.el, {disable: true});
         this.projection = 'EPSG:4326';
+        this.language = config.session.get('language');
     },
 
     /**
