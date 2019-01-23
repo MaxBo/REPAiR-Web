@@ -114,7 +114,8 @@ function(_, BaseView, GDSECollection, GDSEModel){
 
             objectivePanel.innerHTML = template({
                 id: objective.id,
-                title: aim.get('text')
+                title: aim.get('text'),
+                year: _this.caseStudy.get('properties')['target_year']
             });
 
             objectivePanel.querySelector('.overlay').innerHTML = '#' + objective.get('priority');
