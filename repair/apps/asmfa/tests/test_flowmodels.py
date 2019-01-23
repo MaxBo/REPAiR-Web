@@ -23,12 +23,15 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         self.graph = self.graphbase.build()
         self.gwalker = GraphWalker(self.graph)
         self.graph2 = self.gwalker.calculate_solution(2.0)
+
+    def test_save_local(self):
+        self.graph.save("/home/vagrant/REPAiR-Web/flow_modelling/cucumba_actors.gt")
         
     def test_graph_elements(self):
         """Test the Generation of the graph object"""
         # testdata
-        assert Actor.objects.count() == 19
-        assert Actor2Actor.objects.count() == 29
+        assert Actor.objects.count() == 20
+        assert Actor2Actor.objects.count() == 30
         assert ActorStock.objects.count() == 2
 
     def test_graph_creation(self):
