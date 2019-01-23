@@ -1,5 +1,5 @@
 from repair.apps.asmfa.models import (Actor2Actor, Actor, KeyflowInCasestudy,
-                                      AdministrativeLocation)
+                                      AdministrativeLocation, ActorStock)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
 import graph_tool.draw
@@ -11,6 +11,7 @@ from io import StringIO
 from django.conf import settings
 import os
 from datetime import datetime
+from itertools import chain
 
 
 class BaseGraph:
@@ -52,11 +53,15 @@ class BaseGraph:
         self.graph.save(self.filename)
 
     def build(self):
-        flows = Actor2Actor.objects.filter(keyflow=self.keyflow)
+        actorflows = Actor2Actor.objects.filter(keyflow=self.keyflow)
+        stockflows = ActorStock.objects.filter(keyflow=self.keyflow)
         actors = Actor.objects.filter(
-            Q(id__in=flows.values('origin_id')) |
-            Q(id__in=flows.values('destination_id')))
-
+            Q(id__in=actorflows.values('origin_id')) |
+            Q(id__in=actorflows.values('destination_id')) |
+            Q(id__in=stockflows.values('origin_id'))
+        )
+        flows = list(chain(actorflows, stockflows))
+        
         self.graph = gt.Graph(directed=True)
 
         # Add the actors to the graph
@@ -69,11 +74,24 @@ class BaseGraph:
             self.graph.new_vertex_property("string")
 
         actorids = {}
+        #maxactorid = 0
         for i in range(len(actors)):
             self.graph.vp.id[i] = actors[i].id
             self.graph.vp.bvdid[i] = actors[i].BvDid
             self.graph.vp.name[i] = actors[i].name
             actorids[actors[i].id] = i
+            #if(maxactorid < i):
+                #maxactorid = i
+        
+        self.graph.add_vertex(len(stockflows))
+        stockids = {}
+        stockid = len(actorids)
+        for i in range(len(stockflows)):
+            # create a new vertex with name stock
+            self.graph.vp.id[stockid] = stockid
+            self.graph.vp.name[stockid] = "Stock " + stockflows[i].origin.name
+            stockids[stockflows[i].origin.name] = stockid
+            stockid = stockid + 1
 
         # Add the flows to the graph
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
@@ -81,11 +99,14 @@ class BaseGraph:
             self.graph.new_edge_property("object")
         # need a persistent edge id, because graph-tool can reindex the edges
         self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
-
+        
         for i in range(len(flows)):
             # get the start and and actor id's
             v0 = actorids.get(flows[i].origin.id)
-            v1 = actorids.get(flows[i].destination.id)
+            if(isinstance(flows[i], Actor2Actor)):
+                v1 = actorids.get(flows[i].destination.id)
+            else:
+                v1 = stockids[flows[i].origin.name]
 
             if(v0 != None and v1 != None):
                 # create the flow in the graph and set the edge id
@@ -111,11 +132,7 @@ class BaseGraph:
                     # the actual fraction of the fraction (great naming here)
                     f = fraction.fraction
                     fl['composition'][material.name] = f
-
                 self.graph.ep.flow[(v0,v1)] = fl
-
-        t = (i for i in self.graph.ep.flow)
-        txt = self.graph.new_edge_property("string", vals=t)
 
         self.save()
         # save graph image

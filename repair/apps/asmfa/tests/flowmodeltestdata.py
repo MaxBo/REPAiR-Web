@@ -46,6 +46,12 @@ class GenerateTestDataMixin:
                           Mat('Human Waste', is_waste=True),
                           Mat('Other Waste', is_waste=True)
                           ]
+        
+        Frac = namedtuple('Fraction', ['composition', 'material', 'fraction'])
+        fractions = [Frac('Packaged Milk', 'Milk', 0.25),
+                     Frac('Packaged Milk', 'Plastic', 0.75)
+                     ]
+        
         for mat in material_names:
             material = MaterialFactory(
                 name=mat.name,
@@ -54,13 +60,15 @@ class GenerateTestDataMixin:
             Factory = WasteFactory if mat.is_waste else ProductFactory
             composition = Factory(name=mat.name)
             self.compositions[mat.name] = composition
+            
+        for frac in fractions:
             fraction = ProductFractionFactory(
-                fraction=1,
-                material=material,
-                composition=composition,
+                fraction=frac.fraction,
+                material=self.materials[frac.material],
+                composition=self.compositions[frac.composition],
                 publication=self.pub,
             )
-            self.fractions[mat.name] = fraction
+            self.fractions[frac.material] = fraction
 
     def create_actors(self):
         """Create the actors"""
