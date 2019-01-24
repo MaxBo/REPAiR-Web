@@ -29,6 +29,8 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
+        _.bindAll(this, 'selectAll');
+        _.bindAll(this, 'deselectAll');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -243,6 +245,7 @@ var FlowsView = BaseView.extend(
                     })
                     el.addEventListener('linkSelected', _this.linkSelected);
                     el.addEventListener('linkDeselected', _this.linkDeselected);
+                    el.addEventListener('allDeselected', _this.deselectAll);
                 }
             )
         });
@@ -363,6 +366,15 @@ var FlowsView = BaseView.extend(
         };
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
+        this.flowMapView.rerender();
+    },
+
+    selectAll: function(){
+
+    },
+
+    deselectAll: function(){
+        this.flowMapView.clear();
         this.flowMapView.rerender();
     }
 

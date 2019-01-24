@@ -59,6 +59,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 this.origins, this.destinations, this.flows,
                 this.stocks, this.materials
             );
+
             this.render(this.transformedData);
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
@@ -71,7 +72,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             'click a[href="#flow-map-panel"]': 'refreshMap',
             'click .fullscreen-toggle': 'toggleFullscreen',
             'click .export-img': 'exportPNG',
-            'click .export-csv': 'exportCSV'
+            'click .export-csv': 'exportCSV',
+            'click .select-all': 'selectAll',
+            'click .deselect-all': 'deselectAll',
         },
 
         /*
@@ -88,6 +91,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 div.classList.add('sankey', 'bordered');
                 this.el.appendChild(div);
             }
+            if (data.links.length === 0){
+                div.innerHTML = gettext("No flow data found for applied filters.");
+                this.el.classList.add('disabled');
+                return;
+            }
+            this.el.classList.remove('disabled');
             this.sankeyDiv = div;
             this.sankey = new Sankey({
                 height: height,
@@ -116,9 +125,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             div.addEventListener('linkSelected', redirectEvent);
             div.addEventListener('linkDeselected', redirectEvent);
-            if (data.links.length === 0)
-                _this.el.innerHTML = gettext("No flow data found for applied filters.")
-            else this.sankey.render(data);
+            this.sankey.render(data);
         },
 
         /*
@@ -268,6 +275,22 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             var transformed = {nodes: nodes, links: links};
             return transformed;
+        },
+
+        selectAll: function(){
+            var links = this.sankeyDiv.querySelectorAll('.link');
+            links.forEach(function(link){
+                link.classList.add('selected');
+            })
+            this.el.dispatchEvent(new CustomEvent('allSelected'));
+        },
+
+        deselectAll: function(){
+            var links = this.sankeyDiv.querySelectorAll('.link.selected');
+            links.forEach(function(link){
+                link.classList.remove('selected');
+            })
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
         },
 
         exportPNG: function(){
