@@ -7,6 +7,8 @@ class GraphWalker:
         
     def calculate_solution(self, solution):
         """Calculate the changes on flows for a solution"""
+        if isinstance(solution, int):
+            solution = float(solution)
         assert isinstance(solution, float)
         g = copy.deepcopy(self.graph)
         for e in g.edges():

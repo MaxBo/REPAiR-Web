@@ -36,21 +36,23 @@ class GenerateTestDataMixin:
         self.materials = {}
         self.compositions = {}
         self.fractions = {}
-        material_names = [Mat('Plastic', is_waste=True),
-                          Mat('Crude Oil'),
-                          Mat('Petrol'),
-                          Mat('Milk'),
-                          Mat('Packaged Milk'),
-                          Mat('Packaged Cucumber'),
-                          Mat('Cucumber'),
-                          Mat('Human Waste', is_waste=True),
-                          Mat('Other Waste', is_waste=True)
-                          ]
+        material_names = [
+            Mat('Plastic', is_waste=True),
+            Mat('Crude Oil'),
+            Mat('Petrol'),
+            Mat('Milk'),
+            Mat('Packaged Milk'),
+            Mat('Packaged Cucumber'),
+            Mat('Cucumber'),
+            Mat('Human Waste', is_waste=True),
+            Mat('Other Waste', is_waste=True)
+        ]
         
         Frac = namedtuple('Fraction', ['composition', 'material', 'fraction'])
-        fractions = [Frac('Packaged Milk', 'Milk', 0.25),
-                     Frac('Packaged Milk', 'Plastic', 0.75)
-                     ]
+        fractions = [
+            Frac('Packaged Milk', 'Milk', 0.25),
+            Frac('Packaged Milk', 'Plastic', 0.75)
+        ]
         
         for mat in material_names:
             material = MaterialFactory(
@@ -91,7 +93,8 @@ class GenerateTestDataMixin:
             'milk_farm_friesland_1': 'farming',
             'incinerator_eindhoven': 'waste_treatment',
             'paper_waste_collector_enschede': 'waste_treatment',
-            'organic_waste_collector_nijmegen': 'waste_treatment'}
+            'organic_waste_collector_nijmegen': 'waste_treatment'
+        }
         self.actors = {}
         for actor_name, activity_name in actor_names.items():
             self.actors[actor_name] = ActorFactory(
@@ -157,7 +160,21 @@ class GenerateTestDataMixin:
                                                  keyflow=self.kic,
                                                  amount=flow.amount,
                                                  )
-
+    def create_solutions(self):
+        """Create the solutions"""
+        Solution = namedtuple('Solution', ['affected_flows',
+                                   'solution_flows',
+                                   'solution',
+                                   'flow_to_remove',
+                                   'target_vertex',
+                                   'ratio'])
+        Solution.__new__.__defaults__ = (None, None, 0.0, None, None, 0.0)
+        self.solutions = [
+            Solution([],[],2),
+            Solution([],[],3),
+            Solution([],[],4)
+        ]
+        
 
 class GenerateBigTestDataMixin(GenerateTestDataMixin):
     """Big amount of Test Data"""
