@@ -41,6 +41,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
         assert self.graph.num_edges() == 31
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
+        #e = self.graph.get_edges()[3]
+        #assert self.graph.vp.id[e] == 18
 
     def test_graph_calculation(self):
         """Test the calculations using the graph object"""

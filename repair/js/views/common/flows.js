@@ -79,7 +79,6 @@ var FlowsView = BaseView.extend(
     getFlowFilterParams: function(){
         var filter = this.filter,
             filterParams = {};
-        console.log(this.strategy)
         if (this.strategy) filterParams['strategy'] = this.strategy.id;
 
 
@@ -222,7 +221,9 @@ var FlowsView = BaseView.extend(
         });
         this.loader.activate();
         var promises = [
-            flows.postfetch({ body: flowFilterParams })
+            flows.postfetch({
+                body: flowFilterParams
+            })
         ]
         promises.push(stocks.postfetch({body: stockFilterParams}));
 
@@ -249,6 +250,9 @@ var FlowsView = BaseView.extend(
                     el.addEventListener('linkDeselected', _this.linkDeselected);
                 }
             )
+        }).catch(function(error){
+            _this.loader.deactivate();
+            _this.onError(error);
         });
 
     },

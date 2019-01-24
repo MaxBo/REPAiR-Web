@@ -115,7 +115,7 @@ var ModFlowsWorkshopView = BaseView.extend(
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
             filter: filter,
-            strategy: strategy
+            strategy: this.strategy
         });
         this.draw();
     },

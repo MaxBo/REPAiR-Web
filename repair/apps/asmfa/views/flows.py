@@ -12,8 +12,9 @@ import numpy as np
 import copy
 import json
 from collections import defaultdict, OrderedDict
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.db.models import Union
+from django.http import HttpResponseNotFound
+from django.utils.translation import gettext as _
 
 from repair.apps.asmfa.models import (
     Reason,
@@ -29,11 +30,9 @@ from repair.apps.asmfa.models import (
     Activity,
     ActivityGroup,
 )
-
-from repair.apps.studyarea.models import (
-    Area, AdminLevels
-)
-
+from repair.apps.asmfa.graphs.graph import StrategyGraph
+from repair.apps.studyarea.models import (Area, AdminLevels)
+from repair.apps.changes.models import Strategy
 from repair.apps.asmfa.serializers import (
     ReasonSerializer,
     FlowSerializer,
@@ -42,7 +41,6 @@ from repair.apps.asmfa.serializers import (
     Group2GroupSerializer,
     Actor2ActorCreateSerializer
 )
-
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      PostGetViewMixin)
@@ -199,7 +197,8 @@ def aggregate_fractions(materials, data, unaltered_materials=[],
         new_data.append(serialized_flow)
     return new_data
 
-def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock=False):
+def aggregate_to_level(data, queryset, origin_level, destination_level,
+                       is_stock=False):
     """
     Aggregate actor level to the according flow/stock level
     if not implemented in the subclass, do nothing
@@ -223,7 +222,8 @@ def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock
         args = ['origin__id']
 
     if not is_stock:
-        destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
+        destinations = Actor.objects.filter(
+            id__in=queryset.values_list('destination'));
 
         if destination_level.lower() == 'activity':
             destinations_map = dict(destinations.values_list(
@@ -430,10 +430,11 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
         material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
         level_aggregation = params.get('aggregation_level', None)
+        strategy = params.get('strategy', None)
 
         if spatial_aggregation and level_aggregation:
             return HttpResponseBadRequest(_(
-                "Aggregation on spatial levels and based on the activity level "
+                "Aggregation on spatial levels and activity levels "
                 "can't be performed at the same time" ))
 
         # filter products (waste=False) or waste (waste=True)
@@ -483,6 +484,16 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             queryset = filter_by_material(
                 list(materials) + list(unaltered_materials), queryset)
 
+        if strategy is not None:
+            strategy = Strategy.objects.get(id=strategy)
+            try:
+                actors, queryset = self.apply_strategy(
+                    actors, queryset, strategy)
+            except FileNotFoundError:
+                return HttpResponseNotFound(_(
+                    'The strategy has not been calculated.'))
+
+
         serializer = SerializerClass(queryset, many=True,
                                      context={'request': request, })
         data = serializer.data
@@ -530,6 +541,15 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
         return Response(data)
 
+    def apply_strategy(self, actors, queryset, strategy):
+        graph = StrategyGraph(strategy)
+        if not graph.exists:
+            raise FileNotFoundError
+        graph.load()
+        actors, flows = graph.to_queryset()
+        print()
+        return actors, queryset
+
     def get_queryset(self):
         model = self.serializer_class.Meta.model
         flows = model.objects.\
@@ -550,8 +570,9 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
 
     def spatial_aggregation(self, data, queryset, group_relation, levels):
         '''
-        aggregate the serialized flows when origins/destinations belong to
+        aggregate the serialized flows, when origins/destinations belong to
         specific group_relation ('activity' or 'activity__activitygroup')
+
         levels is a dict of ids of activity resp. activitygroup and the id of
         the administrative level whose areas the actors of those activity/
         activitygroup should be mapped to
