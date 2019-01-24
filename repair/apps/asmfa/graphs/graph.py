@@ -74,24 +74,11 @@ class BaseGraph:
             self.graph.new_vertex_property("string")
 
         actorids = {}
-        #maxactorid = 0
         for i in range(len(actors)):
             self.graph.vp.id[i] = actors[i].id
             self.graph.vp.bvdid[i] = actors[i].BvDid
             self.graph.vp.name[i] = actors[i].name
             actorids[actors[i].id] = i
-            #if(maxactorid < i):
-                #maxactorid = i
-        
-        self.graph.add_vertex(len(stockflows))
-        stockids = {}
-        stockid = len(actorids)
-        for i in range(len(stockflows)):
-            # create a new vertex with name stock
-            self.graph.vp.id[stockid] = stockid
-            self.graph.vp.name[stockid] = "Stock " + stockflows[i].origin.name
-            stockids[stockflows[i].origin.name] = stockid
-            stockid = stockid + 1
 
         # Add the flows to the graph
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
@@ -106,7 +93,7 @@ class BaseGraph:
             if(isinstance(flows[i], Actor2Actor)):
                 v1 = actorids.get(flows[i].destination.id)
             else:
-                v1 = stockids[flows[i].origin.name]
+                v1 = v0
 
             if(v0 != None and v1 != None):
                 # create the flow in the graph and set the edge id
