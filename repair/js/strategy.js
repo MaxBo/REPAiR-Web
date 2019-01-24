@@ -33,12 +33,13 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             strategy: strategy
         })
 
-        if (flowsView) flowsView.close()
+        if (flowsView) flowsView.close();
         flowsView = new ModFlowsWorkshopView({
             caseStudy: caseStudy,
             el: document.getElementById('modified-flows'),
             template: 'workshop-flows-template',
-            keyflowId: keyflow.id
+            keyflowId: keyflow.id,
+            strategy: strategy
         })
 
         loader = new utils.Loader(document.getElementById('content'), {disable: true})

@@ -195,3 +195,14 @@ class StrategyGraph(BaseGraph):
         self.graph = gw.calculate_solution(2.0)
         self.graph.save(self.filename)
         return self.graph
+
+    def to_queryset(self):
+        if not self.graph:
+            self.load()
+
+        for e in self.graph.edges():
+            flow = {}
+            flow['source'] = self.graph.vp.name[e.source()]
+            flow['target'] = self.graph.vp.name[e.target()]
+            flow['flow'] = self.graph.ep.flow[e]
+            flows.append(flow)
