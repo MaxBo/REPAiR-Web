@@ -106,7 +106,15 @@
           To export the flow data as a csv file press the button with the paper icon
         {% endblocktrans %}">
       </a>
-      <div class="sankey-wrapper" class="noselect" style="width: 100%; touch-action: none;">
+      <div class="sankey-wrapper" class="noselect" style="width: 100%; min-height: 300px; touch-action: none;">
+        <div class="d3-zoom-controls">
+          <a class="btn square" data-zoom="+0.5"><span class="fa fa-plus"></span></a>
+          <a class="btn square" data-zoom="-0.5"><span class="fa fa-minus"></span></a>
+          <a class="btn square" data-zoom="0"><span class="fa fa-crosshairs"></span></a>
+        </div>
+        <button class="fas fa-expand btn btn-primary fullscreen-toggle d3-overlay inverted"></button>
+        <button class="fas export-img fa-camera btn btn-primary d3-overlay inverted" style="top: 100px; right: 20px; height: 30px;"></button>
+        <button class="fas export-csv fa-file btn btn-primary d3-overlay inverted" style="top: 140px; right: 20px; height: 30px;"></button>
       </div>
     </div>
   </div>
