@@ -49,10 +49,11 @@ class GenerateTestDataMixin:
         ]
         
         Frac = namedtuple('Fraction', ['composition', 'material', 'fraction'])
-        fractions = [
-            Frac('Packaged Milk', 'Milk', 0.25),
-            Frac('Packaged Milk', 'Plastic', 0.75)
-        ]
+        fractions = [Frac('Packaged Milk', 'Milk', 0.25),
+                     Frac('Packaged Milk', 'Plastic', 0.75),
+                     Frac('Packaged Cucumber', 'Plastic', 0.15),
+                     Frac('Packaged Cucumber', 'Cucumber', 0.85)
+                     ]
         
         for mat in material_names:
             material = MaterialFactory(
@@ -91,6 +92,7 @@ class GenerateTestDataMixin:
             'cucumber_farm_naaldwijk_1': 'farming',
             'cucumber_farm_naaldwijk_2': 'farming',
             'milk_farm_friesland_1': 'farming',
+            'milk_farm_friesland_2': 'farming',
             'incinerator_eindhoven': 'waste_treatment',
             'paper_waste_collector_enschede': 'waste_treatment',
             'organic_waste_collector_nijmegen': 'waste_treatment'
@@ -119,7 +121,8 @@ class GenerateTestDataMixin:
             Flow('production_leiden', 'packaging_leiden', 'Plastic', 3.75),
             Flow('cucumber_farm_naaldwijk_1', 'packaging_utrecht', 'Cucumber', 15.0),
             Flow('cucumber_farm_naaldwijk_2', 'packaging_utrecht', 'Cucumber', 15.0),
-            Flow('milk_farm_friesland_1', 'packaging_leiden', 'Milk', 65.0),
+            Flow('milk_farm_friesland_1', 'packaging_leiden', 'Milk', 25.0),
+            Flow('milk_farm_friesland_2', 'packaging_leiden', 'Milk', 40.0),
             Flow('packaging_utrecht', 'ah_den_haag_1', 'Packaged Cucumber', 10.0),
             Flow('packaging_utrecht', 'ah_den_haag_2', 'Packaged Cucumber', 15.0),
             Flow('packaging_utrecht', 'ah_den_haag_3', 'Packaged Cucumber', 5.0),
