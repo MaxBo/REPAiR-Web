@@ -34,46 +34,43 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     def test_graph_creation(self):
         """Test the Generation of the graph object"""
         assert path.isfile(self.graphbase.filename)
-        assert self.graph.num_vertices() == 19
+        assert self.graph.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
+        assert self.graph.num_vertices() == 17
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
         assert self.graph.num_edges() == 31
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
-        #e = self.graph.get_edges()[3]
-        #assert self.graph.vp.id[e] == 18
 
     def test_graph_calculation(self):
         """Test the calculations using the graph object"""
-        assert self.graph2.num_vertices() == 19
         assert self.graph2.num_vertices() == len(self.graph.vp.id.a)
-        assert self.graph2.num_edges() == 31
         assert self.graph2.num_edges() == len(self.graph.ep.id.a)
         e = self.graph.get_edges()[0]
         assert self.graph.ep.id[e] == self.graph2.ep.id[e]
         assert self.graph.ep.flow[e]['amount'] * 2 == self.graph2.ep.flow[e]['amount']
 
-class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
-    """
-    Test if the graph object is correctly generated
-    """
-    def setUp(self):
-        super().setUp()
-        self.create_keyflow()
-        self.create_materials()
-        self.create_actors(1000)
-        self.create_flows(10000)
-        self.graphbase = BaseGraph(self.kic)
-        self.graph = self.graphbase.build()
+#class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
+    #"""
+    #Test if the graph object is correctly generated
+    #"""
+    #def setUp(self):
+        #super().setUp()
+        #self.create_keyflow()
+        #self.create_materials()
+        #self.create_actors(1000)
+        #self.create_flows(10000)
+        #self.graphbase = BaseGraph(self.kic)
+        #self.graph = self.graphbase.build()
 
-    def test_big_graph_elements(self):
-        """Test the Generation of the graph object"""
-        # testdata
-        assert Actor.objects.count() == 1000
-        assert Actor2Actor.objects.count() == 10000
+    #def test_big_graph_elements(self):
+        #"""Test the Generation of the graph object"""
+        ## testdata
+        #assert Actor.objects.count() == 1000
+        #assert Actor2Actor.objects.count() == 10000
         
-    def test_big_graph_creation(self):
-        """Test the Generation of the graph object"""
-        assert path.isfile(self.graphbase.filename)
-        assert self.graph.num_vertices() == 1000
-        assert self.graph.num_vertices() == len(self.graph.vp.id.a)
-        assert self.graph.num_edges() == 10000
-        assert self.graph.num_edges() == len(self.graph.ep.id.a)
+    #def test_big_graph_creation(self):
+        #"""Test the Generation of the graph object"""
+        #assert path.isfile(self.graphbase.filename)
+        #assert self.graph.num_vertices() == 1000
+        #assert self.graph.num_vertices() == len(self.graph.vp.id.a)
+        #assert self.graph.num_edges() == 10000
+        #assert self.graph.num_edges() == len(self.graph.ep.id.a)
