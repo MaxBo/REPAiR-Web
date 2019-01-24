@@ -36,6 +36,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         """Test the Generation of the graph object"""
         assert path.isfile(self.graphbase.filename)
         assert self.graph.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
+        assert self.graph.num_vertices() == 18
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
         assert self.graph.num_edges() == 32
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
