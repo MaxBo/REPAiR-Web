@@ -9,11 +9,16 @@ class GraphWalker:
 
     def filter_flows(self, solution_object):
         """Keep only the affected_flows and solution_flows in the graph"""
+        if len(solution_object.solution_flows) > 0:
+            assert isinstance(solution_object.solution_flows[0], tuple), "Flow must be a tuple of (edge id, material name)"
+        elif len(solution_object.affected_flows) > 0:
+            assert isinstance(solution_object.affected_flows[0], tuple), "Flow must be a tuple of (edge id, material name)"
+        selected_flows = solution_object.affected_flows + solution_object.solution_flows
         for e in self.graph.edges():
-            # Eventually, the split edges are going to be identified by (source, target, material) and not ID, because
-            # the .id property is duplicated if the edge was split
             eid = self.graph.ep.id[e]
-            if eid in solution_object.affected_flows or eid in solution_object.solution_flows:
+            mat = self.graph.ep.material[e]
+            key = (eid, mat)
+            if key in selected_flows:
                 self.edge_mask[e] = True
             else:
                 self.edge_mask[e] = False
