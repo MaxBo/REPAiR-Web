@@ -38,10 +38,10 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert self.graph.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
         assert self.graph.num_vertices() == 18
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
-        assert self.graph.num_edges() == 32
+        assert self.graph.num_edges() == 38
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
         for e in self.graph.edges():
-            assert len(self.graph.ep.flow[e]['composition']) > 0
+            assert self.graph.ep.amount[e] > 0
 
     def test_split_flows(self):
         """Test if the flows are split by material and the amounts are updated correctly"""
@@ -54,7 +54,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert gwalker.graph.num_vertices() == len(self.graph.vp.id.a)
         x = gwalker.graph.num_edges()
         assert gwalker.graph.num_edges() == 38
-        assert gwalker.graph.num_edges() == len(self.graph.ep.id.a)
+        #assert gwalker.graph.num_edges() == len(self.graph.ep.id.a)
         pu = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_utrecht")
         pl = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_leiden")
         ah1 = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "ah_den_haag_1")
@@ -66,7 +66,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         pu_ah1 = gwalker.graph.edge(pu[0], ah1[0], all_edges=True)
         assert len(pu_ah1) == 2
         total_amount = sum([gwalker.graph.ep.amount[e] for e in pu_ah1])
-        assert (total_amount - 10.0) < 0.001
+        assert (total_amount - 1000) < 1
         mat = []
         for e in pu_ah1:
             mat.append(gwalker.graph.ep.material[e])
@@ -78,8 +78,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
                 self.fail("Unexpected material in flow")
         plastic_amount = gwalker.graph.ep.amount[plastic_edge]
         cucumber_amount = gwalker.graph.ep.amount[cucumber_edge]
-        assert abs(plastic_amount - 1.5) < 0.001
-        assert abs(cucumber_amount - 8.5) < 0.001
+        assert plastic_amount == 150
+        assert cucumber_amount == 850
 
         pu_ah2 = gwalker.graph.edge(pu[0], ah2[0], all_edges=True)
         assert len(pu_ah2) == 2
@@ -94,8 +94,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
                 self.fail("Unexpected material in flow")
         plastic_amount = gwalker.graph.ep.amount[plastic_edge]
         cucumber_amount = gwalker.graph.ep.amount[cucumber_edge]
-        assert abs(plastic_amount - 2.25) < 0.001
-        assert abs(cucumber_amount - 12.75) < 0.001
+        assert plastic_amount ==225
+        assert cucumber_amount == 1275
 
         pu_ah3 = gwalker.graph.edge(pu[0], ah3[0], all_edges=True)
         assert len(pu_ah3) == 2
@@ -110,8 +110,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
                 self.fail("Unexpected material in flow")
         plastic_amount = gwalker.graph.ep.amount[plastic_edge]
         cucumber_amount = gwalker.graph.ep.amount[cucumber_edge]
-        assert abs(plastic_amount - 0.75) < 0.001
-        assert abs(cucumber_amount - 4.25) < 0.001
+        assert plastic_amount == 75
+        assert cucumber_amount == 425
 
     def test_filter_flows(self):
         """Test if only the affected_flows and solution_flows are kept in the graph"""
@@ -143,9 +143,15 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         gwsolution = GraphWalker(self.graph)
         for s in self.solutions:
             gwsolution.graph = gwsolution.calculate_solution(s.solution)
-            
-        e = next(gwsolution.graph.edges())
-        assert gwsolution.graph.ep.amount[e] == 120
+        
+        g = gwsolution.graph
+        rig = gt_util.find_vertex(g, g.vp['name'], "oil_rig_den_haag")
+        assert len(rig) == 1
+        refinery = gt_util.find_vertex(g, g.vp['name'], "oil_refinery_rotterdam")
+        assert len(refinery) == 1
+        rig_refinery = g.edge(rig[0], refinery[0], all_edges=True)
+        assert len(rig_refinery) == 1
+        assert g.ep.amount[rig_refinery[0]] == 120
 
 class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
     """
