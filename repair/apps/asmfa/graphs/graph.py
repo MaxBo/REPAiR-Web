@@ -150,8 +150,8 @@ class BaseGraph:
         for e in self.graph.edges():
             flow = {}
             flow['id'] = self.graph.ep.id[e]
-            flow['source'] = self.graph.vp.name[e.source()]
-            flow['target'] = self.graph.vp.name[e.target()]
+            flow['source'] = self.graph.vp.id[e.source()]
+            flow['target'] = self.graph.vp.id[e.target()]
             flow['material'] = self.graph.ep.material[e]
             flow['amount'] = self.graph.ep.amount[e]
             flows.append(flow)
@@ -184,8 +184,8 @@ class StrategyGraph(BaseGraph):
         for e in self.graph.edges():
             flow = {}
             flow['id'] = self.graph.ep.id[e]
-            flow['source'] = self.graph.vp.name[e.source()]
-            flow['target'] = self.graph.vp.name[e.target()]
+            flow['source'] = self.graph.vp.id[e.source()]
+            flow['target'] = self.graph.vp.id[e.target()]
             flow['material'] = self.graph.ep.material[e]
             flow['amount'] = self.graph.ep.amount[e]
             flows.append(flow)
