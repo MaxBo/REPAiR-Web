@@ -81,11 +81,11 @@ class BaseGraph:
             actorids[actors[i].id] = i
 
         # Add the flows to the graph
+        # need a persistent edge id, because graph-tool can reindex the edges
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
         self.graph.edge_properties["flow"] = \
             self.graph.new_edge_property("object")
-        # need a persistent edge id, because graph-tool can reindex the edges
-        self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
+        #self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
         
         for i in range(len(flows)):
             # get the start and and actor id's
@@ -100,7 +100,7 @@ class BaseGraph:
                 edge = self.graph.add_edge(
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[edge] = flows[i].id
-                self.graph.ep.eid[edge] = i
+                # self.graph.ep.eid[edge] = i
                 # create dict with flow information
                 fl = {}
                 fl['amount'] = flows[i].amount

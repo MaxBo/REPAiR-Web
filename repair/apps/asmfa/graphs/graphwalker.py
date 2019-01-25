@@ -5,6 +5,7 @@ import numpy as np
 class GraphWalker:
     def __init__(self, G):
         self.graph = self.split_flows(G)
+        self.edge_mask = self.graph.new_edge_property("bool")
 
     def split_flows(self, G):
         """Split the flows based on material composition
@@ -24,26 +25,46 @@ class GraphWalker:
         """
         g = copy.deepcopy(G)
         g.clear_edges()
-        del g.edge_properties['flow']
         eprops = G.edge_properties.keys()
+        assert 'flow' in eprops, "The graph must have 'flow' edge property"
+        assert 'id' in eprops, "Edges must have an 'id' property"
+        del g.edge_properties['flow']
+        del g.edge_properties['id']
         amount_list = []
         material_list = []
-        assert 'flow' in eprops, "The graph must have 'flow' edge property"
+        eid_list = []
         e_list = []
         for e in G.edges():
             prop = G.ep.flow[e]
+            eid = G.ep.id[e]
             assert isinstance(prop, dict), "Edge property flow must be a dictionary in edge {}".format(e)
             for material, percent in prop['composition'].items():
                 e_list.append(np.array([e.source(), e.target()], dtype=int))
                 amount_list.append(float(prop['amount']) * float(percent))
                 material_list.append(material)
+                # Yes, split edges are going to have duplicate ID. That's needed so the split edges can be
+                # related to the original edges in the DB.
+                eid_list.append(eid)
         e_array = np.vstack(e_list)
         g.add_edge_list(e_array)
         eprop_amount = g.new_edge_property("float", vals=amount_list)
         eprop_material = g.new_edge_property("string", vals=material_list)
+        eprop_id = g.new_edge_property("int", vals=eid_list)
         g.edge_properties['amount'] = eprop_amount
         g.edge_properties['material'] = eprop_material
+        g.edge_properties['id'] = eprop_id
         return g
+
+    def filter_flows(self, solution_object):
+        """Keep only the affected_flows and solution_flows in the graph"""
+        for e in self.graph.edges():
+            # Eventually, the split edges are going to be identified by (source, target, material) and not ID, because
+            # the .id property is duplicated if the edge was split
+            eid = self.graph.ep.id[e]
+            if eid in solution_object.affected_flows or eid in solution_object.solution_flows:
+                self.edge_mask[e] = True
+            else:
+                self.edge_mask[e] = False
         
     def calculate_solution(self, solution):
         """Calculate the changes on flows for a solution"""
