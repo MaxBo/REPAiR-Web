@@ -114,8 +114,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     flow = _this.flows.get(d.id),
                     origin = _this.origins.get(d.source.id),
                     destination = _this.destinations.get(d.target.id);
-                origin.color = d.source.color;
-                destination.color = d.target.color;
                 _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
                     flow: flow,
                     origin: origin,
@@ -277,11 +275,29 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         },
 
         selectAll: function(){
-            var links = this.sankeyDiv.querySelectorAll('.link');
-            links.forEach(function(link){
-                link.classList.add('selected');
+            var paths = this.sankeyDiv.querySelectorAll('.link'),
+                _this = this,
+                data = [];
+            paths.forEach(function(path){
+                path.classList.add('selected');
             })
-            this.el.dispatchEvent(new CustomEvent('allSelected'));
+            // workaround: trigger deselect all first
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
+            // only flows that are actually displayed in sankey (not original data)
+            this.transformedData.links.forEach(function(link){
+                var flow = _this.flows.get(link.id),
+                    origin = _this.origins.get(link.source.id),
+                    destination = _this.destinations.get(link.target.id);
+                if (flow)
+                    data.push({
+                        flow: flow,
+                        origin: origin,
+                        destination: destination
+                    })
+            })
+            this.el.dispatchEvent(new CustomEvent('linkSelected', {
+                detail: data
+            }));
         },
 
         deselectAll: function(){

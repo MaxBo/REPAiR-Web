@@ -29,7 +29,6 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
-        _.bindAll(this, 'selectAll');
         _.bindAll(this, 'deselectAll');
 
         this.template = options.template;
@@ -262,9 +261,6 @@ var FlowsView = BaseView.extend(
     },
 
     addMapNodes: function(origins, destinations, flows){
-        console.log(origins)
-        console.log(destinations)
-        console.log(flows)
         this.flowMapView.addNodes(destinations);
         this.flowMapView.addNodes(origins);
         this.flowMapView.addFlows(flows);
@@ -276,14 +272,16 @@ var FlowsView = BaseView.extend(
 
         // put filter params defined by user in filter section into body
         var bodyParams = this.getFlowFilterParams()[0],
-            filterSuffix = 'activity';
+            filterSuffix = 'activity',
+            _this = this;
+
 
         // there might be multiple flows in between the same actors,
         // force to aggregate them to one flow
-        bodyParams['aggregation_level'] = {origin:"actor",destination:"actor"}
+        bodyParams['aggregation_level'] = { origin:"actor", destination:"actor" }
 
         // put filtering by clicked flow origin/destination into query params
-        if (data.flow.get('origin_level') === 'activitygroup')
+        if (flow.get('origin_level') === 'activitygroup')
             filterSuffix += '__activitygroup';
         var queryParams = {};
         queryParams['origin__' + filterSuffix] = origin.id;
@@ -291,7 +289,7 @@ var FlowsView = BaseView.extend(
 
         var flows = new GDSECollection([], {
             apiTag: 'actorToActor',
-            apiIds: [_this.caseStudy.id, _this.keyflowId]
+            apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promise = new Promise(function(resolve, reject){
             flows.postfetch({
@@ -300,11 +298,11 @@ var FlowsView = BaseView.extend(
                 success: function(){
                     var originIds = [],
                         destinationIds = [];
-                    flows.forEach(function(flow){
+                    flows.forEach(function(f){
                         // remember which flow the sub flows belong to (used in deselection)
-                        flow.parent = flow.id;
-                        originIds.push(flow.get('origin'));
-                        destinationIds.push(flow.get('destination'));
+                        f.parent = flow.id;
+                        originIds.push(f.get('origin'));
+                        destinationIds.push(f.get('destination'));
                     })
                     var origins = _this.actors.filterBy({id: originIds}),
                         destinations = _this.actors.filterBy({id: destinationIds});
@@ -328,32 +326,45 @@ var FlowsView = BaseView.extend(
                                 }
                             })
                             _this.addMapNodes(origins.models, destinations.models, flows.models);
-                            promise.resolve();
+                            resolve();
                         }
                     )
                 },
-                error: promise.reject
+                error: reject
             })
         })
+        return promise;
     },
 
     linkSelected: function(e){
         // only actors atm
         var data = e.detail,
             _this = this;
-        // display level actor
-        if (data.flow.get('origin_level') === 'actor'){
-            this.addMapNodes(data.origin, data.destination, data.flow);
-            this.flowMapView.rerender(true);
+
+        if (!Array.isArray(data)) data = [data];
+        var promises = [];
+        this.loader.activate();
+        data.forEach(function(d){
+            // display level actor
+            if (d.flow.get('origin_level') === 'actor'){
+                _this.addMapNodes(d.origin, d.destination, d.flow);
+            }
+            // display level activity or group
+            else {
+                promises.push(_this.addGroupedActors(d.origin, d.destination, d.flow));
+            }
+        })
+        function render(){
+            _this.flowMapView.rerender(true);
+            _this.loader.deactivate();
         }
-        // display level activity or group
-        else {
-            this.loader.activate();
-            this.addGroupedActors(data.origin, data.destination, data.flow).then(function(){
-                _this.loader.deactivate();
-                _this.flowMapView.rerender(true);
-            })
+        if (promises.length > 0){
+            Promise.all(promises).then(render)
         }
+        else{
+            render();
+        }
+
     },
 
     linkDeselected: function(e){
@@ -385,11 +396,6 @@ var FlowsView = BaseView.extend(
         this.flowMapView.removeFlows(flows);
         this.flowMapView.removeNodes(nodes, true);
         this.flowMapView.rerender();
-    },
-
-    selectAll: function(){
-        this.flowMapView.clear();
-
     },
 
     deselectAll: function(){
