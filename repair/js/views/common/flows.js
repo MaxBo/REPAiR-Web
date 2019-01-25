@@ -227,6 +227,8 @@ var FlowsView = BaseView.extend(
         Promise.all(promises).then(function(){
             utils.complementFlowData(flows, collection, collection,
                 function(origins, destinations){
+                    _this.colorColl(origins);
+                    _this.colorColl(destinations);
                     _this.loader.deactivate();
                     _this.flowSankeyView = new FlowSankeyView({
                         el: el,
@@ -252,26 +254,46 @@ var FlowsView = BaseView.extend(
 
     },
 
-    linkSelected: function(e){
-        // only actors atm
-        var data = e.detail,
-            _this = this;
-        function render(origins, destinations, flows){
-            _this.flowMapView.addNodes(destinations);
-            _this.flowMapView.addNodes(origins);
-            _this.flowMapView.addFlows(flows);
-            _this.flowMapView.rerender(true);
-        }
+    colorColl: function(collection){
+        collection.forEach(function(model){
+            var color = utils.colorByName(model.get('name'));
+            model.color = color;
+        })
+    },
 
-        // fetch actors and the flows in between them when group or activity was selected,
-        // render after fetching
-        function fetchRenderData(origin, destination, queryParams, bodyParams) {
+    addMapNodes: function(origins, destinations, flows){
+        console.log(origins)
+        console.log(destinations)
+        console.log(flows)
+        this.flowMapView.addNodes(destinations);
+        this.flowMapView.addNodes(origins);
+        this.flowMapView.addFlows(flows);
+        //this.flowMapView.rerender(true);
+    },
 
-            _this.loader.activate();
-            var flows = new GDSECollection([], {
-                apiTag: 'actorToActor',
-                apiIds: [_this.caseStudy.id, _this.keyflowId]
-            });
+    //
+    addGroupedActors: function(origin, destination, flow){
+
+        // put filter params defined by user in filter section into body
+        var bodyParams = this.getFlowFilterParams()[0],
+            filterSuffix = 'activity';
+
+        // there might be multiple flows in between the same actors,
+        // force to aggregate them to one flow
+        bodyParams['aggregation_level'] = {origin:"actor",destination:"actor"}
+
+        // put filtering by clicked flow origin/destination into query params
+        if (data.flow.get('origin_level') === 'activitygroup')
+            filterSuffix += '__activitygroup';
+        var queryParams = {};
+        queryParams['origin__' + filterSuffix] = origin.id;
+        queryParams['destination__' + filterSuffix] = destination.id;
+
+        var flows = new GDSECollection([], {
+            apiTag: 'actorToActor',
+            apiIds: [_this.caseStudy.id, _this.keyflowId]
+        });
+        var promise = new Promise(function(resolve, reject){
             flows.postfetch({
                 body: bodyParams,
                 data: queryParams,
@@ -280,7 +302,7 @@ var FlowsView = BaseView.extend(
                         destinationIds = [];
                     flows.forEach(function(flow){
                         // remember which flow the sub flows belong to (used in deselection)
-                        flow.parent = data.flow.id;
+                        flow.parent = flow.id;
                         originIds.push(flow.get('origin'));
                         destinationIds.push(flow.get('destination'));
                     })
@@ -305,36 +327,32 @@ var FlowsView = BaseView.extend(
                                     id: destination.id
                                 }
                             })
-                            _this.loader.deactivate();
-                            render(origins.models, destinations.models, flows.models);
+                            _this.addMapNodes(origins.models, destinations.models, flows.models);
+                            promise.resolve();
                         }
                     )
-                }
+                },
+                error: promise.reject
             })
-        }
+        })
+    },
+
+    linkSelected: function(e){
+        // only actors atm
+        var data = e.detail,
+            _this = this;
         // display level actor
         if (data.flow.get('origin_level') === 'actor'){
-            render(data.origin, data.destination, data.flow);
+            this.addMapNodes(data.origin, data.destination, data.flow);
+            this.flowMapView.rerender(true);
         }
         // display level activity or group
         else {
-            // put filter params defined by user in filter section into body
-            var bodyParams = this.getFlowFilterParams()[0],
-                filterSuffix = 'activity';
-
-            // there might be multiple flows in between the same actors,
-            // force to aggregate them to one flow
-            bodyParams['aggregation_level'] = {origin:"actor",destination:"actor"}
-
-            // put filtering by clicked flow origin/destination into query params
-            if (data.flow.get('origin_level') === 'activitygroup')
-                filterSuffix += '__activitygroup';
-            var queryParams = {};
-            queryParams['origin__' + filterSuffix] = data.origin.id;
-            queryParams['destination__' + filterSuffix] = data.destination.id;
-
-            // fetch flows with filter params
-            fetchRenderData(data.origin, data.destination, queryParams, bodyParams);
+            this.loader.activate();
+            this.addGroupedActors(data.origin, data.destination, data.flow).then(function(){
+                _this.loader.deactivate();
+                _this.flowMapView.rerender(true);
+            })
         }
     },
 
@@ -370,6 +388,7 @@ var FlowsView = BaseView.extend(
     },
 
     selectAll: function(){
+        this.flowMapView.clear();
 
     },
 

@@ -1,9 +1,9 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png',
-        'file-saver'],
+        'file-saver', 'utils/utils'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
-         FileSaver){
+         FileSaver, utils){
 
     /**
     *
@@ -180,8 +180,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     if(indices[prefix+id] != null) return;
                     // no connections -> skip it (if requested)
                     if (_this.hideUnconnected && !check(id)) return;
-
-                    var color = colorCat(name.replace(/ .*/, ""));
+                    var color = model.color || utils.colorByName(model.get('name'));
                     nodes.push({ id: id, name: name, color: color });
                     indices[prefix+id] = idx;
                     labels[prefix+id] = model.get('name');
