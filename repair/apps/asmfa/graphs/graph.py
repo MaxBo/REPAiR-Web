@@ -113,12 +113,12 @@ class BaseGraph:
                 # so a reverse manager is used, that one can't be iterated
                 # you can get the reverse related models this way
                 fractions = fractions.all()
-                for fraction in fractions:
+                if(len(fractions) == 0):
                     # the material
-                    material = fraction.material
-                    # the actual fraction of the fraction (great naming here)
-                    f = fraction.fraction
-                    fl['composition'][material.name] = f
+                    fl['composition'][flows[i].composition.name] = 1.0
+                else:
+                    for fraction in fractions:
+                        fl['composition'][fraction.material.name] = fraction.fraction
                 self.graph.ep.flow[(v0,v1)] = fl
 
         self.save()

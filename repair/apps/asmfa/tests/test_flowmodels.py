@@ -120,7 +120,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert graph2.num_vertices() == len(self.graph.vp.id.a)
         assert graph2.num_edges() == 38
         assert graph2.num_edges() == len(self.graph.ep.id.a)
-        e = self.graph.get_edges()[0]
+        e = next(self.graph.edges())
         assert self.graph.ep.id[e] == graph2.ep.id[e]
         assert self.graph.ep.amount[e] * 2 == graph2.ep.amount[e]
         
@@ -130,8 +130,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         for s in self.solutions:
             gwsolution.graph = gwsolution.calculate_solution(s.solution)
             
-        e = self.graph.get_edges()[0]
-        assert gwsolution.graph.ep.flow[e]['amount'] == 120
+        e = next(gwsolution.graph.edges())
+        assert gwsolution.graph.ep.amount[e] == 120
 
 class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
     """
