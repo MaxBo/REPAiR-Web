@@ -1,5 +1,5 @@
-from repair.apps.asmfa.models import (Actor2Actor, Actor, KeyflowInCasestudy,
-                                      AdministrativeLocation, ActorStock)
+from repair.apps.asmfa.models import (Actor2Actor, Actor,
+                                      ActorStock, Material)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
 from graph_tool import stats as gt_stats
@@ -83,9 +83,8 @@ class BaseGraph:
         # Add the flows to the graph
         # need a persistent edge id, because graph-tool can reindex the edges
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
-        self.graph.edge_properties["flow"] = \
-            self.graph.new_edge_property("object")
-        #self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
+        self.graph.edge_properties['amount'] = self.graph.new_edge_property("int")
+        self.graph.edge_properties['material'] = self.graph.new_edge_property("string")    
         
         for i in range(len(flows)):
             # get the start and and actor id's
@@ -94,32 +93,33 @@ class BaseGraph:
                 v1 = actorids.get(flows[i].destination.id)
             else:
                 v1 = v0
-
+                
             if(v0 != None and v1 != None):
-                # create the flow in the graph and set the edge id
-                edge = self.graph.add_edge(
-                    self.graph.vertex(v0), self.graph.vertex(v1))
-                self.graph.ep.id[edge] = flows[i].id
-                # self.graph.ep.eid[edge] = i
-                # create dict with flow information
-                fl = {}
-                fl['amount'] = flows[i].amount
-                fl['composition'] = {}
-                # get a composition
-                composition = flows[i].composition
-                fractions = composition.fractions
                 # the fractions relate to the composition, not the other
                 # way around,
                 # so a reverse manager is used, that one can't be iterated
                 # you can get the reverse related models this way
-                fractions = fractions.all()
+                composition = flows[i].composition
+                fractions = composition.fractions.all()
+                # if there are no fractions create a single edge
                 if(len(fractions) == 0):
-                    # the material
-                    fl['composition'][flows[i].composition.name] = 1.0
+                    # create the flow in the graph and set the 
+                    # edge id, material and amount
+                    e = self.graph.add_edge(
+                        self.graph.vertex(v0), self.graph.vertex(v1))
+                    self.graph.ep.id[e] = flows[i].id
+                    self.graph.ep.material[e] = flows[i].composition.name
+                    self.graph.ep.amount[e] = flows[i].amount
                 else:
+                    # create a new edge for each fraction
                     for fraction in fractions:
-                        fl['composition'][fraction.material.name] = fraction.fraction
-                self.graph.ep.flow[(v0,v1)] = fl
+                        # create the flow in the graph and set the 
+                        # edge id, material and amount
+                        e = self.graph.add_edge(
+                            self.graph.vertex(v0), self.graph.vertex(v1))
+                        self.graph.ep.id[e] = flows[i].id
+                        self.graph.ep.material[e] = fraction.material.name
+                        self.graph.ep.amount[e] = int(flows[i].amount * fraction.fraction)
 
         self.save()
         # save graph image
@@ -134,20 +134,11 @@ class BaseGraph:
         invalid = []
         self.load()
 
-        for e in self.graph.edges():
-            if(self.graph.ep.flow[e] == None):
-                flow = {}
-                flow['flow_id'] = self.graph.ep.id[e]
-                flow['source_id'] = self.graph.vp.id[e.source()]
-                flow['source_bvdid'] = self.graph.vp.bvdid[e.source()]
-                flow['source'] = self.graph.vp.name[e.source()]
-                flow['target_id'] = self.graph.vp.id[e.target()]
-                flow['target_bvdid'] = self.graph.vp.bvdid[e.target()]
-                flow['target'] = self.graph.vp.name[e.target()]
-                invalid.append(flow)
-        # it's expected that there are no parallel edges in the graph that is generated from the database
-        parallel_bool = gt_stats.label_parallel_edges(self.graph, mark_only=True)
-        if len(invalid) != 0 or any(x > 0 for x in parallel_bool):
+        for v in self.graph.vertices():
+            if(len(v.all_edges()) == 0):
+                invalid.append(v)
+                
+        if len(invalid) != 0:
             return invalid
         else:
             return 'Graph is valid'
@@ -158,12 +149,13 @@ class BaseGraph:
             self.load()
         for e in self.graph.edges():
             flow = {}
-            flow['source'] = self.graph.vp.name[e.source()]
-            flow['target'] = self.graph.vp.name[e.target()]
-            flow['flow'] = self.graph.ep.flow[e]
+            flow['id'] = self.graph.ep.id[e]
+            flow['source'] = self.graph.vp.id[e.source()]
+            flow['target'] = self.graph.vp.id[e.target()]
+            flow['material'] = self.graph.ep.material[e]
+            flow['amount'] = self.graph.ep.amount[e]
             flows.append(flow)
         return {'flows':flows}
-
 
 class StrategyGraph(BaseGraph):
     def __init__(self, strategy):
@@ -191,7 +183,9 @@ class StrategyGraph(BaseGraph):
 
         for e in self.graph.edges():
             flow = {}
-            flow['source'] = self.graph.vp.name[e.source()]
-            flow['target'] = self.graph.vp.name[e.target()]
-            flow['flow'] = self.graph.ep.flow[e]
+            flow['id'] = self.graph.ep.id[e]
+            flow['source'] = self.graph.vp.id[e.source()]
+            flow['target'] = self.graph.vp.id[e.target()]
+            flow['material'] = self.graph.ep.material[e]
+            flow['amount'] = self.graph.ep.amount[e]
             flows.append(flow)
