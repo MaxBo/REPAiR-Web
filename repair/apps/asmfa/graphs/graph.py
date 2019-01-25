@@ -134,20 +134,11 @@ class BaseGraph:
         invalid = []
         self.load()
 
-        for e in self.graph.edges():
-            if(self.graph.ep.flow[e] == None):
-                flow = {}
-                flow['flow_id'] = self.graph.ep.id[e]
-                flow['source_id'] = self.graph.vp.id[e.source()]
-                flow['source_bvdid'] = self.graph.vp.bvdid[e.source()]
-                flow['source'] = self.graph.vp.name[e.source()]
-                flow['target_id'] = self.graph.vp.id[e.target()]
-                flow['target_bvdid'] = self.graph.vp.bvdid[e.target()]
-                flow['target'] = self.graph.vp.name[e.target()]
-                invalid.append(flow)
-        # it's expected that there are no parallel edges in the graph that is generated from the database
-        parallel_bool = gt_stats.label_parallel_edges(self.graph, mark_only=True)
-        if len(invalid) != 0 or any(x > 0 for x in parallel_bool):
+        for v in self.graph.vertices():
+            if(len(v.all_edges()) == 0):
+                invalid.append(v)
+                
+        if len(invalid) != 0:
             return invalid
         else:
             return 'Graph is valid'
@@ -158,6 +149,7 @@ class BaseGraph:
             self.load()
         for e in self.graph.edges():
             flow = {}
+            flow['id'] = self.graph.ep.id[e]
             flow['source'] = self.graph.vp.name[e.source()]
             flow['target'] = self.graph.vp.name[e.target()]
             flow['material'] = self.graph.ep.material[e]
@@ -191,6 +183,7 @@ class StrategyGraph(BaseGraph):
 
         for e in self.graph.edges():
             flow = {}
+            flow['id'] = self.graph.ep.id[e]
             flow['source'] = self.graph.vp.name[e.source()]
             flow['target'] = self.graph.vp.name[e.target()]
             flow['material'] = self.graph.ep.material[e]
