@@ -2,7 +2,7 @@ from repair.apps.asmfa.models import (Actor2Actor, Actor, KeyflowInCasestudy,
                                       AdministrativeLocation, ActorStock)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
-import graph_tool.draw
+from graph_tool import stats as gt_stats
 from django.db.models import Q
 import numpy as np
 import datetime
@@ -81,11 +81,11 @@ class BaseGraph:
             actorids[actors[i].id] = i
 
         # Add the flows to the graph
+        # need a persistent edge id, because graph-tool can reindex the edges
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
         self.graph.edge_properties["flow"] = \
             self.graph.new_edge_property("object")
-        # need a persistent edge id, because graph-tool can reindex the edges
-        self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
+        #self.graph.edge_properties["eid"] = self.graph.new_edge_property("int")
         
         for i in range(len(flows)):
             # get the start and and actor id's
@@ -100,7 +100,7 @@ class BaseGraph:
                 edge = self.graph.add_edge(
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[edge] = flows[i].id
-                self.graph.ep.eid[edge] = i
+                # self.graph.ep.eid[edge] = i
                 # create dict with flow information
                 fl = {}
                 fl['amount'] = flows[i].amount
@@ -145,7 +145,9 @@ class BaseGraph:
                 flow['target_bvdid'] = self.graph.vp.bvdid[e.target()]
                 flow['target'] = self.graph.vp.name[e.target()]
                 invalid.append(flow)
-        if len(invalid) != 0:
+        # it's expected that there are no parallel edges in the graph that is generated from the database
+        parallel_bool = gt_stats.label_parallel_edges(self.graph, mark_only=True)
+        if len(invalid) != 0 or any(x > 0 for x in parallel_bool):
             return invalid
         else:
             return 'Graph is valid'

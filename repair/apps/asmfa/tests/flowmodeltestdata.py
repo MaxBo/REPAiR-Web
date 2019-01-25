@@ -173,8 +173,8 @@ class GenerateTestDataMixin:
                                    'ratio'])
         Solution.__new__.__defaults__ = (None, None, 0.0, None, None, 0.0)
         self.solutions = [
-            Solution([],[],2),
-            Solution([],[],3),
+            Solution([12,13,14],[15,16],2),
+            Solution([11,15],[11,14,15],3),
             Solution([],[],4)
         ]
         

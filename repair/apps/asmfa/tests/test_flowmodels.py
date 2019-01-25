@@ -44,6 +44,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
             assert len(self.graph.ep.flow[e]['composition']) > 0
 
     def test_split_flows(self):
+        """Test if the flows are split by material and the amounts are updated correctly"""
         gwalker = GraphWalker(self.graph)
         eprops = gwalker.graph.edge_properties.keys()
         assert "amount" in eprops
@@ -111,6 +112,19 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         cucumber_amount = gwalker.graph.ep.amount[cucumber_edge]
         assert abs(plastic_amount - 0.75) < 0.001
         assert abs(cucumber_amount - 4.25) < 0.001
+
+    def test_filter_flows(self):
+        """Test if only the affected_flows and solution_flows are kept in the graph"""
+        for solution_object in self.solutions:
+            gwalker = GraphWalker(self.graph)
+            gwalker.filter_flows(solution_object)
+            mask = gwalker.edge_mask
+            gwalker.graph.set_edge_filter(mask)
+            filtered_edges = set(gwalker.graph.ep.id.fa)
+            selected_flows = set(solution_object.affected_flows).union(set(solution_object.solution_flows))
+            assert len(filtered_edges) == len(selected_flows)
+            assert len(selected_flows.difference(filtered_edges)) == 0
+            # gwalker.graph.clear_filters()
 
     def test_graph_calculation(self):
         """Test the calculations using the graph object"""
