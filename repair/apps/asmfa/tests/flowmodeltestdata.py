@@ -173,8 +173,9 @@ class GenerateTestDataMixin:
                                    'ratio'])
         Solution.__new__.__defaults__ = (None, None, 0.0, None, None, 0.0)
         self.solutions = [
-            Solution([12,13,14],[15,16],2),
-            Solution([11,15],[11,14,15],3),
+            Solution([(3, "Plastic"),(5, "Plastic"),(26, "Plastic"),(27, "Plastic"),(28, "Plastic"),(29, "Plastic")],
+                     [(11, "Plastic"),(12, "Plastic"),(13, "Plastic")],2),
+            Solution([(1, "Crude Oil"), (2, "Crude Oil")],[],3),
             Solution([],[],4)
         ]
         

@@ -9,14 +9,18 @@
         "type": "array",
         "description": "All the flows that are affected by implementing the Solution.",
         "items": {
-          "type": "graph_tool.Edge"
+          "type": "array",
+          "items": ["int", "string"],
+          "description": "(Edge ID, material name)"
         }
     },
     "solution_flows" : {
         "type": "array",
         "description": "The specific flow(s) on which the Solution is implemented. This is the flow that the Solution directly modifies.",
         "items": {
-            "type": "graph_tool.Edge"
+          "type": "array",
+          "items": ["int", "string"],
+          "description": "(Edge ID, material name)"
         }
     },
     "solution" : {
@@ -24,8 +28,13 @@
         "description": "The signed change on the solution_flows. This is the amount by which the solution_flows are modified. Note that this is not a ratio or percent, but the amount in units."
     },
     "flow_to_remove" : {
-        "type": "graph_tool.Edge",
-        "description": "The flow that is removed by the Solution when shifting a flow."
+        "type": "array",
+        "description": "The flow that is removed by the Solution when shifting a flow.",
+        "items": {
+          "type": "array",
+          "items": ["int", "string"],
+          "description": "(Edge ID, material name)"
+        }
     },
     "target_vertex" : {
         "type": "graph_tool.Vertex",

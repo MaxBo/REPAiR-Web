@@ -52,9 +52,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert "flow" not in eprops
         assert gwalker.graph.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
         assert gwalker.graph.num_vertices() == len(self.graph.vp.id.a)
-        x = gwalker.graph.num_edges()
         assert gwalker.graph.num_edges() == 38
-        assert gwalker.graph.num_edges() == len(self.graph.ep.id.a)
         pu = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_utrecht")
         pl = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_leiden")
         ah1 = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "ah_den_haag_1")
@@ -120,10 +118,10 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
             gwalker.filter_flows(solution_object)
             mask = gwalker.edge_mask
             gwalker.graph.set_edge_filter(mask)
-            filtered_edges = set(gwalker.graph.ep.id.fa)
-            selected_flows = set(solution_object.affected_flows).union(set(solution_object.solution_flows))
+            filtered_edges = set([(gwalker.graph.ep.id[e],gwalker.graph.ep.material[e]) for e in gwalker.graph.edges()])
+            selected_flows = set(map(tuple, solution_object.affected_flows + solution_object.solution_flows))
             assert len(filtered_edges) == len(selected_flows)
-            assert len(selected_flows.difference(filtered_edges)) == 0
+            assert len(selected_flows.symmetric_difference(filtered_edges)) == 0
             # gwalker.graph.clear_filters()
 
     def test_graph_calculation(self):
@@ -133,7 +131,6 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert graph2.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
         assert graph2.num_vertices() == len(self.graph.vp.id.a)
         assert graph2.num_edges() == 38
-        assert graph2.num_edges() == len(self.graph.ep.id.a)
         e = next(self.graph.edges())
         assert self.graph.ep.id[e] == graph2.ep.id[e]
         assert self.graph.ep.amount[e] * 2 == graph2.ep.amount[e]
