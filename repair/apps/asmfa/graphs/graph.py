@@ -2,7 +2,7 @@ from repair.apps.asmfa.models import (Actor2Actor, Actor, KeyflowInCasestudy,
                                       AdministrativeLocation, ActorStock)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
-import graph_tool.draw
+from graph_tool import stats as gt_stats
 from django.db.models import Q
 import numpy as np
 import datetime
@@ -145,7 +145,9 @@ class BaseGraph:
                 flow['target_bvdid'] = self.graph.vp.bvdid[e.target()]
                 flow['target'] = self.graph.vp.name[e.target()]
                 invalid.append(flow)
-        if len(invalid) != 0:
+        # it's expected that there are no parallel edges in the graph that is generated from the database
+        parallel_bool = gt_stats.label_parallel_edges(self.graph, mark_only=True)
+        if len(invalid) != 0 or any(x > 0 for x in parallel_bool):
             return invalid
         else:
             return 'Graph is valid'

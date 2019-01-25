@@ -21,8 +21,6 @@ class GraphWalker:
             Edge property (materials), string
         eprop_amount
             Edge property (amount), double
-        eprop_amount_text
-            Edge property (amount), string. Only needed for plotting the amounts on the edges with graph-tool
         """
         g = copy.deepcopy(G)
         g.clear_edges()
