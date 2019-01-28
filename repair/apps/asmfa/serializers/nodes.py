@@ -4,6 +4,7 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from django.db.models import Q
 
 
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -13,6 +14,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       OperationalLocation,
                                       Reason,
                                       KeyflowInCasestudy,
+                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -32,17 +34,26 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     keyflow = IDRelatedField(read_only=True, required=False)
     nace = serializers.ListField(read_only=True, source='nace_codes')
+    flow_count = serializers.SerializerMethodField()
+
+    def get_flow_count(self, obj):
+        flows = Actor2Actor.objects.filter(
+            Q(origin__activity__activitygroup=obj) |
+            Q(destination__activity__activitygroup=obj))
+        return flows.count()
 
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name',
-                  'inputs', 'outputs', 'stocks', 'keyflow', 'nace')
+                  'inputs', 'outputs', 'stocks', 'keyflow', 'nace',
+                  'flow_count')
 
 
 class ActivityGroupListSerializer(ActivityGroupSerializer):
 
     class Meta(ActivityGroupSerializer.Meta):
-        fields = ('id', 'code', 'name')
+        fields = ('id', 'code', 'name', 'flow_count')
+
 
 
 class ActivityGroupField(InCasestudyField):
@@ -90,16 +101,24 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
                                            read_only=True)
     activitygroup_name = serializers.CharField(
         source='activitygroup.name', read_only=True)
+    flow_count = serializers.SerializerMethodField()
+
+    def get_flow_count(self, obj):
+        flows = Actor2Actor.objects.filter(
+            Q(origin__activity=obj) |
+            Q(destination__activity=obj))
+        return flows.count()
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_name', 'activitygroup_url')
+                  'activitygroup_name', 'activitygroup_url', 'flow_count')
 
 
 class ActivityListSerializer(ActivitySerializer):
     class Meta(ActivitySerializer.Meta):
-        fields = ('id', 'name', 'activitygroup', 'activitygroup_name', 'nace')
+        fields = ('id', 'name', 'activitygroup', 'activitygroup_name',
+                  'nace', 'flow_count')
 
 
 class ActivityField(InCasestudyField):
@@ -200,6 +219,13 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
     website = URLFieldWithoutProtocol(required=False, default="",
                                       allow_blank=True)
     reason = IDRelatedField(allow_null=True)
+    flow_count = serializers.SerializerMethodField()
+
+    def get_flow_count(self, obj):
+        flows = Actor2Actor.objects.filter(
+            Q(origin=obj) |
+            Q(destination=obj))
+        return flows.count()
 
     class Meta:
         model = Actor
@@ -207,7 +233,7 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
                   'employees', 'BvDii', 'website', 'activity', 'activity_url',
                   'activity_name', 'activitygroup', 'activitygroup_name',
                   'included', 'nace', 'city', 'address',
-                  'reason', 'description'
+                  'reason', 'description', 'flow_count'
                   )
         extra_kwargs = {'year': {'allow_null': True},
                         'turnover': {'allow_null': True},
@@ -226,7 +252,8 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
 class ActorListSerializer(ActorSerializer):
     class Meta(ActorSerializer.Meta):
         fields = ('id', 'activity',  'activity_name', 'activitygroup',
-                  'activitygroup_name', 'name', 'included', 'city', 'address')
+                  'activitygroup_name', 'name', 'included', 'city', 'address',
+                  'flow_count')
 
 
 class ReasonSerializer(serializers.ModelSerializer):

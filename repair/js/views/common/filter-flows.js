@@ -83,6 +83,7 @@ var FilterFlowsView = BaseView.extend(
         'click #area-select-button': 'showAreaSelection',
         'change select[name="area-level-select"]': 'changeAreaLevel',
         'change select[name="node-level-select"]': 'resetNodeSelects',
+        'change input[name="show-flow-only"]': 'resetNodeSelects',
         'click .area-filter.modal .confirm': 'confirmAreaSelection',
         'click #apply-filters': 'drawFlows'
     },
@@ -139,6 +140,7 @@ var FilterFlowsView = BaseView.extend(
         });
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
+        this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.groupSelect = this.el.querySelector('select[name="group"]');
         this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
@@ -173,7 +175,6 @@ var FilterFlowsView = BaseView.extend(
     },
 
     resetNodeSelects: function(){
-
         var level = this.nodeLevelSelect.value,
             hide = [],
             selects = [this.actorSelect, this.groupSelect, this.activitySelect];
@@ -363,6 +364,7 @@ var FilterFlowsView = BaseView.extend(
     },
 
     renderNodeSelectOptions: function(select, collection){
+        var showFlowOnly = this.showFlowOnlyCheck.checked
         utils.clearSelect(select);
         var defOption = document.createElement('option');
         defOption.value = -1;
@@ -374,9 +376,10 @@ var FilterFlowsView = BaseView.extend(
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
+                if (showFlowOnly && model.get('flow_count') == 0) return;
                 var option = document.createElement('option');
                 option.value = model.id;
-                option.text = model.get('name');
+                option.text = model.get('name') + ' (' + model.get('flow_count') + ' ' + gettext('flows') + ')';
                 select.appendChild(option);
             })
             select.disabled = false;
@@ -502,7 +505,7 @@ var FilterFlowsView = BaseView.extend(
         var _this = this
             areaLevel = filter.get('area_level'),
             areas = filter.get('areas');
-
+        this.showFlowOnlyCheck.checked = false;
         if (this.flowsView) this.flowsView.close();
 
         this.nodeLevelSelect.value = filter.get('filter_level').toLowerCase();
