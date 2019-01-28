@@ -164,7 +164,8 @@ function(_, BaseView, GDSECollection, GDSEModel){
                 indicatorSelect = document.createElement('select'),
                 spatialInput = document.createElement('input'),
                 targetSelect = document.createElement('select'),
-                removeBtn = document.createElement('button');
+                removeBtn = document.createElement('button'),
+                notes = document.createElement('textarea');
 
             indicatorSelect.classList.add('form-control');
             indicatorSelect.classList.add('indicator');
@@ -176,6 +177,15 @@ function(_, BaseView, GDSECollection, GDSEModel){
             targetSelect.classList.add('target-value');
             spatialInput.classList.add('form-control');
             spatialInput.disabled = true;
+
+            notes.resize = true;
+            notes.value = target.get('notes');
+            notes.addEventListener('change', function(){
+                target.save(
+                    { notes: notes.value },
+                    { patch: true, error: _this.onError }
+                );
+            })
 
             removeBtn.classList.add("btn", "btn-warning", "square", "remove");
             // removeBtn.style.float = 'right';
@@ -268,6 +278,7 @@ function(_, BaseView, GDSECollection, GDSEModel){
             row.insertCell(-1).appendChild(indicatorSelect);
             row.insertCell(-1).appendChild(spatialInput);
             row.insertCell(-1).appendChild(targetSelect);
+            row.insertCell(-1).appendChild(notes);
             row.insertCell(-1).appendChild(removeBtn);
             msgDiv.classList.add('target-msg');
             row.insertCell(-1).appendChild(msgDiv);
@@ -334,4 +345,5 @@ function(_, BaseView, GDSECollection, GDSEModel){
     return FlowTargetsView;
 }
 );
+
 
