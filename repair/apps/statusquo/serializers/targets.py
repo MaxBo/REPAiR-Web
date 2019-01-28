@@ -113,4 +113,5 @@ class FlowTargetSerializer(NestedHyperlinkedModelSerializer):
                   'indicator',
                   'target_value',
                   'user',
-                  'keyflow')
+                  'keyflow',
+                  'notes')

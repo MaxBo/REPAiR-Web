@@ -98,31 +98,32 @@ class Sankey{
             var valueZoom = this.getAttribute("data-zoom");
             if (valueZoom != 0)
             {
-                g.call(this.zoom);
-            // Record the coordinates (in data space) of the center (in screen space).
-            var center0 = this.zoom.center(),
-                translate0 = this.zoom.translate(),
-                coordinates0 = coordinates(center0);
-            this.zoom.scale(this.zoom.scale() * Math.pow(2, +valueZoom));
+                g.call(_this.zoom);
+                // Record the coordinates (in data space) of the center (in screen space).
+                var center0 = _this.zoom.center(),
+                    translate0 = _this.zoom.translate(),
+                    coordinates0 = coordinates(center0);
+                _this.zoom.scale(_this.zoom.scale() * Math.pow(2, +valueZoom));
 
-            // Translate back to the center.
-            var center1 = point(coordinates0);
-            this.zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]);
+                // Translate back to the center.
+                var center1 = point(coordinates0);
+                _this.zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]);
 
-            g.transition().duration(750).call(this.zoom.event);
+                g.transition().duration(750).call(_this.zoom.event);
             } else {
                 _this.zoomToFit(500);
             }
         }
 
-
         function coordinates(point) {
-            var scale = this.zoom.scale(), translate = this.zoom.translate();
+            var scale = _this.zoom.scale(),
+                translate = _this.zoom.translate();
             return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
         }
 
         function point(coordinates) {
-            var scale = this.zoom.scale(), translate = this.zoom.translate();
+            var scale = _this.zoom.scale(),
+                translate = _this.zoom.translate();
             return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
         }
 

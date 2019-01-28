@@ -114,6 +114,11 @@
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.7);
   margin-top: 10px;
+  color: #333333;
+}
+
+.d3-zoom-controls a:hover {
+  border: 1px solid #aad400;
 }
 
 .sankey {

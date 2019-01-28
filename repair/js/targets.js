@@ -55,12 +55,30 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
         }
     };
 
-    renderSetup = function(caseStudy, keyflowId){
+    renderSetup = function(caseStudy){
+        var button = document.getElementById('upload-year-btn'),
+            input = document.querySelector('input[name="year"]');
+        input.value = caseStudy.get('properties')['target_year'];
+        button.addEventListener('click', function(){
+            caseStudy.save(
+                { 'target_year': input.value },
+                {
+                    patch: true,
+                    success: function(){ alert('success') },
+                    error: function(){ alert('error') }
+                }
+            )
+        })
     };
 
     function render(caseStudy, mode){
+        if (Number(mode) == 1){
+            renderSetup(caseStudy);
+            return;
+        }
         var session = appConfig.session;
         keyflowSelect.disabled = false;
+
 
         function renderKeyflow(keyflowId, keyflowName){
             // all sub views of Targets work on the same aims and objectives
@@ -94,10 +112,7 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
                 loader.deactivate();
                 aims.sort();
                 userObjectives.sort();
-                if (Number(mode) == 1)
-                    renderSetup(caseStudy, keyflowId);
-                else
-                    renderWorkshop(caseStudy, keyflowId, userObjectives, aims, keyflowName);
+                renderWorkshop(caseStudy, keyflowId, userObjectives, aims, keyflowName);
             });
         }
 
@@ -128,9 +143,6 @@ require(['d3', 'models/casestudy', 'collections/gdsecollection',
             var mode = session.get('mode'),
                 caseStudyId = session.get('casestudy'),
                 caseStudy = new CaseStudy({id: caseStudyId});
-
-            // atm there is nothing to do in setup mode
-            if (Number(mode) == 1) return;
 
             caseStudy.fetch({success: function(){
                 render(caseStudy, mode);
