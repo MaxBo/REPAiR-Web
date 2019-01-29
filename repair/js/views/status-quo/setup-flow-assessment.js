@@ -120,7 +120,12 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.inputs.included.checked = indicator.get('included');
         this.inputs['indicator_type'].value = type;
         this.inputs['spatial_reference'].value = indicator.get('spatial_reference');
-        this.inputs.unit.value = indicator.get('unit');
+        var unit = indicator.get('unit');
+        // set a default unit, if there is none set yet
+        if (!unit)
+            this.setDefaultUnit();
+        else
+            this.inputs.unit.value = unit;
         this.inputs.description.value = indicator.get('description');
 
         // content of Flow A and Flow B tabs
@@ -147,11 +152,18 @@ var FlowAssessmentSetupView = BaseView.extend(
         this.flowBView = new IndicatorFlowEditView(optB);
     },
 
+    setDefaultUnit: function(){
+        var select = this.inputs['indicator_type'],
+            selected = select.options[select.selectedIndex];
+        this.inputs.unit.value = selected.dataset['defaultUnit'];
+    },
+
     // event listener for changing flow type
     typeChanged: function(evt){
         var val = evt.target.value,
             aTab = this.el.querySelector('#flowALi'),
             bTab = this.el.querySelector('#flowBLi');
+        this.setDefaultUnit();
         if (val == 'IndicatorAB'){
             bTab.style.visibility = 'visible';
         }

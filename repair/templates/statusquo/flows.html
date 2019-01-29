@@ -408,7 +408,7 @@
           <td>
             <select class="form-control" id="indicator-type">
               {% for indicator in indicators %}
-                <option value="{{indicator.value}}" title="{{indicator.description}}">{{indicator.name}}</option>
+                <option value="{{indicator.value}}" title="{{indicator.description}}" data-default-unit="{{indicator.default_unit}}">{{indicator.name}}</option>
               {% endfor %}
             </select>
           </td>
