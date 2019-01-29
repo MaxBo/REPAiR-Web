@@ -364,7 +364,7 @@ var FilterFlowsView = BaseView.extend(
     },
 
     renderNodeSelectOptions: function(select, collection){
-        var showFlowOnly = this.showFlowOnlyCheck.checked
+        var showFlowOnly = this.showFlowOnlyCheck.checked;
         utils.clearSelect(select);
         var defOption = document.createElement('option');
         defOption.value = -1;
@@ -376,10 +376,12 @@ var FilterFlowsView = BaseView.extend(
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
-                if (showFlowOnly && model.get('flow_count') == 0) return;
+                var flowCount = model.get('flow_count');
+                if (showFlowOnly && flowCount == 0) return;
                 var option = document.createElement('option');
                 option.value = model.id;
-                option.text = model.get('name') + ' (' + model.get('flow_count') + ' ' + gettext('flows') + ')';
+                option.text = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                if (flowCount == 0) option.classList.add('empty');
                 select.appendChild(option);
             })
             select.disabled = false;
