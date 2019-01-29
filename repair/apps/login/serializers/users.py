@@ -139,7 +139,8 @@ class CaseStudySerializer(ForceMultiMixin,
                   'challenges',
                   'description',
                   #'default_area_level',
-                  'show_on_welcome_map'
+                  'show_on_welcome_map',
+                  'target_year'
                   )
         extra_kwargs = {'focusarea': {'allow_null': True},
                         'geom': {'allow_null': True}}

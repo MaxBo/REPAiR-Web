@@ -61,6 +61,7 @@ var IndicatorFlowEditView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template();
 
+        this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.originSelects = {
             levelSelect: this.el.querySelector('select[name="origin-level-select"]'),
             groupSelect: this.el.querySelector('select[name="origin-group"]'),
@@ -88,6 +89,9 @@ var IndicatorFlowEditView = BaseView.extend(
             'change', function(){ _this.resetNodeSelects('origin') })
         this.destinationSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('destination') })
+        this.showFlowOnlyCheck.addEventListener('change', function(){
+            _this.resetNodeSelects('origin'); _this.resetNodeSelects('destination')
+        })
 
         this.addEventListeners('origin');
         this.addEventListeners('destination');
@@ -236,6 +240,7 @@ var IndicatorFlowEditView = BaseView.extend(
 
     // fill given select with options created based on models of given collection
     renderNodeSelectOptions: function(select, collection){
+        var showFlowOnly = this.showFlowOnlyCheck.checked;
         utils.clearSelect(select);
         var defOption = document.createElement('option');
         defOption.value = -1;
@@ -247,9 +252,12 @@ var IndicatorFlowEditView = BaseView.extend(
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
+                var flowCount = model.get('flow_count');
+                if (showFlowOnly && flowCount == 0) return;
                 var option = document.createElement('option');
                 option.value = model.id;
-                option.text = model.get('name');
+                option.text = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                if (flowCount == 0) option.classList.add('empty');
                 select.appendChild(option);
             })
             select.disabled = false;
@@ -275,8 +283,21 @@ var IndicatorFlowEditView = BaseView.extend(
                         "value": model.id , "text": model.get('name')
                     });
             },
-            defaultOption: gettext('Select')
+            defaultOption: gettext('Select'),
+            label: function(model, option){
+                var flowCount = model.get('flow_count'),
+                    label = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                return label;
+            }
         });
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = matSelect.querySelector('li[data-value="' + material.id + '"]'),
+                a = li.querySelector('a');
+            a.classList.add('empty');
+        })
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
 
@@ -447,6 +468,7 @@ var IndicatorFlowEditView = BaseView.extend(
     // preset all inputs based on flow data
     setInputs: function(flow){
         var flow = flow || {};
+        this.showFlowOnlyCheck.checked = false;
         var materialIds = flow.materials || [],
             originNodeIds = flow.origin_node_ids || "",
             destinationNodeIds = flow.destination_node_ids || "",

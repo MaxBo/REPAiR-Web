@@ -69,11 +69,6 @@ div.sankeymaptooltip {
     max-width: 100%;
 }
 
-.leaflet-control a{
-    color: #aad400;
-    border: 1px solid #aad400;
-}
-
 .leaflet-control-zoom {
     top: 50px;
 }
