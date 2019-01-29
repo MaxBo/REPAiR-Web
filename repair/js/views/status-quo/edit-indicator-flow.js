@@ -283,8 +283,21 @@ var IndicatorFlowEditView = BaseView.extend(
                         "value": model.id , "text": model.get('name')
                     });
             },
-            defaultOption: gettext('Select')
+            defaultOption: gettext('Select'),
+            label: function(model, option){
+                var flowCount = model.get('flow_count'),
+                    label = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                return label;
+            }
         });
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = matSelect.querySelector('li[data-value="' + material.id + '"]'),
+                a = li.querySelector('a');
+            a.classList.add('empty');
+        })
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
 
