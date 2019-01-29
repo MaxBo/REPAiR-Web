@@ -181,14 +181,20 @@ class IndicatorAInhabitants(ComputeIndicator):
     default_unit = _('t / inhabitant and year')
 
     def process(self, indicator, areas=[], geom=None, aggregate=False):
+        if not areas and not geom:
+            return [OrderedDict({'area': -1, 'value': 0})]
+        amounts = []
         #  ToDo: how to calc for geometries?
+        #        inhabitant data is attached to the areas only
         if geom:
-            raise NotImplementedError
+            amounts.append(OrderedDict({'area': 'geom', 'value': 0}))
         total_sum_a = 0
         total_sum_b = 0
-        for area in areas:
+        flow_a = indicator.flow_a
+        for area_id in areas:
             if flow_a:
-                geom = Area.objects.get(id=area).geom
+                area = Area.objects.get(id=area_id)
+                geom = area.geom
                 sum_a = self.sum(flow_a, geom)
                 # ToDo: what if sum_b = 0?
                 sum_b = area.inhabitants
@@ -197,7 +203,7 @@ class IndicatorAInhabitants(ComputeIndicator):
                 amount = sum_a / sum_b if sum_b > 0 else 0
             else:
                 amount = 0
-            amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
+            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
         if aggregate:
             amount = total_sum_a / total_sum_b if total_sum_b > 0 else 0
             return [OrderedDict({'area': -1, 'value': amount})]
