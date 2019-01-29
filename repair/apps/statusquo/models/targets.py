@@ -46,3 +46,4 @@ class FlowTarget(GDSEModel):
     target_value = models.ForeignKey(TargetValue, on_delete=models.CASCADE)
     userobjective = models.ForeignKey(UserObjective, on_delete=models.CASCADE,
                                       related_name='flow_targets')
+    notes = models.TextField(blank=True, null=True)

@@ -15,6 +15,7 @@ class CaseStudy(GDSEModel):
     focusarea = geomodels.MultiPolygonField(null=True, srid=4326, blank=True)
     description = models.TextField(blank=True, null=True)
     show_on_welcome_map = models.BooleanField(default=True)
+    target_year = models.IntegerField(default=2020)
     #default_area_level = models.ForeignKey(AdminLevels,
                                            #on_delete=models.SET_NULL,
                                            #null=True)

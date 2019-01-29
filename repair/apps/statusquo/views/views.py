@@ -12,8 +12,9 @@ from repair.apps.statusquo import views as status_quo_views
 
 
 class IndicatorTemplate():
-    def __init__(self, value, description, name):
-        self.value, self.description, self.name = value, description, name
+    def __init__(self, value, description, name, default_unit):
+        (self.value, self.description,
+         self.name, self.default_unit) = value, description, name, default_unit
 
 
 class StatusQuoView(LoginRequiredMixin, ModeView):
@@ -27,7 +28,8 @@ class StatusQuoView(LoginRequiredMixin, ModeView):
         for ind in IndicatorType:
             ind_class = getattr(status_quo_views, ind.name)
             indtmpl = IndicatorTemplate(
-                ind.name, ind_class.description, ind_class.name)
+                ind.name, ind_class.description, ind_class.name,
+                ind_class.default_unit)
             indicators.append(indtmpl)
 
         context['keyflows'] = keyflows

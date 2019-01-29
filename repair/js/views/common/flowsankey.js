@@ -1,9 +1,9 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png',
-        'file-saver'],
+        'file-saver', 'utils/utils'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
-         FileSaver){
+         FileSaver, utils){
 
     /**
     *
@@ -43,7 +43,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             _.bindAll(this, 'exportPNG');
             _.bindAll(this, 'exportCSV');
             var _this = this;
-            this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
             this.materials = options.materials;
@@ -56,60 +55,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.flows = options.flows;
             this.stocks = options.stocks || [];
 
-            var fullscreenBtn = document.createElement('button'),
-                exportImgBtn = document.createElement('button'),
-                exportCsvBtn = document.createElement('button'),
-                zoomControls = document.createElement('div'),
-                zoomIn = document.createElement('a'),
-                inSpan = document.createElement('span'),
-                zoomOut = document.createElement('a'),
-                outSpan = document.createElement('span'),
-                zoomToFit = document.createElement('a'),
-                fitSpan = document.createElement('span');
-
-            fullscreenBtn.classList.add("fas", "fa-expand", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay", "inverted");
-            exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
-            exportImgBtn.style.top = "100px";
-            exportImgBtn.style.right = "20px";
-            exportImgBtn.style.height = "30px";
-            exportCsvBtn.classList.add("fas", "fa-file", "btn", "btn-primary", "d3-overlay", "inverted");
-            exportCsvBtn.style.top = "140px";
-            exportCsvBtn.style.right = "20px";
-            exportCsvBtn.style.height = "30px";
-
-            zoomIn.classList.add("btn", "square");
-            zoomIn.setAttribute('data-zoom', "+0.5");
-            inSpan.classList.add("fa", "fa-plus");
-            zoomIn.appendChild(inSpan);
-
-            zoomOut.classList.add("btn", "square");
-            zoomOut.setAttribute('data-zoom', "-0.5");
-            outSpan.classList.add("fa", "fa-minus");
-            zoomOut.appendChild(outSpan);
-
-            zoomToFit.classList.add("btn", "square");
-            zoomToFit.setAttribute('data-zoom', "0");
-            fitSpan.classList.add("fa", "fa-crosshairs");
-            zoomToFit.appendChild(fitSpan);
-
-            zoomControls.classList.add("d3-zoom-controls");
-            zoomControls.appendChild(zoomIn);
-            zoomControls.appendChild(zoomOut);
-            zoomControls.appendChild(zoomToFit);
-
-            this.el.appendChild(zoomControls);
-            this.el.appendChild(fullscreenBtn);
-            this.el.appendChild(exportImgBtn);
-            this.el.appendChild(exportCsvBtn);
-
-            fullscreenBtn.addEventListener('click', this.toggleFullscreen);
-            exportImgBtn.addEventListener('click', this.exportPNG);
-            exportCsvBtn.addEventListener('click', this.exportCSV);
-
             this.transformedData = this.transformData(
                 this.origins, this.destinations, this.flows,
                 this.stocks, this.materials
             );
+
             this.render(this.transformedData);
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
@@ -120,7 +70,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         */
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
-            'change #data-view-type-select': 'renderSankey'
+            'click .fullscreen-toggle': 'toggleFullscreen',
+            'click .export-img': 'exportPNG',
+            'click .export-csv': 'exportCSV',
+            'click .select-all': 'selectAll',
+            'click .deselect-all': 'deselectAll',
         },
 
         /*
@@ -137,6 +91,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 div.classList.add('sankey', 'bordered');
                 this.el.appendChild(div);
             }
+            if (data.links.length === 0){
+                div.innerHTML = gettext("No flow data found for applied filters.");
+                this.el.classList.add('disabled');
+                return;
+            }
+            this.el.classList.remove('disabled');
             this.sankeyDiv = div;
             this.sankey = new Sankey({
                 height: height,
@@ -154,8 +114,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     flow = _this.flows.get(d.id),
                     origin = _this.origins.get(d.source.id),
                     destination = _this.destinations.get(d.target.id);
-                origin.color = d.source.color;
-                destination.color = d.target.color;
                 _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
                     flow: flow,
                     origin: origin,
@@ -165,9 +123,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             div.addEventListener('linkSelected', redirectEvent);
             div.addEventListener('linkDeselected', redirectEvent);
-            if (data.links.length === 0)
-                _this.el.innerHTML = gettext("No flow data found for applied filters.")
-            else this.sankey.render(data);
+            this.sankey.render(data);
         },
 
         /*
@@ -222,8 +178,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     if(indices[prefix+id] != null) return;
                     // no connections -> skip it (if requested)
                     if (_this.hideUnconnected && !check(id)) return;
-
-                    var color = colorCat(name.replace(/ .*/, ""));
+                    var color = model.color || utils.colorByName(model.get('name'));
                     nodes.push({ id: id, name: name, color: color });
                     indices[prefix+id] = idx;
                     labels[prefix+id] = model.get('name');
@@ -319,6 +274,40 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             return transformed;
         },
 
+        selectAll: function(){
+            var paths = this.sankeyDiv.querySelectorAll('.link'),
+                _this = this,
+                data = [];
+            paths.forEach(function(path){
+                path.classList.add('selected');
+            })
+            // workaround: trigger deselect all first
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
+            // only flows that are actually displayed in sankey (not original data)
+            this.transformedData.links.forEach(function(link){
+                var flow = _this.flows.get(link.id),
+                    origin = _this.origins.get(link.source.id),
+                    destination = _this.destinations.get(link.target.id);
+                if (flow)
+                    data.push({
+                        flow: flow,
+                        origin: origin,
+                        destination: destination
+                    })
+            })
+            this.el.dispatchEvent(new CustomEvent('linkSelected', {
+                detail: data
+            }));
+        },
+
+        deselectAll: function(){
+            var links = this.sankeyDiv.querySelectorAll('.link.selected');
+            links.forEach(function(link){
+                link.classList.remove('selected');
+            })
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
+        },
+
         exportPNG: function(){
             var svg = this.sankeyDiv.querySelector('svg');
             saveSvgAsPng.saveSvgAsPng(svg, "sankey-diagram.png", {scale: 2, backgroundColor: "#FFFFFF"});
@@ -350,7 +339,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         close: function(){
             this.undelegateEvents(); // remove click events
             this.unbind(); // Unbind all local event bindings
-            this.el.innerHTML = ''; //empty the DOM element
+            this.el.querySelector('.sankey').innerHTML = ''; //empty the DOM element
         },
 
     });
