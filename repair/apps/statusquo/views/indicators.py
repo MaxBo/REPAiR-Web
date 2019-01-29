@@ -175,7 +175,7 @@ class IndicatorAB(ComputeIndicator):
 
 
 # ToDo: almost same as IndicatorAB, subclass this
-class IndicatorAInhabitants(ComputeIndicator):
+class IndicatorInhabitants(ComputeIndicator):
     description = _('SUM aggregation Flow A / Inhabitants in Area')
     name = _('Flow A / Inhabitants')
     default_unit = _('t / inhabitant and year')
@@ -211,13 +211,42 @@ class IndicatorAInhabitants(ComputeIndicator):
 
 
 # ToDo: almost same as IndicatorAB, subclass this
-class IndicatorAArea(ComputeIndicator):
+class IndicatorArea(ComputeIndicator):
     description = _('SUM aggregation Flow A / geometrical area in hectar')
     name = _('Flow A / Area (ha)')
     default_unit = _('t / hectar and year')
 
     def process(self, indicator, areas=[], geom=None, aggregate=False):
-        raise NotImplementedError
+        if not areas and not geom:
+            return [OrderedDict({'area': -1, 'value': 0})]
+        amounts = []
+        #  ToDo: how to calc for geometries?
+        #        inhabitant data is attached to the areas only
+        if geom:
+            sm = geom.transform(3035, clone=True).area
+            ha = sm / 10000
+            amounts.append(OrderedDict({'area': 'geom', 'value': ha}))
+        total_sum_a = 0
+        total_ha = 0
+        flow_a = indicator.flow_a
+        for area_id in areas:
+            if flow_a:
+                area = Area.objects.get(id=area_id)
+                geom = area.geom
+                sm = area.geom.transform(3035, clone=True).area
+                sum_a = self.sum(flow_a, geom)
+                # ToDo: what if sum_b = 0?
+                ha = sm / 100000
+                total_sum_a += sum_a
+                total_ha += ha
+                amount = sum_a / ha if ha > 0 else 0
+            else:
+                amount = 0
+            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
+        if aggregate:
+            amount = total_sum_a / total_ha if total_ha > 0 else 0
+            return [OrderedDict({'area': -1, 'value': amount})]
+        return amounts
 
 
 class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
