@@ -62,6 +62,14 @@ var BaseView = Backbone.View.extend(
     */
 
     /**
+    * callback for labeling items in the hierarchical select
+    *
+    * @callback module:views/BaseView~label
+    * @param {Backbone.Model} model  model of collection rendered in select
+    * @return {String} the label
+    */
+
+    /**
     * build a hierarchical selection of a collection, the collection has to be
     * of tree structure where the parents of a child are referenced by an attribute (options.parentAttr)
     * absence of parent indicates a root item
@@ -70,6 +78,7 @@ var BaseView = Backbone.View.extend(
     * @param {HTMLElement}                          the element to append the rendered hierarchical select to
     * @param {String} [options.parentAttr='parent'] the name of attribute referencing the id of the parent model
     * @param {module:views/BaseView~onSelect=} options.onSelect  function is called on selection of an item
+    * @param {module:views/BaseView~label=} options.label     function to label the options
     * @param {Number=} options.selected             preselects the model with given id
     * @param {Number} [options.selected=400]        preselects the model with given id
     */
@@ -84,8 +93,11 @@ var BaseView = Backbone.View.extend(
 
         // make a list out of the collection that is understandable by treeify and hierarchySelect
         collection.each(function(model){
-            var item = {};
-            var name = model.get('name');
+            var item = {}, name;
+            if (options.label)
+                name = options.label(model);
+            else
+                name = model.get('name');
             item.text = name.substring(0, 70);
             if (name.length > 70) item.text += '...';
             item.title = model.get('name');

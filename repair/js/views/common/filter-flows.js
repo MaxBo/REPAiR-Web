@@ -364,7 +364,7 @@ var FilterFlowsView = BaseView.extend(
     },
 
     renderNodeSelectOptions: function(select, collection){
-        var showFlowOnly = this.showFlowOnlyCheck.checked
+        var showFlowOnly = this.showFlowOnlyCheck.checked;
         utils.clearSelect(select);
         var defOption = document.createElement('option');
         defOption.value = -1;
@@ -376,10 +376,12 @@ var FilterFlowsView = BaseView.extend(
         select.appendChild(option);
         if (collection && collection.length < 2000){
             collection.forEach(function(model){
-                if (showFlowOnly && model.get('flow_count') == 0) return;
+                var flowCount = model.get('flow_count');
+                if (showFlowOnly && flowCount == 0) return;
                 var option = document.createElement('option');
                 option.value = model.id;
-                option.text = model.get('name') + ' (' + model.get('flow_count') + ' ' + gettext('flows') + ')';
+                option.text = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                if (flowCount == 0) option.classList.add('empty');
                 select.appendChild(option);
             })
             select.disabled = false;
@@ -455,8 +457,21 @@ var FilterFlowsView = BaseView.extend(
             onSelect: function(model){
                  _this.selectedMaterial = model;
             },
-            defaultOption: gettext('All materials')
+            defaultOption: gettext('All materials'),
+            label: function(model, option){
+                var flowCount = model.get('flow_count'),
+                    label = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                return label;
+            }
         });
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]'),
+                a = li.querySelector('a');
+            a.classList.add('empty');
+        })
         this.el.querySelector('#material-filter').appendChild(matSelect);
     },
 

@@ -1,15 +1,19 @@
 /**
- * stylesheet for the status quo subpages
- *
- * @author Christoph Franke
- */
+  * stylesheet for the status quo subpages
+  *
+  * @author Christoph Franke
+  */
 
 .legend {
-    position: absolute;
-    right: 30px;
-    z-index: 1000;
-    bottom: 50px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    padding: 0px;
+  position: absolute;
+  right: 30px;
+  z-index: 1000;
+  bottom: 50px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  padding: 0px;
+}
+
+a.empty {
+  color: lightgrey!important;
 }
