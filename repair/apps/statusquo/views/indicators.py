@@ -236,7 +236,7 @@ class IndicatorArea(ComputeIndicator):
                 sm = area.geom.transform(3035, clone=True).area
                 sum_a = self.sum(flow_a, geom)
                 # ToDo: what if sum_b = 0?
-                ha = sm / 100000
+                ha = sm / 10000
                 total_sum_a += sum_a
                 total_ha += ha
                 amount = sum_a / ha if ha > 0 else 0
