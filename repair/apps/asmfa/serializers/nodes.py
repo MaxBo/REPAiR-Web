@@ -4,7 +4,6 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from django.db.models import Q
 
 
 from repair.apps.asmfa.models import (ActivityGroup,
@@ -34,13 +33,7 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
     stocks = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     keyflow = IDRelatedField(read_only=True, required=False)
     nace = serializers.ListField(read_only=True, source='nace_codes')
-    flow_count = serializers.SerializerMethodField()
-
-    def get_flow_count(self, obj):
-        flows = Actor2Actor.objects.filter(
-            Q(origin__activity__activitygroup=obj) |
-            Q(destination__activity__activitygroup=obj))
-        return flows.count()
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ActivityGroup
@@ -101,13 +94,7 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
                                            read_only=True)
     activitygroup_name = serializers.CharField(
         source='activitygroup.name', read_only=True)
-    flow_count = serializers.SerializerMethodField()
-
-    def get_flow_count(self, obj):
-        flows = Actor2Actor.objects.filter(
-            Q(origin__activity=obj) |
-            Q(destination__activity=obj))
-        return flows.count()
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Activity
@@ -219,13 +206,7 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
     website = URLFieldWithoutProtocol(required=False, default="",
                                       allow_blank=True)
     reason = IDRelatedField(allow_null=True)
-    flow_count = serializers.SerializerMethodField()
-
-    def get_flow_count(self, obj):
-        flows = Actor2Actor.objects.filter(
-            Q(origin=obj) |
-            Q(destination=obj))
-        return flows.count()
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Actor
