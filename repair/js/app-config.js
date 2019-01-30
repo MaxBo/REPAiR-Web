@@ -13,11 +13,6 @@ function (Session) {
 
     config.session = new Session();
 
-
-    config.views = {
-        layerproxy: '/proxy/layers/{0}/wms',
-    }
-
     /** urls to resources in api
     * @name api
     * @memberof module:config

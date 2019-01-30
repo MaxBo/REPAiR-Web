@@ -345,24 +345,51 @@ var BaseMapsView = BaseView.extend(
         this.map.addServiceLayer(this.layerPrefix + layer.id, {
             opacity: 1,
             visible: this.isChecked(layer),
-            url: config.views.layerproxy.format(layer.id),
+            url: layer.get('proxy_uri'),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
         });
-        var uri = layer.get('legend_uri');
+        function arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = [].slice.call(new Uint8Array(buffer));
+            bytes.forEach((b) => binary += String.fromCharCode(b));
+            return window.btoa(binary);
+        };
+
+        var uri = layer.get('legend_uri'),
+            uri_proxy = layer.get('legend_proxy_uri');
         if (uri) {
             var legendDiv = document.createElement('li'),
                 head = document.createElement('b'),
+                imgWrapper = document.createElement('div'),
                 img = document.createElement('img');
             legendDiv.id = this.legendPrefix + layer.id;
             head.innerHTML = layer.get('name');
-            img.src = uri;
             var itemsDiv = this.legend.querySelector('.items');
             itemsDiv.appendChild(legendDiv);
             legendDiv.appendChild(head);
             legendDiv.appendChild(document.createElement('br'));
-            legendDiv.appendChild(img);
-            if (!layer.get('included'))
+            legendDiv.appendChild(imgWrapper);
+            imgWrapper.style.marginBottom = '10px';
+            imgWrapper.appendChild(img);
+            if (!this.isChecked(layer))
                 legendDiv.style.display = 'none';
+
+            function bufferToImg(buffer){
+                var base64Flag = 'data:image/jpeg;base64,',
+                    imageStr = arrayBufferToBase64(buffer);
+                img.src = base64Flag + imageStr;
+            }
+            // fetch direct legend uri first
+            fetch(uri).then(function(response){
+                response.arrayBuffer().then(bufferToImg);
+            }).catch(function(error){
+                // try redirected uri on error
+                fetch(uri_proxy).then(function(response){
+                    response.arrayBuffer().then(bufferToImg);
+                }).catch(function(error){
+                    imgWrapper.innerHTML = gettext('legend not found')
+                });
+            })
         }
     },
 
