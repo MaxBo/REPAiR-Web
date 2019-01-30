@@ -459,12 +459,12 @@ var FilterFlowsView = BaseView.extend(
             },
             defaultOption: gettext('All materials'),
             label: function(model, option){
-                var flowCount = model.get('flow_count'),
-                    label = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                var compCount = model.get('composition_count'),
+                    label = model.get('name') + ' (' + compCount + ' ' + gettext('compositions') + ')';
                 return label;
             }
         });
-        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        var matFlowless = this.materials.filterBy({'composition_count': 0});
         // grey out materials not used in any flows in keyflow
         // (do it afterwards, because hierarchical select is build in template)
         matFlowless.forEach(function(material){
