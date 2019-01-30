@@ -2,6 +2,8 @@
 from reversion.views import RevisionMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.db.models import CharField, Value
+from django.db.models import Q
+from django.db.models import Count
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -51,6 +53,9 @@ class ActivityGroupViewSet(PostGetViewMixin,
             if 'id' in self.request.data:
                 ids = self.request.data['id'].split(",")
                 groups = groups.filter(id__in=ids)
+        groups = groups.annotate(
+            flow_count=Count('activity__actor__outputs') +
+            Count('activity__actor__inputs'))
         return groups.order_by('id')
 
 
@@ -78,6 +83,9 @@ class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
             if 'id' in self.request.data:
                 ids = self.request.data['id'].split(",")
                 activities = activities.filter(id__in=ids)
+
+        activities = activities.annotate(
+            flow_count=Count('actor__outputs') + Count('actor__inputs'))
         return activities.order_by('id')
 
 
@@ -114,4 +122,6 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                 actors = actors.filter(
                     administrative_location__geom__intersects=poly)
 
+        actors = actors.annotate(
+            flow_count=Count('outputs') + Count('inputs'))
         return actors.order_by('id')
