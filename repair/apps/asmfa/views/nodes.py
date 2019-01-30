@@ -2,8 +2,7 @@
 from reversion.views import RevisionMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.db.models import CharField, Value
-from django.db.models import Q
-from django.db.models import Count
+from django.db.models import Q, Count
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
