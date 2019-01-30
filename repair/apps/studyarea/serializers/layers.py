@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from django.db.models import Max
+from django.urls import reverse
 
 from repair.apps.studyarea.models import (LayerCategory, Layer)
 from repair.apps.login.serializers import IDRelatedField
@@ -31,12 +32,26 @@ class LayerSerializer(serializers.ModelSerializer):
     category = IDRelatedField(read_only=True)
     style = IDRelatedField(allow_null=True)
     order = serializers.IntegerField(required=False, default=None)
+    proxy_uri = serializers.SerializerMethodField()
+    legend_proxy_uri = serializers.SerializerMethodField()
     #wmsresource_uri = serializers.CharField(source="wms_layer.wmsresource.uri")
 
     class Meta:
         model = Layer
         fields = ('id', 'name', 'included', 'wms_layer', 'category', 'order',
-                  'style', 'legend_uri')  #, 'wmsresource_uri')
+                  'style', 'legend_uri', 'proxy_uri', 'legend_proxy_uri')
+        #, 'wmsresource_uri')
+
+    def get_proxy_uri(self, obj):
+        return reverse('wms_proxy', args=(obj.id, ))
+
+    def get_legend_proxy_uri(self, obj):
+        uri = obj.legend_uri
+        if not uri:
+            return ''
+        split = obj.legend_uri.split('?')
+        params = split[1] if len(split) > 1 else ''
+        return self.get_proxy_uri(obj) + '?' + params
 
     def create(self, validated_data):
         # if order is not passed, set it to current max value + 1
