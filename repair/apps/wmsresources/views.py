@@ -72,3 +72,4 @@ class WMSProxyView(View):
             content_type = response.headers['content-type']
         return HttpResponse(response.content, content_type=content_type,
                             status=response.status_code)
+
