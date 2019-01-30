@@ -348,21 +348,41 @@ var BaseMapsView = BaseView.extend(
             url: config.views.layerproxy.format(layer.id),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
         });
+        function arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = [].slice.call(new Uint8Array(buffer));
+
+            bytes.forEach((b) => binary += String.fromCharCode(b));
+
+            return window.btoa(binary);
+        };
+
         var uri = layer.get('legend_uri');
         if (uri) {
             var legendDiv = document.createElement('li'),
                 head = document.createElement('b'),
+                imgWrapper = document.createElement('div'),
                 img = document.createElement('img');
             legendDiv.id = this.legendPrefix + layer.id;
             head.innerHTML = layer.get('name');
-            img.src = uri;
             var itemsDiv = this.legend.querySelector('.items');
             itemsDiv.appendChild(legendDiv);
             legendDiv.appendChild(head);
             legendDiv.appendChild(document.createElement('br'));
-            legendDiv.appendChild(img);
+            legendDiv.appendChild(imgWrapper);
+            imgWrapper.appendChild(img);
             if (!layer.get('included'))
                 legendDiv.style.display = 'none';
+
+            fetch(uri).then(function(response){
+                response.arrayBuffer().then(function(buffer){
+                    var base64Flag = 'data:image/jpeg;base64,',
+                        imageStr = arrayBufferToBase64(buffer);
+                    img.src = base64Flag + imageStr;
+                });
+            }).catch(function(error){
+                imgWrapper.innerHTML = gettext('legend not found');
+            })
         }
     },
 
