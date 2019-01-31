@@ -377,15 +377,6 @@ class MaterialTest(BasicModelPermissionTest, APITestCase):
                                                   composition=self.comp_1_obj,
                                                   material=self.mat_parent,
                                                   publication__id=self.pub_1)
-        #self.frac_2_obj =  ProductFractionFactory(id=self.frac_2,
-                                                  #composition=self.comp_1_obj,
-                                                  #material=self.\
-                                                  #mat_grandparent,
-                                                  #publication__id=self.pub_2)
-        #self.frac_3_obj =  ProductFractionFactory(id=self.frac_3,
-                                                  #composition=self.comp_2_obj,
-                                                  #material=self.mat_parent,
-                                                  #publication__id=self.pub_3)
 
     @classmethod
     def setUpClass(cls):

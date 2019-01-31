@@ -4,6 +4,14 @@ from django.db import migrations, models
 import django.db.models.deletion
 import repair.apps.login.models.bases
 import repair.apps.utils.protect_cascade
+from repair.apps.asmfa.models import Actor2Actor
+
+
+def translate(apps, schema_editor):
+    #Actor2Actor = apps.get_model('asmfa', 'Actor2Actor')
+    print('Translating actor2actor flows to fraction-flows')
+    for flow in Actor2Actor.objects.all():
+        flow.save()
 
 
 class Migration(migrations.Migration):
@@ -40,4 +48,5 @@ class Migration(migrations.Migration):
             },
             bases=(repair.apps.login.models.bases.GDSEModelMixin, models.Model),
         ),
+        migrations.RunPython(translate, migrations.RunPython.noop)
     ]
