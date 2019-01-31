@@ -28,6 +28,7 @@ from repair.apps.asmfa.models import (
     Actor,
     Activity,
     ActivityGroup,
+    FractionFlow
 )
 
 from repair.apps.studyarea.models import (
@@ -40,7 +41,8 @@ from repair.apps.asmfa.serializers import (
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
     Group2GroupSerializer,
-    Actor2ActorCreateSerializer
+    Actor2ActorCreateSerializer,
+    FractionFlowSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -462,8 +464,6 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
                     queryset = queryset.filter(link_func.reduce(filter_functions))
 
         keyflow = kwargs['keyflow_pk']
-        actors = Actor.objects.filter(
-            activity__activitygroup__keyflow__id=keyflow)
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
@@ -654,3 +654,122 @@ class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
             )
         )
         return annotated
+
+
+class FractionFlowViewSet(PostGetViewMixin, RevisionMixin,
+                          CasestudyViewSetMixin,
+                          ModelPermissionViewSet):
+    serializer_class = FractionFlowSerializer
+    model = FractionFlow
+    pagination_class = UnlimitedResultsSetPagination
+
+    queryset = FractionFlow.objects.all()
+    additional_filters = {'origin__included': True,
+                          'destination__included': True}
+
+    def get_queryset(self):
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        flows = FractionFlow.objects.filter(keyflow__id=keyflow_pk)
+        return flows.order_by('origin', 'destination')
+
+    # POST is used to send filter parameters not to create
+    def post_get(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        # filter by query params
+        queryset = self._filter(kwargs, query_params=request.query_params,
+                                SerializerClass=self.get_serializer_class())
+        params = {}
+        # values of body keys are not parsed
+        for key, value in request.data.items():
+            try:
+                params[key] = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                params[key] = value
+
+        waste_filter = params.get('waste', None)
+        filters = params.get('filters', None)
+        material_filter = params.get('materials', None)
+        spatial_aggregation = params.get('spatial_level', None)
+        level_aggregation = params.get('aggregation_level', None)
+
+        if spatial_aggregation and level_aggregation:
+            return HttpResponseBadRequest(_(
+                "Aggregation on spatial levels and based on the activity level "
+                "can't be performed at the same time" ))
+
+        # filter products (waste=False) or waste (waste=True)
+        if waste_filter is not None:
+            queryset = queryset.filter(waste=waste_filter)
+
+        keyflow = kwargs['keyflow_pk']
+        # filter queryset based on passed filters
+        if filters:
+            queryset = self.filter_chain(queryset, filters)
+
+        print()
+        print()
+
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        self.check_casestudy(kwargs, request)
+
+        queryset = self._filter(kwargs, query_params=request.query_params)
+        if queryset is None:
+            return Response(status=400)
+        data = self.serialize(queryset)
+        return Response(data)
+
+    def serialize(self, queryset):
+        data = []
+        groups = queryset.values('origin', 'destination', 'waste').distinct()
+        import time
+        start = time.time()
+
+        for group in groups:
+            grouped = queryset.filter(**group)
+            amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            flow_item = OrderedDict((
+                ('origin', group['origin']),
+                ('destination', group['destination']),
+                ('waste', group['waste']),
+                ('amount', amount)
+            ))
+            #fraction_data = []
+            #for fraction in grouped:
+                #fraction_item = OrderedDict((
+                    #('fraction', float("{0:.4f}".format(
+                        #fraction.amount / amount if amount > 0 else 0))),
+                    #('material', fraction.material.id),
+                    #('hazardous', fraction.hazardous),
+                    #('avoidable', fraction.avoidable)
+                #))
+                #fraction_data.append(fraction_item)
+            flow_item['fractions'] = grouped.values('amount', 'material',
+                                                    'hazardous', 'avoidable')
+            data.append(flow_item)
+        end = time.time() - start
+        print(end)
+        return data
+
+
+    @staticmethod
+    def filter_chain(queryset, filters):
+        for sub_filter in filters:
+            filter_link = sub_filter.get('link', None)
+            filter_functions = []
+            for f in sub_filter['functions']:
+                func = f['function']
+                v = f['values']
+                if func.endswith('__areas'):
+                    func, v = build_area_filter(func, v, keyflow)
+                filter_function = Q(**{func: v})
+                filter_functions.append(filter_function)
+            if filter_link == 'and':
+                link_func = np.bitwise_and
+            else:
+                link_func = np.bitwise_or
+            if len(filter_functions) == 1:
+                queryset = queryset.filter(filter_functions[0])
+            if len(filter_functions) > 1:
+                queryset = queryset.filter(link_func.reduce(filter_functions))
+        return queryset

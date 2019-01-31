@@ -210,7 +210,7 @@ var FlowsView = BaseView.extend(
         stockFilterParams['aggregation_level'] = displayLevel;
 
         var flows = new GDSECollection([], {
-            apiTag: 'actorToActor',
+            apiTag: 'flows',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         var stocks = new GDSECollection([], {
@@ -288,7 +288,7 @@ var FlowsView = BaseView.extend(
         queryParams['destination__' + filterSuffix] = destination.id;
 
         var flows = new GDSECollection([], {
-            apiTag: 'actorToActor',
+            apiTag: 'flows',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promise = new Promise(function(resolve, reject){

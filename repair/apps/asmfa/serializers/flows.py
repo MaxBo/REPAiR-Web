@@ -4,7 +4,8 @@ from repair.apps.asmfa.models import (Flow,
                                       Actor2Actor,
                                       Activity2Activity,
                                       Group2Group,
-                                      Composition
+                                      Composition,
+                                      FractionFlow
                                       )
 from rest_framework import serializers
 
@@ -144,3 +145,24 @@ class Actor2ActorSerializer(FlowSerializer):
                   'origin',  'destination',
                   'description',
                   'year', 'publication', 'waste', 'process')
+
+
+class FractionFlowSerializer(CompositionMixin,
+                             NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+    keyflow = IDRelatedField()
+    publication = IDRelatedField(allow_null=True, required=False)
+    process = IDRelatedField(allow_null=True)
+    origin = IDRelatedField()
+    destination = IDRelatedField()
+    material = IDRelatedField()
+
+    class Meta(FlowSerializer.Meta):
+        model = FractionFlow
+        fields = ('id', 'origin', 'destination', 'keyflow', 'material',
+                  'amount', 'process', 'nace', 'waste', 'avoidable',
+                  'hazardous', 'description', 'year', 'publication')
+
