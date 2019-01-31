@@ -31,41 +31,42 @@ class CompositionMixin:
         return self.update(instance, validated_data)
 
     def update(self, instance, validated_data):
-        comp_data = validated_data.pop('composition')
-        comp_id = comp_data.get('id')
+        comp_data = validated_data.pop('composition', None)
+        if comp_data:
+            comp_id = comp_data.get('id')
 
-        # custom composition: no product or waste
-        if comp_id is None or comp_id == instance.composition_id:
-            # no former compostition
-            if instance.composition is None:
-                composition = Composition.objects.create()
-                if 'keyflow_id' in validated_data:
-                    composition.keyflow = KeyflowInCasestudy.objects.get(
-                        id=validated_data['keyflow_id'])
-                #composition.keyflow = self.request
-            # former compostition
+            # custom composition: no product or waste
+            if comp_id is None or comp_id == instance.composition_id:
+                # no former compostition
+                if instance.composition is None:
+                    composition = Composition.objects.create()
+                    if 'keyflow_id' in validated_data:
+                        composition.keyflow = KeyflowInCasestudy.objects.get(
+                            id=validated_data['keyflow_id'])
+                    #composition.keyflow = self.request
+                # former compostition
+                else:
+                    composition = instance.composition
+
+                if composition.is_custom:
+                    # update the fractions using the CompositionSerializer
+                    comp_data['id'] = composition.id
+                    composition = CompositionSerializer().update(
+                        composition, comp_data)
+
+            # product or waste
             else:
-                composition = instance.composition
+                # take the product or waste-instance as composition
+                composition = Composition.objects.get(id=comp_id)
 
-            if composition.is_custom:
-                # update the fractions using the CompositionSerializer
-                comp_data['id'] = composition.id
-                composition = CompositionSerializer().update(
-                    composition, comp_data)
+                # if old composition is a custom composition, delete it
+                if instance.composition is not None:
+                    old_composition = instance.composition
+                    if old_composition.is_custom:
+                        old_composition.delete()
 
-        # product or waste
-        else:
-            # take the product or waste-instance as composition
-            composition = Composition.objects.get(id=comp_id)
-
-            # if old composition is a custom composition, delete it
-            if instance.composition is not None:
-                old_composition = instance.composition
-                if old_composition.is_custom:
-                    old_composition.delete()
-
-        # assign the composition to the flow
-        instance.composition = composition
+            # assign the composition to the flow
+            instance.composition = composition
         return super().update(instance, validated_data)
 
 
