@@ -106,7 +106,7 @@ class Actor2Actor(Flow):
                 origin=self.origin,
                 destination=self.destination,
                 material=fraction.material,
-                amount=self.amount*fraction.fraction,
+                amount=self.amount*fraction.fraction*1000,
                 nace=composition.nace,
                 composition_name=composition.name,
                 publication=fraction.publication or self.publication,
