@@ -23,7 +23,11 @@ from repair.apps.asmfa.models import (
     Actor2Actor,
     Group2Group,
     Material,
-    FractionFlow
+    FractionFlow,
+    Actor,
+    ActivityGroup,
+    Activity,
+    AdministrativeLocation
 )
 
 from repair.apps.asmfa.serializers import (
@@ -51,6 +55,17 @@ fractions_struct = OrderedDict(material=None,
                                fraction=0
                                )
 
+FILTER_SUFFIX = {
+    Actor: '',
+    Activity: '__activity',
+    ActivityGroup: '__activity__activitygroup'
+}
+
+LEVEL_KEYWORD = {
+    Actor: 'actor',
+    Activity: 'activity',
+    ActivityGroup: 'activitygroup'
+}
 
 def descend_materials(materials, queryset):
     """return list of material ids of given materials and all of their
@@ -369,6 +384,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
+
         # filter flows between included actors (resp. origin only if stock)
         queryset = queryset.filter(
             Q(origin__included=True) &
@@ -397,7 +413,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         if filter_chains:
             queryset = self.filter_chain(queryset, filter_chains)
 
-
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
         material_ids = (None if material_filter is None
@@ -425,28 +440,111 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = self._filter(kwargs, query_params=request.query_params)
         if queryset is None:
             return Response(status=400)
-        data = self.serialize(queryset)
+        #data = self.serialize(queryset)
+        origin_level = Actor
+        destination_level = Actor
+        #actors = Actor.objects.filter(
+            #Q(f_outputs__in=queryset) | Q(f_inputs__in=queryset)
+            #).select_related('administrative_location')
+        #data = self.serialize(queryset)
+        data = self.serialize_aggregated(queryset, origin_model=origin_level,
+                                         destination_model=destination_level)
         return Response(data)
 
     @staticmethod
-    def serialize(queryset):
+    def serialize_nodes(nodes, add_locations=False):
+        args = ['id', 'name']
+        if add_locations:
+            args.append('administrative_location__geom')
+        node_dict = dict(
+            zip(nodes.values_list('id', flat=True),
+                nodes.values(*args))
+        )
+        if add_locations:
+            for k, v in node_dict.items():
+                v['location'] = json.loads(
+                    v.pop('administrative_location__geom').geojson)
+        node_dict[None] = None
+        return node_dict
+
+    def serialize(self, queryset):
         data = []
+        start = time.time()
+        flow_ids = queryset.values('id')
         groups = queryset.values('origin', 'destination',
                                  'waste', 'to_stock').distinct()
+        actors = Actor.objects.filter(
+            Q(f_outputs__in=queryset) | Q(f_inputs__in=queryset)
+            ).select_related('administrative_location')
+        node_dict = self.serialize_nodes(actors, add_locations=True)
 
         for group in groups:
             grouped = queryset.filter(**group)
             amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            dest_id = group['destination']
             flow_item = OrderedDict((
-                ('origin', group['origin']),
-                ('destination', group['destination']),
+                ('origin', node_dict[group['origin']]),
+                ('destination', node_dict[group['destination']]),
                 ('waste', group['waste']),
-                ('to_stock', group['to_stock']),
+                ('stock', group['to_stock']),
                 ('amount', amount)
             ))
             flow_item['fractions'] = grouped.values('amount', 'material',
+                                                    'material__name',
                                                     'hazardous', 'avoidable')
             data.append(flow_item)
+        print(time.time() - start)
+        return data
+
+    def serialize_aggregated(self, queryset, origin_model=Actor,
+                             destination_model=Actor):
+        origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
+        destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
+        origin_level = LEVEL_KEYWORD[origin_model]
+        destination_level = LEVEL_KEYWORD[destination_model]
+        data = []
+        start = time.time()
+        flow_ids = queryset.values('id')
+        origins = origin_model.objects.filter(
+            id__in=queryset.values(origin_filter))
+        destinations = destination_model.objects.filter(
+            id__in=queryset.values(destination_filter))
+
+        groups = queryset.values(origin_filter, destination_filter,
+                                 'waste', 'to_stock').distinct()
+        # reset order to avoid Django ORM bug with determining
+        # distinct values in ordered querysets
+        queryset = queryset.order_by()
+
+        origin_dict = self.serialize_nodes(
+            origins, add_locations=True if origin_model == Actor else False
+        )
+        destination_dict = self.serialize_nodes(
+            destinations,
+            add_locations=True if destination_model == Actor else False
+        )
+
+        for group in groups:
+            grouped = queryset.filter(**group)
+            amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            origin_item = origin_dict[group[origin_filter]]
+            origin_item['level'] = origin_level
+            dest_item = destination_dict[group[destination_filter]]
+            if dest_item:
+                dest_item['level'] = destination_level
+            grouped_mats = grouped.values('material').annotate(
+                amount_mat=Sum('amount'))
+            flow_item = OrderedDict((
+                ('origin', origin_item),
+                ('destination', dest_item),
+                ('waste', group['waste']),
+                ('stock', group['to_stock']),
+                ('amount', amount),
+                ('fractions', grouped_mats)
+            ))
+
+            data.append(flow_item)
+        print(time.time() - start)
         return data
 
     @staticmethod
