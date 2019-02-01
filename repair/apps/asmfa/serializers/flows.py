@@ -5,7 +5,11 @@ from repair.apps.asmfa.models import (Flow,
                                       Activity2Activity,
                                       Group2Group,
                                       Composition,
-                                      FractionFlow
+                                      FractionFlow,
+                                      ActorStock,
+                                      GroupStock,
+                                      ActivityStock,
+                                      Stock
                                       )
 from rest_framework import serializers
 
@@ -166,3 +170,44 @@ class FractionFlowSerializer(CompositionMixin,
                   'amount', 'process', 'nace', 'waste', 'avoidable',
                   'hazardous', 'description', 'year', 'publication')
 
+
+
+class StockSerializer(CompositionMixin,
+                      NestedHyperlinkedModelSerializer):
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    composition = CompositionSerializer()
+    publication = IDRelatedField(allow_null=True, required=False)
+
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'keyflow__casestudy__id',
+        'keyflow_pk': 'keyflow__id',
+    }
+
+    class Meta:
+        model = Stock
+        fields = ('url', 'id', 'origin', 'amount',
+                  'keyflow', 'year', 'composition',
+                  'publication', 'waste'
+                  )
+
+
+class GroupStockSerializer(StockSerializer):
+    origin = IDRelatedField()
+
+    class Meta(StockSerializer.Meta):
+        model = GroupStock
+
+
+class ActivityStockSerializer(StockSerializer):
+    origin = IDRelatedField()
+
+    class Meta(StockSerializer.Meta):
+        model = ActivityStock
+
+
+class ActorStockSerializer(StockSerializer):
+    origin = IDRelatedField()
+
+    class Meta(StockSerializer.Meta):
+        model = ActorStock

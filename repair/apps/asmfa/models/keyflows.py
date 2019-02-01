@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.utils.functional import cached_property
 
 from django.db import models
 from collections import defaultdict
@@ -46,7 +47,7 @@ class Material(GDSEModel):
     class Meta(GDSEModel.Meta):
         unique_together = ('name', 'keyflow', 'level')
 
-    @property
+    @cached_property
     def descendants(self):
         """ all children of the material (deep traversal) """
         descendants = []
@@ -55,7 +56,7 @@ class Material(GDSEModel):
             descendants.extend(child.descendants)
         return descendants
 
-    @property
+    @cached_property
     def children(self):
         """ direct children of the material traversal """
         return Material.objects.filter(parent=self.id)
@@ -110,14 +111,6 @@ class Composition(GDSEModel):
         is_product = getattr(self, 'product', None) is not None
         is_custom = not (is_waste or is_product)
         return is_custom
-
-    #def aggregate_by_materials(self, materials):
-        #aggregation = defaultdict.fromkeys(materials, 0)
-        #for fraction in self.fractions.iterator():
-            #for material in materials:
-                #if fraction.material.is_descendant(material):
-                    #aggregation[material] += fraction.fraction
-        #return
 
 
 class Product(Composition):

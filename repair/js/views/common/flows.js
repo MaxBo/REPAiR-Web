@@ -89,10 +89,6 @@ var FlowsView = BaseView.extend(
         nodeLevel = nodeLevel.toLowerCase();
         direction = direction.toLowerCase();
 
-        if (flowType != 'both') {
-            filterParams.waste = (flowType == 'waste') ? true : false;
-        }
-
         // material options for both stocks and flows
         filterParams.materials = {
             aggregate: filter.get('aggregate_materials')
@@ -113,18 +109,18 @@ var FlowsView = BaseView.extend(
         }
         filterParams.materials.ids = materialIds;
 
-        // if the collections are filtered build matching query params for the flows
-        var flowFilterParams = Object.assign({}, filterParams),
-            stockFilterParams = Object.assign({}, filterParams);
-
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
         var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
             (nodeLevel == 'activity') ? 'activity__': '';
 
-        var flowFilters = flowFilterParams['filters'] = [],
-            stockFilters = stockFilterParams['filters'] = [];
+        var flowFilters = filterParams['filters'] = [];
+
+        if (flowType != 'both') {
+            var is_waste = (flowType == 'waste') ? true : false;
+            flowFilters.push({functions: [{'waste': is_waste}]})
+        }
 
         // filter origins/destinations by ids
         if (nodeIds && nodeIds.length > 0){
@@ -183,7 +179,7 @@ var FlowsView = BaseView.extend(
             flowFilters.push(area_filter);
             stockFilters.push({ functions: [origin_area_filter] });
         }
-        return [flowFilterParams, stockFilterParams];
+        return filterParams;
     },
 
     draw: function(displayLevel){
@@ -211,10 +207,6 @@ var FlowsView = BaseView.extend(
 
         var flows = new GDSECollection([], {
             apiTag: 'flows',
-            apiIds: [ this.caseStudy.id, this.keyflowId]
-        });
-        var stocks = new GDSECollection([], {
-            apiTag: 'actorStock',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         this.loader.activate();
@@ -271,7 +263,7 @@ var FlowsView = BaseView.extend(
     addGroupedActors: function(origin, destination, flow){
 
         // put filter params defined by user in filter section into body
-        var bodyParams = this.getFlowFilterParams()[0],
+        var bodyParams = filterParams,
             filterSuffix = 'activity',
             _this = this;
 
