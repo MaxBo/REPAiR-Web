@@ -89,7 +89,7 @@ var FlowsView = BaseView.extend(
         nodeLevel = nodeLevel.toLowerCase();
         direction = direction.toLowerCase();
 
-        // material options for both stocks and flows
+        // material options for stocks and flows
         filterParams.materials = {
             aggregate: filter.get('aggregate_materials')
         }
@@ -147,7 +147,6 @@ var FlowsView = BaseView.extend(
                 id_filter['functions'].push(destination_id_filter);
             }
             flowFilters.push(id_filter);
-            stockFilters.push({ functions: [origin_id_filter] });
         }
 
         var areas = filter.get('areas');
@@ -177,7 +176,6 @@ var FlowsView = BaseView.extend(
                 area_filter['functions'].push(destination_area_filter);
             }
             flowFilters.push(area_filter);
-            stockFilters.push({ functions: [origin_area_filter] });
         }
         return filterParams;
     },
@@ -195,54 +193,43 @@ var FlowsView = BaseView.extend(
         var collection = (displayLevel == 'actor') ? this.actors:
             (displayLevel == 'activity') ? this.activities:
             this.activityGroups;
-        var filterParams = this.getFlowFilterParams(),
-            flowFilterParams = filterParams[0],
-            stockFilterParams = filterParams[1];
+        var filterParams = this.getFlowFilterParams();
 
-        flowFilterParams['aggregation_level'] = {
+        filterParams['aggregation_level'] = {
             origin: displayLevel,
             destination: displayLevel
         };
-        stockFilterParams['aggregation_level'] = displayLevel;
 
         var flows = new GDSECollection([], {
             apiTag: 'flows',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         this.loader.activate();
-        var promises = [
-            flows.postfetch({body: flowFilterParams})
-        ]
-        promises.push(stocks.postfetch({body: stockFilterParams}));
-
-        Promise.all(promises).then(function(){
-            utils.complementFlowData(flows, collection, collection,
-                function(origins, destinations){
-                    _this.colorColl(origins);
-                    _this.colorColl(destinations);
-                    _this.loader.deactivate();
-                    _this.flowSankeyView = new FlowSankeyView({
-                        el: el,
-                        width:  el.clientWidth - 10,
-                        origins: origins,
-                        destinations: destinations,
-                        flows: flows,
-                        stocks: stocks,
-                        materials: _this.materials,
-                        flowFilterParams: flowFilterParams,
-                        stockFilterParams: stockFilterParams,
-                        hideUnconnected: true,
-                        height: 600
-                        //originLevel: displayLevel,
-                        //destinationLevel: displayLevel
-                    })
-                    el.addEventListener('linkSelected', _this.linkSelected);
-                    el.addEventListener('linkDeselected', _this.linkDeselected);
-                    el.addEventListener('allDeselected', _this.deselectAll);
-                }
-            )
-        });
-
+        flows.postfetch({
+            body: filterParams,
+            success: function(response){
+                console.log(response)
+                //_this.colorColl(origins);
+                //_this.colorColl(destinations);
+                _this.loader.deactivate();
+                _this.flowSankeyView = new FlowSankeyView({
+                    el: el,
+                    width:  el.clientWidth - 10,
+                    flows: flows,
+                    hideUnconnected: true,
+                    height: 600,
+                    originLevel: displayLevel,
+                    destinationLevel: displayLevel
+                })
+                el.addEventListener('linkSelected', _this.linkSelected);
+                el.addEventListener('linkDeselected', _this.linkDeselected);
+                el.addEventListener('allDeselected', _this.deselectAll);
+            },
+            error: function(){
+                _this.loader.deactivate();
+                _this.onError;
+            }
+        })
     },
 
     colorColl: function(collection){

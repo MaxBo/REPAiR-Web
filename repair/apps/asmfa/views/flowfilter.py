@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from django.http import HttpResponseBadRequest
-from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum
+from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum, F
 import time
 import numpy as np
 import copy
@@ -377,10 +377,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         }
         '''
         self.check_permission(request, 'view')
-        # to avoid confusion, allow boolean 'stock' as
-        # query parameter (internally 'to_stock')
-        if 'stock' in kwargs:
-            kwargs['to_stock'] = kwargs.pop('stock')
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
@@ -401,7 +397,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
         spatial_aggregation = params.get('spatial_level', None)
-        level_aggregation = params.get('aggregation_level', None)
+
+        l_a = params.get('aggregation_level', {})
+        inv_map = {v: k for k, v in LEVEL_KEYWORD.items()}
+        origin_level = inv_map[l_a['origin']] if 'origin' in l_a else Actor
+        destination_level = inv_map[l_a['destination']] \
+            if 'destination' in l_a else Actor
 
         if spatial_aggregation and level_aggregation:
             return HttpResponseBadRequest(_(
@@ -423,14 +424,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         unaltered_materials = []
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        if material_ids is not None:
-            materials = Material.objects.filter(id__in=material_ids)
-            unaltered_materials = Material.objects.filter(
-                id__in=unaltered_material_ids)
-            queryset = filter_by_materials(
-                queryset, list(materials) + list(unaltered_materials))
+        #if material_ids is not None:
+            #materials = Material.objects.filter(id__in=material_ids)
+            #unaltered_materials = Material.objects.filter(
+                #id__in=unaltered_material_ids)
+            #queryset = filter_by_materials(
+                #queryset, list(materials) + list(unaltered_materials))
 
-        data = self.serialize(queryset)
+        data = self.serialize(queryset, origin_model=origin_level,
+                              destination_model=destination_level)
         return Response(data)
 
     def list(self, request, **kwargs):
@@ -440,19 +442,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = self._filter(kwargs, query_params=request.query_params)
         if queryset is None:
             return Response(status=400)
-        #data = self.serialize(queryset)
-        origin_level = Actor
-        destination_level = Actor
-        #actors = Actor.objects.filter(
-            #Q(f_outputs__in=queryset) | Q(f_inputs__in=queryset)
-            #).select_related('administrative_location')
-        #data = self.serialize(queryset)
-        data = self.serialize_aggregated(queryset, origin_model=origin_level,
-                                         destination_model=destination_level)
+        data = self.serialize(queryset)
         return Response(data)
 
     @staticmethod
     def serialize_nodes(nodes, add_locations=False):
+        '''
+        serialize actors, activities or groups in the same way
+        add_locations works only for actors
+        '''
         args = ['id', 'name']
         if add_locations:
             args.append('administrative_location__geom')
@@ -462,42 +460,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         )
         if add_locations:
             for k, v in node_dict.items():
-                v['location'] = json.loads(
-                    v.pop('administrative_location__geom').geojson)
+                geom = v.pop('administrative_location__geom')
+                loc = json.loads(geom.geojson) if geom else None
         node_dict[None] = None
         return node_dict
 
-    def serialize(self, queryset):
-        data = []
-        start = time.time()
-        flow_ids = queryset.values('id')
-        groups = queryset.values('origin', 'destination',
-                                 'waste', 'to_stock').distinct()
-        actors = Actor.objects.filter(
-            Q(f_outputs__in=queryset) | Q(f_inputs__in=queryset)
-            ).select_related('administrative_location')
-        node_dict = self.serialize_nodes(actors, add_locations=True)
-
-        for group in groups:
-            grouped = queryset.filter(**group)
-            amount = list(grouped.aggregate(Sum('amount')).values())[0]
-            dest_id = group['destination']
-            flow_item = OrderedDict((
-                ('origin', node_dict[group['origin']]),
-                ('destination', node_dict[group['destination']]),
-                ('waste', group['waste']),
-                ('stock', group['to_stock']),
-                ('amount', amount)
-            ))
-            flow_item['fractions'] = grouped.values('amount', 'material',
-                                                    'material__name',
-                                                    'hazardous', 'avoidable')
-            data.append(flow_item)
-        print(time.time() - start)
-        return data
-
-    def serialize_aggregated(self, queryset, origin_model=Actor,
-                             destination_model=Actor):
+    def serialize(self, queryset, origin_model=Actor, destination_model=Actor):
         origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
         destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
         origin_level = LEVEL_KEYWORD[origin_model]
@@ -509,12 +477,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             id__in=queryset.values(origin_filter))
         destinations = destination_model.objects.filter(
             id__in=queryset.values(destination_filter))
-
-        groups = queryset.values(origin_filter, destination_filter,
-                                 'waste', 'to_stock').distinct()
         # reset order to avoid Django ORM bug with determining
         # distinct values in ordered querysets
         queryset = queryset.order_by()
+
+        groups = queryset.values(origin_filter, destination_filter,
+                                 'waste', 'to_stock').distinct()
 
         origin_dict = self.serialize_nodes(
             origins, add_locations=True if origin_model == Actor else False
@@ -526,21 +494,26 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         for group in groups:
             grouped = queryset.filter(**group)
+            # sum over all rows in group
             amount = list(grouped.aggregate(Sum('amount')).values())[0]
             origin_item = origin_dict[group[origin_filter]]
             origin_item['level'] = origin_level
             dest_item = destination_dict[group[destination_filter]]
             if dest_item:
                 dest_item['level'] = destination_level
+            # sum up same materials
             grouped_mats = grouped.values('material').annotate(
-                amount_mat=Sum('amount'))
+                name=F('material__name'),
+                level=F('material__level'),
+                amount=Sum('amount')
+            )
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
                 ('amount', amount),
-                ('fractions', grouped_mats)
+                ('materials', grouped_mats)
             ))
 
             data.append(flow_item)
