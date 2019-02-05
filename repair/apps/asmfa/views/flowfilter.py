@@ -461,7 +461,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         if add_locations:
             for k, v in node_dict.items():
                 geom = v.pop('administrative_location__geom')
-                loc = json.loads(geom.geojson) if geom else None
+                v['geom'] = json.loads(geom.geojson) if geom else None
         node_dict[None] = None
         return node_dict
 

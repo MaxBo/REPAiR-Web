@@ -38,11 +38,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.caseStudy = options.caseStudy;
             this.caseStudyId = options.caseStudy.id;
             this.keyflowId = options.keyflowId;
-            this.materials = options.materials;
 
             this.locations = {};
             this.flows = new Flows();
-            this.actors = new GDSECollection();
             this.hideMaterials = {};
             this.displayWarnings = options.displayWarnings || false;
             this.render();
@@ -247,18 +245,19 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             var data = data || this.data,
                 _this = this;
             this.legend.innerHTML = '';
-            var matColors = data.materialColors;
+            var materials = data.materials;
+            console.log(materials)
             // ToDo: inefficient, done too often for just toggling visibility
-            Object.keys(matColors).forEach(function(matId){
-                var material = _this.materials.get(matId),
-                    color = matColors[matId],
+            Object.keys(materials).forEach(function(matId){
+                var material = materials[matId],
+                    color = material.color,
                     div = document.createElement('div'),
                     text = document.createElement('div'),
                     check = document.createElement('input'),
                     colorDiv = document.createElement('div');
                 div.style.height = '25px';
                 div.style.cursor = 'pointer';
-                text.innerHTML = material.get('name');
+                text.innerHTML = material.name;
                 text.style.fontSize = '1.3em';
                 text.style.overflow = 'hidden';
                 text.style.whiteSpace = 'nowrap';
@@ -381,31 +380,23 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
         rerender: function(zoomToFit){
             var _this = this;
-            if(this.actors.length === 0) {
-                this.clear();
-                return;
-            }
-            this.loader.activate();
-            this.prefetchLocations(function(){
-                var splitByComposition = _this.materialCheck.checked;
-                var data = _this.transformData(
-                    _this.actors, _this.flows, _this.locations,
-                    {
-                        splitByComposition: splitByComposition
-                    }
-                );
-                _this.loader.deactivate();
-                if (_this.displayWarnings && data.warnings.length > 0) {
-                    var msg = '';
-                    data.warnings.forEach(function(warning){
-                        msg += warning + '<br>';
-                    })
-                    _this.alert(msg);
+            var splitByComposition = _this.materialCheck.checked;
+            var data = _this.transformData(
+                _this.flows,
+                {
+                    splitByComposition: splitByComposition
                 }
-                _this.resetMapData(data, zoomToFit);
-                _this.toggleClusters();
-                _this.toggleMaterials();
-            })
+            );
+            if (_this.displayWarnings && data.warnings.length > 0) {
+                var msg = '';
+                data.warnings.forEach(function(warning){
+                    msg += warning + '<br>';
+                })
+                _this.alert(msg);
+            }
+            _this.resetMapData(data, zoomToFit);
+            _this.toggleClusters();
+            _this.toggleMaterials();
         },
 
         /*
@@ -420,21 +411,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             })
         },
 
-        /*
-        additional to the usual attributes the nodes should have the attributes
-        'color' and 'group' (object with attr. 'color', 'name' and 'id')
-        */
-        addNodes: function(nodes){
-            var _this = this,
-                nodes = (nodes instanceof Array) ? nodes: [nodes];
-            nodes.forEach(function(actor){
-                _this.actors.add(actor);
-            })
-        },
-
-        getNodes: function(){
-            return this.actors.models;
-        },
 
         getFlows: function(){
             return this.flows.models;
@@ -445,58 +421,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.flows.remove(flows);
         },
 
-        removeNodes: function(nodes, unusedOnly){
-            var _this = this,
-                nodes = (nodes instanceof Array) ? nodes: [nodes],
-                usedNodes = new Set();
-            if (unusedOnly) {
-                this.flows.forEach(function(flow){
-                    usedNodes.add(flow.get('origin'));
-                    usedNodes.add(flow.get('destination'));
-                })
-            }
-            nodes.forEach(function(node){
-                if (!usedNodes.has(node.id))
-                    _this.actors.remove(node);
-            })
-        },
-
         clear: function(){
-            this.actors.reset();
             this.flows.reset();
             this.legend.innerHTML = '';
             this.data = null;
             this.clusterGroups = {};
             this.flowMap.clear();
-        },
-
-        prefetchLocations: function(callback){
-            var nodeIds = [],
-                _this = this;
-            var adminLocations = new GeoLocations([], {
-                apiTag: 'adminLocations',
-                apiIds: [this.caseStudyId, this.keyflowId]
-            });
-            this.actors.forEach(function(actor){
-                if (actor.id in _this.locations) return;
-                nodeIds.push(actor.id);
-            })
-            if(nodeIds.length === 0) callback();
-            else {
-                var data = {};
-                data['actor__in'] = nodeIds.join(',');
-                adminLocations.postfetch({
-                    body: data,
-                    success: function(){
-                        adminLocations.forEach(function(adminLoc){
-                            id = adminLoc.get('properties').actor;
-                            _this.locations[id] = adminLoc;
-                        })
-                        callback();
-                    }
-                });
-            }
-
         },
 
         transformMarkerClusterData: function(){
@@ -536,7 +466,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         * options.splitByComposition - split flows by their compositions (aka materials) into seperate flows
         * options.clusters - array of objects with keys "lat", "lon" (location) and "ids" (array of actor ids that belong to that cluster)
         */
-        transformData: function(actors, flows, locations, options) {
+        transformData: function(flows, options) {
 
             var _this = this,
                 options = options || {},
@@ -570,7 +500,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     clusterMap[id] = clusterId;
                 })
             })
-
+    /*
             actors.forEach(function(actor){
                 // actor is clustered
                 if (clusterMap[actor.id]) return;
@@ -616,38 +546,75 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         pFlows.push(aggregated);
                     }
                 })
-            })
+            }) */
+
+            function mapNode(node){
+                var id = node.id,
+                    name = node.name,
+                    level = node.level,
+                    key = level + id;
+                if (!node.geom){
+                    var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + name;
+                    warnings.push(warning);
+                    return;
+                }
+                var coords = node.geom.coordinates;
+                var transNode = {
+                    id: id,
+                    name: name,
+                    label: name,
+                    color: node.color,
+                    group: node.group,
+                    lon: coords[0],
+                    lat: coords[1],
+                    radius: 10
+                }
+                nodes[id] = transNode;
+                return transNode;
+            }
 
             // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
-                var originId = flow.get('origin'),
-                    destId = flow.get('destination');
-                if (!clusterMap[originId] && !clusterMap[destId]){
-                    // nodes might have no geometry and skipped, don't add flow then
-                    if(!nodes[originId] || !nodes[destId]) return;
-                    pFlows.push(flow);
-                }
+                var origin = flow.get('origin'),
+                    destination = flow.get('destination');
+                if (!destination) return;
+                var source = mapNode(origin),
+                    target = mapNode(destination);
+                if(!source || !target) return;
+                pFlows.push(flow);
+                //if (!clusterMap[origin.id] && !clusterMap[dest.id]){
+                    //// nodes might have no geometry and skipped, don't add flow then
+                    //pFlows.push(flow);
+                //}
             })
 
-            var uniqueMaterials = new Set(),
-                matColors = {};
+            var materials = {};
 
             pFlows.forEach(function(flow) {
-                var sourceId = flow.get('origin'),
-                    targetId = flow.get('destination');
+                var sourceId = flow.get('origin').id,
+                    targetId = flow.get('destination').id;
                 var sourceNode = nodes[sourceId],
                     targetNode = nodes[targetId],
-                    composition = flow.get('composition');
+                    fractions = flow.get('materials');
 
-                var wasteLabel = (flow.get('waste')) ? '<b>Waste</b>' : '<b>Product</b>',
+                var wasteLabel = (flow.get('waste')) ? 'Waste' : 'Product',
                     totalAmount = Math.round(flow.get('amount')),
-                    flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;;
+                    flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;
 
                 if(splitByComposition){
-                    composition.fractions.forEach(function(fraction){
-                        var material = _this.materials.get(fraction.material),
-                            amount = Math.round(totalAmount * fraction.fraction),
-                            label = flowLabel + ': ' + composition.name + '<br><b>Material: </b>' + material.get('name') + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year';
+                    fractions.forEach(function(material){
+                        var amount = material.amount / 1000,
+                            label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
+                            color;
+                        if (!materials[material.material]){
+                            color = utils.colorByName(material.name)
+                            materials[material.material] = {
+                                color: color,
+                                name: material.name
+                            };
+                        }
+                        else
+                            color = materials[material.material].color;
                         links.push({
                             id: flow.id,
                             label: label,
@@ -655,9 +622,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             target: targetId,
                             value: amount,
                             material: material.id,
-                            tag: material.id
+                            tag: material.id,
+                            color: color
                         })
-                        uniqueMaterials.add(material.id);
                     })
                     //define colors for individual materials and store in styles
                     //var materialColor = d3.scale.linear()
@@ -665,24 +632,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         //.domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
                         //.interpolate(d3.interpolateHsl);
 
-                    var i = 0;
-                    uniqueMaterials.forEach(function (materialId) {
-                        var color = utils.colorByName(_this.materials.get(materialId).get('name'));
-                        matColors[materialId] = color;
-                        i++;
-                    });
-
-                    links.forEach(function(link){
-                        link.color = matColors[link.material];
-                    })
+                    //links.forEach(function(link){
+                        //link.color = matColors[link.material];
+                    //})
                 }
                 else {
                     var label = flowLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
                     links.push({
                         id: flow.id,
                         label: label,
-                        source: flow.get('origin'),
-                        target: flow.get('destination'),
+                        source: flow.get('origin').id,
+                        target: flow.get('destination').id,
                         color: sourceNode.color,
                         value: totalAmount
                     })
@@ -692,7 +652,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             return {
                 flows: links,
                 nodes: Object.values(nodes),
-                materialColors: matColors,
+                materials: materials,
                 warnings: warnings
             }
         }

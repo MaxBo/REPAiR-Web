@@ -103,17 +103,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 gradient: false
             })
 
-            // get models from sankey data and redirect the event
+            // redirect the event with same properties
             function redirectEvent(e){
-                var d = e.detail,
-                    flow = _this.flows.get(d.id),
-                    origin = _this.origins.get(d.source.id),
-                    destination = _this.destinations.get(d.target.id);
-                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
-                    flow: flow,
-                    origin: origin,
-                    destination: destination
-                }}))
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: e.detail.originalData }))
             }
 
             div.addEventListener('linkSelected', redirectEvent);
@@ -167,11 +159,18 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 return idx;
             }
 
+            function addStock(){
+                idx += 1;
+                var color = 'darkgray';
+                nodes.push({name: 'Stock', color: color, alignToSource: {x: 80, y: 0} });
+                return idx;
+            }
+
             function compositionRepr(flow){
                 var text = '',
                     i = 0,
                     fractions = flow.get('materials'),
-                    totalAmount = flow.get('amount') / 1000;
+                    totalAmount = flow.get('amount');
 
                 fractions.forEach(function(material){
                     var fraction = material.amount / totalAmount,
@@ -191,28 +190,29 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 var origin = flow.get('origin'),
-                    destination = flow.get('destination');
-                if (origin.id == destination.id) {
+                    destination = flow.get('destination'),
+                    isStock = flow.get('stock');
+                if (!isStock && origin.id == destination.id) {
                     console.log('Warning: self referencing cycle at node ' + origin.name);
                     return;
                 }
                 var source = mapNode(origin),
-                    target = mapNode(destination);
+                    target = (!isStock) ? mapNode(destination) : addStock();
                 var crepr = compositionRepr(flow);
                 links.push({
                     id: flow.id,
+                    originalData: flow,
                     value: Math.round(flow.get('amount') / 1000),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
-                    isStock: flow.get('stock'),
+                    isStock: isStock,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + crepr,
                     composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
             })
 
             var transformed = {nodes: nodes, links: links};
-            console.log(transformed)
             return transformed;
         },
 
