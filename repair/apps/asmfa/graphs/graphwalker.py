@@ -67,17 +67,6 @@ class GraphWalker:
                 self.edge_mask[e] = True
             else:
                 self.edge_mask[e] = False
-        
-    def _calculate_solution(self, solution):
-        """Calculate the changes on flows for a solution"""
-        if isinstance(solution, int):
-            solution = float(solution)
-        assert isinstance(solution, float)
-        g = copy.deepcopy(self.graph)
-        for e in g.edges():
-            if(g.ep.amount[e] != None):
-                g.ep.amount[e] = g.ep.amount[e] * solution
-        return g
 
     def calculate_solution(self, solution, upstream=True):
         """Traverse the graph in a breadth-first-search manner
@@ -87,7 +76,7 @@ class GraphWalker:
         G : the graph to explore
         solution.solution_flows : the starting edges, normally this is the *solution.solution_flows*
         self.edge_mask : edge propery map (bool) to indicate the edges that are part of the solution definition
-        solution : double, the solution
+        solution.solution : double, the solution
         self.graph.ep.amount : edge property map (double) of the material amounts
         upstream : The direction of traversal. When upstream is True, the graph is explored upstream first, otherwise downstream first.
 
