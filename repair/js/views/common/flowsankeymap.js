@@ -246,7 +246,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this = this;
             this.legend.innerHTML = '';
             var materials = data.materials;
-            console.log(materials)
             // ToDo: inefficient, done too often for just toggling visibility
             Object.keys(materials).forEach(function(matId){
                 var material = materials[matId],
@@ -405,12 +404,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         */
         addFlows: function(flows){
             var _this = this;
-                flows = (flows instanceof Array) ? flows: [flows];
+                flows = (flows.forEach != null) ? flows: [flows];
             flows.forEach(function(flow){
                 _this.flows.add(flow);
             })
         },
-
 
         getFlows: function(){
             return this.flows.models;

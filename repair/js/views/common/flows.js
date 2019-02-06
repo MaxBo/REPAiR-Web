@@ -43,7 +43,6 @@ var FlowsView = BaseView.extend(
         this.keyflowId = options.keyflowId;
         this.displayWarnings = options.displayWarnings || false;
         this.render();
-
     },
 
     /*
@@ -181,6 +180,7 @@ var FlowsView = BaseView.extend(
     },
 
     draw: function(displayLevel){
+        this.flowMem = {};
         if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowSankeyView != null) this.flowSankeyView.close();
         var displayLevel = displayLevel || 'activitygroup';
@@ -260,26 +260,55 @@ var FlowsView = BaseView.extend(
         queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
 
+        var origin = flow.get('origin'),
+            destination = flow.get('destination'),
+            origin_group = {
+                color: origin.color,
+                name: origin.name,
+                id: origin.id
+            },
+            destination_group = {
+                color: destination.color,
+                name: destination.name,
+                id: destination.id
+            };
+
         var flows = new GDSECollection([], {
             apiTag: 'flows',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
+
+
         var promise = new Promise(function(resolve, reject){
-            flows.postfetch({
-                body: bodyParams,
-                data: queryParams,
-                success: function(){
-                    var originIds = [],
-                        destinationIds = [];
-                    flows.forEach(function(f){
-                        // remember which flow the sub flows belong to (used in deselection)
-                        f.parent = flow.id;
-                        _this.flowMapView.addFlows(f)
-                    })
-                    resolve();
-                },
-                error: reject
-            })
+            var mem = _this.flowMem[flow.id];
+            // flows were not fetched yet
+            if (!mem){
+                flows.postfetch({
+                    body: bodyParams,
+                    data: queryParams,
+                    success: function(flows){
+                        flows.forEach(function(f){
+                            // remember which flow the sub flows belong to (used in deselection)
+                            f.parent = flow.id;
+                            var o = f.get('origin');
+                            o.group = origin_group;
+                            o.color = origin.color;
+                            var d = f.get('destination');
+                            d.group = destination_group;
+                            d.color = destination.color;
+                            _this.flowMapView.addFlows(f);
+                        })
+                        _this.flowMem[flow.id] = flows;
+                        resolve();
+                    },
+                    error: reject
+                })
+            }
+            // add already fetched nodes
+            else {
+                _this.flowMapView.addFlows(mem);
+                resolve();
+            }
         })
         return promise;
     },
