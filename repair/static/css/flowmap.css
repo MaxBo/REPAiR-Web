@@ -76,3 +76,6 @@ div.sankeymaptooltip {
 .leaflet-control-zoom {
     top: 50px;
 }
+.leaflet-div-icon {
+    border: 0px;
+}

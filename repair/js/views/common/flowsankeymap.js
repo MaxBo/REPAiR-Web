@@ -448,7 +448,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 });
             })
             data = this.transformData(
-                this.actors, this.flows, this.locations,
+                this.flows,
                 {
                     splitByComposition: this.materialCheck.checked,
                     clusters: clusters
@@ -477,6 +477,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 warnings = [];
 
             var i = 0;
+
             clusters.forEach(function(cluster){
                 var nNodes = cluster.ids.length,
                     clusterId = 'cluster' + i,
@@ -498,57 +499,15 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     clusterMap[id] = clusterId;
                 })
             })
-    /*
-            actors.forEach(function(actor){
-                // actor is clustered
-                if (clusterMap[actor.id]) return;
 
-                var location = _this.locations[actor.id];
-                if (!location || !location.get('geometry')) {
-                    var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + actor.get('name');
-                    warnings.push(warning);
-                    return;
-                }
-                var location = _this.locations[actor.id],
-                    geom = location.get('geometry');
-                if (!geom) return;
-
-                var coords = geom.get('coordinates'),
-                    lon = coords[0],
-                    lat = coords[1];
-                var transNode = {
-                    id: actor.id,
-                    name: actor.get('name'),
-                    label: actor.get('name'),
-                    color: actor.color,
-                    group: actor.group,
-                    lon: lon,
-                    lat: lat,
-                    radius: 10
-                }
-                nodes[actor.id] = transNode;
-            });
-
-            // aggregate flows
-            Object.values(nodes).forEach(function(source){
-                Object.values(nodes).forEach(function(target){
-                    // source and target are same or none of them is clustered
-                    if(source === target || (!source.cluster && !target.cluster)) return;
-                    var originIds = (source.cluster) ? source.cluster.ids : [source.id],
-                        destIds = (target.cluster) ? target.cluster.ids : target.id;
-                    var outFlows = flows.filterBy({origin: originIds, destination: destIds});
-                    if (outFlows.length > 0){
-                        aggregated = outFlows.aggregate();
-                        aggregated.set('origin', source.id);
-                        aggregated.set('destination', target.id);
-                        pFlows.push(aggregated);
-                    }
-                })
-            }) */
-
-            function mapNode(node){
+            function transformNode(node){
                 var id = node.id,
-                    name = node.name,
+                    clusterId = clusterMap[id];
+
+                // node already clustered
+                if (clusterId != null) return nodes[clusterId];
+
+                var name = node.name,
                     level = node.level,
                     key = level + id;
                 if (!node.geom){
@@ -571,86 +530,135 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 return transNode;
             }
 
+            var aggMap = {};
+            function aggregate(flow, source, target) {
+                var key = source.id + '-' + target.id + '-' + flow.get('waste'),
+                    mapped = aggMap[key];
+                if (!mapped){
+                    mapped = {
+                        id: key,
+                        source: source,
+                        target: target,
+                        waste: flow.get('waste'),
+                        amount: flow.get('amount'),
+                        fractions: {}
+                    }
+                    fractions = mapped.fractions;
+                    flow.get('materials').forEach(function(material){
+                        fractions[material.material] = Object.assign({}, material);
+                    })
+                    aggMap[key] = mapped;
+                    pFlows.push(mapped);
+                }
+                else {
+                    fractions = mapped.fractions;
+                    flow.get('materials').forEach(function(material){
+                        var mat = fractions[material.material];
+                        if (!mat){
+                            mat = Object.assign({}, material);
+                            fractions[material.material] = mat;
+                        }
+                        else
+                            mat.amount += material.amount;
+                    })
+                    mapped.amount += flow.get('amount');
+                }
+            }
+
             // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
                 var origin = flow.get('origin'),
                     destination = flow.get('destination');
+                // ignore stocks
                 if (!destination) return;
-                var source = mapNode(origin),
-                    target = mapNode(destination);
+
+                var source = transformNode(origin),
+                    target = transformNode(destination);
+                // one node might have no geom -> do not shown on map
                 if(!source || !target) return;
-                pFlows.push(flow);
-                //if (!clusterMap[origin.id] && !clusterMap[dest.id]){
-                    //// nodes might have no geometry and skipped, don't add flow then
-                    //pFlows.push(flow);
-                //}
+
+                // one node is clustered -> aggregate
+                if (source.cluster || target.cluster) {
+                    aggregate(flow, source, target);
+                }
+                else {
+                    pFlows.push({
+                        id: flow.id,
+                        source: source,
+                        target: target,
+                        amount: flow.get('amount'),
+                        fractions: flow.get('materials'),
+                        waste: flow.get('waste')
+                    });
+                }
             })
 
-            var materials = {};
+            // posproc the aggregation (just dict to list)
+            Object.values(aggMap).forEach(function(flow){
+                flow.fractions = Object.values(flow.fractions);
+            })
 
+            var uniqueMaterials = {};
             pFlows.forEach(function(flow) {
-                var sourceId = flow.get('origin').id,
-                    targetId = flow.get('destination').id;
-                var sourceNode = nodes[sourceId],
-                    targetNode = nodes[targetId],
-                    fractions = flow.get('materials');
+                var source = flow.source,
+                    target = flow.target,
+                    fractions = flow.fractions;
 
-                var wasteLabel = (flow.get('waste')) ? 'Waste' : 'Product',
-                    totalAmount = Math.round(flow.get('amount')),
-                    flowLabel = sourceNode.name + '&#10132; '  + targetNode.name + '<br>' + wasteLabel;
+                var wasteLabel = (flow.waste) ? 'Waste' : 'Product',
+                    totalAmount = Math.round(flow.amount / 1000),
+                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel;
 
                 if(splitByComposition){
                     fractions.forEach(function(material){
                         var amount = material.amount / 1000,
                             label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
-                        if (!materials[material.material]){
+                        if (!uniqueMaterials[material.material]){
                             color = utils.colorByName(material.name)
-                            materials[material.material] = {
+                            uniqueMaterials[material.material] = {
                                 color: color,
                                 name: material.name
                             };
                         }
                         else
-                            color = materials[material.material].color;
+                            color = uniqueMaterials[material.material].color;
                         links.push({
                             id: flow.id,
                             label: label,
-                            source: sourceId,
-                            target: targetId,
+                            source: source.id,
+                            target: target.id,
                             value: amount,
                             material: material.id,
                             tag: material.id,
                             color: color
                         })
                     })
-                    //define colors for individual materials and store in styles
-                    //var materialColor = d3.scale.linear()
-                        //.range (["#4477AA", "#66CCEE","#228833","#CCBB44","#EE6677","#AA3377"])
-                        //.domain([0, 1/5*(uniqueMaterials.size-1), 2/5*(uniqueMaterials.size-1), 3/5*(uniqueMaterials.size-1), 4/5*(uniqueMaterials.size-1), (uniqueMaterials.size-1)])
-                        //.interpolate(d3.interpolateHsl);
-
-                    //links.forEach(function(link){
-                        //link.color = matColors[link.material];
-                    //})
                 }
                 else {
                     var label = flowLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
                     links.push({
                         id: flow.id,
                         label: label,
-                        source: flow.get('origin').id,
-                        target: flow.get('destination').id,
-                        color: sourceNode.color,
+                        source: source.id,
+                        target: target.id,
+                        color: source.color,
                         value: totalAmount
                     })
                 }
             })
 
+            var matAmount = 0, amount= 0;
+            pFlows.forEach(function(flow){
+                amount += flow.amount;
+                flow.fractions.forEach(function(f){
+                    matAmount += f.amount;
+                })
+            })
+
             return {
                 flows: links,
                 nodes: Object.values(nodes),
-                materials: materials,
+                materials: uniqueMaterials,
                 warnings: warnings
             }
         }
