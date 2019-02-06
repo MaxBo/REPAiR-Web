@@ -227,15 +227,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.el.dispatchEvent(new CustomEvent('allDeselected'));
             // only flows that are actually displayed in sankey (not original data)
             this.transformedData.links.forEach(function(link){
-                var flow = _this.flows.get(link.id),
-                    origin = _this.origins.get(link.source.id),
-                    destination = _this.destinations.get(link.target.id);
+                var flow = _this.flows.get(link.id);
                 if (flow)
-                    data.push({
-                        flow: flow,
-                        origin: origin,
-                        destination: destination
-                    })
+                    data.push(flow)
             })
             this.el.dispatchEvent(new CustomEvent('linkSelected', {
                 detail: data

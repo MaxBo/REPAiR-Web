@@ -215,7 +215,7 @@ var FlowsView = BaseView.extend(
                         destination = flow.get('destination');
                     // api aggregates flows and doesn't return an id
                     // generate an internal one to assign interactions
-                    flow.id = idx;
+                    flow.set('id', idx);
                     idx++;
                     origin.color = utils.colorByName(origin.name);
                     if (!flow.get('stock'))
@@ -347,32 +347,23 @@ var FlowsView = BaseView.extend(
 
     linkDeselected: function(e){
         // only actors atm
-        var data = e.detail,
+        console.log(e)
+        var flow = e.detail,
             flows = [],
             nodes = [];
-        if (data.flow.get('origin_level') === 'actor') {
+        if (this.nodeLevel === 'actor') {
             nodes = [data.origin, data.destination];
-            flows = data.flow;
+            flows = flow;
         }
         else {
-            var mapNodes = this.flowMapView.getNodes(),
-                mapFlows = this.flowMapView.getFlows(),
-                origId = data.flow.get('origin'),
-                destId = data.flow.get('destination');
+            var mapFlows = this.flowMapView.getFlows();
             mapFlows.forEach(function(mapFlow){
-                if (mapFlow.parent === data.flow.id){
+                if (mapFlow.parent === flow.id){
                     flows.push(mapFlow);
-                }
-            })
-            mapNodes.forEach(function(mapNode){
-                var level = data.flow.get('origin_level');
-                if ([origId, destId].includes(mapNode.get(level))){
-                    nodes.push(mapNode);
                 }
             })
         };
         this.flowMapView.removeFlows(flows);
-        this.flowMapView.removeNodes(nodes, true);
         this.flowMapView.rerender();
     },
 
