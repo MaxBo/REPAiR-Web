@@ -61,6 +61,15 @@ class Material(GDSEModel):
         """ direct children of the material traversal """
         return Material.objects.filter(parent=self.id)
 
+    @cached_property
+    def top_ancestor(self):
+        parent = self.parent
+        ancestor = self
+        while parent:
+            ancestor = parent
+            parent = parent.parent
+        return ancestor
+
     def is_descendant(self, *args):
         ''' return True if material is descendant of any of
         the passed materials '''

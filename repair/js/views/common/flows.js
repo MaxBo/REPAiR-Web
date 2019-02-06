@@ -84,35 +84,28 @@ var FlowsView = BaseView.extend(
         var flowType = filter.get('flow_type') || 'both',
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both';
+        nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
-        this.nodeLevel = nodeLevel.toLowerCase();
         direction = direction.toLowerCase();
 
         // material options for stocks and flows
         filterParams.materials = {
             aggregate: filter.get('aggregate_materials')
         }
-        var material = filter.get('material'),
-            materialIds = [];
+        var material = filter.get('material');
         // material -> filter/aggregate by this material and its direct children
         if (material != null) {
-            var childMaterials = this.materials.filterBy({ parent: material });
-            materialIds = childMaterials.pluck('id');
+            var childMaterials = this.materials.filterBy({ parent: material }),
+                materialIds = childMaterials.pluck('id');
             // the selected material should be included as well
             filterParams.materials.unaltered = [material];
+            filterParams.materials.ids = materialIds;
         }
-        // take top level materials to filter, if no material filter
-        else {
-            var materials = this.materials.filterBy({ parent: null });
-            materialIds = materials.pluck('id');
-        }
-        filterParams.materials.ids = materialIds;
-
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
-        var levelFilterMidSec = (this.nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
-            (this.nodeLevel == 'activity') ? 'activity__': '';
+        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
+            (nodeLevel == 'activity') ? 'activity__': '';
 
         var flowFilters = filterParams['filters'] = [];
 
@@ -185,6 +178,8 @@ var FlowsView = BaseView.extend(
         if (this.flowSankeyView != null) this.flowSankeyView.close();
         var displayLevel = displayLevel || 'activitygroup';
 
+        this.nodeLevel = displayLevel.toLowerCase();
+
         var el = this.el.querySelector('.sankey-wrapper'),
             _this = this;
 
@@ -255,6 +250,7 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
+        console.log(this.nodeLevel)
         var queryParams = {};
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
         queryParams['destination__' + filterSuffix] = flow.get('destination').id;

@@ -67,7 +67,7 @@ LEVEL_KEYWORD = {
     ActivityGroup: 'activitygroup'
 }
 
-def descend_materials(materials, queryset):
+def descend_materials(materials):
     """return list of material ids of given materials and all of their
     descendants
     """
@@ -75,7 +75,7 @@ def descend_materials(materials, queryset):
     all_materials = Material.objects.values_list('id', 'parent__id')
     mat_dict = {}
 
-    # might seems strange to build a dict with all materials and it's
+    # might seem strange to build a dict with all materials and it's
     # children, but this is in fact 1000 times faster than
     # doing this in iteration over given material queryset
     for mat_id, parent_id in all_materials:
@@ -192,116 +192,6 @@ def aggregate_fractions(materials, data, unaltered_materials=[],
         new_data.append(serialized_flow)
     return new_data
 
-def aggregate_to_level(data, queryset, origin_level, destination_level, is_stock=False):
-    """
-    Aggregate actor level to the according flow/stock level
-    if not implemented in the subclass, do nothing
-    almost the same for flows and stocks except missing destinations for stocks
-    """
-    if not origin_level and not destination_level:
-        return data
-    origin_level = origin_level or 'actor'
-    destination_level = destination_level or 'actor'
-
-    origins = Actor.objects.filter(id__in=queryset.values_list('origin'));
-    if origin_level.lower() == 'activity':
-        origins_map = dict(origins.values_list('id', 'activity'))
-        args = ['origin__activity']
-    elif origin_level.lower() == 'activitygroup':
-        origins_map = dict(Actor.objects.values_list(
-                'id', 'activity__activitygroup'))
-        args = ['origin__activity__activitygroup']
-    else:
-        origins_map = dict(origins.values_list('id', 'id'))
-        args = ['origin__id']
-
-    if not is_stock:
-        destinations = Actor.objects.filter(id__in=queryset.values_list('destination'));
-
-        if destination_level.lower() == 'activity':
-            destinations_map = dict(destinations.values_list(
-                'id', 'activity'))
-            args.append('destination__activity')
-        elif destination_level.lower() == 'activitygroup':
-            destinations_map = dict(destinations.values_list(
-                'id', 'activity__activitygroup'))
-            args.append('destination__activity__activitygroup')
-        else:
-            destinations_map = dict(destinations.values_list('id', 'id'))
-            args.append('destination__id')
-
-    acts = queryset.values_list(*args)
-
-    act2act_amounts = acts.annotate(Sum('amount'))
-    custom_compositions = dict()
-    total_amounts = dict()
-    new_flows = list()
-    for values in act2act_amounts:
-        if is_stock:
-            origin, amount = values
-            destination = None
-        else:
-            origin, destination, amount = values
-        key = (origin, destination)
-        total_amounts[key] = amount
-        custom_composition = copy.deepcopy(composition_struct)
-        custom_composition['masses_of_materials'] = OrderedDict()
-        custom_compositions[key] = custom_composition
-
-    for serialized_flow in data:
-        amount = serialized_flow['amount']
-        composition = serialized_flow['composition']
-        if not composition:
-            continue
-        origin = origins_map[serialized_flow['origin']]
-        destination = None if is_stock else \
-            destinations_map[serialized_flow['destination']]
-        key = (origin, destination)
-        custom_composition = custom_compositions[key]
-        masses_of_materials = custom_composition['masses_of_materials']
-
-        fractions = composition['fractions']
-        for fraction in fractions:
-            mass = amount * fraction['fraction']
-            material = fraction['material']
-            mass_of_material = masses_of_materials.get(material, 0) + mass
-            masses_of_materials[material] = mass_of_material
-
-    for values in act2act_amounts:
-        if is_stock:
-            origin, amount = values
-            destination = None
-        else:
-            origin, destination, amount = values
-        key = (origin, destination)
-        custom_composition = custom_compositions[key]
-        masses_of_materials = custom_composition['masses_of_materials']
-        fractions = list()
-        for material, mass_of_material in masses_of_materials.items():
-            fraction = mass_of_material / amount if amount != 0 else 0
-            new_fraction = copy.deepcopy(fractions_struct)
-            new_fraction['material'] = material
-            new_fraction['fraction'] = fraction
-            fractions.append(new_fraction)
-        custom_composition['fractions'] = fractions
-        del(custom_composition['masses_of_materials'])
-
-        new_flow = copy.deepcopy(flow_struct)
-        new_flow['amount'] = amount
-        new_flow['origin'] = origin
-        new_flow['origin_level'] = origin_level
-        new_flow['composition'] = custom_composition
-        new_flow['id'] = 'agg-{}'.format(origin)
-
-        if not is_stock:
-            new_flow['destination'] = destination
-            new_flow['destination_level'] = destination_level
-            new_flow['id'] += '-{}'.format(destination)
-        else:
-            del new_flow['destination']
-            del new_flow['destination_level']
-        new_flows.append(new_flow)
-    return new_flows
 
 def build_area_filter(function_name, values, keyflow_id):
     actors = Actor.objects.filter(
@@ -424,12 +314,18 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         unaltered_materials = []
         # filter the flows by their fractions excluding flows whose
         # fractions don't contain the requested material (incl. child materials)
-        #if material_ids is not None:
-            #materials = Material.objects.filter(id__in=material_ids)
-            #unaltered_materials = Material.objects.filter(
-                #id__in=unaltered_material_ids)
-            #queryset = filter_by_materials(
-                #queryset, list(materials) + list(unaltered_materials))
+        if material_ids is not None:
+            materials = Material.objects.filter(id__in=material_ids)
+            unaltered_materials = Material.objects.filter(
+                id__in=unaltered_material_ids)
+
+            mats = descend_materials(list(materials) +
+                                     list(unaltered_materials))
+            queryset = queryset.filter(material__id__in=mats)
+
+        if aggregate_materials:
+            queryset = self.aggregate_materials(
+                queryset, materials, unaltered_materials=unaltered_materials)
 
         data = self.serialize(queryset, origin_model=origin_level,
                               destination_model=destination_level)
@@ -465,6 +361,52 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         node_dict[None] = None
         return node_dict
 
+    @staticmethod
+    def aggregate_materials(queryset, materials, unaltered_materials=[]):
+        #  no materials given -> aggregate to top level
+        if not materials:
+            # workaround: reset order to avoid Django ORM bug with determining
+            # distinct values in ordered querysets
+            queryset = queryset.order_by()
+            mats = queryset.values('material').distinct()
+            materials = Material.objects.filter(id__in=mats)
+            # get the top level ancestors of used mats
+            ancestors = []
+            for material in materials:
+                ancestors.append(material.top_ancestor.id)
+            materials = Material.objects.filter(id__in=ancestors)
+
+        desc_dict = dict([(mat, { mat.id: True }) for mat in materials])
+
+        exclusion = []
+        for flow in queryset:
+            count = 0
+            for material in materials:
+                child_dict = desc_dict[material]
+                flow_mat = flow.material
+                is_desc = child_dict.get(flow_mat.id)
+                # save time by doing this once and storing it
+                if is_desc is None:
+                    child_dict[flow_mat.id] = is_desc = \
+                        flow_mat.is_descendant(material)
+                if is_desc:
+                    count += 1
+                    # just setting material to it's parent to trigger
+                    # aggregation in serialize function (all same materials are
+                    # summed up there anyway)
+                    flow.material = material
+                    # we can only set it to one parent, if there are more, the
+                    # filter setup done by the user is nonsense
+                    # ToDo: always take the top level parent? or prohibit it in
+                    # indicator upload?
+                    break
+            if count == 0:
+                exclusion.append(flow.id)
+        # exclude flows not in material hierarchy, shouldn't happen if corr.
+        # filtered before, but doesn't hurt
+        filtered = queryset.exclude(id__in=exclusion)
+        return queryset
+
     def serialize(self, queryset, origin_model=Actor, destination_model=Actor):
         origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
         destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
@@ -477,8 +419,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             id__in=queryset.values(origin_filter))
         destinations = destination_model.objects.filter(
             id__in=queryset.values(destination_filter))
-        # reset order to avoid Django ORM bug with determining
-        # distinct values in ordered querysets
+        # workaround Django ORM bug
         queryset = queryset.order_by()
 
         groups = queryset.values(origin_filter, destination_filter,
