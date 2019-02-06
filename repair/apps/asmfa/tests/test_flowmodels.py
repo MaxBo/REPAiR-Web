@@ -128,7 +128,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     def test_graph_calculation(self):
         """Test the calculations using the graph object"""
         gwalker = GraphWalker(self.graph)
-        graph2 = gwalker.calculate_solution(2.0)
+        graph2 = gwalker.calculate_solution(self.solutions[0])
         assert graph2.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
         assert graph2.num_vertices() == len(self.graph.vp.id.a)
         assert graph2.num_edges() == 38
@@ -139,8 +139,8 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     def test_apply_solution(self):
         """Test applying the solutinos to the graph object"""
         gwsolution = GraphWalker(self.graph)
-        for s in self.solutions:
-            gwsolution.graph = gwsolution.calculate_solution(s.solution)
+        for solution in self.solutions:
+            gwsolution.graph = gwsolution.calculate_solution(solution)
         
         g = gwsolution.graph
         rig = gt_util.find_vertex(g, g.vp['name'], "oil_rig_den_haag")
