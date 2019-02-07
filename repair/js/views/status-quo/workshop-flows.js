@@ -35,29 +35,7 @@ var FlowsWorkshopView = BaseView.extend(
         })
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
-        this.materials = new GDSECollection([], {
-            apiTag: 'materials',
-            apiIds: [this.caseStudy.id, this.keyflowId ]
-        });
-        this.activities = new GDSECollection([], {
-            apiTag: 'activities',
-            apiIds: [this.caseStudy.id, this.keyflowId ],
-            comparator: 'name'
-        });
-        this.activityGroups = new GDSECollection([], {
-            apiTag: 'activitygroups',
-            apiIds: [this.caseStudy.id, this.keyflowId ],
-            comparator: 'name'
-        });
-        this.actors = new GDSECollection([], {
-            apiTag: 'actors',
-            apiIds: [this.caseStudy.id, this.keyflowId],
-            comparator: 'name'
-        })
         var promises = [
-            this.activities.fetch(),
-            this.activityGroups.fetch(),
-            this.materials.fetch(),
             this.filters.fetch({ data: { included: "True" } })
         ]
         this.loader.activate();
@@ -107,10 +85,6 @@ var FlowsWorkshopView = BaseView.extend(
         this.flowsView = new FlowsView({
             el: this.flowsEl,
             template: 'flows-render-template',
-            materials: this.materials,
-            actors: this.actors,
-            activityGroups: this.activityGroups,
-            activities: this.activities,
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
             filter: filter
