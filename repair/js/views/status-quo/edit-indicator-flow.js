@@ -93,8 +93,8 @@ var IndicatorFlowEditView = BaseView.extend(
             _this.resetNodeSelects('origin'); _this.resetNodeSelects('destination')
         })
 
-        this.addEventListeners('origin');
-        this.addEventListeners('destination');
+        //this.addEventListeners('origin');
+        //this.addEventListeners('destination');
         this.renderMatFilter();
 
         this.materialTags = this.el.querySelector('input[name="material-tags"]');
@@ -165,7 +165,7 @@ var IndicatorFlowEditView = BaseView.extend(
             }
             $(select).selectpicker('refresh');
         }
-
+        // ToDo: for some reason they 'changed.bs.select' is always fired twice
         $(selectGroup.groupSelect).on('changed.bs.select', function(evt, index, val){
             multiCheck(evt, index, val);
             var level = selectGroup.levelSelect.value;
@@ -185,7 +185,6 @@ var IndicatorFlowEditView = BaseView.extend(
             if (selectGroup.levelSelect.value == 'actor')
                 _this.filterActors(tag);
         })
-
         $(selectGroup.actorSelect).on('changed.bs.select', multiCheck);
     },
 
@@ -230,10 +229,10 @@ var IndicatorFlowEditView = BaseView.extend(
         // selectpicker has to be completely rerendered to change between
         // multiple and single select
         selects.forEach(function(sel){
+            $(sel).off();
             $(sel).selectpicker('destroy');
             $(sel).selectpicker();
         });
-        // destroying also kills the event listeners
         this.addEventListeners(tag);
     },
 
@@ -250,7 +249,7 @@ var IndicatorFlowEditView = BaseView.extend(
         var option = document.createElement('option');
         option.dataset.divider = 'true';
         select.appendChild(option);
-        if (collection && collection.length < 2000){
+        if (collection){// && collection.length < 2000){
             collection.forEach(function(model){
                 var flowCount = model.get('flow_count');
                 if (showFlowOnly && flowCount == 0) return;
@@ -263,7 +262,8 @@ var IndicatorFlowEditView = BaseView.extend(
             select.disabled = false;
         }
         else {
-            defOption.text += ' - ' + gettext('too many to display');
+            //defOption.text += ' - ' + gettext('too many to display');
+            defOption.text += ' - ' + gettext('select an activity/group to display specific nodes');
             select.disabled = true;
         }
         select.selectedIndex = 0;
@@ -351,7 +351,11 @@ var IndicatorFlowEditView = BaseView.extend(
             })
             return;
         }
-        $(nodeSelect).selectpicker('val', values);
+        // actually everything is selected (minus All and seperator)
+        if (values.length == nodeSelect.options.length -2)
+            $(nodeSelect).selectpicker('val', -1);
+        else
+            $(nodeSelect).selectpicker('val', values);
     },
 
     // get the selected materials
@@ -432,8 +436,8 @@ var IndicatorFlowEditView = BaseView.extend(
         filterParams['filters'] = [id_filter];
 
         var flows = new GDSECollection([], {
-            apiTag: 'actorToActor',
-            apiIds: [ this.caseStudy.id, this.keyflowId]
+            apiTag: 'flows',
+            apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
         filterParams['aggregation_level'] = {
@@ -442,25 +446,31 @@ var IndicatorFlowEditView = BaseView.extend(
         };
 
         this.loader.activate();
+
         flows.postfetch({
             body: filterParams,
-            success: function(){
+            success: function(response){
+                flows.forEach(function(flow){
+                    var origin = flow.get('origin'),
+                        destination = flow.get('destination');
+                    origin.color = utils.colorByName(origin.name);
+                    if (!flow.get('stock'))
+                        destination.color = utils.colorByName(destination.name)
+                })
                 _this.loader.deactivate();
-                utils.complementFlowData(flows, origins, destinations,
-                    function(origins, destinations){
-                        _this.flowsView = new FlowSankeyView({
-                            el: el,
-                            width:  el.clientWidth - 10,
-                            origins: origins,
-                            destinations: destinations,
-                            flows: flows,
-                            materials: _this.materials,
-                            hideUnconnected: true,
-                            forceSideBySide: true,
-                            height: 600
-                        })
-                    }
-                )
+                _this.flowSankeyView = new FlowSankeyView({
+                    el: el,
+                    width:  el.clientWidth - 10,
+                    flows: flows,
+                    height: 600,
+                    originLevel: originLevel,
+                    destinationLevel: destinationLevel,
+                    forceSideBySide: true
+                })
+            },
+            error: function(){
+                _this.loader.deactivate();
+                _this.onError;
             }
         })
     },

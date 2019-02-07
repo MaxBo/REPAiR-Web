@@ -60,6 +60,7 @@ function (Session) {
         products:               '/api/casestudies/{0}/keyflows/{1}/products/',
         wastes:                 '/api/casestudies/{0}/keyflows/{1}/wastes/',
         materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
+        flows:                  '/api/casestudies/{0}/keyflows/{1}/flows/',
         activityToActivity:     '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
         groupToGroup:           '/api/casestudies/{0}/keyflows/{1}/group2group/',
         actorToActor:           '/api/casestudies/{0}/keyflows/{1}/actor2actor/',

@@ -312,7 +312,7 @@ class Sankey{
             .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
 
         // scale the font depending on zoom
-        var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([100, 25, 18, 3.5, 3]);
+        var fontRange = d3.scale.linear().domain([0, 0.5, 1, 4, 10]).range([50, 20, 16, 3, 2.5]);
         var rectRange = d3.scale.linear().domain([0, 0.5, 1, 5]).range([nodeWidth * 5, nodeWidth * 2, nodeWidth, nodeWidth]);
         function scaleFont(){ return fontRange(_this.zoom.scale()) + "px"; }
         function scaleRectWidth(){ return rectRange(_this.zoom.scale()); }
