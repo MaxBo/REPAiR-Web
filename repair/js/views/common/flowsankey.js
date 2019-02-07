@@ -31,7 +31,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         * @param {boolean=} [options.forceSideBySide=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
-        * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
         * @param {module:collections/GDSECollection}        options.collection the nodes to render
         *
         * @constructs
@@ -45,20 +44,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             var _this = this;
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
-            this.materials = options.materials;
-            this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.forceSideBySide = options.forceSideBySide || false;
-            this.origins = options.origins;
-            this.destinations = options.destinations;
+            this.originLevel = options.originLevel;
+            this.destinationLevel = options.destinationLevel;
             this.flows = options.flows;
-            this.stocks = options.stocks || [];
 
-            this.transformedData = this.transformData(
-                this.origins, this.destinations, this.flows,
-                this.stocks, this.materials
-            );
+            this.transformedData = this.transformData(this.flows);
 
             this.render(this.transformedData);
             this.onSelect = options.onSelect;
@@ -108,17 +101,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 gradient: false
             })
 
-            // get models from sankey data and redirect the event
+            // redirect the event with same properties
             function redirectEvent(e){
-                var d = e.detail,
-                    flow = _this.flows.get(d.id),
-                    origin = _this.origins.get(d.source.id),
-                    destination = _this.destinations.get(d.target.id);
-                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
-                    flow: flow,
-                    origin: origin,
-                    destination: destination
-                }}))
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: e.detail.originalData }))
             }
 
             div.addEventListener('linkSelected', redirectEvent);
@@ -148,70 +133,51 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         * transform the models, their links and the stocks to a json-representation
         * readable by the sankey-diagram
         */
-        transformData: function(origins, destinations, flows, stocks, materials){
+        transformData: function(flows){
             var _this = this,
                 nodes = [],
+                links = [],
                 indices = {},
-                labels = {},
                 colorCat = d3.scale.category20();
 
-            function nConnectionsInOut(connections, nodeId){
-                return connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' }).length;
+            var idx = -1;
+
+            function mapNode(node){
+                var id = node.id,
+                    name = node.name,
+                    level = node.level,
+                    key = level + id;
+                // we already got this one -> skip it
+                if(indices[key] != null)
+                    return indices[key];
+                idx += 1;
+                var color = node.color || utils.colorByName(name);
+                nodes.push({ id: id, name: name, color: color });
+                indices[key] = idx;
+                return idx;
             }
 
-            function nConnectionsIn(connections, nodeId){
-                return connections.filterBy({ destination: nodeId }).length;
+            function addStock(){
+                idx += 1;
+                var color = 'darkgray';
+                nodes.push({name: 'Stock', color: color, alignToSource: {x: 80, y: 0} });
+                return idx;
             }
 
-            function nConnectionsOut(connections, nodeId){
-                if (connections.length === 0) return 0;
-                return connections.filterBy({ origin: nodeId }).length;
-            }
+            function compositionRepr(flow){
+                var text = '',
+                    i = 0,
+                    fractions = flow.get('materials'),
+                    totalAmount = flow.get('amount');
 
-            var idx = 0;
-
-            function addNodes(collection, prefix, check){
-                collection.forEach(function(model){
-                    var id = model.id,
-                        name = model.get('name');
-                    // we already got this one -> skip it
-                    if(indices[prefix+id] != null) return;
-                    // no connections -> skip it (if requested)
-                    if (_this.hideUnconnected && !check(id)) return;
-                    var color = model.color || utils.colorByName(model.get('name'));
-                    nodes.push({ id: id, name: name, color: color });
-                    indices[prefix+id] = idx;
-                    labels[prefix+id] = model.get('name');
-                    idx += 1;
-                });
-            }
-            var sourcePrefix = (this.forceSideBySide) ? 'origin': origins.apiTag,
-                targetPrefix = (this.forceSideBySide) ? 'destination': destinations.apiTag;
-
-            function checkOrigins(id){
-                return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0
-            }
-            addNodes(origins, sourcePrefix, checkOrigins);
-            function checkDestinations(id){ return nConnectionsIn(flows, id) > 0 }
-            addNodes(destinations, targetPrefix, checkDestinations);
-            var links = [];
-
-            function compositionRepr(composition){
-                var text = '';
-                if (composition){
-                    var fractions = composition.fractions;
-                    var i = 0;
-                    fractions.forEach(function(fraction){
-                        var material = materials.get(fraction.material),
-                            value = Math.round(fraction.fraction * 100000) / 1000
-                        text += _this.format(value) + '% ';
-                        if (!material) text += gettext('material not found');
-                        else text += material.get('name');
-                        if (fraction.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
-                        if (i < fractions.length - 1) text += '<br>';
-                        i++;
-                    })
-                }
+                fractions.forEach(function(material){
+                    var fraction = material.amount / totalAmount,
+                        value = Math.round(fraction * 100000) / 1000;
+                    text += _this.format(value) + '% ' + material.name;
+                    if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
+                    if (i < fractions.length - 1) text += '<br>';
+                    i++;
+                })
                 return text || ('no composition defined');
             }
 
@@ -221,54 +187,28 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             flows.forEach(function(flow){
                 var value = flow.get('amount');
-                var originId = flow.get('origin'),
-                    destinationId = flow.get('destination');
-                if (originId == destinationId) {
-                    console.log('Warning: self referencing cycle at node id ' + originId);
+                var origin = flow.get('origin'),
+                    destination = flow.get('destination'),
+                    isStock = flow.get('stock');
+                if (!isStock && origin.id == destination.id) {
+                    console.log('Warning: self referencing cycle at node ' + origin.name);
                     return;
                 }
-                var source = indices[sourcePrefix+originId],
-                    target = indices[targetPrefix+destinationId];
-                // continue if one of the linked nodes does not exist
-                if (source == null || target == null) return false;
-                var composition = flow.get('composition'),
-                    crepr = compositionRepr(composition);
+                var source = mapNode(origin),
+                    target = (!isStock) ? mapNode(destination) : addStock();
+                var crepr = compositionRepr(flow);
                 links.push({
                     id: flow.id,
-                    value: flow.get('amount'),
+                    originalData: flow,
+                    value: Math.round(flow.get('amount')),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
-                    isStock: false,
+                    isStock: isStock,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + crepr,
                     composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
             })
-            stocks.forEach(function(stock){
-                var id = 'stock-' + stock.id;
-                var originId = stock.get('origin'),
-                    source = indices[sourcePrefix+originId],
-                    sourceName = labels[sourcePrefix+originId];
-                // continue if node does not exist
-                if (source == null) return false;
-                nodes.push({id: id, name: 'Stock ',
-                            text: sourceName,
-                            color: 'darkgray',
-                            alignToSource: {x: 80, y: 0}});
-                var composition = stock.get('composition'),
-                    crepr = compositionRepr(composition);
-                links.push({
-                    id: stock.id,
-                    isStock: true,
-                    value: stock.get('amount'),
-                    units: gettext('t/year'),
-                    source: source,
-                    target: idx,
-                    text: typeRepr(stock) + '<br>' + crepr,
-                    composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
-                });
-                idx += 1;
-            });
 
             var transformed = {nodes: nodes, links: links};
             return transformed;
@@ -285,15 +225,9 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.el.dispatchEvent(new CustomEvent('allDeselected'));
             // only flows that are actually displayed in sankey (not original data)
             this.transformedData.links.forEach(function(link){
-                var flow = _this.flows.get(link.id),
-                    origin = _this.origins.get(link.source.id),
-                    destination = _this.destinations.get(link.target.id);
+                var flow = _this.flows.get(link.id);
                 if (flow)
-                    data.push({
-                        flow: flow,
-                        origin: origin,
-                        destination: destination
-                    })
+                    data.push(flow)
             })
             this.el.dispatchEvent(new CustomEvent('linkSelected', {
                 detail: data
