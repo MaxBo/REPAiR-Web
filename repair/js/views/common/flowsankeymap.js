@@ -628,8 +628,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             source: source.id,
                             target: target.id,
                             value: amount,
-                            material: material.id,
-                            tag: material.id,
+                            material: material.material,
+                            tag: material.material,
                             color: color
                         })
                     })

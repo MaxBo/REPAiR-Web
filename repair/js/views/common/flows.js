@@ -249,7 +249,6 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        console.log(this.nodeLevel)
         var queryParams = {};
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
         queryParams['destination__' + filterSuffix] = flow.get('destination').id;
@@ -342,7 +341,6 @@ var FlowsView = BaseView.extend(
 
     linkDeselected: function(e){
         // only actors atm
-        console.log(e)
         var flow = e.detail,
             flows = [],
             nodes = [];
