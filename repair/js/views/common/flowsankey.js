@@ -31,7 +31,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         * @param {boolean=} [options.forceSideBySide=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
-        * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
         * @param {module:collections/GDSECollection}        options.collection the nodes to render
         *
         * @constructs
@@ -45,7 +44,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             var _this = this;
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
-            this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.forceSideBySide = options.forceSideBySide || false;

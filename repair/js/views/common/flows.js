@@ -221,7 +221,6 @@ var FlowsView = BaseView.extend(
                     el: el,
                     width:  el.clientWidth - 10,
                     flows: flows,
-                    hideUnconnected: true,
                     height: 600,
                     originLevel: displayLevel,
                     destinationLevel: displayLevel
