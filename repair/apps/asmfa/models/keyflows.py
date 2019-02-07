@@ -63,8 +63,8 @@ class Material(GDSEModel):
 
     @cached_property
     def top_ancestor(self):
-        parent = self.parent
         ancestor = self
+        parent = self.parent
         while parent:
             ancestor = parent
             parent = parent.parent

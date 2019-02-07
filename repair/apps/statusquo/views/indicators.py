@@ -14,7 +14,6 @@ from repair.apps.utils.views import (ModelPermissionViewSet,
                                      CasestudyViewSetMixin)
 from repair.apps.asmfa.models import Actor, Actor2Actor, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
-from repair.apps.asmfa.views import aggregate_fractions
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area

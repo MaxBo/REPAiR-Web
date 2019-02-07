@@ -103,96 +103,6 @@ def descend_materials(materials):
         mats.append(material.id)
     return mats
 
-
-def aggregate_fractions(materials, data, unaltered_materials=[],
-                        aggregate_materials=False):
-    '''
-    aggregate the fractions to given materials, all fractions with child
-    materials of given materials will be summed up to the level of those,
-    amount will be recalculated
-
-    if aggregate_materials is False the materials won't be aggregated, but
-    all materials that are not children of given materials will be removed
-    from flow and amount will still be recalculated
-
-    unaltered materials will be kept as is and ignored when
-    aggregating children (may be parents as well)
-    '''
-    if not materials and not aggregate_materials:
-        return data
-    materials = materials or []
-    unaltered_dict = dict([(mat.id, mat) for mat in unaltered_materials])
-    # dictionary to store requested materials and if other materials are
-    # descendants of those (including the material itself), much faster than
-    # repeatedly getting the materials and their ancestors
-    desc_dict = dict([(mat, { mat.id: True }) for mat in materials])
-    new_data = []
-    for serialized_flow in data:
-        # aggregation is requested on no given materials ->
-        # aggregate to top level (just meaning: keep amount, remove fractions)
-        if not materials and aggregate_materials:
-            serialized_flow['composition'] = None
-        else:
-            composition = serialized_flow['composition']
-            if not composition:
-                continue
-            old_total = serialized_flow['amount']
-            new_total = 0
-            aggregated_amounts = defaultdict.fromkeys(materials, 0)
-            for mat in unaltered_materials:
-                aggregated_amounts[mat] = 0
-            # remove fractions that are no descendants of the material
-            valid_fractions = []
-            for serialized_fraction in composition['fractions']:
-                fraction_mat_id = serialized_fraction['material']
-                # keep the fraction as is
-                if fraction_mat_id in unaltered_dict:
-                    aggregated_amounts[unaltered_dict[fraction_mat_id]] += (
-                        serialized_fraction['fraction'] * old_total)
-                    valid_fractions.append(serialized_fraction)
-                    continue
-                for mat in materials:
-                    child_dict = desc_dict[mat]
-                    is_desc = child_dict.get(fraction_mat_id)
-                    # save time by doing this once and storing it
-                    if is_desc is None:
-                        fraction_material = Material.objects.get(
-                            id=fraction_mat_id)
-                        child_dict[fraction_mat_id] = is_desc = \
-                            fraction_material.is_descendant(mat)
-                    if is_desc:
-                        amount = serialized_fraction['fraction'] * old_total
-                        aggregated_amounts[mat] += amount
-                        new_total += amount
-                        valid_fractions.append(serialized_fraction)
-            # amount zero -> there is actually no flow
-            if new_total == 0:
-                continue
-            new_fractions = []
-            # aggregation: new fraction for each material
-            if aggregate_materials:
-                for material, amount in aggregated_amounts.items():
-                    if amount > 0:
-                        aggregated_fraction = OrderedDict({
-                            'material': material.id,
-                            'fraction': amount / new_total,
-                        })
-                        new_fractions.append(aggregated_fraction)
-
-            # no aggregation: keep the fractions whose materials are descendants
-            # (->valid) and recalculate the fraction values
-            else:
-                for fraction in valid_fractions:
-                    fraction['fraction'] = fraction['fraction'] * old_total / new_total
-                    new_fractions.append(fraction)
-
-            serialized_flow['amount'] = new_total
-            composition['fractions'] = new_fractions
-
-        new_data.append(serialized_flow)
-    return new_data
-
-
 def build_area_filter(function_name, values, keyflow_id):
     actors = Actor.objects.filter(
         activity__activitygroup__keyflow__id = keyflow_id)
@@ -313,7 +223,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         materials = None
         unaltered_materials = []
         # filter the flows by their fractions excluding flows whose
-        # fractions don't contain the requested material (incl. child materials)
+        # fractions don't contain the requested materials
+        # (including child materials)
         if material_ids is not None:
             materials = Material.objects.filter(id__in=material_ids)
             unaltered_materials = Material.objects.filter(
@@ -323,12 +234,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                                      list(unaltered_materials))
             queryset = queryset.filter(material__id__in=mats)
 
+        agg_map = None
         if aggregate_materials:
-            queryset = self.aggregate_materials(
+            agg_map = self.map_aggregation(
                 queryset, materials, unaltered_materials=unaltered_materials)
 
         data = self.serialize(queryset, origin_model=origin_level,
-                              destination_model=destination_level)
+                              destination_model=destination_level,
+                              aggregation_map=agg_map)
         return Response(data)
 
     def list(self, request, **kwargs):
@@ -340,6 +253,59 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             return Response(status=400)
         data = self.serialize(queryset)
         return Response(data)
+
+    @staticmethod
+    def map_aggregation(queryset, materials, unaltered_materials=[]):
+        ''' return map with material-ids that shall be aggregated as keys and
+        the materials they are aggregated to as values
+
+        materials are the materials to aggregate to, unaltered_materials
+        contains ids of materials that are ignored while doing this (shall
+        be kept)
+        '''
+        agg_map = {}
+
+        # workaround: reset order to avoid Django ORM bug with determining
+        # distinct values in ordered querysets
+        queryset = queryset.order_by()
+        materials_used = queryset.values('material').distinct()
+        materials_used = Material.objects.filter(id__in=materials_used)
+        #  no materials given -> aggregate to top level
+        if not materials:
+            # every material will be aggregated to the top ancestor
+            for material in materials_used:
+                if material.id not in unaltered_materials:
+                    agg_map[material.id] = material.top_ancestor
+                else:
+                    agg_map[material.id] = material
+
+        else:
+            exclusion = []
+            # look for parent material for each material in use
+            for mat_used in materials_used:
+                found = False
+                if mat_used in unaltered_materials:
+                    found = True
+                    agg_map[mat_used.id] = mat_used
+                else:
+                    for material in materials:
+                        #  found yourself
+                        if mat_used == material:
+                            found = True
+                            agg_map[mat_used.id] = mat_used
+                            break
+                        #  found parent
+                        if mat_used.is_descendant(material):
+                            found = True
+                            agg_map[mat_used.id] = material
+                            break
+
+                if not found:
+                    exclusion.append(flow.id)
+            # exclude flows not in material hierarchy, shouldn't happen if correctly
+            # filtered before, but doesn't hurt
+            filtered = queryset.exclude(id__in=exclusion)
+        return agg_map
 
     @staticmethod
     def serialize_nodes(nodes, add_locations=False):
@@ -361,53 +327,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         node_dict[None] = None
         return node_dict
 
-    @staticmethod
-    def aggregate_materials(queryset, materials, unaltered_materials=[]):
-        #  no materials given -> aggregate to top level
-        if not materials:
-            # workaround: reset order to avoid Django ORM bug with determining
-            # distinct values in ordered querysets
-            queryset = queryset.order_by()
-            mats = queryset.values('material').distinct()
-            materials = Material.objects.filter(id__in=mats)
-            # get the top level ancestors of used mats
-            ancestors = []
-            for material in materials:
-                ancestors.append(material.top_ancestor.id)
-            materials = Material.objects.filter(id__in=ancestors)
-
-        desc_dict = dict([(mat, { mat.id: True }) for mat in materials])
-
-        exclusion = []
-        for flow in queryset:
-            count = 0
-            for material in materials:
-                child_dict = desc_dict[material]
-                flow_mat = flow.material
-                is_desc = child_dict.get(flow_mat.id)
-                # save time by doing this once and storing it
-                if is_desc is None:
-                    child_dict[flow_mat.id] = is_desc = \
-                        flow_mat.is_descendant(material)
-                if is_desc:
-                    count += 1
-                    # just setting material to it's parent to trigger
-                    # aggregation in serialize function (all same materials are
-                    # summed up there anyway)
-                    flow.material = material
-                    # we can only set it to one parent, if there are more, the
-                    # filter setup done by the user is nonsense
-                    # ToDo: always take the top level parent? or prohibit it in
-                    # indicator upload?
-                    break
-            if count == 0:
-                exclusion.append(flow.id)
-        # exclude flows not in material hierarchy, shouldn't happen if corr.
-        # filtered before, but doesn't hurt
-        filtered = queryset.exclude(id__in=exclusion)
-        return queryset
-
-    def serialize(self, queryset, origin_model=Actor, destination_model=Actor):
+    def serialize(self, queryset, origin_model=Actor, destination_model=Actor,
+                  aggregation_map=None):
+        '''
+        serialize given queryset of fraction flows to JSON,
+        aggregates flows between nodes on actor level to the levels determined
+        by origin_model and destination_model,
+        aggregation_map contains ids of materials as keys that should be
+        aggregated to certain materials (values)
+        '''
         origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
         destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
         origin_level = LEVEL_KEYWORD[origin_model]
@@ -436,24 +364,44 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         for group in groups:
             grouped = queryset.filter(**group)
             # sum over all rows in group
-            amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
             origin_item = origin_dict[group[origin_filter]]
             origin_item['level'] = origin_level
             dest_item = destination_dict[group[destination_filter]]
             if dest_item:
                 dest_item['level'] = destination_level
             # sum up same materials
-            grouped_mats = grouped.values('material').annotate(
+            grouped_mats = list(grouped.values('material').annotate(
                 name=F('material__name'),
                 level=F('material__level'),
                 amount=Sum('amount')
-            )
+            ))
+            if aggregation_map:
+                aggregated = {}
+                for grouped_mat in grouped_mats:
+                    mat_id = grouped_mat['material']
+                    amount = grouped_mat['amount']
+                    mapped = aggregation_map[mat_id]
+
+                    agg_mat_ser = aggregated.get(mapped.id, None)
+                    if not agg_mat_ser:
+                        agg_mat_ser = {
+                            'material': mapped.id,
+                            'name': mapped.name,
+                            'level': mapped.level,
+                            'amount': amount,
+                        }
+                        aggregated[mapped.id] = agg_mat_ser
+                    else:
+                        agg_mat_ser['amount'] += amount
+                grouped_mats = aggregated.values()
+
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
-                ('amount', amount),
+                ('amount', total_amount),
                 ('materials', grouped_mats)
             ))
 
