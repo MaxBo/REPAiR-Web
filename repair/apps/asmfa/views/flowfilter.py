@@ -29,6 +29,7 @@ from repair.apps.asmfa.models import (
     Activity,
     AdministrativeLocation
 )
+from repair.apps.studyarea.models import Area
 
 from repair.apps.asmfa.serializers import (
     FractionFlowSerializer
@@ -159,16 +160,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
 
-            # aggregate origin/dest. actors belonging to given
-            # activity/groupon spatial level, child nodes have
-            # to be exclusively 'activity's or 'activitygroup's
-            spatial_level: {
-                activity: {
-                    id: id,  # id of activitygroup/activity
-                    level: id,  # id of spatial level (as in AdminLevels)
-                },
-            }
-
             # exclusive to spatial_level
             aggregation_level: {
                 origin: 'activity' or 'activitygroup', defaults to actor level
@@ -196,7 +187,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
-        spatial_aggregation = params.get('spatial_level', None)
 
         l_a = params.get('aggregation_level', {})
         inv_map = {v: k for k, v in LEVEL_KEYWORD.items()}
@@ -204,15 +194,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         destination_level = inv_map[l_a['destination']] \
             if 'destination' in l_a else Actor
 
-        if spatial_aggregation and level_aggregation:
-            return HttpResponseBadRequest(_(
-                "Aggregation on spatial levels and based on the activity level "
-                "can't be performed at the same time" ))
-
         keyflow = kwargs['keyflow_pk']
         # filter queryset based on passed filters
         if filter_chains:
-            queryset = self.filter_chain(queryset, filter_chains)
+            queryset = self.filter_chain(queryset, filter_chains, keyflow)
 
         aggregate_materials = (False if material_filter is None
                                else material_filter.get('aggregate', False))
@@ -410,7 +395,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         return data
 
     @staticmethod
-    def filter_chain(queryset, filters):
+    def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
             filter_link = sub_filter.get('link', None)
             filter_functions = []
@@ -430,3 +415,4 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             if len(filter_functions) > 1:
                 queryset = queryset.filter(link_func.reduce(filter_functions))
         return queryset
+
