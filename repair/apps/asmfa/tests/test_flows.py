@@ -2,7 +2,6 @@
 
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-from repair.apps.asmfa.views.flows import filter_by_material
 from repair.apps.asmfa.models.keyflows import Material
 from repair.apps.asmfa.models.flows import Actor2Actor, FractionFlow
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
@@ -392,12 +391,6 @@ class MaterialTest(BasicModelPermissionTest, APITestCase):
                             )
         cls.post_data = cls.put_data
         cls.patch_data = cls.put_data
-
-    def test_filter_by_material(self):
-        filtered = filter_by_material([self.mat_grandparent],
-                                      Actor2Actor.objects)
-        assert filtered.count() == 1
-        assert filtered.first().id == 1
 
     def test_ancestor(self):
         args =  (self.mat_child, self.mat_parent, self.mat_grandparent)
