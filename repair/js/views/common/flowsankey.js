@@ -172,7 +172,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
                 fractions.forEach(function(material){
                     var fraction = material.amount / totalAmount,
-                        value = Math.round(fraction * 100000) / 1000
+                        value = Math.round(fraction * 100000) / 1000;
                     text += _this.format(value) + '% ' + material.name;
                     if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
                     if (i < fractions.length - 1) text += '<br>';
@@ -200,7 +200,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 links.push({
                     id: flow.id,
                     originalData: flow,
-                    value: Math.round(flow.get('amount') / 1000),
+                    value: Math.round(flow.get('amount')),
                     units: gettext('t/year'),
                     source: source,
                     target: target,

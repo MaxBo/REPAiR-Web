@@ -163,13 +163,13 @@ class FractionFlowSerializer(CompositionMixin,
     origin = IDRelatedField()
     destination = IDRelatedField()
     material = IDRelatedField()
+    #amount = serializers.DecimalField(max_digits, decimal_places, coerce_to_string=None, max_value=None, min_value=None, localize=False, rounding=None)
 
     class Meta(FlowSerializer.Meta):
         model = FractionFlow
         fields = ('id', 'origin', 'destination', 'keyflow', 'material',
                   'amount', 'process', 'nace', 'waste', 'avoidable',
                   'hazardous', 'description', 'year', 'publication')
-
 
 
 class StockSerializer(CompositionMixin,

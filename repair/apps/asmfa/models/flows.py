@@ -108,7 +108,7 @@ class Actor2Actor(Flow):
                 origin=self.origin,
                 destination=self.destination,
                 material=fraction.material,
-                amount=self.amount*fraction.fraction*1000,
+                amount=self.amount*fraction.fraction,
                 nace=composition.nace,
                 composition_name=composition.name,
                 publication=fraction.publication or self.publication,
@@ -182,7 +182,7 @@ class ActorStock(Stock):
                 origin=self.origin,
                 destination=None,
                 material=fraction.material,
-                amount=self.amount*fraction.fraction*1000,
+                amount=self.amount*fraction.fraction,
                 nace=composition.nace,
                 composition_name=composition.name,
                 publication=fraction.publication or self.publication,
@@ -224,7 +224,7 @@ class FractionFlow(Flow):
     # but this way we play it safe)
     to_stock = models.BooleanField(default=False)
 
-    amount = models.BigIntegerField(default=0) # in kilograms
+    amount = models.FloatField(default=0) # in tons
 
     publication = models.ForeignKey(PublicationInCasestudy, null=True,
                                     on_delete=models.SET_NULL,

@@ -605,12 +605,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     fractions = flow.fractions;
 
                 var wasteLabel = (flow.waste) ? 'Waste' : 'Product',
-                    totalAmount = Math.round(flow.amount / 1000),
+                    totalAmount = Math.round(flow.amount),
                     flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel;
 
                 if(splitByComposition){
                     fractions.forEach(function(material){
-                        var amount = material.amount / 1000,
+                        var amount = Math.round(material.amount),
                             label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
                         if (!uniqueMaterials[material.material]){

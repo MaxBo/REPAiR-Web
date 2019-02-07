@@ -35,7 +35,12 @@ var FlowsWorkshopView = BaseView.extend(
         })
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.materials = new GDSECollection([], {
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
         var promises = [
+            this.materials.fetch(),
             this.filters.fetch({ data: { included: "True" } })
         ]
         this.loader.activate();
@@ -87,6 +92,7 @@ var FlowsWorkshopView = BaseView.extend(
             template: 'flows-render-template',
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
+            materials: this.materials,
             filter: filter
         });
         this.draw();

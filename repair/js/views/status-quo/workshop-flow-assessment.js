@@ -237,7 +237,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         //this.map.setVisible('region', (sr == 'REGION' ))
 
         data.forEach(function(d){
-            var value = Math.round(d.value / 1000) // api returns values in kilogram
+            var value = Math.round(d.value)
             values[d.area] = value;
             maxValue = Math.max(value, maxValue);
             minValue = Math.min(value, minValue);
@@ -410,7 +410,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 data: { areas: areas.join(','), aggregate: true },
                 success: function(data){
                     //var sum = data.reduce((a, b) => a + b.value, 0);
-                    var value = Math.round(data[0].value / 1000) // api returns values in kilogram;
+                    var value = Math.round(data[0].value)
                     _this.chartData[indicator.id][id] = {
                         name: id,
                         value: value,
@@ -454,7 +454,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 method: "POST",
                 data: { geom: JSON.stringify(geom) },
                 success: function(data){
-                    value = Math.round(data[0].value / 1000);
+                    value = Math.round(data[0].value);
                     // always prepend focus area
                     _this.chartData[indicatorId][0] = {
                         name: text,

@@ -336,7 +336,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = queryset.order_by()
 
         groups = queryset.values(origin_filter, destination_filter,
-                                 'waste', 'to_stock').distinct()
+                                 'waste', 'process', 'to_stock').distinct()
 
         origin_dict = self.serialize_nodes(
             origins, add_locations=True if origin_model == Actor else False
@@ -386,6 +386,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ('destination', dest_item),
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
+                ('process', group['process']),
                 ('amount', total_amount),
                 ('materials', grouped_mats)
             ))
