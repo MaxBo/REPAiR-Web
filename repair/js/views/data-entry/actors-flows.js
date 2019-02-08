@@ -53,6 +53,9 @@ var FlowsEditView = BaseView.extend(
             apiTag: 'activitygroups',
             apiIds: [ this.caseStudyId, this.keyflowId ]
         });
+        this.processes = new GDSECollection([], {
+            apiTag: 'processes'
+        });
         this.activities = options.activities;
         this.publications = new GDSECollection([], {
             apiTag: 'publicationsInCasestudy',
@@ -78,7 +81,8 @@ var FlowsEditView = BaseView.extend(
             this.activityGroups.fetch(),
             this.publications.fetch(),
             this.areaLevels.fetch(),
-            this.reasons.fetch()
+            this.reasons.fetch(),
+            this.processes.fetch()
         ]
         Promise.all(promises).then(function(){
             _this.areaLevels.sort();
@@ -227,6 +231,7 @@ var FlowsEditView = BaseView.extend(
                     template: 'edit-node-template',
                     model: model,
                     materials: _this.materials,
+                    processes: _this.processes,
                     keyflowId: _this.keyflowId,
                     caseStudyId: _this.caseStudyId,
                     publications: _this.publications,

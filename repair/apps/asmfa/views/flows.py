@@ -25,7 +25,8 @@ from repair.apps.asmfa.models import (
     ActivityGroup,
     ActorStock,
     GroupStock,
-    ActivityStock
+    ActivityStock,
+    Process
 )
 
 from repair.apps.studyarea.models import (
@@ -42,7 +43,8 @@ from repair.apps.asmfa.serializers import (
     GroupStockSerializer,
     ActorStockSerializer,
     ActivityStockSerializer,
-    ActorStockCreateSerializer
+    ActorStockCreateSerializer,
+    ProcessSerializer
 )
 
 
@@ -142,3 +144,8 @@ class ActorStockViewSet(PostGetViewMixin, StockViewSet):
         'create': ActorStockCreateSerializer,
     }
     additional_filters = {'origin__included': True}
+
+
+class ProcessViewSet(ModelViewSet):
+    queryset = Process.objects.all()
+    serializer_class = ProcessSerializer

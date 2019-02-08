@@ -247,6 +247,7 @@ class Sankey{
             .attr("d", path)
             .sort(function(a, b) { return b.dy - a.dy; })
             .style("stroke", strokeColor)
+            .style("fill", function(d){ return (d.causesCycle ? d.source.color : "none") })
             .on('mousemove', function(event) {
                 tipLinks
                     .style("top", function() {

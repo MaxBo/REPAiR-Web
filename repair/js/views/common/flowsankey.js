@@ -187,6 +187,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             flows.forEach(function(flow){
                 var value = flow.get('amount');
+                if (value < 0.5) return;
                 var origin = flow.get('origin'),
                     destination = flow.get('destination'),
                     isStock = flow.get('stock');
@@ -215,7 +216,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         },
 
         selectAll: function(){
-            var paths = this.sankeyDiv.querySelectorAll('.link'),
+            var paths = this.sankeyDiv.querySelectorAll('path'),
                 _this = this,
                 data = [];
             paths.forEach(function(path){
