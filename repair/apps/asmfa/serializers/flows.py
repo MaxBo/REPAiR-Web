@@ -160,7 +160,7 @@ class FractionFlowSerializer(CompositionMixin,
     }
     keyflow = IDRelatedField()
     publication = IDRelatedField(allow_null=True, required=False)
-    process = IDRelatedField(allow_null=True)
+    process = IDRelatedField(allow_null=True, required=False)
     origin = IDRelatedField()
     destination = IDRelatedField()
     material = IDRelatedField()
