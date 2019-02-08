@@ -9,7 +9,8 @@ from repair.apps.asmfa.models import (Flow,
                                       ActorStock,
                                       GroupStock,
                                       ActivityStock,
-                                      Stock
+                                      Stock,
+                                      Process
                                       )
 from rest_framework import serializers
 
@@ -211,3 +212,9 @@ class ActorStockSerializer(StockSerializer):
 
     class Meta(StockSerializer.Meta):
         model = ActorStock
+
+
+class ProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Process
+        fields = ('id', 'name')

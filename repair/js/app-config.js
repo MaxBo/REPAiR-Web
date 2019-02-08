@@ -31,6 +31,7 @@ function (Session) {
         areasOfProtection:      '/api/areasofprotection/',
         impactcategories:       '/api/impactcategories/',
         units:                  '/api/units/',
+        processes:              '/api/processes/',
         usersInCasestudy:       '/api/casestudies/{0}/users',
         challenges:             '/api/casestudies/{0}/challenges',
         aims:                   '/api/casestudies/{0}/aims',
