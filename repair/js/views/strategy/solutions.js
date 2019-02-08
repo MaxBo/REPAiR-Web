@@ -422,8 +422,9 @@ var SolutionsView = BaseView.extend(
     // render the administrative locations of all actors of activity with given id
     renderActivityOnMap: function(activityId){
         var _this = this,
-            activity = this.activities.get(activityId),
-            activityName = activity.get('name'),
+            activity = this.activities.get(activityId);
+        if (!activity) return;
+        var activityName = activity.get('name'),
             checkList = document.getElementById('activities-checks');
         if (checkList){
             var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
