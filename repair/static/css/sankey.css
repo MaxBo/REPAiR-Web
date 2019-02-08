@@ -23,6 +23,7 @@
 
 .link.selected, .cycleLink.selected {
     stroke-opacity: 1;
+    opacity: 1;
 }
 
 .cycleLink {

@@ -6,18 +6,18 @@ from django.http import Http404
 from abc import ABCMeta
 from enum import Enum
 import numpy as np
-from django.db.models import Q
+from django.db.models import Q, Sum
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
-
+from repair.apps.asmfa.views import descend_materials
 from repair.apps.utils.views import (ModelPermissionViewSet,
                                      CasestudyViewSetMixin)
-from repair.apps.asmfa.models import Actor, Actor2Actor, AdministrativeLocation
+from repair.apps.asmfa.models import Actor, FractionFlow, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
-from repair.apps.asmfa.views import aggregate_fractions
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
+
 
 def filter_actors_by_area(actors, geom):
     '''
@@ -44,7 +44,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         flow_type = indicator_flow.flow_type.name
 
         # filter flows by type (waste/product/both)
-        flows = Actor2Actor.objects.filter()
+        flows = FractionFlow.objects.filter()
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -71,16 +71,12 @@ class ComputeIndicator(metaclass=ABCMeta):
         flows = flows.filter(
             Q(origin__in=origins) & Q(destination__in=destinations))
 
-        # serialize and aggregate materials (incl. recalc. of amounts)
-        serializer = Actor2ActorSerializer(flows, many=True)
-        data = serializer.data
-        if (len(materials) > 0):
-            aggregate_fractions(materials, data, aggregate_materials=True)
+        if materials:
+            mats = descend_materials(list(materials))
+            flows = flows.filter(material__id__in=mats)
 
         # sum up amounts to single value
-        amount = 0
-        for flow in data:
-            amount += flow['amount']
+        amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0
         return amount
 
     def get_actors(self, node_ids, node_level):

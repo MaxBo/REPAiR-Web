@@ -25,6 +25,7 @@ from repair.apps.asmfa.views import (
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
+    FilterFlowViewSet,
     KeyflowViewSet,
     KeyflowInCasestudyViewSet,
     GroupStockViewSet,
@@ -40,6 +41,7 @@ from repair.apps.asmfa.views import (
     AllWasteViewSet,
     AllMaterialViewSet,
     WasteViewSet,
+    ProcessViewSet
 )
 
 from repair.apps.statusquo.views import (
@@ -91,6 +93,8 @@ router.register(r'impactcategories', ImpactcategoryViewSet)
 router.register(r'targetvalues', TargetValueViewSet)
 router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
 
+router.register(r'processes', ProcessViewSet)
+
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
 cs_router.register(r'users', login_views.UserInCasestudyViewSet)
@@ -136,6 +140,7 @@ kf_router.register(r'actorstock', ActorStockViewSet)
 kf_router.register(r'group2group', Group2GroupViewSet)
 kf_router.register(r'activity2activity', Activity2ActivityViewSet)
 kf_router.register(r'actor2actor', Actor2ActorViewSet)
+kf_router.register(r'flows', FilterFlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)

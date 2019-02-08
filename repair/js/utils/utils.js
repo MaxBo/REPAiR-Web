@@ -119,14 +119,14 @@ module.exports = {
             var opt = opt || {};
             loaderDiv.style.top = null;
             if (options != null && options.disable)
-                div.classList.toggle('disabled');
+                div.classList.add('disabled');
             if (opt.offsetX != null) loaderDiv.style.top = opt.offsetX;
             div.appendChild(loaderDiv);
         }
 
         this.deactivate = function(){
             if (options != null && options.disable)
-                div.classList.toggle('disabled');
+                div.classList.remove('disabled');
             try{
                 div.removeChild(loaderDiv);
             }
