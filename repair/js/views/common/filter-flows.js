@@ -468,8 +468,9 @@ var FilterFlowsView = BaseView.extend(
         // grey out materials not used in any flows in keyflow
         // (do it afterwards, because hierarchical select is build in template)
         matFlowless.forEach(function(material){
-            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]'),
-                a = li.querySelector('a');
+            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a');
             a.classList.add('empty');
         })
         this.el.querySelector('#material-filter').appendChild(matSelect);
