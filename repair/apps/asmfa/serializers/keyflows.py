@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 
 from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.apps.login.models import CaseStudy
@@ -9,7 +10,8 @@ from repair.apps.asmfa.models import (Keyflow,
                                       ProductFraction,
                                       Material,
                                       Waste,
-                                      Composition
+                                      Composition,
+                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -304,10 +306,17 @@ class AllMaterialSerializer(serializers.ModelSerializer):
     #keyflow = IDRelatedField(allow_null=True)
     parent = IDRelatedField(allow_null=True)
     level = serializers.IntegerField(required=False, default=0)
+    composition_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')
+        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent',
+                  'composition_count')
+
+
+class AllMaterialListSerializer(AllMaterialSerializer):
+    class Meta(AllMaterialSerializer.Meta):
+        fields = ('id', 'name', 'level', 'parent', 'keyflow')
 
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
@@ -317,14 +326,11 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = IDRelatedField(read_only=True)
     class Meta:
         model = Material
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
-
-
-class AllMaterialListSerializer(AllMaterialSerializer):
-    class Meta(AllMaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+                  'composition_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+                  'composition_count')

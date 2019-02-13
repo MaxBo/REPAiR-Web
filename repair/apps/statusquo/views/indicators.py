@@ -6,15 +6,14 @@ from django.http import Http404
 from abc import ABCMeta
 from enum import Enum
 import numpy as np
-from django.db.models import Q
+from django.db.models import Q, Sum
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
-
+from repair.apps.asmfa.views import descend_materials
 from repair.apps.utils.views import (ModelPermissionViewSet,
                                      CasestudyViewSetMixin)
-from repair.apps.asmfa.models import Actor, Actor2Actor, AdministrativeLocation
+from repair.apps.asmfa.models import Actor, FractionFlow, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
-from repair.apps.asmfa.views import aggregate_fractions
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
@@ -36,6 +35,7 @@ class ComputeIndicator(metaclass=ABCMeta):
     '''
     description = ''
     name = ''
+    default_unit = ''
     def sum(self, indicator_flow, geom=None):
         '''
         aggregation sum
@@ -44,7 +44,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         flow_type = indicator_flow.flow_type.name
 
         # filter flows by type (waste/product/both)
-        flows = Actor2Actor.objects.filter()
+        flows = FractionFlow.objects.filter()
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -71,16 +71,12 @@ class ComputeIndicator(metaclass=ABCMeta):
         flows = flows.filter(
             Q(origin__in=origins) & Q(destination__in=destinations))
 
-        # serialize and aggregate materials (incl. recalc. of amounts)
-        serializer = Actor2ActorSerializer(flows, many=True)
-        data = serializer.data
-        if (len(materials) > 0):
-            aggregate_fractions(materials, data, aggregate_materials=True)
+        if materials:
+            mats = descend_materials(list(materials))
+            flows = flows.filter(material__id__in=mats)
 
         # sum up amounts to single value
-        amount = 0
-        for flow in data:
-            amount += flow['amount']
+        amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0
         return amount
 
     def get_actors(self, node_ids, node_level):
@@ -105,6 +101,8 @@ class IndicatorA(ComputeIndicator):
     '''
     description = _('SUM aggregation Flow A')
     name = _('Flow A')
+    default_unit = _('t / year')
+
     def process(self, indicator, areas=[], geom=None, aggregate=False):
         flow_a = indicator.flow_a
         if not areas and not geom:
@@ -132,6 +130,8 @@ class IndicatorAB(ComputeIndicator):
     '''
     description = _('SUM aggregation Flow A / SUM aggregation Flow B')
     name = _('(Flow A / Flow B) * 100')
+    default_unit = '%'
+
     def process(self, indicator, areas=[], geom=None, aggregate=False):
         flow_a = indicator.flow_a
         flow_b = indicator.flow_b
@@ -165,7 +165,82 @@ class IndicatorAB(ComputeIndicator):
                 amount = 0
             amounts.append(OrderedDict({'area': area, 'value': amount}))
         if aggregate:
-            amount = 100 * total_sum_a / total_sum_b
+            amount = 100 * total_sum_a / total_sum_b if total_sum_b > 0 else 0
+            return [OrderedDict({'area': -1, 'value': amount})]
+        return amounts
+
+
+# ToDo: almost same as IndicatorAB, subclass this
+class IndicatorInhabitants(ComputeIndicator):
+    description = _('SUM aggregation Flow A / Inhabitants in Area')
+    name = _('Flow A / Inhabitants')
+    default_unit = _('t / inhabitant and year')
+
+    def process(self, indicator, areas=[], geom=None, aggregate=False):
+        if not areas and not geom:
+            return [OrderedDict({'area': -1, 'value': 0})]
+        amounts = []
+        #  ToDo: how to calc for geometries?
+        #        inhabitant data is attached to the areas only
+        if geom:
+            amounts.append(OrderedDict({'area': 'geom', 'value': 0}))
+        total_sum_a = 0
+        total_sum_b = 0
+        flow_a = indicator.flow_a
+        for area_id in areas:
+            if flow_a:
+                area = Area.objects.get(id=area_id)
+                geom = area.geom
+                sum_a = self.sum(flow_a, geom)
+                # ToDo: what if sum_b = 0?
+                sum_b = area.inhabitants
+                total_sum_a += sum_a
+                total_sum_b += sum_b
+                amount = sum_a / sum_b if sum_b > 0 else 0
+            else:
+                amount = 0
+            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
+        if aggregate:
+            amount = total_sum_a / total_sum_b if total_sum_b > 0 else 0
+            return [OrderedDict({'area': -1, 'value': amount})]
+        return amounts
+
+
+# ToDo: almost same as IndicatorAB, subclass this
+class IndicatorArea(ComputeIndicator):
+    description = _('SUM aggregation Flow A / geometrical area in hectar')
+    name = _('Flow A / Area (ha)')
+    default_unit = _('t / hectar and year')
+
+    def process(self, indicator, areas=[], geom=None, aggregate=False):
+        if not areas and not geom:
+            return [OrderedDict({'area': -1, 'value': 0})]
+        amounts = []
+        #  ToDo: how to calc for geometries?
+        #        inhabitant data is attached to the areas only
+        if geom:
+            sm = geom.transform(3035, clone=True).area
+            ha = sm / 10000
+            amounts.append(OrderedDict({'area': 'geom', 'value': ha}))
+        total_sum_a = 0
+        total_ha = 0
+        flow_a = indicator.flow_a
+        for area_id in areas:
+            if flow_a:
+                area = Area.objects.get(id=area_id)
+                geom = area.geom
+                sm = area.geom.transform(3035, clone=True).area
+                sum_a = self.sum(flow_a, geom)
+                # ToDo: what if sum_b = 0?
+                ha = sm / 10000
+                total_sum_a += sum_a
+                total_ha += ha
+                amount = sum_a / ha if ha > 0 else 0
+            else:
+                amount = 0
+            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
+        if aggregate:
+            amount = total_sum_a / total_ha if total_ha > 0 else 0
             return [OrderedDict({'area': -1, 'value': amount})]
         return amounts
 

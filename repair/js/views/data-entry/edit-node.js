@@ -47,6 +47,7 @@ var EditNodeView = BaseView.extend(
         this.template = options.template;
         this.keyflowId = options.keyflowId;
         this.caseStudyId = options.caseStudyId;
+        this.processes = options.processes;
         this.materials = options.materials;
         this.publications = options.publications;
         this.showNodeInfo = (options.showNodeInfo == false) ? false: true;
@@ -404,6 +405,29 @@ var EditNodeView = BaseView.extend(
 
         $(editFractionsBtn).popover(popOverFractionsSettings);
 
+        // process input
+        if (!isStock){
+            var processSelect = document.createElement("select"),
+                option = document.createElement("option");
+            processSelect.style.maxWidth = '100px';
+            option.value = -1;
+            option.text = gettext('None');
+            processSelect.appendChild(option);
+            this.processes.forEach(function(process){
+                var option = document.createElement("option"),
+                    name = process.get('name');
+                option.text = name;
+                option.value = process.id;
+                option.title = name;
+                processSelect.appendChild(option);
+            })
+            processSelect.value = flow.get('process') || -1;
+            processSelect.addEventListener('change', function() {
+                flow.set('process', (this.value == "-1") ? '' : this.value);
+            });
+            row.insertCell(-1).appendChild(processSelect);
+        }
+
         var year = addInput('year', 'number');
         year.min = 0;
         year.max = 3000;
@@ -588,6 +612,12 @@ var EditNodeView = BaseView.extend(
             avoidCheck.checked = fraction.avoidable;
             row.insertCell(-1).appendChild(avoidCheck);
 
+            var hazardCheck = document.createElement('input');
+            hazardCheck.type = 'checkbox';
+            hazardCheck.name = 'hazardous';
+            hazardCheck.checked = fraction.hazardous;
+            row.insertCell(-1).appendChild(hazardCheck);
+
             var sourceCell = row.insertCell(-1);
             sourceCell.setAttribute("style", "white-space: nowrap");
             _this.addPublicationInput(sourceCell, fraction.publication, function(id){
@@ -680,6 +710,7 @@ var EditNodeView = BaseView.extend(
                     fInput = row.querySelector('input[name="fraction"]'),
                     matSelect = row.querySelector('.materialSelect'),
                     avoidCheck = row.querySelector('input[name="avoidable"]'),
+                    hazardCheck = row.querySelector('input[name="hazardous"]'),
                     pubInput = row.querySelector('button[name="publication"]'),
                     f = fInput.value / 100,
                     id = row.getAttribute('data-id');
@@ -689,7 +720,8 @@ var EditNodeView = BaseView.extend(
                     'fraction': Number(Math.round(f+'e5')+'e-5'),
                     'material': matSelect.getAttribute('data-material-id'),
                     'publication': pubInput.getAttribute('data-publication-id'),
-                    'avoidable': avoidCheck.checked
+                    'avoidable': avoidCheck.checked,
+                    'hazardous': hazardCheck.checked
                 };
                 composition.fractions.push(fraction);
             }

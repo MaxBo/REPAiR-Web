@@ -356,14 +356,14 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
     // render item for bar chart
     renderBarChart: function(){
-        var el = this.barChart;
+        var el = this.barChart,
+            _this = this;
         var div = document.createElement('div');
         el.appendChild(div);
         // user defined areas
         var barChartTab = this.el.querySelector('#bar-charts-tab');
         this.chartLoader = new utils.Loader(barChartTab, {disable: true});
         var width = $("#bar-chart").width();
-
         //create bar chart
         this.chart = highcharts.chart(div, {
             chart: {
@@ -372,7 +372,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             },
             tooltip: {
                 formatter: function () {
-                    return '<b>' + highcharts.numberFormat(this.y, 0, ',', '') + '</b>';
+                    var unit = _this.indicators.get(_this.indicatorId).get('unit');
+                    return '<b>' + _this.format(this.y) + ' ' + unit + '</b>';
                 }
             },
             xAxis: {
@@ -409,7 +410,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 data: { areas: areas.join(','), aggregate: true },
                 success: function(data){
                     //var sum = data.reduce((a, b) => a + b.value, 0);
-                    var value = data[0].value;
+                    var value = Math.round(data[0].value)
                     _this.chartData[indicator.id][id] = {
                         name: id,
                         value: value,
@@ -453,7 +454,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 method: "POST",
                 data: { geom: JSON.stringify(geom) },
                 success: function(data){
-                    value = data[0].value;
+                    value = Math.round(data[0].value);
                     // always prepend focus area
                     _this.chartData[indicatorId][0] = {
                         name: text,

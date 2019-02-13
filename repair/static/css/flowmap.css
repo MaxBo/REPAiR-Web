@@ -61,6 +61,10 @@ div.sankeymaptooltip {
     stroke: #0fff;
 }
 
+.leaflet-top.leaflet-right {
+    z-index: 2000;
+}
+
 .leaflet-bottom, .leaflet-top {
     max-width: 50%;
 }
@@ -69,11 +73,9 @@ div.sankeymaptooltip {
     max-width: 100%;
 }
 
-/*.leaflet-control a{*/
-    /*color: #aad400;*/
-    /*border: 1px solid #aad400;*/
-/*}*/
-
 .leaflet-control-zoom {
     top: 50px;
+}
+.leaflet-div-icon {
+    border: 0px;
 }

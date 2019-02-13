@@ -13,11 +13,6 @@ function (Session) {
 
     config.session = new Session();
 
-
-    config.views = {
-        layerproxy: '/proxy/layers/{0}/wms',
-    }
-
     /** urls to resources in api
     * @name api
     * @memberof module:config
@@ -37,6 +32,7 @@ function (Session) {
         areasOfProtection:      '/api/areasofprotection/',
         impactcategories:       '/api/impactcategories/',
         units:                  '/api/units/',
+        processes:              '/api/processes/',
         usersInCasestudy:       '/api/casestudies/{0}/users',
         challenges:             '/api/casestudies/{0}/challenges',
         aims:                   '/api/casestudies/{0}/aims',
@@ -66,6 +62,7 @@ function (Session) {
         products:               '/api/casestudies/{0}/keyflows/{1}/products/',
         wastes:                 '/api/casestudies/{0}/keyflows/{1}/wastes/',
         materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
+        flows:                  '/api/casestudies/{0}/keyflows/{1}/flows/',
         activityToActivity:     '/api/casestudies/{0}/keyflows/{1}/activity2activity/',
         groupToGroup:           '/api/casestudies/{0}/keyflows/{1}/group2group/',
         actorToActor:           '/api/casestudies/{0}/keyflows/{1}/actor2actor/',
