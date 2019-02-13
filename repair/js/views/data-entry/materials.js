@@ -69,11 +69,11 @@ var MaterialsView = BaseView.extend(
     },
 
     materialToNode: function(material){
-        var compCount = material.get('composition_count');
+        var flowCount = material.get('flow_count');
         var node = {
             id: material.id,
             parent: material.get('parent'),
-            text: material.get('name') + ' (' + compCount + ' ' + gettext('compositions') + ')',
+            text: material.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')',
             model: material,
             state: { collapsed: true }
         };
