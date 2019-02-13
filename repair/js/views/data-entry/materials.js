@@ -69,11 +69,12 @@ var MaterialsView = BaseView.extend(
     },
 
     materialToNode: function(material){
-        var flowCount = material.get('flow_count');
+        var flowCount = material.get('flow_count'),
+            childFlowCount = this.flowsInChildren[material.id] || 0;
         var node = {
             id: material.id,
             parent: material.get('parent'),
-            text: material.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')',
+            text: material.get('name') + ' (' + flowCount + ' / ' + childFlowCount + ' ' + gettext('flows') + ')',
             model: material,
             state: { collapsed: true }
         };
@@ -94,6 +95,19 @@ var MaterialsView = BaseView.extend(
 
         // collection to list, prepare it to treeify
         var materialList = [];
+        var compAttrBefore = this.materials.comparatorAttr;
+        this.materials.comparatorAttr = 'level';
+        this.materials.sort();
+        this.flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.materials.models.reverse().forEach(function(material){
+            var parent = material.get('parent'),
+                count = material.get('flow_count') + (_this.flowsInChildren[material.id] || 0);
+            _this.flowsInChildren[parent] = (!_this.flowsInChildren[parent]) ? count: _this.flowsInChildren[parent] + count;
+        })
+        this.materials.comparatorAttr = compAttrBefore;
+        this.materials.sort();
+
         this.materials.each(function(material){
             materialList.push(_this.materialToNode(material));
         });
@@ -103,7 +117,7 @@ var MaterialsView = BaseView.extend(
             id: null,
             parent: null,
             nodes: utils.treeify(materialList), // collection as tree
-            text: 'Materials',
+            text: gettext('Material (directly used in flows / children in flows)'),
             state: { collapsed: false }
         }]
 
