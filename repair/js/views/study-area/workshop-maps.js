@@ -1,9 +1,9 @@
 define(['views/common/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
-        'app-config', 'openlayers', 'jstree',
+        'app-config', 'openlayers', 'bootstrap-slider', 'jstree',
         'static/css/jstree/gdsetouch/style.css'],
 
-function(BaseView, Backbone, _, GDSECollection, Map, config, ol){
+function(BaseView, Backbone, _, GDSECollection, Map, config, ol, Slider){
 /**
 *
 * @author Christoph Franke
@@ -38,6 +38,7 @@ var BaseMapsView = BaseView.extend(
         _.bindAll(this, 'nodeUnchecked');
         _.bindAll(this, 'nodeDropped');
         _.bindAll(this, 'nodeSelected');
+        _.bindAll(this, 'nodeExpanded');
         _.bindAll(this, 'showFeatureInfo');
 
         this.template = options.template;
@@ -259,6 +260,7 @@ var BaseMapsView = BaseView.extend(
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
         $(this.layerTree).on("move_node.jstree", this.nodeDropped);
+        //$(this.layerTree).on("open_node.jstree", this.nodeExpanded);
     },
 
     nodeSelected: function(event, data){
@@ -305,6 +307,24 @@ var BaseMapsView = BaseView.extend(
         this.applyCheckState(data.node);
     },
 
+    nodeExpanded: function(event, data){
+            console.log(this.layerTree)
+        var children = data.node.children,
+            _this = this;
+        children.forEach(function(childId){
+            var li = _this.layerTree.querySelector('#' + childId),
+                wrapper = document.createElement('div'),
+                input = document.createElement('input');
+            wrapper.style.width = '100%';
+            wrapper.style.height = '50px';
+            wrapper.style.backgroundColor = 'green';
+            console.log(childId)
+            li.appendChild(wrapper);
+            wrapper.appendChild(input);
+            var slider = new Slider(input, {});
+        })
+    },
+
     renderMap: function(){
         var _this = this;
         this.map = new Map({
@@ -333,6 +353,7 @@ var BaseMapsView = BaseView.extend(
         var nodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
             zIndex = nodes.length,
             _this = this;
+        if (!nodes.forEach) return;
         nodes.forEach(function(node){
             if(node.type === 'layer'){
                 _this.map.setZIndex(node.id, zIndex);
