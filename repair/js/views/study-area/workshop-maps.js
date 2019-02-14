@@ -1,7 +1,8 @@
 define(['views/common/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
         'app-config', 'openlayers', 'bootstrap-slider', 'jstree',
-        'static/css/jstree/gdsetouch/style.css'],
+        'static/css/jstree/gdsetouch/style.css',
+        'bootstrap-slider/dist/css/bootstrap-slider.min.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol, Slider){
 /**
@@ -256,6 +257,7 @@ var BaseMapsView = BaseView.extend(
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
         this.restoreOrder();
+        this.transparencies = {};
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
@@ -308,7 +310,6 @@ var BaseMapsView = BaseView.extend(
     },
 
     nodeExpanded: function(event, data){
-            console.log(this.layerTree)
         var children = data.node.children,
             _this = this;
         children.forEach(function(childId){
@@ -316,12 +317,22 @@ var BaseMapsView = BaseView.extend(
                 wrapper = document.createElement('div'),
                 input = document.createElement('input');
             wrapper.style.width = '100%';
-            wrapper.style.height = '50px';
-            wrapper.style.backgroundColor = 'green';
-            console.log(childId)
+            wrapper.style.height = '20px';
             li.appendChild(wrapper);
             wrapper.appendChild(input);
-            var slider = new Slider(input, {});
+            var slider = new Slider(input, {
+                min: 0,
+                max: 100,
+                step: 1,
+                handle: 'square',
+                value: _this.transparencies[childId] || 0
+            });
+
+            slider.on('slide', function(value){
+                _this.transparencies[childId] = value;
+                var opacity = (100 - value) / 100;
+                _this.map.setOpacity(childId, opacity);
+            })
         })
     },
 
