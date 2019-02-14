@@ -158,6 +158,10 @@ var SetupMapsView = BaseMapView.extend(
         this.applyCheckState(data.node);
     },
 
+    nodeExpanded: function(event, data){
+
+    },
+
     renderAvailableServices: function(){
         var _this = this;
         this.wmsResources.fetch({ success: function(){
