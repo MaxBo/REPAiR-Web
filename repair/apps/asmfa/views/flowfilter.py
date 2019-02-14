@@ -326,7 +326,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         origin_level = LEVEL_KEYWORD[origin_model]
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []
-        start = time.time()
         flow_ids = queryset.values('id')
         origins = origin_model.objects.filter(
             id__in=queryset.values(origin_filter))
@@ -392,7 +391,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             ))
 
             data.append(flow_item)
-        print(time.time() - start)
         return data
 
     @staticmethod

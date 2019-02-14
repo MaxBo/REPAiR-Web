@@ -21,7 +21,7 @@ class Process(GDSEModel):
 
 class Flow(GDSEModel):
 
-    amount = models.PositiveIntegerField(blank=True, default=0)
+    amount = models.BigIntegerField(blank=True, default=0)
 
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
@@ -235,7 +235,3 @@ class FractionFlow(Flow):
     # composition related information
     nace = models.CharField(max_length=255, blank=True)
     composition_name = models.CharField(max_length=255, blank=True)
-
-
-
-
