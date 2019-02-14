@@ -20,7 +20,7 @@ class LayerCategorySerializer(serializers.ModelSerializer):
         if not validated_data.get('order'):
             categories = self.Meta.model.objects.filter(
                 casestudy_id=validated_data.get('casestudy_id'))
-            max_order = categories.aggregate(Max('order'))['order__max']
+            max_order = categories.aggregate(Max('order'))['order__max'] or 0
             validated_data['order'] = max_order + 1
         return super().create(validated_data)
 
