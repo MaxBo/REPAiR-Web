@@ -279,8 +279,22 @@ var BaseMapsView = BaseView.extend(
     },
 
     nodeDropped: function(event, data){
+        var _this = this;
         this.saveOrder();
         this.setMapZIndices();
+        var node = data.node;
+        var parent = $(this.layerTree).jstree('get_node', node.parent);
+        // type is bugged, disappears here
+        // if category is dragged, you need to rerender all slides in all cat.
+        if (node.children.length > 0) {
+            parent.children.forEach(function(childId){
+                child = $(_this.layerTree).jstree('get_node', childId);
+                _this.renderSliders(child.children);
+            })
+        }
+        else {
+            this.renderSliders(parent.children);
+        }
     },
 
     applyCheckState: function(node){
@@ -314,12 +328,17 @@ var BaseMapsView = BaseView.extend(
     },
 
     nodeExpanded: function(event, data){
-        var children = data.node.children,
-            _this = this;
-        children.forEach(function(childId){
-            var li = _this.layerTree.querySelector('#' + childId),
+        var children = data.node.children;
+        this.renderSliders(children);
+    },
+
+    renderSliders(layernames){
+        var _this = this;
+        layernames.forEach(function(layername){
+            var li = _this.layerTree.querySelector('#' + layername),
                 wrapper = document.createElement('div'),
                 input = document.createElement('input');
+            if (!li) return;
             wrapper.style.width = '100%';
             wrapper.style.height = '20px';
             li.appendChild(wrapper);
@@ -329,13 +348,13 @@ var BaseMapsView = BaseView.extend(
                 max: 100,
                 step: 1,
                 handle: 'square',
-                value: _this.transparencies[childId] || 0
+                value: _this.transparencies[layername] || 0
             });
 
             slider.on('slide', function(value){
-                _this.transparencies[childId] = value;
+                _this.transparencies[layername] = value;
                 var opacity = (100 - value) / 100;
-                _this.map.setOpacity(childId, opacity);
+                _this.map.setOpacity(layername, opacity);
             })
 
             slider.on('slideStop', function(value){
