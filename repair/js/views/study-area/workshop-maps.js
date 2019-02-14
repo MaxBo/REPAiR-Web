@@ -1,7 +1,8 @@
 define(['views/common/baseview', 'backbone', 'underscore',
         'collections/gdsecollection', 'visualizations/map',
         'app-config', 'openlayers', 'bootstrap-slider', 'jstree',
-        'static/css/jstree/gdsetouch/style.css'],
+        'static/css/jstree/gdsetouch/style.css',
+        'bootstrap-slider/dist/css/bootstrap-slider.min.css'],
 
 function(BaseView, Backbone, _, GDSECollection, Map, config, ol, Slider){
 /**
@@ -141,6 +142,10 @@ var BaseMapsView = BaseView.extend(
         config.session.save({ checkedMapLayers: checkedIds });
     },
 
+    saveTransparencies(){
+        config.session.save({ layerTransparencies: this.transparencies });
+    },
+
     saveOrder: function(){
         var catNodes = $(this.layerTree).jstree('get_json'),
             order = [],
@@ -256,11 +261,12 @@ var BaseMapsView = BaseView.extend(
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
         this.restoreOrder();
+        this.transparencies = config.session.get('layerTransparencies') || {};
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
         $(this.layerTree).on("move_node.jstree", this.nodeDropped);
-        //$(this.layerTree).on("open_node.jstree", this.nodeExpanded);
+        $(this.layerTree).on("open_node.jstree", this.nodeExpanded);
     },
 
     nodeSelected: function(event, data){
@@ -308,7 +314,6 @@ var BaseMapsView = BaseView.extend(
     },
 
     nodeExpanded: function(event, data){
-            console.log(this.layerTree)
         var children = data.node.children,
             _this = this;
         children.forEach(function(childId){
@@ -316,12 +321,26 @@ var BaseMapsView = BaseView.extend(
                 wrapper = document.createElement('div'),
                 input = document.createElement('input');
             wrapper.style.width = '100%';
-            wrapper.style.height = '50px';
-            wrapper.style.backgroundColor = 'green';
-            console.log(childId)
+            wrapper.style.height = '20px';
             li.appendChild(wrapper);
             wrapper.appendChild(input);
-            var slider = new Slider(input, {});
+            var slider = new Slider(input, {
+                min: 0,
+                max: 100,
+                step: 1,
+                handle: 'square',
+                value: _this.transparencies[childId] || 0
+            });
+
+            slider.on('slide', function(value){
+                _this.transparencies[childId] = value;
+                var opacity = (100 - value) / 100;
+                _this.map.setOpacity(childId, opacity);
+            })
+
+            slider.on('slideStop', function(value){
+                _this.saveTransparencies();
+            })
         })
     },
 
@@ -363,8 +382,10 @@ var BaseMapsView = BaseView.extend(
     },
 
     addServiceLayer: function(layer){
-        this.map.addServiceLayer(this.layerPrefix + layer.id, {
-            opacity: 1,
+        var layername = this.layerPrefix + layer.id,
+            transparency = this.transparencies[layername] || 0;
+        this.map.addServiceLayer(layername, {
+            opacity: (100-transparency) / 100,
             visible: this.isChecked(layer),
             url: layer.get('proxy_uri'),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
