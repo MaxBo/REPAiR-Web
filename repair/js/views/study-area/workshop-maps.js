@@ -142,6 +142,10 @@ var BaseMapsView = BaseView.extend(
         config.session.save({ checkedMapLayers: checkedIds });
     },
 
+    saveTransparencies(){
+        config.session.save({ layerTransparencies: this.transparencies });
+    },
+
     saveOrder: function(){
         var catNodes = $(this.layerTree).jstree('get_json'),
             order = [],
@@ -257,7 +261,7 @@ var BaseMapsView = BaseView.extend(
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
         this.restoreOrder();
-        this.transparencies = {};
+        this.transparencies = config.session.get('layerTransparencies') || {};
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
@@ -333,6 +337,10 @@ var BaseMapsView = BaseView.extend(
                 var opacity = (100 - value) / 100;
                 _this.map.setOpacity(childId, opacity);
             })
+
+            slider.on('slideStop', function(value){
+                _this.saveTransparencies();
+            })
         })
     },
 
@@ -374,8 +382,10 @@ var BaseMapsView = BaseView.extend(
     },
 
     addServiceLayer: function(layer){
-        this.map.addServiceLayer(this.layerPrefix + layer.id, {
-            opacity: 1,
+        var layername = this.layerPrefix + layer.id,
+            transparency = this.transparencies[layername] || 0;
+        this.map.addServiceLayer(layername, {
+            opacity: (100-transparency) / 100,
             visible: this.isChecked(layer),
             url: layer.get('proxy_uri'),
             //params: {'layers': layer.get('service_layers')}//, 'TILED': true, 'VERSION': '1.1.0'},
