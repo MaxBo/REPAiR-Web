@@ -101,7 +101,8 @@ div.fullscreen{
   z-index: 10000;
 }
 
-.tooltip {
+// everyone calls class of their tooltips 'tooltip', kind of problematic
+.tooltip:not(.top, .bottom) {
   position: relative;
   padding: 3px;
   background: @main-color;

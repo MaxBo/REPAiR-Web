@@ -260,7 +260,7 @@ var BaseMapsView = BaseView.extend(
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
         $(this.layerTree).on("move_node.jstree", this.nodeDropped);
-        //$(this.layerTree).on("open_node.jstree", this.nodeExpanded);
+        $(this.layerTree).on("open_node.jstree", this.nodeExpanded);
     },
 
     nodeSelected: function(event, data){
