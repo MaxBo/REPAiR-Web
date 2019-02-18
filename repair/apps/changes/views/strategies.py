@@ -5,12 +5,14 @@ from repair.apps.changes.models import (
     Strategy,
     SolutionInStrategy,
     ImplementationQuantity,
+    SolutionPart
     )
 
 from repair.apps.changes.serializers import (
     StrategySerializer,
     SolutionInStrategySerializer,
     ImplementationQuantitySerializer,
+    SolutionPartSerializer
     )
 
 from repair.apps.utils.views import (ModelPermissionViewSet,
@@ -52,8 +54,7 @@ class StrategyViewSet(CasestudyViewSetMixin,
         return strategies
 
 
-class SolutionInStrategyViewSet(CasestudyViewSetMixin,
-                                ModelPermissionViewSet):
+class SolutionInStrategyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionInStrategySerializer
     queryset = SolutionInStrategy.objects.all()
 

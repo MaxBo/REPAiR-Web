@@ -24,6 +24,7 @@ from repair.apps.changes.views import (
     SolutionInStrategyViewSet,
     ImplementationQuestionViewSet,
     ImplementationQuantityViewSet,
+    SolutionPartViewSet
 )
 
 from repair.apps.asmfa.views import (
@@ -175,6 +176,7 @@ scat_router.register(r'solutions', SolutionViewSet)
 sol_router = NestedSimpleRouter(scat_router, r'solutions',
                                  lookup='solution')
 sol_router.register(r'questions', ImplementationQuestionViewSet)
+sol_router.register(r'parts', SolutionPartViewSet)
 
 # /casestudies/*/keyflows/*/strategies/...
 strat_router = NestedSimpleRouter(kf_router, r'strategies',

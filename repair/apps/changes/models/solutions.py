@@ -71,10 +71,10 @@ class SolutionPart(GDSEModel):
 
     # starting point of calculation (possible new flow is derived from it)
     # on activity level
-    implementation_flow_origin = models.ForeignKey(
+    implementation_flow_origin_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
         related_name='implementation_origin')
-    implementation_flow_destination = models.ForeignKey(
+    implementation_flow_destination_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
         related_name='implementation_destination')
     implementation_flow_material = models.ForeignKey(
@@ -87,7 +87,7 @@ class SolutionPart(GDSEModel):
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
     # parameters for formula changing the implementation flow
-    implementation_question = models.ForeignKey(Solution,
+    implementation_question = models.ForeignKey(Solution, null=True,
                                                 on_delete=models.CASCADE)
     a = models.FloatField()
     b = models.FloatField()
@@ -96,7 +96,7 @@ class SolutionPart(GDSEModel):
     keep_origin = models.BooleanField(default=True)  # if False: keep dest.
     # new origin resp. activity (depending on keep_origin)
     new_target = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE,
-                                   related_name='new_target')
+                                   related_name='new_target', null=True)
     map_request = models.TextField(default='') # tells user what to pick on map
 
 
@@ -106,14 +106,14 @@ class AffectedFlow(GDSEModel):
     '''
     solution_part = models.ForeignKey(SolutionPart, on_delete=models.CASCADE)
 
-    affected_flow_origin = models.ForeignKey(
+    origin_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE, related_name='affected_origin')
-    affected_flow_destination = models.ForeignKey(
+    destination_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
         related_name='affected_destination')
-    affected_flow_material = models.ForeignKey(
+    material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE, related_name='affected_material')
-    affected_flow_process = models.ForeignKey(
+    process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE, related_name='affected_process')
 
 
@@ -122,6 +122,8 @@ class ImplementationQuestion(GDSEModel):
     question asked to user to determine value for calc. solution-part formula
     '''
     question = models.TextField(default='')
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
+                                 related_name='question')
     unit = models.CharField(blank=True, default='', max_length=100)
     select_values = models.TextField(validators=[double_list_validator])
     steps = models.FloatField(null=True)

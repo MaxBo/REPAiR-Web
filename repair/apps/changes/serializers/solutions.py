@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
+from repair.apps.asmfa.models import Activity
 from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
-                                        Activity
+                                        SolutionPart
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -153,5 +154,41 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
             'possible_implementation_area': {
                 'allow_null': True,
                 'required': False,
-            }
+            },
+            'description': {'required': False},
+            'documentation': {'required': False},
+        }
+
+
+class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
+                             NestedHyperlinkedModelSerializer):
+    solution = IDRelatedField(read_only=True)
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution__solution_category__id',
+        'solution_pk': 'solution__id'
+    }
+
+    # ToDo: serialize affected flows as part of this serializer
+
+    class Meta:
+        model = SolutionPart
+        fields = ('url', 'id', 'solution', 'documentation',
+                  'implements_new_flow',
+                  'implementation_flow_origin_activity',
+                  'implementation_flow_destination_activity',
+                  'implementation_flow_material',
+                  'implementation_flow_process',
+                  'implementation_flow_spatial_application',
+                  'implementation_question', 'a', 'b',
+                  'keep_origin', 'new_target', 'map_request'
+                  )
+        read_only_fields = ('url', 'id', 'solution')
+        extra_kwargs = {
+            'implementation_question': {'null': True, 'required': False},
+            'keep_origin': {'required': False},
+            'new_target': {'required': False},
+            'map_request': {'required': False},
+            'documentation': {'required': False}
         }
