@@ -10,7 +10,6 @@ from repair.apps.changes.models import (
     SolutionInStrategyQuantity,
     SolutionQuantity,
     SolutionRatioOneUnit,
-    Unit,
     )
 
 from repair.apps.login.factories import UserInCasestudyFactory
@@ -23,7 +22,6 @@ class TestModelRepresentation(TestCase):
                             Solution,
                             SolutionCategory,
                             SolutionRatioOneUnit,
-                            Unit,
                             ):
 
             model = model_class(name="MyName")

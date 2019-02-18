@@ -9,12 +9,6 @@ from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from . import models
 
 
-class UnitFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Unit
-    name = 'meter'
-
-
 class SolutionCategoryFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionCategory

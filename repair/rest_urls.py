@@ -18,14 +18,12 @@ from repair.apps.studyarea.views import (
 )
 
 from repair.apps.changes.views import (
-    UnitViewSet,
     SolutionCategoryViewSet,
     SolutionViewSet,
     StrategyViewSet,
     SolutionInStrategyViewSet,
-    SolutionQuantityViewSet,
-    SolutionRatioOneUnitViewSet,
-    SolutionInStrategyQuantityViewSet,
+    ImplementationQuestionViewSet,
+    ImplementationQuantityViewSet,
 )
 
 from repair.apps.asmfa.views import (
@@ -73,17 +71,6 @@ from repair.apps.statusquo.views import (
 from repair.apps.conclusions.views import (ConclusionViewSet, SectionViewSet,
                                            ConsensusViewSet)
 
-from repair.apps.changes.views import (
-    UnitViewSet,
-    SolutionCategoryViewSet,
-    SolutionViewSet,
-    StrategyViewSet,
-    SolutionInStrategyViewSet,
-    SolutionQuantityViewSet,
-    SolutionRatioOneUnitViewSet,
-    SolutionInStrategyQuantityViewSet,
-)
-
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
@@ -93,7 +80,6 @@ from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 
 router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
-router.register(r'units', UnitViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'products', AllProductViewSet)
 router.register(r'wastes', AllWasteViewSet)
@@ -188,8 +174,7 @@ scat_router.register(r'solutions', SolutionViewSet)
 # /casestudies/*/keyflows/*/solutioncategories/*/solutions...
 sol_router = NestedSimpleRouter(scat_router, r'solutions',
                                  lookup='solution')
-sol_router.register(r'solutionquantities', SolutionQuantityViewSet)
-sol_router.register(r'solutionratiooneunits', SolutionRatioOneUnitViewSet)
+sol_router.register(r'questions', ImplementationQuestionViewSet)
 
 # /casestudies/*/keyflows/*/strategies/...
 strat_router = NestedSimpleRouter(kf_router, r'strategies',
@@ -199,7 +184,7 @@ strat_router.register(r'solutions', SolutionInStrategyViewSet)
 # /casestudies/*/keyflows/*/strategies/*/solutions...
 sii_router = NestedSimpleRouter(strat_router, r'solutions',
                                 lookup='solution')
-sii_router.register(r'quantities', SolutionInStrategyQuantityViewSet)
+sii_router.register(r'quantities', ImplementationQuantityViewSet)
 
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',

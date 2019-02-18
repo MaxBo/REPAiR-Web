@@ -6,11 +6,15 @@ from repair.apps.login.models import (GDSEModel,
 from repair.apps.asmfa.models import KeyflowInCasestudy
 
 from repair.apps.studyarea.models import Stakeholder
-from .solutions import Solution, SolutionQuantity
+from repair.apps.changes.models.solutions import (Solution,
+                                                  ImplementationQuestion)
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Strategy(GDSEModel):
+    '''
+    there should only be one per user
+    '''
     user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
@@ -35,6 +39,9 @@ class Strategy(GDSEModel):
 
 
 class SolutionInStrategy(GDSEModel):
+    '''
+    implementation of a solution by a user
+    '''
     solution = models.ForeignKey(Solution, on_delete=PROTECT_CASCADE)
     strategy = models.ForeignKey(Strategy,
                                  on_delete=PROTECT_CASCADE)
@@ -48,12 +55,21 @@ class SolutionInStrategy(GDSEModel):
         return text.format(s=self.solution, i=self.strategy,)
 
 
-def trigger_solutioninstrategyquantity_sii(sender, instance,
-                                           created, **kwargs):
+class ImplementationQuantity(GDSEModel):
+    '''
+    answer by user to a implementation question
+    '''
+    implementation = models.ForeignKey(SolutionInStrategy,
+                                       on_delete=PROTECT_CASCADE)
+    question = models.ForeignKey(ImplementationQuestion,
+                                 on_delete=PROTECT_CASCADE)
+    value = models.FloatField()
+
+def trigger_implementationquantity_sii(sender, instance,
+                                       created, **kwargs):
     """
-    Create SolutionInStrategyQuantity
-    for each SolutionQuantity
-    each time a SolutionInStrategyQuantity is created.
+    Create ImplementationQuantity for each ImplementationQuestion
+    each time a SolutionInStrategy is created.
     """
     if created:
         sii = instance
@@ -64,47 +80,11 @@ def trigger_solutioninstrategyquantity_sii(sender, instance,
             if is_created:
                 new.save()
 
-
-def trigger_solutioninstrategyquantity_quantity(sender, instance,
-                                                created, **kwargs):
-    """
-    Create SolutionInStrategyQuantity
-    for each SolutionQuantity
-    each time a SolutionQuantity is created.
-    """
-    if created:
-        solution_quantity = instance
-        solution = solution_quantity.solution
-        sii_set = SolutionInStrategy.objects.filter(
-            solution_id=solution.id)
-        for sii in sii_set.all():
-            new, is_created = SolutionInStrategyQuantity.objects.\
-                get_or_create(sii=sii, quantity=solution_quantity)
-            if is_created:
-                new.save()
-
-
 signals.post_save.connect(
-    trigger_solutioninstrategyquantity_sii,
+    trigger_implementationquantity_sii,
     sender=SolutionInStrategy,
     weak=False,
-    dispatch_uid='models.trigger_solutioninstrategyquantity_sii')
-
-signals.post_save.connect(
-    trigger_solutioninstrategyquantity_quantity,
-    sender=SolutionQuantity,
-    weak=False,
-    dispatch_uid='models.trigger_solutioninstrategyquantity_quantity')
+    dispatch_uid='models.trigger_implementationquantity_sii')
 
 
-class SolutionInStrategyQuantity(GDSEModel):
-    sii = models.ForeignKey(SolutionInStrategy,
-                            on_delete=models.CASCADE)
-    quantity = models.ForeignKey(SolutionQuantity,
-                                 on_delete=models.CASCADE)
-    value = models.FloatField(default=0)
-
-    def __str__(self):
-        text = '{v} {q}'
-        return text.format(v=self.value, q=self.quantity)
 
