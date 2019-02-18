@@ -36,6 +36,9 @@ var FilterFlowsView = BaseView.extend(
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.processes = new GDSECollection([], {
+            apiTag: 'processes'
+        });
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId ],
@@ -63,7 +66,8 @@ var FilterFlowsView = BaseView.extend(
             this.activities.fetch(),
             this.activityGroups.fetch(),
             this.materials.fetch(),
-            this.areaLevels.fetch()
+            this.areaLevels.fetch(),
+            this.processes.fetch()
         ]
         Promise.all(promises).then(function(){
             _this.activities.sort();
