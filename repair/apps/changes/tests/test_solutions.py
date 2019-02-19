@@ -5,9 +5,7 @@ from repair.tests.test import BasicModelPermissionTest
 
 from repair.apps.changes.factories import (
     SolutionCategoryFactory,
-    SolutionFactory,
-    SolutionQuantityFactory,
-    SolutionRatioOneUnitFactory,
+    SolutionFactory
 )
 from repair.apps.changes.models import Solution
 from repair.apps.login.factories import UserInCasestudyFactory
@@ -105,7 +103,6 @@ class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
                              activities=[],
                              user=user,
                              description="This is a description",
-                             one_unit_equals='20',
                              solution_category=cls.solutioncategory,
                              )
         cls.put_data = cls.post_data
@@ -120,91 +117,3 @@ class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
             solution_category__user=self.uic,
             user=self.uic,
         )
-
-
-class SolutionquantityInSolutionInSolutioncategoryInKeyflowTest(
-    BasicModelPermissionTest, APITestCase):
-
-    casestudy = 17
-    keyflow = 23
-    solutioncategory = 21
-    solution = 36
-    solutionquantity = 28
-    userincasestudy = 67
-    user = 99
-    unit = 75
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.unit_url = cls.baseurl + reverse('unit-detail',
-                                             kwargs=dict(pk=cls.unit))
-
-        cls.url_key = "solutionquantity"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution,
-                           keyflow_pk=cls.keyflow)
-        cls.url_pk = dict(pk=cls.solutionquantity)
-        cls.post_data = dict(name='posttestname',
-                             unit=cls.unit,
-                             )
-        cls.put_data = cls.post_data
-        cls.patch_data = dict(name="test name")
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionQuantityFactory(
-            id=self.solutionquantity,
-            solution__id=self.solution,
-            unit__id=self.unit,
-            solution__solution_category__id=self.solutioncategory,
-            solution__solution_category__user=self.uic,
-            solution__solution_category__keyflow=self.kic,
-            solution__user=self.uic,
-            )
-
-
-class SolutionratiooneunitInSolutionInSolutioncategoryInKeyflowTest(
-    BasicModelPermissionTest, APITestCase):
-
-    casestudy = 17
-    keyflow = 23
-    solutioncategory = 21
-    solution = 36
-    solutionquantity = 28
-    userincasestudy = 67
-    user = 99
-    unit = 75
-    solutionratiooneunit = 84
-    do_not_check = ['value']
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.unit_url = cls.baseurl + reverse('unit-detail',
-                                             kwargs=dict(pk=cls.unit))
-        cls.url_key = "solutionratiooneunit"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory,
-                           solution_pk=cls.solution,
-                           keyflow_pk=cls.keyflow)
-        cls.url_pk = dict(pk=cls.solutionratiooneunit)
-        cls.post_data = dict(name='posttestname',
-                             value=345,
-                             unit=cls.unit,
-                             )
-        cls.put_data = cls.post_data
-        cls.patch_data = dict(name="test name")
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionRatioOneUnitFactory(
-            id=self.solutionratiooneunit,
-            solution__id=self.solution,
-            unit__id=self.unit,
-            solution__solution_category__id=self.solutioncategory,
-            solution__solution_category__user=self.uic,
-            solution__solution_category__keyflow=self.kic,
-            solution__user=self.uic,
-            )
