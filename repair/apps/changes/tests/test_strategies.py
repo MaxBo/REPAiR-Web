@@ -4,17 +4,13 @@ from test_plus import APITestCase
 from django.contrib.gis.geos import Point, MultiPoint, LineString
 
 from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
-from repair.apps.changes.models import (
-    SolutionInStrategyQuantity,
-    SolutionQuantity,
-    )
 
 from repair.apps.changes.factories import (
     SolutionFactory,
-    SolutionQuantityFactory,
     StrategyFactory,
-    SolutionInStrategyFactory,
-    SolutionInStrategyQuantityFactory)
+    ImplementationQuestionFactory,
+    SolutionPartFactory,
+    SolutionInStrategyFactory)
 
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
@@ -25,8 +21,35 @@ class ModelSolutionInStrategy(TestCase):
     def test01_new_solutioninstrategy(self):
         """Test the new solution strategy"""
 
-        # Create a solution with two quantities
+        # Create a solution with 3 parts 2 questions
         solution = SolutionFactory()
+
+        question_1 = ImplementationQuestionFactory(
+            question="What is the answer to life, the universe and everything?",
+            select_values='3.14,42,78.913',
+            solution=solution
+        )
+        question_2 = ImplementationQuestionFactory(
+            question="What is 1 + 1?",
+            min_value=1,
+            max_value=1000,
+            step=1,
+            solution=solution
+        )
+
+        part_1 = SolutionPartFactory(
+            solution=solution,
+            question=question_1
+        )
+        part_2 = SolutionPartFactory(
+            solution=solution,
+            question=question_2
+        )
+        part_3 = SolutionPartFactory(
+            solution=solution,
+            question=question_1
+        )
+
         solution_quantity1 = SolutionQuantityFactory(
             solution=solution, name='q1')
         solution_quantity2 = SolutionQuantityFactory(
@@ -38,54 +61,54 @@ class ModelSolutionInStrategy(TestCase):
             solution=solution,
             strategy=strategy)
 
-        # check, if the SolutionInStrategyQuantity contains
-        # now the 2 quantities
+        ## check, if the SolutionInStrategyQuantity contains
+        ## now the 2 quantities
 
-        solution_in_strategy_quantities = SolutionInStrategyQuantity.\
-            objects.filter(sii=solution_in_strategy)
-        solution_names = solution_in_strategy_quantities.values_list(
-            'quantity__name', flat=True)
-        assert len(solution_names) == 2
-        assert set(solution_names) == {'q1', 'q2'}
+        #solution_in_strategy_quantities = SolutionInStrategyQuantity.\
+            #objects.filter(sii=solution_in_strategy)
+        #solution_names = solution_in_strategy_quantities.values_list(
+            #'quantity__name', flat=True)
+        #assert len(solution_names) == 2
+        #assert set(solution_names) == {'q1', 'q2'}
 
-        # create a solution that requires 3 quantities
+        ## create a solution that requires 3 quantities
 
-        # add to the solution a third quantity
-        solution_quantity3 = SolutionQuantityFactory(solution=solution,
-                                                     name='q3')
+        ## add to the solution a third quantity
+        #solution_quantity3 = SolutionQuantityFactory(solution=solution,
+                                                     #name='q3')
 
-        # check if the new quantity has been added to the related table
-        solution_in_strategy_quantities = SolutionInStrategyQuantity.\
-            objects.filter(sii=solution_in_strategy)
-        solution_names = solution_in_strategy_quantities.values_list(
-            'quantity__name', flat=True)
-        assert len(solution_names) == 3
-        assert set(solution_names) == {'q1', 'q2', 'q3'}
+        ## check if the new quantity has been added to the related table
+        #solution_in_strategy_quantities = SolutionInStrategyQuantity.\
+            #objects.filter(sii=solution_in_strategy)
+        #solution_names = solution_in_strategy_quantities.values_list(
+            #'quantity__name', flat=True)
+        #assert len(solution_names) == 3
+        #assert set(solution_names) == {'q1', 'q2', 'q3'}
 
-        # remove a solution quantity
-        to_delete = SolutionQuantity.objects.filter(solution=solution,
-                                                    name='q2')
-        solution_id, deleted = to_delete.delete()
-        # assert that 1 row in changes.SolutionInStrategyQuantity
-        # are deleted
-        assert deleted.get('changes.SolutionInStrategyQuantity') == 1
+        ## remove a solution quantity
+        #to_delete = SolutionQuantity.objects.filter(solution=solution,
+                                                    #name='q2')
+        #solution_id, deleted = to_delete.delete()
+        ## assert that 1 row in changes.SolutionInStrategyQuantity
+        ## are deleted
+        #assert deleted.get('changes.SolutionInStrategyQuantity') == 1
 
-        # check the related SolutionInStrategyQuantity
-        solution_in_strategy_quantities = SolutionInStrategyQuantity.\
-            objects.filter(sii=solution_in_strategy)
-        solution_names = solution_in_strategy_quantities.values_list(
-            'quantity__name', flat=True)
-        assert len(solution_names) == 2
-        assert set(solution_names) == {'q1', 'q3'}
+        ## check the related SolutionInStrategyQuantity
+        #solution_in_strategy_quantities = SolutionInStrategyQuantity.\
+            #objects.filter(sii=solution_in_strategy)
+        #solution_names = solution_in_strategy_quantities.values_list(
+            #'quantity__name', flat=True)
+        #assert len(solution_names) == 2
+        #assert set(solution_names) == {'q1', 'q3'}
 
-        # remove the solution_in_strategy
-        sii_id, deleted = solution_in_strategy.delete()
-        # assert that 2 rows in changes.SolutionInStrategyQuantity
-        # are deleted
-        assert deleted.get('changes.SolutionInStrategyQuantity') == 2
-        solution_in_strategy_quantities = SolutionInStrategyQuantity.\
-            objects.filter(sii=sii_id)
-        assert not solution_in_strategy_quantities
+        ## remove the solution_in_strategy
+        #sii_id, deleted = solution_in_strategy.delete()
+        ## assert that 2 rows in changes.SolutionInStrategyQuantity
+        ## are deleted
+        #assert deleted.get('changes.SolutionInStrategyQuantity') == 2
+        #solution_in_strategy_quantities = SolutionInStrategyQuantity.\
+            #objects.filter(sii=sii_id)
+        #assert not solution_in_strategy_quantities
 
 
 class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
@@ -138,52 +161,3 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
             solution__solution_category__id=self.solutioncategory,
             solution__solution_category__keyflow=self.kic,
             id=self.solution_strategy)
-
-
-class QuantityInSolutionInStrategyInCasestudyTest(BasicModelReadTest,
-                                                  APITestCase):
-    """
-    Test is not working:
-    - delete is not allowed
-    - post is not possible via Browser api
-    """
-    casestudy = 17
-    keyflow = 3
-    user = 20
-    strategy = 30
-    solution = 20
-    solutioncategory = 56
-    solution_strategy = 40
-    quantity = 25
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.sol_set = []
-        cls.url_key = "solutioninstrategyquantity"
-        cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           strategy_pk=cls.strategy,
-                           solution_pk=cls.solution_strategy,
-                           keyflow_pk=cls.keyflow)
-        cls.quantity_url = cls.baseurl + \
-            reverse('solutionquantity-detail',
-                    kwargs=dict(casestudy_pk=cls.casestudy,
-                                solutioncategory_pk=cls.solutioncategory,
-                                solution_pk=cls.solution,
-                                keyflow_pk=cls.keyflow,
-                                pk=cls.quantity))
-        cls.post_urls = [cls.quantity_url]
-        cls.url_pk = dict(pk=cls.quantity)
-        cls.put_data = dict(value=1000.12)
-        cls.patch_data = dict(value=222.333)
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInStrategyQuantityFactory(
-            sii__solution__user=self.uic, sii__solution__id=self.solution,
-            sii__strategy__user=self.uic,
-            sii__strategy__id=self.strategy,
-            sii__strategy__keyflow=self.kic,
-            sii__solution__solution_category__id=self.solutioncategory,
-            sii__id=self.solution_strategy,
-            id=self.quantity)

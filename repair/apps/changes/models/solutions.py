@@ -59,6 +59,22 @@ class Solution(GDSEModel):
         return self.user.casestudy
 
 
+class ImplementationQuestion(GDSEModel):
+    '''
+    question asked to user to determine value for calc. solution-part formula
+    '''
+    question = models.TextField(default='')
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
+                                 related_name='question')
+    unit = models.CharField(blank=True, default='', max_length=100)
+    select_values = models.TextField(validators=[double_list_validator])
+    step = models.FloatField(null=True)
+    min_value = models.FloatField(default=0)
+    max_value = models.FloatField(default=1)
+    # value is absolute or relative (defining fraction)
+    is_absolute = models.BooleanField(default=False)
+
+
 class SolutionPart(GDSEModel):
     '''
     part of the solution definition, change a single implementation flow (or
@@ -87,8 +103,8 @@ class SolutionPart(GDSEModel):
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
     # parameters for formula changing the implementation flow
-    implementation_question = models.ForeignKey(Solution, null=True,
-                                                on_delete=models.CASCADE)
+    question = models.ForeignKey(ImplementationQuestion, null=True,
+                                 on_delete=models.CASCADE)
     a = models.FloatField()
     b = models.FloatField()
 
@@ -116,18 +132,3 @@ class AffectedFlow(GDSEModel):
     process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE, related_name='affected_process')
 
-
-class ImplementationQuestion(GDSEModel):
-    '''
-    question asked to user to determine value for calc. solution-part formula
-    '''
-    question = models.TextField(default='')
-    solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
-                                 related_name='question')
-    unit = models.CharField(blank=True, default='', max_length=100)
-    select_values = models.TextField(validators=[double_list_validator])
-    steps = models.FloatField(null=True)
-    min_value = models.FloatField(default=0)
-    max_value = models.FloatField(default=1)
-    # value is absolute or relative (defining fraction)
-    is_absolute = models.BooleanField(default=False)
