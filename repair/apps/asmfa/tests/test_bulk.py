@@ -17,12 +17,14 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          KeyflowInCasestudyFactory,
                                          CompositionFactory,
                                          Actor2ActorFactory,
-                                         MaterialFactory
+                                         MaterialFactory,
+                                         ProductFractionFactory
                                          )
 
 from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
                                       Material, ProductFraction,
-                                      AdministrativeLocation, Actor2Actor)
+                                      AdministrativeLocation, Actor2Actor,
+                                      FractionFlow)
 from repair.apps.publications.factories import (PublicationFactory,
                                                 PublicationInCasestudyFactory)
 
@@ -324,7 +326,13 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         ActorFactory(activity=af, BvDid='WK036309')
         ac_3 = ActorFactory(activity=af, BvDid='NL59307803')
 
-        CompositionFactory(name='RES @Urbanisation lvl 1')
+        self.composition = CompositionFactory(name='RES @Urbanisation lvl 1')
+        mat1 = MaterialFactory()
+        mat2 = MaterialFactory()
+        ProductFractionFactory(composition=self.composition, material=mat1,
+                               publication=None)
+        ProductFractionFactory(composition=self.composition, material=mat2,
+                               publication=None)
 
         a = PublicationFactory(citekey='cbs2018', title='sth')
         PublicationInCasestudyFactory(casestudy=self.casestudy,
@@ -336,6 +344,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
     def test_bulk_flow(self):
         """Test file-based upload of actor2actor"""
         lengths = []
+        before = Actor2Actor.objects.count()
         for i in range(2):
             file_path = os.path.join(os.path.dirname(__file__),
                                     self.testdata_folder,
@@ -350,6 +359,10 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         # check that 2nd loop does not create additional products
         # but updates them
         assert lengths[0] == lengths[1]
+        new = lengths[0] - before
+        # check if new fraction-flow per material per new flow was created
+        assert FractionFlow.objects.count() == \
+               new * self.composition.fractions.count()
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
                                 self.filename_a2a_error)
@@ -380,6 +393,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.astock_url, data)
+        assert FractionFlow.objects.filter(to_stock=True).count() > 0
         assert res.status_code == 201
 
 

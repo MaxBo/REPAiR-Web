@@ -337,6 +337,11 @@ define([
             layer.setVisible(visible);
         }
 
+        setOpacity(layername, opacity){
+            var layer = this.layers[layername];
+            layer.setOpacity(opacity);
+        }
+
         setZIndex(layername, zIndex){
             var layer = this.layers[layername];
             if (layer) layer.setZIndex(zIndex);

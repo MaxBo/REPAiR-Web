@@ -15,7 +15,6 @@ python manage.py dump_object --no-follow -k asmfa.keyflow * > repair\fixtures\sa
 python manage.py dump_object -k asmfa.keyflowincasestudy --query "{\"casestudy__id\": 7}" > repair\fixtures\sandbox_keyflow_ic.json
 python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_actor.json
 python manage.py dump_object -k changes.solutioninstrategy --query "{\"strategy__keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutions.json
-python manage.py dump_object -k changes.solutionratiooneunit --query "{\"solution__user__casestudy__id\": 7}"  > repair\fixtures\sandbox_solutionsratio.json
 python manage.py dump_object -k changes.strategy --query "{\"keyflow__casestudy__id\": 7}"  > repair\fixtures\sandbox_strategy.json
 python manage.py dump_object -k publications_bootstrap.publication * > repair\fixtures\sandbox_publications.json
 python manage.py dump_object -k studyarea.area --query "{\"adminlevel__casestudy__id\": 7}"  > repair\fixtures\sandbox_areas.json
@@ -34,7 +33,6 @@ python manage.py merge_fixtures^
  repair\fixtures\sandbox_materials.json^
  repair\fixtures\sandbox_fractions.json^
  repair\fixtures\sandbox_solutions.json^
- repair\fixtures\sandbox_solutionsratio.json^
  repair\fixtures\sandbox_strategy.json^
  repair\fixtures\sandbox_publications.json^
  repair\fixtures\sandbox_areas.json^
@@ -54,9 +52,9 @@ python manage.py reorder_fixtures repair\fixtures\sandbox_data_unordered.json ^
  asmfa.composition asmfa.product asmfa.waste asmfa.material asmfa.productfraction^
  studyarea.stakeholdercategory studyarea.stakeholder ^
  studyarea.layercategory studyarea.stakeholder ^
- changes.unit changes.solutioncategory changes.solution changes.solutionquantity changes.solutionratiooneunit ^
+ changes.solutioncategory changes.solution ^
  changes.strategy changes.solutioninstrategy ^
- changes.solutioninistrategynote changes.solutioninstrategyquantity changes.solutioninstrategygeometry ^
+ changes.solutioninistrategynote changes.solutioninstrategygeometry ^
  studyarea.adminlevels studyarea.area ^
  asmfa.reason ^
  asmfa.activitygroup asmfa.activity asmfa.actor ^

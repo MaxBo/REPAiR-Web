@@ -21,7 +21,7 @@ from repair.apps.asmfa.models import (
     Material,
     Waste,
     ProductFraction,
-    Actor2Actor,
+    FractionFlow,
     Composition
 )
 
@@ -211,21 +211,21 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
         keyflow_id = self.kwargs['keyflow_pk']
 
         materials = Material.objects.\
+            prefetch_related('f_material').\
             select_related("keyflow__casestudy").defer(
                 "keyflow__note", "keyflow__casestudy__geom",
                 "keyflow__casestudy__focusarea")
-        materials = materials.filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
-            .order_by('id')
+        materials = materials.filter(
+            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
 
         # calc flow_count
-        flows = Actor2Actor.objects.filter(
+        flows = FractionFlow.objects.filter(
             Q(origin__activity__activitygroup__keyflow__id=keyflow_id) |
             Q(destination__activity__activitygroup__keyflow__id=keyflow_id)
         )
-        compositions = flows.values_list('composition')
         materials = materials.annotate(
-            composition_count=Count(Case(
-                When(items__composition__id__in=compositions, then=1),
+            flow_count=Count(Case(
+                When(f_material__in=flows, then=1),
                 output_field=IntegerField(),
             ))
         )
