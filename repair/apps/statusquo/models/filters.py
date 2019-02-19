@@ -40,10 +40,13 @@ class FlowFilter(GDSEModel):
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
-    #hazardous = EnumIntegerField(
-        #enum=TriState, default=TriState.BOTH)
-    #avoidable = EnumIntegerField(
-        #enum=TriState, default=TriState.BOTH)
+    process_ids = models.CharField(
+        validators=[validate_comma_separated_integer_list],
+        blank=True, null=True, max_length=100)
+    hazardous = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
+    avoidable = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
     aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,
