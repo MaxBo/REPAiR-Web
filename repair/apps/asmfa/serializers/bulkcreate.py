@@ -145,6 +145,14 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
                 )
         return super().validate(attrs)
 
+    def _create_models(self, df):
+        created = super()._create_models(df)
+        # trigger conversion to fraction flow
+        for model in created:
+            model.save()
+        return created
+
+
 class ActorStockCreateSerializer(BulkSerializerMixin,
                                  ActorStockSerializer):
 
@@ -169,6 +177,13 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return ActorStock.objects.filter(keyflow=self.keyflow)
+
+    def _create_models(self, df):
+        created = super()._create_models(df)
+        # trigger conversion to fraction flow
+        for model in created:
+            model.save()
+        return created
 
 
 class AdminLocationCreateSerializer(
