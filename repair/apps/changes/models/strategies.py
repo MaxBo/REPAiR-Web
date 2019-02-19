@@ -3,10 +3,11 @@ from django.db.models import signals
 from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEModel,
                                       UserInCasestudy)
-from repair.apps.asmfa.models import KeyflowInCasestudy
+from repair.apps.asmfa.models import KeyflowInCasestudy, Actor
 
 from repair.apps.studyarea.models import Stakeholder
 from repair.apps.changes.models.solutions import (Solution,
+                                                  SolutionPart,
                                                   ImplementationQuestion)
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
@@ -55,12 +56,20 @@ class SolutionInStrategy(GDSEModel):
         return text.format(s=self.solution, i=self.strategy,)
 
 
+class ActorInSolutionPart(GDSEModel):
+    solutionpart = models.ForeignKey(SolutionPart, on_delete=PROTECT_CASCADE,
+                                     related_name='targetactor')
+    actor = models.ForeignKey(Actor, on_delete=PROTECT_CASCADE)
+    implementation = models.ForeignKey(SolutionInStrategy,
+                                       on_delete=models.CASCADE)
+
+
 class ImplementationQuantity(GDSEModel):
     '''
     answer by user to a implementation question
     '''
     implementation = models.ForeignKey(SolutionInStrategy,
-                                       on_delete=PROTECT_CASCADE)
+                                       on_delete=models.CASCADE)
     question = models.ForeignKey(ImplementationQuestion,
                                  on_delete=PROTECT_CASCADE)
     value = models.FloatField()
@@ -74,9 +83,9 @@ def trigger_implementationquantity_sii(sender, instance,
     if created:
         sii = instance
         solution = Solution.objects.get(pk=sii.solution.id)
-        for solution_quantity in solution.solutionquantity_set.all():
-            new, is_created = SolutionInStrategyQuantity.objects.\
-                get_or_create(sii=sii, quantity=solution_quantity)
+        for question in solution.question.all():
+            new, is_created = ImplementationQuantity.objects.\
+                get_or_create(implementation=sii, question=question, value=0)
             if is_created:
                 new.save()
 

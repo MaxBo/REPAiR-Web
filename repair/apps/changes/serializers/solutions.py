@@ -145,7 +145,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     class Meta:
         model = Solution
         fields = ('url', 'id', 'name', 'user', 'description',
-                  'one_unit_equals', 'solution_category',
+                  'documentation', 'solution_category',
                   'activities_image',
                   'currentstate_image', 'effect_image'
                   )

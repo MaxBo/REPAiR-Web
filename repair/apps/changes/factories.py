@@ -41,14 +41,14 @@ class ImplementationQuestionFactory(DjangoModelFactory):
 class SolutionPartFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionPart
-    name = 'Number of Collectors'
     solution = factory.SubFactory(SolutionFactory)
     implements_new_flow = False
-    implementation_flow_origin = factory.SubFactory(ActivityFactory)
-    implementation_flow_destination = factory.SubFactory(ActivityFactory)
+    implementation_flow_origin_activity = factory.SubFactory(ActivityFactory)
+    implementation_flow_destination_activity = \
+        factory.SubFactory(ActivityFactory)
     implementation_flow_material = factory.SubFactory(MaterialFactory)
     implementation_flow_process = factory.SubFactory(ProcessFactory)
-    implementation_flow_spatial_application = 0
+    implementation_flow_spatial_application = 1
 
     question = factory.SubFactory(ImplementationQuestionFactory)
     a = 0

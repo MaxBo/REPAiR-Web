@@ -111,8 +111,9 @@ class SolutionPart(GDSEModel):
     # fields only of interest for new flow
     keep_origin = models.BooleanField(default=True)  # if False: keep dest.
     # new origin resp. activity (depending on keep_origin)
-    new_target = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE,
-                                   related_name='new_target', null=True)
+    new_target_activity = models.ForeignKey(
+        Activity, on_delete=PROTECT_CASCADE,
+        related_name='new_target', null=True)
     map_request = models.TextField(default='') # tells user what to pick on map
 
 
