@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
-                                        SolutionInStrategyQuantity,
+                                        ImplementationQuantity,
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -164,38 +164,19 @@ class SolutionInStrategyDetailCreateMixin:
         return obj
 
 
-class SolutionInStrategyChildSerializer(SolutionInStrategyDetailCreateMixin,
-                                             NestedHyperlinkedModelSerializer):
-    sii = SolutionInStrategyField(
-        view_name='solutioninstrategy-detail',
-        read_only=True)
+class ImplementationQuantitySerializer(SolutionInStrategyDetailCreateMixin,
+                                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'sii__strategy__keyflow__casestudy__id',
         'keyflow_pk': 'sii__strategy__keyflow__id',
         'strategy_pk': 'sii__strategy__id',
         'solution_pk': 'sii__id'
     }
-
-
-class SolutionQuantityField(InSolutionField):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution__solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id'
-    }
-
-
-class SolutionInStrategyQuantitySerializer(SolutionInStrategyChildSerializer):
-    quantity = SolutionQuantityField(view_name='solutionquantity-detail',
-                                     help_text=_('the quantity to define'),
-                                     label=_('Solution Quantity'),
-                                     read_only=True)
-    name = serializers.CharField(source='quantity.name', read_only=True)
-    unit = serializers.CharField(source='quantity.unit.name', read_only=True)
+    implementation = IDRelatedField(read_only=True)
+    question = IDRelatedField(read_only=True)
+    value = IDRelatedField(read_only=True)
 
     class Meta:
-        model = SolutionInStrategyQuantity
-        fields = ('url', 'id', 'name', 'unit', 'quantity', 'value', 'sii')
-        read_only_fields = ('quantity', 'sii')
+        model = ImplementationQuantity
+        fields = ('url', 'id', 'implementation', 'question', 'value')
 
