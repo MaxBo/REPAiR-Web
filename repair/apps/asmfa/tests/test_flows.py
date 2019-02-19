@@ -2,9 +2,8 @@
 
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-from repair.apps.asmfa.views.flows import filter_by_material
 from repair.apps.asmfa.models.keyflows import Material
-from repair.apps.asmfa.models.flows import Actor2Actor
+from repair.apps.asmfa.models.flows import Actor2Actor, FractionFlow
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Group2GroupFactory,
                                          Activity2ActivityFactory,
@@ -17,6 +16,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActivityGroupFactory,
                                          ProductFractionFactory,
                                          PublicationInCasestudyFactory,
+                                         ProcessFactory
                                          )
 import json
 
@@ -55,15 +55,18 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data,
+                             process=None,
                              format='json'
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data,
+                              process=None
                               )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -86,7 +89,7 @@ class Activity2ActivityInMaterialInCaseStudyTest(BasicModelPermissionTest,
             )
 
 
-class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
+class Actor2ActorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                            APITestCase):
     casestudy = 17
     keyflow = 3
@@ -118,6 +121,8 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
     def setUpClass(cls):
         super().setUpClass()
         cls.url_key = "actor2actor"
+
+        cls.process = ProcessFactory(name='test-process')
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            keyflow_pk=cls.keyflowincasestudy)
         cls.url_pk = dict(pk=cls.actor2actor1)
@@ -125,14 +130,19 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data1,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data1,
+                             process=None,
+                             amount=100
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data1,
+                              process=cls.process.id,
+                              amount=50
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -166,12 +176,16 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                            destination=self.actor2,
                                            keyflow=self.kic_obj,
                                            composition=self.comp1,
+                                           process=self.process,
+                                           amount=90
                                            )
         self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
                                            origin=self.actor2,
                                            destination=self.actor3,
                                            keyflow=self.kic_obj,
                                            composition=self.comp2,
+                                           process=self.process,
+                                           amount=30
                                            )
         self.obj = self.act2act1
         self.publicationic = PublicationInCasestudyFactory()
@@ -216,12 +230,44 @@ class Actor2AtcorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                                  filters=filterdata)
         url = '/api/casestudies/{}/keyflows/{}/actor2actor/?GET=true'.format(
             self.casestudy, self.kic_obj.id)
-        for post_data in [post_data1, post_data2]:
-            response = self.post(
-                url,
-                data=post_data,
-                extra={'format': 'json'})
-            self.response_200()
+
+        # ToDo: THE ACTUAL TEST IS MISSING!!!!!
+
+
+    def test_fractionflows(self):
+        fc_before = len(FractionFlow.objects.all())
+        url = self.url_key + '-list'
+        n_fractions = len(self.post_data['composition']['fractions'])
+        post_data = self.post_data.copy()
+        post_data['amount'] = 1000
+        response = self.post(url, **self.url_pks, data=post_data,
+                             extra={'format': 'json'})
+        id = response.json()['id']
+        flow = Actor2Actor.objects.get(id=id)
+
+        fc_after = len(FractionFlow.objects.all())
+        assert fc_after - fc_before == n_fractions
+
+        fraction_flows = FractionFlow.objects.filter(flow=flow)
+        assert sum(fraction_flows.values_list('amount', flat=True)) \
+               == flow.amount
+
+        put_data = {'amount': 50000}
+        url = self.url_key + '-detail'
+        kwargs = {**self.url_pks, 'pk': id, }
+        response = self.patch(url, **kwargs, data=put_data,
+                              extra={'format': 'json'})
+        # number of flowfractions should have stayed the same
+        assert fc_after == len(FractionFlow.objects.all())
+        flow = Actor2Actor.objects.get(id=id)
+        # but with updated amounts
+        fraction_flows = FractionFlow.objects.filter(flow=flow)
+        assert sum(fraction_flows.values_list('amount', flat=True)) \
+               == flow.amount
+
+        # test cascaded deletion (flow deleted -> flowfractions deleted)
+        flow.delete()
+        assert len(FractionFlow.objects.all()) == fc_before
 
 
 class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest,
@@ -254,14 +300,17 @@ class Group2GroupInKeyflowInCaseStudyTest(BasicModelPermissionTest,
         cls.put_data = dict(origin=cls.origin,
                             destination=cls.destination,
                             composition=cls.comp_data,
+                            process=None
                             )
         cls.post_data = dict(origin=cls.origin,
                              destination=cls.destination,
                              composition=cls.comp_data,
+                             process=None
                              )
         cls.patch_data = dict(origin=cls.origin,
                               destination=cls.destination,
                               composition=cls.comp_data,
+                              process=None
                               )
         cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
@@ -327,15 +376,6 @@ class MaterialTest(BasicModelPermissionTest, APITestCase):
                                                   composition=self.comp_1_obj,
                                                   material=self.mat_parent,
                                                   publication__id=self.pub_1)
-        #self.frac_2_obj =  ProductFractionFactory(id=self.frac_2,
-                                                  #composition=self.comp_1_obj,
-                                                  #material=self.\
-                                                  #mat_grandparent,
-                                                  #publication__id=self.pub_2)
-        #self.frac_3_obj =  ProductFractionFactory(id=self.frac_3,
-                                                  #composition=self.comp_2_obj,
-                                                  #material=self.mat_parent,
-                                                  #publication__id=self.pub_3)
 
     @classmethod
     def setUpClass(cls):
@@ -351,12 +391,6 @@ class MaterialTest(BasicModelPermissionTest, APITestCase):
                             )
         cls.post_data = cls.put_data
         cls.patch_data = cls.put_data
-
-    def test_filter_by_material(self):
-        filtered = filter_by_material([self.mat_grandparent],
-                                      Actor2Actor.objects)
-        assert filtered.count() == 1
-        assert filtered.first().id == 1
 
     def test_ancestor(self):
         args =  (self.mat_child, self.mat_parent, self.mat_grandparent)

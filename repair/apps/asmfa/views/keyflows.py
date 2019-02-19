@@ -1,6 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
-from django.db.models import Q
+from django.db.models import Q, Subquery, Count, Case, When, IntegerField
 from rest_framework import serializers, exceptions
 from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +14,9 @@ from repair.apps.asmfa.models import (
     Product,
     Material,
     Waste,
+    ProductFraction,
+    FractionFlow,
+    Composition
 )
 
 from repair.apps.asmfa.serializers import (
@@ -185,12 +188,25 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
         keyflow_id = self.kwargs['keyflow_pk']
 
         materials = Material.objects.\
+            prefetch_related('f_material').\
             select_related("keyflow__casestudy").defer(
                 "keyflow__note", "keyflow__casestudy__geom",
                 "keyflow__casestudy__focusarea")
-        return materials\
-               .filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
-               .order_by('id')
+        materials = materials.filter(
+            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+
+        # calc flow_count
+        flows = FractionFlow.objects.filter(
+            Q(origin__activity__activitygroup__keyflow__id=keyflow_id) |
+            Q(destination__activity__activitygroup__keyflow__id=keyflow_id)
+        )
+        materials = materials.annotate(
+            flow_count=Count(Case(
+                When(f_material__in=flows, then=1),
+                output_field=IntegerField(),
+            ))
+        )
+        return materials
 
     def checkMethod(self, request, **kwargs):
         model = self.serializer_class.Meta.model

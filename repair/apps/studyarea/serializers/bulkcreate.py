@@ -22,6 +22,7 @@ class AreaCreateSerializer(BulkSerializerMixin, AreaSerializer):
                            filter_args={
                                'casestudy': '@casestudy',
                            }),
+        'inhabitants': 'inhabitants',
         'name': 'name',
         'code': 'code',
         'wkt': 'geom'

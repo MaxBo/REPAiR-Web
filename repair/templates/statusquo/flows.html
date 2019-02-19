@@ -32,7 +32,7 @@
     <tr>
       <td></td>
       <td>
-        <input type="checkbox" name="included">{% trans "Included" %}
+        <input type="checkbox" name="included">{% trans "visible in workshop mode" %}
       </td>
     </tr>
     <tr>
@@ -91,8 +91,8 @@
     <div class="row" style="position: relative; padding: 0px;">
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Diagram" style="margin: 15px; position: absolute;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
-          This diagram displays the filtered flows and the their origins and destinations as nodes.
-          The nodes represent groups, activities or actors, depending on the Level selection.
+          This diagram displays the filtered flows and their origins and destinations.
+          Origins and destinations represent groups, activities or actors, depending on the Level selection.
           The flow direction is from left to right.<br><br>
           <b>Flow selection</b><br>
           Tap a flow to display it and the involved actors on the map to the right. Tap it again to unselect it and remove it from the map.
@@ -106,7 +106,20 @@
           To export the flow data as a csv file press the button with the paper icon
         {% endblocktrans %}">
       </a>
-      <div class="sankey-wrapper" class="noselect" style="width: 100%; touch-action: none;">
+      <div class="sankey-wrapper" class="noselect" style="background-color: white; width: 100%; min-height: 300px; touch-action: none;">
+        <div class="d3-zoom-controls">
+          <a class="btn square" data-zoom="+0.5"><span class="fa fa-plus"></span></a>
+          <a class="btn square" data-zoom="-0.5"><span class="fa fa-minus"></span></a>
+          <a class="btn square" data-zoom="0"><span class="fa fa-crosshairs"></span></a>
+        </div>
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary d3-overlay inverted"></button>
+        <button class="export-img fas fa-camera btn btn-primary d3-overlay inverted" style="top: 100px; right: 20px; height: 30px;"></button>
+        <button class="export-csv fas fa-file btn btn-primary d3-overlay inverted" style="top: 140px; right: 20px; height: 30px;"></button>
+        <div style="position: absolute; bottom: 15px; left: 10px;">
+          <button class="select-all fas fa-vector-square btn btn-primary d3-overlay inverted" style="position: relative; float: left; margin-right: 10px; height: 30px;">&nbsp;{% trans "All" %}</button>
+          <button class="deselect-all fas fa-ban btn btn-primary d3-overlay inverted" style="position: relative; height: 30px;">&nbsp;{% trans "None" %}</button>
+        </div>
+        <div class="sankey" style="text-align: center;"></div>
       </div>
     </div>
   </div>
@@ -114,7 +127,7 @@
     <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Map" style="margin: 15px; position: absolute; z-index:1000;" data-html="true" tabindex="0"
       data-content="{% blocktrans %}
           This map displays the selected flows of the sankey diagram to the left on a spatial actor level.
-          The color coding of the basic flows and nodes matches the sankey diagram.
+          The color coding of the basic flows and activities and actors matches the sankey diagram.
           Tap a flow or actor on the map to display a tooltip with information about it.
           <br><br>
           <b>Display Materials</b><br>
@@ -151,17 +164,17 @@
     </div>
     <div id="filterCollapse" class="panel-collapse collapse" style="padding: 0px 10px 10px 10px;">
       <div class="row" style="border-top: 1px solid lightgrey;">
-        <h4 style="float: left;"> {% trans 'Nodes' %} </h4>
-        <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Nodes Filter" data-html="true" tabindex="0"
+        <h4 style="float: left;"> {% trans 'Activities and Actors' %} </h4>
+        <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Activities and Actors Filter" data-html="true" tabindex="0"
           data-content='{% blocktrans %}
-            Filter the nodes by the following criteria<br><br>
+            Filter the activities and actors by the following criteria<br><br>
             <b>Filter Level</b> -
-            The level hierarchy of the nodes goes from Activitygroup over Activities down to the individual Actors.
-            Depending on the selected level different selects for the nodes of each level appear, from left to right with higher granularity.
-            Each selection on a specific level limits the number of available nodes in the more granular node selects to its right.<br>
+            The level hierarchy goes from Activitygroup over Activities down to the individual Actors.
+            Depending on the selected level different selects of each level appear, from left to right with higher granularity.
+            Each selection on a specific level limits the number of available selections in the more granular selects to its right.<br>
             When loading a filter the filter level will automatically be set to the lowest level where any selections where made (not "All").
             <br><br>
-            <b>Direction</b> - Limits the displayed flows to a set with flows going <i>to</i> the filtered nodes or originating <i>from</i> those (or both: <i>from/to</i>)
+            <b>Direction</b> - Limits the displayed flows to a set with flows going <i>to</i> the filtered activities and actors or originating <i>from</i> those (or both: <i>from/to</i>)
           {% endblocktrans %}'>
         </a>
         <div class="row" style="margin-top: 10px">
@@ -173,6 +186,10 @@
               <option value="actor">{% trans "Actor" %} </option>
             </select>
           </div>
+        </div>
+        <div class="row" style="visibility: hidden;">
+          <input type="checkbox" name="show-flow-only" style="transform: scale(1.5); float: left; margin-right: 10px;">
+          <div>{% trans "hide activities/actors without flow data"%}</div>
         </div>
         <div class="row">
           <div class="col-md-2">
@@ -201,7 +218,7 @@
                     data-content="{% blocktrans %}
                       Clicking the <b>Select Areas</b> button opens a dialog where areas may be selected and confirmed.<br>
                       On confirmation the selected areas are used to limit the Actors to those located inside these areas.<br><br>
-                      This filter is complementary to the other node filters.
+                      This filter is complementary to the other activities and actors filters.
                     {% endblocktrans %}">
                   </a>
                 </div>
@@ -225,7 +242,7 @@
         <h4 style="float: left;"> {% trans 'Flows' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
-            Filter the flows in between the nodes by the following criteria<br><br>
+            Filter the flows in between the activities and actors by the following criteria<br><br>
             <b>Flow Type</b> -
             Limits the displayed flows to flows of <i>Products</i> or <i>Waste</i> or displays both (<i>Products and Waste</i>).<br><br>
             <b>Material</b> -
@@ -248,7 +265,7 @@
           </div>
           <div class="col-md-3">
             <div class='row'>
-              <label>{% trans "Material" %}</label>
+              <label>{% trans "Material (directly used in flows / children in flows)" %}</label>
               <div id='material-filter'></div>
             </div>
             <div class='row' title='Aggregate all derived materials to the level of the direct child materials'>
@@ -265,7 +282,7 @@
         <option value="activity">{% trans "Activity" %}</option>
         <option value="actor">{% trans "Actor" %} </option>
       </select>
-      <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to nodes and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
+      <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to activities and actors and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Render Filter Settings" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
           Rerender the sankey diagram with data filtered by the selections made in the <b>Filters</b> section above
@@ -383,7 +400,7 @@
         <tr>
           <td></td>
           <td>
-            <input type="checkbox" name="included">{% trans "Included" %}
+            <input type="checkbox" name="included">{% trans "visible in workshop mode" %}
           </td>
         </tr>
         <tr>
@@ -391,7 +408,7 @@
           <td>
             <select class="form-control" id="indicator-type">
               {% for indicator in indicators %}
-                <option value="{{indicator.value}}" title="{{indicator.description}}">{{indicator.name}}</option>
+                <option value="{{indicator.value}}" title="{{indicator.description}}" data-default-unit="{{indicator.default_unit}}">{{indicator.name}}</option>
               {% endfor %}
             </select>
           </td>
@@ -403,7 +420,7 @@
           </td>
         </tr>
         <tr>
-          <td>{% trans "Spatial Reference" %}</td>
+          <td>{% trans "Spatial reference for target setting" %}</td>
           <td>
             <select class="form-control" id="spatial-reference">
               <option value='REGION'> {% trans "Casestudy Region" %} </option>
@@ -446,7 +463,7 @@
   <div class="row" style="margin-top: 15px;">
     <div class="col-md-3">
       <div class='row'>
-        <b>{% trans "Material" %}</b>
+        <b>{% trans "Material (directly used in flows / children in flows)" %}</b>
         <div class='material-filter'></div>
       </div>
       <div class="row">
@@ -479,12 +496,16 @@
       </form>
     </div>
   </div>
+  <div class="row" style="visibility: hidden;">
+    <input type="checkbox" name="show-flow-only" style="transform: scale(1.5); float: left; margin-right: 10px;">
+    <div>{% trans "hide activities/actors without flow data"%}</div>
+  </div>
   <div class="row bordered shaded" style="margin-top: 10px;">
     <h4> {% trans "Origins" %}
     <!--<span class="far fa-circle" style="margin-right: 5px;"></span><span class="glyphicon glyphicon-arrow-right"></span>-->
     </h4>
     <div class="row">
-      <label class="input-label">{% trans "Node Level" %} </label>
+      <label class="input-label">{% trans "Activities and Actors Level" %} </label>
       <select class="form-control" name="origin-level-select" id="data-view-type-select" style="max-width: 200px;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
@@ -514,7 +535,7 @@
     <!--<span class="glyphicon glyphicon-arrow-right"></span><span class="far fa-circle" style="margin-right: 5px;"></span>-->
     </h4>
     <div class="row">
-      <label class="input-label">{% trans "Node Level" %} </label>
+      <label class="input-label">{% trans "Activities and Actors Level" %} </label>
       <select class="form-control" name="destination-level-select" id="data-view-type-select" style="max-width: 200px;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>

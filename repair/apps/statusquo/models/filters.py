@@ -15,6 +15,12 @@ class Direction(Enum):
     TO = 3
 
 
+class TriState(Enum):
+    BOTH = 1
+    NO = 2
+    YES = 3
+
+
 class FlowFilter(GDSEModel):
     '''
     predefined filters for rendering flows in workshop mode
@@ -34,6 +40,10 @@ class FlowFilter(GDSEModel):
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
+    #hazardous = EnumIntegerField(
+        #enum=TriState, default=TriState.BOTH)
+    #avoidable = EnumIntegerField(
+        #enum=TriState, default=TriState.BOTH)
     aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,

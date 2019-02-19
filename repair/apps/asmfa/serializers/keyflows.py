@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (Keyflow,
@@ -8,7 +9,8 @@ from repair.apps.asmfa.models import (Keyflow,
                                       ProductFraction,
                                       Material,
                                       Waste,
-                                      Composition
+                                      Composition,
+                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -209,7 +211,8 @@ class ProductFractionSerializer(serializers.ModelSerializer):
                   'material',
                   'fraction',
                   'publication',
-                  'avoidable')
+                  'avoidable',
+                  'hazardous')
         read_only_fields = ['composition']
 
 
@@ -296,10 +299,17 @@ class AllMaterialSerializer(serializers.ModelSerializer):
     #keyflow = IDRelatedField(allow_null=True)
     parent = IDRelatedField(allow_null=True)
     level = serializers.IntegerField(required=False, default=0)
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent')
+        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent',
+                  'flow_count')
+
+
+class AllMaterialListSerializer(AllMaterialSerializer):
+    class Meta(AllMaterialSerializer.Meta):
+        fields = ('id', 'name', 'level', 'parent', 'keyflow')
 
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
@@ -309,14 +319,11 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = IDRelatedField(read_only=True)
     class Meta:
         model = Material
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
-
-
-class AllMaterialListSerializer(AllMaterialSerializer):
-    class Meta(AllMaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+                  'flow_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+                  'flow_count')

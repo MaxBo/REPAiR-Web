@@ -61,6 +61,7 @@ var IndicatorFlowEditView = BaseView.extend(
         var template = _.template(html);
         this.el.innerHTML = template();
 
+        this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.originSelects = {
             levelSelect: this.el.querySelector('select[name="origin-level-select"]'),
             groupSelect: this.el.querySelector('select[name="origin-group"]'),
@@ -88,9 +89,12 @@ var IndicatorFlowEditView = BaseView.extend(
             'change', function(){ _this.resetNodeSelects('origin') })
         this.destinationSelects.levelSelect.addEventListener(
             'change', function(){ _this.resetNodeSelects('destination') })
+        this.showFlowOnlyCheck.addEventListener('change', function(){
+            _this.resetNodeSelects('origin'); _this.resetNodeSelects('destination')
+        })
 
-        this.addEventListeners('origin');
-        this.addEventListeners('destination');
+        //this.addEventListeners('origin');
+        //this.addEventListeners('destination');
         this.renderMatFilter();
 
         this.materialTags = this.el.querySelector('input[name="material-tags"]');
@@ -161,7 +165,7 @@ var IndicatorFlowEditView = BaseView.extend(
             }
             $(select).selectpicker('refresh');
         }
-
+        // ToDo: for some reason they 'changed.bs.select' is always fired twice
         $(selectGroup.groupSelect).on('changed.bs.select', function(evt, index, val){
             multiCheck(evt, index, val);
             var level = selectGroup.levelSelect.value;
@@ -181,7 +185,6 @@ var IndicatorFlowEditView = BaseView.extend(
             if (selectGroup.levelSelect.value == 'actor')
                 _this.filterActors(tag);
         })
-
         $(selectGroup.actorSelect).on('changed.bs.select', multiCheck);
     },
 
@@ -226,16 +229,17 @@ var IndicatorFlowEditView = BaseView.extend(
         // selectpicker has to be completely rerendered to change between
         // multiple and single select
         selects.forEach(function(sel){
+            $(sel).off();
             $(sel).selectpicker('destroy');
             $(sel).selectpicker();
         });
-        // destroying also kills the event listeners
         this.addEventListeners(tag);
     },
 
 
     // fill given select with options created based on models of given collection
     renderNodeSelectOptions: function(select, collection){
+        var showFlowOnly = this.showFlowOnlyCheck.checked;
         utils.clearSelect(select);
         var defOption = document.createElement('option');
         defOption.value = -1;
@@ -245,17 +249,21 @@ var IndicatorFlowEditView = BaseView.extend(
         var option = document.createElement('option');
         option.dataset.divider = 'true';
         select.appendChild(option);
-        if (collection && collection.length < 2000){
+        if (collection){// && collection.length < 2000){
             collection.forEach(function(model){
+                var flowCount = model.get('flow_count');
+                if (showFlowOnly && flowCount == 0) return;
                 var option = document.createElement('option');
                 option.value = model.id;
-                option.text = model.get('name');
+                option.text = model.get('name') + ' (' + flowCount + ' ' + gettext('flows') + ')';
+                if (flowCount == 0) option.classList.add('empty');
                 select.appendChild(option);
             })
             select.disabled = false;
         }
         else {
-            defOption.text += ' - ' + gettext('too many to display');
+            //defOption.text += ' - ' + gettext('too many to display');
+            defOption.text += ' - ' + gettext('select an activity/group to display specific nodes');
             select.disabled = true;
         }
         select.selectedIndex = 0;
@@ -268,15 +276,46 @@ var IndicatorFlowEditView = BaseView.extend(
         // select material
         var matSelect = document.createElement('div');
         matSelect.classList.add('materialSelect');
-        this.hierarchicalSelect(this.materials, matSelect, {
+
+        var compAttrBefore = this.materials.comparatorAttr;
+        this.materials.comparatorAttr = 'level';
+        this.materials.sort();
+        var flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.materials.models.reverse().forEach(function(material){
+            var parent = material.get('parent'),
+                count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
+            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+        })
+        this.materials.comparatorAttr = compAttrBefore;
+        this.materials.sort();
+
+        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
                 if (model)
                     $(_this.materialTags).tagsinput('add', {
                         "value": model.id , "text": model.get('name')
                     });
             },
-            defaultOption: gettext('Select')
+            defaultOption: gettext('All materials'),
+            label: function(model, option){
+                var compCount = model.get('flow_count'),
+                    childCount = flowsInChildren[model.id] || 0,
+                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                return label;
+            }
         });
+
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a'),
+                cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
+            a.classList.add(cls);
+        })
         this.el.querySelector('.material-filter').appendChild(matSelect);
     },
 
@@ -330,7 +369,11 @@ var IndicatorFlowEditView = BaseView.extend(
             })
             return;
         }
-        $(nodeSelect).selectpicker('val', values);
+        // actually everything is selected (minus All and seperator)
+        if (values.length == nodeSelect.options.length -2)
+            $(nodeSelect).selectpicker('val', -1);
+        else
+            $(nodeSelect).selectpicker('val', values);
     },
 
     // get the selected materials
@@ -411,8 +454,8 @@ var IndicatorFlowEditView = BaseView.extend(
         filterParams['filters'] = [id_filter];
 
         var flows = new GDSECollection([], {
-            apiTag: 'actorToActor',
-            apiIds: [ this.caseStudy.id, this.keyflowId]
+            apiTag: 'flows',
+            apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
         filterParams['aggregation_level'] = {
@@ -421,25 +464,31 @@ var IndicatorFlowEditView = BaseView.extend(
         };
 
         this.loader.activate();
+
         flows.postfetch({
             body: filterParams,
-            success: function(){
+            success: function(response){
+                flows.forEach(function(flow){
+                    var origin = flow.get('origin'),
+                        destination = flow.get('destination');
+                    origin.color = utils.colorByName(origin.name);
+                    if (!flow.get('stock'))
+                        destination.color = utils.colorByName(destination.name)
+                })
                 _this.loader.deactivate();
-                utils.complementFlowData(flows, origins, destinations,
-                    function(origins, destinations){
-                        _this.flowsView = new FlowSankeyView({
-                            el: el,
-                            width:  el.clientWidth - 10,
-                            origins: origins,
-                            destinations: destinations,
-                            flows: flows,
-                            materials: _this.materials,
-                            hideUnconnected: true,
-                            forceSideBySide: true,
-                            height: 600
-                        })
-                    }
-                )
+                _this.flowSankeyView = new FlowSankeyView({
+                    el: el,
+                    width:  el.clientWidth - 10,
+                    flows: flows,
+                    height: 600,
+                    originLevel: originLevel,
+                    destinationLevel: destinationLevel,
+                    forceSideBySide: true
+                })
+            },
+            error: function(){
+                _this.loader.deactivate();
+                _this.onError;
             }
         })
     },
@@ -447,6 +496,7 @@ var IndicatorFlowEditView = BaseView.extend(
     // preset all inputs based on flow data
     setInputs: function(flow){
         var flow = flow || {};
+        this.showFlowOnlyCheck.checked = false;
         var materialIds = flow.materials || [],
             originNodeIds = flow.origin_node_ids || "",
             destinationNodeIds = flow.destination_node_ids || "",

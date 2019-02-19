@@ -1,9 +1,9 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png',
-        'file-saver'],
+        'file-saver', 'utils/utils'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
-         FileSaver){
+         FileSaver, utils){
 
     /**
     *
@@ -31,7 +31,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         * @param {boolean=} [options.forceSideBySide=false] if true, the network of flows will be represented with sinks and sources only, nodes in between (meaning nodes with in AND out flows) will be split into a sink and source
         * @param {Object=} options.flowFilterParams         parameters to filter the flows with (e.g. {material: 1})
         * @param {Object=} options.stockFilterParams        parameters to filter the stocks with
-        * @param {boolean} [options.hideUnconnected=false]  hide nodes that don't have in or outgoing flows or stocks (filtered by filterParams)
         * @param {module:collections/GDSECollection}        options.collection the nodes to render
         *
         * @constructs
@@ -43,73 +42,17 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             _.bindAll(this, 'exportPNG');
             _.bindAll(this, 'exportCSV');
             var _this = this;
-            this.language = config.session.get('language');
             this.caseStudyId = options.caseStudyId;
             this.keyflowId = options.keyflowId;
-            this.materials = options.materials;
-            this.hideUnconnected = options.hideUnconnected;
             this.width = options.width || this.el.clientWidth;
             this.height = options.height || this.width / 3;
             this.forceSideBySide = options.forceSideBySide || false;
-            this.origins = options.origins;
-            this.destinations = options.destinations;
+            this.originLevel = options.originLevel;
+            this.destinationLevel = options.destinationLevel;
             this.flows = options.flows;
-            this.stocks = options.stocks || [];
 
-            var fullscreenBtn = document.createElement('button'),
-                exportImgBtn = document.createElement('button'),
-                exportCsvBtn = document.createElement('button'),
-                zoomControls = document.createElement('div'),
-                zoomIn = document.createElement('a'),
-                inSpan = document.createElement('span'),
-                zoomOut = document.createElement('a'),
-                outSpan = document.createElement('span'),
-                zoomToFit = document.createElement('a'),
-                fitSpan = document.createElement('span');
+            this.transformedData = this.transformData(this.flows);
 
-            fullscreenBtn.classList.add("fas", "fa-expand", "btn", "btn-primary", "fullscreen-toggle", "d3-overlay", "inverted");
-            exportImgBtn.classList.add("fas", "fa-camera", "btn", "btn-primary", "d3-overlay", "inverted");
-            exportImgBtn.style.top = "100px";
-            exportImgBtn.style.right = "20px";
-            exportImgBtn.style.height = "30px";
-            exportCsvBtn.classList.add("fas", "fa-file", "btn", "btn-primary", "d3-overlay", "inverted");
-            exportCsvBtn.style.top = "140px";
-            exportCsvBtn.style.right = "20px";
-            exportCsvBtn.style.height = "30px";
-
-            zoomIn.classList.add("btn", "square");
-            zoomIn.setAttribute('data-zoom', "+0.5");
-            inSpan.classList.add("fa", "fa-plus");
-            zoomIn.appendChild(inSpan);
-
-            zoomOut.classList.add("btn", "square");
-            zoomOut.setAttribute('data-zoom', "-0.5");
-            outSpan.classList.add("fa", "fa-minus");
-            zoomOut.appendChild(outSpan);
-
-            zoomToFit.classList.add("btn", "square");
-            zoomToFit.setAttribute('data-zoom', "0");
-            fitSpan.classList.add("fa", "fa-crosshairs");
-            zoomToFit.appendChild(fitSpan);
-
-            zoomControls.classList.add("d3-zoom-controls");
-            zoomControls.appendChild(zoomIn);
-            zoomControls.appendChild(zoomOut);
-            zoomControls.appendChild(zoomToFit);
-
-            this.el.appendChild(zoomControls);
-            this.el.appendChild(fullscreenBtn);
-            this.el.appendChild(exportImgBtn);
-            this.el.appendChild(exportCsvBtn);
-
-            fullscreenBtn.addEventListener('click', this.toggleFullscreen);
-            exportImgBtn.addEventListener('click', this.exportPNG);
-            exportCsvBtn.addEventListener('click', this.exportCSV);
-
-            this.transformedData = this.transformData(
-                this.origins, this.destinations, this.flows,
-                this.stocks, this.materials
-            );
             this.render(this.transformedData);
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
@@ -120,7 +63,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         */
         events: {
             'click a[href="#flow-map-panel"]': 'refreshMap',
-            'change #data-view-type-select': 'renderSankey'
+            'click .fullscreen-toggle': 'toggleFullscreen',
+            'click .export-img': 'exportPNG',
+            'click .export-csv': 'exportCSV',
+            'click .select-all': 'selectAll',
+            'click .deselect-all': 'deselectAll',
         },
 
         /*
@@ -137,6 +84,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 div.classList.add('sankey', 'bordered');
                 this.el.appendChild(div);
             }
+            if (data.links.length === 0){
+                div.innerHTML = gettext("No flow data found for applied filters.");
+                this.el.classList.add('disabled');
+                return;
+            }
+            this.el.classList.remove('disabled');
             this.sankeyDiv = div;
             this.sankey = new Sankey({
                 height: height,
@@ -148,26 +101,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 gradient: false
             })
 
-            // get models from sankey data and redirect the event
+            // redirect the event with same properties
             function redirectEvent(e){
-                var d = e.detail,
-                    flow = _this.flows.get(d.id),
-                    origin = _this.origins.get(d.source.id),
-                    destination = _this.destinations.get(d.target.id);
-                origin.color = d.source.color;
-                destination.color = d.target.color;
-                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: {
-                    flow: flow,
-                    origin: origin,
-                    destination: destination
-                }}))
+                _this.el.dispatchEvent(new CustomEvent( e.type, { detail: e.detail.originalData }))
             }
 
             div.addEventListener('linkSelected', redirectEvent);
             div.addEventListener('linkDeselected', redirectEvent);
-            if (data.links.length === 0)
-                _this.el.innerHTML = gettext("No flow data found for applied filters.")
-            else this.sankey.render(data);
+            this.sankey.render(data);
         },
 
         /*
@@ -192,71 +133,51 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         * transform the models, their links and the stocks to a json-representation
         * readable by the sankey-diagram
         */
-        transformData: function(origins, destinations, flows, stocks, materials){
+        transformData: function(flows){
             var _this = this,
                 nodes = [],
+                links = [],
                 indices = {},
-                labels = {},
                 colorCat = d3.scale.category20();
 
-            function nConnectionsInOut(connections, nodeId){
-                return connections.filterBy({ origin: nodeId, destination: nodeId }, { operator: '||' }).length;
+            var idx = -1;
+
+            function mapNode(node){
+                var id = node.id,
+                    name = node.name,
+                    level = node.level,
+                    key = level + id;
+                // we already got this one -> skip it
+                if(indices[key] != null)
+                    return indices[key];
+                idx += 1;
+                var color = node.color || utils.colorByName(name);
+                nodes.push({ id: id, name: name, color: color });
+                indices[key] = idx;
+                return idx;
             }
 
-            function nConnectionsIn(connections, nodeId){
-                return connections.filterBy({ destination: nodeId }).length;
+            function addStock(){
+                idx += 1;
+                var color = 'darkgray';
+                nodes.push({name: 'Stock', color: color, alignToSource: {x: 80, y: 0} });
+                return idx;
             }
 
-            function nConnectionsOut(connections, nodeId){
-                if (connections.length === 0) return 0;
-                return connections.filterBy({ origin: nodeId }).length;
-            }
+            function compositionRepr(flow){
+                var text = '',
+                    i = 0,
+                    fractions = flow.get('materials'),
+                    totalAmount = flow.get('amount');
 
-            var idx = 0;
-
-            function addNodes(collection, prefix, check){
-                collection.forEach(function(model){
-                    var id = model.id,
-                        name = model.get('name');
-                    // we already got this one -> skip it
-                    if(indices[prefix+id] != null) return;
-                    // no connections -> skip it (if requested)
-                    if (_this.hideUnconnected && !check(id)) return;
-
-                    var color = colorCat(name.replace(/ .*/, ""));
-                    nodes.push({ id: id, name: name, color: color });
-                    indices[prefix+id] = idx;
-                    labels[prefix+id] = model.get('name');
-                    idx += 1;
-                });
-            }
-            var sourcePrefix = (this.forceSideBySide) ? 'origin': origins.apiTag,
-                targetPrefix = (this.forceSideBySide) ? 'destination': destinations.apiTag;
-
-            function checkOrigins(id){
-                return nConnectionsOut(flows, id) + nConnectionsOut(stocks, id) > 0
-            }
-            addNodes(origins, sourcePrefix, checkOrigins);
-            function checkDestinations(id){ return nConnectionsIn(flows, id) > 0 }
-            addNodes(destinations, targetPrefix, checkDestinations);
-            var links = [];
-
-            function compositionRepr(composition){
-                var text = '';
-                if (composition){
-                    var fractions = composition.fractions;
-                    var i = 0;
-                    fractions.forEach(function(fraction){
-                        var material = materials.get(fraction.material),
-                            value = Math.round(fraction.fraction * 100000) / 1000
-                        text += _this.format(value) + '% ';
-                        if (!material) text += gettext('material not found');
-                        else text += material.get('name');
-                        if (fraction.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
-                        if (i < fractions.length - 1) text += '<br>';
-                        i++;
-                    })
-                }
+                fractions.forEach(function(material){
+                    var fraction = material.amount / totalAmount,
+                        value = Math.round(fraction * 100000) / 1000;
+                    text += _this.format(value) + '% ' + material.name;
+                    if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
+                    if (i < fractions.length - 1) text += '<br>';
+                    i++;
+                })
                 return text || ('no composition defined');
             }
 
@@ -266,57 +187,60 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
 
             flows.forEach(function(flow){
                 var value = flow.get('amount');
-                var originId = flow.get('origin'),
-                    destinationId = flow.get('destination');
-                if (originId == destinationId) {
-                    console.log('Warning: self referencing cycle at node id ' + originId);
+                if (value < 0.5) return;
+                var origin = flow.get('origin'),
+                    destination = flow.get('destination'),
+                    isStock = flow.get('stock');
+                if (!isStock && origin.id == destination.id) {
+                    console.log('Warning: self referencing cycle at node ' + origin.name);
                     return;
                 }
-                var source = indices[sourcePrefix+originId],
-                    target = indices[targetPrefix+destinationId];
-                // continue if one of the linked nodes does not exist
-                if (source == null || target == null) return false;
-                var composition = flow.get('composition'),
-                    crepr = compositionRepr(composition);
+                var source = mapNode(origin),
+                    target = (!isStock) ? mapNode(destination) : addStock();
+                var crepr = compositionRepr(flow);
                 links.push({
                     id: flow.id,
-                    value: flow.get('amount'),
+                    originalData: flow,
+                    value: Math.round(flow.get('amount')),
                     units: gettext('t/year'),
                     source: source,
                     target: target,
-                    isStock: false,
+                    isStock: isStock,
                     text: '<u>' + typeRepr(flow) + '</u><br>' + crepr,
                     composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
             })
-            stocks.forEach(function(stock){
-                var id = 'stock-' + stock.id;
-                var originId = stock.get('origin'),
-                    source = indices[sourcePrefix+originId],
-                    sourceName = labels[sourcePrefix+originId];
-                // continue if node does not exist
-                if (source == null) return false;
-                nodes.push({id: id, name: 'Stock ',
-                            text: sourceName,
-                            color: 'darkgray',
-                            alignToSource: {x: 80, y: 0}});
-                var composition = stock.get('composition'),
-                    crepr = compositionRepr(composition);
-                links.push({
-                    id: stock.id,
-                    isStock: true,
-                    value: stock.get('amount'),
-                    units: gettext('t/year'),
-                    source: source,
-                    target: idx,
-                    text: typeRepr(stock) + '<br>' + crepr,
-                    composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
-                });
-                idx += 1;
-            });
 
             var transformed = {nodes: nodes, links: links};
             return transformed;
+        },
+
+        selectAll: function(){
+            var paths = this.sankeyDiv.querySelectorAll('path'),
+                _this = this,
+                data = [];
+            paths.forEach(function(path){
+                path.classList.add('selected');
+            })
+            // workaround: trigger deselect all first
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
+            // only flows that are actually displayed in sankey (not original data)
+            this.transformedData.links.forEach(function(link){
+                var flow = _this.flows.get(link.id);
+                if (flow)
+                    data.push(flow)
+            })
+            this.el.dispatchEvent(new CustomEvent('linkSelected', {
+                detail: data
+            }));
+        },
+
+        deselectAll: function(){
+            var links = this.sankeyDiv.querySelectorAll('.link.selected');
+            links.forEach(function(link){
+                link.classList.remove('selected');
+            })
+            this.el.dispatchEvent(new CustomEvent('allDeselected'));
         },
 
         exportPNG: function(){
@@ -350,7 +274,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         close: function(){
             this.undelegateEvents(); // remove click events
             this.unbind(); // Unbind all local event bindings
-            this.el.innerHTML = ''; //empty the DOM element
+            this.el.querySelector('.sankey').innerHTML = ''; //empty the DOM element
         },
 
     });

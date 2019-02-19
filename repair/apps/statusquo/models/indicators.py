@@ -22,6 +22,8 @@ class NodeLevel(Enum):
 class IndicatorType(Enum):
     IndicatorA = 1
     IndicatorAB = 2
+    IndicatorInhabitants = 3
+    IndicatorArea = 4
 
 
 class FlowType(Enum):

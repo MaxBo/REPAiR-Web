@@ -10,7 +10,6 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          )
 
 
-
 class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
 
     casestudy = 17
